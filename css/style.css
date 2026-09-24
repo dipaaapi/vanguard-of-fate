@@ -1,0 +1,37 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #0d0f12;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-family: monospace;
+  color: #a0aec0;
+  user-select: none;
+}
+
+canvas {
+  width: 768px;
+  height: 720px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  border: 3px solid #2d3748;
+  background: #14171d;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
+}
+
+.hud {
+  margin-top: 14px;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+.hud span {
+  color: #fcd168;
+  font-weight: bold;
+}
