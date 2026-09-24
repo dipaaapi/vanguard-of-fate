@@ -38,8 +38,7 @@ export class FXManager {
     }
 
     getShakeOffsets() {
-        let offsetX = 0;
-        let offsetY = 0;
+        let offsetX = 0, offsetY = 0;
         if (this.screenShake > 0) {
             offsetX = (Math.random() - 0.5) * this.screenShake;
             offsetY = (Math.random() - 0.5) * this.screenShake;
@@ -56,14 +55,12 @@ export class FXManager {
             pt.x += pt.vx;
             pt.y += pt.vy;
             pt.life--;
-
             ctx.fillStyle = pt.color;
             ctx.fillRect(Math.round(pt.x), Math.round(pt.y), pt.size, pt.size);
-
             if (pt.life <= 0) this.hitParticles.splice(s, 1);
         }
 
-        // 2. Draw Damage Numbers
+        // 2. Draw Floating Numbers
         for (let d = this.damagePopups.length - 1; d >= 0; d--) {
             const pop = this.damagePopups[d];
             pop.y += pop.vy;
@@ -73,11 +70,9 @@ export class FXManager {
             ctx.globalAlpha = Math.max(0, pop.alpha);
             ctx.font = pop.isCrit ? "bold 9px monospace" : "bold 7px monospace";
             ctx.textAlign = "center";
-
             ctx.fillStyle = "#000000";
             ctx.fillText(pop.text, pop.x + 1, pop.y + 1);
             ctx.fillText(pop.text, pop.x - 1, pop.y - 1);
-
             ctx.fillStyle = pop.color;
             ctx.fillText(pop.text, pop.x, pop.y);
             ctx.restore();
