@@ -1,27 +1,40 @@
 // Color palette para sa buong laro
 export const PALETTE = {
     0: null,
-    1: "#14171d", // Dark outline
-    2: "#4a5468", // Dark steel
-    3: "#7d8c9e", // Plate armor midtone
-    4: "#b5c4d4", // Polished steel
+    1: "#090d16", // Dark crisp outline
+    2: "#334155", // Dark steel plate
+    3: "#64748b", // Steel armor midtone
+    4: "#cbd5e1", // Polished silver / Lance shaft
     5: "#ffffff", // Pure white glint / Slash arc
-    6: "#942c2c", // Helmet plume & sash (Red)
-    7: "#e04c4c", // Plume bright highlight
-    8: "#4e311a", // Wood dark
-    9: "#7d522c", // Wood midtone
-    A: "#c29138", // Gold brass rim & hilt
-    B: "#fcd168", // Gold glint
+    6: "#dc2626", // Crimson plume & sash
+    7: "#f87171", // Bright plume highlight
+    8: "#451a03", // Wood deep shadow
+    9: "#78350f", // Wood rich midtone
+    A: "#d97706", // Gold brass rim & hilt
+    B: "#f59e0b", // Gold shield trim / Amber glint
+    b: "#b45309", // Deep gold shade
+    // Knight symbols
+    H: "#94a3b8", // Polished Plate Armor
+    h: "#475569", // Dark Under-Armor Steel
+    G: "#475569", // Tower Shield Iron Plate
+    g: "#334155", // Dark Shield Plate
+    R: "#dc2626", // Crimson Plume
+    r: "#991b1b", // Dark Plume Shadow
+    O: "#ffd166", // Amber Visor Glow
+    o: "#ffffff", // Eye Specular
+    S: "#f3c5a5", // Fair Skin Tone
+    s: "#c78f6c", // Skin Shadow
     // Mage colors
-    C: "#2c1c4d", D: "#5a3d91", E: "#9b72cf", F: "#38b6ff", G: "#ff7700",
+    C: "#1e1338", D: "#3a206b", E: "#7e52c7", F: "#00f0ff",
     // Priest colors
-    H: "#d9e2ec", I: "#9fb3c8", J: "#ffd166", K: "#06d6a0",
+    I: "#9fb3c8", J: "#ffd166", K: "#06d6a0",
     // Archer colors
-    L: "#2d5a27", M: "#1e3f1a", N: "#c98a4c", O: "#ffe3b3",
+    L: "#2d5a27", M: "#1e3f1a", N: "#c98a4c",
     // Fighter colors
-    P: "#c73e3a", Q: "#f0f2f5", R: "#b0b8c4", S: "#e09f67",
-    // Slime colors
-    T: "#38b000", U: "#70e000", V: "#004b23", W: "#ffffff"
+    P: "#e11d48", Q: "#f8fafc", p: "#9f1239",
+    // Slime & Monster colors
+    T: "#38b000", U: "#70e000", V: "#004b23", W: "#ffffff",
+    X: "#ccff33", Y: "#9ef01a", Z: "#007200"
 };
 
 export function parseSprite(strArray) {
@@ -85,3 +98,27 @@ export const slimeIdle = [
         "........................"
     ])
 ];
+
+/**
+ * Universal 1:1 Pixel Matrix Renderer with support for flash effects and horizontal flipping.
+ */
+export function drawSpriteMatrix(targetCtx, x, y, spriteGrid, flashWhite = false, flipX = false) {
+    if (!spriteGrid) return;
+    const numRows = spriteGrid.length;
+    const numCols = spriteGrid[0] ? spriteGrid[0].length : 0;
+    const startX = Math.floor(x);
+    const startY = Math.floor(y);
+
+    for (let r = 0; r < numRows; r++) {
+        const row = spriteGrid[r];
+        const rowLen = row.length;
+        for (let c = 0; c < rowLen; c++) {
+            const color = row[c];
+            if (color && color !== 0) {
+                targetCtx.fillStyle = flashWhite ? "#ffffff" : color;
+                const drawX = flipX ? (startX + numCols - 1 - c) : (startX + c);
+                targetCtx.fillRect(drawX, startY + r, 1, 1);
+            }
+        }
+    }
+}

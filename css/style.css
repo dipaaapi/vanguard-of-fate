@@ -6,28 +6,104 @@
 }
 
 body {
-  background-color: #080a0f;
+  background: radial-gradient(circle at center, #0f172a 0%, #050811 75%, #020408 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  font-family: monospace;
+  font-family: 'Courier New', Courier, monospace;
   color: #ffd166;
   overflow: hidden;
+  padding: 10px;
 }
 
-/* 16:9 Landscape Responsive Container */
-#gameWrapper {
+/* 1. RPG CABINET / ORNATE FANTASY GOLD & OBSIDIAN BEZEL */
+.rpg-cabinet {
   position: relative;
-  width: 92vw;
-  max-width: 1024px;
+  width: 94vw;
+  max-width: 1060px;
   aspect-ratio: 16 / 9;
-  box-shadow: 0 0 35px rgba(0, 0, 0, 0.9), 0 0 10px rgba(252, 209, 104, 0.2);
-  border: 2px solid #232d3f;
-  border-radius: 6px;
+  background: linear-gradient(145deg, #1e293b 0%, #0a0f1d 50%, #020617 100%);
+  padding: 8px;
+  border-radius: 10px;
+  /* Gold-trimmed chiseled bezel with deep drop shadows and ambient glow */
+  border: 3px solid #d4af37;
+  outline: 2px solid #5a4110;
+  outline-offset: -5px;
+  box-shadow:
+    0 0 35px rgba(0, 0, 0, 0.95),
+    0 0 20px rgba(212, 175, 55, 0.25),
+    inset 0 0 15px rgba(0, 0, 0, 0.8),
+    inset 0 0 5px rgba(255, 209, 102, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ornate Corner Accents / Rivets */
+.cabinet-corner {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-color: #ffd166;
+  border-style: solid;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.cabinet-corner::after {
+  content: '';
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background: #38bdf8;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #00f0ff;
+}
+
+.cabinet-corner.top-left {
+  top: 3px;
+  left: 3px;
+  border-width: 3px 0 0 3px;
+  border-top-left-radius: 6px;
+}
+.cabinet-corner.top-left::after { top: 2px; left: 2px; }
+
+.cabinet-corner.top-right {
+  top: 3px;
+  right: 3px;
+  border-width: 3px 3px 0 0;
+  border-top-right-radius: 6px;
+}
+.cabinet-corner.top-right::after { top: 2px; right: 2px; }
+
+.cabinet-corner.bottom-left {
+  bottom: 3px;
+  left: 3px;
+  border-width: 0 0 3px 3px;
+  border-bottom-left-radius: 6px;
+}
+.cabinet-corner.bottom-left::after { bottom: 2px; left: 2px; }
+
+.cabinet-corner.bottom-right {
+  bottom: 3px;
+  right: 3px;
+  border-width: 0 3px 3px 0;
+  border-bottom-right-radius: 6px;
+}
+.cabinet-corner.bottom-right::after { bottom: 2px; right: 2px; }
+
+/* 2. INNER SCREEN VIEWPORT */
+.rpg-viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
   overflow: hidden;
   background: #000;
+  border: 1.5px solid #1e293b;
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.9);
 }
 
 canvas {
@@ -38,16 +114,31 @@ canvas {
   image-rendering: crisp-edges;
 }
 
-/* Footer Control Instructions */
+/* 3. FOOTER CONTROL INSTRUCTIONS HUD */
+.hud-container {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+
 #hudText {
-  margin-top: 12px;
+  background: rgba(10, 15, 29, 0.85);
+  border: 1px solid #334155;
+  border-radius: 20px;
+  padding: 6px 18px;
   font-size: 11px;
-  color: #a0aec0;
+  color: #94a3b8;
   letter-spacing: 0.5px;
   text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), inset 0 0 8px rgba(56, 189, 248, 0.1);
 }
 
 #hudText span {
   color: #ffd166;
   font-weight: bold;
+  background: rgba(255, 209, 102, 0.12);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 209, 102, 0.3);
+  margin: 0 2px;
 }

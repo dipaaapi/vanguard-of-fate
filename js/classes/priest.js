@@ -1,4 +1,5 @@
 import { Sound } from "../audio.js";
+import { GuardianAngelCompanion } from "../summons/angel.js";
 
 const _ = 0;
 const K = "#14171d"; // Dark outline
@@ -127,10 +128,12 @@ export const PriestClass = {
   id: "priest",
   name: "Priest",
   title: "Holy Shepherd",
-  speed: 1.4,
-  maxHp: 110,
-  attackCooldown: 25,
-  cooldown: 180, // Cooldown ng K (Summon)
+  speed: 1.45,
+  maxHp: 115,
+  attackCooldown: 18,  // Normal Attack (Holy Smite Bolt)
+  skill1Cooldown: 150, // 2.5s (Triage Heal)
+  skill2Cooldown: 300, // 5.0s (Summon Angel)
+  skill3Cooldown: 360, // 6.0s (Celestial Pillar of Retribution)
   sprites: {
     idle: priestIdle,
     run: priestRun,
@@ -138,32 +141,64 @@ export const PriestClass = {
     bash: priestCast
   },
 
-  // KEY J: PRIORITY HEAL (Priest: 10% HP | Angel: +5 HP at +180 ticks Lifespan)
-  onAttack(player, target, spawnSpell) {
-    if (!player.angels) player.angels = [];
+  onInit(player) {
+    if (!player.angelCompanions) {
+      player.angelCompanions = [];
+    }
+  },
+
+  // 1. NORMAL ATTACK [SPACEBAR]: Holy Wand Radiant Beam
+  onAttack(player, target, spawnProjectile, fx, enemyManager) {
+    let angle = player.aimAngle;
+    if (target && target.isAlive) {
+      angle = Math.atan2(target.y - player.y, target.x - player.x);
+    }
+
+    if (Sound && Sound.playHolyBurst) Sound.playHolyBurst();
+
+    if (spawnProjectile) {
+      spawnProjectile({
+        type: "force_sphere",
+        x: player.x + 12,
+        y: player.y + 10,
+        vx: Math.cos(angle) * 5.8,
+        vy: Math.sin(angle) * 5.8,
+        angle: angle,
+        damage: 10 + (player.bonusDamage || 0) + Math.floor((player.level - 1) * 1.5)
+      });
+    }
+    return true;
+  },
+
+  // 2. SKILL 1 [KEY J / 1]: PRIORITY TRIAGE HEAL (Heals Most Injured Ally or Self)
+  onSkill1(player, target, spawnProjectile, fx, enemyManager, spawnSpell) {
+    if (!player.angelCompanions) player.angelCompanions = [];
+    player.angelCompanions = player.angelCompanions.filter((a) => a.isAlive);
 
     const candidates = [
       { entity: player, hp: player.hp, maxHp: player.maxHp, isAngel: false }
     ];
 
-    player.angels.forEach((a) => {
+    player.angelCompanions.forEach((a) => {
       if (a.isAlive) {
         candidates.push({ entity: a, hp: a.hp, maxHp: a.maxHp, isAngel: true });
       }
     });
 
-    // Piliin ang may pinakamababang porsyento ng HP
     candidates.sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp));
     const chosen = candidates[0];
 
-    const healAmount = chosen.isAngel ? 5 : Math.round(player.maxHp * 0.10);
+    const healAmount = chosen.isAngel ? 35 : Math.round(player.maxHp * 0.22);
     chosen.entity.hp = Math.min(chosen.maxHp, chosen.entity.hp + healAmount);
 
     if (chosen.isAngel) {
-      chosen.entity.lifespan = Math.min(chosen.entity.maxLifespan, chosen.entity.lifespan + 180);
+      chosen.entity.lifespan = Math.min(chosen.entity.maxLifespan, chosen.entity.lifespan + 300);
     }
 
     if (Sound && Sound.playHolyBurst) Sound.playHolyBurst();
+    if (fx && fx.spawnDamagePopup) {
+      fx.spawnDamagePopup(chosen.entity.x + 10, chosen.entity.y - 10, `+${healAmount} HEAL! ✨`, true, "#4ade80");
+    }
 
     if (spawnSpell) {
       spawnSpell({
@@ -171,7 +206,7 @@ export const PriestClass = {
         x: chosen.entity.x + 10,
         y: chosen.entity.y + 10,
         radius: 4,
-        maxRadius: 24,
+        maxRadius: 28,
         color: "#ffd166",
         alpha: 1.0
       });
@@ -180,32 +215,28 @@ export const PriestClass = {
     return true;
   },
 
-  // KEY K: SUMMON GUARDIAN ANGEL (Maximum of 2 Angels)
-  onSkill(player, target, spawnSpell) {
-    if (!player.angels) player.angels = [];
-    player.angels = player.angels.filter((a) => a.isAlive);
+  // 3. SKILL 2 [KEY K / 2]: SUMMON GUARDIAN ANGEL (Maximum of 2 Winged Angels)
+  onSkill2(player, target, spawnProjectile, fx, enemyManager, spawnSpell) {
+    if (!player.angelCompanions) player.angelCompanions = [];
+    player.angelCompanions = player.angelCompanions.filter((a) => a.isAlive);
 
-    if (player.angels.length >= 2) return false;
+    if (player.angelCompanions.length >= 2) {
+      if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(player.x + 12, player.y - 10, "MAX ANGELS ACTIVE!", false, "#ffd166");
+      return false;
+    }
 
     if (Sound && Sound.playHolyBurst) Sound.playHolyBurst();
-    const angelMaxHp = Math.round(player.maxHp * 0.5);
+    const angelMaxHp = Math.round(player.maxHp * 0.65);
 
-    player.angels.push({
-      id: Math.random(),
-      x: player.x + (player.angels.length === 0 ? -24 : 24),
-      y: player.y - 12,
-      maxHp: angelMaxHp,
-      hp: angelMaxHp,
-      damage: 18,
-      lifespan: 720,      // 12s standard lifespan
-      maxLifespan: 1080,  // Kayang palawigin sa tulong ng Heal (J)
-      attackCooldown: 0,
-      isAttacking: false,
-      attackTimer: 0,
-      isAlive: true,
-      animTimer: 0,
-      hitTimer: 0
-    });
+    player.angelCompanions.push(
+      new GuardianAngelCompanion(
+        player.x + (player.angelCompanions.length === 0 ? -30 : 30),
+        player.y - 16,
+        angelMaxHp
+      )
+    );
+
+    if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(player.x + 12, player.y - 10, "ANGEL SUMMONED! 👼", true, "#00f0ff");
 
     if (spawnSpell) {
       spawnSpell({
@@ -213,12 +244,45 @@ export const PriestClass = {
         x: player.x + 10,
         y: player.y - 6,
         radius: 4,
-        maxRadius: 28,
+        maxRadius: 32,
         color: "#ffffff",
         alpha: 1.0
       });
     }
 
     return true;
-  }
+  },
+
+  // 4. SKILL 3 [KEY L / 3]: CELESTIAL PILLAR OF RETRIBUTION (Holy Wrath AoE & Speed Aura)
+  onSkill3(player, target, spawnProjectile, fx, enemyManager, spawnSpell) {
+    if (Sound && Sound.playHolyBurst) Sound.playHolyBurst();
+    if (fx && fx.spawnHitSparks) fx.spawnHitSparks(player.x + 12, player.y + 12, "#ffd166", 26);
+    if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(player.x + 12, player.y - 12, "DIVINE WRATH! ☀️", true, "#ffd166");
+
+    player.buffs.moveSpeed = 180; // 3 seconds haste speed buff
+
+    if (enemyManager && enemyManager.enemies) {
+      enemyManager.enemies.forEach((e) => {
+        if (e.isAlive && Math.hypot(e.x - player.x, e.y - player.y) < 75) {
+          const ang = Math.atan2(e.y - player.y, e.x - player.x);
+          enemyManager.damage(e, 46 + (player.bonusDamage || 0), ang, true, fx, player.lootManager, 20, false, player);
+        }
+      });
+    }
+
+    if (spawnSpell) {
+      spawnSpell({
+        type: "holy_burst",
+        x: player.x + 10,
+        y: player.y + 10,
+        radius: 6,
+        maxRadius: 52,
+        color: "#ffd166",
+        alpha: 1.0
+      });
+    }
+    return true;
+  },
+
+  onSkillUpdate() {}
 };

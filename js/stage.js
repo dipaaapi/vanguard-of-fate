@@ -1,3 +1,4 @@
+import { GuardNPC } from './npc/guard.js';
 import { GrasslandSystem } from "./world/grassland.js";
 import { BarracksSystem } from "./world/barracks.js";
 import { OceanSystem } from "./world/ocean.js";
@@ -33,6 +34,7 @@ export class Stage {
     // NPCs sa loob ng Barracks
     this.shopkeeper = new ShopkeeperNPC(this.width / 2 - 30, this.height / 2 - 20);
     this.mercCaptain = new RecruiterNPC(this.safeZone.x + 50, this.safeZone.y + 55);
+    this.castleGuard = new GuardNPC(this.castle.x + 124, this.castle.y + 192);
   }
 
   isInsideSafeZone(px, py) {
@@ -42,6 +44,10 @@ export class Stage {
 
   isNearNPC(px, py) {
     return Math.hypot(px - this.shopkeeper.x, py - this.shopkeeper.y) < 38;
+  }
+
+  isNearCastleGuard(px, py) {
+    return Math.hypot(px - this.castleGuard.x, py - this.castleGuard.y) < 42;
   }
 
   isNearMercenaryNPC(px, py) {
@@ -75,9 +81,10 @@ export class Stage {
     // 3. NPCs
     this.shopkeeper.update(this.safeZone);
     this.mercCaptain.update();
+    this.castleGuard.update();
   }
 
-  draw(ctx, drawMatrixFn) {
+  draw(ctx) {
     // 1. Base Natural Ground
     this.grassland.draw(ctx);
 
@@ -89,10 +96,9 @@ export class Stage {
     this.barracks.draw(ctx);
 
     // 4. Inhabitant NPCs
-    if (drawMatrixFn) {
-      this.shopkeeper.draw(ctx, drawMatrixFn);
-      this.mercCaptain.draw(ctx, drawMatrixFn);
-    }
+    this.shopkeeper.draw(ctx);
+    this.mercCaptain.draw(ctx);
+    this.castleGuard.draw(ctx);
 
     // 5. 4-Way Warp Portals
     this.portals.draw(ctx);

@@ -1,10 +1,19 @@
+import { drawSpriteMatrix } from "../sprite.js";
+
 const _ = 0;
-const K = "#14171d"; // Outline
-const H1 = "#582f0e"; // Hat / Coat Brown
-const H2 = "#8a5a36";
-const S1 = "#f3c5a5"; // Skin Tone
-const G1 = "#52b788"; // Potion Flask Green
-const B1 = "#2b2d42"; // Boots
+const K = "#11141a"; // Dark Outline
+const H1 = "#4a2810"; // Leather Hat Dark
+const H2 = "#7a431d"; // Leather Hat Mid
+const H3 = "#b56f3e"; // Leather Trim
+const F1 = "#e63946"; // Feather Glint
+const S1 = "#f8d5b8"; // Skin Light
+const S2 = "#cf966c"; // Skin Shadow
+const C1 = "#264653"; // Merchant Apron Dark Teal
+const C2 = "#2a9d8f"; // Merchant Apron Bright Teal
+const G1 = "#ffd166"; // Gold Buckles & Coins
+const P1 = "#e63946"; // Ruby Healing Elixir
+const P2 = "#00f0ff"; // Mana Potion Cyan
+const B1 = "#1a1c23"; // Dark Leather Shoes
 
 export class ShopkeeperNPC {
   constructor(x, y) {
@@ -20,26 +29,36 @@ export class ShopkeeperNPC {
 
     this.sprites = [
       [
-        [_,_,_,K,H1,H1,K,_,_,_],
-        [_,_,K,H2,H2,H2,H1,K,_,_],
-        [_,K,H1,S1,K,S1,H1,K,_,_],
-        [_,K,H1,S1,S1,S1,H1,K,_,_],
-        [K,H2,H1,H1,H1,H1,H2,K,_,_],
-        [K,H2,H1,G1,G1,H1,H2,K,_,_], // Hawak na Potion Flask
-        [_,K,H1,H1,H1,H1,H1,K,_,_],
-        [_,_,K,B1,_,B1,K,_,_,_],
-        [_,_,K,K,_,K,K,_,_,_]
+        [_,_,_,_,_,F1,F1,_,_,_,_,_,_,_,_,_],
+        [_,_,_,_,H1,H2,H3,H3,H2,H1,_,_,_,_,_,_],
+        [_,_,_,H1,H2,H3,H3,H3,H3,H2,H1,_,_,_,_,_],
+        [_,_,H1,H1,H1,H1,H1,H1,H1,H1,H1,H1,_,_,_,_],
+        [_,_,_,K,S2,S1,K,S1,K,S2,K,_,_,_,_,_],
+        [_,_,_,K,S2,S1,S1,S1,S2,K,_,_,_,_,_,_],
+        [_,_,C1,C2,C2,C2,C2,C2,C2,C1,_,_,_,_,_,_],
+        [_,C1,C2,S2,G1,G1,G1,S2,C2,C1,P1,P1,_,_,_,_],
+        [_,K,S1,S2,C1,G1,G1,C1,S2,S1,K,P1,_,_,_,_],
+        [_,_,K,C1,C2,C2,C2,C2,C1,K,P2,P2,_,_,_,_],
+        [_,_,K,H1,H1,H1,H1,H1,H1,K,K,P2,_,_,_,_],
+        [_,_,_,K,S2,S1,_,S1,S2,K,_,_,_,_,_,_],
+        [_,_,_,K,B1,B1,_,B1,B1,K,_,_,_,_,_,_],
+        [_,_,_,K,K,K,_,_,K,K,K,_,_,_,_,_,_]
       ],
       [
-        [_,_,_,K,H1,H1,K,_,_,_],
-        [_,_,K,H2,H2,H2,H1,K,_,_],
-        [_,K,H1,S1,K,S1,H1,K,_,_],
-        [_,K,H1,S1,S1,S1,H1,K,_,_],
-        [K,H2,H1,H1,H1,H1,H2,K,_,_],
-        [K,H2,H1,G1,G1,H1,H2,K,_,_],
-        [_,K,H1,H1,H1,H1,H1,K,_,_],
-        [_,_,_,K,B1,B1,K,_,_,_],
-        [_,_,_,K,K,K,K,_,_,_]
+        [_,_,_,_,_,F1,F1,_,_,_,_,_,_,_,_,_],
+        [_,_,_,_,H1,H2,H3,H3,H2,H1,_,_,_,_,_,_],
+        [_,_,_,H1,H2,H3,H3,H3,H3,H2,H1,_,_,_,_,_],
+        [_,_,H1,H1,H1,H1,H1,H1,H1,H1,H1,H1,_,_,_,_],
+        [_,_,_,K,S2,S1,K,S1,K,S2,K,_,_,_,_,_],
+        [_,_,_,K,S2,S1,S1,S1,S2,K,_,_,_,_,_,_],
+        [_,_,C1,C2,C2,C2,C2,C2,C2,C1,_,_,_,_,_,_],
+        [_,C1,C2,S2,G1,G1,G1,S2,C2,C1,P1,P1,_,_,_,_],
+        [_,K,S1,S2,C1,G1,G1,C1,S2,S1,K,P1,_,_,_,_],
+        [_,_,K,C1,C2,C2,C2,C2,C1,K,P2,P2,_,_,_,_],
+        [_,_,K,H1,H1,H1,H1,H1,H1,K,K,P2,_,_,_,_],
+        [_,_,_,K,S2,S1,_,S1,S2,K,_,_,_,_,_,_],
+        [_,_,K,B1,B1,_,_,B1,B1,K,_,_,_,_,_,_],
+        [_,_,K,K,K,_,_,_,K,K,K,_,_,_,_,_,_]
       ]
     ];
   }
@@ -69,26 +88,23 @@ export class ShopkeeperNPC {
     }
   }
 
-  draw(ctx, drawMatrixFn) {
-    // Anino
-    ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
+  draw(ctx) {
+    // Dual Ground Occlusion Contact Shadow
+    ctx.fillStyle = "rgba(0, 0, 0, 0.22)";
     ctx.beginPath();
-    ctx.ellipse(this.x + 5, this.y + 16, 7, 2.5, 0, 0, Math.PI * 2);
+    ctx.ellipse(this.x + 8, this.y + 17, 9, 3.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
+    ctx.beginPath();
+    ctx.ellipse(this.x + 8, this.y + 16.5, 5, 1.8, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.save();
-    if (this.facing === "left") {
-      ctx.translate(Math.floor(this.x) + 12, Math.floor(this.y));
-      ctx.scale(-1, 1);
-      drawMatrixFn(ctx, 0, 0, this.sprites[this.animFrame]);
-    } else {
-      drawMatrixFn(ctx, this.x, this.y, this.sprites[this.animFrame]);
-    }
-    ctx.restore();
+    drawSpriteMatrix(ctx, this.x, this.y, this.sprites[this.animFrame], false, this.facing === "left");
 
+    // Gilded Name Tag
     ctx.fillStyle = "#ffffff";
     ctx.font = "bold 6px monospace";
     ctx.textAlign = "center";
-    ctx.fillText("EDGAR [E]", this.x + 5, this.y - 6);
+    ctx.fillText("EDGAR [E]", this.x + 8, this.y - 5);
   }
 }

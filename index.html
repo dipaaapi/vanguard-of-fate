@@ -2,15 +2,32 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Offline Security: Content Security Policy & Sandboxing -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' data: blob:; connect-src 'self' ws: http: blob:; object-src 'none'; base-uri 'self';" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="no-referrer" />
   <title>Vanguard of Fate - 64-Bit Widescreen</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
-  <canvas id="gameCanvas" width="426" height="240"></canvas>
+  <!-- RPG Ornate Arcade Cabinet / Fantasy Bezel Frame -->
+  <div id="gameCabinet" class="rpg-cabinet">
+    <div class="cabinet-corner top-left"></div>
+    <div class="cabinet-corner top-right"></div>
+    <div class="cabinet-corner bottom-left"></div>
+    <div class="cabinet-corner bottom-right"></div>
+
+    <div id="gameWrapper" class="rpg-viewport">
+      <canvas id="gameCanvas" width="426" height="240"></canvas>
+    </div>
+  </div>
   
-  <div class="hud" id="hudText">
-    Loading Vanguard of Fate...
+  <div class="hud-container">
+    <div class="hud" id="hudText">
+      Loading Vanguard of Fate...
+    </div>
   </div>
 
   <!-- Nakatagong file input para sa .json import -->

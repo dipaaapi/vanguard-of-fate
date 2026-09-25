@@ -3,6 +3,7 @@ import { WandMercenary } from "./mercenary/wand.js";
 import { CrossbowMercenary } from "./mercenary/crossbow.js";
 import { GreatswordMercenary } from "./mercenary/greatsword.js";
 import { Sound } from "./audio.js";
+import { drawSpriteMatrix } from "./sprite.js";
 
 const MERC_CLASSES = {
   axe: AxeMercenary,
@@ -20,35 +21,32 @@ export class MercenaryManager {
     const mercData = MERC_CLASSES[type];
     if (!mercData) return false;
 
-    // 10 Coins ang bayad sa kontrata
-    if (player.gold < 10) {
-      if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(player.x + 8, player.y - 8, "NEED 10 GOLD!", false);
-      return false;
-    }
-
-    player.gold -= 10;
+    // Free switching / hiring of maximum 1 mercenary
     if (Sound && Sound.playSelectConfirm) Sound.playSelectConfirm();
+
+    // Clear existing mercenary to guarantee maximum 1 mercenary
+    this.mercenaries = [];
 
     const merc = {
       id: Math.random(),
       data: mercData,
-      x: player.x + (Math.random() * 24 - 12),
-      y: player.y + (Math.random() * 24 - 12),
+      x: player.x + (player.facing === "right" ? -24 : 24),
+      y: player.y,
       hp: mercData.maxHp,
       maxHp: mercData.maxHp,
-      lifespan: 36000, // 10 Minuto (60 fps * 600s)
+      lifespan: 36000, // 10 Minutes active contract
       maxLifespan: 36000,
       attackCooldown: 0,
       skillCooldown: 60,
       isSprinting: false,
-      facing: "right",
+      facing: player.facing,
       aimAngle: 0,
       animTimer: 0,
       isAlive: true
     };
 
     this.mercenaries.push(merc);
-    if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(merc.x, merc.y - 10, `${mercData.name} HIRED!`, true, "#ffd166");
+    if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(merc.x, merc.y - 10, `${mercData.name} ACTIVE!`, true, "#ffd166");
     return true;
   }
 
@@ -145,12 +143,12 @@ export class MercenaryManager {
           // Normal Attack Trigger
           if (m.attackCooldown <= 0) {
             m.attackCooldown = m.data.attackCooldownMax;
-            m.data.onAttack(m, closestEnemy, enemyManager, fx, spawnProj);
+            m.data.onAttack(m, closestEnemy, enemyManager, fx, spawnProj, player, lootManager);
           }
           // Special Skill Trigger
           if (m.skillCooldown <= 0) {
             m.skillCooldown = m.data.skillCooldownMax;
-            m.data.onSkill(m, enemies, enemyManager, fx, spawnProj);
+            m.data.onSkill(m, enemies, enemyManager, fx, spawnProj, player, lootManager);
           }
         }
       } else {
@@ -166,7 +164,7 @@ export class MercenaryManager {
     }
   }
 
-  draw(ctx, drawMatrixFn) {
+  draw(ctx) {
     this.mercenaries.forEach((m) => {
       if (!m.isAlive) return;
 
@@ -177,15 +175,7 @@ export class MercenaryManager {
       ctx.fill();
 
       // Mercenary Sprite Render
-      ctx.save();
-      if (m.facing === "left") {
-        ctx.translate(Math.floor(m.x) + 14, Math.floor(m.y));
-        ctx.scale(-1, 1);
-        drawMatrixFn(ctx, 0, 0, m.data.sprites.idle[0]);
-      } else {
-        drawMatrixFn(ctx, m.x, m.y, m.data.sprites.idle[0]);
-      }
-      ctx.restore();
+      drawSpriteMatrix(ctx, m.x, m.y, m.data.sprites.idle[0], false, m.facing === "left");
 
       // HP Bar
       const w = 16;

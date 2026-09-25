@@ -1,4 +1,5 @@
 import { Sound } from "../audio.js";
+import { FalconCompanion } from "../summons/falcon.js";
 
 // ========================================================
 // 48x48 HIGH-FIDELITY PALETTE (Depth Shading & Highlights)
@@ -212,11 +213,13 @@ export const ArcherClass = {
   id: "archer",
   name: "Archer",
   title: "Elven Windstrider",
-  speed: 1.6,
-  maxHp: 95,
-  attackCooldown: 20,
-  cooldown: 220,
-  reloadDuration: 75,
+  speed: 1.65,
+  maxHp: 100,
+  attackCooldown: 15,
+  skill1Cooldown: 180, // 3.0s (Falcon Strike)
+  skill2Cooldown: 220, // 3.6s (Triple Volley)
+  skill3Cooldown: 320, // 5.3s (Gale Piercing Snipe)
+  reloadDuration: 65,
   sprites: {
     idle: archerIdle,
     run: archerRun,
@@ -225,50 +228,34 @@ export const ArcherClass = {
   },
 
   onInit(player) {
-    player.arrowCount = 5;
-    player.maxArrows = 5;
+    player.arrowCount = 6;
+    player.maxArrows = 6;
     player.isReloading = false;
     player.reloadTimer = 0;
-
-    // Falcon Companion
-    player.falcon = {
-      x: player.x - 18,
-      y: player.y - 16,
-      targetX: 0,
-      targetY: 0,
-      state: "HOVERING",
-      wingTimer: 0,
-      speed: 5.2,
-      target: null,
-      damageDealt: false
-    };
+    if (!player.falconCompanion) {
+      player.falconCompanion = new FalconCompanion(player.x, player.y);
+    }
   },
 
   onUpdate(player) {
-    if (player.falcon && player.falcon.state === "HOVERING") {
-      player.falcon.wingTimer = (player.falcon.wingTimer + 1) % 16;
-      const targetHoverX = player.x + (player.facing === "right" ? -22 : 36);
-      const targetHoverY = player.y - 16 + Math.sin(Date.now() / 180) * 3;
-      player.falcon.x += (targetHoverX - player.falcon.x) * 0.12;
-      player.falcon.y += (targetHoverY - player.falcon.y) * 0.12;
-    }
-
     if (player.isReloading) {
       player.reloadTimer--;
       if (player.reloadTimer <= 0) {
         player.isReloading = false;
-        player.arrowCount = player.maxArrows;
+        player.arrowCount = player.maxArrows || 6;
       }
     }
   },
 
-  onAttack(player, target, spawnProjectile) {
-    if (player.isReloading) return;
+  // 1. NORMAL ATTACK [SPACEBAR]: Rapid Broadhead Arrow Shot
+  onAttack(player, target, spawnProjectile, fx, enemyManager) {
+    if (player.isReloading) return false;
 
     if (player.arrowCount <= 0) {
       player.isReloading = true;
-      player.reloadTimer = this.reloadDuration;
-      return;
+      player.reloadTimer = this.reloadDuration || 65;
+      if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(player.x + 12, player.y - 10, "RELOADING...", false, "#ffd166");
+      return false;
     }
 
     player.arrowCount--;
@@ -279,38 +266,81 @@ export const ArcherClass = {
       angle = player.facing === "right" ? 0 : Math.PI;
     }
 
-    const speed = 5.8;
-    spawnProjectile({
-      type: "arrow",
-      x: player.x + (player.facing === "right" ? 28 : -4),
-      y: player.y + 12,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed,
-      angle: angle,
-      damage: 24,
-      isHeavyKnockback: Math.random() < 0.45,
-      isStun: Math.random() < 0.25
-    });
+    const speed = 6.2;
+    if (spawnProjectile) {
+      spawnProjectile({
+        type: "arrow",
+        x: player.x + (player.facing === "right" ? 28 : -4),
+        y: player.y + 12,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        angle: angle,
+        damage: 12 + (player.bonusDamage || 0) + Math.floor((player.level - 1) * 1.5),
+        isHeavyKnockback: Math.random() < 0.35,
+        isStun: Math.random() < 0.2
+      });
+    }
+    return true;
   },
 
-  onSkill(player, target) {
-    if (!player.falcon || player.falcon.state !== "HOVERING") return;
+  // 2. SKILL 1 [KEY J / 1]: FALCON DIVE STRIKE (Targeted Aerial Raptor Ambush)
+  onSkill1(player, target, spawnProjectile, fx, enemyManager) {
+    if (!player.falconCompanion || player.falconCompanion.state !== "HOVERING") return false;
 
     if (Sound && Sound.playFalconScreech) Sound.playFalconScreech();
-    const f = player.falcon;
-    f.state = "STRIKING";
-    f.damageDealt = false;
-    f.target = target && target.isAlive ? target : null;
 
-    if (target && target.isAlive) {
-      f.targetX = target.x + 12;
-      f.targetY = target.y + 12;
-    } else {
-      const aimDist = 180;
-      const angle = player.facing === "right" ? 0 : Math.PI;
-      f.targetX = player.x + 12 + Math.cos(angle) * aimDist;
-      f.targetY = player.y + 12 + Math.sin(angle) * aimDist;
+    const targetX = target && target.isAlive ? target.x + 12 : player.x + (player.facing === "right" ? 180 : -180);
+    const targetY = target && target.isAlive ? target.y + 12 : player.y + 12;
+
+    player.falconCompanion.triggerStrike(target, targetX, targetY);
+    if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(player.x + 12, player.y - 10, "FALCON STRIKE! 🦅", true, "#ffd166");
+    return true;
+  },
+
+  // 3. SKILL 2 [KEY K / 2]: TRIPLE ARROW VOLLEY (3-Way Broadhead Spread)
+  onSkill2(player, target, spawnProjectile, fx, enemyManager) {
+    if (Sound && Sound.playArrowShoot) Sound.playArrowShoot();
+
+    const baseAngle = player.aimAngle || (player.facing === "right" ? 0 : Math.PI);
+    [-0.24, 0, 0.24].forEach((offset) => {
+      if (spawnProjectile) {
+        spawnProjectile({
+          type: "arrow",
+          x: player.x + (player.facing === "right" ? 28 : -4),
+          y: player.y + 12,
+          vx: Math.cos(baseAngle + offset) * 6.8,
+          vy: Math.sin(baseAngle + offset) * 6.8,
+          angle: baseAngle + offset,
+          damage: 14 + (player.bonusDamage || 0),
+          isHeavyKnockback: true
+        });
+      }
+    });
+    if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(player.x + 12, player.y - 10, "TRIPLE VOLLEY! 🏹", true, "#52b788");
+    return true;
+  },
+
+  // 4. SKILL 3 [KEY L / 3]: GALE WINDSTRIDER SNIPE (Penetrating Screen-Crossing Wind Bolt)
+  onSkill3(player, target, spawnProjectile, fx, enemyManager) {
+    if (Sound && Sound.playArrowShoot) Sound.playArrowShoot();
+    if (fx && fx.spawnHitSparks) fx.spawnHitSparks(player.x + 12, player.y + 12, "#38bdf8", 20);
+    if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(player.x + 12, player.y - 10, "GALE SNIPER! 🌪️", true, "#38bdf8");
+
+    const angle = player.aimAngle || (player.facing === "right" ? 0 : Math.PI);
+    if (spawnProjectile) {
+      spawnProjectile({
+        type: "arrow",
+        x: player.x + (player.facing === "right" ? 30 : -6),
+        y: player.y + 12,
+        vx: Math.cos(angle) * 9.5,
+        vy: Math.sin(angle) * 9.5,
+        angle: angle,
+        damage: 32 + (player.bonusDamage || 0),
+        isHeavyKnockback: true,
+        isStun: true
+      });
     }
+    return true;
   },
 
   onSkillUpdate() {}

@@ -1,3 +1,4 @@
+import { Sound } from "./audio.js";
 export class FXManager {
   constructor() {
     this.screenShake = 0;
@@ -6,6 +7,8 @@ export class FXManager {
     this.bloodSplats = [];
     this.burnFlames = [];
     this.freezeShards = [];
+    this.celebrationBanner = null;
+    this.confettiParticles = [];
 
     // Environment & Weather
     this.timeOfDay = "DAY";
@@ -28,30 +31,32 @@ export class FXManager {
     this.screenShake = Math.max(this.screenShake, amount);
   }
 
-  spawnDamagePopup(x, y, text, isCrit = false) {
+  spawnDamagePopup(x, y, text, isCrit = false, customColor = null) {
     this.damagePopups.push({
       x: x + (Math.random() * 8 - 4),
       y: y - 4,
       text: text,
-      color: isCrit ? "#ffea00" : "#ffffff",
+      color: customColor || (isCrit ? "#ffd166" : "#ffffff"),
       alpha: 1.0,
-      vy: isCrit ? -1.3 : -0.85,
-      isCrit: isCrit
+      vy: isCrit ? -1.4 : -0.9,
+      isCrit: isCrit,
+      scale: isCrit ? 1.25 : 1.0
     });
   }
 
-  spawnHitSparks(x, y, color = "#ffdd00", count = 6) {
+  spawnHitSparks(x, y, color = "#ffd166", count = 8) {
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
-      const speed = 1.2 + Math.random() * 2.2;
+      const speed = 1.4 + Math.random() * 2.6;
       this.hitParticles.push({
         x: x,
         y: y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
         color: color,
-        life: 14 + Math.floor(Math.random() * 8),
-        size: Math.random() > 0.5 ? 2 : 1
+        life: 16 + Math.floor(Math.random() * 10),
+        maxLife: 26,
+        size: Math.random() > 0.4 ? 2 : 1
       });
     }
   }
@@ -154,7 +159,7 @@ export class FXManager {
       }
     }
 
-    // 2. Draw Sparks
+    // 2. Draw Sparks with Bright Core Specular
     for (let s = this.hitParticles.length - 1; s >= 0; s--) {
       const pt = this.hitParticles[s];
       pt.x += pt.vx;
@@ -162,6 +167,10 @@ export class FXManager {
       pt.life--;
       ctx.fillStyle = pt.color;
       ctx.fillRect(Math.round(pt.x), Math.round(pt.y), pt.size, pt.size);
+      if (pt.life > 8) {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(Math.round(pt.x), Math.round(pt.y), 1, 1);
+      }
       if (pt.life <= 0) this.hitParticles.splice(s, 1);
     }
 
@@ -190,19 +199,23 @@ export class FXManager {
       if (fs.life <= 0) this.freezeShards.splice(z, 1);
     }
 
-    // 5. Draw Floating Damage Popups
+    // 5. Draw Floating Damage Popups with Dual Shadow Outline
     for (let d = this.damagePopups.length - 1; d >= 0; d--) {
       const pop = this.damagePopups[d];
       pop.y += pop.vy;
-      pop.alpha -= 0.025;
+      pop.vy *= 0.96;
+      pop.alpha -= 0.022;
 
       ctx.save();
       ctx.globalAlpha = Math.max(0, pop.alpha);
       ctx.font = pop.isCrit ? "bold 9px monospace" : "bold 7px monospace";
       ctx.textAlign = "center";
-      ctx.fillStyle = "#000000";
-      ctx.fillText(pop.text, pop.x + 1, pop.y + 1);
-      ctx.fillText(pop.text, pop.x - 1, pop.y - 1);
+      // Crisp 4-way black drop shadow
+      ctx.fillStyle = "#0a0c10";
+      ctx.fillText(pop.text, pop.x + 1, pop.y);
+      ctx.fillText(pop.text, pop.x - 1, pop.y);
+      ctx.fillText(pop.text, pop.x, pop.y + 1);
+      ctx.fillText(pop.text, pop.x, pop.y - 1);
       ctx.fillStyle = pop.color;
       ctx.fillText(pop.text, pop.x, pop.y);
       ctx.restore();
@@ -383,6 +396,108 @@ export class FXManager {
     gradient.addColorStop(1, "rgba(5, 7, 10, 0.45)");
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, width, height);
+  }
+
+  triggerArcCelebration(arcTitle, arcId) {
+    this.addScreenShake(6);
+    if (Sound && Sound.playHolyBurst) Sound.playHolyBurst();
+    if (Sound && Sound.playStoryChime) Sound.playStoryChime();
+
+    this.celebrationBanner = {
+      title: arcTitle,
+      arcId: arcId,
+      timer: 300,
+      maxTimer: 300
+    };
+
+    const colors = ["#ffd166", "#38bdf8", "#4ade80", "#e63946", "#c084fc", "#ffffff", "#fb923c"];
+    this.confettiParticles = [];
+    for (let i = 0; i < 90; i++) {
+      this.confettiParticles.push({
+        x: Math.random() * 426,
+        y: -10 - Math.random() * 120,
+        vx: (Math.random() - 0.5) * 2.2,
+        vy: 1.2 + Math.random() * 2.4,
+        size: 2 + Math.random() * 2.5,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        angle: Math.random() * Math.PI * 2,
+        vAngle: (Math.random() - 0.5) * 0.15
+      });
+    }
+  }
+
+  drawCelebrationBanner(ctx, width, height) {
+    if (!this.celebrationBanner && this.confettiParticles.length === 0) return;
+
+    // Draw Falling Confetti
+    for (let i = this.confettiParticles.length - 1; i >= 0; i--) {
+      const p = this.confettiParticles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.angle += p.vAngle;
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.angle);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 1.6);
+      ctx.restore();
+
+      if (p.y > height + 20) {
+        if (this.celebrationBanner) {
+          p.y = -10;
+          p.x = Math.random() * width;
+        } else {
+          this.confettiParticles.splice(i, 1);
+        }
+      }
+    }
+
+    if (this.celebrationBanner) {
+      this.celebrationBanner.timer--;
+      const b = this.celebrationBanner;
+      const alpha = Math.min(1, b.timer / 30, (b.maxTimer - b.timer) / 20);
+
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, alpha);
+
+      const banW = 280;
+      const banH = 54;
+      const banX = Math.round(width / 2 - banW / 2);
+      const banY = 64;
+
+      // Golden Trophy Banner Box
+      ctx.fillStyle = "rgba(10, 15, 30, 0.96)";
+      ctx.fillRect(banX, banY, banW, banH);
+      ctx.strokeStyle = "#ffd166";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(banX, banY, banW, banH);
+
+      // Top & Bottom Gold Accent Ribbons
+      ctx.fillStyle = "#ffd166";
+      ctx.fillRect(banX, banY, banW, 3);
+      ctx.fillRect(banX, banY + banH - 3, banW, 3);
+
+      // Title & Congratulations
+      ctx.fillStyle = "#ffd166";
+      ctx.font = "bold 9.5px monospace";
+      ctx.textAlign = "center";
+      ctx.fillText("🏆 ARC CONQUERED! CONGRATULATIONS! 🏆", width / 2, banY + 16);
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 7.5px monospace";
+      ctx.fillText(b.title.toUpperCase(), width / 2, banY + 30);
+
+      ctx.fillStyle = "#4ade80";
+      ctx.font = "6px monospace";
+      ctx.fillText("RECORDED IN VANGUARD'S ACHIEVEMENT CHRONICLES ✨", width / 2, banY + 44);
+
+      ctx.restore();
+
+      if (b.timer <= 0) {
+        this.celebrationBanner = null;
+      }
+    }
   }
 
   reset() {

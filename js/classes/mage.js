@@ -84,10 +84,12 @@ export const MageClass = {
   id: "mage",
   name: "Mage",
   title: "Arcane Sage",
-  maxHp: 85,
-  speed: 1.3,
-  attackCooldown: 100, // Meteor cooldown
-  cooldown: 340,       // Thunderstorm cooldown
+  maxHp: 90,
+  speed: 1.35,
+  attackCooldown: 16,  // Space Normal Attack (Arcane Dart)
+  skill1Cooldown: 180, // 3.0s (Magma Meteor)
+  skill2Cooldown: 300, // 5.0s (Thunderstorm Tempest)
+  skill3Cooldown: 240, // 4.0s (Blizzard Frost Nova)
   sprites: {
     idle: mageIdle,
     run: mageIdle,
@@ -95,40 +97,88 @@ export const MageClass = {
     bash: mageCast
   },
 
-  onAttack(player, target, spawnSpell) {
-    const targetX = target && target.isAlive ? target.x + 10 : player.x + (player.facing === "right" ? 85 : -85);
-    const targetY = target && target.isAlive ? target.y + 10 : player.y;
+  // 1. NORMAL ATTACK [SPACEBAR]: Rapid Arcane Mana Dart Projectile
+  onAttack(player, target, spawnProj, fx, enemyManager) {
+    let angle = player.aimAngle;
+    if (target && target.isAlive) {
+      angle = Math.atan2(target.y - player.y, target.x - player.x);
+    }
 
-    spawnSpell({
-      type: "meteor",
-      targetX: targetX,
-      targetY: targetY,
-      x: targetX - 60,
-      y: -50,
-      speedX: 2.8,
-      speedY: 4.8,
-      exploded: false,
-      explosionRadius: 2,
-      maxExplosionRadius: 42,
-      damageDealt: false
-    });
+    if (spawnProj) {
+      spawnProj({
+        type: "force_sphere",
+        x: player.x + 12,
+        y: player.y + 12,
+        vx: Math.cos(angle) * 5.5,
+        vy: Math.sin(angle) * 5.5,
+        angle: angle,
+        damage: 22 + (player.bonusDamage || 0)
+      });
+    }
     return true;
   },
 
-  onSkill(player, target, spawnSpell) {
+  // 2. SKILL 1 [KEY J / 1]: MAGMA METEOR STRIKE (Heavy Area Bombardment)
+  onSkill1(player, target, spawnProj, fx, enemyManager, spawnSpell) {
+    const targetX = target && target.isAlive ? target.x + 10 : player.x + (player.facing === "right" ? 85 : -85);
+    const targetY = target && target.isAlive ? target.y + 10 : player.y;
+
+    if (spawnSpell) {
+      spawnSpell({
+        type: "meteor",
+        targetX: targetX,
+        targetY: targetY,
+        x: targetX - 60,
+        y: -50,
+        speedX: 2.8,
+        speedY: 4.8,
+        exploded: false,
+        explosionRadius: 2,
+        maxExplosionRadius: 46,
+        damageDealt: false
+      });
+    }
+    if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(player.x + 12, player.y - 10, "METEOR FALL! 🔥", true, "#ff5500");
+    return true;
+  },
+
+  // 3. SKILL 2 [KEY K / 2]: THUNDERSTORM TEMPEST (Area Lightning Field)
+  onSkill2(player, target, spawnProj, fx, enemyManager, spawnSpell) {
     const stormCenterX = target && target.isAlive ? target.x + 10 : player.x + (player.facing === "right" ? 50 : -50);
     const stormCenterY = target && target.isAlive ? target.y + 10 : player.y;
 
-    spawnSpell({
-      type: "thunderstorm",
-      centerX: stormCenterX,
-      centerY: stormCenterY,
-      radius: 60,
-      duration: 320,
-      strikeInterval: 14,
-      strikeTimer: 0,
-      activeBolts: []
-    });
+    if (spawnSpell) {
+      spawnSpell({
+        type: "thunderstorm",
+        centerX: stormCenterX,
+        centerY: stormCenterY,
+        radius: 65,
+        duration: 300,
+        strikeInterval: 14,
+        strikeTimer: 0,
+        activeBolts: []
+      });
+    }
+    if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(player.x + 12, player.y - 10, "THUNDERSTORM! ⚡", true, "#ffd166");
     return true;
-  }
+  },
+
+  // 4. SKILL 3 [KEY L / 3]: BLIZZARD FROST NOVA (Instant Radial Freeze & Ice Shards)
+  onSkill3(player, target, spawnProj, fx, enemyManager) {
+    if (fx && fx.spawnFreezeEffect) fx.spawnFreezeEffect(player.x + 12, player.y + 12, 18);
+    if (fx && fx.spawnHitSparks) fx.spawnHitSparks(player.x + 12, player.y + 12, "#00f0ff", 22);
+    if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(player.x + 12, player.y - 10, "FROST NOVA! ❄️", true, "#00f0ff");
+
+    if (enemyManager && enemyManager.enemies) {
+      enemyManager.enemies.forEach((e) => {
+        if (e.isAlive && Math.hypot(e.x - player.x, e.y - player.y) < 68) {
+          const ang = Math.atan2(e.y - player.y, e.x - player.x);
+          enemyManager.damage(e, 22 + (player.bonusDamage || 0), ang, true, fx, player.lootManager, 12, true, player);
+        }
+      });
+    }
+    return true;
+  },
+
+  onSkillUpdate() {}
 };
