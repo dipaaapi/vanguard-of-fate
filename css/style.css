@@ -1,37 +1,53 @@
 * {
   box-sizing: border-box;
-}
-
-body {
   margin: 0;
-  background: #0d0f12;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  font-family: monospace;
-  color: #a0aec0;
+  padding: 0;
   user-select: none;
 }
 
+body {
+  background-color: #080a0f;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: monospace;
+  color: #ffd166;
+  overflow: hidden;
+}
+
+/* 16:9 Landscape Responsive Container */
+#gameWrapper {
+  position: relative;
+  width: 92vw;
+  max-width: 1024px;
+  aspect-ratio: 16 / 9;
+  box-shadow: 0 0 35px rgba(0, 0, 0, 0.9), 0 0 10px rgba(252, 209, 104, 0.2);
+  border: 2px solid #232d3f;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #000;
+}
+
 canvas {
-  width: 768px;
-  height: 720px;
+  width: 100%;
+  height: 100%;
+  display: block;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  border: 3px solid #2d3748;
-  background: #14171d;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
 }
 
-.hud {
-  margin-top: 14px;
-  font-size: 13px;
+/* Footer Control Instructions */
+#hudText {
+  margin-top: 12px;
+  font-size: 11px;
+  color: #a0aec0;
   letter-spacing: 0.5px;
+  text-align: center;
 }
 
-.hud span {
-  color: #fcd168;
+#hudText span {
+  color: #ffd166;
   font-weight: bold;
 }

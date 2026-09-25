@@ -1,36 +1,105 @@
+import { GrasslandSystem } from "./world/grassland.js";
+import { BarracksSystem } from "./world/barracks.js";
+import { OceanSystem } from "./world/ocean.js";
+import { CastleSystem } from "./world/castle.js";
+import { PortalSystem } from "./world/portal.js";
+import { WeatherSystem } from "./world/weather.js";
+import { ShopkeeperNPC } from "./npc/shopkeeper.js";
+import { RecruiterNPC } from "./npc/recruiter.js";
+
 export class Stage {
-    constructor(width = 768, height = 720) {
-        this.width = width;
-        this.height = height;
-        this.bounds = { minX: 8, maxX: this.width - 32, minY: 8, maxY: this.height - 32 };
+  constructor(width = 1280, height = 960) {
+    this.width = width;
+    this.height = height;
+
+    this.bounds = {
+      minX: 42,
+      maxX: this.width - 58,
+      minY: 42,
+      maxY: this.height - 58
+    };
+
+    // Subsystems
+    this.grassland = new GrasslandSystem(this.width, this.height);
+    this.barracks = new BarracksSystem(this.width, this.height);
+    this.ocean = new OceanSystem(this.width, this.height);
+    this.castle = new CastleSystem(this.width, this.height);
+    this.portals = new PortalSystem(this.width, this.height);
+    this.weather = new WeatherSystem(this.width, this.height);
+
+    // Shortcut para sa gameplay safe zone checks
+    this.safeZone = this.barracks.bounds;
+
+    // NPCs sa loob ng Barracks
+    this.shopkeeper = new ShopkeeperNPC(this.width / 2 - 30, this.height / 2 - 20);
+    this.mercCaptain = new RecruiterNPC(this.safeZone.x + 50, this.safeZone.y + 55);
+  }
+
+  isInsideSafeZone(px, py) {
+    const s = this.safeZone;
+    return px >= s.x && px <= s.x + s.w && py >= s.y && py <= s.y + s.h;
+  }
+
+  isNearNPC(px, py) {
+    return Math.hypot(px - this.shopkeeper.x, py - this.shopkeeper.y) < 38;
+  }
+
+  isNearMercenaryNPC(px, py) {
+    return Math.hypot(px - this.mercCaptain.x, py - this.mercCaptain.y) < 38;
+  }
+
+  update(player, onWarp) {
+    // 1. Environment Updates
+    this.grassland.update();
+    this.barracks.update();
+    this.ocean.update();
+    this.castle.update();
+    this.portals.update(player, onWarp);
+    this.weather.update();
+
+    // 2. Solid Castle Physics
+    if (player && this.castle) {
+      this.castle.resolveCollision(player);
+
+      // Gate Portal Warp Check
+      const gp = this.castle.gatePortal;
+      const d = Math.hypot(player.x + 10 - gp.x, player.y + 18 - gp.y);
+      if (d < 18 && (!player.portalCooldown || player.portalCooldown <= 0)) {
+        player.x = this.safeZone.x + this.safeZone.w / 2 - 10;
+        player.y = this.safeZone.y + this.safeZone.h - 30;
+        player.portalCooldown = 75;
+        if (onWarp) onWarp({ id: "CITADEL_GATE", color: "#38bdf8" });
+      }
     }
 
-    draw(ctx) {
-        ctx.fillStyle = "#2d6330";
-        ctx.fillRect(0, 0, this.width, this.height);
+    // 3. NPCs
+    this.shopkeeper.update(this.safeZone);
+    this.mercCaptain.update();
+  }
 
-        ctx.fillStyle = "#5c432d";
-        ctx.fillRect(80, 0, 96, this.height);
-        ctx.fillRect(80, 320, 500, 80);
-        ctx.fillRect(500, 320, 80, 400);
+  draw(ctx, drawMatrixFn) {
+    // 1. Base Natural Ground
+    this.grassland.draw(ctx);
 
-        ctx.fillStyle = "#735438";
-        ctx.fillRect(86, 0, 84, this.height);
-        ctx.fillRect(86, 326, 488, 68);
-        ctx.fillRect(506, 326, 68, 394);
+    // 2. Corner Landmarks (Coastline at Fortress Citadel)
+    this.ocean.draw(ctx);
+    this.castle.draw(ctx);
 
-        ctx.fillStyle = "#1e4420";
-        for (let tx = 30; tx < this.width; tx += 90) {
-            for (let ty = 40; ty < this.height; ty += 110) {
-                if (Math.abs(tx - 120) > 60 && Math.abs(ty - 360) > 60) {
-                    ctx.fillStyle = "#4a2e18";
-                    ctx.fillRect(tx + 4, ty + 12, 4, 6);
-                    ctx.fillStyle = "#1e4420";
-                    ctx.fillRect(tx, ty + 6, 12, 6);
-                    ctx.fillRect(tx + 2, ty + 2, 8, 4);
-                    ctx.fillRect(tx + 4, ty - 2, 4, 4);
-                }
-            }
-        }
+    // 3. Central Sanctuary Platform
+    this.barracks.draw(ctx);
+
+    // 4. Inhabitant NPCs
+    if (drawMatrixFn) {
+      this.shopkeeper.draw(ctx, drawMatrixFn);
+      this.mercCaptain.draw(ctx, drawMatrixFn);
     }
+
+    // 5. 4-Way Warp Portals
+    this.portals.draw(ctx);
+
+    // 6. Sky Layers, Weather Shifts, & Mist Borders
+    this.weather.drawSkyClouds(ctx);
+    this.weather.drawWeatherOverlay(ctx);
+    this.weather.drawCloudBorders(ctx);
+  }
 }

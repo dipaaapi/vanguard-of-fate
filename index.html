@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <title>Vanguard of Fate</title>
-    <link rel="stylesheet" href="css/style.css" />
+  <meta charset="UTF-8" />
+  <title>Vanguard of Fate - 64-Bit Widescreen</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
-
 <body>
 
-    <canvas id="gameCanvas" width="256" height="240"></canvas>
+  <canvas id="gameCanvas" width="426" height="240"></canvas>
+  
+  <div class="hud" id="hudText">
+    Loading Vanguard of Fate...
+  </div>
 
-    <div class="hud" id="hudText">
-        <span>A / D o Arrows</span>: Pumili ng Hero &nbsp;|&nbsp; <span>ENTER / SPACE / J</span>: Start
-    </div>
+  <!-- Nakatagong file input para sa .json import -->
+  <input type="file" id="saveFileInput" accept=".json" style="display: none;" />
 
-    <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/main.js"></script>
 </body>
-
 </html>

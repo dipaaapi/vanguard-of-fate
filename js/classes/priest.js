@@ -1,281 +1,224 @@
-import { parseSprite } from "../sprite.js";
 import { Sound } from "../audio.js";
 
-// ==================== 1. CLERIC/PRIEST SPRITES ====================
+const _ = 0;
+const K = "#14171d"; // Dark outline
+const W1 = "#ffffff"; // Holy Silk White
+const W2 = "#d9e2ec"; // Robe Fold Shadow
+const W3 = "#9fb3c8"; // Deep Robe Crease
+const G1 = "#ffd166"; // Divine Gold Highlight
+const G2 = "#e0a926"; // Liturgical Gold Trim
+const S1 = "#ffe8d6"; // Fair Skin Tone
+const S2 = "#f3c5a5"; // Skin Shadow
+const S3 = "#c78f6c"; // Jaw / Neck shadow
+const M1 = "#8d5b32"; // Wooden Crucifix Staff
+const B1 = "#4a2810"; // Boots
+
+// ========================================================
+// PRIEST 24x24 SPRITES (BALANSE AT KAPAREHO NG ARCHER)
+// ========================================================
+
 const priestIdle = [
-    parseSprite([
-        "..........1111..........",
-        "........11HHHH11........",
-        ".......1HHHHHHHH1.......",
-        ".......1H111111H1.......",
-        ".......111SOOS111.......",
-        "........11SOOS11........",
-        "........11111111........",
-        ".......1HHJJJJHH1.......",
-        "......1HHHJJJJHHH1......",
-        ".....1HHHHJJJJHHHH1.J...",
-        ".....1HHHH1JJ1HHHH1JJJ..",
-        ".....1HHHH1JJ1HHHH1.J...",
-        ".....1HHHH1JJ1HHHH1.1...",
-        "......1HHH1JJ1HHH1..1...",
-        "......1HHHHJJHHHH1......",
-        "......1HHHHHHHHHH1......",
-        "......1HHHHHHHHHH1......",
-        "......1IIIIIIIIII1......",
-        ".......1111..1111.......",
-        "........121..121........",
-        "........11....11........",
-        "........................",
-        "........................",
-        "........................"
-    ]),
-    parseSprite([
-        "..........1111..........",
-        "........11HHHH11........",
-        ".......1HHHHHHHH1.......",
-        ".......1H111111H1.......",
-        ".......111SOOS111.......",
-        "........11SOOS11........",
-        "........11111111........",
-        ".......1HHJJJJHH1.......",
-        "......1HHHJJJJHHH1......",
-        ".....1HHHHJJJJHHHH1.J...",
-        ".....1HHHH1JJ1HHHH1JJJ..",
-        ".....1HHHH1JJ1HHHH1.J...",
-        ".....1HHHH1JJ1HHHH1.1...",
-        "......1HHH1JJ1HHH1..1...",
-        "......1HHHHJJHHHH1......",
-        "......1HHHHHHHHHH1......",
-        "......1HHHHHHHHHH1......",
-        "......1IIIIIIIIII1......",
-        ".......1111..1111.......",
-        "........121..121........",
-        "........11....11........",
-        "........................",
-        "........................",
-        "........................"
-    ])
+  [
+    [_,_,_,_,_,_,G2,G1,G1,G2,_,_,_,_,_,_,_,_],
+    [_,_,_,_,_,G2,G1,W1,W1,G1,G2,_,_,_,_,_,_,_],
+    [_,_,_,_,W2,W1,W1,W1,W1,W1,W2,_,_,_,_,_,_,_],
+    [_,_,_,W2,W1,S2,S1,S1,S2,W1,W2,_,_,_,_,_,_,_],
+    [_,_,_,W2,S3,S2,K,S1,K,S2,S3,W2,_,_,_,_,_,_],
+    [_,_,_,_,W2,S3,S1,S1,S1,S3,W2,_,_,_,_,_,M1,_],
+    [_,_,_,_,_,W3,S3,S2,S3,W3,_,_,_,_,_,G1,M1,G1],
+    [_,_,_,_,W2,W1,G2,G1,G2,W1,W2,_,_,_,_,_,M1,_],
+    [_,_,_,W2,W1,W1,G2,G1,G2,W1,W1,W2,_,_,_,_,M1,_],
+    [_,_,W2,W1,W1,W1,G2,G1,G2,W1,W1,W1,W2,_,_,_,M1,_],
+    [_,_,W2,W1,W1,W1,G2,G1,G2,W1,W1,W1,W2,_,_,_,M1,_],
+    [_,_,_,W2,W1,W1,G2,G1,G2,W1,W1,W2,_,_,_,_,M1,_],
+    [_,_,_,_,W3,W2,G2,G1,G2,W2,W3,_,_,_,_,_,M1,_],
+    [_,_,_,_,W3,W2,W2,W2,W2,W2,W3,_,_,_,_,_,M1,_],
+    [_,_,_,_,W3,W3,W3,W3,W3,W3,W3,_,_,_,_,_,_,_],
+    [_,_,_,_,_,S2,_,_,_,S2,_,_,_,_,_,_,_,_],
+    [_,_,_,_,_,B1,_,_,_,B1,_,_,_,_,_,_,_,_],
+    [_,_,_,_,K,B1,_,_,_,B1,K,_,_,_,_,_,_,_]
+  ],
+  [
+    [_,_,_,_,_,_,G2,G1,G1,G2,_,_,_,_,_,_,_,_],
+    [_,_,_,_,_,G2,G1,W1,W1,G1,G2,_,_,_,_,_,_,_],
+    [_,_,_,_,W2,W1,W1,W1,W1,W1,W2,_,_,_,_,_,_,_],
+    [_,_,_,W2,W1,S2,S1,S1,S2,W1,W2,_,_,_,_,_,_,_],
+    [_,_,_,W2,S3,S2,K,S1,K,S2,S3,W2,_,_,_,_,_,_],
+    [_,_,_,_,W2,S3,S1,S1,S1,S3,W2,_,_,_,_,_,M1,_],
+    [_,_,_,_,_,W3,S3,S2,S3,W3,_,_,_,_,_,G1,M1,G1],
+    [_,_,_,_,W2,W1,G2,G1,G2,W1,W2,_,_,_,_,_,M1,_],
+    [_,_,_,W2,W1,W1,G2,G1,G2,W1,W1,W2,_,_,_,_,M1,_],
+    [_,_,W2,W1,W1,W1,G2,G1,G2,W1,W1,W1,W2,_,_,_,M1,_],
+    [_,_,W2,W1,W1,W1,G2,G1,G2,W1,W1,W1,W2,_,_,_,M1,_],
+    [_,_,_,W2,W1,W1,G2,G1,G2,W1,W1,W2,_,_,_,_,M1,_],
+    [_,_,_,_,W3,W2,G2,G1,G2,W2,W3,_,_,_,_,_,M1,_],
+    [_,_,_,_,W3,W2,W2,W2,W2,W2,W3,_,_,_,_,_,M1,_],
+    [_,_,_,_,W3,W3,W3,W3,W3,W3,W3,_,_,_,_,_,_,_],
+    [_,_,_,_,_,S2,_,_,_,S2,_,_,_,_,_,_,_,_],
+    [_,_,_,_,_,B1,_,_,_,B1,_,_,_,_,_,_,_,_],
+    [_,_,_,_,K,B1,_,_,_,B1,K,_,_,_,_,_,_,_]
+  ]
 ];
 
-const priestHeal = [
-    parseSprite([
-        "..........1111..........",
-        "........11HHHH11........",
-        ".......1HHHHHHHH1.......",
-        ".......1H111111H1.......",
-        ".......111SOOS111...JJ..",
-        "........11SOOS11...JJJJ.",
-        "........11111111....JJ..",
-        ".......1HHJJJJHH1...1...",
-        "......1HHHJJJJHHH1..1...",
-        ".....1HHHHJJJJHHHH111...",
-        ".....1HHHH1JJ1HHHH1.....",
-        ".....1HHHH1JJ1HHHH1.....",
-        "......1HHH1JJ1HHH1......",
-        "......1HHHHJJHHHH1......",
-        "......1HHHHHHHHHH1......",
-        "......1IIIIIIIIII1......",
-        ".......1111..1111.......",
-        "........121..121........",
-        "........................",
-        "........................",
-        "........................",
-        "........................",
-        "........................",
-        "........................"
-    ]),
-    priestIdle[0]
+const priestRun = [
+  [
+    [_,_,_,_,_,_,G2,G1,G1,G2,_,_,_,_,_,_,_,_],
+    [_,_,_,_,_,G2,G1,W1,W1,G1,G2,_,_,_,_,_,_,_],
+    [_,_,_,_,W2,W1,W1,W1,W1,W1,W2,_,_,_,_,_,_,_],
+    [_,_,_,W2,W1,S2,S1,S1,S2,W1,W2,_,_,_,_,_,_,_],
+    [_,_,_,W2,S3,S2,K,S1,K,S2,S3,W2,_,_,_,_,_,_],
+    [_,_,_,_,W2,S3,S1,S1,S1,S3,W2,_,_,_,_,_,M1,_],
+    [_,_,_,_,_,W3,S3,S2,S3,W3,_,_,_,_,_,G1,M1,G1],
+    [_,_,_,_,W2,W1,G2,G1,G2,W1,W2,_,_,_,_,_,M1,_],
+    [_,_,_,W2,W1,W1,G2,G1,G2,W1,W1,W2,_,_,_,_,M1,_],
+    [_,_,W2,W1,W1,W1,G2,G1,G2,W1,W1,W1,W2,_,_,_,M1,_],
+    [_,_,_,W2,W1,W1,G2,G1,G2,W1,W1,W2,_,_,_,_,M1,_],
+    [_,_,_,_,W3,W2,W2,W2,W2,W2,W3,_,_,_,_,_,M1,_],
+    [_,_,_,_,_,S2,_,_,_,_,S2,_,_,_,_,_,_,_],
+    [_,_,_,_,B1,_,_,_,_,_,_,B1,_,_,_,_,_,_],
+    [_,_,_,K,B1,_,_,_,_,_,_,B1,K,_,_,_,_,_]
+  ],
+  priestIdle[0],
+  [
+    [_,_,_,_,_,_,G2,G1,G1,G2,_,_,_,_,_,_,_,_],
+    [_,_,_,_,_,G2,G1,W1,W1,G1,G2,_,_,_,_,_,_,_],
+    [_,_,_,_,W2,W1,W1,W1,W1,W1,W2,_,_,_,_,_,_,_],
+    [_,_,_,W2,W1,S2,S1,S1,S2,W1,W2,_,_,_,_,_,_,_],
+    [_,_,_,W2,S3,S2,K,S1,K,S2,S3,W2,_,_,_,_,_,_],
+    [_,_,_,_,W2,S3,S1,S1,S1,S3,W2,_,_,_,_,_,M1,_],
+    [_,_,_,_,_,W3,S3,S2,S3,W3,_,_,_,_,_,G1,M1,G1],
+    [_,_,_,_,W2,W1,G2,G1,G2,W1,W2,_,_,_,_,_,M1,_],
+    [_,_,_,W2,W1,W1,G2,G1,G2,W1,W1,W2,_,_,_,_,M1,_],
+    [_,_,W2,W1,W1,W1,G2,G1,G2,W1,W1,W1,W2,_,_,_,M1,_],
+    [_,_,_,W2,W1,W1,G2,G1,G2,W1,W1,W2,_,_,_,_,M1,_],
+    [_,_,_,_,W3,W2,W2,W2,W2,W2,W3,_,_,_,_,_,M1,_],
+    [_,_,_,_,_,_,S2,_,_,S2,_,_,_,_,_,_,_,_],
+    [_,_,_,_,_,_,B1,_,_,B1,_,_,_,_,_,_,_,_],
+    [_,_,_,_,_,K,B1,_,_,B1,K,_,_,_,_,_,_,_]
+  ],
+  priestIdle[1]
 ];
 
-const priestSummon = [
-    parseSprite([
-        "..........1111..........",
-        "........11HHHH11........",
-        ".......1HHHHHHHH1.......",
-        ".......1H111111H1..55...",
-        ".......111SOOS111.5555..",
-        "........11SOOS11...55...",
-        "........11111111....1...",
-        ".......1HHJJJJHH1..11...",
-        "......1HHHJJJJHHH11JJ1..",
-        ".....1HHHHJJJJHHHH1JJJ1.",
-        ".....1HHHH1JJ1HHHH1.J...",
-        ".....1HHHH1JJ1HHHH1.....",
-        "......1HHH1JJ1HHH1......",
-        "......1HHHHJJHHHH1......",
-        "......1HHHHHHHHHH1......",
-        "......1IIIIIIIIII1......",
-        ".......1111..1111.......",
-        "........121..121........",
-        "........................",
-        "........................",
-        "........................",
-        "........................",
-        "........................",
-        "........................"
-    ]),
-    priestIdle[0]
+const priestCast = [
+  [
+    [_,_,_,_,_,_,G2,G1,G1,G2,_,_,_,_,_,G1,G1,G1],
+    [_,_,_,_,_,G2,G1,W1,W1,G1,G2,_,_,_,G1,M1,G1],
+    [_,_,_,_,W2,W1,W1,W1,W1,W1,W2,_,_,_,_,M1,_],
+    [_,_,_,W2,W1,S2,S1,S1,S2,W1,W2,_,_,_,_,M1,_],
+    [_,_,_,W2,S3,S2,K,S1,K,S2,S3,W2,_,_,_,M1,_],
+    [_,_,_,_,W2,S3,S1,S1,S1,S3,W2,_,_,_,_,M1,_],
+    [_,_,_,_,_,W3,S3,S2,S3,W3,_,_,_,_,_,M1,_],
+    [_,_,_,_,W2,W1,G2,G1,G2,W1,W2,_,_,_,M1,_],
+    [_,_,_,W2,W1,W1,G2,G1,G2,W1,W1,W2,_,M1,_],
+    [_,_,W2,W1,W1,W1,G2,G1,G2,W1,W1,W1,W2,M1,_],
+    [_,_,_,W2,W1,W1,G2,G1,G2,W1,W1,W2,_,M1,_],
+    [_,_,_,_,W3,W2,W2,W2,W2,W2,W3,_,_,M1,_],
+    [_,_,_,_,_,S2,_,_,_,S2,_,_,_,_,_,_,_,_],
+    [_,_,_,_,_,B1,_,_,_,B1,_,_,_,_,_,_,_,_],
+    [_,_,_,_,K,B1,_,_,_,B1,K,_,_,_,_,_,_,_]
+  ],
+  priestIdle[0]
 ];
 
-// ==================== 2. GUARDIAN ANGEL SPRITES ====================
-export const angelIdle = [
-    parseSprite([
-        "..........5555..........",
-        ".........55..55.........",
-        "..........5555..........",
-        "........11111111........",
-        "........11SOOS11........",
-        "........11SOOS11...4....",
-        "........11111111...4....",
-        "...55..11HHHHHH11..4....",
-        "..55551HHHHHHHHHH1.4....",
-        "..55551HHHJJJJHHH1.4....",
-        "...55.1HHHHHHHHHH1AABAA.",
-        "......1HHHHHHHHHH1.11...",
-        "......1HHHHHHHHHH1......",
-        ".......1HHHHHHHH1.......",
-        "........1HHHHHH1........",
-        ".........1HHHH1.........",
-        "..........1II1..........",
-        "...........11...........",
-        "........................",
-        "........................",
-        "........................",
-        "........................",
-        "........................",
-        "........................"
-    ]),
-    parseSprite([
-        "..........5555..........",
-        ".........55..55.........",
-        "..........5555..........",
-        "........11111111........",
-        "........11SOOS11........",
-        "........11SOOS11...4....",
-        "........11111111...4....",
-        "....55.11HHHHHH11..4....",
-        "...5551HHHHHHHHHH1.4....",
-        "...5551HHHJJJJHHH1.4....",
-        "....551HHHHHHHHHH1AABAA.",
-        "......1HHHHHHHHHH1.11...",
-        "......1HHHHHHHHHH1......",
-        ".......1HHHHHHHH1.......",
-        "........1HHHHHH1........",
-        ".........1HHHH1.........",
-        "..........1II1..........",
-        "...........11...........",
-        "........................",
-        "........................",
-        "........................",
-        "........................",
-        "........................",
-        "........................"
-    ])
-];
-
-// ==================== 3. PRIEST CLASS MECHANICS ====================
+// ========================================================
+// PRIEST CLASS MECHANICS (HEAL & GUARDIAN ANGEL SUMMON)
+// ========================================================
 export const PriestClass = {
-    id: "priest",
-    name: "Priest",
-    title: "Holy Patriarch",
-    speed: 1.35,
-    maxHp: 110,
-    attackCooldown: 55, // ~0.9s delay sa heal
-    cooldown: 240,       // 4s cooldown pag nag-summon
-    sprites: {
-        idle: priestIdle,
-        run: priestIdle,
-        slash: priestHeal,
-        bash: priestSummon
-    },
+  id: "priest",
+  name: "Priest",
+  title: "Holy Shepherd",
+  speed: 1.4,
+  maxHp: 110,
+  attackCooldown: 25,
+  cooldown: 180, // Cooldown ng K (Summon)
+  sprites: {
+    idle: priestIdle,
+    run: priestRun,
+    slash: priestCast,
+    bash: priestCast
+  },
 
-    // KEY J: SINGLE TARGET HEAL
-    // 10% ng Max HP sa Priest (+11 HP) | 50% nun sa Angel (+5 HP)
-    onAttack(player, target, spawnSpell) {
-        if (!player.angels) player.angels = [];
+  // KEY J: PRIORITY HEAL (Priest: 10% HP | Angel: +5 HP at +180 ticks Lifespan)
+  onAttack(player, target, spawnSpell) {
+    if (!player.angels) player.angels = [];
 
-        const candidates = [
-            { entity: player, hp: player.hp, maxHp: player.maxHp, isAngel: false }
-        ];
+    const candidates = [
+      { entity: player, hp: player.hp, maxHp: player.maxHp, isAngel: false }
+    ];
 
-        player.angels.forEach(a => {
-            if (a.isAlive) {
-                candidates.push({ entity: a, hp: a.hp, maxHp: a.maxHp, isAngel: true });
-            }
-        });
+    player.angels.forEach((a) => {
+      if (a.isAlive) {
+        candidates.push({ entity: a, hp: a.hp, maxHp: a.maxHp, isAngel: true });
+      }
+    });
 
-        // Piliin kung sino ang may pinakamababang porsyento ng HP
-        candidates.sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp));
-        const chosen = candidates[0];
+    // Piliin ang may pinakamababang porsyento ng HP
+    candidates.sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp));
+    const chosen = candidates[0];
 
-        // FORMULA NG HEAL:
-        // Priest = 10% ng 110 Max HP = +11 HP
-        // Angel = 50% ng lakas ng heal ng Priest = +5 HP
-        const healAmount = chosen.isAngel ? 5 : Math.round(player.maxHp * 0.10);
+    const healAmount = chosen.isAngel ? 5 : Math.round(player.maxHp * 0.10);
+    chosen.entity.hp = Math.min(chosen.maxHp, chosen.entity.hp + healAmount);
 
-        const oldHp = chosen.entity.hp;
-        chosen.entity.hp = Math.min(chosen.maxHp, chosen.entity.hp + healAmount);
+    if (chosen.isAngel) {
+      chosen.entity.lifespan = Math.min(chosen.entity.maxLifespan, chosen.entity.lifespan + 180);
+    }
 
-        Sound.playHolyBurst();
+    if (Sound && Sound.playHolyBurst) Sound.playHolyBurst();
 
-        if (spawnSpell) {
-            spawnSpell({
-                type: "heal_effect",
-                x: chosen.entity.x + 12,
-                y: chosen.entity.y + 12,
-                radius: 3,
-                maxRadius: 18,
-                amount: Math.round(chosen.entity.hp - oldHp)
-            });
-        }
-    },
+    if (spawnSpell) {
+      spawnSpell({
+        type: "holy_burst",
+        x: chosen.entity.x + 10,
+        y: chosen.entity.y + 10,
+        radius: 4,
+        maxRadius: 24,
+        color: "#ffd166",
+        alpha: 1.0
+      });
+    }
 
-    // KEY SPACE: SUMMON FLOATING ANGEL (50% HP ng Priest = 55 HP, may 12-second lifespan)
-    onSkill(player, target, spawnSpell) {
-        if (!player.angels) player.angels = [];
+    return true;
+  },
 
-        player.angels = player.angels.filter(a => a.isAlive);
+  // KEY K: SUMMON GUARDIAN ANGEL (Maximum of 2 Angels)
+  onSkill(player, target, spawnSpell) {
+    if (!player.angels) player.angels = [];
+    player.angels = player.angels.filter((a) => a.isAlive);
 
-        // Limit hanggang 2 Angels lang
-        if (player.angels.length >= 2) return;
+    if (player.angels.length >= 2) return false;
 
-        const slotIndex = player.angels.length;
-        const offsetX = slotIndex === 0 ? -24 : 24;
+    if (Sound && Sound.playHolyBurst) Sound.playHolyBurst();
+    const angelMaxHp = Math.round(player.maxHp * 0.5);
 
-        const angelMaxHp = Math.round(player.maxHp * 0.5); // Eksaktong 55 HP
+    player.angels.push({
+      id: Math.random(),
+      x: player.x + (player.angels.length === 0 ? -24 : 24),
+      y: player.y - 12,
+      maxHp: angelMaxHp,
+      hp: angelMaxHp,
+      damage: 18,
+      lifespan: 720,      // 12s standard lifespan
+      maxLifespan: 1080,  // Kayang palawigin sa tulong ng Heal (J)
+      attackCooldown: 0,
+      isAttacking: false,
+      attackTimer: 0,
+      isAlive: true,
+      animTimer: 0,
+      hitTimer: 0
+    });
 
-        const newAngel = {
-            id: Math.random(),
-            x: player.x + offsetX,
-            y: player.y - 12,
-            maxHp: angelMaxHp,
-            hp: angelMaxHp,
-            lifespan: 720,      // 12 seconds existence limit (720 ticks @ 60 FPS)
-            maxLifespan: 720,
-            damage: 15,
-            attackCooldown: 0,
-            animTimer: 0,
-            animFrame: 0,
-            bobTimer: Math.random() * Math.PI,
-            isAlive: true,
-            hitTimer: 0
-        };
+    if (spawnSpell) {
+      spawnSpell({
+        type: "holy_burst",
+        x: player.x + 10,
+        y: player.y - 6,
+        radius: 4,
+        maxRadius: 28,
+        color: "#ffffff",
+        alpha: 1.0
+      });
+    }
 
-        player.angels.push(newAngel);
-        Sound.playHolyBurst();
-
-        if (spawnSpell) {
-            spawnSpell({
-                type: "holy_burst",
-                x: newAngel.x + 12,
-                y: newAngel.y + 12,
-                radius: 4,
-                maxRadius: 24,
-                color: "#ffffff",
-                alpha: 1.0
-            });
-        }
-    },
-
-    onSkillUpdate() { }
+    return true;
+  }
 };
