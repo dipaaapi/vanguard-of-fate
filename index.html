@@ -7,13 +7,13 @@
   <meta name="googlebot" content="notranslate" />
   <meta name="description" content="Vanguard of Fate — An action RPG and isekai fantasy chronicle built with HTML5 Canvas." />
   <meta name="theme-color" content="#0b0f19" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚔️</text></svg>" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%E2%9A%94%EF%B8%8F%3C/text%3E%3C/svg%3E" />
   <title>Vanguard of Fate</title>
 
   <!-- Google Fonts: Cinzel & Silkscreen -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Silkscreen:wght@400;700&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&amp;family=Silkscreen:wght@400;700&amp;display=swap" />
 
   <!-- Game Stylesheets -->
   <link rel="stylesheet" href="css/style.css" />
@@ -40,8 +40,8 @@
         <span id="langCur">EN</span><i aria-hidden="true">▾</i>
       </button>
       <div class="t-lang-menu" id="langMenu" role="menu">
-        <button type="button" role="menuitemradio" tabindex="-1" data-lang="en"><b>EN</b> English</button>
-        <button type="button" role="menuitemradio" tabindex="-1" data-lang="fil"><b>TL</b> Tagalog</button>
+        <button type="button" role="menuitemradio" aria-checked="true" tabindex="-1" data-lang="en"><b>EN</b> English</button>
+        <button type="button" role="menuitemradio" aria-checked="false" tabindex="-1" data-lang="fil"><b>TL</b> Tagalog</button>
         <button type="button" role="menuitem" tabindex="-1" id="screenItem" class="t-lang-screen"></button>
       </div>
     </div>
@@ -280,7 +280,7 @@
   <div id="flash" aria-hidden="true"></div>
 
   <!-- Hidden File Input for Secure Save Import (.vof, .sav, .json) -->
-  <input type="file" id="saveFileInput" accept=".vof,.sav,.json" style="display: none;" aria-hidden="true" />
+  <input type="file" id="saveFileInput" accept=".vof,.sav,.json" hidden />
 
   <!-- Entry Script -->
   <script type="module" src="js/main.js"></script>
