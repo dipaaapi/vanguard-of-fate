@@ -16,13 +16,60 @@ import { Sound } from "./audio.js";
 import { Stage } from "./stage.js";
 import { TitleScene } from "./title.js";
 import { SelectScene } from "./select.js";
+import { startLore } from "./lore.js";
 
 import { FalconCompanion } from "./summons/falcon.js";
 import { GuardianAngelCompanion } from "./summons/angel.js";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-ctx.imageSmoothingEnabled = false;
+
+// ==================== DISPLAY / RESOLUTION ====================
+// Logical size ng game (16:9). Lahat ng game code ay gumagamit nito.
+const VIEW_W = 480;
+const VIEW_H = 270;
+
+// Kinukuha ang natitirang espasyo (ekstrang lore panel sa kanan at bar sa ibaba)
+// tapos pinipili ang pinakamalaking INTEGER scale na kasya.
+const stageEl = document.getElementById("stage");
+const barEl = document.getElementById("bar");
+
+function fitCanvas() {
+  const availW = stageEl.clientWidth;
+  const availH = window.innerHeight - barEl.offsetHeight;
+  const raw = Math.min(availW / VIEW_W, availH / VIEW_H);
+  const scale = Math.max(1, Math.floor(raw));
+
+  canvas.width = VIEW_W * scale;
+  canvas.height = VIEW_H * scale;
+  canvas.style.width = canvas.width + "px";
+  canvas.style.height = canvas.height + "px";
+  barEl.style.width = canvas.width + "px";   // kapantay ng canvas ang menu
+
+  // Nare-reset kapag binago ang canvas.width, kaya i-set ulit dito
+  ctx.setTransform(scale, 0, 0, scale, 0, 0);
+  ctx.imageSmoothingEnabled = false;
+}
+
+// "title" | "select" | "play": pareho ang layout (screen + bottom bar + right panel),
+// iba lang ang laman ng bar at panel bawat scene.
+let layoutMode = "";
+function setLayoutMode(mode) {
+  if (mode === layoutMode) return;
+  layoutMode = mode;
+  document.body.dataset.mode = mode;
+
+  const head = document.getElementById("sideHead");
+  if (head) head.textContent = mode === "select" ? "EARTHBOUND DOSSIER" : "CHRONICLES OF AETHELGARD";
+
+  if (mode === "title") hudText.innerHTML = TITLE_HINT;
+  else if (mode === "select") hudText.innerHTML = SELECT_HINT;
+  else hudText.innerHTML = PLAY_HINT;
+
+  fitCanvas();
+}
+
+window.addEventListener("resize", fitCanvas);
 
 const hudText = document.getElementById("hudText");
 const fileInput = document.getElementById("saveFileInput");
@@ -36,7 +83,7 @@ const gameConfig = {
 };
 
 const stage = new Stage(1280, 960);
-const camera = new Camera(canvas.width, canvas.height, stage.width, stage.height);
+const camera = new Camera(VIEW_W, VIEW_H, stage.width, stage.height);
 const fx = new FXManager();
 const enemyManager = new EnemyManager(stage.width, stage.height);
 const projectileManager = new ProjectileManager(stage.width, stage.height);
@@ -212,8 +259,16 @@ const titleScene = new TitleScene(
   },
   exportSaveFile,
   importSaveFile,
-  gameConfig
+  gameConfig,
+  document.getElementById("menu")
 );
+
+const SELECT_HINT = `<span>A / D</span>: Pumili ng Hero &nbsp;|&nbsp; <span>ENTER / SPACE</span>: Embark &nbsp;|&nbsp; o i-click ang hero sa ibaba`;
+const PLAY_HINT = `<span>WASD</span> Lakad &nbsp;|&nbsp; <span>SPACE</span> Sprint &nbsp;|&nbsp; <span>J</span> Atake &nbsp;|&nbsp; <span>K</span> Skill &nbsp;|&nbsp; <span>E</span> Shop &nbsp;|&nbsp; <span>M</span> Hire Merc (10G) &nbsp;|&nbsp; <span>P</span> Pause`;
+const TITLE_HINT = `<span>W / S o Arrows</span>: Navigate Menu &nbsp;|&nbsp; <span>ENTER / SPACE</span>: Select &nbsp;|&nbsp; o i-click ang menu`;
+hudText.innerHTML = TITLE_HINT;
+setLayoutMode("title");
+startLore(document.getElementById("lore"));
 
 const selectScene = new SelectScene(ROSTER, (chosenHero) => {
   controller.clearAll();
@@ -234,15 +289,18 @@ const selectScene = new SelectScene(ROSTER, (chosenHero) => {
   saveGame();
 
   hudText.innerHTML = `<span>WASD</span> Lakad &nbsp;|&nbsp; <span>SPACE</span> Sprint &nbsp;|&nbsp; <span>J</span> Atake &nbsp;|&nbsp; <span>K</span> Skill &nbsp;|&nbsp; <span>E</span> Shop &nbsp;|&nbsp; <span>M</span> Hire Merc (10G) &nbsp;|&nbsp; <span>P</span> Pause`;
-}, drawSpriteMatrix);
+}, drawSpriteMatrix, {
+  picker: document.getElementById("picker"),
+  dossier: document.getElementById("dossier")
+});
 
 canvas.addEventListener("pointerdown", (e) => {
   Sound.init();
 
   if (gameState === "PLAYING" || gameState === "PAUSED") {
     const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
+    const scaleX = VIEW_W / rect.width;
+    const scaleY = VIEW_H / rect.height;
     const clickX = (e.clientX - rect.left) * scaleX;
     const clickY = (e.clientY - rect.top) * scaleY;
 
@@ -262,6 +320,7 @@ canvas.addEventListener("pointerdown", (e) => {
 
 window.addEventListener("keydown", (e) => {
   Sound.init();
+  if (e.code === "F2") { stage.tilemap.debug = !stage.tilemap.debug; e.preventDefault(); }
 
   if (gameState === "TITLE") {
     titleScene.handleInput(e);
@@ -305,7 +364,7 @@ window.addEventListener("keydown", (e) => {
       Sound.stopGameplayBGM();
       if (gameConfig.music) Sound.startTitleBGM();
       titleScene.refreshSaveStatus();
-      hudText.innerHTML = `<span>W / S o Arrows</span>: Navigate Menu &nbsp;|&nbsp; <span>ENTER / SPACE</span>: Select`;
+      hudText.innerHTML = TITLE_HINT;
       return;
     }
 
@@ -386,6 +445,7 @@ function updateGame() {
   if (stage.castle) {
     stage.castle.resolveCollision(player);
   }
+  stage.resolveTileCollision(player);
 
   const closestEnemy = enemyManager.enemies
     .filter((e) => e.isAlive)
@@ -419,6 +479,9 @@ function updateGame() {
       if (enemy.isAlive) stage.castle.resolveCollision(enemy);
     });
   }
+  enemyManager.enemies.forEach((enemy) => {
+    if (enemy.isAlive) stage.resolveTileCollision(enemy);
+  });
 
   mercManager.update(player, enemyManager, lootManager, fx, (proj) => projectileManager.add(proj), stage);
   projectileManager.update(enemyManager.enemies, enemyManager, fx, lootManager, player);
@@ -452,61 +515,63 @@ function renderGameWorld() {
     ui.drawInWorldUI(ctx, player);
   }
 
+  stage.drawOverlay(ctx);   // canopy ng mga puno, nasa ibabaw ng mga karakter
   fx.updateAndDraw(ctx, gameConfig);
   ctx.restore();
 
   const isInBarracks = player ? stage.isInsideSafeZone(player.x, player.y) : false;
   ui.drawHUD(
     ctx, player, enemyManager, lootManager, stage,
-    canvas.width, gameState === "PAUSED",
+    VIEW_W, gameState === "PAUSED",
     fx.timeOfDay, fx.weatherType, isInBarracks
   );
 
   if (showShopModal && player) {
-    ui.drawShopModal(ctx, player, canvas.width, canvas.height);
+    ui.drawShopModal(ctx, player, VIEW_W, VIEW_H);
   }
 
   if (showMercModal && player) {
     ctx.fillStyle = "rgba(10, 14, 20, 0.85)";
-    ctx.fillRect(40, 40, canvas.width - 80, canvas.height - 80);
+    ctx.fillRect(40, 40, VIEW_W - 80, VIEW_H - 80);
     ctx.strokeStyle = "#ffd166";
     ctx.lineWidth = 2;
-    ctx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80);
+    ctx.strokeRect(40, 40, VIEW_W - 80, VIEW_H - 80);
 
     ctx.fillStyle = "#ffd166";
     ctx.font = "bold 9px monospace";
     ctx.textAlign = "center";
-    ctx.fillText("⚔️ BARRACKS MERCENARY GUILD (10G EACH - 10 MINS) ⚔️", canvas.width / 2, 60);
+    ctx.fillText("⚔️ BARRACKS MERCENARY GUILD (10G EACH - 10 MINS) ⚔️", VIEW_W / 2, 60);
 
     ctx.fillStyle = "#ffffff";
     ctx.font = "7px monospace";
-    ctx.fillText("[1] AXEMAN (Whirlwind AOE) - 10G", canvas.width / 2, 85);
-    ctx.fillText("[2] MAGE APPRENTICE (Arcane Blast) - 10G", canvas.width / 2, 105);
-    ctx.fillText("[3] CROSSBOWMAN (3-Way Volley) - 10G", canvas.width / 2, 125);
-    ctx.fillText("[4] VANGUARD KNIGHT (Earthshatter Slam) - 10G", canvas.width / 2, 145);
-    ctx.fillText("Press 1-4 to Hire | ESC to Close", canvas.width / 2, 175);
+    ctx.fillText("[1] AXEMAN (Whirlwind AOE) - 10G", VIEW_W / 2, 85);
+    ctx.fillText("[2] MAGE APPRENTICE (Arcane Blast) - 10G", VIEW_W / 2, 105);
+    ctx.fillText("[3] CROSSBOWMAN (3-Way Volley) - 10G", VIEW_W / 2, 125);
+    ctx.fillText("[4] VANGUARD KNIGHT (Earthshatter Slam) - 10G", VIEW_W / 2, 145);
+    ctx.fillText("Press 1-4 to Hire | ESC to Close", VIEW_W / 2, 175);
   }
 
   if (gameState === "PAUSED" && !showShopModal && !showMercModal) {
-    ui.drawPause(ctx, canvas.width, canvas.height);
+    ui.drawPause(ctx, VIEW_W, VIEW_H);
     // Shortcut hint para sa Export
     ctx.fillStyle = "#ffd166";
     ctx.font = "bold 6px monospace";
     ctx.textAlign = "center";
-    ctx.fillText("[ X ]   EXPORT SAVE FILE (.JSON)", canvas.width / 2, canvas.height / 2 + 32);
+    ctx.fillText("[ X ]   EXPORT SAVE FILE (.JSON)", VIEW_W / 2, VIEW_H / 2 + 32);
   }
 
   if (gameState === "GAMEOVER") {
-    ui.drawGameOver(ctx, canvas.width, canvas.height);
+    ui.drawGameOver(ctx, VIEW_W, VIEW_H);
   }
 }
 
 function gameLoop() {
   updateGame();
+  setLayoutMode(gameState === "TITLE" ? "title" : (gameState === "SELECT" ? "select" : "play"));
   if (gameState === "TITLE") {
-    titleScene.draw(ctx, canvas.width, canvas.height);
+    titleScene.draw(ctx, VIEW_W, VIEW_H);
   } else if (gameState === "SELECT") {
-    selectScene.draw(ctx, canvas.width, canvas.height);
+    selectScene.draw(ctx, VIEW_W, VIEW_H);
   } else {
     renderGameWorld();
   }

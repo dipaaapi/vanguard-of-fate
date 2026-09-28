@@ -6,6 +6,7 @@ import { PortalSystem } from "./world/portal.js";
 import { WeatherSystem } from "./world/weather.js";
 import { ShopkeeperNPC } from "./npc/shopkeeper.js";
 import { RecruiterNPC } from "./npc/recruiter.js";
+import { TileMap } from "./world/tilemap.js";
 
 export class Stage {
   constructor(width = 1280, height = 960) {
@@ -33,6 +34,20 @@ export class Stage {
     // NPCs sa loob ng Barracks
     this.shopkeeper = new ShopkeeperNPC(this.width / 2 - 30, this.height / 2 - 20);
     this.mercCaptain = new RecruiterNPC(this.safeZone.x + 50, this.safeZone.y + 55);
+
+    // Tile-based na lupa (damo, landas, puno, bato). Huling ginagawa dahil binabasa nito
+    // kung saan nakaguhit ang ocean, castle, barracks at portals.
+    this.tilemap = new TileMap(this);
+  }
+
+  // Hindi madaanan na tiles (puno, bato)
+  resolveTileCollision(entity) {
+    if (this.tilemap) this.tilemap.resolveCollision(entity);
+  }
+
+  // Canopy ng mga puno: tinatawag SA IBABAW ng mga karakter
+  drawOverlay(ctx) {
+    if (this.tilemap) this.tilemap.drawOverlay(ctx);
   }
 
   isInsideSafeZone(px, py) {
@@ -78,8 +93,8 @@ export class Stage {
   }
 
   draw(ctx, drawMatrixFn) {
-    // 1. Base Natural Ground
-    this.grassland.draw(ctx);
+    // 1. Base Natural Ground (tile-based)
+    this.tilemap.drawGround(ctx);
 
     // 2. Corner Landmarks (Coastline at Fortress Citadel)
     this.ocean.draw(ctx);

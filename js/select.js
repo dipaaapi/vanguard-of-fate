@@ -1,4 +1,5 @@
 import { Sound } from "./audio.js";
+import { loadImage, drawCover } from "./background.js";
 
 // ========================================================
 // EARTHBOUND SOULS: ISEKAI LORE DATABASE
@@ -47,116 +48,22 @@ const ISEKAI_LORE = {
 };
 
 export class SelectScene {
-  constructor(roster, onHeroSelected, drawMatrixFn) {
+  // dom = { picker, dossier }: ang hero picker (ibaba) at dossier (kanan) ay HTML na
+  constructor(roster, onHeroSelected, drawMatrixFn, dom = {}) {
     this.roster = roster;
     this.onHeroSelected = onHeroSelected;
     this.drawMatrixFn = drawMatrixFn;
     this.selectedIndex = 0;
     this.animTick = 0;
+    this.bg = loadImage("assets/bg/portal_bg.jpg");
+
+    this.pickerEl = dom.picker || null;
+    this.dossierEl = dom.dossier || null;
+    this.renderDom();
   }
 
-  handleInput(e) {
-    if (e.code === "ArrowLeft" || e.code === "KeyA") {
-      this.selectedIndex = (this.selectedIndex - 1 + this.roster.length) % this.roster.length;
-      if (Sound && Sound.playSelectMove) Sound.playSelectMove();
-    }
-    if (e.code === "ArrowRight" || e.code === "KeyD") {
-      this.selectedIndex = (this.selectedIndex + 1) % this.roster.length;
-      if (Sound && Sound.playSelectMove) Sound.playSelectMove();
-    }
-    if (e.code === "Enter" || e.code === "Space" || e.code === "KeyJ") {
-      if (Sound && Sound.playSelectConfirm) Sound.playSelectConfirm();
-      this.onHeroSelected(this.roster[this.selectedIndex]);
-    }
-  }
-
-  // CLEAN, ELEGANT, SOLID 48x48 PEDESTAL (WALANG MAKULIT NA FLOATING PARTICLES)
-  drawCleanPedestal(ctx, px, py) {
-    // 1. Soft Floor Shadow
-    ctx.fillStyle = "rgba(0, 0, 0, 0.65)";
-    ctx.beginPath();
-    ctx.ellipse(px, py + 12, 42, 12, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 2. Solid Chiseled Stone Base (Lower Tier)
-    ctx.fillStyle = "#0f172a";
-    ctx.beginPath();
-    ctx.ellipse(px, py + 7, 36, 10, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = "#1e293b";
-    ctx.fillRect(px - 36, py + 6, 72, 3);
-
-    // 3. Polished Upper Slate Tier
-    ctx.fillStyle = "#334155";
-    ctx.beginPath();
-    ctx.ellipse(px, py, 30, 8, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // 4. Subtle Gold Edge Trim
-    ctx.strokeStyle = "#ffd166";
-    ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    ctx.ellipse(px, py, 30, 8, 0, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // 5. Calm Inner Ring
-    ctx.strokeStyle = "rgba(56, 189, 248, 0.35)";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.ellipse(px, py, 20, 5, 0, 0, Math.PI * 2);
-    ctx.stroke();
-  }
-
-  draw(ctx, width, height) {
-    this.animTick++;
-
-    // 1. Solid Clean Dark Slate Background
-    ctx.fillStyle = "#090d16";
-    ctx.fillRect(0, 0, width, height);
-
-    // Subtle Outer Frame
-    ctx.strokeStyle = "#1e293b";
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(6, 6, width - 12, height - 12);
-
-    // 2. Minimalist Header
-    ctx.fillStyle = "#ffd166";
-    ctx.font = "bold 10px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText("SELECT YOUR EARTHBOUND VANGUARD", width / 2, 20);
-
-    ctx.fillStyle = "#64748b";
-    ctx.font = "6.5px monospace";
-    ctx.fillText("CHOOSE A REINCARNATED SOUL TO EMBARK ON AETHELGARD", width / 2, 29);
-
-    // 3. Selection Tabs (Top Centered)
-    const cardW = 34;
-    const cardH = 30;
-    const gap = 8;
-    const totalW = this.roster.length * cardW + (this.roster.length - 1) * gap;
-    const startX = Math.round(width / 2 - totalW / 2);
-    const startY = 38;
-
-    this.roster.forEach((hero, i) => {
-      const cx = startX + i * (cardW + gap);
-      const isSelected = i === this.selectedIndex;
-
-      ctx.fillStyle = isSelected ? "#1e293b" : "#0d131f";
-      ctx.fillRect(cx, startY, cardW, cardH);
-
-      ctx.strokeStyle = isSelected ? "#ffd166" : "#243247";
-      ctx.lineWidth = isSelected ? 1.5 : 1;
-      ctx.strokeRect(cx, startY, cardW, cardH);
-
-      ctx.fillStyle = isSelected ? "#ffd166" : "#64748b";
-      ctx.font = "bold 10px monospace";
-      ctx.textAlign = "center";
-      ctx.fillText(hero.name[0], cx + cardW / 2, startY + 19);
-    });
-
-    const activeHero = this.roster[this.selectedIndex];
-    const lore = ISEKAI_LORE[activeHero.id] || {
+  getLore(hero) {
+    return ISEKAI_LORE[hero.id] || {
       realName: "Unknown",
       earthRole: "Wanderer",
       origin: "Earth",
@@ -164,119 +71,186 @@ export class SelectScene {
       trait: "Latent Power",
       loreDesc: "A mysterious soul chosen to fight."
     };
-
-    // ========================================================
-    // 4. LEFT: CALM PEDESTAL & HERO PREVIEW
-    // ========================================================
-    const pedX = 100;
-    const pedY = 162;
-
-    this.drawCleanPedestal(ctx, pedX, pedY);
-
-    if (activeHero.sprites && activeHero.sprites.idle) {
-      const frames = activeHero.sprites.idle;
-      const previewIdx = Math.floor(this.animTick / 26) % frames.length;
-      this.drawMatrixFn(ctx, pedX - 12, pedY - 24, frames[previewIdx]);
-    }
-
-    ctx.fillStyle = "#ffd166";
-    ctx.font = "bold 9px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText(activeHero.name.toUpperCase(), pedX, 186);
-
-    ctx.fillStyle = "#38bdf8";
-    ctx.font = "bold 6.8px monospace";
-    ctx.fillText(`"${lore.realName}"`, pedX, 196);
-
-    ctx.fillStyle = "#94a3b8";
-    ctx.font = "6.2px monospace";
-    ctx.fillText(activeHero.title, pedX, 206);
-
-    // ========================================================
-    // 5. RIGHT: CLEAN COMPACT DOSSIER BOX
-    // ========================================================
-    const loreBoxX = 186;
-    const loreBoxY = 76;
-    const loreBoxW = 228;
-    const loreBoxH = 142;
-
-    ctx.fillStyle = "rgba(13, 19, 33, 0.95)";
-    ctx.fillRect(loreBoxX, loreBoxY, loreBoxW, loreBoxH);
-
-    ctx.strokeStyle = "#38bdf8";
-    ctx.lineWidth = 1;
-    ctx.strokeRect(loreBoxX, loreBoxY, loreBoxW, loreBoxH);
-
-    ctx.fillStyle = "rgba(56, 189, 248, 0.08)";
-    ctx.fillRect(loreBoxX + 1, loreBoxY + 1, loreBoxW - 2, 14);
-
-    ctx.fillStyle = "#38bdf8";
-    ctx.font = "bold 7px monospace";
-    ctx.textAlign = "left";
-    ctx.fillText("📂 EARTHBOUND REINCARNATION DOSSIER", loreBoxX + 8, loreBoxY + 10);
-
-    ctx.font = "6.5px monospace";
-
-    ctx.fillStyle = "#94a3b8";
-    ctx.fillText("PAST OCCUPATION :", loreBoxX + 8, loreBoxY + 26);
-    ctx.fillStyle = "#f8fafc";
-    ctx.fillText(lore.earthRole, loreBoxX + 84, loreBoxY + 26);
-
-    ctx.fillStyle = "#94a3b8";
-    ctx.fillText("EARTH ORIGIN    :", loreBoxX + 8, loreBoxY + 38);
-    ctx.fillStyle = "#ffd166";
-    ctx.fillText(lore.origin, loreBoxX + 84, loreBoxY + 38);
-
-    ctx.fillStyle = "#94a3b8";
-    ctx.fillText("ISEKAI CATALYST :", loreBoxX + 8, loreBoxY + 50);
-    ctx.fillStyle = "#f87171";
-
-    if (lore.summonEvent.length > 25) {
-      const words = lore.summonEvent.split(" ");
-      const mid = Math.ceil(words.length / 2);
-      ctx.fillText(words.slice(0, mid).join(" "), loreBoxX + 84, loreBoxY + 50);
-      ctx.fillText(words.slice(mid).join(" "), loreBoxX + 84, loreBoxY + 59);
-    } else {
-      ctx.fillText(lore.summonEvent, loreBoxX + 84, loreBoxY + 50);
-    }
-
-    ctx.strokeStyle = "#1e293b";
-    ctx.beginPath();
-    ctx.moveTo(loreBoxX + 6, loreBoxY + 71);
-    ctx.lineTo(loreBoxX + loreBoxW - 6, loreBoxY + 71);
-    ctx.stroke();
-
-    ctx.fillStyle = "#38bdf8";
-    ctx.font = "bold 6.8px monospace";
-    ctx.fillText(`TRANSMUTED ABILITY : ${lore.trait.toUpperCase()}`, loreBoxX + 8, loreBoxY + 84);
-
-    ctx.fillStyle = "#cbd5e1";
-    ctx.font = "6.2px monospace";
-    this.drawWrappedText(ctx, lore.loreDesc, loreBoxX + 8, loreBoxY + 96, loreBoxW - 16, 9.5);
-
-    // Footer Hint
-    ctx.fillStyle = "#64748b";
-    ctx.font = "6.5px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText("PRESS [A / D] NAVIGATE  •  [ENTER / SPACE] CONFIRM", width / 2, height - 8);
   }
 
-  drawWrappedText(ctx, text, x, y, maxWidth, lineHeight) {
-    const words = text.split(" ");
-    let line = "";
-    let curY = y;
+  // ---------- HTML (ibaba at kanan) ----------
+  renderDom() {
+    if (this.pickerEl) {
+      this.pickerEl.innerHTML = "";
+      this.roster.forEach((hero, i) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "menu-btn";
 
-    for (let n = 0; n < words.length; n++) {
-      const testLine = line + words[n] + " ";
-      const metrics = ctx.measureText(testLine);
-      if (metrics.width > maxWidth && n > 0) {
-        ctx.fillText(line, x, curY);
-        line = words[n] + " ";
-        curY += lineHeight;
-      } else {
-        line = testLine;
-      }
+        const name = document.createElement("span");
+        name.textContent = hero.name.toUpperCase();
+        btn.appendChild(name);
+
+        const sub = document.createElement("span");
+        sub.className = "sub";
+        sub.textContent = hero.title || "";
+        btn.appendChild(sub);
+
+        btn.addEventListener("mousedown", (e) => e.preventDefault());
+        btn.addEventListener("click", () => {
+          Sound.init();
+          this.setIndex(i);
+        });
+        this.pickerEl.appendChild(btn);
+      });
+
+      const go = document.createElement("button");
+      go.type = "button";
+      go.className = "menu-btn embark";
+      go.textContent = "EMBARK ▶";
+      go.addEventListener("mousedown", (e) => e.preventDefault());
+      go.addEventListener("click", () => { Sound.init(); this.confirm(); });
+      this.pickerEl.appendChild(go);
     }
-    ctx.fillText(line, x, curY);
+    this.syncDom();
+  }
+
+  syncDom() {
+    if (this.pickerEl) {
+      Array.from(this.pickerEl.children).forEach((el, i) => {
+        el.classList.toggle("selected", i === this.selectedIndex);
+      });
+    }
+
+    if (this.dossierEl) {
+      const hero = this.roster[this.selectedIndex];
+      const lore = this.getLore(hero);
+      const el = this.dossierEl;
+      el.innerHTML = "";
+
+      const add = (tag, cls, text) => {
+        const n = document.createElement(tag);
+        if (cls) n.className = cls;
+        n.textContent = text;
+        el.appendChild(n);
+        return n;
+      };
+
+      add("div", "dz-name", hero.name.toUpperCase());
+      add("div", "dz-real", `"${lore.realName}"`);
+      if (hero.title) add("div", "dz-title", hero.title);
+
+      const rows = [
+        ["PAST OCCUPATION", lore.earthRole, "c-white"],
+        ["EARTH ORIGIN", lore.origin, "c-gold"],
+        ["ISEKAI CATALYST", lore.summonEvent, "c-red"]
+      ];
+      rows.forEach(([label, value, cls]) => {
+        add("div", "dz-label", label);
+        add("div", "dz-value " + cls, value);
+      });
+
+      el.appendChild(document.createElement("hr"));
+      add("div", "dz-label", "TRANSMUTED ABILITY");
+      add("div", "dz-ability", lore.trait.toUpperCase());
+      add("p", "dz-desc", lore.loreDesc);
+    }
+  }
+
+  setIndex(i, playSound = true) {
+    const n = this.roster.length;
+    const next = ((i % n) + n) % n;
+    if (next !== this.selectedIndex && playSound && Sound && Sound.playSelectMove) Sound.playSelectMove();
+    this.selectedIndex = next;
+    this.syncDom();
+  }
+
+  confirm() {
+    if (Sound && Sound.playSelectConfirm) Sound.playSelectConfirm();
+    this.onHeroSelected(this.roster[this.selectedIndex]);
+  }
+
+  handleInput(e) {
+    if (e.code === "ArrowLeft" || e.code === "KeyA") this.setIndex(this.selectedIndex - 1);
+    else if (e.code === "ArrowRight" || e.code === "KeyD") this.setIndex(this.selectedIndex + 1);
+    else if (e.code === "Enter" || e.code === "Space" || e.code === "KeyJ") {
+      e.preventDefault();
+      this.confirm();
+    }
+  }
+
+  shadowText(ctx, text, x, y, color) {
+    ctx.fillStyle = "#000000";
+    ctx.fillText(text, x + 0.7, y + 0.7);
+    ctx.fillStyle = color;
+    ctx.fillText(text, x, y);
+  }
+
+  // ---------- CANVAS: background + hero sa harap ng portal ----------
+  draw(ctx, width, height) {
+    this.animTick++;
+
+    if (!drawCover(ctx, this.bg, width, height)) {
+      ctx.fillStyle = "#090d16";
+      ctx.fillRect(0, 0, width, height);
+    }
+    ctx.fillStyle = "rgba(3, 6, 17, 0.15)";
+    ctx.fillRect(0, 0, width, height);
+
+    // Pulsing glow ng portal
+    const px = width * 0.605;
+    const py = height * 0.46;
+    const pulse = 1 + Math.sin(this.animTick / 20) * 0.10;
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    const glow = ctx.createRadialGradient(px, py, 4, px, py, 70 * pulse);
+    glow.addColorStop(0, "rgba(140, 110, 255, 0.28)");
+    glow.addColorStop(0.55, "rgba(56, 189, 248, 0.10)");
+    glow.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = glow;
+    ctx.fillRect(px - 80, py - 80, 160, 160);
+    ctx.restore();
+
+    const top = ctx.createLinearGradient(0, 0, 0, 40);
+    top.addColorStop(0, "rgba(3, 6, 17, 0.8)");
+    top.addColorStop(1, "rgba(3, 6, 17, 0)");
+    ctx.fillStyle = top;
+    ctx.fillRect(0, 0, width, 40);
+
+    ctx.textAlign = "center";
+    ctx.font = "bold 10px monospace";
+    this.shadowText(ctx, "SELECT YOUR EARTHBOUND VANGUARD", width / 2, 18, "#ffd166");
+    ctx.font = "6.5px monospace";
+    this.shadowText(ctx, "CHOOSE A REINCARNATED SOUL TO EMBARK ON AETHELGARD", width / 2, 27, "#94a3b8");
+
+    // Hero (3x laki) nakatayo sa harap ng portal
+    const hero = this.roster[this.selectedIndex];
+    const lore = this.getLore(hero);
+    const heroX = Math.round(width * 0.605);
+    const heroY = 206;
+
+    const bottom = ctx.createLinearGradient(0, heroY - 6, 0, height);
+    bottom.addColorStop(0, "rgba(3, 6, 17, 0)");
+    bottom.addColorStop(1, "rgba(3, 6, 17, 0.75)");
+    ctx.fillStyle = bottom;
+    ctx.fillRect(0, heroY - 6, width, height - heroY + 6);
+
+    ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
+    ctx.beginPath();
+    ctx.ellipse(heroX, heroY + 1, 26, 7, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (hero.sprites && hero.sprites.idle) {
+      const frames = hero.sprites.idle;
+      const idx = Math.floor(this.animTick / 26) % frames.length;
+      ctx.save();
+      ctx.translate(heroX, heroY);
+      ctx.scale(3, 3);
+      this.drawMatrixFn(ctx, -12, -24, frames[idx]);
+      ctx.restore();
+    }
+
+    ctx.textAlign = "center";
+    ctx.font = "bold 9px monospace";
+    this.shadowText(ctx, hero.name.toUpperCase(), heroX, heroY + 16, "#ffd166");
+    ctx.font = "bold 6.8px monospace";
+    this.shadowText(ctx, `"${lore.realName}"`, heroX, heroY + 25, "#38bdf8");
+    ctx.font = "6.2px monospace";
+    this.shadowText(ctx, hero.title || "", heroX, heroY + 34, "#cbd5e1");
   }
 }
