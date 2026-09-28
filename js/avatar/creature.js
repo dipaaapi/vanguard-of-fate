@@ -1,15 +1,15 @@
 import { Pix, shade, whiteOf } from "./avatar.js";
 
-// ==================== MGA NILALANG (hindi tao) ====================
-// Kaparehong estilo ng modular Avatar: pixel buffer, selective outline, anino/liwanag mula sa base
-// color, at naka-cache na canvas bawat frame. Bawat nilalang ay may direksyon (down / side / up)
-// at animation na tugma sa galaw nito:
-//   Slime  — idle (hinga), walk (talon: pisil → unat → nasa ere → lapag), attack (pisil → sunggab)
-//   Lobo   — idle (hinga + kawag ng buntot), walk (apat na paa, salitan), attack (yuko → lundag)
-//   Falcon — fly (pagaspas ng pakpak), dive (tiklop na pakpak), taunt (bukang pakpak + sigaw)
+// ==================== CREATURES (non-human) ====================
+// Same style as the modular Avatar: pixel buffer, selective outline, shade/highlight from the base
+// colour, and a cached canvas per frame. Every creature has directions (down / side / up)
+// and animations that match how it moves:
+//   Slime  — idle (breathing), walk (hop: squash → stretch → airborne → land), attack (squash → pounce)
+//   Wolf   — idle (breathing + tail wag), walk (four legs, alternating), attack (crouch → leap)
+//   Falcon — fly (wing beats), dive (folded wings), taunt (spread wings + cry)
 
 export class CreatureSprite {
-  // anchor (ax, ay) = punto sa lupa (o gitna ng katawan para sa lumilipad)
+  // anchor (ax, ay) = point on the ground (or the body centre for flyers)
   constructor(w, h, ax, ay, frames) {
     this.w = w;
     this.h = h;
@@ -38,7 +38,7 @@ export class CreatureSprite {
     return this.cache.get(key);
   }
 
-  // flip = nakaharap pakaliwa (side lang); rot = ikot (hal. pagsisid ng falcon)
+  // flip = facing left (side only); rot = rotation (e.g. the falcon's dive)
   draw(ctx, x, y, dir, anim, i, flip = false, flash = false, scale = 1, rot = 0) {
     const img = flash ? this.flashFrame(dir, anim, i) : this.frame(dir, anim, i);
     ctx.save();
@@ -50,7 +50,7 @@ export class CreatureSprite {
   }
 }
 
-// Punan ang ellipse; fn(nx, ny) → kulay (nx, ny = -1..1 mula sa gitna)
+// Fill an ellipse; fn(nx, ny) → colour (nx, ny = -1..1 from the centre)
 export function ellipse(p, cx, cy, rx, ry, fn) {
   for (let y = Math.floor(cy - ry); y <= Math.ceil(cy + ry); y++) {
     for (let x = Math.floor(cx - rx); x <= Math.ceil(cx + rx); x++) {
@@ -77,7 +77,7 @@ export class SlimeSprite extends CreatureSprite {
       attack: [[10, 4.2, 0, -1], [7, 7, 2, 3]]
     }[anim] || [[8, 6, 0, 0]];
     const [rx, ry, lift, fwd] = pose[i % pose.length];
-    // Pasulong sa direksyon ng tinitingnan (side = pakanan); sa down/up ay ang talon na lang
+    // Forward in the facing direction (side = to the right); down/up only hop
     const cx = 12 + (dir === "side" ? fwd : 0);
     const bottom = 16 - lift;
     const cy = bottom - ry;
@@ -88,7 +88,7 @@ export class SlimeSprite extends CreatureSprite {
       if (nx > 0.55 || ny > 0.3) return c.dark;
       return c.base;
     });
-    // kumikinang na core sa loob
+    // glowing core inside
     ellipse(p, cx + 1, cy + 1, rx * 0.32, ry * 0.32, () => c.core);
 
     const ey = Math.round(cy - ry * 0.15);
@@ -103,7 +103,7 @@ export class SlimeSprite extends CreatureSprite {
       p.set(x - 3, ey, "#ffffff"); p.set(x - 3, ey + 1, c.eye);
       if (anim === "attack") p.set(x + 1, ey + 3, c.eye);
     } else {
-      p.set(Math.round(cx - 2), Math.round(cy - ry * 0.5), "#ffffff");   // kislap sa likod
+      p.set(Math.round(cx - 2), Math.round(cy - ry * 0.5), "#ffffff");   // highlight at the back
     }
   }
 }
@@ -117,7 +117,7 @@ export class WolfSprite extends CreatureSprite {
     this.c = { ...WOLF, ...colors };
   }
 
-  // Isang paa: 2px ang lapad, mula sa katawan hanggang sa lupa (bottom)
+  // One leg: 2px wide, from the body down to the ground (bottom)
   leg(p, x, top, bottom, col, colD) {
     for (let y = top; y <= bottom; y++) { p.set(x, y, col); p.set(x + 1, y, colD); }
     p.set(x + 2, bottom, colD);   // paa
@@ -140,11 +140,11 @@ export class WolfSprite extends CreatureSprite {
     const spread = atk === 2 ? 2 : 0;
     const ground = 21;
 
-    // Malayong mga paa (madilim)
+    // Far legs (dark)
     this.leg(p, 10 + shift - swing - spread, 14 + bob, ground - liftB, c.furD, c.furDD);
     this.leg(p, 20 + shift + swing + spread, 14 + bob, ground - liftA, c.furD, c.furDD);
 
-    // Buntot (kumakawag habang idle / tumatakbo)
+    // Tail (wags while idle / running)
     const wag = anim === "idle" ? i : walk ? i % 2 : 0;
     [[6, 10], [5, 9], [4, 8 - wag], [3, 7 - wag]].forEach(([x, y]) => {
       p.set(x + shift, y + bob, c.furD); p.set(x + shift, y + 1 + bob, c.fur);
@@ -152,19 +152,19 @@ export class WolfSprite extends CreatureSprite {
 
     // Katawan
     ellipse(p, 15 + shift, 11 + bob, 9, 4.5, (nx, ny) => (ny > 0.45 ? c.belly : ny < -0.4 ? c.furL : nx > 0.6 ? c.furD : c.fur));
-    // Balahibo sa batok
+    // Fur on the nape
     p.rows([[7 + bob, 18 + shift, 21 + shift], [8 + bob, 17 + shift, 21 + shift]], c.furD);
 
-    // Malapit na mga paa
+    // Near legs
     this.leg(p, 8 + shift + swing - spread, 14 + bob, ground - liftA, c.fur, c.furD);
     this.leg(p, 18 + shift - swing + spread, 14 + bob, ground - liftB, c.fur, c.furD);
 
-    // Ulo (nakayuko sa windup)
+    // Head (lowered during the windup)
     const hx = 22 + shift, hy = 5 + bob + (atk === 1 ? 2 : 0);
     for (let y = hy + 1; y <= hy + 5; y++) for (let x = hx; x <= hx + 5; x++) p.set(x, y, y === hy + 1 ? c.furL : c.fur);
     // tainga
     p.set(hx + 1, hy - 1, c.furD); p.set(hx + 1, hy, c.fur); p.set(hx + 2, hy, c.fur);
-    // nguso (bukas ang panga kapag umaatake)
+    // muzzle (jaw open when attacking)
     const open = atk === 2 ? 1 : 0;
     for (let x = hx + 6; x <= hx + 8; x++) { p.set(x, hy + 3, c.furL); p.set(x, hy + 4, c.fur); p.set(x, hy + 5 + open, c.furD); }
     p.set(hx + 8, hy + 3, c.nose);
@@ -180,12 +180,12 @@ export class WolfSprite extends CreatureSprite {
     const dy = atk === 2 ? 1 : 0;
     const liftA = walk && i === 1 ? 2 : 0, liftB = walk && i === 3 ? 2 : 0;
 
-    // Katawan sa likod ng ulo + mga paa sa likod
+    // Body behind the head + back legs
     this.leg(p, 10, 13 + bob, 20 - liftB, c.furD, c.furDD);
     this.leg(p, 21, 13 + bob, 20 - liftA, c.furD, c.furDD);
     ellipse(p, 17, 12 + bob + dy, 7.5, 4.5, (nx, ny) => (ny < -0.3 ? c.furL : nx > 0.5 ? c.furD : c.fur));
 
-    // Mga paa sa harap
+    // Front legs
     this.leg(p, 13, 14 + bob + dy, 21 - liftA, c.fur, c.furD);
     this.leg(p, 18, 14 + bob + dy, 21 - liftB, c.fur, c.furD);
 
@@ -216,11 +216,11 @@ export class WolfSprite extends CreatureSprite {
     const bob = anim === "idle" ? i : walk ? i % 2 : atk === 1 ? 1 : 0;
     const liftA = walk && i === 1 ? 2 : 0, liftB = walk && i === 3 ? 2 : 0;
 
-    // Ulo sa malayo (itaas), mga tainga
+    // Head far away (top), ears
     for (let y = 3 + bob; y <= 7 + bob; y++) for (let x = 13; x <= 20; x++) p.set(x, y, x >= 19 ? c.furD : c.fur);
     p.rows([[1 + bob, 13, 14], [2 + bob, 13, 14]], c.furD);
     p.rows([[1 + bob, 19, 20], [2 + bob, 19, 20]], c.furDD);
-    // Mga paa sa harap (malayo)
+    // Front legs (far)
     this.leg(p, 12, 12 + bob, 20 - liftA, c.furD, c.furDD);
     this.leg(p, 19, 12 + bob, 20 - liftB, c.furD, c.furDD);
     // Katawan (likod)
@@ -239,7 +239,7 @@ const FALCON = {
   body: "#5c3315", bodyD: "#3d200c", wing: "#7c441b", wingD: "#3d200c", breast: "#d4b895",
   head: "#f1ece2", mask: "#2b170e", eye: "#ffd166", beak: "#f59e0b", beakD: "#1e293b", talon: "#f59e0b"
 };
-// Hugis ng pakpak bawat yugto ng pagaspas: [y, x0, x1]
+// Wing shape per beat phase: [y, x0, x1]
 const FALCON_WING = [
   [[1, 8, 10], [2, 8, 12], [3, 9, 13], [4, 9, 14], [5, 10, 15], [6, 10, 15], [7, 11, 15]],   // taas
   [[7, 5, 16], [8, 4, 16], [9, 6, 15]],                                                     // gitna
@@ -264,14 +264,14 @@ export class FalconSprite extends CreatureSprite {
     const dive = anim === "dive";
     const taunt = anim === "taunt";
 
-    // Malayong pakpak (madilim, nasa likod ng katawan)
+    // Far wing (dark, behind the body)
     if (taunt) this.wing(p, FALCON_WING[0], c.wingD, shade(c.wingD, -0.3), -3);
     else if (!dive) this.wing(p, FALCON_WING[(i + 2) % 4], c.wingD, shade(c.wingD, -0.3), -2);
 
-    // Buntot na may puting dulo
+    // Tail with a white tip
     for (let y = 9; y <= 11; y++) { for (let x = 4; x <= 8; x++) p.set(x, y, c.bodyD); p.set(3, y, "#ffffff"); }
 
-    // Katawan + dibdib na may batik
+    // Body + speckled chest
     ellipse(p, 13, 10, 5.5, 3.2, (nx, ny) => (ny > 0.2 && nx > -0.2 ? c.breast : ny < -0.4 ? c.body : c.bodyD));
     p.set(15, 11, c.body); p.set(13, 12, c.body);
 
@@ -281,21 +281,21 @@ export class FalconSprite extends CreatureSprite {
     p.set(19, 7, c.eye);
     p.set(21, 8, c.beak); p.set(22, 8, c.beak); p.set(21, 9, c.beak);
     p.set(22, 9, taunt && i === 1 ? null : c.beakD);
-    if (taunt && i === 1) p.set(22, 10, c.beak);   // bukas ang tuka (sigaw)
+    if (taunt && i === 1) p.set(22, 10, c.beak);   // beak open (cry)
 
-    // Kuko: nakabitin kapag lumilipad, nakaunat pasulong kapag sumisisid
+    // Talons: hanging while flying, stretched forward while diving
     if (dive) { p.set(17, 13, c.talon); p.set(18, 13, c.talon); p.set(19, 13, "#ffffff"); }
     else { p.set(12, 13, c.talon); p.set(12, 14, c.talon); p.set(14, 13, c.talon); p.set(14, 14, c.talon); }
 
-    // Malapit na pakpak
+    // Near wing
     if (dive) this.wing(p, [[8, 7, 16], [9, 8, 15]], c.wing, c.wingD);
     else if (taunt) this.wing(p, FALCON_WING[0], c.wing, c.wingD, 1);
     else this.wing(p, FALCON_WING[i], c.wing, c.wingD);
   }
 }
 
-// ==================== TULONG SA DIREKSYON ====================
-// Mula sa galaw (dx, dy) → { dir, flip } para sa Avatar at mga nilalang
+// ==================== DIRECTION HELPER ====================
+// From movement (dx, dy) → { dir, flip } for the Avatar and creatures
 export function facingFrom(dx, dy, prev = { dir: "down", flip: false }) {
   if (Math.abs(dx) < 0.01 && Math.abs(dy) < 0.01) return prev;
   if (Math.abs(dx) >= Math.abs(dy) * 0.8) return { dir: "side", flip: dx < 0 };

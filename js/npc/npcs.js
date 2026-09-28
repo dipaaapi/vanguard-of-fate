@@ -6,9 +6,9 @@ import { PLATFORMS, PLATFORM_ORDER } from "../world/platforms.js";
 import { Sound } from "../audio.js";
 import { getLang } from "../i18n.js";
 
-// ==================== MGA NPC SA MUNDO ====================
-// Ang posisyon (x, y) ng NPC ay ang gitna ng paa, katulad ng anchor ng Avatar.
-// Ang paa ng player ay nasa (player.x + 10, player.y + 21).
+// ==================== NPCs IN THE WORLD ====================
+// An NPC's position (x, y) is the middle of its feet, like the Avatar's anchor.
+// The player's feet are at (player.x + 10, player.y + 21).
 
 const TALK_RANGE = 26;
 const FACE_RANGE = 70;
@@ -137,7 +137,7 @@ function drawSpeechBubble(ctx, x, y, text) {
 class NPC {
   constructor(id, x, y, dir = "down", platform = "hub", opts = {}) {
     this.id = id;
-    this.platform = platform;     // "hub" (Aethelgard) o id ng platform ng Act
+    this.platform = platform;     // "hub" (Aethelgard) or the id of an Act platform
     this.x = x;
     this.y = y;
     this.homeX = x;
@@ -193,7 +193,7 @@ class NPC {
     this.bubbleTimer = duration;
   }
 
-  // Humarap sa player kapag malapit; mag-patrolya o umatake sa anumang kalaban para sa kanilang kaligtasan
+  // Face the player when close; patrol, or attack any foe to keep everyone safe
   update(px, py, enemyManager = null, fx = null, king = null) {
     this.tick++;
     if (this.attackAnimTimer > 0) this.attackAnimTimer--;
@@ -208,7 +208,7 @@ class NPC {
 
     // ==========================================================
     // AUTONOMOUS DEFENSIVE COMBAT AI (PROTECT SELF & ALLIES)
-    // Walang pag-aalinlangang aatakihin ang anumang kalaban na lumalapit
+    // Attacks any approaching foe without hesitation
     // ==========================================================
     let threatEnemy = null;
     let minThreatDist = Infinity;
@@ -232,13 +232,13 @@ class NPC {
     }
 
     if (threatEnemy) {
-      this.bubbleText = ""; // Kanselahin ang ambient chat kapag may laban
+      this.bubbleText = ""; // Cancel ambient chat during a fight
       const edx = threatEnemy.x - this.x;
       const edy = threatEnemy.y - this.y;
       const eDist = Math.hypot(edx, edy);
       const ang = Math.atan2(edy, edx);
 
-      // Humarap agad sa kalaban
+      // Face the foe at once
       if (Math.abs(edx) > Math.abs(edy)) {
         this.dir = "side";
         this.flip = edx < 0;
@@ -247,7 +247,7 @@ class NPC {
         this.flip = false;
       }
 
-      // Lumapit sa kalaban kung wala pa sa combat range
+      // Close in on the foe when not yet in combat range
       if (eDist > this.combatRange) {
         this.x += (edx / eDist) * this.combatSpeed;
         this.y += (edy / eDist) * this.combatSpeed;
@@ -258,7 +258,7 @@ class NPC {
         this.vy = 0;
       }
 
-      // Umatake sa kalaban nang walang pag-aalinlangan
+      // Attack the foe without hesitation
       if (eDist <= this.combatRange + 6 && this.attackCooldown <= 0) {
         this.attackCooldown = 32 + Math.floor(Math.random() * 12);
         this.attackAnimTimer = 14;
@@ -268,7 +268,7 @@ class NPC {
 
         if (Sound.playSlash) Sound.playSlash(this.x, this.y);
 
-        // Iba't ibang elemento at spark effects batay sa katangian ng NPC
+        // Different element and spark effects per NPC
         let element = "physical";
         let sparkColor = "#ffffff";
         // A share of the target's max HP: NPC allies help at any level but rarely take the last hit
@@ -340,7 +340,7 @@ class NPC {
       return;
     }
 
-    // Kapag malapit ang player (kinakausap o tinititigan), huminto at humarap
+    // When the player is close (talking or looking), stop and face them
     if (distToPlayer < TALK_RANGE + 6) {
       if (Math.abs(dx) > Math.abs(dy)) {
         this.dir = "side";
@@ -365,7 +365,7 @@ class NPC {
       this.y += this.vy;
       this.walkAnimTick++;
 
-      // Direksyon batay sa bilis ng galaw
+      // Direction from the movement speed
       if (Math.abs(this.vx) > Math.abs(this.vy)) {
         this.dir = "side";
         this.flip = this.vx < 0;
@@ -374,7 +374,7 @@ class NPC {
         this.flip = false;
       }
 
-      // Check kung nakarating na sa target o lumampas sa radius
+      // Check whether the target is reached or the radius exceeded
       const dTarget = Math.hypot(this.targetX - this.x, this.targetY - this.y);
       const dHome = Math.hypot(this.x - this.homeX, this.y - this.homeY);
 
@@ -387,15 +387,15 @@ class NPC {
     }
   }
 
-  // Pumili ng susunod na natural na aksyon (lakad, hinto, pagmasid)
+  // Pick the next natural action (walk, pause, look around)
   pickNextAction() {
     const dHome = Math.hypot(this.x - this.homeX, this.y - this.homeY);
     const roll = Math.random();
 
-    // Walk / Maglakad patungo sa bagong punto
+    // Walk toward a new point
     if (roll < (this.guard ? 0.35 : 0.55)) {
       let ang;
-      // Kung medyo malayo na sa pinagmulan, bumalik nang bahagya
+      // When a bit far from home, drift back a little
       if (dHome > this.wanderRadius * 0.7) {
         ang = Math.atan2(this.homeY - this.y, this.homeX - this.x) + (Math.random() - 0.5) * 1.2;
       } else {
@@ -425,7 +425,7 @@ class NPC {
     this.vy = 0;
     this.stateTimer = 70 + Math.floor(Math.random() * 170);
 
-    // Minsan nagpapalit ng direksyon ng tingin habang nakatayo (hindi robot)
+    // Sometimes turn to look elsewhere while standing (not robotic)
     if (Math.random() < 0.45) {
       const dirs = ["down", "side", "up"];
       this.dir = dirs[Math.floor(Math.random() * dirs.length)];
@@ -457,25 +457,25 @@ export class NPCManager {
     this.stage = stage;
     this.npcs = [];
     this.nearest = null;
-    this.marked = null;     // layunin ng quest (may kumikislap na "!")
+    this.marked = null;     // quest objective (with a blinking "!")
     this.platformId = "hub";
     this.chatCooldown = 120;
     this.activeChat = null;
   }
 
-  // Lumipat ng lugar: ang mga NPC lang ng lugar na iyon ang makikita
+  // Change place: only that place's NPCs are visible
   setPlatform(id) {
     this.platformId = id;
     this.nearest = null;
     this.activeChat = null;
   }
 
-  // Nakikita ba ang NPC sa kasalukuyang lugar
+  // Is the NPC visible in the current place?
   shown(n) {
     return n.visible && n.platform === this.platformId;
   }
 
-  // Inilalagay ang lahat ng tauhan. summonerId = "aurelia" o "kenneth" (batay sa player)
+  // Places every character. summonerId = "aurelia" or "kenneth" (from the player)
   build(summonerId) {
     const sz = this.stage.safeZone;
     const gate = this.stage.castle.gatePortal;
@@ -484,25 +484,25 @@ export class NPCManager {
 
     this.summonerId = summonerId;
     this.npcs = [
-      // Barracks Sanctuary (Act II): dito sinalubong ng tagapagtawag ang mga kaluluwang taga-Daigdig
+      // Barracks Sanctuary (Act II): where the summoner welcomed the souls from Earth
       new NPC("ronald", bx + 58, by + 72, "down", "hub", { wanderRadius: 42, speed: 0.38 }),
       new NPC("edgar", bx + 238, by + 72, "down", "hub", { wanderRadius: 36, speed: 0.32 }),
-      // Tagapagtawag: Barracks (Acts II–III, VI) o Citadel (Acts IV–V) — isa lang ang nakikita
+      // Summoner: Barracks (Acts II–III, VI) or Citadel (Acts IV–V) — only one is visible
       Object.assign(new NPC(summonerId, bx + 150, by + 52, "down", "hub", { wanderRadius: 32, speed: 0.30 }), { tag: "summonerBarracks" }),
       Object.assign(new NPC(summonerId, gx - 22, gy + 42, "down", "hub", { wanderRadius: 18, speed: 0.25 }), { tag: "summonerCitadel" }),
-      // Ang limang naunang tinawag (Act III): may kanya-kanyang designated area at ikot sa Barracks
+      // The five earlier souls (Act III): each has a designated area and wanders the Barracks
       new NPC("arthur", bx + 60, by + 164, "down", "hub", { wanderRadius: 44, speed: 0.36 }),
       new NPC("lyra", bx + 105, by + 188, "down", "hub", { wanderRadius: 48, speed: 0.40 }),
       new NPC("julian", bx + 150, by + 164, "down", "hub", { wanderRadius: 40, speed: 0.32 }),
       new NPC("sam", bx + 195, by + 188, "down", "hub", { wanderRadius: 45, speed: 0.34 }),
       new NPC("renzo", bx + 240, by + 164, "down", "hub", { wanderRadius: 50, speed: 0.42 }),
-      // Imperial Citadel: audience dais sa harap ng gate (Act IV: Royal Job Awakening)
+      // Imperial Citadel: audience dais in front of the gate (Act IV: Royal Job Awakening)
       new NPC("king", gx + 22, gy + 40, "down", "hub", { guard: true, wanderRadius: 14, speed: 0.22 }),
       new NPC("royalGuard", gx - 62, gy + 36, "down", "hub", { guard: true, wanderRadius: 16, speed: 0.30 }),
       new NPC("royalGuard", gx + 62, gy + 36, "down", "hub", { guard: true, wanderRadius: 16, speed: 0.30 })
     ];
 
-    // Acts VII–XII: sinasamahan ng tagapagtawag ang bayani sa kampo ng bawat platform
+    // Acts VII–XII: the summoner accompanies the hero at each platform's camp
     PLATFORM_ORDER.forEach((pid) => {
       const c = PLATFORMS[pid].camp;
       this.npcs.push(Object.assign(new NPC(summonerId, c.x + c.w / 2 + 18, c.y + c.h / 2 + 8, "down", pid, { wanderRadius: 30, speed: 0.32 }), { tag: "field" }));
@@ -511,14 +511,14 @@ export class NPCManager {
         this.npcs.push(new NPC(id, x, y, "down", pid, { guard: true, wanderRadius: 10, speed: 0.22 }));
       });
     });
-    // Act XI: kasama sa pagtatanggol ng lamat si Kapitan Ronald at ang Royal Guard
+    // Act XI: Captain Ronald and the Royal Guard help hold the breach
     const sc = PLATFORMS.siege.camp;
     this.npcs.push(new NPC("ronald", sc.x + 36, sc.y + sc.h / 2 + 10, "up", "siege", { wanderRadius: 28, speed: 0.35 }));
     this.npcs.push(new NPC("royalGuard", sc.x + sc.w - 30, sc.y + 30, "up", "siege", { guard: true, wanderRadius: 16, speed: 0.30 }));
     this.npcs.push(new NPC("royalGuard", sc.x + 30, sc.y + 30, "up", "siege", { guard: true, wanderRadius: 16, speed: 0.30 }));
   }
 
-  // Aling NPC ang ipapakita batay sa quest
+  // Which NPCs to show depending on the quest
   applyQuest(quest, cls) {
     const atCitadel = quest.summonerAtCitadel();
     this.npcs.forEach((n) => {
@@ -528,7 +528,7 @@ export class NPCManager {
     this.marked = quest.targetNpc(this.summonerId, cls);
   }
 
-  // Autonomous ambient conversation sa pagitan ng mga NPC
+  // Autonomous ambient conversation between NPCs
   updateAmbientChat() {
     const lang = getLang() === "fil" ? "fil" : "en";
 
@@ -554,7 +554,7 @@ export class NPCManager {
     const visibleNpcs = this.npcs.filter((n) => this.shown(n));
     if (visibleNpcs.length < 2) return;
 
-    // Maghanap ng dalawang NPC na malapit sa isa't isa (< 55px)
+    // Find two NPCs close to each other (< 55px)
     for (let i = 0; i < visibleNpcs.length; i++) {
       for (let j = i + 1; j < visibleNpcs.length; j++) {
         const n1 = visibleNpcs[i];
@@ -565,7 +565,7 @@ export class NPCManager {
           let line1 = null;
           let line2 = null;
 
-          // Subukan muna mula sa ikinargang external JSON (npc_conversations.json)
+          // Try the loaded external JSON first (npc_conversations.json)
           if (NPC_CONVERSATIONS_DATA && Array.isArray(NPC_CONVERSATIONS_DATA.pairs)) {
             const pairData = NPC_CONVERSATIONS_DATA.pairs.find((p) =>
               p.pair && (
@@ -582,7 +582,7 @@ export class NPCManager {
             }
           }
 
-          // Fallback sa internal AMBIENT_CHATS kapag hindi pa tapos ang fetch
+          // Fall back to the internal AMBIENT_CHATS while the fetch is pending
           if (!line1) {
             const match = AMBIENT_CHATS.find((c) =>
               c.pair && (
@@ -597,7 +597,7 @@ export class NPCManager {
           }
 
           if (line1 && Math.random() < 0.6) {
-            // Humarap sa isa't isa at huminto
+            // Face each other and stop
             n1.state = "idle";
             n2.state = "idle";
             n1.stateTimer = 240;
@@ -626,7 +626,7 @@ export class NPCManager {
       }
     }
 
-    // Single random ambient lore murmur (mula sa 10+ lore/environment lines ng NPC sa JSON)
+    // Single random ambient lore murmur (from the NPC's 10+ lore/environment lines in the JSON)
     if (Math.random() < 0.40) {
       const speaker = visibleNpcs[Math.floor(Math.random() * visibleNpcs.length)];
       if (speaker && speaker.state !== "attack") {
@@ -671,7 +671,7 @@ export class NPCManager {
     });
     this.nearest = best;
 
-    // Kapag kinakausap o lalapit ang player, kanselahin ang ambient chat para sa NPC na iyon
+    // When the player talks to or approaches an NPC, cancel its ambient chat
     if (this.nearest) {
       this.nearest.bubbleText = "";
     }
@@ -687,7 +687,7 @@ export class NPCManager {
     return this.npcs.find((n) => this.shown(n) && n.id === id) || null;
   }
 
-  // Y-sort: ang mga NPC sa likod ng player (mas mataas ang y) ay iginuguhit muna
+  // Y-sort: NPCs behind the player (smaller y) are drawn first
   drawLayer(ctx, playerFootY, front) {
     this.npcs.forEach((n) => {
       if (!this.shown(n)) return;
@@ -695,7 +695,7 @@ export class NPCManager {
     });
   }
 
-  // Pangalan, speech bubbles, "!" ng quest at "[E] Kausapin" (nasa ibabaw ng lahat)
+  // Names, speech bubbles, the quest "!" and "[E] Talk" (above everything)
   drawLabels(ctx, player) {
     const px = player.x + 10, py = player.y + 21;
     ctx.textAlign = "center";
@@ -715,7 +715,7 @@ export class NPCManager {
         ctx.fillText("!", n.x, top - 5 + bob);
       }
 
-      // Speech bubble kapag may sinasabi
+      // Speech bubble while saying something
       if (n.bubbleText && n.bubbleTimer > 0 && (!this.nearest || this.nearest !== n)) {
         const floatY = n.y - 42 + Math.sin(n.tick / 10) * 1.2;
         drawSpeechBubble(ctx, n.x, floatY, n.bubbleText);

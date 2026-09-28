@@ -1,14 +1,14 @@
 import { shade } from "./avatar.js";
 import { CreatureSprite, ellipse } from "./creature.js";
 
-// ==================== MGA HALIMAW NG MGA ACT (LORE Acts VII–XII at mga banner) ====================
-// Parehong estilo ng Avatar at ng slime/lobo: pixel buffer + selective outline + naka-cache na frame.
-// Lahat ay may idle (2), walk (4) at attack (2: handa → tama) at direksyon down / side / up
-// (ang side ay nakaharap pakanan; ini-flip ng draw() para pakaliwa).
+// ==================== MONSTERS OF THE ACTS (LORE Acts VII–XII and the banners) ====================
+// Same style as the Avatar and the slime/wolf: pixel buffer + selective outline + cached frames.
+// All have idle (2), walk (4) and attack (2: ready → hit) and directions down / side / up
+// (side faces right; draw() flips it for left).
 
 const FR = { idle: 2, walk: 4, attack: 2 };
 
-// Karaniwang galaw bawat frame
+// Common motion per frame
 function motion(anim, i) {
   const walk = anim === "walk";
   const atk = anim === "attack" ? i + 1 : 0;
@@ -21,10 +21,10 @@ function motion(anim, i) {
   };
 }
 
-// Kulay mula sa normal (nx, ny): liwanag sa itaas-kaliwa, anino sa ibaba-kanan
+// Colour from the normal (nx, ny): light from the upper left, shade to the lower right
 const shaded = (c, cD, cL) => (nx, ny) => (-nx * 0.5 - ny * 0.8 > 0.55 ? cL : nx * 0.6 + ny * 0.6 > 0.5 ? cD : c);
 
-// Linya ng pixel (para sa sanga, buntot, sungay)
+// A line of pixels (for branches, tails, horns)
 function line(p, x0, y0, x1, y1, col, w = 1) {
   const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)) || 1;
   for (let k = 0; k <= n; k++) {
@@ -92,7 +92,7 @@ export class DrakeSprite extends CreatureSprite {
     // buntot
     line(p, 9 + sh, by, 5 + sh, by - 2, c.bodyD, 2);
     line(p, 5 + sh, by - 2, 1 + sh, by - 5 + m.bob, c.bodyD);
-    // mga paa
+    // legs
     if (!this.flying) {
       const g = 23;
       [[10, m.liftB, c.bodyD], [19, m.liftA, c.bodyD], [12, m.liftA, c.body], [21, m.liftB, c.body]].forEach(([x, l, col], k) => {
@@ -104,7 +104,7 @@ export class DrakeSprite extends CreatureSprite {
       p.rect(12 + sh, by + 4, 2, 2, c.bodyD); p.rect(18 + sh, by + 4, 2, 2, c.bodyD);
     }
     ellipse(p, 15 + sh, by, 8, 4.5, (nx, ny) => (ny > 0.45 ? c.belly : ny < -0.4 ? c.bodyL : nx > 0.6 ? c.bodyD : c.body));
-    // leeg at ulo (nakayuko sa windup)
+    // neck and head (lowered during the windup)
     const hy = by - 7 + (m.atk === 1 ? 2 : 0);
     p.rect(21 + sh, hy + 3, 3, 5, c.body);
     p.rect(23 + sh, hy, 6, 4, c.body);
@@ -117,7 +117,7 @@ export class DrakeSprite extends CreatureSprite {
       p.set(30 + sh, hy + 3, "#ffffff");
       if (c.fire) [[33, 0], [34, 1], [35, 0], [34, -1]].forEach(([x, dy]) => p.set(Math.min(35, x + sh - 2), hy + 3 + dy, c.fire));
     }
-    // malapit na pakpak
+    // near wing
     if (this.flying) this.wingRows(flapUp).forEach(([y, a, b]) => { for (let x = a; x <= b; x++) p.set(x + sh, y - lift + 2, x === a || y % 3 === 0 ? c.wingD : c.wing); });
     else p.rows([[by - 4, 11 + sh, 18 + sh], [by - 3, 10 + sh, 17 + sh]], c.wing);
   }
@@ -166,7 +166,7 @@ export class CrabSprite extends CreatureSprite {
     const rx = dir === "side" ? 6.5 : 8;
     const by = 12 + m.bob;
     const reach = this.spider ? 3 : 1;
-    // mga paa (3 bawat gilid), salitan ang angat habang naglalakad
+    // legs (3 per side), lifting alternately while walking
     for (let k = 0; k < 3; k++) {
       const up = m.walk && (k + i) % 2 === 0 ? 1 : 0;
       const ox = 15 - rx + 1 + k * 2, tx = ox - 4 - reach - (k === 0 ? 1 : 0);
@@ -178,7 +178,7 @@ export class CrabSprite extends CreatureSprite {
     }
     ellipse(p, 15, by, rx, 5, shaded(c.shell, c.shellD, c.shellL));
     if (!this.spider) {
-      // mga sipit: nakataas sa windup, nakasara sa tama
+      // claws: raised in the windup, snapped shut on the hit
       const cy = m.atk === 1 ? by - 5 : by + 1;
       [[5, -1], [25, 1]].forEach(([x, s]) => {
         if (dir === "up") return;
@@ -197,7 +197,7 @@ export class CrabSprite extends CreatureSprite {
   }
 }
 
-// ==================== SERPENT NG DAGAT (Act VIII) ====================
+// ==================== SEA SERPENT (Act VIII) ====================
 export class SerpentSprite extends CreatureSprite {
   constructor(c = {}) {
     super(38, 24, 19, 22, FR);
@@ -215,7 +215,7 @@ export class SerpentSprite extends CreatureSprite {
         for (let t = 0; t < th; t++) { p.set(Math.round(x), y + t, t === th - 1 ? c.belly : t === 0 ? c.bodyL : c.body); p.set(Math.round(x) + 1, y + t, t === th - 1 ? c.belly : c.body); }
         if (s % 3 === 1 && s > 2) p.set(Math.round(x), y - 1, c.fin);
       }
-      // leeg na nakataas at ulo
+      // raised neck and head
       const hx = 29 + lunge, hy = 7 + m.bob + (m.atk === 1 ? 2 : 0);
       line(p, 29 + lunge, 16, hx, hy + 4, c.body, 3);
       p.rect(hx, hy, 6, 4, c.body);
@@ -226,7 +226,7 @@ export class SerpentSprite extends CreatureSprite {
       if (m.atk === 2) { p.rows([[hy + 4, hx + 4, hx + 7]], c.bodyD); p.set(hx + 6, hy + 3, "#ffffff"); }
       return;
     }
-    // harap/likod: nakapulupot na may nakataas na ulo
+    // front/back: coiled with the head raised
     ellipse(p, 19, 17, 11, 4, (nx, ny) => (Math.abs(ny) < 0.3 && Math.abs(nx) < 0.55 ? null : ny > 0.4 ? c.belly : nx > 0.5 ? c.bodyD : c.body));
     const hy = 5 + m.bob + (m.atk === 1 ? 2 : 0) + (m.atk === 2 ? 2 : 0);
     line(p, 18, 15, 18, hy + 4, c.body, 3);
@@ -240,7 +240,7 @@ export class SerpentSprite extends CreatureSprite {
 }
 
 // ==================== BRUTE: yeti, golem, Ignis, Satan (Acts IX, X, XII) ====================
-// opts: horns, wings, hammer, cracks (kulay ng bitak na kumikinang), crystals (tinik sa balikat)
+// opts: horns, wings, hammer, cracks (glowing crack colour), crystals (shoulder spikes)
 export class BruteSprite extends CreatureSprite {
   constructor(c = {}, opts = {}) {
     super(44, 48, 22, 46, FR);
@@ -256,7 +256,7 @@ export class BruteSprite extends CreatureSprite {
     const by = m.bob;
     const body = shaded(c.fur, c.furD, c.furL);
 
-    // pakpak (nasa likod; nasa ibabaw kapag nakatalikod)
+    // wings (behind; on top when facing away)
     const wings = () => {
       const flap = i % 2;
       [-1, 1].forEach((s) => {
@@ -272,7 +272,7 @@ export class BruteSprite extends CreatureSprite {
     };
     if (o.wings && !back) wings();
 
-    // mga binti
+    // legs
     const legs = side ? [[16 + m.swing * 2, m.liftA, c.furD], [21 - m.swing * 2, m.liftB, c.fur]] : [[14, m.liftA, c.fur], [25, m.liftB, c.fur]];
     legs.forEach(([x, l, col]) => { p.rect(x, 36 + by, 5, 9 - l - by, col); p.rect(x - 1, 44 - l, 7, 2, shade(col, -0.25)); });
 
@@ -296,7 +296,7 @@ export class BruteSprite extends CreatureSprite {
       p.rows([[hy + 4, hx - 1 + (side ? 2 : 0), hx + 1 + (side ? 2 : 0)]], m.atk === 2 ? "#ffffff" : shade(c.face, -0.4));
     }
 
-    // mga braso: windup = nakataas, strike = pinalo pababa sa harap
+    // arms: raised in the windup, slammed down in front on the strike
     const arm = (ax, s) => {
       const col = s < 0 || !side ? c.fur : c.furD;
       if (m.atk === 1) {
@@ -387,7 +387,7 @@ export class SpecterSprite extends CreatureSprite {
     const fl = anim === "idle" ? i : (i % 2);     // lumulutang
     const fwd = m.atk === 2 ? (dir === "side" ? 2 : 0) : 0;
     const top = 2 + fl;
-    // kasuotang punit sa laylayan
+    // tattered hem of the robe
     for (let y = 10; y <= 25; y++) {
       const w = 4 + Math.floor((y - 10) * 0.4);
       for (let x = 13 - w; x <= 13 + w; x++) {
@@ -395,7 +395,7 @@ export class SpecterSprite extends CreatureSprite {
         p.set(x + fwd, y + top - 2, x > 13 + w - 2 ? c.robeD : x < 13 - w + 2 ? c.robeL : c.robe);
       }
     }
-    // mga braso
+    // arms
     const ay = m.atk === 1 ? 4 : m.atk === 2 ? 11 : 15;
     const reach = m.atk === 2 ? 5 : 2;
     [[-1, 8], [1, 18]].forEach(([s, x]) => {
@@ -427,12 +427,12 @@ export class TreantSprite extends CreatureSprite {
     const c = this.c, m = motion(anim, i);
     const sway = anim === "idle" ? (i ? 1 : 0) : 0;
     const back = dir === "up";
-    // mga ugat (paa): nagpapalit-palit habang naglalakad
+    // roots (feet): alternating while walking
     [[20, m.liftA], [30, 0], [38, m.liftB], [46, 0]].forEach(([x, l], k) => {
       line(p, x, 58, x - 6 + k * 3, 73 - l, c.root, 3);
       line(p, x, 60, x + 4 - k, 73 - l, c.barkD, 2);
     });
-    // katawan (puno)
+    // body (trunk)
     for (let y = 22; y <= 62; y++) {
       const w = 11 + Math.floor((y - 22) * 0.12) + (y > 55 ? (y - 55) : 0);
       for (let x = 34 - w; x <= 34 + w; x++) {
@@ -442,7 +442,7 @@ export class TreantSprite extends CreatureSprite {
         p.set(x + sway, y, col);
       }
     }
-    // lumot at itim na dagta
+    // moss and black sap
     [[24, 30], [25, 31], [43, 36], [44, 37], [27, 50], [42, 52]].forEach(([x, y]) => p.set(x + sway, y, c.moss));
     [[30, 44], [30, 45], [30, 46], [39, 47], [39, 48]].forEach(([x, y]) => p.set(x + sway, y, c.sap));
     // koronang sanga
@@ -450,15 +450,15 @@ export class TreantSprite extends CreatureSprite {
     branches.forEach(([x0, y0, x1, y1], k) => line(p, x0 + sway, y0, x1 + sway + (k % 2 ? sway : -sway), y1, k < 3 ? c.bark : c.barkD, k < 5 ? 2 : 1));
     [[18, 6], [50, 5], [14, 11], [54, 12], [34, 3]].forEach(([x, y]) => { p.set(x + sway, y, c.moss); p.set(x + sway + 1, y, c.mossL); });
     if (!back) {
-      // mukha: pulang mata at tulis-tulis na bibig
+      // face: red eyes and a jagged mouth
       p.rect(27 + sway, 26, 3, 2, c.eye); p.rect(38 + sway, 26, 3, 2, c.eye);
       line(p, 26 + sway, 24, 30 + sway, 25, c.barkD); line(p, 42 + sway, 24, 38 + sway, 25, c.barkD);
       for (let x = 28; x <= 40; x++) p.set(x + sway, 32 + (x % 2), c.sap);
       if (m.atk === 2) p.rows([[33, 29 + sway, 39 + sway], [34, 30 + sway, 38 + sway]], c.sap);
-      // kumikinang na heartstone
+      // glowing heartstone
       ellipse(p, 34 + sway, 43, 4, 5, (nx, ny) => (nx * nx + ny * ny < 0.25 ? (i % 2 ? "#ffffff" : c.heartL) : c.heart));
     }
-    // mga brasong sanga
+    // branch arms
     const arm = (s) => {
       const sx = 34 + s * 11 + sway;
       if (m.atk === 1) { line(p, sx, 28, sx + s * 6, 4, c.bark, 3); [[-2, -3], [0, -4], [2, -3]].forEach(([dx, dy]) => line(p, sx + s * 6, 4, sx + s * 6 + dx * 2, 4 + dy, c.barkD)); }
@@ -480,9 +480,9 @@ export class LeviathanSprite extends CreatureSprite {
   render(p, dir, anim, i) {
     const c = this.c, m = motion(anim, i);
     const sway = anim === "walk" ? [-2, 0, 2, 0][i] : anim === "idle" ? i : 0;
-    // tubig at bula sa ilalim
+    // water and foam underneath
     ellipse(p, 44, 60, 40, 6, (nx, ny) => (Math.abs(ny) > 0.6 ? c.foam : c.water));
-    // mga likaw na lumilitaw sa tubig
+    // coils surfacing from the water
     [[16, 1], [72, -1]].forEach(([x, s]) => {
       for (let a = 0; a <= 12; a++) {
         const ang = (a / 12) * Math.PI;
@@ -499,11 +499,11 @@ export class LeviathanSprite extends CreatureSprite {
       if (y % 6 === 0) p.set(x, y, c.belly);
     }
     const hx = 44 + sway, hy = 17 + lunge;
-    // palikpik sa gilid
+    // side fin
     [[-1, 30], [1, 58]].forEach(([s, x]) => { for (let k = 0; k < 8; k++) line(p, hx + s * 8, hy - 2 + k, x + sway + s * (k > 4 ? -2 : 0), hy - 6 + k * 2, k % 2 ? c.fin : c.finL); });
     // ulo
     ellipse(p, hx, hy, 12, 9, shaded(c.scale, c.scaleD, c.scaleL));
-    // abyssal helm na may gintong tinik
+    // abyssal helm with golden spikes
     for (let x = hx - 10; x <= hx + 10; x++) p.set(x, hy - 7, c.helm);
     [-9, -5, 0, 5, 9].forEach((d, k) => line(p, hx + d, hy - 8, hx + d, hy - 13 - (k === 2 ? 3 : 0), k === 2 ? c.gold : c.helm, 2));
     if (dir !== "up") {
