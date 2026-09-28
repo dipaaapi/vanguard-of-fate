@@ -42,7 +42,9 @@ export class MercenaryManager {
 
     player.gold -= cost;
     // Lakas ayon sa level ng bayani: HP at pinsala
-    const power = (1 + (player.level - 1) * 0.06) * (mercData.powerBonus || 1);
+    // Scales with same-level monster HP (35 + 12 × level): a basic hit stays ~17% of a foe at every level,
+    // so mercenaries neither steal every kill early nor fade out late.
+    const power = ((35 + 12 * player.level) / 47) * 0.35 * (mercData.powerBonus || 1);
     const maxHp = Math.round(mercData.maxHp * (1 + (player.level - 1) * 0.1));
     if (Sound && Sound.playSelectConfirm) Sound.playSelectConfirm();
 

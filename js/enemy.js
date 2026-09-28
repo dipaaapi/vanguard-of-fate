@@ -82,6 +82,8 @@ export class EnemyManager {
     this.stage = stage;
     this.kinds = kinds;
     this.tier = tier;
+    // Act level floor: VII 10 · VIII 15 · IX 20 · X 25 · XI 30 · XII 35 (Aethelgard has none)
+    this.levelFloor = tier >= 2 ? tier * 5 : 1;
     this.enemies = [];
     this.hazards = [];
     this.orbs = [];
@@ -198,7 +200,7 @@ export class EnemyManager {
   spawn(key, playerLevel, x, y, levelOffset = null, forceTier = null) {
     const kind = MONSTERS[key];
     if (!kind) return null;
-    const lvl = Math.max(1, playerLevel + (levelOffset ?? rint(-5, 5)));
+    const lvl = Math.max(this.levelFloor || 1, playerLevel + (levelOffset ?? rint(-5, 5)));
     const hp = Math.round((35 + lvl * 12) * kind.hpMult);
     const e = {
       id: Math.random(), key, type: key, kind, level: lvl,
@@ -228,7 +230,7 @@ export class EnemyManager {
   spawnBoss(key, x, y, playerLevel) {
     const def = BOSSES[key];
     if (!def || this.boss()) return null;
-    const lvl = playerLevel + 3;
+    const lvl = Math.max(playerLevel + 3, (this.levelFloor || 1) + 5);
     const hp = Math.round((35 + lvl * 12) * def.hpBase);
     const e = {
       id: Math.random(), key, type: key, kind: def, boss: true, level: lvl,

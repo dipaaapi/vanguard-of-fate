@@ -182,7 +182,10 @@ export class Player {
     if (this.invulnTimer > 0) return;   // hal. Dodge Roll ng Novice
 
     const guard = (this.guardTimer > 0 ? 0.65 : 1) * (this.mercGuard || 1);   // Bastion Forcefield (−35%) · Guardian Aura (−15%)
-    const netDmg = Math.max(1, Math.round(amount * guard * (1 - (this.dmgReduce || 0))) - this.defense);
+    // DEF mitigates a share of each hit: DEF / (DEF + 20 + 4 × level). Flat subtraction made heavy gear
+    // nearly immune and let the hero grow tankier every level; this keeps survival steady (~13–15 same-level hits).
+    const mitigation = this.defense / (this.defense + 20 + 4 * this.level);
+    const netDmg = Math.max(1, Math.round(amount * guard * (1 - (this.dmgReduce || 0)) * (1 - mitigation)));
     this.hp -= netDmg;
     this.hitFlashTimer = 16;
     if (this.onHurt) this.onHurt(netDmg, source);

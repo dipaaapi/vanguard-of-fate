@@ -18,7 +18,7 @@ export const WandMercenary = {
     { id: "heal", name: { en: "Heal Ally", fil: "Pagalingin ang Kakampi" }, cd: 720,
       ready: (m, c) => c.player.hp < c.player.maxHp * 0.6,
       use: (m, c) => {
-        const amt = Math.round(c.player.maxHp * 0.12 * (0.8 + (m.power || 1) * 0.2));
+        const amt = Math.round(c.player.maxHp * 0.12 * Math.min(1.25, 0.8 + (m.power || 1) * 0.1));
         c.player.hp = Math.min(c.player.maxHp, c.player.hp + amt);
         if (c.fx.spawnDamagePopup) c.fx.spawnDamagePopup(c.player.x + 10, c.player.y - 14, `+${amt} HEAL`, true, "#4cc9f0");
         if (c.fx.spawnHitSparks) c.fx.spawnHitSparks(c.player.x + 10, c.player.y + 8, "#4cc9f0", 12);

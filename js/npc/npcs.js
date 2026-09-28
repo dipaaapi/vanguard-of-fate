@@ -271,7 +271,8 @@ class NPC {
         // Iba't ibang elemento at spark effects batay sa katangian ng NPC
         let element = "physical";
         let sparkColor = "#ffffff";
-        let dmg = 30 + Math.floor(Math.random() * 20);
+        // A share of the target's max HP: NPC allies help at any level but rarely take the last hit
+        let dmg = Math.max(3, Math.round(threatEnemy.maxHp * (0.1 + Math.random() * 0.06)));
         let knockback = 14;
 
         switch (this.id) {
