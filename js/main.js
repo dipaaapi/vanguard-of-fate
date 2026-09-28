@@ -27,6 +27,7 @@ import { NPCManager } from "./npc/npcs.js";
 import { NPC_DEFS, MENTOR_OF, summonerIdFor } from "./npc/roster.js";
 import { getDialogue, npcName } from "./dialogue.js";
 import { DialogBox, QuestHud } from "./dialog.js";
+import { ChatLog } from "./chatlog.js";
 import { Avatar } from "./avatar/avatar.js";
 import { createLorePanel } from "./lore.js";
 import { HudBar } from "./hudbar.js";
@@ -56,9 +57,13 @@ const stageEl = document.getElementById("stage");
 const viewportEl = document.getElementById("viewport");
 const barEl = document.getElementById("bar");
 
+// Habang naglalaro: may puwang sa ibaba para sa bottom tray (talaan ng usapan)
+const TRAY_RESERVE = 104;
+const chatLogEl = document.getElementById("chatLog");
+
 function fitCanvas() {
   const availW = stageEl.clientWidth;
-  const availH = window.innerHeight - barEl.offsetHeight;
+  const availH = window.innerHeight - barEl.offsetHeight - (layoutMode === "play" ? TRAY_RESERVE : 0);
   const raw = Math.min(availW / VIEW_W, availH / VIEW_H);
   const scale = Math.max(1, Math.floor(raw));
 
@@ -67,6 +72,7 @@ function fitCanvas() {
   canvas.style.width = canvas.width + "px";
   canvas.style.height = canvas.height + "px";
   barEl.style.width = canvas.width + "px";   // kapantay ng canvas ang menu
+  chatLogEl.style.width = canvas.width + "px";
   viewportEl.style.setProperty("--s", scale);  // laki ng HTML overlay (dialogue, quest)
 
   // Nare-reset kapag binago ang canvas.width, kaya i-set ulit dito
@@ -154,6 +160,9 @@ const quest = new QuestManager();
 const npcManager = new NPCManager(hub);
 const dialog = new DialogBox(viewportEl);
 const questHud = new QuestHud(viewportEl);
+// Bottom tray: bawat linya ng NPC ay itinatala kasama ang oras sa laro
+const chatLog = new ChatLog(chatLogEl);
+dialog.onLine = (id, line) => chatLog.add(id, line, dayNight.label());
 const summonerName = () => (npcManager.summonerId ? npcName(npcManager.summonerId) : "");
 const playerClass = () => (player ? player.heroData.id : "novice");
 // Pangalan ng mentor ng class ng player (Act V); null habang Novice pa
@@ -670,6 +679,7 @@ function starterKit(p) {
 // Karaniwang reset kapag papasok sa laro (bagong laro o load)
 function beginPlaying() {
   controller.clearAll();
+  chatLog.clear();
   stage = hub;
   worldMap.stage = hub;
   dayNight.setPlace("hub");
@@ -1331,6 +1341,6 @@ requestAnimationFrame(gameLoop);
 if (new URLSearchParams(location.search).has("debug")) {
   window.__vof = {
     get player() { return player; }, get stage() { return stage; }, get state() { return gameState; },
-    quest, enemyManager, lootManager, projectileManager, mercManager, inventory, charPanel, travelTo, saveGame, awaken, ROSTER
+    quest, enemyManager, lootManager, projectileManager, mercManager, npcManager, inventory, charPanel, travelTo, saveGame, awaken, ROSTER
   };
 }

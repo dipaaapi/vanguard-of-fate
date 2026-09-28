@@ -22,6 +22,7 @@ export class DialogBox {
     this.index = 0;
     this.shown = 0;
     this.onEnd = null;
+    this.onLine = null;      // (id, line): tinatawag sa bawat bagong linya (para sa talaan sa bottom tray)
 
     this.box.addEventListener("pointerdown", (e) => { e.preventDefault(); this.next(); });
   }
@@ -40,6 +41,7 @@ export class DialogBox {
     if (avatar) avatar.drawPortrait(ctx, this.portrait.width, this.portrait.height);
     else ctx.clearRect(0, 0, this.portrait.width, this.portrait.height);
     this.render();
+    if (this.onLine) this.onLine(id, this.current());
     if (Sound.playSelectMove) Sound.playSelectMove();
   }
 
@@ -79,6 +81,7 @@ export class DialogBox {
     }
     if (Sound.playSelectMove) Sound.playSelectMove();
     this.render();
+    if (this.onLine) this.onLine(this.id, this.current());
   }
 
   close() {
