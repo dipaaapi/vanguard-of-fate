@@ -36,6 +36,7 @@ const TEXT = {
     smithLimit: (n) => `This smith can only refine up to +${n}.`,
     svcRefine: (who) => `Refine at ${who}`, svcRepair: (who) => `Repair at ${who}`,
     durability: "Durability", broken: "BROKEN — no stats until repaired",
+    confirmRespec: "Really forget everything?",
     doRepair: "Repair", repairAll: "Repair all", repaired: "Repaired!", nothingToRepair: "Nothing needs repair.",
     svcTemper: (who) => `Temper at ${who}`, doTemper: "Temper", tempered: "Tempered!", setBonus: (n) => `Set bonus (${n} worn)`,
     temperErr: { set: "Set gear cannot be tempered.", max: "Already tempered 3 times.", gold: "Not enough gold", minerals: "Not enough minerals" },
@@ -64,6 +65,7 @@ const TEXT = {
     smithLimit: (n) => `Hanggang +${n} lang ang kaya ng panday na ito.`,
     svcRefine: (who) => `Mag-refine kay ${who}`, svcRepair: (who) => `Magpaayos kay ${who}`,
     durability: "Tibay", broken: "SIRA — walang stats hangga't hindi naaayos",
+    confirmRespec: "Talagang kalimutan lahat?",
     doRepair: "Ayusin", repairAll: "Ayusin lahat", repaired: "Naayos na!", nothingToRepair: "Walang kailangang ayusin.",
     svcTemper: (who) => `Magpatibay kay ${who}`, doTemper: "Patibayin", tempered: "Napatibay!", setBonus: (n) => `Bonus ng set (${n} suot)`,
     temperErr: { set: "Hindi puwedeng patibayin ang set.", max: "Tatlong beses nang napatibay.", gold: "Kulang ang ginto", minerals: "Kulang ang mineral" },
@@ -283,6 +285,7 @@ export class InventoryPanel {
 
   select(sel) {
     this.sel = sel;
+    this.confirmUse = false;
     this.confirmDrop = false;
     this.msg = "";
     this.render();
@@ -303,6 +306,8 @@ export class InventoryPanel {
     } else if (action === "unequip" && this.sel.kind === "slot") {
       if (bag.unequip(this.sel.slot)) this.sel = null;
     } else if (action === "use" && this.sel.kind === "bag") {
+      if (it.effect && it.effect.respec && !this.confirmUse) { this.confirmUse = true; this.render(); return; }
+      this.confirmUse = false;
       bag.use(this.sel.index, p, this.ctx.fx);
       if (!bag.slots[this.sel.index] || bag.slots[this.sel.index].id !== it.id) this.sel = null;
     } else if (action === "upgrade") {
@@ -556,7 +561,7 @@ export class InventoryPanel {
         }
       }
       if (it.type === "consume" && inBag) {
-        actBtn(T.doUse, "use");
+        actBtn(it.effect && it.effect.respec && this.confirmUse ? T.confirmRespec : T.doUse, "use");
         // Italaga sa quick slot 1–4
         [0, 1, 2, 3].forEach((k) => actBtn(`${T.slot} ${k + 1}${p.belt[k] === it.base ? " ✔" : ""}`, `belt:${k}`));
       }

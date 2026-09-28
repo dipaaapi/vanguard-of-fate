@@ -258,6 +258,7 @@ export class Bag {
     if (e.stamina) { player.stamina = player.maxStamina; player.exhausted = false; }
     if (e.fresh) player.freshTimer = e.fresh;
     if (e.buff && player.buffs) player.buffs[e.buff] = Math.max(player.buffs[e.buff] || 0, e.time);
+    if (e.respec && player.respec) player.respec();
     this.removeAt(i, 1);
     pop(item.name.toUpperCase(), item.color);
     return item.name;

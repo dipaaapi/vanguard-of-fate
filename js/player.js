@@ -151,6 +151,18 @@ export class Player {
     this.hp = Math.min(this.hp, this.maxHp);
   }
 
+  // Oblivion Mushroom: every stat back to 1 and every skill forgotten; all points are refunded
+  respec() {
+    Object.keys(this.stats).forEach((k) => {
+      for (let v = 1; v < this.stats[k]; v++) this.statPoints += statCost(v);
+      this.stats[k] = 1;
+    });
+    this.skillPoints += Object.values(this.skillLevels).reduce((n, lv) => n + lv, 0);
+    this.skillLevels = {};
+    this.recalc();
+    this.hp = Math.min(this.hp, this.maxHp);
+  }
+
   // Stat builder: itaas ang STR/AGI/… (tumataas ang gastos, tulad sa Ragnarok)
   raiseStat(k) {
     const v = this.stats[k];

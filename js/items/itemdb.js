@@ -164,6 +164,8 @@ const OTHER = {
   elixir:   { type: "consume", icon: "potion", tint: "#f8fafc", price: 30, effect: { heal: 150 }, name: N("White Potion", "Puting Potion"), desc: N("Restores 150 HP.", "Nagbabalik ng 150 HP.") },
   tonic:    { type: "consume", icon: "potion", tint: "#facc15", price: 12, effect: { stamina: 100, fresh: 600 }, name: N("Stamina Tonic", "Tonic ng Lakas"), desc: N("Refills stamina; no fatigue for 10s.", "Puno ang stamina; walang pagod sa 10s.") },
   panacea:  { type: "consume", icon: "potion", tint: "#4ade80", price: 15, effect: { cure: true }, name: N("Edgar's Panacea", "Panacea ni Edgar"), desc: N("Purges all seven miasmic blights.", "Inaalis ang pitong sumpa ng miasma.") },
+  // Rare respec item: drops very seldom, sometimes sold by Pip in Emberhold at a steep price
+  mushroom: { type: "consume", icon: "herb", tint: "#c026d3", price: 1200, effect: { respec: true }, name: N("Oblivion Mushroom", "Kabuti ng Paglimot"), desc: N("Forget every stat and skill: all points are refunded to spend again. Cannot be undone.", "Kalimutan ang lahat ng stat at skill: ibinabalik ang lahat ng puntos para gastusin muli. Hindi na maibabalik.") },
   herb:     { type: "consume", icon: "herb", price: 6, effect: { heal: 30, resetSkill: true }, name: N("Yggdrasil Leaf", "Dahon ng Yggdrasil"), desc: N("+30 HP and resets your skill cooldown.", "+30 HP at nire-reset ang cooldown ng skill.") },
   shardPower: { type: "consume", icon: "shard", tint: "#ef4444", price: 8, effect: { buff: "damage", time: 420 }, name: N("Power Shard", "Shard ng Lakas"), desc: N("+50% damage for 7s.", "+50% pinsala sa 7s.") },
   shardRapid: { type: "consume", icon: "shard", tint: "#facc15", price: 8, effect: { buff: "atkSpeed", time: 420 }, name: N("Rapid Shard", "Shard ng Bilis ng Atake"), desc: N("Double attack speed for 7s.", "Dobleng bilis ng atake sa 7s.") },
@@ -449,6 +451,9 @@ export function rollDrop(grade, cls, info = {}, rnd = Math.random) {
     out.push(makeEquip(g, cls, rnd, null, k === 0 ? min : T.minRarity === "rare" ? "magic" : T.minRarity));
   }
   if (rnd() < T.unique * dm) { const u = makeUnique(grade, cls, rnd); if (u) out.push(u); }
+  // Oblivion Mushroom: a very rare drop (tougher monsters drop it more often)
+  const MUSHROOM = { normal: 0.003, champion: 0.008, elite: 0.02, mvp: 0.05 };
+  if (rnd() < (MUSHROOM[info.tier] || (info.boss ? MUSHROOM.mvp : MUSHROOM.normal))) out.push({ id: "mushroom", qty: 1 });
   const cardKey = info.key && CARDS[info.key] ? info.key : null;
   if (cardKey && rnd() < T.card * dm) out.push({ id: `card:${cardKey}`, qty: 1 });
   return out;

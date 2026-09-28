@@ -344,9 +344,11 @@ function mineVein(v) {
 
 // Pip's stall: buy one at a time; the menu reopens after each purchase with the gold left
 const DWARF_STOCK = [["monsterShard", 15], ["voidCrystal", 80], ["elixir", 45], ["tonic", 18], ["panacea", 22]];
+let pipHasMushroom = false;       // rolled each time the hero arrives in the Ashfall (30%)
 function openDwarfShop() {
   const fil = lang() === "fil";
-  serviceMenu.show(`${npcName("pip")} · ◆ ${player.gold}G`, DWARF_STOCK.map(([id, price]) => ({
+  const stock = pipHasMushroom ? [...DWARF_STOCK, ["mushroom", 3000]] : DWARF_STOCK;
+  serviceMenu.show(`${npcName("pip")} · ◆ ${player.gold}G`, stock.map(([id, price]) => ({
     label: `${getItem(id).name} — ${price}G`,
     hint: getItem(id).desc,
     disabled: player.gold < price,
@@ -356,6 +358,7 @@ function openDwarfShop() {
       } else {
         player.gold -= price;
         chatLog.event("loot", fil ? `Binili ang ${getItem(id).name} (−${price}G)` : `Bought ${getItem(id).name} (−${price}G)`, dayNight.label());
+        if (id === "mushroom") pipHasMushroom = false;   // one per visit
         if (Sound.playLootPickup) Sound.playLootPickup();
       }
       openDwarfShop();
@@ -653,6 +656,7 @@ function travelTo(id, at = null) {
   }
   syncBoss();
   restoreSealStone();
+  if (id === "ash") pipHasMushroom = Math.random() < 0.3;
   saveGame();
 }
 
