@@ -3,15 +3,15 @@ import { Bag } from "./items/bag.js";
 import { STATS, PRIMARY, statCost, STAT_MAX, skillBonus, canLearn, findSkill } from "./skills.js";
 import { STATUS_KEYS, tickStatuses, resistChance, blocksRegen } from "./status.js";
 
-// Stamina (parang Diablo): nauubos habang nag-i-sprint, bumabalik kapag naglalakad o nakatayo.
-// Kapag naubos, "pagod" hanggang umabot ulit sa EXHAUST_RECOVER.
+// Stamina (Diablo style): drains while sprinting, refills when walking or standing.
+// When empty, "tired" until it climbs back to EXHAUST_RECOVER.
 const STAMINA_DRAIN = 0.55;
 const STAMINA_REGEN = 0.4;
-const STAMINA_DELAY = 24;       // frames bago magsimulang bumalik
+const STAMINA_DELAY = 24;       // frames before it starts refilling
 const EXHAUST_RECOVER = 35;
 
-// EXP para umakyat mula sa level na ito (quadratic, hindi exponential):
-// Lv1 70 · Lv10 790 · Lv20 2540 · Lv30 5290 · Lv40 9040 — mga 8 hanggang 26 na kapantay na halimaw bawat level
+// EXP to level up from this level (quadratic, not exponential):
+// Lv1 70 · Lv10 790 · Lv20 2540 · Lv30 5290 · Lv40 9040 — about 8 to 26 same-level monsters per level
 export const expFor = (level) => Math.round(40 + 25 * level + 5 * level * level);
 
 export class Player {
@@ -24,16 +24,16 @@ export class Player {
     this.exp = 0;
     this.expNext = expFor(1);
     this.gold = 150;
-    this.statPoints = 10;     // panimulang puntos para sa STR/AGI/VIT/INT/DEX/LUK
+    this.statPoints = 10;     // starting points for STR/AGI/VIT/INT/DEX/LUK
 
-    // Stat builder at skill tree (parang Ragnarok Online) — tingnan ang js/skills.js
+    // Stat builder and skill tree (Ragnarok Online style) — see js/skills.js
     this.stats = { str: 1, agi: 1, vit: 1, int: 1, dex: 1, luk: 1 };
     this.skillLevels = {};
     this.skillPoints = 0;
-    this.sk = {};             // kabuuang epekto ng mga skill (kinukuwenta sa recalc)
-    this.aspd = 0;            // bilis ng atake (0..0.5)
-    this.dmgMult = 1;         // dagdag na % pinsala mula sa skill
-    this.dmgReduce = 0;       // bawas sa natatanggap na pinsala (0..0.5)
+    this.sk = {};             // combined skill effects (computed in recalc)
+    this.aspd = 0;            // attack speed (0..0.5)
+    this.dmgMult = 1;         // extra % damage from skills
+    this.dmgReduce = 0;       // reduction of damage taken (0..0.5)
     this.regenTimer = 0;
 
     this.bonusHp = 0;
@@ -49,27 +49,27 @@ export class Player {
     this.baseSpeed = heroData.speed || 1.4;
     this.speed = this.baseSpeed;
     this.defense = 0;
-    this.attack = 0;          // dagdag na pinsala (stat points + kagamitan)
-    this.crit = 0;            // tsansa ng critical (0..1)
-    this.cdr = 0;             // bawas sa cooldown (0..0.5)
+    this.attack = 0;          // extra damage (stat points + equipment)
+    this.crit = 0;            // critical chance (0..1)
+    this.cdr = 0;             // cooldown reduction (0..0.5)
 
     // Stamina / pagod
     this.maxStamina = 100;
     this.stamina = this.maxStamina;
     this.exhausted = false;
     this.staminaDelay = 0;
-    this.freshTimer = 0;      // Stamina Tonic: walang pagod habang > 0
+    this.freshTimer = 0;      // Stamina Tonic: no fatigue while > 0
 
-    // Bag at suot na kagamitan (tingnan ang js/items)
+    // Bag and worn equipment (see js/items)
     this.bag = new Bag();
-    // Quick slot (1–4), parang F-key ng Ragnarok / belt ng Diablo II
+    // Quick slots (1–4), like Ragnarok's F-keys / Diablo II's belt
     this.belt = ["salve", "tonic", "panacea", "herb"];
-    // Auto-potion: hp = porsyento ng HP (0 = off); cure = auto-Panacea; stamina = auto-Tonic kapag pagod
+    // Auto-potion: hp = HP percentage (0 = off); cure = auto-Panacea; stamina = auto-Tonic when tired
     this.autoPot = { hp: 0, cure: false, stamina: false };
     this.autoPotTimer = 0;
 
     this.facing = "right";
-    this.dir = "down";        // down | up | side (para sa 4-direksyong Avatar)
+    this.dir = "down";        // down | up | side (for the 4-direction Avatar)
     this.state = "idle";
     this.animFrame = 0;
     this.animTimer = 0;
@@ -82,19 +82,19 @@ export class Player {
     this.portalCooldown = 0;
 
     this.buffs = { damage: 0, atkSpeed: 0, moveSpeed: 0, invis: 0 };
-    this.debuffs = Object.fromEntries(STATUS_KEYS.map((k) => [k, 0]));   // tingnan ang js/status.js
+    this.debuffs = Object.fromEntries(STATUS_KEYS.map((k) => [k, 0]));   // see js/status.js
     this.paralyzed = false;
 
     this.angels = [];
 
-    // Sprint: diinan ang Space, o i-tap para i-lock (sprintLock). May alikabok sa paa.
+    // Sprint: hold Space, or tap it to lock (sprintLock). Dust at the feet.
     this.sprintLock = false;
     this.sprinting = false;
     this.dust = [];           // { x, y, life, max, r }
-    this.rollGhosts = [];     // mga bakas ng Dodge Roll (afterimage)
+    this.rollGhosts = [];     // Dodge Roll trails (afterimages)
 
     // ========================================================
-    // FALCON COMPANION INITIALIZATION PARA SA ARCHER
+    // FALCON COMPANION INITIALIZATION FOR THE ARCHER
     // ========================================================
     this.falcon = null;
     if (this.heroData && this.heroData.id === "archer") {
@@ -119,17 +119,17 @@ export class Player {
     }
   }
 
-  // Kabuuang STR/AGI/… = base + kagamitan (affix, card) + skill
+  // Total STR/AGI/… = base + equipment (affixes, cards) + skills
   totalStat(k) {
     return (this.stats[k] || 1) + (this.gearStats ? this.gearStats[k] || 0 : 0) + (this.sk[k] || 0);
   }
 
-  // Muling kinukuwenta ang lahat: base ng class + level + STR/AGI/… + kagamitan + skill
+  // Recomputes everything: class base + level + STR/AGI/… + equipment + skills
   recalc() {
     const g = this.bag.stats();
     this.gearStats = g;
     const w = this.bag.equippedItem("weapon");
-    this.weaponIcon = w ? w.icon : "knuckle";     // para sa size modifier (js/elements.js)
+    this.weaponIcon = w ? w.icon : "knuckle";     // for the size modifier (js/elements.js)
     this.sk = skillBonus(this);
     const sk = this.sk;
     const S = Object.fromEntries(STATS.map((k) => [k, this.totalStat(k)]));
@@ -163,7 +163,7 @@ export class Player {
     this.hp = Math.min(this.hp, this.maxHp);
   }
 
-  // Stat builder: itaas ang STR/AGI/… (tumataas ang gastos, tulad sa Ragnarok)
+  // Stat builder: raise STR/AGI/… (costs rise, as in Ragnarok)
   raiseStat(k) {
     const v = this.stats[k];
     if (v === undefined || v >= STAT_MAX) return false;
@@ -177,7 +177,7 @@ export class Player {
     return true;
   }
 
-  // Skill tree: dagdagan ang level ng skill
+  // Skill tree: raise a skill's level
   learnSkill(id) {
     const s = findSkill(id);
     if (!s || !canLearn(this, s)) return false;
@@ -187,11 +187,11 @@ export class Player {
     return true;
   }
 
-  // source: ang kalabang tumama (opsyonal, para sa talaan sa bottom tray)
+  // source: the foe that hit (optional, for the bottom tray log)
   takeDamage(amount, fx, source = null) {
     if (this.hp <= 0) return;
     if (this.hitFlashTimer > 0) return;
-    if (this.invulnTimer > 0) return;   // hal. Dodge Roll ng Novice
+    if (this.invulnTimer > 0) return;   // e.g. the Novice's Dodge Roll
 
     const guard = (this.guardTimer > 0 ? 0.65 : 1) * (this.mercGuard || 1);   // Bastion Forcefield (−35%) · Guardian Aura (−15%)
     // DEF mitigates a share of each hit: DEF / (DEF + 20 + 4 × level). Flat subtraction made heavy gear
@@ -213,7 +213,7 @@ export class Player {
     }
   }
 
-  // Ibinabalik ang true kapag tumalab (maaaring pigilan ng VIT/INT/LUK, tulad sa Ragnarok)
+  // Returns true when it takes hold (VIT/INT/LUK may resist, as in Ragnarok)
   inflictDebuff(type, duration) {
     if (!this.debuffs || this.debuffs[type] === undefined) return false;
     if (Math.random() < resistChance(this, type)) return false;
@@ -238,7 +238,7 @@ export class Player {
       this.exp -= this.expNext;
       this.level++;
       this.expNext = expFor(this.level);
-      // Ragnarok: mas maraming stat point habang tumataas ang level; 1 skill point bawat level
+      // Ragnarok: more stat points at higher levels; 1 skill point per level
       this.statPoints += 3 + Math.floor(this.level / 5);
       this.skillPoints += 1;
       this.recalc();
@@ -268,7 +268,7 @@ export class Player {
     this.recalc();
   }
 
-  // Stamina bawat frame. wantSprint = diniinan ang Space / naka-lock ang sprint habang gumagalaw
+  // Stamina per frame. wantSprint = Space held / sprint locked while moving
   updateStamina(wantSprint) {
     if (this.freshTimer > 0) this.freshTimer--;
     const canSprint = wantSprint && !this.exhausted && this.debuffs.freeze <= 0;
@@ -290,13 +290,13 @@ export class Player {
 
   update(input, bounds, spawnProjectile, closestEnemy, isInSafeZone = false, fx = null) {
     if (this.hp <= 0) return;
-    // Target lang kapag abot ng class (hal. palaso 220px, punyal 60px); lampas diyan = diretso sa harap
+    // Only target within the class's reach (e.g. arrows 220px, dagger 60px); beyond that, straight ahead
     const range = (this.heroData && this.heroData.range) || 200;
     if (closestEnemy && Math.hypot(closestEnemy.x - this.x, closestEnemy.y - this.y) > range) closestEnemy = null;
     this.target = closestEnemy;
 
     if (this.hitFlashTimer > 0) this.hitFlashTimer--;
-    // First Aid / Thirty-Six Hour Shift: HP bawat 3 segundo (pinipigilan ng lason at pagdurugo)
+    // First Aid / Thirty-Six Hour Shift: HP every 3 seconds (blocked by poison and bleeding)
     if (this.sk.regen && this.hp < this.maxHp && !blocksRegen(this) && ++this.regenTimer >= 180) {
       this.regenTimer = 0;
       this.hp = Math.min(this.maxHp, this.hp + this.sk.regen);
@@ -308,7 +308,7 @@ export class Player {
       if (this.buffs[b] > 0) this.buffs[b]--;
     }
 
-    // Mga sumpa ng miasma: pinsala, paralisis (stun) at iba pa (js/status.js)
+    // Miasma blights: damage, paralysis (stun) and more (js/status.js)
     this.paralyzed = tickStatuses(this, fx).paralyzed;
 
     if (this.attackCooldownTimer > 0) this.attackCooldownTimer--;
@@ -343,17 +343,17 @@ export class Player {
     if (isPressed("KeyA") || isPressed("ArrowLeft")) vx -= 1;
     if (isPressed("KeyD") || isPressed("ArrowRight")) vx += 1;
 
-    // Confusion: baligtad ang kontrol · Stun: hindi makagalaw
+    // Confusion: reversed controls · Stun: cannot move
     if (this.debuffs.confusion > 0) { vx = -vx; vy = -vy; }
     if (this.paralyzed) { vx = 0; vy = 0; }
     const moving = vx !== 0 || vy !== 0;
-    // Stamina: nauubos lang habang talagang tumatakbo nang mabilis
+    // Stamina: only drains while actually running fast
     const wantSprint = moving && !this.isReloading && (isPressed("Space") || this.sprintLock);
     this.sprinting = this.updateStamina(wantSprint);
     if (moving && !this.isReloading) {
       const len = Math.hypot(vx, vy);
       const sprintMult = this.sprinting ? 1.6 : 1.0;
-      // Alikabok sa likod ng paa habang tumatakbo nang mabilis
+      // Dust behind the feet while running fast
       if (this.sprinting && this.animTimer % 3 === 0) {
         this.spawnDust(this.x + 10 - (vx / len) * 6, this.y + 20 - (vy / len) * 3, 1);
       }
@@ -374,7 +374,7 @@ export class Player {
       if (this.state === "run") this.state = "idle";
     }
 
-    // Dodge Roll: afterimage bawat 2 frame + alikabok sa simula at dulo
+    // Dodge Roll: an afterimage every 2 frames + dust at the start and end
     if (this.rollTimer > 0) {
       if (this.rollTimer % 2 === 0) this.rollGhosts.push({ x: this.x, y: this.y, t: this.rollTimer, life: 10 });
       if (this.rollTimer === 13 || this.rollTimer === 1) this.spawnDust(this.x + 10, this.y + 20, 4);
@@ -392,7 +392,7 @@ export class Player {
     if (closestEnemy && closestEnemy.isAlive) {
       this.aimAngle = Math.atan2((closestEnemy.y + 8) - (this.y + 10), (closestEnemy.x + 8) - (this.x + 10));
     } else {
-      // Walang abot na kalaban: tumutok sa harap (kasama ang pataas/pababa)
+      // No foe in reach: aim straight ahead (including up/down)
       this.aimAngle = this.dir === "up" ? -Math.PI / 2 : this.dir === "down" ? Math.PI / 2 : this.facing === "right" ? 0 : Math.PI;
     }
 
@@ -406,18 +406,18 @@ export class Player {
           this.state = "slash";
           this.animFrame = 0;
           const rapid = this.buffs.atkSpeed > 0 ? 0.5 : 1.0;
-          const chill = this.debuffs.freeze > 0 ? 1.5 : 1;   // Diablo: pinababagal ng lamig ang atake
+          const chill = this.debuffs.freeze > 0 ? 1.5 : 1;   // Diablo: cold slows attacks
           this.attackCooldownTimer = Math.round((this.heroData.attackCooldown || 22) * rapid * chill * (1 - this.aspd) * (1 - this.cdr * 0.5));
         }
       }
     }
 
-    // Key K (Special Skill: Falcon Strike para sa Archer)
+    // Key K (special skill: Falcon Strike for the Archer)
     if (isPressed("KeyK") && this.skillCooldownTimer <= 0 && !isInSafeZone && this.debuffs.silence <= 0 && !this.paralyzed) {
       if (this.heroData && this.heroData.onSkill) {
         const ok = this.heroData.onSkill(this, closestEnemy, spawnProjectile);
         if (ok !== false) {
-          // Job: humarap sa target habang nagka-cast (ang Dodge Roll ng Novice ay sumusunod sa galaw)
+          // Job: face the target while casting (the Novice's Dodge Roll follows the movement)
           if (this.heroData.animMap) this.faceAim();
           this.state = "bash";
           this.animFrame = 0;
@@ -426,7 +426,7 @@ export class Player {
       }
     }
 
-    // Key L (pangatlong skill ng class)
+    // Key L (the class's third skill)
     if (isPressed("KeyL") && this.skill2CooldownTimer <= 0 && !isInSafeZone && this.debuffs.silence <= 0 && !this.paralyzed) {
       if (this.heroData && this.heroData.onSkill2) {
         const ok = this.heroData.onSkill2(this, closestEnemy, spawnProjectile);
@@ -443,7 +443,7 @@ export class Player {
     const spriteObj = this.heroData ? this.heroData.sprites : null;
     const frames = (spriteObj && spriteObj[this.state]) || (spriteObj && spriteObj.idle) || [];
 
-    // Mas mabilis ang hakbang kapag nag-i-sprint para tugma sa bilis ng galaw
+    // Faster steps while sprinting, to match the movement speed
     const frameTicks = this.state === "run" && this.sprinting ? 5 : 8;
     if (frames.length > 0 && this.animTimer >= frameTicks) {
       this.animTimer = 0;
@@ -476,11 +476,11 @@ export class Player {
     });
   }
 
-  // Dodge Roll ng Novice: umiikot (pakaliwa/pakanan) o bumabaligtad (pataas/pababa),
-  // nakatiklop ang katawan at may maliit na talon. p = 0..1 (progreso ng roll).
+  // Novice Dodge Roll: spins (left/right) or tumbles (up/down),
+  // body tucked with a small hop. p = 0..1 (roll progress).
   drawRolling(ctx, avatar, x, y, p, flash) {
-    const cx = x + 10, cy = y + 13;            // gitna ng katawan
-    const hop = Math.sin(p * Math.PI) * 3;     // bahagyang pag-angat
+    const cx = x + 10, cy = y + 13;            // middle of the body
+    const hop = Math.sin(p * Math.PI) * 3;     // slight lift
     ctx.save();
     ctx.translate(cx, cy - hop);
     if (this.dir === "side") {
@@ -488,7 +488,7 @@ export class Player {
       ctx.rotate(sign * p * Math.PI * 2);
       ctx.scale(0.85, 0.85);                   // nakatiklop
     } else {
-      // Pasulong/paatras na tumbling: pinipiga ang taas para magmukhang bumabaligtad
+      // Forward/backward tumble: squash the height so it looks like a flip
       const c = Math.cos(p * Math.PI * 2);
       ctx.scale(0.9, Math.sign(c || 1) * Math.max(0.2, Math.abs(c)) * 0.9);
     }
@@ -496,7 +496,7 @@ export class Player {
     ctx.restore();
   }
 
-  // Humarap sa direksyon ng atake (para sa Avatar na may 4 na direksyon)
+  // Face the attack direction (for the 4-direction Avatar)
   faceAim() {
     const a = this.aimAngle;
     const cx = Math.cos(a), cy = Math.sin(a);
@@ -521,7 +521,7 @@ export class Player {
 
     if (this.buffs.invis > 0) ctx.globalAlpha = 0.35;
 
-    // Modular Avatar (Novice at lahat ng job, mula sa Character Creator): paa ay nasa (x+10, y+21)
+    // Modular Avatar (Novice and every job, from the Character Creator): feet at (x+10, y+21)
     const avatar = this.heroData && this.heroData.avatar;
     if (avatar) {
       const map = { run: this.sprinting ? "run" : "walk", slash: "attack", bash: "walk", ...(this.heroData.animMap || {}) };
@@ -530,7 +530,7 @@ export class Player {
       if (rolling) {
         const total = this.rollDuration || 14;
         const baseAlpha = ctx.globalAlpha;
-        // Afterimage (mas malabo ang mas luma)
+        // Afterimages (older ones fainter)
         this.rollGhosts.forEach((g) => {
           ctx.globalAlpha = baseAlpha * (g.life / 10) * 0.28;
           this.drawRolling(ctx, avatar, g.x, g.y, 1 - g.t / total, false);
