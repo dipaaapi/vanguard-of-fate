@@ -1,5 +1,5 @@
 import { getLang } from "./i18n.js";
-import { describe, canEquip, upgradeCost, refineChance, SLOTS, slotName, MAX_PLUS, statText, RARITY, GRADE_NAMES } from "./items/itemdb.js";
+import { describe, canEquip, upgradeCost, refineChance, SLOTS, slotName, MAX_PLUS, statText, RARITY, GRADE_NAMES, slotsFor } from "./items/itemdb.js";
 import { iconURL } from "./items/icons.js";
 import { BAG_SIZE } from "./items/bag.js";
 
@@ -24,7 +24,12 @@ const TEXT = {
     belt: "Quick slots: select a consumable, then assign it to 1–4.",
     slot: "Quick slot", autoTitle: "Auto-potion", autoHp: "HP below", off: "Off", autoCure: "Auto-cure blights", autoSt: "Auto-tonic when exhausted",
     close: "I / Esc — close",
-    buff: { damage: "Power Boost", atkSpeed: "Rapid Attack", moveSpeed: "High Sprint", invis: "Ghost Stealth" }
+    buff: { damage: "Power Boost", atkSpeed: "Rapid Attack", moveSpeed: "High Sprint", invis: "Ghost Stealth" },
+    tabs: { equip: "Weapons & Gear", use: "Consumables & Upgrades", quest: "Quest Items" },
+    sortBy: "Sort", sorts: { recent: "Recent", rarity: "Rarity", price: "Price" }, stack: "Stack",
+    rec: "Recommended", recAll: "Equip recommended", recNote: (slot, d) => `▲ Better than your current ${slot} (+${d} power)`,
+    drag: "Drag an item onto your hero or a slot to equip it · drag worn gear back to the bag to unequip.",
+    emptyTab: "Nothing here yet."
   },
   fil: {
     title: "Imbentaryo", equip: "Kagamitan", stats: "Katangian", bag: "Bag", buffs: "Aktibong epekto", none: "Wala",
@@ -39,9 +44,21 @@ const TEXT = {
     belt: "Mabilisang gamit: pumili ng nagagamit na item at italaga sa 1–4.",
     slot: "Quick slot", autoTitle: "Auto-potion", autoHp: "HP mas mababa sa", off: "Off", autoCure: "Kusang lunas sa sumpa", autoSt: "Kusang tonic kapag pagod",
     close: "I / Esc — isara",
-    buff: { damage: "Power Boost", atkSpeed: "Rapid Attack", moveSpeed: "High Sprint", invis: "Ghost Stealth" }
+    buff: { damage: "Power Boost", atkSpeed: "Rapid Attack", moveSpeed: "High Sprint", invis: "Ghost Stealth" },
+    tabs: { equip: "Sandata at Kagamitan", use: "Gamit at Pang-upgrade", quest: "Quest Item" },
+    sortBy: "Ayos", sorts: { recent: "Bago", rarity: "Rarity", price: "Presyo" }, stack: "Pagsamahin",
+    rec: "Inirerekomenda", recAll: "Isuot ang inirerekomenda", recNote: (slot, d) => `▲ Mas mahusay kaysa suot mong ${slot} (+${d} lakas)`,
+    drag: "I-drag ang item sa bayani o sa slot para isuot · i-drag pabalik sa bag para hubarin.",
+    emptyTab: "Wala pang laman."
   }
 };
+
+// Bag tabs: which item types each tab shows
+const TABS = { equip: ["equip"], use: ["consume", "material", "card"], quest: ["quest"] };
+const RARITY_RANK = { normal: 0, magic: 1, rare: 2, unique: 3 };
+// How much each stat point is worth when judging whether a piece of gear is an upgrade
+const STAT_WEIGHT = { atk: 3, def: 2.5, hp: 0.3, aspd: 2, crit: 2, cdr: 2, spd: 30, str: 2, agi: 2, vit: 2, int: 2, dex: 2, luk: 1.5 };
+const power = (it) => (it ? Object.entries(it.stats || {}).reduce((sum, [k, v]) => sum + (STAT_WEIGHT[k] || 1) * v, 0) : 0);
 const tx = () => TEXT[getLang()] || TEXT.en;
 const BUFF_COLORS = { damage: "#ff3333", atkSpeed: "#ffd166", moveSpeed: "#00f0ff", invis: "#9d4edd" };
 const STAT_KEYS = ["atk", "def", "hp", "aspd", "crit", "cdr", "spd", "str", "agi", "vit", "int", "dex", "luk"];
@@ -57,6 +74,112 @@ export class InventoryPanel {
     this.confirmDrop = false;
     this.msg = "";
     this.ctx = {};            // { inSanctuary(), fx, onDrop(id, qty) }
+    this.tab = "equip";       // equip | use | quest
+    this.sort = "recent";     // recent | rarity | price
+    this.drag = null;         // pointer drag in progress: { from: {kind, index|slot}, x, y, ghost }
+    this.suppressClick = false;
+    document.addEventListener("pointermove", (e) => this.dragMove(e));
+    document.addEventListener("pointerup", (e) => this.dragEnd(e));
+  }
+
+  // ---------- RECOMMENDATIONS ----------
+  // For each equipment slot, the bag item that beats what is worn there by the widest margin.
+  // A two-handed weapon also counts the off-hand it would force off. Returns { bagIndex: gain }.
+  recommendations() {
+    const p = this.player, bag = p.bag, cls = p.heroData.id;
+    const bySlot = {};
+    bag.slots.forEach((s, i) => {
+      const it = describe(s);
+      if (!it || it.type !== "equip" || !canEquip(it, cls)) return;
+      if (it.slot === "offhand" && bag.offhandLocked()) return;
+      const worn = Math.min(...slotsFor(it).map((sl) => power(bag.equippedItem(sl))));
+      let gain = power(it) - worn;
+      if (it.slot === "weapon" && it.hands === 2) gain -= power(bag.equippedItem("offhand"));
+      if (gain > 0.5 && (!bySlot[it.slot] || gain > bySlot[it.slot].gain)) bySlot[it.slot] = { index: i, gain };
+    });
+    const best = {};
+    Object.values(bySlot).forEach(({ index, gain }) => { best[index] = gain; });
+    return best;
+  }
+
+  equipRecommended() {
+    const p = this.player, bag = p.bag;
+    // one piece per round: bag indices shift after each equip, so re-evaluate every time
+    for (let round = 0; round < 12; round++) {
+      const idx = Object.keys(this.recommendations()).map(Number)[0];
+      if (idx === undefined || bag.equipFrom(idx, p.heroData.id)) break;   // non-empty string = refused
+    }
+    this.sel = null;
+    p.recalc();
+    this.render();
+  }
+
+  // Bag indices for the current tab, in the chosen sort order (the bag itself is not reordered)
+  visibleIndices() {
+    const bag = this.player.bag, types = TABS[this.tab];
+    const list = bag.slots.map((s, i) => ({ i, s, it: describe(s) })).filter((x) => x.it && types.includes(x.it.type));
+    const rank = (x) => RARITY_RANK[x.it.rarity] || 0;
+    const price = (x) => x.it.price || 0;
+    if (this.sort === "recent") list.sort((a, b) => (b.s.at || 0) - (a.s.at || 0) || a.i - b.i);
+    else if (this.sort === "rarity") list.sort((a, b) => rank(b) - rank(a) || price(b) - price(a) || a.i - b.i);
+    else list.sort((a, b) => price(b) - price(a) || rank(b) - rank(a) || a.i - b.i);
+    return list.map((x) => x.i);
+  }
+
+  // ---------- DRAG & DROP ----------
+  dragStart(e, from) {
+    if (e.button !== 0) return;
+    this.drag = { from, x: e.clientX, y: e.clientY, ghost: null };
+  }
+
+  dragMove(e) {
+    const d = this.drag;
+    if (!d || !this.open) return;
+    if (!d.ghost) {
+      if (Math.hypot(e.clientX - d.x, e.clientY - d.y) < 5) return;
+      const inst = d.from.kind === "bag" ? this.player.bag.slots[d.from.index] : this.player.bag.equip[d.from.slot];
+      const it = inst && describe(inst);
+      if (!it) { this.drag = null; return; }
+      d.ghost = document.createElement("img");
+      d.ghost.className = "inv-ghost";
+      d.ghost.src = iconURL(it);
+      document.body.appendChild(d.ghost);
+      // light up where the item may go
+      if (d.from.kind === "bag" && it.type === "equip") {
+        slotsFor(it).forEach((sl) => { const t = this.el.querySelector(`.inv-eq[data-slot="${sl}"]`); if (t) t.classList.add("drop-ok"); });
+        const pt = this.el.querySelector(".inv-portrait");
+        if (pt) pt.classList.add("drop-ok");
+      } else if (d.from.kind === "slot") {
+        const bagEl = this.el.querySelector(".inv-bag");
+        if (bagEl) bagEl.classList.add("drop-ok");
+      }
+    }
+    d.ghost.style.left = `${e.clientX}px`;
+    d.ghost.style.top = `${e.clientY}px`;
+  }
+
+  dragEnd(e) {
+    const d = this.drag;
+    this.drag = null;
+    if (!d || !d.ghost) return;
+    d.ghost.remove();
+    this.el.querySelectorAll(".drop-ok").forEach((n) => n.classList.remove("drop-ok"));
+    this.suppressClick = true;
+    setTimeout(() => { this.suppressClick = false; }, 0);
+    const target = document.elementFromPoint(e.clientX, e.clientY);
+    if (!target || !this.open) return;
+    const p = this.player, bag = p.bag, T = tx();
+    this.msg = "";
+    if (d.from.kind === "bag" && target.closest(".inv-eq, .inv-portrait")) {
+      const err = bag.equipFrom(d.from.index, p.heroData.id);
+      if (err === "class") this.msg = T.wrongClass;
+      else if (err === "locked") this.msg = T.locked;
+      this.sel = null;
+    } else if (d.from.kind === "slot" && target.closest(".inv-right")) {
+      if (bag.unequip(d.from.slot)) this.sel = null;
+    }
+    p.recalc();
+    this.render();
   }
 
   toggle(player, ctx) {
@@ -215,7 +338,9 @@ export class InventoryPanel {
       const it = bag.equippedItem(slot);
       const locked = slot === "offhand" && bag.offhandLocked();
       const b = button(eqGrid, "inv-eq" + (this.sel && this.sel.kind === "slot" && this.sel.slot === slot ? " sel" : "") + (locked ? " locked" : ""),
-        () => it && this.select({ kind: "slot", slot }));
+        () => it && !this.suppressClick && this.select({ kind: "slot", slot }));
+      b.dataset.slot = slot;
+      if (it) b.addEventListener("pointerdown", (e) => this.dragStart(e, { kind: "slot", slot }));
       const ic = add(b, "span", "inv-eq-icon", it ? "" : locked ? "🔒" : "·");
       if (it) { const img = add(ic, "img"); img.src = iconURL(it); img.alt = ""; }
       const txt = add(b, "span", "inv-eq-text");
@@ -239,24 +364,53 @@ export class InventoryPanel {
     const right = add(grid, "div", "inv-right");
     const bagHead = add(right, "div", "inv-head inv-baghead");
     add(bagHead, "span", "", `${T.bag} (${bag.slots.length}/${BAG_SIZE})`);
-    const sortBtn = button(bagHead, "inv-act", () => { bag.compact(); this.sel = null; this.render(); });
-    sortBtn.textContent = `⇅ ${T.sortStack}`;
+    const stackBtn = button(bagHead, "inv-act", () => { bag.compact(); this.sel = null; this.render(); });
+    stackBtn.textContent = `⇅ ${T.stack}`;
+
+    // Tabs
+    const tabs = add(right, "div", "inv-tabs");
+    Object.keys(TABS).forEach((key) => {
+      const n = bag.slots.filter((s) => { const d = describe(s); return d && TABS[key].includes(d.type); }).length;
+      const b = button(tabs, "inv-tab" + (this.tab === key ? " on" : ""), () => { this.tab = key; this.sel = null; this.render(); });
+      b.textContent = `${T.tabs[key]} (${n})`;
+    });
+
+    // Sort + "Equip recommended"
+    const rec = this.recommendations();
+    const tools = add(right, "div", "inv-tools");
+    add(tools, "span", "inv-k", `${T.sortBy}:`);
+    Object.keys(T.sorts).forEach((key) => {
+      const b = button(tools, "inv-act" + (this.sort === key ? " on" : ""), () => { this.sort = key; this.render(); });
+      b.textContent = T.sorts[key];
+    });
+    if (this.tab === "equip" && Object.keys(rec).length) {
+      const b = button(tools, "inv-act inv-rec-all", () => this.equipRecommended());
+      b.textContent = `▲ ${T.recAll} (${Object.keys(rec).length})`;
+    }
+
+    // Cells: this tab's items in sort order, then the free bag space
     const cells = add(right, "div", "inv-bag");
-    for (let i = 0; i < BAG_SIZE; i++) {
-      const s = bag.slots[i];
-      const it = s && describe(s);
-      const b = button(cells, "inv-cell" + (this.sel && this.sel.kind === "bag" && this.sel.index === i ? " sel" : "") + (it ? "" : " empty"),
-        () => it && this.select({ kind: "bag", index: i }));
-      if (!it) continue;
+    const shown = this.visibleIndices();
+    shown.forEach((i) => {
+      const s = bag.slots[i], it = describe(s);
+      const b = button(cells, "inv-cell" + (this.sel && this.sel.kind === "bag" && this.sel.index === i ? " sel" : ""),
+        () => !this.suppressClick && this.select({ kind: "bag", index: i }));
+      b.addEventListener("pointerdown", (e) => this.dragStart(e, { kind: "bag", index: i }));
       b.style.borderColor = it.color;
       b.title = it.name;
       const img = add(b, "img", "inv-ico");
       img.src = iconURL(it);
       img.alt = "";
+      img.draggable = false;
       if (s.qty > 1) add(b, "span", "inv-qty", String(s.qty));
       if (s.plus) add(b, "span", "inv-plus", `+${s.plus}`);
+      if (rec[i]) { add(b, "span", "inv-rec", "▲"); b.title = `${it.name} — ${T.rec}`; }
       if (it.type === "equip" && !canEquip(it, cls)) b.classList.add("unusable");
-    }
+    });
+    const free = BAG_SIZE - bag.slots.length;
+    const pad = Math.max(free, (10 - (shown.length % 10)) % 10);
+    for (let k = 0; k < Math.min(pad, free); k++) button(cells, "inv-cell empty", () => {});
+    if (!shown.length) add(right, "div", "inv-dim inv-empty-tab", T.emptyTab);
 
     // Detalye ng napili
     const det = add(right, "div", "inv-detail");
@@ -283,6 +437,7 @@ export class InventoryPanel {
           add(det, "div", "inv-meta", `${T.sockets}: ${sock.join("  ")}`);
         }
         if (it.cls && !canEquip(it, cls)) add(det, "div", "inv-warn", T.wrongClass);
+        if (this.sel.kind === "bag" && rec[this.sel.index]) add(det, "div", "inv-recnote", T.recNote(slotName(it.slot), Math.round(rec[this.sel.index])));
       }
       if (it.desc) add(det, "div", "inv-desc", it.desc);
 
@@ -338,6 +493,7 @@ export class InventoryPanel {
 
     this.buffsEl = add(el, "div", "inv-buffs");
     this.renderBuffs();
+    add(el, "div", "inv-note", T.drag);
     add(el, "div", "inv-note", T.belt);
     add(el, "div", "ql-foot", T.close);
     this.drawPortrait();

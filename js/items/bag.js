@@ -21,7 +21,8 @@ const clean = (s) => ({
   id: s.id, qty: Math.max(1, s.qty | 0), plus: Math.max(0, Math.min(MAX_PLUS, s.plus | 0)),
   rarity: s.rarity || "normal", affixes: Array.isArray(s.affixes) ? s.affixes : [],
   sockets: Math.max(0, Math.min(3, s.sockets | 0)), cards: Array.isArray(s.cards) ? s.cards.slice(0, 3) : [],
-  ...(s.rareName ? { rareName: s.rareName } : {})
+  ...(s.rareName ? { rareName: s.rareName } : {}),
+  ...(s.at ? { at: s.at } : {})          // when the stack was last added to (for "Recent" sorting)
 });
 
 export class Bag {
@@ -57,10 +58,12 @@ export class Bag {
     const sig = signature(inst);
     let left = inst.qty || 1;
     // 1) punuin muna ang mga kaparehong patong
+    const now = Date.now();
     this.slots.forEach((s) => {
       if (left > 0 && signature(s) === sig && s.qty < max) {
         const n = Math.min(left, max - s.qty);
         s.qty += n;
+        s.at = now;
         left -= n;
       }
     });
@@ -68,7 +71,7 @@ export class Bag {
     while (left > 0) {
       if (this.slots.length >= BAG_SIZE) { this.changed(); return false; }
       const n = Math.min(left, max);
-      this.slots.push(clean({ ...inst, qty: n }));
+      this.slots.push(clean({ ...inst, qty: n, at: inst.at || now }));
       left -= n;
     }
     this.changed();
@@ -84,7 +87,7 @@ export class Bag {
       const max = this.maxStack(item);
       let left = s.qty;
       this.slots.forEach((t) => {
-        if (left > 0 && signature(t) === signature(s) && t.qty < max) { const n = Math.min(left, max - t.qty); t.qty += n; left -= n; }
+        if (left > 0 && signature(t) === signature(s) && t.qty < max) { const n = Math.min(left, max - t.qty); t.qty += n; t.at = Math.max(t.at || 0, s.at || 0); left -= n; }
       });
       if (left > 0) this.slots.push({ ...s, qty: left });
     });
