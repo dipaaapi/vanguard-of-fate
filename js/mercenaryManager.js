@@ -6,11 +6,11 @@ import { Sound } from "./audio.js";
 import { Avatar } from "./avatar/avatar.js";
 import { facingFrom } from "./avatar/creature.js";
 
-// Isang Avatar bawat uri ng mercenary (naka-cache ang mga frame)
+// One Avatar per mercenary type (frames are cached)
 const AVATARS = {};
 const avatarOf = (data) => AVATARS[data.type] || (AVATARS[data.type] = new Avatar(data.look));
 
-// Tagal ng pagkahilo bago bumangon muli ang mercenary (15 segundo sa 60 fps)
+// How long a mercenary stays dazed before getting back up (15 seconds at 60 fps)
 const KO_TIME = 900;
 
 const MERC_CLASSES = {
@@ -25,7 +25,7 @@ export class MercenaryManager {
     this.mercenaries = [];
   }
 
-  // Bayad sa kontrata: tumataas kasabay ng level (mas malakas din ang mercenary)
+  // Contract fee: rises with level (the mercenary is stronger too)
   static cost(level) {
     return 10 + level * 3;
   }
@@ -41,7 +41,7 @@ export class MercenaryManager {
     }
 
     player.gold -= cost;
-    // Lakas ayon sa level ng bayani: HP at pinsala
+    // Strength from the hero's level: HP and damage
     // Scales with same-level monster HP (35 + 12 × level): a basic hit stays ~17% of a foe at every level,
     // so mercenaries neither steal every kill early nor fade out late.
     const power = ((35 + 12 * player.level) / 47) * 0.35 * (mercData.powerBonus || 1);
@@ -56,7 +56,7 @@ export class MercenaryManager {
       hp: maxHp,
       maxHp,
       power,
-      cds: {},          // cooldown ng bawat skill (tingnan ang mercenary/*.js)
+      cds: {},          // cooldown of each skill (see mercenary/*.js)
       hitTimer: 0,
       lifespan: 36000, // 10 Minuto (60 fps * 600s)
       maxLifespan: 36000,
@@ -69,7 +69,7 @@ export class MercenaryManager {
       anim: "idle",     // idle | walk | run | attack
       dir: "down",
       flip: false,
-      attackAnim: 0,    // ipinapakita ang atake (windup → tama)
+      attackAnim: 0,    // shows the attack (windup → hit)
       isAlive: true
     };
 
@@ -90,7 +90,7 @@ export class MercenaryManager {
       m.lifespan--;
       if (m.hitTimer > 0) m.hitTimer--;
 
-      // 1. Tapos ang kontrata: mawawala at hindi na babalik
+      // 1. Contract over: the mercenary leaves for good
       if (m.lifespan <= 0) {
         m.isAlive = false;
         if (fx && fx.spawnHitSparks) fx.spawnHitSparks(m.x + 8, m.y + 8, "#999999", 14);
@@ -99,8 +99,8 @@ export class MercenaryManager {
         continue;
       }
 
-      // 2. Knockout: hilo lang (hindi umaatake at hindi inaatake) hanggang matapos ang cooldown,
-      //    saka babangon nang buo ang HP. Ang isAlive = false ang nagpapaiwas sa mga kalaban.
+      // 2. Knockout: only dazed (neither attacks nor is attacked) until the cooldown ends,
+      //    then gets back up at full HP. isAlive = false makes enemies ignore it.
       if (m.downed > 0) {
         m.downed--;
         m.animTimer++;
@@ -125,10 +125,10 @@ export class MercenaryManager {
         continue;
       }
 
-      // Guardian Aura ng Vanguard Knight
+      // The Vanguard Knight's Guardian Aura
       if (m.data.guardAura && Math.hypot(pX - m.x, pY - m.y) < 80) player.mercGuard = 0.85;
 
-      // Mga skill ng mercenary (hindi sa loob ng sanctuary)
+      // Mercenary skills (not inside a sanctuary)
       if (m.data.skills && enemyManager && !(stage && stage.isInsideSafeZone(m.x, m.y))) {
         const foes = enemyManager.enemies.filter((e) => e.isAlive && Math.hypot(e.x - m.x, e.y - m.y) < 150);
         const c = { player, foes, em: this.scaled(m, enemyManager), fx: fx || {}, spawn: spawnProj };
@@ -151,7 +151,7 @@ export class MercenaryManager {
     }
   }
 
-  // Direksyon at animation batay sa aktwal na galaw (o sa tinututukan kapag umaatake)
+  // Direction and animation from the actual movement (or the target while attacking)
   animate(m, dx, dy) {
     const moved = Math.hypot(dx, dy) > 0.05;
     if (m.attackAnim > 0) {
@@ -172,26 +172,26 @@ export class MercenaryManager {
     return Math.floor(m.animTimer / ({ walk: 9, run: 5 }[m.anim] || 30));
   }
 
-  // Ang pinsala ng mercenary ay pinalalaki ng lakas nito (power, batay sa level ng bayani)
+  // Mercenary damage is scaled by its power (from the hero's level at hire)
   scaled(m, enemyManager) {
     return { damage: (e, amount, ...rest) => enemyManager.damage(e, Math.round(amount * (m.power || 1)), ...rest) };
   }
 
-  // Ang palaso/bola ng mercenary ay may sariling lakas (hindi ginagamit ang stats ng bayani)
+  // A mercenary's arrows/bolts carry their own power (the hero's stats are not used)
   ownShots(m, spawnProj) {
     return (q) => spawnProj && spawnProj({ ...q, merc: true, power: m.power || 1 });
   }
 
-  // AI ng isang mercenary bawat frame (sumunod, pulutin ang loot, lumaban)
+  // One mercenary's AI per frame (follow, pick up loot, fight)
   step(m, pX, pY, enemyManager, lootManager, fx, spawnProj, stage) {
       const distToPlayer = Math.hypot(pX - m.x, pY - m.y);
 
-      // SPRINT CHECK: Kapag lumalayo ang player, mag-sprint para makasabay
+      // SPRINT CHECK: sprint to keep up when the player moves away
       m.isSprinting = distToPlayer > 60;
       const baseSpeed = m.data.speed * (m.isSprinting ? 1.75 : 1.0);
 
       // ========================================================
-      // LEASH RULE: Kapag lumagpas sa 80px ang Player, PRIORIDAD ANG PANGHAHABOL
+      // LEASH RULE: beyond 80px from the player, catching up comes first
       // ========================================================
       if (distToPlayer > 80) {
         const dx = pX - m.x;
@@ -199,17 +199,17 @@ export class MercenaryManager {
         m.x += (dx / distToPlayer) * baseSpeed;
         m.y += (dy / distToPlayer) * baseSpeed;
         m.facing = dx >= 0 ? "right" : "left";
-        return; // Ipagpaliban muna ang loot at combat para hindi maiwan
+        return; // Skip loot and combat for now so it isn't left behind
       }
 
-      // 2. AUTOLOOT: Pupulutin ang Herbs at Shards (HINDI Coins) kung malapit lang sa Player
+      // 2. AUTOLOOT: picks up herbs and shards (NOT coins) when close to the player
       let targetLoot = null;
       if (lootManager && lootManager.items) {
         for (const item of lootManager.items) {
           if (item.type !== "gold") {
             const d = Math.hypot(item.x - m.x, item.y - m.y);
             const dFromPlayer = Math.hypot(item.x - pX, item.y - pY);
-            // Kukunin lang kung hindi lalayo nang higit 70px sa Player
+            // Only if it doesn't stray more than 70px from the player
             if (d < 50 && dFromPlayer < 75) {
               targetLoot = item;
               break;
@@ -218,7 +218,7 @@ export class MercenaryManager {
         }
       }
 
-      // 3. COMBAT: Labanan ang pinakamalapit na kalaban na malapit sa Player
+      // 3. COMBAT: fight the nearest foe that is close to the player
       const enemies = enemyManager ? enemyManager.enemies.filter((e) => e.isAlive) : [];
       let closestEnemy = null;
       let closestDist = Infinity;
@@ -232,7 +232,7 @@ export class MercenaryManager {
       }
 
       if (targetLoot) {
-        // Kunin ang loot item
+        // Go for the loot item
         const dx = targetLoot.x - m.x;
         const dy = targetLoot.y - m.y;
         const d = Math.hypot(dx, dy);
@@ -241,7 +241,7 @@ export class MercenaryManager {
           m.y += (dy / d) * baseSpeed;
         }
       } else if (closestEnemy && !(stage && stage.isInsideSafeZone(m.x, m.y))) {
-        // Labanan ang kalaban
+        // Fight the foe
         const dx = closestEnemy.x - m.x;
         const dy = closestEnemy.y - m.y;
         m.facing = dx >= 0 ? "right" : "left";
@@ -264,7 +264,7 @@ export class MercenaryManager {
           }
         }
       } else {
-        // NATURAL FLANKING: Sumunod at tumayo sa tabi ng Player (24 - 32px allowance)
+        // NATURAL FLANKING: follow and stand beside the player (24–32px allowance)
         if (distToPlayer > 30) {
           const dx = pX - m.x;
           const dy = pY - m.y;
@@ -275,7 +275,7 @@ export class MercenaryManager {
       }
   }
 
-  // Nahilong mercenary: umuugoy, may umiikot na bituin, at cooldown na bilog sa ulo (pula → berde)
+  // A dazed mercenary: sways, stars circling, and a cooldown ring over the head (red → green)
   drawDowned(ctx, m) {
     const t = m.animTimer;
     const fx = m.x + 8, fy = m.y + 15;
@@ -290,7 +290,7 @@ export class MercenaryManager {
     avatarOf(m.data).draw(ctx, 0, 0, "down", "idle", 0, false, false);
     ctx.restore();
 
-    // Umiikot na bituin sa itaas ng ulo
+    // Stars circling above the head
     const hy = m.y - 16;
     for (let k = 0; k < 3; k++) {
       const a = t / 10 + (k * Math.PI * 2) / 3;
@@ -300,7 +300,7 @@ export class MercenaryManager {
       ctx.fillRect(sx - 1, sy, 3, 1);
     }
 
-    // Cooldown na bilog: pumupuno habang lumilipas ang oras, pula (0°) → berde (120°)
+    // Cooldown ring: fills as time passes, red (0°) → green (120°)
     const p = 1 - m.downed / KO_TIME;
     const cy = m.y - 25, r = 5;
     const col = `hsl(${Math.round(p * 120)}, 85%, 55%)`;
@@ -330,10 +330,10 @@ export class MercenaryManager {
       ctx.ellipse(m.x + 8, m.y + 14, 7, 2.5, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Modular Avatar: ang paa ay nasa (x + 8, y + 15)
+      // Modular Avatar: the feet are at (x + 8, y + 15)
       avatarOf(m.data).draw(ctx, m.x + 8, m.y + 15, m.dir, m.anim, this.frameOf(m), m.flip, m.hitTimer > 0);
 
-      // HP Bar (sa itaas ng ulo)
+      // HP bar (above the head)
       const w = 16;
       const by = m.y - 24;
       ctx.fillStyle = "#111";

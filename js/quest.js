@@ -3,31 +3,31 @@ import { PLATFORMS, PLATFORM_ORDER, SEAL_STONES } from "./world/platforms.js";
 import { BOSSES } from "./bestiary.js";
 import { getItem } from "./items/itemdb.js";
 
-// ==================== MAIN QUEST: ACTS II–VI (batay sa LORE.md) ====================
-// Bawat hakbang ay may: act (numero ng kabanata sa LORE.md), lugar, at mga tauhang kasangkot.
+// ==================== MAIN QUEST: ACTS II–VI (following LORE.md) ====================
+// Each step has: an act (chapter number in LORE.md), a place, and the characters involved.
 //
-// step  act   lugar                 tauhan                     layunin
-//  0    II    Barracks Sanctuary    tagapagtawag               kausapin ang tagapagtawag (sinalubong ka niya)
-//  1    II    Barracks Sanctuary    Kapitan Ronald, Edgar      kilalanin ang dalawa
-//  2    III   Barracks Sanctuary    Art, Lyra, Julian, Sam,    kilalanin ang limang naunang tinawag mula sa Daigdig
+// step  act   place                 characters                 objective
+//  0    II    Barracks Sanctuary    summoner                   talk to the summoner (who welcomed you)
+//  1    II    Barracks Sanctuary    Captain Ronald, Edgar      meet both
+//  2    III   Barracks Sanctuary    Art, Lyra, Julian, Sam,    meet the five souls summoned from Earth before you
 //                                   Renzo
-//  3    IV    Kaparangan            (mga halimaw)              Novice's Path: umabot sa Lv 10
-//  4    IV    Citadel audience dais tagapagtawag (+ Hari)      Royal Job Awakening sa altar ni Astraea
-//  5    V     Barracks Sanctuary    mentor ng napiling class   Dual Equipment Matrix: ihanda ang loadout
-//  6    VI    Barracks courtyard    tagapagtawag               Royal Covenant: bumaba siya mula sa Citadel
+//  3    IV    Plains                (monsters)                 Novice's Path: reach Lv 10
+//  4    IV    Citadel audience dais summoner (+ King)          Royal Job Awakening at Astraea's altar
+//  5    V     Barracks Sanctuary    mentor of the chosen class Dual Equipment Matrix: prepare the loadout
+//  6    VI    Barracks courtyard    summoner                   Royal Covenant: they come down from the Citadel
 //
-// Acts VII–XII (js/world/platforms.js): tatlong hakbang bawat platform k (0..5), simula sa 7 + 3k:
-//  +0   pumasok sa Warp Gateway ng platform
-//  +1   talunin ang boss at pulutin ang quest item nito
-//  +2   dalhin ang quest item sa tagapagtawag sa kampo ng platform
-// 25    XII✔  ang Sovereign Dawn (tapos ang kuwento)
+// Acts VII–XII (js/world/platforms.js): three steps per platform k (0..5), starting at 7 + 3k:
+//  +0   enter the platform (Act XI: through the Celestial Monolith)
+//  +1   defeat the boss and pick up its quest item
+//  +2   bring the quest item to the summoner at the platform's camp
+// 25    XII✔  the Sovereign Dawn (story complete)
 
 const AWAKEN_LEVEL = 10;
 const CAMPAIGN_START = 7;
 export const FINAL_STEP = CAMPAIGN_START + PLATFORM_ORDER.length * 3;
 const QUEST_VERSION = 2;
 
-// Paraan ng pagpasok sa bawat platform (para sa teksto ng layunin)
+// How each platform is entered (for the objective text)
 const ENTRY = {
   en: { EAST: "the EAST Warp Gateway", WEST: "the WEST Warp Gateway", NORTH: "the NORTH Warp Gateway", SOUTH: "the SOUTH Warp Gateway",
     MONOLITH: "the Celestial Monolith in the Cerulean Abyss", RIFT: "the rift behind the throne of the besieged Citadel" },
@@ -36,7 +36,7 @@ const ENTRY = {
 };
 const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
 
-// Teksto ng mga hakbang ng Acts VII–XII
+// Step text for Acts VII–XII
 function campaignText(L) {
   const act = [], goal = [];
   PLATFORM_ORDER.forEach((id) => {
@@ -69,7 +69,7 @@ function monolithGoal(L, q, name) {
 const SOULS = ["arthur", "lyra", "julian", "sam", "renzo"];
 export const MENTOR_BY_CLASS = { knight: "arthur", archer: "lyra", priest: "julian", mage: "sam", fighter: "renzo" };
 
-// Aling kabanata ng LORE.md ang kasalukuyang hakbang (para sa lore panel at banner sa kanan)
+// Which LORE.md chapter the current step belongs to (for the lore panel and banner on the right)
 const STEP_ACT = [2, 2, 3, 4, 4, 5, 6, ...PLATFORM_ORDER.flatMap((id) => [PLATFORMS[id].act, PLATFORMS[id].act, PLATFORMS[id].act]), 12];
 
 // Lumang save (v1, 5 hakbang: 0 summoner, 1 allies, 2 Lv10, 3 dais, 4 tapos) → bagong hakbang
@@ -140,7 +140,7 @@ export function qt(key) {
   return (TEXT[getLang()] || TEXT.en)[key];
 }
 
-// Lahat ng hakbang (Acts II–VI + ang kampanya ng Acts VII–XII) sa kasalukuyang wika
+// Every step (Acts II–VI + the Acts VII–XII campaign) in the current language
 function stepsText() {
   const L = getLang() === "fil" ? "fil" : "en";
   const T = TEXT[L];
@@ -154,7 +154,7 @@ function emptyMet() {
 
 export class QuestManager {
   constructor() {
-    this.onChange = null;   // tinatawag kapag lumipat ng hakbang (para sa HUD toast at lore panel)
+    this.onChange = null;   // called when the step changes (for the HUD toast and the lore panel)
     this.reset();
   }
 
@@ -166,7 +166,7 @@ export class QuestManager {
     this.miningKills = 0;    // Ashfall beasts slain for the charge
   }
 
-  // Galing sa save. Inaayos din ang lumang save (v1) at save na walang quest.
+  // From a save. Also repairs old (v1) saves and saves without a quest.
   load(data, player) {
     this.reset();
     const isNovice = !player || player.heroData.id === "novice";
@@ -182,7 +182,7 @@ export class QuestManager {
     } else if (!isNovice) {
       this.step = 5;
     }
-    // Ang may class na ay tapos na sa Acts II–IV
+    // A player with a class has finished Acts II–IV
     if (!isNovice && this.step < 5) this.step = 5;
     if (this.step >= 2) { this.met.ronald = true; this.met.edgar = true; }
     if (this.step >= 3) SOULS.forEach((id) => { this.met[id] = true; });
@@ -192,7 +192,7 @@ export class QuestManager {
     return { v: QUEST_VERSION, step: this.step, met: { ...this.met }, monolith: this.monolith, mining: this.mining, miningKills: this.miningKills };
   }
 
-  // Numero ng Act sa LORE.md para sa kasalukuyang hakbang
+  // LORE.md Act number for the current step
   act() {
     return STEP_ACT[this.step] || STEP_ACT[STEP_ACT.length - 1];
   }
@@ -208,31 +208,31 @@ export class QuestManager {
     if (this.onChange) this.onChange(this.step);
   }
 
-  // Pagkatapos makipag-usap sa isang NPC
+  // After talking to an NPC
   onTalk(id, summonerId, cls) {
     if (id in this.met) this.met[id] = true;
 
     if (this.step === 0 && id === summonerId) this.advance(1);
     if (this.step === 1 && this.met.ronald && this.met.edgar) this.advance(2);
     if (this.step === 2 && this.soulsMet() === SOULS.length) this.advance(3);
-    // Act V: ang mentor ng napiling class ang naghahanda ng loadout
+    // Act V: the chosen class's mentor prepares the loadout
     if (this.step === 5 && id === MENTOR_BY_CLASS[cls]) this.advance(6);
-    // Act VI: ang tagapagtawag sa looban ng Barracks
+    // Act VI: the summoner in the Barracks courtyard
     if (this.step === 6 && id === summonerId) this.advance(7);
   }
 
-  // Tinatawag bawat frame
+  // Called every frame
   update(player) {
     if (this.step === 3 && player.level >= AWAKEN_LEVEL) this.advance(4);
   }
 
   // ---------- KAMPANYA (Acts VII–XII) ----------
-  // Unang hakbang ng platform (pagpasok)
+  // First step of a platform (entering it)
   baseStep(platformId) {
     return CAMPAIGN_START + PLATFORM_ORDER.indexOf(platformId) * 3;
   }
 
-  // Aling platform ang kasalukuyang hakbang (o null)
+  // Which platform the current step belongs to (or null)
   currentPlatform() {
     if (this.step < CAMPAIGN_START || this.step >= FINAL_STEP) return null;
     return PLATFORM_ORDER[Math.floor((this.step - CAMPAIGN_START) / 3)];
@@ -242,7 +242,7 @@ export class QuestManager {
     return PLATFORM_ORDER.includes(platformId) && this.step >= this.baseStep(platformId);
   }
 
-  // Natalo na ang boss (nakuha na ang quest item)
+  // The boss is defeated (its quest item was taken)
   cleared(platformId) {
     return this.step >= this.baseStep(platformId) + 2;
   }
@@ -268,12 +268,12 @@ export class QuestManager {
     if (this.canDeliver(platformId)) this.advance();
   }
 
-  // Nasaan ang tagapagtawag: Barracks (Acts II–III, VI) o Citadel (Act IV–V)
+  // Where the summoner is: Barracks (Acts II–III, VI) or Citadel (Acts IV–V)
   summonerAtCitadel() {
     return this.step === 4 || this.step === 5;
   }
 
-  // Aling NPC ang layunin ngayon (para sa "!" marker at palaso sa screen)
+  // Which NPC is the objective now (for the "!" marker and the on-screen arrow)
   targetNpc(summonerId, cls) {
     if (this.step === 0 || this.step === 4 || this.step === 6) return summonerId;
     if (this.step === 1) return !this.met.ronald ? "ronald" : !this.met.edgar ? "edgar" : null;
@@ -305,7 +305,7 @@ export class QuestManager {
     return { act: S.act[this.step], goal: S.goal[this.step](q) };
   }
 
-  // Lahat ng hakbang para sa Quest Log
+  // Every step for the Quest Log
   entries(player, summonerName, mentorName) {
     const S = stepsText();
     const q = this.ctx(player, summonerName, mentorName);

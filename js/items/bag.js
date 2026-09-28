@@ -3,16 +3,16 @@ import { SETS, SET_THRESHOLDS } from "./itemdb.js";
 import { describe, canEquip, upgradeCost, refineChance, slotsFor, SLOTS, MAX_PLUS, CLASS_KIT } from "./itemdb.js";
 
 // ==================== BAG + EQUIPMENT ====================
-// slots: mga instance sa bag { id, qty, plus, rarity, affixes, sockets, cards }.
-// PAGPAPATONG (stack): ang magkaparehong item ay iisang slot — gamot, materyales, card, quest item,
-// at pati kagamitang eksaktong pareho (parehong id, refine, rarity, affix, socket at card).
-// Pinakamarami bawat slot: 999 (nagagamit) · 20 (kagamitan).
+// slots: instances in the bag { id, qty, plus, rarity, affixes, sockets, cards }.
+// STACKING: identical items share one slot — potions, materials, cards, quest items,
+// and even equipment that is exactly the same (same id, refine, rarity, affixes, sockets and cards).
+// Maximum per slot: 999 (usable) · 20 (equipment).
 // equip: { weapon, offhand, head, armor, garment, gloves, boots, amulet, ring1, ring2 } → instance | null
 
 export const BAG_SIZE = 40;
 const STACK_MAX = { equip: 20, other: 999 };
 
-// Pirma ng item: magkapareho lang kung eksaktong pareho ang lahat ng katangian
+// Item signature: equal only when every property is exactly the same
 export function signature(s) {
   return [s.id, s.plus | 0, s.rarity || "normal", s.sockets | 0, (s.cards || []).join(","),
     JSON.stringify((s.affixes || []).map((a) => [a.k, a.v])), s.rareName || "", s.dur === undefined ? "" : Math.ceil(s.dur),
@@ -35,8 +35,8 @@ export class Bag {
   constructor() {
     this.slots = [];
     this.equip = Object.fromEntries(SLOTS.map((s) => [s, null]));
-    this.onChange = null;     // (equipChanged) — para i-refresh ang itsura at stats
-    this.onEquip = null;      // (item, on) — isinuot (true) o hinubad (false); para sa talaan sa bottom tray
+    this.onChange = null;     // (equipChanged) — to refresh the look and stats
+    this.onEquip = null;      // (item, on) — equipped (true) or unequipped (false); for the bottom tray log
   }
 
   changed(equipChanged = false) {
@@ -55,7 +55,7 @@ export class Bag {
     return item.type === "equip" ? STACK_MAX.equip : STACK_MAX.other;
   }
 
-  // Idinadagdag ang item (id o instance) at ipinapatong sa kaparehong item; false kapag puno na ang bag
+  // Adds an item (id or instance), stacking onto an identical one; false when the bag is full
   add(idOrInst, qty = 1) {
     const inst = typeof idOrInst === "string" ? { id: idOrInst, qty } : { ...idOrInst, qty: idOrInst.qty || qty };
     const item = describe(inst);
@@ -63,7 +63,7 @@ export class Bag {
     const max = this.maxStack(item);
     const sig = signature(inst);
     let left = inst.qty || 1;
-    // 1) punuin muna ang mga kaparehong patong
+    // 1) fill identical stacks first
     const now = Date.now();
     this.slots.forEach((s) => {
       if (left > 0 && signature(s) === sig && s.qty < max) {
@@ -73,7 +73,7 @@ export class Bag {
         left -= n;
       }
     });
-    // 2) bagong slot para sa natira
+    // 2) new slots for the rest
     while (left > 0) {
       if (this.slots.length >= BAG_SIZE) { this.changed(); return false; }
       const n = Math.min(left, max);
@@ -84,7 +84,7 @@ export class Bag {
     return true;
   }
 
-  // Sort & Stack: pagsamahin ang magkakapareho at ayusin ayon sa uri, slot at grade
+  // Sort & Stack: merge identical items and order by type, slot and grade
   compact() {
     const all = this.slots;
     this.slots = [];
@@ -105,7 +105,7 @@ export class Bag {
     this.changed();
   }
 
-  // Ihiwalay ang isa mula sa patong (para sa refine ng isang piraso)
+  // Split one off a stack (to refine a single piece)
   splitOne(i) {
     const s = this.slots[i];
     if (!s || s.qty <= 1) return s || null;
@@ -146,13 +146,13 @@ export class Bag {
     return describe(this.equip[slot]);
   }
 
-  // Ang suot na 2H weapon ay nagla-lock ng offhand (LORE Act V)
+  // A worn 2H weapon locks the off-hand (LORE Act V)
   offhandLocked() {
     const w = this.equippedItem("weapon");
     return Boolean(w && w.hands === 2);
   }
 
-  // Isuot mula sa bag. Ibinabalik: "" (ok) o dahilan ng pagkabigo
+  // Equip from the bag. Returns "" (ok) or the reason it failed
   equipFrom(i, cls) {
     const s = this.slots[i];
     const item = describe(s);
@@ -162,7 +162,7 @@ export class Bag {
     const options = slotsFor(item);
     const slot = options.find((o) => !this.equip[o]) || options[0];
 
-    // Isa lang ang kinukuha mula sa patong
+    // Only one is taken from the stack
     if (s.qty > 1) s.qty--;
     else this.slots.splice(i, 1);
     const prev = this.equip[slot];
@@ -180,14 +180,14 @@ export class Bag {
   unequip(slot) {
     const e = this.equip[slot];
     if (!e) return false;
-    if (!this.add({ ...e, qty: 1 })) return false;      // napapatong sa kapareho kung mayroon
+    if (!this.add({ ...e, qty: 1 })) return false;      // stacks onto an identical one if there is one
     this.equip[slot] = null;
     this.changed(true);
     if (this.onEquip) this.onEquip(describe(e), false);
     return true;
   }
 
-  // Kabuuang bonus ng suot (kasama ang STR/AGI/… mula sa affix at card)
+  // Total bonus of worn gear (including STR/AGI/… from affixes and cards)
   stats() {
     const out = { atk: 0, def: 0, hp: 0, spd: 0, crit: 0, cdr: 0, aspd: 0, str: 0, agi: 0, vit: 0, int: 0, dex: 0, luk: 0 };
     SLOTS.forEach((slot) => {
@@ -214,7 +214,7 @@ export class Bag {
     return n;
   }
 
-  // Piyesa ng Avatar mula sa suot (weapon/offhand)
+  // Avatar parts from worn gear (weapon/offhand)
   look() {
     const look = {};
     ["weapon", "offhand"].forEach((slot) => {
@@ -226,7 +226,7 @@ export class Bag {
   }
 
   // ---------- CARD (Ragnarok) ----------
-  // Isingit ang card (nasa bag index i) sa suot na item sa slot
+  // Insert a card (at bag index i) into the worn item in the slot
   insertCard(i, slot) {
     const card = this.slots[i];
     const target = this.equip[slot];
@@ -238,12 +238,12 @@ export class Bag {
     return true;
   }
 
-  // Mga suot na may bakanteng socket
+  // Worn items with a free socket
   openSockets() {
     return SLOTS.filter((s) => this.equip[s] && (this.equip[s].cards || []).length < (this.equip[s].sockets || 0));
   }
 
-  // Gamitin ang consumable sa index i
+  // Use the consumable at index i
   use(i, player, fx) {
     const item = this.itemAt(i);
     if (!item || item.type !== "consume" || !item.effect) return "";
@@ -270,7 +270,7 @@ export class Bag {
   }
 
   // ---------- REFINE (Ragnarok) ----------
-  // split = ihiwalay ang isang piraso mula sa patong (kapag talagang ire-refine na)
+  // split = split one piece off a stack (when it is really being refined)
   upgradeTarget(where, split = false) {
     if (where.slot) return this.equip[where.slot];
     const s = this.slots[where.index];
@@ -289,7 +289,7 @@ export class Bag {
     return { ok: true, cost, chance: refineChance(item.plus) };
   }
 
-  // Ibinabalik: { ok, success, reason, cost }. Kapag pumalya, nawawala ang materyales pero hindi ang item.
+  // Returns { ok, success, reason, cost }. On failure the materials are lost but not the item.
   upgrade(where, player, rnd = Math.random) {
     const check = this.canUpgrade(where, player.gold);
     if (!check.ok) return check;
@@ -304,7 +304,7 @@ export class Bag {
     return { ...check, success };
   }
 
-  // Default na kagamitan ng class (grade 0 = Novice, 1 = custom-forged sa Job Awakening)
+  // Each class's default gear (grade 0 = Novice, 1 = custom-forged at the Job Awakening)
   giveKit(cls, grade = 0) {
     const kit = CLASS_KIT[cls] || CLASS_KIT.novice;
     ["weapon", "offhand"].forEach((slot) => {
@@ -326,7 +326,7 @@ export class Bag {
     this.slots = [];
     this.equip = Object.fromEntries(SLOTS.map((s) => [s, null]));
     if (!data) return;
-    // Lumang bag (v1): ibang pangalan ng item → palitan ng bago
+    // Old bag (v1): renamed items → replace with the new ids
     const RENAME = { dagger: "knife", buckler: "guard", gloves: "knuckle", wand: "rod", rosary: "mace", vestment: "robe", cap: "bandana", charm: "brooch" };
     const fix = (s) => {
       if (!s) return null;
@@ -340,7 +340,7 @@ export class Bag {
     const eq = data.equip || {};
     if (eq.charm && !eq.amulet) eq.amulet = eq.charm;           // v1: charm → amulet
     SLOTS.forEach((slot) => { this.equip[slot] = fix(eq[slot]); });
-    // pagsamahin ang magkakapareho mula sa lumang save
+    // merge identical items from an old save
     const loaded = this.slots;
     this.slots = [];
     const cb = this.onChange;

@@ -1,19 +1,19 @@
 import { getLang } from "../i18n.js";
 
 // ==================== ITEM DATABASE ====================
-// Hango sa Ragnarok Online at Diablo II, may isekai na timpla (LORE Acts IV–V: Dual Equipment Matrix).
+// Inspired by Ragnarok Online and Diablo II, with an isekai twist (LORE Acts IV–V: Dual Equipment Matrix).
 //
-// URI: equip | consume | material | card | quest
-// SLOT NG KAGAMITAN (10): weapon, offhand, head, armor, garment, gloves, boots, amulet, ring1, ring2
-//   Ang 2H na sandata ay nagla-lock ng offhand (LORE Act V).
-// RARITY (Diablo II): normal (puti) · magic (asul, 1–2 affix) · rare (dilaw, 3–4 affix) · unique (ginto)
-// SOCKET at CARD (Ragnarok): may 0–3 socket ang kagamitan; ang card ng halimaw ay isinisingit dito.
-// REFINE (Ragnarok): +1 hanggang +10. Ligtas hanggang +4; mula +5 may tsansang pumalya
-//   (nawawala ang materyales pero hindi ang item — awa ng isekai).
-// GRADE (tier 0–7): kung saang lugar nahulog; lumalaki ang stats bawat grade.
+// TYPES: equip | consume | material | card | quest
+// EQUIPMENT SLOTS (10): weapon, offhand, head, armor, garment, gloves, boots, amulet, ring1, ring2
+//   A 2H weapon locks the off-hand (LORE Act V).
+// RARITY (Diablo II): normal (white) · magic (blue, 1–2 affixes) · rare (yellow, 3–4 affixes) · unique (gold) · set (green)
+// SOCKETS and CARDS (Ragnarok): equipment has 0–3 sockets; monster cards are inserted into them.
+// REFINE (Ragnarok): +1 to +10. Safe up to +4; from +5 it may fail
+//   (the materials are lost but not the item — an isekai mercy).
+// GRADE (tier 0–7): where it dropped; stats grow with every grade.
 //
-// Ang isang item sa bag o suot ay "instance": { id, qty, plus, rarity, affixes: [{k, v}], sockets, cards: [] }
-// Ang id ng kagamitan ay "base@grade" (hal. "lance@3"); ang unique ay "u:susi".
+// An item in the bag or worn is an "instance": { id, qty, plus, rarity, affixes: [{k, v}], sockets, cards: [] }
+// Equipment ids are "base@grade" (e.g. "lance@3"); uniques are "u:key".
 
 export const MAX_PLUS = 10;
 const SAFE_PLUS = 4;
@@ -55,9 +55,9 @@ export const GRADE_NAMES = ["Aethelgard", "Iron", "Sylvan", "Tidal", "Frostforge
 const lang = () => (getLang() === "fil" ? "fil" : "en");
 const N = (en, fil = en) => ({ en, fil });
 
-// ---------- BASE NG KAGAMITAN ----------
-// icon = uri ng pixel icon (js/items/icons.js). look = piyesa ng Avatar (weapon/offhand lang).
-// stats sa grade 0; lumalaki ng ×(1 + grade × 0.6). sockets = pinakamaraming socket.
+// ---------- EQUIPMENT BASES ----------
+// icon = pixel icon kind (js/items/icons.js). look = Avatar part (weapon/offhand only).
+// stats at grade 0; they grow ×(1 + grade × 0.6). sockets = the most sockets it can have.
 const EQUIP = {
   // ---- Novice (Act IV) ----
   knife:      { slot: "weapon", hands: 1, cls: ["novice"], icon: "dagger", stats: { atk: 3 }, look: { weapon: "novice" }, sockets: 1, name: N("Knife", "Kutsilyo") },
@@ -115,7 +115,7 @@ const EQUIP = {
   rosary:     { slot: "ring", icon: "rosary", stats: { luk: 2, hp: 10 }, sockets: 1, name: N("Rosary", "Rosaryo") }
 };
 
-// ---------- UNIQUE (isekai na alamat) ----------
+// ---------- UNIQUES (isekai legends) ----------
 const UNIQUES = {
   craneline:  { base: "lance", name: N("Crane-Line Breaker", "Pambasag ng Crane-Line"), stats: { atk: 20, str: 5, def: 4 } },
   verdict:    { base: "broadsword", name: N("Astraea's Verdict", "Hatol ni Astraea"), stats: { atk: 14, luk: 5, crit: 5 } },
@@ -131,7 +131,7 @@ const UNIQUES = {
 };
 
 // ---------- AFFIX (Diablo II) ----------
-// base = halaga sa grade 0 (lumalaki ng ×(1 + grade × 0.5))
+// base = value at grade 0 (grows ×(1 + grade × 0.5))
 const PREFIXES = [
   { k: "atk", base: 4, name: N("Mighty", "Makapangyarihang") },
   { k: "def", base: 3, name: N("Sturdy", "Matibay na") },
@@ -152,7 +152,7 @@ const SUFFIXES = [
 const RARE_A = ["Doom", "Storm", "Eclipse", "Grave", "Dawn", "Void", "Ember", "Frost", "Blood", "Star", "Rune", "Ashen"];
 const RARE_B = ["Bite", "Song", "Ward", "Fang", "Veil", "Spire", "Mark", "Wreath", "Coil", "Shroud", "Edge", "Heart"];
 
-// ---------- GAMIT, MATERYALES, QUEST ITEM ----------
+// ---------- CONSUMABLES, MATERIALS, QUEST ITEMS ----------
 const OTHER = {
   // Minerals: mined in the Ashfall Wastelands (emberite, obsidian) and the Siege (mythril, starsteel)
   emberite:    { type: "material", icon: "ore", tint: "#f97316", price: 30, name: N("Emberite", "Emberite"), desc: N("Ore still warm from the Hellforge. Forges Emberforged gear and tempers weapons.", "Mineral na mainit pa mula sa Hellforge. Pang-forge ng Emberforged at pampatibay ng sandata.") },
@@ -186,7 +186,7 @@ const OTHER = {
   astralAsh:    { type: "quest", icon: "ash", tint: "#fde68a", name: N("Astral Ash of Satan", "Astral na Abo ni Satan"), desc: N("All that remains of the Demon Lord.", "Ang natira sa Demon Lord.") }
 };
 
-// ---------- CARDS (Ragnarok) — isa bawat halimaw at boss ----------
+// ---------- CARDS (Ragnarok) — one per monster and boss ----------
 const CARDS = {
   slime: { n: N("Slime", "Slime"), stats: { hp: 20 } },
   wolf: { n: N("Dire Wolf", "Mabangis na Lobo"), stats: { atk: 6 } },
@@ -246,7 +246,7 @@ const scaleStats = (stats, mult, spdMult) => {
 };
 const addStats = (a, b) => { Object.entries(b || {}).forEach(([k, v]) => { a[k] = +((a[k] || 0) + v).toFixed(2); }); return a; };
 
-// ---------- DESCRIBE: buong impormasyon mula sa instance ----------
+// ---------- DESCRIBE: full information from an instance ----------
 export function describe(inst) {
   if (!inst) return null;
   const L = lang();
@@ -264,7 +264,7 @@ export function describe(inst) {
     };
   }
 
-  // Unique o karaniwang kagamitan
+  // Unique or regular equipment
   let unique = null;
   let base, grade;
   if (String(id).startsWith("u:")) {
@@ -327,12 +327,12 @@ export function codexItems() {
   };
 }
 
-// Para sa simpleng id (tindahan, quest, pangalan)
+// For a plain id (shop, quest, names)
 export function getItem(id, plus = 0) {
   return describe({ id, plus });
 }
 
-// Aling slot ang puwedeng lagyan ng item (ang singsing ay ring1 o ring2)
+// Which slots an item can go in (a ring fits ring1 or ring2)
 export function slotsFor(item) {
   return item.slot === "ring" ? ["ring1", "ring2"] : [item.slot];
 }
@@ -361,10 +361,10 @@ export function refineChance(plus) {
 // ---------- DROP ----------
 const pick = (arr, rnd) => arr[Math.floor(rnd() * arr.length)];
 
-// Gumawa ng kagamitan na may rarity, affix at socket
+// Builds equipment with rarity, affixes and sockets
 const RARITY_ORDER = ["normal", "magic", "rare"];
 
-// minRarity: pinakamababang kalidad (hal. ang Elite ay laging magic o mas mataas)
+// minRarity: the lowest quality (e.g. Elites always drop magic or better)
 function makeEquip(grade, cls, rnd = Math.random, forceBase = null, minRarity = "normal") {
   const pool = Object.entries(EQUIP).filter(([, e]) => !e.cls || e.cls.includes(cls)).map(([k]) => k);
   const base = forceBase || pick(pool, rnd);
@@ -401,14 +401,14 @@ function makeUnique(grade, cls, rnd = Math.random) {
   return { id: `u:${key}@${grade}`, qty: 1, plus: 0, rarity: "unique", affixes: [], sockets: EQUIP[UNIQUES[key].base].sockets || 0, cards: [] };
 }
 
-// Drop pagkatapos mapatay ang halimaw. info: { key (uri ng halimaw), boss }
-// Ibinabalik: listahan ng instance
-// ---------- SAMSAM AYON SA URI NG HALIMAW ----------
-// rolls      = ilang beses bubunot sa talaan ng gamot/materyales
-// equip      = tsansa ng kagamitan · minRarity = pinakamababang kalidad · rareBoost = tsansang gawing rare
-// unique/card = tsansa ng unique na kagamitan at ng card ng halimaw
-// Sinuri gamit ang simulator (bawat 100 normal na patay sa grade 2): ~5 kagamitan (60/30/10),
-// ~0.25 unique, ~0.8 card, ~36 Phracon, ~8 Oridecon, ~30 gamot/shard.
+// Drop after a monster dies. info: { key (monster kind), boss }
+// Returns a list of instances
+// ---------- LOOT BY MONSTER TIER ----------
+// rolls      = how many draws from the potion/material table
+// equip      = equipment chance · minRarity = the lowest quality · rareBoost = chance to upgrade to rare
+// unique/card = chance of a unique item and of the monster's card
+// Checked with a simulator (per 100 normal kills at grade 2): ~5 equipment (60/30/10),
+// ~0.25 unique, ~0.8 cards, ~36 Phracon, ~8 Oridecon, ~30 potions/shards.
 const LOOT_TIERS = {
   normal:   { rolls: 1, equip: 0.05, minRarity: "normal", rareBoost: 0,    unique: 0.0025, card: 0.008, crystals: 0, shards: 0 },
   champion: { rolls: 2, equip: 0.25, minRarity: "normal", rareBoost: 0.15, unique: 0.01,   card: 0.03,  crystals: 0, shards: 1 },
@@ -416,10 +416,10 @@ const LOOT_TIERS = {
   mvp:      { rolls: 4, equip: 1,    minRarity: "rare",   rareBoost: 1,    unique: 0.25,   card: 0.35,  crystals: 3, shards: 4, bonusEquip: 1 }
 };
 
-// Pagkakaiba ng level: mas kaunti mula sa mahihinang halimaw (abo), mas marami mula sa malalakas (pula)
+// Level difference: less from weak monsters (grey), more from strong ones (red)
 const diffMult = (diff = 0) => (diff <= -3 ? 0.5 : diff < 0 ? 0.85 : diff >= 3 ? 1.2 : 1);
 
-// Isang bunot sa talaan ng gamot at materyales
+// One draw from the potion and material table
 function rollConsumable(grade, rnd) {
   const r = rnd();
   const crystal = 0.025 * (1 + grade * 0.5);
@@ -433,7 +433,7 @@ function rollConsumable(grade, rnd) {
   return null;
 }
 
-// info: { key (uri ng halimaw), tier ("normal" | "champion" | "elite" | "mvp"), diff (level ng halimaw − player) }
+// info: { key (monster kind), tier ("normal" | "champion" | "elite" | "mvp"), diff (monster level − player level) }
 export function rollDrop(grade, cls, info = {}, rnd = Math.random) {
   const T = LOOT_TIERS[info.tier] || (info.boss ? LOOT_TIERS.mvp : LOOT_TIERS.normal);
   const dm = info.tier === "mvp" ? 1 : diffMult(info.diff);
@@ -459,7 +459,7 @@ export function rollDrop(grade, cls, info = {}, rnd = Math.random) {
   return out;
 }
 
-// Default na set ng bawat class (ibinibigay ng tagapagtawag sa Job Awakening; LORE Act IV)
+// Each class's default set (given by the summoner at the Job Awakening; LORE Act IV)
 export const CLASS_KIT = {
   novice: { weapon: "knife", offhand: "guard", extra: [] },
   knight: { weapon: "broadsword", offhand: "tower", extra: ["lance"] },
