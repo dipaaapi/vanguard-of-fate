@@ -43,6 +43,20 @@ export class BoatSystem {
     return false;
   }
 
+  // Sa tubig lang puwede ang bangka: kapag tumama sa lupa, dumudulas sa baybayin o ibinabalik
+  // sa huling posisyon sa tubig (sinusuri ang gitna ng katawan ng bangka)
+  keepAfloat(p) {
+    const wet = (x, y) => this.isWaterAt(x + 10, y + 20);
+    if (wet(p.x, p.y)) {
+      this.lastWet = { x: p.x, y: p.y };
+      return;
+    }
+    const l = this.lastWet || this.dockedBoat;
+    if (wet(p.x, l.y)) p.y = l.y;
+    else if (wet(l.x, p.y)) p.x = l.x;
+    else { p.x = l.x; p.y = l.y; }
+  }
+
   // Sumakay o bumaba sa bangka
   toggleBoard(player, fx = null) {
     if (!player) return;
@@ -77,6 +91,7 @@ export class BoatSystem {
       player.inBoat = true;
       player.x = this.dockedBoat.x;
       player.y = this.dockedBoat.y;
+      this.lastWet = { x: player.x, y: player.y };
 
       if (Sound && Sound.playHolyBurst) Sound.playHolyBurst();
       if (fx && fx.spawnDamagePopup) {
@@ -168,6 +183,7 @@ export class BoatSystem {
 
     // 3. Bangka wake trail kapag naglalayag
     if (player && player.inBoat) {
+      this.keepAfloat(player);
       if (this.tick % 4 === 0 && (player.state === "run" || player.sprinting)) {
         this.wakes.push({
           x: player.x + 10,

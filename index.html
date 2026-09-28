@@ -34,10 +34,17 @@
     <div class="t-fog t-fog-b" aria-hidden="true"></div>
     <div class="t-shade" aria-hidden="true"></div>
 
-    <!-- Language Selector Toggle -->
-    <button type="button" class="t-lang" id="langToggle" tabindex="-1" title="Language / Wika (L)" aria-label="Toggle language">
-      <span data-lang="en">EN</span><span data-lang="fil">FIL</span>
-    </button>
+    <!-- Language / Screen dropdown -->
+    <div class="t-lang" id="langToggle">
+      <button type="button" class="t-lang-btn" id="langBtn" tabindex="-1" title="Language / Wika (L)" aria-haspopup="menu" aria-expanded="false">
+        <span id="langCur">EN</span><i aria-hidden="true">▾</i>
+      </button>
+      <div class="t-lang-menu" id="langMenu" role="menu">
+        <button type="button" role="menuitemradio" tabindex="-1" data-lang="en"><b>EN</b> English</button>
+        <button type="button" role="menuitemradio" tabindex="-1" data-lang="fil"><b>TL</b> Tagalog</button>
+        <button type="button" role="menuitem" tabindex="-1" id="screenItem" class="t-lang-screen"></button>
+      </div>
+    </div>
 
     <!-- Main Title Logo -->
     <header class="t-logo">
@@ -143,30 +150,17 @@
   </section>
 
   <!-- ================================================================= -->
-  <!-- 2.5 ACT I PROLOGUE CINEMATIC MODAL                                -->
+  <!-- 2.5 ACT I PROLOGUE CUTSCENE (animated, js/prologue.js)           -->
   <!-- ================================================================= -->
   <section id="prologue" class="prologue-modal" aria-label="Prologue: Act I" tabindex="-1">
-    <div class="pro-backdrop"></div>
-    <div class="pro-panel">
-      <div class="pro-banner-wrap">
-        <img id="prologueBanner" src="assets/banner/act-1.jpeg" alt="Act I Banner" />
-        <div class="pro-banner-overlay"></div>
+    <div class="pro-stage" id="proStage">
+      <canvas id="prologueCanvas" width="480" height="270"></canvas>
+      <div class="pro-card" id="proCard"></div>
+      <div class="pro-sub" id="proSub">
+        <b class="pro-speaker" id="proSpeaker"></b>
+        <span class="pro-line" id="proLine"></span>
       </div>
-      <div class="pro-content">
-        <div class="pro-header">
-          <span class="pro-tag">PROLOGUE · SALAYSAY NG AETHELGARD</span>
-          <h2 id="prologueTitle"></h2>
-          <h3 id="prologueSub"></h3>
-        </div>
-        <div class="pro-body" id="prologueText"></div>
-        <div class="pro-footer">
-          <div class="pro-dots" id="prologueDots"></div>
-          <div class="pro-buttons">
-            <button type="button" id="prologueSkip" class="btn-secondary">Laktawan (ESC)</button>
-            <button type="button" id="prologueNext" class="btn-primary">SUSUNOD ↵</button>
-          </div>
-        </div>
-      </div>
+      <div class="pro-hint" id="proHint"></div>
     </div>
   </section>
 

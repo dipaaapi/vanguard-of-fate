@@ -800,7 +800,7 @@ const creatorScene = new CreatorScene(
     starterKit(player);
     attachBag(player);
     quest.reset();
-    prologueScene.start(name);
+    prologueScene.start(name, player.avatarConfig);
   },
   () => {
     controller.clearAll();

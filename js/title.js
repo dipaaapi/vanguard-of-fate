@@ -1,5 +1,5 @@
 import { Sound } from "./audio.js";
-import { t, getLang, toggleLang, onLangChange } from "./i18n.js";
+import { t, getLang, setLang, toggleLang, onLangChange } from "./i18n.js";
 import { loadLore, parseChapters, actNumber, bannerSrc, BANNER_EXTS } from "./lore.js";
 
 // Title screen (buong window). HTML/CSS ang logo, menu at Chronicles;
@@ -120,12 +120,33 @@ export class TitleScene {
       if (this.step === "press" && !e.target.closest(".t-lang")) this.advance();
     });
 
+    // Dropdown: EN / TL at Full Screen ↔ Normal Screen
+    const btn = this.langBtn.querySelector("#langBtn");
+    const setMenu = (open) => {
+      this.langBtn.classList.toggle("open", open);
+      btn.setAttribute("aria-expanded", String(open));
+    };
     this.langBtn.addEventListener("mousedown", (e) => e.preventDefault());
-    this.langBtn.addEventListener("click", () => {
+    btn.addEventListener("click", () => {
       Sound.init();
-      toggleLang();
+      setMenu(!this.langBtn.classList.contains("open"));
       if (Sound.playSelectMove) Sound.playSelectMove();
     });
+    this.langBtn.querySelectorAll("[data-lang]").forEach((el) => {
+      el.addEventListener("click", () => {
+        setLang(el.dataset.lang);
+        setMenu(false);
+        if (Sound.playSelectMove) Sound.playSelectMove();
+      });
+    });
+    this.langBtn.querySelector("#screenItem").addEventListener("click", () => {
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      else document.documentElement.requestFullscreen().catch(() => {});
+      setMenu(false);
+      if (Sound.playSelectMove) Sound.playSelectMove();
+    });
+    document.addEventListener("pointerdown", (e) => { if (!e.target.closest(".t-lang")) setMenu(false); });
+    document.addEventListener("fullscreenchange", () => this.renderLang());
 
     const close = this.root.querySelector("#chronClose");
     close.addEventListener("click", () => this.closeChronicles());
@@ -139,9 +160,7 @@ export class TitleScene {
     this.root.querySelectorAll("[data-i18n]").forEach((el) => {
       el.textContent = t(el.dataset.i18n);
     });
-    this.langBtn.querySelectorAll("[data-lang]").forEach((el) => {
-      el.classList.toggle("on", el.dataset.lang === getLang());
-    });
+    this.renderLang();
 
     const hintKey = { press: "", menu: "titleHint", options: "optionsHint", chronicles: "chroniclesHint", credits: "creditsHint" }[this.step];
     this.hintEl.innerHTML = hintKey ? t(hintKey) : "";
@@ -149,6 +168,20 @@ export class TitleScene {
     if (this.step === "menu" || this.step === "options") this.renderMenu();
     if (this.step === "chronicles") this.renderChronicles();
     if (this.step === "credits") this.renderCredits();
+  }
+
+  // Label ng dropdown: kasalukuyang wika (EN / TL) at Full Screen ↔ Normal Screen
+  renderLang() {
+    const cur = getLang();
+    this.langBtn.querySelector("#langCur").textContent = cur === "fil" ? "TL" : "EN";
+    this.langBtn.querySelectorAll("[data-lang]").forEach((el) => {
+      el.classList.toggle("on", el.dataset.lang === cur);
+      el.setAttribute("aria-checked", String(el.dataset.lang === cur));
+    });
+    const full = Boolean(document.fullscreenElement);
+    this.langBtn.querySelector("#screenItem").textContent = full
+      ? (cur === "fil" ? "⛶ Normal na Screen" : "⛶ Normal Screen")
+      : (cur === "fil" ? "⛶ Full Screen" : "⛶ Full Screen");
   }
 
   renderMenu() {
