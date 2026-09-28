@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/title.css" />
   <link rel="stylesheet" href="css/creator.css" />
+  <link rel="stylesheet" href="css/dialog.css" />
 </head>
 <body data-mode="title">
 
@@ -88,7 +89,26 @@
 
   <div id="app">
     <main id="stage">
-      <canvas id="gameCanvas" width="480" height="270"></canvas>
+      <!-- Game screen + mga HTML overlay (dialogue, quest) -->
+      <div id="viewport">
+        <canvas id="gameCanvas" width="480" height="270"></canvas>
+
+        <div id="questTracker">
+          <div id="qtAct"></div>
+          <div id="qtGoal"></div>
+        </div>
+        <div id="questToast"></div>
+        <div id="questLog"></div>
+
+        <div id="dialog">
+          <canvas id="dlgPortrait"></canvas>
+          <div class="dlg-body">
+            <div id="dlgName"></div>
+            <p id="dlgText"></p>
+          </div>
+          <span id="dlgNext">▼</span>
+        </div>
+      </div>
 
       <!-- Ibaba: hero picker (select) / control hints -->
       <div id="bar">

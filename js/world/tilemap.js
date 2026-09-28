@@ -89,7 +89,19 @@ export class TileMap {
         for (let tx = x0; tx <= x1; tx++)
           if (this.inBounds(tx, ty)) mask[this.idx(tx, ty)] = 1;
     }
+    // Mga lugar na dapat walang harang (hal. audience dais ng Citadel)
+    this.eachClearTile(stage, (tx, ty) => { mask[this.idx(tx, ty)] = 1; });
     return mask;
+  }
+
+  eachClearTile(stage, fn) {
+    (stage.clearAreas || []).forEach((a) => {
+      const x0 = Math.floor(a.x / TILE), x1 = Math.floor((a.x + a.w) / TILE);
+      const y0 = Math.floor(a.y / TILE), y1 = Math.floor((a.y + a.h) / TILE);
+      for (let ty = y0; ty <= y1; ty++)
+        for (let tx = x0; tx <= x1; tx++)
+          if (this.inBounds(tx, ty)) fn(tx, ty);
+    });
   }
 
   dilate(mask, r) {
@@ -147,6 +159,7 @@ export class TileMap {
     const gate = stage.castle && stage.castle.gatePortal;
     if (gate) targets.push([Math.floor(gate.x / TILE), Math.floor(gate.y / TILE)]);
     targets.forEach(([tx, ty]) => this.carvePath(path, rnd, hubX, hubY, tx, ty));
+    this.eachClearTile(stage, (tx, ty) => { path[this.idx(tx, ty)] = 1; });   // plaza
     const pathNear = this.dilate(path, 1);
 
     // ----- Ground tiles -----

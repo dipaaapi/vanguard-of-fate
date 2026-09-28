@@ -152,9 +152,11 @@ export class EnemyManager {
       }
 
       // Safe Zone check
-      if (stage && stage.isInsideSafeZone && stage.isInsideSafeZone(e.x, e.y)) {
-        e.x += e.x > stage.width / 2 ? 1.5 : -1.5;
-        e.y += e.y > stage.height / 2 ? 1.5 : -1.5;
+      // Itinutulak palabas mula sa gitna ng sanctuary (Barracks o audience dais ng Citadel)
+      const zone = stage && stage.safeZoneAt ? stage.safeZoneAt(e.x, e.y) : null;
+      if (zone) {
+        e.x += e.x > zone.x + zone.w / 2 ? 1.5 : -1.5;
+        e.y += e.y > zone.y + zone.h / 2 ? 1.5 : -1.5;
         return;
       }
 
