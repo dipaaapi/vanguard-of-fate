@@ -1477,7 +1477,7 @@ function renderGameWorld() {
   }
   npcManager.drawLayer(ctx, footY, true);    // mga NPC sa harap ng player
 
-  stage.drawOverlay(ctx);   // canopy ng mga puno, nasa ibabaw ng mga karakter
+  stage.drawOverlay(ctx, player);   // canopy ng mga puno, nasa ibabaw ng mga karakter
   if (player && gameState !== "GAMEOVER") npcManager.drawLabels(ctx, player);
   // Ang ulan/bagyo ng fx ay para sa Aethelgard lang; may sariling ambient ang bawat platform
   fx.updateAndDraw(ctx, stage === hub ? gameConfig : { ...gameConfig, weather: false });

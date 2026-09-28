@@ -51,8 +51,12 @@ export class Stage {
   }
 
   // Canopy ng mga puno: tinatawag SA IBABAW ng mga karakter
-  drawOverlay(ctx) {
+  drawOverlay(ctx, player = null) {
     if (this.tilemap) this.tilemap.drawOverlay(ctx);
+    // Weather above everything on the ground: clouds, rain/fog tint, and the cloud banks at the map edges
+    this.weather.drawSkyClouds(ctx, player);
+    this.weather.drawWeatherOverlay(ctx);
+    this.weather.drawCloudBorders(ctx);
   }
 
   // Aling sanctuary ang kinaroroonan ng punto (o null)
@@ -106,9 +110,7 @@ export class Stage {
     // 4. 4-Way Warp Portals
     this.portals.draw(ctx);
 
-    // 5. Sky Layers, Weather Shifts, & Mist Borders
-    this.weather.drawSkyClouds(ctx);
-    this.weather.drawWeatherOverlay(ctx);
-    this.weather.drawCloudBorders(ctx);
+    // 5. Cloud shadows on the ground (the clouds themselves are drawn above the characters)
+    this.weather.drawCloudShadows(ctx);
   }
 }
