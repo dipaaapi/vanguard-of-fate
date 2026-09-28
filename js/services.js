@@ -19,6 +19,7 @@ export class ServiceMenu {
     this.options = options;
     this.index = Math.max(0, options.findIndex((o) => !o.disabled));
     this.open = true;
+    this.openedAt = performance.now();   // ignore keys briefly, so the Enter that ended the dialogue cannot pick an option
     this.el.classList.add("open");
     this.render();
     if (Sound.playSelectMove) Sound.playSelectMove();
@@ -83,6 +84,7 @@ export class ServiceMenu {
   handleInput(e) {
     const c = e.code;
     e.preventDefault();
+    if (performance.now() - this.openedAt < 250) return;
     if (c === "Escape") this.close();
     else if (c === "ArrowUp" || c === "KeyW") this.move(-1);
     else if (c === "ArrowDown" || c === "KeyS") this.move(1);

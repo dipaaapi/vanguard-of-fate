@@ -1192,12 +1192,13 @@ export class Avatar {
   }
 
   // (x, y) = posisyon ng paa sa mundo. flip = nakaharap pakaliwa (side lang)
-  draw(ctx, x, y, dir, anim, i, flip = false, flash = false, scale = 1) {
+  // squash < 1 shortens the figure while keeping its width (dwarves)
+  draw(ctx, x, y, dir, anim, i, flip = false, flash = false, scale = 1, squash = 1) {
     const img = flash ? this.flashFrame(dir, anim, i) : this.frame(dir, anim, i);
     ctx.save();
     ctx.translate(Math.round(x), Math.round(y));
     if (flip && dir === "side") ctx.scale(-1, 1);
-    ctx.drawImage(img, -ANCHOR_X * scale, -ANCHOR_Y * scale, FRAME_W * scale, FRAME_H * scale);
+    ctx.drawImage(img, -ANCHOR_X * scale, -ANCHOR_Y * scale * squash, FRAME_W * scale, FRAME_H * scale * squash);
     ctx.restore();
   }
 

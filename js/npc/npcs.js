@@ -147,6 +147,7 @@ class NPC {
     this.flip = false;
     this.visible = true;
     this.avatar = new Avatar(NPC_DEFS[id].look);
+    this.squash = NPC_DEFS[id].dwarf ? 0.8 : 1;   // dwarves stand shorter
     this.tick = Math.floor(Math.random() * 120);
 
     // AI & Autonomous Movement parameters
@@ -439,13 +440,13 @@ class NPC {
 
     if (this.attackAnimTimer > 0) {
       const frame = this.attackAnimTimer > 7 ? 0 : 1;
-      this.avatar.draw(ctx, this.x, this.y, this.dir, "attack", frame, this.flip);
+      this.avatar.draw(ctx, this.x, this.y, this.dir, "attack", frame, this.flip, false, 1, this.squash);
     } else if (this.state === "walk" && (Math.abs(this.vx) > 0.01 || Math.abs(this.vy) > 0.01)) {
       const frame = Math.floor(this.walkAnimTick / 8) % 4;
-      this.avatar.draw(ctx, this.x, this.y, this.dir, "walk", frame, this.flip);
+      this.avatar.draw(ctx, this.x, this.y, this.dir, "walk", frame, this.flip, false, 1, this.squash);
     } else {
       const frame = Math.floor(this.tick / 35) % 2;
-      this.avatar.draw(ctx, this.x, this.y, this.dir, "idle", frame, this.flip);
+      this.avatar.draw(ctx, this.x, this.y, this.dir, "idle", frame, this.flip, false, 1, this.squash);
     }
   }
 }
@@ -504,6 +505,10 @@ export class NPCManager {
     PLATFORM_ORDER.forEach((pid) => {
       const c = PLATFORMS[pid].camp;
       this.npcs.push(Object.assign(new NPC(summonerId, c.x + c.w / 2 + 18, c.y + c.h / 2 + 8, "down", pid, { wanderRadius: 30, speed: 0.32 }), { tag: "field" }));
+      // Village residents (Emberhold in the Ashfall Wastelands)
+      Object.entries(PLATFORMS[pid].villagers || {}).forEach(([id, [x, y]]) => {
+        this.npcs.push(new NPC(id, x, y, "down", pid, { guard: true, wanderRadius: 10, speed: 0.22 }));
+      });
     });
     // Act XI: kasama sa pagtatanggol ng lamat si Kapitan Ronald at ang Royal Guard
     const sc = PLATFORMS.siege.camp;
@@ -697,7 +702,7 @@ export class NPCManager {
     this.npcs.forEach((n) => {
       if (!this.shown(n)) return;
       const near = Math.hypot(px - n.x, py - n.y) < FACE_RANGE;
-      const top = n.y - 38;
+      const top = n.y - (n.squash < 1 ? 31 : 38);   // dwarves are shorter
 
       // Quest exclamation mark
       if (n.id === this.marked) {

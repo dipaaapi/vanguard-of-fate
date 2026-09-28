@@ -33,6 +33,28 @@ export const NPC_DEFS = {
       outfit: "robe", outfitColor: "#2f6b3f", legColor: "#3b3f4a", bootColor: "#5e3b1a", weapon: "flask" }
   },
 
+  // ---- Emberhold, the Dwarven Village of the Ashfall Wastelands (Act X) ----
+  brakka: {   // master smith: refines to the maximum (and forges mineral sets)
+    dwarf: true,
+    look: { ...base, body: "male", skin: "#e0ac69", hairStyle: "buzz", hairColor: "#b45309", beard: true, gloves: "leather",
+      outfit: "coat", outfitColor: "#7c2d12", legColor: "#3b2a1a", bootColor: "#2b1d14", weapon: "axe" }
+  },
+  hilde: {    // repairs weapons and armor
+    dwarf: true,
+    look: { ...base, body: "female", skin: "#f1c27d", hairStyle: "twintails", hairColor: "#c2410c", gloves: "wraps",
+      outfit: "vest", outfitColor: "#57534e", legColor: "#44403c", bootColor: "#3a2616", weapon: "none" }
+  },
+  durgrim: {  // thane of Emberhold: gives the mining quest
+    dwarf: true,
+    look: { ...base, body: "male", skin: "#c68642", hairStyle: "short", hairColor: "#dfe6ee", beard: true,
+      outfit: "robe", outfitColor: "#1e3a5f", legColor: "#1e293b", bootColor: "#2b2b33", headgear: "crown", cape: "#991b1b", weapon: "scepter" }
+  },
+  pip: {      // shopkeeper
+    dwarf: true,
+    look: { ...base, body: "male", skin: "#f1c27d", hairStyle: "spiky", hairColor: "#7a5230", beard: true,
+      outfit: "tunic", outfitColor: "#a16207", legColor: "#57534e", bootColor: "#5e3b1a", headgear: "hat", weapon: "flask" }
+  },
+
   // ---- Ang limang Earthbound soul: mga mentor ng class ----
   arthur: {
     mentor: "knight",

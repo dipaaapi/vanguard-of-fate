@@ -29,6 +29,7 @@ import { getDialogue, npcName } from "./dialogue.js";
 import { DialogBox, QuestHud } from "./dialog.js";
 import { ChatLog } from "./chatlog.js";
 import { ServiceMenu } from "./services.js";
+import { getItem } from "./items/itemdb.js";
 import { wear, WEAR_WEAPON, WEAR_ARMOR, ARMOR_SLOTS } from "./items/durability.js";
 import { Avatar } from "./avatar/avatar.js";
 import { createLorePanel } from "./lore.js";
@@ -218,6 +219,36 @@ function openRonaldMenu() {
     { label: fil ? "Field repair (dobleng halaga)" : "Field repair (double cost)", hint: fil ? "Mas mura sa dwarf sa Ashfall" : "Cheaper with the dwarves of Ashfall",
       onPick: () => openService("repair", { repairMult: 2, serviceName: who }) }
   ]);
+}
+
+// Emberhold (Ashfall Wastelands): the dwarves' services
+function openSmithMenu() {
+  const fil = lang() === "fil", who = npcName("brakka");
+  serviceMenu.show(who, [
+    { label: fil ? "Mag-refine (hanggang +10)" : "Refine gear (up to +10)", hint: fil ? "Phracon, Oridecon at ginto" : "Phracon, Oridecon and gold",
+      onPick: () => openService("refine", { serviceName: who }) }
+  ]);
+}
+
+// Pip's stall: buy one at a time; the menu reopens after each purchase with the gold left
+const DWARF_STOCK = [["monsterShard", 15], ["voidCrystal", 80], ["elixir", 45], ["tonic", 18], ["panacea", 22]];
+function openDwarfShop() {
+  const fil = lang() === "fil";
+  serviceMenu.show(`${npcName("pip")} · ◆ ${player.gold}G`, DWARF_STOCK.map(([id, price]) => ({
+    label: `${getItem(id).name} — ${price}G`,
+    hint: getItem(id).desc,
+    disabled: player.gold < price,
+    onPick: () => {
+      if (player.gold < price || !player.bag.add(id, 1)) {
+        fx.spawnDamagePopup(player.x + 10, player.y - 10, fil ? "HINDI MAKABILI" : "CAN'T BUY", false, "#ef4444");
+      } else {
+        player.gold -= price;
+        chatLog.event("loot", fil ? `Binili ang ${getItem(id).name} (−${price}G)` : `Bought ${getItem(id).name} (−${price}G)`, dayNight.label());
+        if (Sound.playLootPickup) Sound.playLootPickup();
+      }
+      openDwarfShop();
+    }
+  })));
 }
 
 function inventoryCtx() {
@@ -898,6 +929,9 @@ function talkTo(npc) {
     saveGame();   // naitala kung sino na ang nakausap
     if (d.action === "shop") { showShopModal = true; showMercModal = false; }
     else if (d.action === "merc") { showShopModal = false; openRonaldMenu(); }
+    else if (d.action === "smith") openSmithMenu();
+    else if (d.action === "repair") openService("repair", { repairMult: 1, serviceName: npcName("hilde") });
+    else if (d.action === "dwarfShop") openDwarfShop();
     else if (d.action === "awaken" && canAwaken(player)) startAwakening();
   });
 }

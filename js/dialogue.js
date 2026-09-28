@@ -13,13 +13,15 @@ const NAMES = {
     aurelia: "Princess Aurelia", kenneth: "Prince Kenneth", king: "The King", royalGuard: "Royal Guard",
     ronald: "Captain Ronald", edgar: "Edgar the Apothecary",
     arthur: "Arthur \"Art\" Ramirez", lyra: "Lyra Vance", julian: "Dr. Julian Alcantara",
-    sam: "Samantha \"Sam\" Chen", renzo: "Renzo \"Striker\" Cruz", elvenMatriarch: "Elven Matriarch"
+    sam: "Samantha \"Sam\" Chen", renzo: "Renzo \"Striker\" Cruz", elvenMatriarch: "Elven Matriarch",
+    brakka: "Brakka Emberforge", hilde: "Hilde Rivetmend", durgrim: "Thane Durgrim Ashenhelm", pip: "Pip Gildbarrow"
   },
   fil: {
     aurelia: "Prinsesa Aurelia", kenneth: "Prinsipe Kenneth", king: "Ang Hari", royalGuard: "Bantay ng Hari",
     ronald: "Kapitan Ronald", edgar: "Edgar ang Apothecary",
     arthur: "Arthur \"Art\" Ramirez", lyra: "Lyra Vance", julian: "Dr. Julian Alcantara",
-    sam: "Samantha \"Sam\" Chen", renzo: "Renzo \"Striker\" Cruz", elvenMatriarch: "Matriarka ng mga Elf"
+    sam: "Samantha \"Sam\" Chen", renzo: "Renzo \"Striker\" Cruz", elvenMatriarch: "Matriarka ng mga Elf",
+    brakka: "Brakka Emberforge", hilde: "Hilde Rivetmend", durgrim: "Thane Durgrim Ashenhelm", pip: "Pip Gildbarrow"
   }
 };
 
@@ -95,6 +97,27 @@ const LINES = {
       "My panaceas purge them all. Come to me whenever the wilds leave their mark."
     ],
     edgarAgain: ["What will it be? My shelves are stocked."],
+
+    brakka: [
+      "Hah! A surface-walker who survived the ash. Welcome to Emberhold's forge.",
+      "Your captain can nudge a blade to +4. Past that, steel needs dwarven fire. Bring me your gear."
+    ],
+    brakkaAgain: ["The anvil's hot. What are we refining?"],
+    hilde: [
+      "Hilde Rivetmend. You swing, it dents; you get hit, it cracks. That's where I come in.",
+      "Half the price your Barracks captain charges, and twice the care."
+    ],
+    hildeAgain: ["Let's see how badly you've treated that armor this time."],
+    durgrim: [
+      "I am Durgrim Ashenhelm, Thane of Emberhold. We held these halls while the Hellforge burned around us.",
+      "You and {Heir} are welcome under our roof. Rest here; the ash cannot follow."
+    ],
+    durgrimAgain: ["Emberhold stands. So long as it does, you have a home in the wastes."],
+    pip: [
+      "Pip Gildbarrow, finest stall this side of the lava river! Shards, Oridecon, potions — fair prices, mostly.",
+      "Everything's hauled in by cart past the magma drakes, so don't haggle too hard."
+    ],
+    pipAgain: ["Back for more? Coin first, then goods!"],
 
     arthur: [
       "Arthur Ramirez. I was a site engineer in Manila, until a crane line snapped.",
@@ -221,6 +244,27 @@ const LINES = {
     ],
     edgarAgain: ["Ano ang kailangan mo? Puno ang aking mga estante."],
 
+    brakka: [
+      "Hah! Isang taga-ibabaw na nakaligtas sa abo. Maligayang pagdating sa pandayan ng Emberhold.",
+      "Hanggang +4 lang ang kaya ng inyong kapitan. Lampas doon, kailangan ng apoy ng dwarf. Dalhin mo rito ang gamit mo."
+    ],
+    brakkaAgain: ["Mainit ang palihan. Ano ang ire-refine natin?"],
+    hilde: [
+      "Hilde Rivetmend. Hahampas ka, mayuyupi; tatamaan ka, mabibitak. Diyan ako papasok.",
+      "Kalahati ng singil ng kapitan ninyo sa Barracks, at doble ang ingat."
+    ],
+    hildeAgain: ["Tingnan natin kung gaano mo na naman sinira ang baluting iyan."],
+    durgrim: [
+      "Ako si Durgrim Ashenhelm, Thane ng Emberhold. Hinawakan namin ang mga bulwagang ito habang nasusunog ang Hellforge.",
+      "Malugod kayong tinatanggap ni {Heir} sa ilalim ng aming bubong. Magpahinga kayo; hindi makakasunod ang abo."
+    ],
+    durgrimAgain: ["Nakatayo pa ang Emberhold. Hangga't nakatayo ito, may tahanan ka sa disyerto ng abo."],
+    pip: [
+      "Pip Gildbarrow, pinakamagandang puwesto sa tabi ng ilog ng lava! Shard, Oridecon, potion — patas ang presyo, kadalasan.",
+      "Lahat ay hinahakot sakay ng kariton, lampas sa mga magma drake, kaya huwag masyadong tumawad."
+    ],
+    pipAgain: ["Bumalik ka? Bayad muna, saka paninda!"],
+
     arthur: [
       "Arthur Ramirez. Site engineer ako sa Maynila, hanggang sa naputol ang kable ng crane.",
       "Dito, tinatawag nila akong Vanguard Lancer. Walang linyang hindi kayang hawakan ng aking Bastion Forcefield.",
@@ -333,5 +377,15 @@ export function getDialogue(id, ctx) {
     return { lines: L("mentorOther", ctx), action: null };
   }
 
+  // Emberhold: first visit plays the introduction, later visits a short greeting, then the service opens
+  if (DWARF_ACTION[id] !== undefined) {
+    const again = dwarvesMet.has(id);
+    dwarvesMet.add(id);
+    return { lines: L(again ? `${id}Again` : id, ctx), action: DWARF_ACTION[id] };
+  }
   return { lines: L(id, ctx), action: null };
 }
+
+// Which service each dwarf of Emberhold opens after talking (null = conversation only)
+const DWARF_ACTION = { brakka: "smith", hilde: "repair", pip: "dwarfShop", durgrim: null };
+const dwarvesMet = new Set();   // introductions already heard this session

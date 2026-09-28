@@ -288,7 +288,9 @@ export const PLATFORMS = {
   ash: {
     id: "ash", act: 10, tier: 5, theme: "ash", ambient: "embers", seed: 10110, hubGate: "SOUTH", color: "#ff7a1a", seal: "emberSeal",
     name: { en: "Ashfall Wastelands", fil: "Ashfall Wastelands" },
-    camp: { x: 980, y: 770, w: 180, h: 110 }, gate: { x: 1070, y: 878 },
+    // The camp is Emberhold, a walled dwarven village (safe zone); see Platform.drawVillage
+    camp: { x: 880, y: 680, w: 320, h: 196 }, gate: { x: 1070, y: 878 }, village: "Emberhold",
+    villagers: { brakka: [942, 778], hilde: [934, 842], durgrim: [1040, 752], pip: [1152, 774] },
     arena: { x: 110, y: 110, w: 330, h: 220 }, bossSpawn: { x: 260, y: 200 }, boss: "ignis", item: "forgeCore",
     arenaName: { en: "Hellforge", fil: "Hellforge" },
     monsters: ["obsidianGolem", "demonKnight", "hellHound", "imp", "magmaDrake", "fireGargoyle", "lavaSerpent", "lavaCrab"],
