@@ -1,7 +1,7 @@
 import { Sound } from "./audio.js";
 import { t, onLangChange } from "./i18n.js";
 import { Avatar, FRAME_W, FRAME_H, DIRS } from "./avatar/avatar.js";
-import { FIELDS, DEFAULT_CONFIG, randomConfig } from "./avatar/options.js";
+import { FIELDS, DEFAULT_CONFIG, randomConfig, randomName } from "./avatar/options.js";
 
 // ==================== CHARACTER CREATOR ====================
 // Dito nililikha ang Novice bago ang summoning: katawan, balat, mata, buhok,
@@ -71,13 +71,24 @@ export class CreatorScene {
       el.addEventListener("click", () => { Sound.init(); fn(); });
     };
     btn("#crHome", () => this.back());
-    btn("#crPose", () => this.cyclePose());
     btn("#crFull", () => this.toggleFullscreen());
     btn("#crRandom", () => this.randomize());
     document.addEventListener("fullscreenchange", () => this.renderUtil());
     this.bindDial();
-    btn("#crBack", () => this.back());
     btn("#crBegin", () => this.begin());
+
+    // Tray: Tayo / Lakad / Takbo bilang magkakatabing pindutan
+    const poses = this.root.querySelector("#crPoses");
+    POSES.forEach((pose, i) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.setAttribute("role", "radio");
+      b.dataset.pose = String(i);
+      b.innerHTML = `<b>${pose.icon}</b><span></span>`;
+      b.addEventListener("mousedown", (e) => e.preventDefault());
+      b.addEventListener("click", () => { Sound.init(); this.setPose(i); });
+      poses.appendChild(b);
+    });
 
     // Enter/Esc sa name field: tapusin ang pag-type
     this.nameEl.addEventListener("keydown", (e) => {
@@ -196,11 +207,15 @@ export class CreatorScene {
     this.renderUtil();
   }
 
-  cyclePose() {
-    this.pose = (this.pose + 1) % POSES.length;
+  setPose(i) {
+    this.pose = i;
     this.tick = 0;
     if (Sound.playSelectMove) Sound.playSelectMove();
     this.renderUtil();
+  }
+
+  cyclePose() {
+    this.setPose((this.pose + 1) % POSES.length);
   }
 
   toggleFullscreen() {
@@ -231,10 +246,12 @@ export class CreatorScene {
 
   renderUtil() {
     const $ = (id) => this.root.querySelector(id);
-    const pose = POSES[this.pose];
-    $("#crPoseIcon").textContent = pose.icon;
-    $("#crPoseLabel").textContent = t(pose.key);
-    $("#crPose").classList.toggle("on", pose.anim !== "idle");
+    this.root.querySelectorAll("#crPoses [data-pose]").forEach((b) => {
+      const i = Number(b.dataset.pose);
+      b.querySelector("span").textContent = t(POSES[i].key);
+      b.classList.toggle("on", i === this.pose);
+      b.setAttribute("aria-checked", String(i === this.pose));
+    });
     const full = Boolean(document.fullscreenElement);
     $("#crFullIcon").textContent = full ? "🗗" : "⛶";
     $("#crFullLabel").textContent = full ? t("crRestore") : t("crFull");
@@ -250,6 +267,7 @@ export class CreatorScene {
 
   randomize() {
     this.config = randomConfig();
+    this.nameEl.value = randomName(this.config.body);
     if (Sound.playSelectConfirm) Sound.playSelectConfirm();
     this.rebuild();
   }

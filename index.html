@@ -105,11 +105,8 @@
           <canvas id="crPreview" aria-label="Character preview" role="img"></canvas>
         </div>
 
-        <!-- Utility Bar: Home / Rotate Dial / Pose / Fullscreen -->
+        <!-- Rotate Dial (Q / E) -->
         <div class="cr-util">
-          <button type="button" id="crHome" title="Esc" aria-label="Return to Main Menu">
-            <b>⌂</b><span data-i18n="crHome"></span>
-          </button>
           <div class="cr-dial-wrap">
             <div class="cr-dial" id="crDial" title="Q / E" role="slider" tabindex="0" aria-label="Rotate Character" aria-valuenow="0" aria-valuemin="0" aria-valuemax="3" aria-valuetext="Facing Down">
               <span class="cr-dial-mark m-down"></span><span class="cr-dial-mark m-right"></span>
@@ -118,12 +115,6 @@
             </div>
             <span class="cr-dial-label" id="crDialLabel"></span>
           </div>
-          <button type="button" id="crPose" title="V" aria-label="Toggle Pose Animation">
-            <b id="crPoseIcon"></b><span id="crPoseLabel"></span>
-          </button>
-          <button type="button" id="crFull" title="F" aria-label="Toggle Fullscreen">
-            <b id="crFullIcon"></b><span id="crFullLabel"></span>
-          </button>
         </div>
 
         <div class="cr-trio" aria-hidden="true">
@@ -140,12 +131,22 @@
         </label>
         <div class="cr-rows" id="crRows"></div>
         <div class="cr-actions">
-          <button type="button" id="crBack" data-i18n="back"></button>
-          <button type="button" id="crRandom" data-i18n="crRandom"></button>
+          <button type="button" id="crRandom" title="R"><b>🎲</b> <span data-i18n="crRandom"></span></button>
           <button type="button" id="crBegin" class="primary" data-i18n="crBegin"></button>
         </div>
       </div>
     </div>
+
+    <!-- Bottom Tray: Main Menu · Idle / Walk / Dash · Full Screen -->
+    <nav class="cr-tray" aria-label="Creator options">
+      <button type="button" id="crHome" title="Esc">
+        <b>⌂</b><span data-i18n="crHome"></span>
+      </button>
+      <div class="cr-poses" id="crPoses" role="radiogroup" title="V" aria-label="Preview pose"></div>
+      <button type="button" id="crFull" title="F">
+        <b id="crFullIcon"></b><span id="crFullLabel"></span>
+      </button>
+    </nav>
     <footer class="cr-foot" id="crHint"></footer>
   </section>
 

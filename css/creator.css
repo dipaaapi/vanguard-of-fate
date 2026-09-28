@@ -126,7 +126,6 @@ body[data-mode="create"] #creator {
 }
 .cr-util button b { font-size: 16px; line-height: 1; font-weight: 400; }
 .cr-util button:hover { color: #fff; border-color: var(--gold); }
-#crPose.on { color: var(--ink); background: var(--gold); border-color: var(--gold); }
 
 /* Dial: i-drag o i-click para iikot ang preview (harap ↓, kanan →, likod ↑, kaliwa ←) */
 .cr-dial-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
@@ -299,7 +298,7 @@ body[data-mode="create"] #creator {
 
 .cr-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr 1.4fr;
+  grid-template-columns: 1fr 1.4fr;
   gap: 8px;
   margin-top: 14px;
 }
@@ -308,9 +307,44 @@ body[data-mode="create"] #creator {
 .cr-actions .primary { color: var(--ink); background: var(--gold); border-color: var(--gold); font-weight: 700; }
 .cr-actions .primary:hover { color: var(--ink); background: #ffe08f; }
 
+/* ---------- BOTTOM TRAY (Main Menu · Tayo/Lakad/Takbo · Full Screen) ---------- */
+.cr-tray {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 14px;
+  margin: 14px 28px 0;
+  padding: 8px 14px;
+  background: rgba(7, 12, 22, 0.9);
+  border: 1px solid #3b4661;
+  box-shadow: 0 0 0 3px rgba(3, 6, 17, 0.8);
+}
+.cr-tray button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font: inherit;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: #cbd5e1;
+  background: rgba(7, 12, 22, 0.85);
+  border: 1px solid #3b4661;
+}
+.cr-tray button b { font-size: 15px; line-height: 1; font-weight: 400; }
+.cr-tray button:hover { color: #fff; border-color: var(--gold); }
+.cr-poses { display: flex; }
+.cr-poses button + button { border-left: 0; }
+.cr-poses button.on { color: var(--ink); background: var(--gold); border-color: var(--gold); }
+#crHome { margin-right: auto; }
+#crFull { margin-left: auto; }
+
 .cr-foot {
   position: relative;
-  padding: 10px 20px 12px;
+  padding: 8px 20px 12px;
   font-size: clamp(9px, 0.85vw, 12px);
   letter-spacing: 0.06em;
   color: var(--muted);
@@ -325,6 +359,8 @@ body[data-mode="create"] #creator {
   .cr-layout { grid-template-columns: 1fr; padding: 12px 16px 0; }
   .cr-pedestal { height: 34vh; }
   .cr-panel { min-height: 60vh; }
+  .cr-tray { margin: 12px 16px 0; flex-wrap: wrap; gap: 8px; }
+  .cr-tray button { padding: 8px 10px; }
 }
 @media (max-height: 560px) {
   .cr-trio, .cr-sub { display: none; }

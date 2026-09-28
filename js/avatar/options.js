@@ -103,3 +103,16 @@ export function randomConfig(keepBody) {
   while (cfg.legColor === cfg.outfitColor) cfg.legColor = pick(CLOTH);
   return cfg;
 }
+
+// Pangalan ng tinawag na kaluluwa mula sa Daigdig (2026): halong Pilipino at pandaigdigang pangalan,
+// ayon sa napiling katawan. Lahat ay ≤ 12 titik (maxlength ng #crName).
+const NAMES = {
+  male: ["Miguel", "Rafael", "Gabriel", "Andres", "Paolo", "Joaquin", "Marco", "Adrian", "Carlo", "Elias",
+    "Diego", "Lucas", "Nathan", "Ethan", "Liam", "Kenji", "Isaac", "Tomas", "Leon", "Julian"],
+  female: ["Maria", "Sofia", "Isabel", "Angela", "Camille", "Andrea", "Bea", "Clara", "Mika", "Lara",
+    "Elena", "Nina", "Hannah", "Chloe", "Yumi", "Alyssa", "Amara", "Iris", "Leah", "Celine"]
+};
+
+export function randomName(body) {
+  return pick(NAMES[body] || [...NAMES.male, ...NAMES.female]);
+}
