@@ -1,6 +1,7 @@
 import { TileMap } from "./tilemap.js";
 import { Ambient } from "./ambient.js";
 import { drawGateway } from "./portal.js";
+import { BoatSystem } from "./boat.js";
 import { PLATFORMS, PLATFORM_SIZE } from "./platforms.js";
 import { getLang } from "../i18n.js";
 
@@ -37,6 +38,8 @@ export class Platform {
     this.coverageSystems = [{ draw: (c) => this.drawCamp(c) }];
     this.ambient = new Ambient(def.ambient);
     this.tilemap = new TileMap(this, def.seed);
+    // Bangka at Sunken Monolith (Cerulean Abyss lang)
+    this.boatSystem = def.boat ? new BoatSystem(this, def.boat) : null;
   }
 
   name() {
@@ -44,6 +47,8 @@ export class Platform {
   }
 
   resolveTileCollision(entity) {
+    // Habang nasa bangka: libreng makapaglayag sa tubig, huwag i-block ng liquid mask
+    if (entity && entity.inBoat) return;
     this.tilemap.resolveCollision(entity);
   }
 
@@ -61,9 +66,10 @@ export class Platform {
     return g.dir === "vertical" ? { x: g.x - 60, y: g.y - 12 } : { x: g.x - 10, y: g.y - 58 };
   }
 
-  update(player, onPortal) {
+  update(player, onPortal, enemyManager = null, effects = null) {
     this.tick++;
     this.ambient.update();
+    if (this.boatSystem) this.boatSystem.update(player, enemyManager, effects, onPortal);
     if (!player || player.portalCooldown > 0) return;
     const fx = player.x + 10, fy = player.y + 18;
     const g = this.gate;
@@ -113,10 +119,11 @@ export class Platform {
     ctx.restore();
   }
 
-  draw(ctx) {
+  draw(ctx, player = null) {
     this.tilemap.drawGround(ctx);
     this.def.landmark.call(this.def, ctx, this.tick / 20, this.cleared, this.riftOpen);
     this.drawCamp(ctx);
+    if (this.boatSystem) this.boatSystem.draw(ctx, player);
     const L = getLang() === "fil" ? "fil" : "en";
     drawGateway(ctx, this.gate, this.tick * 0.08, false, L === "fil" ? "PABALIK SA AETHELGARD" : "RETURN TO AETHELGARD");
   }

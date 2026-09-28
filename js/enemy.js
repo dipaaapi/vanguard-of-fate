@@ -23,8 +23,7 @@ import { STATUS, statusName } from "./status.js";
 
 const HUB_KINDS = [
   "slime", "wolf", "skeleton", "goblinScout", "forestBear",
-  "windFalcon", "bloodBat", "skyGargoyle",
-  "riverCrab", "riverNaga", "marshLurker"
+  "windFalcon", "bloodBat", "skyGargoyle"
 ];
 const WALK_TICKS = 10;
 const IDLE_TICKS = 30;
@@ -70,7 +69,6 @@ export class EnemyManager {
   // May anyong-tubig ba o dagat/moat/liquid sa kasalukuyang lugar
   hasWaterNearby() {
     if (!this.stage) return false;
-    if (this.stage.id === "hub" || this.stage.ocean) return true;
     if (this.stage.tilemap && this.stage.tilemap.liquidTiles && this.stage.tilemap.liquidTiles.size > 0) return true;
     if (["coast", "canopy", "frost", "ash", "maw"].includes(this.stage.theme)) return true;
     return false;
@@ -151,14 +149,6 @@ export class EnemyManager {
 
     // Para sa mga nilalang ng Dagat/Tubig: sa baybayin, dagat o liquid tiles
     if (forKind && (forKind.aquatic || forKind.medium === "sea")) {
-      if (st && st.id === "hub") {
-        for (let k = 0; k < 35; k++) {
-          const x = 50 + Math.random() * 260;
-          const y = this.worldH - 220 + Math.random() * 180;
-          if (this.player && Math.hypot(x - this.player.x, y - this.player.y) < 140) continue;
-          return { x, y };
-        }
-      }
       if (st && st.tilemap) {
         for (let k = 0; k < 40; k++) {
           const x = b.minX + 30 + Math.random() * (b.maxX - b.minX - 60);

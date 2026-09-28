@@ -1,13 +1,12 @@
 import { GrasslandSystem } from "./world/grassland.js";
 import { BarracksSystem } from "./world/barracks.js";
-import { OceanSystem } from "./world/ocean.js";
 import { CastleSystem } from "./world/castle.js";
 import { PortalSystem } from "./world/portal.js";
 import { WeatherSystem } from "./world/weather.js";
 import { TileMap } from "./world/tilemap.js";
-import { BoatSystem } from "./world/boat.js";
 
-// Ang kaparangan ng Aethelgard (Acts I–VI): Barracks, Citadel, baybayin at ang 4 na Warp Gateway.
+// Ang kaparangan ng Aethelgard (Acts I–VI): Barracks, Citadel at ang 4 na Warp Gateway.
+// Ang bangka at dagat ay nasa Cerulean Abyss (platform na "coast").
 // Ang mga platform ng Acts VII–XII ay nasa js/world/platform.js (parehong interface).
 export class Stage {
   constructor(width = 1280, height = 960) {
@@ -26,11 +25,9 @@ export class Stage {
     // Subsystems
     this.grassland = new GrasslandSystem(this.width, this.height);
     this.barracks = new BarracksSystem(this.width, this.height);
-    this.ocean = new OceanSystem(this.width, this.height);
     this.castle = new CastleSystem(this.width, this.height);
     this.portals = new PortalSystem(this.width, this.height);
     this.weather = new WeatherSystem(this.width, this.height);
-    this.boatSystem = new BoatSystem(this);
 
     // Shortcut para sa gameplay safe zone checks
     this.safeZone = this.barracks.bounds;
@@ -44,16 +41,12 @@ export class Stage {
     this.safeZones = [this.safeZone, this.dais];
 
     // Tile-based na lupa (damo, landas, puno, bato). Huling ginagawa dahil binabasa nito
-    // kung saan nakaguhit ang ocean, castle, barracks at portals.
+    // kung saan nakaguhit ang castle, barracks at portals.
     this.tilemap = new TileMap(this);
   }
 
   // Hindi madaanan na tiles (puno, bato)
   resolveTileCollision(entity) {
-    if (entity && entity.inBoat) {
-      // Habang nasa bangka: libreng makapaglayag sa tubig/ocean, huwag i-block ng liquid mask
-      return;
-    }
     if (this.tilemap) this.tilemap.resolveCollision(entity);
   }
 
@@ -82,11 +75,9 @@ export class Stage {
     // 1. Environment Updates
     this.grassland.update();
     this.barracks.update();
-    this.ocean.update();
     this.castle.update();
     this.portals.update(player, onWarp);
     this.weather.update();
-    if (this.boatSystem) this.boatSystem.update(player, enemyManager, fx, onWarp);
 
     // 2. Solid Castle Physics
     if (player && this.castle) {
@@ -106,20 +97,16 @@ export class Stage {
     // 1. Base Natural Ground (tile-based)
     this.tilemap.drawGround(ctx);
 
-    // 2. Corner Landmarks (Coastline at Fortress Citadel)
-    this.ocean.draw(ctx);
+    // 2. Corner Landmark (Fortress Citadel)
     this.castle.draw(ctx);
 
     // 3. Central Sanctuary Platform
     this.barracks.draw(ctx);
 
-    // 4. Boat Pier, Moored Vessel, Monolith & Sea Portal
-    if (this.boatSystem) this.boatSystem.draw(ctx, player);
-
-    // 5. 4-Way Warp Portals
+    // 4. 4-Way Warp Portals
     this.portals.draw(ctx);
 
-    // 6. Sky Layers, Weather Shifts, & Mist Borders
+    // 5. Sky Layers, Weather Shifts, & Mist Borders
     this.weather.drawSkyClouds(ctx);
     this.weather.drawWeatherOverlay(ctx);
     this.weather.drawCloudBorders(ctx);

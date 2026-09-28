@@ -2,36 +2,26 @@ import { Sound } from "../audio.js";
 import { getLang } from "../i18n.js";
 
 // ==================== BOAT SAILING & SEA MONOLITH SYSTEM ====================
-// Nagbibigay-daan sa bayani na sumakay sa bangka sa baybayin ng Cerulean Coast / Hub Ocean,
+// Nagbibigay-daan sa bayani na sumakay sa bangka sa dulo ng batong daan ng Cerulean Abyss,
 // maglayag sa malawak na karagatan, makipaglaban sa mga halimaw sa tubig, talunin ang
 // Sea MVP Boss (Leviathan Overlord), at i-activate ang Sunken Monolith upang buksan ang
 // Celestial Portal patungo sa Ikalawang Kontinente: Ang Dark Continent!
+// Ang lokasyon ng pier, bangka, monolith at portal ay nasa def.boat ng platform (js/world/platforms.js).
 
 export class BoatSystem {
-  constructor(stage) {
+  constructor(stage, spots) {
     this.stage = stage;
     this.tick = 0;
 
-    // Lokasyon ng Pier at nakadaong na Bangka sa Timog-Kanlurang Karagatan (Hub)
-    this.pier = { x: 210, y: 760, w: 28, h: 20 };
-    this.dockedBoat = { x: 188, y: 796 };
+    // Pier at nakadaong na Bangka
+    this.pier = { w: 26, h: 18, ...spots.pier };
+    this.dockedBoat = { ...spots.dockedBoat };
 
-    // Lokasyon ng Sinaunang Monolith sa Karagatan at Sea Portal
-    this.monolith = {
-      x: 75,
-      y: 890,
-      radius: 26,
-      activated: false,
-      pulseTick: 0
-    };
+    // Sinaunang Monolith sa Karagatan
+    this.monolith = { ...spots.monolith, radius: 26, activated: false, pulseTick: 0 };
 
     // Portal patungo sa Dark Continent (bubukas kapag na-activate ang monolith)
-    this.seaPortal = {
-      x: 75,
-      y: 840,
-      active: false,
-      radius: 20
-    };
+    this.seaPortal = { ...spots.seaPortal, active: false, radius: 20 };
 
     // MVP Sea Boss tracking
     this.mvpSpawned = false;
@@ -45,17 +35,6 @@ export class BoatSystem {
   // Sinusuri kung ang posisyon ay nasa tubig/karagatan
   isWaterAt(px, py) {
     if (!this.stage) return false;
-    // Hub ocean corner (southwest)
-    if (this.stage.id === "hub") {
-      const seaY = this.stage.height - 270;
-      if (px <= 360 && py >= seaY) {
-        // Curve approximation ng tubig
-        const relY = py - seaY;
-        const shoreX = Math.max(0, 360 - (relY / 270) * 150);
-        return px < shoreX + 80;
-      }
-    }
-    // Platform terrain checks
     if (this.stage.tilemap && this.stage.tilemap.liquid) {
       const tx = Math.floor(px / 16), ty = Math.floor(py / 16);
       const idx = ty * this.stage.tilemap.cols + tx;
@@ -234,8 +213,8 @@ export class BoatSystem {
       ctx.stroke();
     });
 
-    // 2. PIER / WOODEN DOCK (kung nasa Hub)
-    if (this.stage && this.stage.id === "hub") {
+    // 2. PIER / WOODEN DOCK
+    {
       const p = this.pier;
       // Wooden Pilings
       ctx.fillStyle = "#3e2723";
@@ -263,7 +242,7 @@ export class BoatSystem {
     }
 
     // 3. DOCKED BOAT (kapag hindi sakay ng player)
-    if (player && !player.inBoat && this.stage && this.stage.id === "hub") {
+    if (player && !player.inBoat) {
       this.drawBoatSprite(ctx, this.dockedBoat.x, this.dockedBoat.y, 0, false);
       // Prompt kapag malapit sa nakadaong na bangka o pier
       const dPier = Math.hypot(player.x + 10 - this.pier.x, player.y + 18 - this.pier.y);
@@ -299,8 +278,8 @@ export class BoatSystem {
       }
     }
 
-    // 5. ANCIENT SUNKEN MONOLITH (Southwest Deep Waters)
-    if (this.stage && this.stage.id === "hub") {
+    // 5. ANCIENT SUNKEN MONOLITH (Deep Waters)
+    {
       const m = this.monolith;
       const pulse = 0.5 + Math.sin(t * 0.06) * 0.5;
 

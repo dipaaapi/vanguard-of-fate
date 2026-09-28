@@ -72,7 +72,7 @@ export class WorldMap {
       return;
     }
     if (st.tilemap && st.tilemap.groundCanvas) c.drawImage(st.tilemap.groundCanvas, 0, 0);
-    [st.ocean, st.castle, st.barracks, st.portals].forEach((sys) => {
+    [st.castle, st.barracks, st.portals].forEach((sys) => {
       try { if (sys && sys.draw) sys.draw(c); } catch (_) { /* skip */ }
     });
     if (st.tilemap && st.tilemap.overlayCanvas) c.drawImage(st.tilemap.overlayCanvas, 0, 0);

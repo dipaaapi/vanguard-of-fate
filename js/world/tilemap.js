@@ -23,7 +23,7 @@ function vnoise(x, y, seed) {
 const FOOT = { ox: 7, oy: 16, w: 10, h: 7 };
 
 export class TileMap {
-  // stage: kailangan ng width, height, safeZone; opsyonal: ocean, castle, barracks, portals
+  // stage: kailangan ng width, height, safeZone; opsyonal: castle, barracks, portals
   // Para sa mga platform: stage.theme (key sa THEMES), stage.terrain(tx, ty, cols, rows, noise)
   // → "liquid" | "wall" | null, stage.pathTargets ([x, y] na pixel), stage.coverageSystems.
   constructor(stage, seed = 20260928) {
@@ -91,7 +91,7 @@ export class TileMap {
       cv.width = this.pxW;
       cv.height = this.pxH;
       const c = cv.getContext("2d");
-      (stage.coverageSystems || [stage.ocean, stage.castle, stage.barracks, stage.portals]).forEach((sys) => {
+      (stage.coverageSystems || [stage.castle, stage.barracks, stage.portals]).forEach((sys) => {
         try { if (sys && sys.draw) sys.draw(c); } catch (_) { /* skip */ }
       });
       const data = c.getImageData(0, 0, this.pxW, this.pxH).data;

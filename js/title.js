@@ -12,7 +12,7 @@ import { loadLore, parseChapters, actNumber, bannerSrc, BANNER_EXTS } from "./lo
 //   chronicles → lore, hinati bawat Act
 
 const SAVE_KEY = "vanguard_savegame";
-const BG_SRC = "assets/bg/title_bg.jpg";
+const BG_SRC = "assets/bg/title_bg.gif";
 const SWORD = { x: 0.5, y: 0.42 };   // posisyon ng espada sa larawan (0–1)
 const FX_PIXEL = 3;                  // laki ng isang "pixel" ng baga sa screen
 

@@ -94,6 +94,11 @@ export const PLATFORMS = {
     arenaName: { en: "Sunken Altar", fil: "Lubog na Altar" },
     monsters: ["reefCrab", "mariner", "coralGolem", "stormPetrel", "drownedSpecter", "tideSlime", "tideSerpent", "siren", "deepKraken"],
     pathTargets: [[425, 480], [700, 60], [700, 900]],
+    // Bangka sa dulo ng batong daan pa-timog (landas patungong [700, 900]); monolith at portal sa timog-kanlurang dagat
+    boat: {
+      pier: { x: 664, y: 882 }, dockedBoat: { x: 634, y: 868 },
+      monolith: { x: 300, y: 895 }, seaPortal: { x: 370, y: 885 }
+    },
     terrain(tx, ty, cols, rows, noise) {
       if (tx < 15 + noise(0, ty * 0.1) * 6) return "liquid";                 // dagat sa kanluran
       if (ty > rows - 7 - noise(tx * 0.1, 0, 3) * 4) return "liquid";         // baybayin sa timog
