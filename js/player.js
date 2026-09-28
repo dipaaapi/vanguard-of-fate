@@ -27,6 +27,7 @@ export class Player {
     this.defense = 0;
 
     this.facing = "right";
+    this.dir = "down";        // down | up | side (para sa 4-direksyong Avatar)
     this.state = "idle";
     this.animFrame = 0;
     this.animTimer = 0;
@@ -71,6 +72,7 @@ export class Player {
   takeDamage(amount, fx) {
     if (this.hp <= 0) return;
     if (this.hitFlashTimer > 0) return;
+    if (this.invulnTimer > 0) return;   // hal. Dodge Roll ng Novice
 
     const netDmg = Math.max(1, amount - this.defense);
     this.hp -= netDmg;
@@ -144,6 +146,7 @@ export class Player {
 
     if (this.hitFlashTimer > 0) this.hitFlashTimer--;
     if (this.portalCooldown > 0) this.portalCooldown--;
+    if (this.invulnTimer > 0) this.invulnTimer--;
 
     for (const b in this.buffs) {
       if (this.buffs[b] > 0) this.buffs[b]--;
@@ -205,6 +208,7 @@ export class Player {
 
       if (vx > 0) this.facing = "right";
       if (vx < 0) this.facing = "left";
+      if (this.state !== "slash") this.dir = vx !== 0 ? "side" : (vy < 0 ? "up" : "down");
 
       if (this.state !== "slash" && this.state !== "bash") {
         this.state = "run";
@@ -229,6 +233,7 @@ export class Player {
       if (this.heroData && this.heroData.onAttack) {
         const ok = this.heroData.onAttack(this, closestEnemy, spawnProjectile);
         if (ok !== false) {
+          this.faceAim();
           this.state = "slash";
           this.animFrame = 0;
           const rapid = this.buffs.atkSpeed > 0 ? 0.5 : 1.0;
@@ -264,6 +269,18 @@ export class Player {
     }
   }
 
+  // Humarap sa direksyon ng atake (para sa Avatar na may 4 na direksyon)
+  faceAim() {
+    const a = this.aimAngle;
+    const cx = Math.cos(a), cy = Math.sin(a);
+    if (Math.abs(cx) >= Math.abs(cy)) {
+      this.dir = "side";
+      this.facing = cx >= 0 ? "right" : "left";
+    } else {
+      this.dir = cy < 0 ? "up" : "down";
+    }
+  }
+
   draw(ctx) {
     if (this.hp <= 0) return;
 
@@ -274,6 +291,17 @@ export class Player {
     ctx.fill();
 
     if (this.buffs.invis > 0) ctx.globalAlpha = 0.35;
+
+    // Modular Avatar (Novice mula sa Character Creator): paa ay nasa (x+10, y+21)
+    const avatar = this.heroData && this.heroData.avatar;
+    if (avatar) {
+      const anim = { run: "walk", slash: "attack", bash: "walk" }[this.state] || "idle";
+      const frame = anim === "idle" ? Math.floor(this.animFrame / 4) : this.animFrame;
+      if (this.invulnTimer > 0 && this.rollTimer > 0) ctx.globalAlpha *= 0.6;
+      avatar.draw(ctx, this.x + 10, this.y + 21, this.dir, anim, frame, this.facing === "left", this.hitFlashTimer > 0);
+      ctx.restore();
+      return;
+    }
 
     const spriteObj = this.heroData ? this.heroData.sprites : null;
     const frames = (spriteObj && spriteObj[this.state]) || (spriteObj && spriteObj.idle);

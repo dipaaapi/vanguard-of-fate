@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Silkscreen:wght@400;700&display=swap" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/title.css" />
+  <link rel="stylesheet" href="css/creator.css" />
 </head>
 <body data-mode="title">
 
@@ -48,6 +49,41 @@
       <span class="t-hint" id="titleHint"></span>
       <span class="t-tag" data-i18n="tagline"></span>
     </footer>
+  </section>
+
+  <!-- Character Creator: likhain ang Novice (ang class ay sa Job Awakening na) -->
+  <section id="creator">
+    <div class="cr-bg"></div>
+    <div class="cr-layout">
+      <div class="cr-stage">
+        <h2 class="cr-title" data-i18n="crTitle"></h2>
+        <p class="cr-sub" data-i18n="crSub"></p>
+        <div class="cr-pedestal">
+          <canvas id="crPreview"></canvas>
+        </div>
+        <div class="cr-controls">
+          <button type="button" id="crRotL" title="Q">⟲</button>
+          <button type="button" id="crWalk" data-i18n="crWalk"></button>
+          <button type="button" id="crRotR" title="E">⟳</button>
+        </div>
+        <div class="cr-trio"><canvas></canvas><canvas></canvas><canvas></canvas></div>
+        <p class="cr-summoner" id="crSummoner"></p>
+      </div>
+
+      <div class="cr-panel">
+        <label class="cr-name">
+          <span data-i18n="crName"></span>
+          <input id="crName" type="text" maxlength="12" autocomplete="off" spellcheck="false" />
+        </label>
+        <div class="cr-rows" id="crRows"></div>
+        <div class="cr-actions">
+          <button type="button" id="crBack" data-i18n="back"></button>
+          <button type="button" id="crRandom" data-i18n="crRandom"></button>
+          <button type="button" id="crBegin" class="primary" data-i18n="crBegin"></button>
+        </div>
+      </div>
+    </div>
+    <footer class="cr-foot" id="crHint"></footer>
   </section>
 
   <div id="app">

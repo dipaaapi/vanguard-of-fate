@@ -1,0 +1,263 @@
+/* ==================== CHARACTER CREATOR ==================== */
+/* Gumagamit ng mga variable mula sa title.css (--gold, --sky, --ink, --muted, fonts) */
+
+body[data-mode="create"] #app { display: none; }
+#creator { display: none; }
+body[data-mode="create"] #creator {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--ink);
+  font-family: var(--ui-font);
+  color: #e2e8f0;
+}
+
+.cr-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right, rgba(3, 6, 17, 0.35), rgba(3, 6, 17, 0.8) 55%, rgba(3, 6, 17, 0.95)),
+    url("../assets/bg/portal_bg.jpg") center / cover no-repeat;
+  filter: saturate(0.85);
+}
+
+.cr-layout {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 440px);
+  gap: 24px;
+  padding: 20px 28px 0;
+}
+
+/* ---------- PREVIEW ---------- */
+.cr-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  text-align: center;
+}
+.cr-title {
+  margin: 0;
+  font-family: var(--logo-font);
+  font-weight: 900;
+  font-size: clamp(20px, 2.6vw, 36px);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-shadow: 0 2px 0 #3a1d05, 0 4px 14px rgba(0, 0, 0, 0.8);
+}
+.cr-sub {
+  margin: 6px 0 0;
+  font-size: clamp(9px, 0.9vw, 12px);
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-shadow: 0 1px 0 #000;
+}
+
+.cr-pedestal {
+  position: relative;
+  margin-top: 10px;
+  height: min(46vh, 432px);
+  aspect-ratio: 32 / 36;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+/* Kumikinang na pentagram na bilog sa ilalim ng paa */
+.cr-pedestal::before {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 1%;
+  height: 16%;
+  border-radius: 50%;
+  border: 2px solid rgba(56, 189, 248, 0.55);
+  box-shadow: 0 0 24px rgba(56, 189, 248, 0.45), inset 0 0 18px rgba(56, 189, 248, 0.35);
+  background: radial-gradient(ellipse at center, rgba(56, 189, 248, 0.25), transparent 70%);
+  animation: cr-pulse 3s ease-in-out infinite;
+}
+@keyframes cr-pulse { 50% { box-shadow: 0 0 34px rgba(56, 189, 248, 0.7), inset 0 0 24px rgba(56, 189, 248, 0.5); } }
+
+#crPreview {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  background: transparent;
+}
+
+.cr-controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.cr-controls button,
+.cr-actions button,
+.cr-cycle button {
+  font: inherit;
+  cursor: pointer;
+  color: #cbd5e1;
+  background: rgba(7, 12, 22, 0.85);
+  border: 1px solid #3b4661;
+}
+.cr-controls button { font-size: 13px; padding: 6px 12px; min-width: 40px; }
+.cr-controls button:hover { color: #fff; border-color: var(--gold); }
+#crWalk.on { color: var(--ink); background: var(--gold); border-color: var(--gold); }
+
+.cr-trio {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+.cr-trio canvas {
+  width: 64px;
+  height: 72px;
+  image-rendering: pixelated;
+  background: rgba(7, 12, 22, 0.6);
+  border: 1px solid #22304d;
+}
+
+.cr-summoner {
+  margin: 12px 0 0;
+  font-size: clamp(10px, 1vw, 13px);
+  letter-spacing: 0.12em;
+  color: var(--sky);
+  text-transform: uppercase;
+  text-shadow: 0 1px 0 #000;
+}
+
+/* ---------- PANEL NG MGA PAGPIPILIAN ---------- */
+.cr-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 16px 18px;
+  background: rgba(7, 12, 22, 0.92);
+  border: 1px solid var(--gold);
+  box-shadow: 0 0 0 4px rgba(3, 6, 17, 0.9), 0 0 0 5px rgba(255, 209, 102, 0.3);
+}
+
+.cr-name {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.cr-name input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  color: #fff;
+  background: rgba(3, 6, 17, 0.8);
+  border: 1px solid #3b4661;
+  padding: 7px 10px;
+  outline: none;
+}
+.cr-name input:focus { border-color: var(--gold); }
+.cr-name input::placeholder { color: #475569; }
+
+.cr-rows {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 10px -6px 0;
+  padding: 0 6px;
+  scrollbar-color: #3b4661 transparent;
+}
+.cr-section {
+  margin: 12px 0 4px;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sky);
+}
+.cr-row {
+  display: grid;
+  grid-template-columns: 118px 1fr;
+  align-items: center;
+  gap: 10px;
+  min-height: 30px;
+  padding: 3px 8px;
+  border-left: 2px solid transparent;
+}
+.cr-row.selected {
+  background: linear-gradient(to right, rgba(255, 209, 102, 0.16), transparent);
+  border-left-color: var(--gold);
+}
+.cr-label {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.cr-row.selected .cr-label { color: var(--gold); }
+
+.cr-cycle {
+  display: grid;
+  grid-template-columns: 28px 1fr 28px;
+  align-items: center;
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.cr-cycle button { height: 26px; font-size: 10px; }
+.cr-cycle button:hover { color: var(--gold); border-color: var(--gold); }
+
+.cr-swatches { display: flex; flex-wrap: wrap; gap: 5px; }
+.cr-swatch {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  cursor: pointer;
+  border: 2px solid rgba(3, 6, 17, 0.9);
+  outline: 1px solid #3b4661;
+}
+.cr-swatch:hover { outline-color: #cbd5e1; }
+.cr-swatch.on { outline: 2px solid var(--gold); outline-offset: 1px; }
+
+.cr-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.4fr;
+  gap: 8px;
+  margin-top: 14px;
+}
+.cr-actions button { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; padding: 10px 6px; }
+.cr-actions button:hover { color: #fff; border-color: var(--gold); }
+.cr-actions .primary { color: var(--ink); background: var(--gold); border-color: var(--gold); font-weight: 700; }
+.cr-actions .primary:hover { color: var(--ink); background: #ffe08f; }
+
+.cr-foot {
+  position: relative;
+  padding: 10px 20px 12px;
+  font-size: clamp(9px, 0.85vw, 12px);
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  text-align: center;
+  text-shadow: 0 1px 0 #000;
+}
+.cr-foot span { color: var(--gold); }
+
+/* ---------- MALIIT / MABABANG SCREEN ---------- */
+@media (max-width: 760px) {
+  body[data-mode="create"] #creator { overflow-y: auto; }
+  .cr-layout { grid-template-columns: 1fr; padding: 12px 16px 0; }
+  .cr-pedestal { height: 34vh; }
+  .cr-panel { min-height: 60vh; }
+}
+@media (max-height: 560px) {
+  .cr-trio, .cr-sub { display: none; }
+  .cr-pedestal { height: 52vh; }
+}
