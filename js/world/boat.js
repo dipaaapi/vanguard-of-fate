@@ -294,41 +294,13 @@ export class BoatSystem {
       }
     }
 
-    // 5. ANCIENT SUNKEN MONOLITH (Deep Waters)
+    // 5. PROMPT NG CELESTIAL MONOLITH
+    // Ang haligi mismo ay iginuguhit ng landmark ng platform (js/world/platforms.js, coast);
+    // dito ang prompt at ang Sea Portal lamang.
     {
       const m = this.monolith;
-      const pulse = 0.5 + Math.sin(t * 0.06) * 0.5;
 
-      // Island / Reef Foundation
-      ctx.fillStyle = "#2b2d42";
-      ctx.beginPath();
-      ctx.ellipse(m.x, m.y + 8, 20, 10, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = "#4a4e69";
-      ctx.fillRect(m.x - 14, m.y + 4, 8, 3);
-      ctx.fillRect(m.x + 6, m.y + 6, 8, 3);
-
-      // Ancient Monolith Stone Pillar
-      ctx.fillStyle = m.activated ? "#0f172a" : "#1e293b";
-      ctx.beginPath();
-      ctx.moveTo(m.x - 7, m.y + 6);
-      ctx.lineTo(m.x - 5, m.y - 24);
-      ctx.lineTo(m.x, m.y - 30);
-      ctx.lineTo(m.x + 5, m.y - 24);
-      ctx.lineTo(m.x + 7, m.y + 6);
-      ctx.closePath();
-      ctx.fill();
-      ctx.strokeStyle = m.activated ? "#38bdf8" : "#94a3b8";
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-      // Glowing Runes on Pillar
-      ctx.fillStyle = m.activated ? `rgba(0, 240, 255, ${0.6 + pulse * 0.4})` : (this.mvpDefeated ? `rgba(250, 204, 21, ${0.5 + pulse * 0.5})` : "rgba(239, 68, 68, 0.6)");
-      ctx.fillRect(m.x - 1, m.y - 20, 2, 4);
-      ctx.fillRect(m.x - 2, m.y - 12, 4, 2);
-      ctx.fillRect(m.x - 1, m.y - 6, 2, 5);
-
-      // Monolith Label & Prompt
+      // Monolith Label & Prompt (sa itaas ng hilig na tuktok ng haligi)
       if (player) {
         const dMon = Math.hypot(player.x - m.x, player.y - m.y);
         if (dMon < 60) {
@@ -350,9 +322,9 @@ export class BoatSystem {
 
           const tw = ctx.measureText(promptText).width + 6;
           ctx.fillStyle = "rgba(3, 6, 17, 0.85)";
-          ctx.fillRect(m.x - tw / 2, m.y - 38, tw, 7);
+          ctx.fillRect(m.x - tw / 2, m.y - 56, tw, 7);
           ctx.fillStyle = promptColor;
-          ctx.fillText(promptText, m.x, m.y - 33);
+          ctx.fillText(promptText, m.x, m.y - 51);
         }
       }
 

@@ -94,10 +94,11 @@ export const PLATFORMS = {
     arenaName: { en: "Sunken Altar", fil: "Lubog na Altar" },
     monsters: ["reefCrab", "mariner", "coralGolem", "stormPetrel", "drownedSpecter", "tideSlime", "tideSerpent", "siren", "deepKraken"],
     pathTargets: [[425, 480], [700, 60], [700, 900]],
-    // Bangka sa dulo ng batong daan pa-timog (landas patungong [700, 900]); monolith at portal sa timog-kanlurang dagat
+    // Bangka sa dulo ng batong daan pa-timog (landas patungong [700, 900]).
+    // Ang monolith ng bangka ay ang mismong celestial monolith ng landmark (x 120, y 210) sa kanlurang dagat.
     boat: {
       pier: { x: 664, y: 882 }, dockedBoat: { x: 634, y: 868 },
-      monolith: { x: 300, y: 895 }, seaPortal: { x: 370, y: 885 }
+      monolith: { x: 120, y: 210 }, seaPortal: { x: 185, y: 260 }
     },
     terrain(tx, ty, cols, rows, noise) {
       if (tx < 15 + noise(0, ty * 0.1) * 6) return "liquid";                 // dagat sa kanluran
@@ -106,22 +107,78 @@ export const PLATFORMS = {
       return null;
     },
     landmark(ctx, t, cleared) {
-      // Ang nakalimutang celestial monolith sa gitna ng dagat (lumilitaw ang liwanag pagkatalo sa Leviathan)
-      const x = 120, y = 210;
-      ctx.fillStyle = "#2f3e4a";
+      // Ang celestial monolith sa gitna ng dagat (tulad ng banner ng Act VIII): hilig na batong haligi
+      // na may bilog na runa sa mukha, halo at mga bilog ng runa sa tubig. Madilim hanggang matalo ang Leviathan.
+      const x = 120, y = 210, base = y + 30, fy = y - 8;   // fy = gitna ng mga runa sa mukha
+      const on = cleared ? 0.75 + Math.sin(t * 2) * 0.2 : 0.22;
+      const cyan = (a) => `rgba(94, 231, 255, ${a})`;
+
+      // 1. Mga bilog ng runa sa tubig (umiikot na glyph sa panlabas na bilog)
+      if (cleared) glow(ctx, x, base, 80, "rgb(94, 231, 255)", 0.25);
+      ring(ctx, x, base, 58, 15, cyan(on * 0.9), 1.5);
+      ring(ctx, x, base, 50, 12, cyan(on * 0.6), 1);
+      ring(ctx, x, base, 32, 8, cyan(on * 0.8), 1.5);
+      ring(ctx, x, base, 18, 4.5, cyan(on * 0.6), 1);
+      ctx.fillStyle = cyan(on);
+      for (let i = 0; i < 18; i++) {
+        const a = t * 0.15 + (i / 18) * Math.PI * 2;
+        const gx = Math.round(x + Math.cos(a) * 54), gy = Math.round(base + Math.sin(a) * 13.5);
+        if (i % 3 === 0) ctx.fillRect(gx - 1, gy, 3, 1);
+        else if (i % 3 === 1) { ctx.fillRect(gx, gy - 1, 1, 3); ctx.fillRect(gx + 1, gy, 1, 1); }
+        else { ctx.fillRect(gx - 1, gy - 1, 1, 1); ctx.fillRect(gx + 1, gy + 1, 1, 1); ctx.fillRect(gx, gy, 1, 1); }
+      }
+
+      // 2. Maliit na batong sirang kasama sa paanan (kanan at kaliwa)
+      ctx.fillStyle = "#3c4858";
       ctx.beginPath();
-      ctx.moveTo(x - 12, y + 30); ctx.lineTo(x - 9, y - 26); ctx.lineTo(x + 4, y - 34); ctx.lineTo(x + 12, y + 30);
-      ctx.closePath();
-      ctx.fill();
-      ctx.fillStyle = "#46586a";
-      ctx.fillRect(x - 8, y - 24, 3, 50);
-      const on = cleared ? 1 : 0.25;
-      ring(ctx, x, y, 7, 7, `rgba(94, 231, 255, ${on})`, 1.5);
-      ring(ctx, x, y, 3, 3, `rgba(94, 231, 255, ${on})`, 1.5);
+      ctx.moveTo(x + 9, base); ctx.lineTo(x + 12, base - 18); ctx.lineTo(x + 17, base - 24); ctx.lineTo(x + 22, base - 10); ctx.lineTo(x + 24, base);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#566478";
+      ctx.fillRect(x + 13, base - 18, 2, 14);
+      ctx.fillStyle = "#34404f";
+      ctx.beginPath();
+      ctx.moveTo(x - 20, base); ctx.lineTo(x - 17, base - 7); ctx.lineTo(x - 12, base - 9); ctx.lineTo(x - 10, base);
+      ctx.closePath(); ctx.fill();
+
+      // 3. Ang pangunahing haligi: hilig ang tuktok (mataas sa kanan)
+      ctx.fillStyle = "#1e2733";
+      ctx.beginPath();
+      ctx.moveTo(x - 14, base + 1); ctx.lineTo(x - 13, y - 26); ctx.lineTo(x - 5, y - 33); ctx.lineTo(x + 7, y - 44);
+      ctx.lineTo(x + 12, y - 38); ctx.lineTo(x + 14, base + 1);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#5b6b7e";
+      ctx.beginPath();
+      ctx.moveTo(x - 12, base); ctx.lineTo(x - 11, y - 25); ctx.lineTo(x - 4, y - 31); ctx.lineTo(x + 7, y - 41);
+      ctx.lineTo(x + 11, y - 37); ctx.lineTo(x + 12, base);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#7a8aa0";                                   // liwanag sa kaliwang gilid
+      ctx.fillRect(x - 11, y - 24, 3, base - (y - 24));
+      ctx.fillStyle = "#44526a";                                   // anino sa kanang gilid
+      ctx.fillRect(x + 8, y - 36, 4, base - (y - 36));
+      ctx.fillStyle = "#4a586c";                                   // mga bitak
+      ctx.fillRect(x - 6, y - 20, 1, 6); ctx.fillRect(x - 5, y - 14, 1, 4);
+      ctx.fillRect(x + 4, y + 8, 1, 7); ctx.fillRect(x + 3, y + 15, 1, 5);
+
+      // 4. Bilog na runa sa mukha ng haligi at liwanag na umaagos pababa
+      if (cleared) glow(ctx, x, fy, 34, "rgb(94, 231, 255)", 0.45);
+      ring(ctx, x, fy, 8, 8, cyan(on), 1.5);
+      ring(ctx, x, fy, 4.5, 4.5, cyan(on), 1.5);
+      ctx.fillStyle = cyan(on);
+      ctx.fillRect(x - 1, fy - 1, 2, 2);
+      ctx.fillStyle = cyan(on * 0.5);
+      ctx.fillRect(x - 7, fy + 10, 1, base - fy - 12);
+      ctx.fillRect(x + 6, fy + 10, 1, base - fy - 12);
+      // Halo sa paligid ng haligi (kapag gising na)
       if (cleared) {
-        ring(ctx, x, y + 34, 50 + Math.sin(t) * 4, 14, "rgba(94, 231, 255, 0.6)", 1.5, [4, 3]);
-        ring(ctx, x, y + 34, 30, 8, "rgba(94, 231, 255, 0.4)", 1);
-        glow(ctx, x, y, 90, "rgb(94, 231, 255)", 0.3);
+        ring(ctx, x, fy, 22 + Math.sin(t * 2) * 1.5, 22 + Math.sin(t * 2) * 1.5, cyan(0.55), 1);
+        ring(ctx, x, fy, 26, 26, cyan(0.2), 1);
+      }
+
+      // 5. Bula ng alon sa paanan
+      ctx.fillStyle = "rgba(230, 250, 255, 0.85)";
+      for (let i = 0; i < 9; i++) {
+        const fx = x - 20 + i * 5 + Math.round(Math.sin(t * 3 + i) * 1.5);
+        ctx.fillRect(fx, base - (i % 2), 3, 1);
       }
     },
     text: {
