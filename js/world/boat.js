@@ -2,11 +2,10 @@ import { Sound } from "../audio.js";
 import { getLang } from "../i18n.js";
 
 // ==================== BOAT SAILING & SEA MONOLITH SYSTEM ====================
-// Nagbibigay-daan sa bayani na sumakay sa bangka sa dulo ng batong daan ng Cerulean Abyss,
-// maglayag sa malawak na karagatan, makipaglaban sa mga halimaw sa tubig, talunin ang
-// Sea MVP Boss (Leviathan Overlord), at i-activate ang Sunken Monolith upang buksan ang
-// Celestial Portal patungo sa Ikalawang Kontinente: Ang Dark Continent!
-// Ang lokasyon ng pier, bangka, monolith at portal ay nasa def.boat ng platform (js/world/platforms.js).
+// Lets the hero board a boat at the end of the Cerulean Abyss causeway, sail the open sea and reach
+// the Celestial Monolith. The Leviathan Regent's defeat breaks the chains around the monolith;
+// placing all four Seal Stones then awakens it and opens the only portal to the Dark Continent.
+// Pier, boat, monolith and portal positions come from the platform's def.boat (js/world/platforms.js).
 
 export class BoatSystem {
   constructor(stage, spots) {
@@ -23,10 +22,10 @@ export class BoatSystem {
     // Portal patungo sa Dark Continent (bubukas kapag na-activate ang monolith)
     this.seaPortal = { ...spots.seaPortal, active: false, radius: 20 };
 
-    // MVP Sea Boss tracking
-    this.mvpSpawned = false;
-    this.mvpDefeated = false;
-    this.mvpEnemy = null;
+    // Chained until the Leviathan Regent falls (synced from the quest by main.js)
+    this.chained = true;
+    // Seal Stone item ids required to awaken the monolith
+    this.seals = spots.seals || [];
 
     // Wake particle trail habang naglalayag
     this.wakes = [];
@@ -102,20 +101,27 @@ export class BoatSystem {
     }
   }
 
-  // Pag-activate sa Monolith pagkatapos mapatay ang MVP Sea Boss
+  // How many of the required Seal Stones the player carries
+  sealsHeld(player) {
+    return this.seals.filter((id) => player && player.bag && player.bag.has(id)).length;
+  }
+
+  // E at the monolith: chained → hint; missing stones → count; all four → consume them and open the portal
   activateMonolith(player, fx = null, onOpenDarkContinent = null) {
     if (this.monolith.activated) return false;
-    const lang = getLang() === "fil" ? "fil" : "en";
+    const fil = getLang() === "fil", lang = fil ? "fil" : "en";
+    const say = (msg, color) => { if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(this.monolith.x, this.monolith.y - 60, msg, false, color); };
 
-    if (!this.mvpDefeated) {
-      if (fx && fx.spawnDamagePopup) {
-        const msg = lang === "fil"
-          ? "🔒 Selyado! Talunin muna ang MVP Leviathan Overlord!"
-          : "🔒 Sealed! Slay the MVP Leviathan Overlord first!";
-        fx.spawnDamagePopup(this.monolith.x, this.monolith.y - 20, msg, false, "#ef4444");
-      }
+    if (this.chained) {
+      say(fil ? "⛓ Nakagapos! Talunin muna ang Leviathan Regent." : "⛓ Chained! Defeat the Leviathan Regent first.", "#ef4444");
       return false;
     }
+    const held = this.sealsHeld(player);
+    if (held < this.seals.length) {
+      say(fil ? `Kulang ang Seal Stone (${held}/${this.seals.length})` : `Seal Stones ${held}/${this.seals.length}`, "#facc15");
+      return false;
+    }
+    this.seals.forEach((id) => player.bag.take(id, 1));
 
     this.monolith.activated = true;
     this.seaPortal.active = true;
@@ -139,49 +145,7 @@ export class BoatSystem {
   update(player, enemyManager, fx, onWarp) {
     this.tick++;
 
-    // 1. Spawning ng Sea MVP Boss (Leviathan Overlord) kapag malapit sa Monolith
-    if (!this.mvpSpawned && !this.mvpDefeated && enemyManager && player) {
-      const dToMonolith = Math.hypot(player.x - this.monolith.x, player.y - this.monolith.y);
-      if (dToMonolith < 220) {
-        this.mvpSpawned = true;
-        // Mag-spawn ng MVP Sea Boss
-        if (enemyManager.spawnAt) {
-          this.mvpEnemy = enemyManager.spawnAt("leviathan", this.monolith.x + 35, this.monolith.y - 15, "mvp");
-          if (this.mvpEnemy) {
-            this.mvpEnemy.isMVP = true;
-            this.mvpEnemy.customTitle = {
-              en: "✦ MVP LEVIATHAN OVERLORD ✦",
-              fil: "✦ MVP PANGINOON NG KALALIMAN ✦"
-            };
-            if (fx && fx.spawnDamagePopup) {
-              const lang = getLang() === "fil" ? "fil" : "en";
-              const alert = lang === "fil"
-                ? "⚠️ NAGISING ANG MVP LEVIATHAN OVERLORD!"
-                : "⚠️ MVP LEVIATHAN OVERLORD AWAKENED!";
-              fx.spawnDamagePopup(this.mvpEnemy.x + 10, this.mvpEnemy.y - 25, alert, true, "#ef4444");
-            }
-          }
-        }
-      }
-    }
-
-    // 2. Pagsubaybay kung napatay na ang MVP
-    if (this.mvpSpawned && !this.mvpDefeated) {
-      if (this.mvpEnemy && !this.mvpEnemy.isAlive) {
-        this.mvpDefeated = true;
-        const lang = getLang() === "fil" ? "fil" : "en";
-        if (fx && fx.spawnDamagePopup) {
-          const msg = lang === "fil"
-            ? "👑 NATALO ANG MVP! Maaari nang buksan ang Monolith!"
-            : "👑 MVP DEFEATED! The Ancient Monolith can now be activated!";
-          const px = player ? player.x + 10 : this.monolith.x;
-          const py = player ? player.y - 15 : this.monolith.y - 15;
-          fx.spawnDamagePopup(px, py, msg, true, "#4ade80");
-        }
-      }
-    }
-
-    // 3. Bangka wake trail kapag naglalayag
+    // Wake trail while sailing
     if (player && player.inBoat) {
       this.keepAfloat(player);
       if (this.tick % 4 === 0 && (player.state === "run" || player.sprinting)) {
@@ -294,13 +258,13 @@ export class BoatSystem {
       }
     }
 
-    // 5. PROMPT NG CELESTIAL MONOLITH
-    // Ang haligi mismo ay iginuguhit ng landmark ng platform (js/world/platforms.js, coast);
-    // dito ang prompt at ang Sea Portal lamang.
+    // 5. CELESTIAL MONOLITH PROMPT
+    // The pillar itself (with its chains) is drawn by the coast platform's landmark (js/world/platforms.js);
+    // only the prompt and the Sea Portal are drawn here.
     {
       const m = this.monolith;
 
-      // Monolith Label & Prompt (sa itaas ng hilig na tuktok ng haligi)
+      // Prompt above the slanted top of the pillar
       if (player) {
         const dMon = Math.hypot(player.x - m.x, player.y - m.y);
         if (dMon < 60) {
@@ -308,13 +272,16 @@ export class BoatSystem {
           ctx.textAlign = "center";
           let promptText = "";
           let promptColor = "#ffd166";
+          const held = this.sealsHeld(player), need = this.seals.length;
 
-          if (!this.mvpDefeated) {
-            promptText = lang === "fil" ? "⚔️ Talunin ang MVP Leviathan Overlord!" : "⚔️ Defeat MVP Leviathan Overlord!";
+          if (this.chained) {
+            promptText = lang === "fil" ? "⛓ Nakagapos — talunin ang Leviathan Regent" : "⛓ Chained — defeat the Leviathan Regent";
             promptColor = "#ef4444";
           } else if (!m.activated) {
-            promptText = `[E] ${lang === "fil" ? "I-activate ang Monolith" : "Activate Monolith"}`;
-            promptColor = "#38bdf8";
+            promptText = held < need
+              ? (lang === "fil" ? `Seal Stones ${held}/${need} — hanapin ang iba` : `Seal Stones ${held}/${need} — find the rest`)
+              : `[E] ${lang === "fil" ? "Ilagay ang apat na Seal Stone" : "Place the four Seal Stones"}`;
+            promptColor = held < need ? "#facc15" : "#38bdf8";
           } else {
             promptText = lang === "fil" ? "✨ Bukas ang Portal sa Dark Continent" : "✨ Dark Continent Portal Active";
             promptColor = "#4ade80";

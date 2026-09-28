@@ -121,7 +121,7 @@ export class Platform {
 
   draw(ctx, player = null) {
     this.tilemap.drawGround(ctx);
-    this.def.landmark.call(this.def, ctx, this.tick / 20, this.cleared, this.riftOpen);
+    this.def.landmark.call(this.def, ctx, this.tick / 20, this.cleared, this.riftOpen, this);
     this.drawCamp(ctx);
     if (this.boatSystem) this.boatSystem.draw(ctx, player);
     const L = getLang() === "fil" ? "fil" : "en";

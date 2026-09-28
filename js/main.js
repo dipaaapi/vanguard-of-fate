@@ -390,7 +390,22 @@ function syncPlatformFlags() {
   Object.values(platformCache).forEach((p) => {
     p.cleared = quest.cleared(p.id);
     if (p.def.rift) p.riftOpen = quest.unlocked(p.def.rift.dest);
+    // Celestial Monolith: chained until the Leviathan Regent falls; awakened once the Seal Stones are placed
+    if (p.boatSystem) {
+      p.boatSystem.chained = !p.cleared;
+      p.boatSystem.monolith.activated = quest.monolith;
+      p.boatSystem.seaPortal.active = quest.monolith;
+    }
   });
+}
+
+// A cleared Act VII–X platform whose Seal Stone the player lacks (e.g. an older save, or a dropped stone)
+// gets the stone back in its boss arena, so the monolith can never become impossible to awaken.
+function restoreSealStone() {
+  const def = stage === hub ? null : stage.def;
+  if (!def || !def.seal || quest.monolith || !quest.cleared(def.id)) return;
+  if (player.bag.has(def.seal) || lootManager.items.some((it) => it.id === def.seal)) return;
+  lootManager.drop({ x: def.arena.x + def.arena.w / 2, y: def.arena.y + def.arena.h / 2 }, { id: def.seal, qty: 1 }, true);
 }
 
 // Lumilitaw ang boss kapag ito ang layunin ng quest at wala pang quest item
@@ -439,6 +454,7 @@ function travelTo(id, at = null) {
     dialog.start(npcManager.summonerId, s && s.avatar, fillNames(def.text[lang()].arrive));
   }
   syncBoss();
+  restoreSealStone();
   saveGame();
 }
 
@@ -448,15 +464,19 @@ function handlePortal(portal) {
   const dest = portal.dest;
   if (portal.id === "RETURN") return travelTo("hub");
   if (portal.id === "DARK_CONTINENT_PORTAL" || dest === "dark_continent") {
-    // Paglalakbay patungo sa Ikalawang Kontinente: Dark Continent (Siege / Act XI-XII platform)
+    // The Celestial Monolith portal is the only way to the Dark Continent (Acts XI–XII)
+    if (!quest.unlocked("siege")) {
+      fx.spawnDamagePopup(player.x + 10, player.y - 10, lang() === "fil" ? "SELYADO · ACT XI" : "SEALED · ACT XI", false, "#94a3b8");
+      return;
+    }
     travelTo("siege");
     if (fx && fx.spawnDamagePopup) {
       fx.spawnDamagePopup(player.x + 10, player.y - 12, lang() === "fil" ? "🌌 DARK CONTINENT" : "🌌 THE DARK CONTINENT", true, "#9d4edd");
     }
     return;
   }
-  if (portal.id === "CITADEL_GATE" && !quest.unlocked("siege")) {
-    // Bago ang Act XI: shortcut pabalik sa Barracks (tulad ng dati)
+  if (portal.id === "CITADEL_GATE") {
+    // The Citadel gate is only a shortcut back to the Barracks (the Dark Continent is reached by sea)
     player.x = hub.safeZone.x + hub.safeZone.w / 2 - 10;
     player.y = hub.safeZone.y + hub.safeZone.h - 30;
     if (fx.spawnHitSparks) fx.spawnHitSparks(player.x + 10, player.y + 10, "#38bdf8", 16);
@@ -484,6 +504,9 @@ enemyManager.onBossDefeated = (e) => {
   const item = stage.def && stage.def.item;
   questHud.toast(lang() === "fil" ? `Natalo si ${e.kind.name.fil}! Pulutin ang iniwan niya.` : `${e.kind.name.en} has fallen! Claim what was left behind.`);
   if (item) fx.spawnDamagePopup(e.x + 10, e.y - 40, "✦ QUEST ITEM ✦", true, "#facc15");
+  // Acts VII–X bosses also leave one of the four Seal Stones for the Celestial Monolith
+  const seal = stage.def && stage.def.seal;
+  if (seal && !quest.monolith && !player.bag.has(seal)) lootManager.drop({ x: e.x + 22, y: e.y + 12 }, { id: seal, qty: 1 }, true);
 };
 lootManager.onQuestItem = (id) => quest.onQuestItem(id);
 // Bottom tray: napulot na ginto at item (pinagsasama ang magkakasunod na kapareho)
@@ -957,6 +980,8 @@ window.addEventListener("keydown", (e) => {
         stage.boatSystem.toggleBoard(player, fx);
       } else if (stage.boatSystem && Math.hypot(player.x - stage.boatSystem.monolith.x, player.y - stage.boatSystem.monolith.y) < 65) {
         stage.boatSystem.activateMonolith(player, fx, () => {
+          quest.monolith = true;
+          saveGame();
           questHud.toast(lang() === "fil" ? "Bukas na ang lagusan patungo sa Dark Continent!" : "Celestial Portal to the Dark Continent is open!");
         });
       } else if (gameState === "PLAYING" && npcManager.nearest) {
@@ -1165,11 +1190,16 @@ function objectivePoint() {
   }
   // Kailangang pumunta sa susunod na platform
   if (stage === hub) {
-    if (next === "siege") return { x: hub.castle.gatePortal.x, y: hub.castle.gatePortal.y };
-    const gate = hub.portals.portals.find((p) => p.dest === next);
+    // Act XI is reached through the Cerulean Abyss (WEST gateway), where the monolith stands
+    const gate = hub.portals.portals.find((p) => p.dest === (next === "siege" ? "coast" : next));
     return gate ? { x: gate.x, y: gate.y } : null;
   }
   if (stage.def.rift && stage.def.rift.dest === next) return { x: stage.def.rift.x, y: stage.def.rift.y };
+  // On the coast, Act XI points at the monolith (or its open portal)
+  if (next === "siege" && stage.boatSystem) {
+    const b = stage.boatSystem;
+    return b.seaPortal.active ? { x: b.seaPortal.x, y: b.seaPortal.y } : { x: b.monolith.x, y: b.monolith.y - 20 };
+  }
   return { x: stage.gate.x, y: stage.gate.y };
 }
 

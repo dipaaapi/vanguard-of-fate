@@ -4,7 +4,7 @@
 //   coast   VIII Cerulean Abyss            (WEST gateway)   boss: Leviathan    → Abyssal Helm Shard
 //   frost   IX   Frostfang Precipice       (NORTH gateway)  boss: Cryonix      → Cryonix Core
 //   ash     X    Ashfall Wastelands        (SOUTH gateway)  boss: Ignis        → Hellforge Reactor Core
-//   siege   XI   Siege of the Citadel      (gate ng Citadel) boss: Commander   → Imperial Crest
+//   siege   XI   Siege of the Citadel      (Celestial Monolith) boss: Commander   → Imperial Crest
 //   maw     XII  Maw of Damnation          (lamat sa trono ng kinubkob na Citadel) boss: Satan → Astral Ash
 // Ang mapa ay 1280x960 (80x60 tiles). Ang (x, y) ng camp, arena at gate ay pixel.
 // Sa dialogue: {s} = pangalan ng tagapagtawag, {h} = pangalan ng bayani.
@@ -36,10 +36,13 @@ function glow(ctx, x, y, r, color, alpha = 0.35) {
 }
 const inEllipse = (x, y, cx, cy, rx, ry) => ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1;
 
+// Seal Stones needed by the Celestial Monolith (dropped by the bosses of Acts VII–X)
+export const SEAL_STONES = ["sylvanSeal", "tideSeal", "frostSeal", "emberSeal"];
+
 export const PLATFORMS = {
   // ==================== ACT VII ====================
   canopy: {
-    id: "canopy", act: 7, tier: 2, theme: "canopy", ambient: "spores", seed: 7707, hubGate: "EAST", color: "#c77dff",
+    id: "canopy", act: 7, tier: 2, theme: "canopy", ambient: "spores", seed: 7707, hubGate: "EAST", color: "#c77dff", seal: "sylvanSeal",
     name: { en: "Whispering Canopy", fil: "Whispering Canopy" },
     camp: { x: 560, y: 780, w: 160, h: 110 }, gate: { x: 640, y: 878 },
     arena: { x: 470, y: 100, w: 340, h: 230 }, bossSpawn: { x: 630, y: 190 }, boss: "malakor", item: "heartstone",
@@ -87,7 +90,7 @@ export const PLATFORMS = {
 
   // ==================== ACT VIII ====================
   coast: {
-    id: "coast", act: 8, tier: 3, theme: "coast", ambient: "storm", seed: 8808, hubGate: "WEST", color: "#38bdf8",
+    id: "coast", act: 8, tier: 3, theme: "coast", ambient: "storm", seed: 8808, hubGate: "WEST", color: "#38bdf8", seal: "tideSeal",
     name: { en: "Cerulean Abyss", fil: "Cerulean Abyss" },
     camp: { x: 990, y: 410, w: 170, h: 120 }, gate: { x: 1196, y: 470, dir: "vertical" },
     arena: { x: 290, y: 370, w: 270, h: 220 }, bossSpawn: { x: 300, y: 470 }, boss: "leviathan", item: "abyssHelm",
@@ -98,7 +101,7 @@ export const PLATFORMS = {
     // Ang monolith ng bangka ay ang mismong celestial monolith ng landmark (x 120, y 210) sa kanlurang dagat.
     boat: {
       pier: { x: 664, y: 882 }, dockedBoat: { x: 634, y: 868 },
-      monolith: { x: 120, y: 210 }, seaPortal: { x: 185, y: 260 }
+      monolith: { x: 120, y: 210 }, seaPortal: { x: 185, y: 260 }, seals: SEAL_STONES
     },
     terrain(tx, ty, cols, rows, noise) {
       if (tx < 15 + noise(0, ty * 0.1) * 6) return "liquid";                 // dagat sa kanluran
@@ -106,15 +109,17 @@ export const PLATFORMS = {
       if (noise(tx * 0.15, ty * 0.15, 5) > 0.8) return "liquid";              // tide pools
       return null;
     },
-    landmark(ctx, t, cleared) {
-      // Ang celestial monolith sa gitna ng dagat (tulad ng banner ng Act VIII): hilig na batong haligi
-      // na may bilog na runa sa mukha, halo at mga bilog ng runa sa tubig. Madilim hanggang matalo ang Leviathan.
-      const x = 120, y = 210, base = y + 30, fy = y - 8;   // fy = gitna ng mga runa sa mukha
-      const on = cleared ? 0.75 + Math.sin(t * 2) * 0.2 : 0.22;
+    landmark(ctx, t, cleared, riftOpen, plat) {
+      // The Celestial Monolith in the western sea (styled after the Act VIII banner): a slanted stone slab
+      // with a rune target on its face, a halo and rune circles on the water.
+      // States: chained (Leviathan Regent alive) → unchained, dim (waiting for the Seal Stones) → lit (awakened).
+      const x = 120, y = 210, base = y + 30, fy = y - 8;   // fy = centre of the runes on the face
+      const lit = Boolean(plat && plat.boatSystem && plat.boatSystem.monolith.activated);
+      const on = lit ? 0.75 + Math.sin(t * 2) * 0.2 : cleared ? 0.35 + Math.sin(t * 1.5) * 0.12 : 0.18;
       const cyan = (a) => `rgba(94, 231, 255, ${a})`;
 
-      // 1. Mga bilog ng runa sa tubig (umiikot na glyph sa panlabas na bilog)
-      if (cleared) glow(ctx, x, base, 80, "rgb(94, 231, 255)", 0.25);
+      // 1. Rune circles on the water (glyphs orbit on the outer ring)
+      if (lit) glow(ctx, x, base, 80, "rgb(94, 231, 255)", 0.25);
       ring(ctx, x, base, 58, 15, cyan(on * 0.9), 1.5);
       ring(ctx, x, base, 50, 12, cyan(on * 0.6), 1);
       ring(ctx, x, base, 32, 8, cyan(on * 0.8), 1.5);
@@ -128,7 +133,7 @@ export const PLATFORMS = {
         else { ctx.fillRect(gx - 1, gy - 1, 1, 1); ctx.fillRect(gx + 1, gy + 1, 1, 1); ctx.fillRect(gx, gy, 1, 1); }
       }
 
-      // 2. Maliit na batong sirang kasama sa paanan (kanan at kaliwa)
+      // 2. Broken rocks at the foot (right and left)
       ctx.fillStyle = "#3c4858";
       ctx.beginPath();
       ctx.moveTo(x + 9, base); ctx.lineTo(x + 12, base - 18); ctx.lineTo(x + 17, base - 24); ctx.lineTo(x + 22, base - 10); ctx.lineTo(x + 24, base);
@@ -140,7 +145,7 @@ export const PLATFORMS = {
       ctx.moveTo(x - 20, base); ctx.lineTo(x - 17, base - 7); ctx.lineTo(x - 12, base - 9); ctx.lineTo(x - 10, base);
       ctx.closePath(); ctx.fill();
 
-      // 3. Ang pangunahing haligi: hilig ang tuktok (mataas sa kanan)
+      // 3. The main slab: slanted top, higher on the right
       ctx.fillStyle = "#1e2733";
       ctx.beginPath();
       ctx.moveTo(x - 14, base + 1); ctx.lineTo(x - 13, y - 26); ctx.lineTo(x - 5, y - 33); ctx.lineTo(x + 7, y - 44);
@@ -151,16 +156,16 @@ export const PLATFORMS = {
       ctx.moveTo(x - 12, base); ctx.lineTo(x - 11, y - 25); ctx.lineTo(x - 4, y - 31); ctx.lineTo(x + 7, y - 41);
       ctx.lineTo(x + 11, y - 37); ctx.lineTo(x + 12, base);
       ctx.closePath(); ctx.fill();
-      ctx.fillStyle = "#7a8aa0";                                   // liwanag sa kaliwang gilid
+      ctx.fillStyle = "#7a8aa0";                                   // lit left edge
       ctx.fillRect(x - 11, y - 24, 3, base - (y - 24));
-      ctx.fillStyle = "#44526a";                                   // anino sa kanang gilid
+      ctx.fillStyle = "#44526a";                                   // shaded right edge
       ctx.fillRect(x + 8, y - 36, 4, base - (y - 36));
-      ctx.fillStyle = "#4a586c";                                   // mga bitak
+      ctx.fillStyle = "#4a586c";                                   // cracks
       ctx.fillRect(x - 6, y - 20, 1, 6); ctx.fillRect(x - 5, y - 14, 1, 4);
       ctx.fillRect(x + 4, y + 8, 1, 7); ctx.fillRect(x + 3, y + 15, 1, 5);
 
-      // 4. Bilog na runa sa mukha ng haligi at liwanag na umaagos pababa
-      if (cleared) glow(ctx, x, fy, 34, "rgb(94, 231, 255)", 0.45);
+      // 4. Rune target on the face, with light running down to the water
+      if (lit) glow(ctx, x, fy, 34, "rgb(94, 231, 255)", 0.45);
       ring(ctx, x, fy, 8, 8, cyan(on), 1.5);
       ring(ctx, x, fy, 4.5, 4.5, cyan(on), 1.5);
       ctx.fillStyle = cyan(on);
@@ -168,17 +173,42 @@ export const PLATFORMS = {
       ctx.fillStyle = cyan(on * 0.5);
       ctx.fillRect(x - 7, fy + 10, 1, base - fy - 12);
       ctx.fillRect(x + 6, fy + 10, 1, base - fy - 12);
-      // Halo sa paligid ng haligi (kapag gising na)
-      if (cleared) {
+      // Halo around the slab once awakened
+      if (lit) {
         ring(ctx, x, fy, 22 + Math.sin(t * 2) * 1.5, 22 + Math.sin(t * 2) * 1.5, cyan(0.55), 1);
         ring(ctx, x, fy, 26, 26, cyan(0.2), 1);
       }
 
-      // 5. Bula ng alon sa paanan
+      // 5. Surf foam at the foot
       ctx.fillStyle = "rgba(230, 250, 255, 0.85)";
       for (let i = 0; i < 9; i++) {
         const fx = x - 20 + i * 5 + Math.round(Math.sin(t * 3 + i) * 1.5);
         ctx.fillRect(fx, base - (i % 2), 3, 1);
+      }
+
+      // 6. Chains of the Leviathan Regent: two diagonal chains crossing the slab plus a band,
+      //    anchored to the sea floor on both sides. They vanish once the Regent is defeated.
+      if (!cleared) {
+        const link = (x0, y0, x1, y1) => {
+          const n = Math.ceil(Math.hypot(x1 - x0, y1 - y0) / 4);
+          for (let i = 0; i <= n; i++) {
+            const k = i / n, lx = Math.round(x0 + (x1 - x0) * k), ly = Math.round(y0 + (y1 - y0) * k);
+            ctx.fillStyle = "#2a2f38";
+            if (i % 2) ctx.fillRect(lx - 2, ly - 1, 4, 3); else ctx.fillRect(lx - 1, ly - 2, 3, 4);
+            ctx.fillStyle = "#8a93a3";
+            if (i % 2) ctx.fillRect(lx - 1, ly - 1, 2, 1); else ctx.fillRect(lx, ly - 1, 1, 2);
+          }
+        };
+        link(x - 26, base + 2, x + 10, y - 30);
+        link(x + 26, base + 2, x - 10, y - 26);
+        link(x - 15, y + 2, x + 15, y + 2);
+        // rusted anchor rings where the chains meet the water
+        [[x - 26, base + 2], [x + 26, base + 2]].forEach(([ax, ay]) => {
+          ctx.fillStyle = "#5a3d2e"; ctx.fillRect(ax - 2, ay - 1, 5, 3);
+          ctx.fillStyle = "#9a6b4a"; ctx.fillRect(ax - 1, ay - 1, 3, 1);
+        });
+        // a faint red pulse of the Regent's binding
+        glow(ctx, x, fy, 30, "rgb(239, 68, 68)", 0.12 + Math.sin(t * 2) * 0.05);
       }
     },
     text: {
@@ -203,7 +233,7 @@ export const PLATFORMS = {
 
   // ==================== ACT IX ====================
   frost: {
-    id: "frost", act: 9, tier: 4, theme: "frost", ambient: "blizzard", seed: 9909, hubGate: "NORTH", color: "#bfe9ff",
+    id: "frost", act: 9, tier: 4, theme: "frost", ambient: "blizzard", seed: 9909, hubGate: "NORTH", color: "#bfe9ff", seal: "frostSeal",
     name: { en: "Frostfang Precipice", fil: "Frostfang Precipice" },
     camp: { x: 100, y: 760, w: 180, h: 110 }, gate: { x: 190, y: 878 },
     arena: { x: 880, y: 90, w: 300, h: 210 }, bossSpawn: { x: 1020, y: 170 }, boss: "cryonix", item: "cryoCore",
@@ -256,7 +286,7 @@ export const PLATFORMS = {
 
   // ==================== ACT X ====================
   ash: {
-    id: "ash", act: 10, tier: 5, theme: "ash", ambient: "embers", seed: 10110, hubGate: "SOUTH", color: "#ff7a1a",
+    id: "ash", act: 10, tier: 5, theme: "ash", ambient: "embers", seed: 10110, hubGate: "SOUTH", color: "#ff7a1a", seal: "emberSeal",
     name: { en: "Ashfall Wastelands", fil: "Ashfall Wastelands" },
     camp: { x: 980, y: 770, w: 180, h: 110 }, gate: { x: 1070, y: 878 },
     arena: { x: 110, y: 110, w: 330, h: 220 }, bossSpawn: { x: 260, y: 200 }, boss: "ignis", item: "forgeCore",
@@ -307,7 +337,7 @@ export const PLATFORMS = {
 
   // ==================== ACT XI ====================
   siege: {
-    id: "siege", act: 11, tier: 6, theme: "siege", ambient: "siege", seed: 11111, hubGate: "CITADEL", color: "#ef4444",
+    id: "siege", act: 11, tier: 6, theme: "siege", ambient: "siege", seed: 11111, hubGate: "MONOLITH", color: "#ef4444",
     name: { en: "Siege of the Imperial Citadel", fil: "Pagkubkob sa Imperial Citadel" },
     camp: { x: 560, y: 790, w: 160, h: 110 }, gate: { x: 640, y: 878 },
     arena: { x: 470, y: 90, w: 340, h: 210 }, bossSpawn: { x: 630, y: 170 }, boss: "commander", item: "imperialCrest",

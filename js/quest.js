@@ -30,9 +30,9 @@ export const QUEST_VERSION = 2;
 // Paraan ng pagpasok sa bawat platform (para sa teksto ng layunin)
 const ENTRY = {
   en: { EAST: "the EAST Warp Gateway", WEST: "the WEST Warp Gateway", NORTH: "the NORTH Warp Gateway", SOUTH: "the SOUTH Warp Gateway",
-    CITADEL: "the gate of the Imperial Citadel", RIFT: "the rift behind the throne of the besieged Citadel" },
+    MONOLITH: "the Celestial Monolith in the Cerulean Abyss", RIFT: "the rift behind the throne of the besieged Citadel" },
   fil: { EAST: "ang SILANGANG Warp Gateway", WEST: "ang KANLURANG Warp Gateway", NORTH: "ang HILAGANG Warp Gateway", SOUTH: "ang TIMOG na Warp Gateway",
-    CITADEL: "ang gate ng Imperial Citadel", RIFT: "ang lamat sa likod ng trono ng kinubkob na Citadel" }
+    MONOLITH: "ang Celestial Monolith sa Cerulean Abyss", RIFT: "ang lamat sa likod ng trono ng kinubkob na Citadel" }
 };
 const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
 
@@ -149,6 +149,7 @@ export class QuestManager {
   reset() {
     this.step = 0;
     this.met = emptyMet();
+    this.monolith = false;   // Celestial Monolith awakened (all four Seal Stones placed)
   }
 
   // Galing sa save. Inaayos din ang lumang save (v1) at save na walang quest.
@@ -161,6 +162,7 @@ export class QuestManager {
       this.step = Math.max(0, Math.min(FINAL_STEP, step));
       const m = data.met || {};
       Object.keys(this.met).forEach((k) => { this.met[k] = Boolean(m[k]); });
+      this.monolith = Boolean(data.monolith);
     } else if (!isNovice) {
       this.step = 5;
     }
@@ -171,7 +173,7 @@ export class QuestManager {
   }
 
   serialize() {
-    return { v: QUEST_VERSION, step: this.step, met: { ...this.met } };
+    return { v: QUEST_VERSION, step: this.step, met: { ...this.met }, monolith: this.monolith };
   }
 
   // Numero ng Act sa LORE.md para sa kasalukuyang hakbang
