@@ -307,8 +307,40 @@ body[data-mode="title"] #title {
   pointer-events: none;
   transition: opacity 0.3s;
 }
-#title[data-step="chronicles"] .t-chron { opacity: 1; pointer-events: auto; }
-#title[data-step="chronicles"] .t-logo { opacity: 0; }
+#title[data-step="chronicles"] #chronicles,
+#title[data-step="credits"] #credits { opacity: 1; pointer-events: auto; }
+#title[data-step="chronicles"] .t-logo,
+#title[data-step="credits"] .t-logo { opacity: 0; }
+
+/* ---------- CREDITS ---------- */
+.cr-body, .cr-body p { text-align: center; }
+.cr-body .cr-game {
+  margin: 6px 0 2px;
+  font-family: var(--logo-font);
+  font-size: clamp(22px, 3vw, 34px);
+  color: var(--gold);
+  letter-spacing: 0.06em;
+}
+.cr-body .cr-tag { margin: 0 0 18px; color: var(--sky); letter-spacing: 0.14em; text-transform: uppercase; font-size: 12px; }
+.cr-body h4 {
+  margin: 18px 0 6px;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--sky);
+}
+.cr-body .cr-name { margin: 2px 0; font-size: 17px; color: #f8fafc; }
+.cr-body .cr-role { margin: 0 0 4px; font-size: 12px; color: var(--muted); }
+.cr-body ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.cr-body li {
+  padding: 5px 10px;
+  font-size: 12px;
+  color: #e2e8f0;
+  border: 1px solid #3b4661;
+  background: rgba(15, 23, 42, 0.8);
+}
+.cr-body li b { color: var(--gold); font-weight: 400; }
+.cr-body .cr-thanks { margin: 22px 0 8px; font-family: Georgia, serif; font-style: italic; color: #cbd5e1; font-size: 15px; }
 
 .c-panel {
   display: flex;
@@ -365,6 +397,20 @@ body[data-mode="title"] #title {
 .c-tab:hover { color: #fff; }
 .c-tab.on { color: var(--ink); background: var(--gold); border-color: var(--gold); }
 
+/* Larawan ng bawat Act sa Chronicles */
+.c-banner {
+  margin: 0 0 14px;
+  border: 1px solid #3b4661;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  background: #0b1120;
+}
+.c-banner img {
+  display: block;
+  width: 100%;
+  max-height: 260px;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
 .c-body {
   flex: 1;
   overflow-y: auto;
@@ -427,3 +473,202 @@ body[data-mode="title"] #title {
 @media (prefers-reduced-motion: reduce) {
   .t-bg, .t-fog, .t-press, .t-item.selected::before { animation: none; }
 }
+
+/* ================================================================= */
+/* PROLOGUE CINEMATIC SCENE (ACT I)                                  */
+/* ================================================================= */
+.prologue-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(3, 6, 17, 0.95);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.prologue-modal.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.pro-backdrop {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(15, 23, 42, 0.6) 0%, rgba(2, 6, 23, 0.95) 100%);
+}
+
+.pro-panel {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  width: min(860px, 94vw);
+  max-height: min(90vh, 760px);
+  background: rgba(7, 12, 22, 0.98);
+  border: 1px solid var(--gold);
+  box-shadow: 0 0 0 4px rgba(3, 6, 17, 0.9), 0 0 0 5px rgba(255, 209, 102, 0.35), 0 25px 70px rgba(0, 0, 0, 0.85);
+  overflow: hidden;
+}
+
+.pro-banner-wrap {
+  position: relative;
+  width: 100%;
+  height: clamp(140px, 26vh, 260px);
+  overflow: hidden;
+  background: #020617;
+  border-bottom: 1px solid rgba(255, 209, 102, 0.3);
+}
+
+.pro-banner-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  image-rendering: auto;
+  transform: scale(1.02);
+  transition: transform 1.2s ease;
+}
+
+.pro-banner-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(3, 6, 17, 0.1) 0%, rgba(7, 12, 22, 0.85) 100%);
+}
+
+.pro-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 16px 28px 20px;
+  overflow-y: auto;
+}
+
+.pro-tag {
+  display: inline-block;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--sky);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.pro-header h2 {
+  margin: 0 0 4px;
+  font-family: var(--logo-font);
+  font-size: clamp(18px, 2.2vw, 24px);
+  color: var(--gold);
+  letter-spacing: 0.06em;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+}
+
+.pro-header h3 {
+  margin: 0 0 14px;
+  font-size: clamp(12px, 1.2vw, 14px);
+  font-weight: normal;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+}
+
+.pro-body {
+  flex: 1;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(14px, 1.4vw, 16px);
+  line-height: 1.75;
+  color: #e2e8f0;
+  margin-bottom: 16px;
+}
+
+.pro-body p {
+  margin: 0 0 12px;
+}
+
+.pro-body b.c-gold {
+  color: var(--gold);
+  font-weight: bold;
+}
+
+.pro-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid #1e293b;
+  gap: 16px;
+}
+
+.pro-dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.pro-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #334155;
+  border: 1px solid #475569;
+  transition: all 0.25s ease;
+}
+
+.pro-dot.on {
+  background: var(--gold);
+  border-color: #fff;
+  box-shadow: 0 0 8px rgba(255, 209, 102, 0.7);
+  transform: scale(1.25);
+}
+
+.pro-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.pro-buttons button {
+  font-family: inherit;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 8px 18px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.15s ease;
+}
+
+.pro-buttons .btn-secondary {
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid #334155;
+}
+
+.pro-buttons .btn-secondary:hover {
+  color: #fff;
+  border-color: #64748b;
+}
+
+.pro-buttons .btn-primary {
+  background: var(--gold);
+  color: #030611;
+  font-weight: bold;
+  border: 1px solid #fff;
+  box-shadow: 0 0 12px rgba(255, 209, 102, 0.4);
+}
+
+.pro-buttons .btn-primary:hover {
+  background: #ffe082;
+  box-shadow: 0 0 16px rgba(255, 209, 102, 0.7);
+}
+
+.pro-buttons .kbd {
+  display: inline-block;
+  font-size: 10px;
+  padding: 1px 4px;
+  margin-left: 4px;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(0,0,0,0.3);
+  border-radius: 2px;
+}
+

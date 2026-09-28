@@ -18,9 +18,9 @@ const ISEKAI_LORE = {
     realName: "Lyra Vance",
     earthRole: "Wildlife Biologist & Olympic Archer",
     origin: "Vancouver, Canada",
-    summonEvent: "Froze in a blizzard while saving an injured mountain hawk.",
+    summonEvent: "Froze in a blizzard while sheltering an injured alpine falcon.",
     trait: "Predator's Eye & Empathy",
-    loreDesc: "Tahimik na tagapagtanggol ng kakahuyan. Muling nabuhay sa katawan ng Elf kasama ang kaluluwa ng agilang kanyang iniligtas bilang Falcon."
+    loreDesc: "Tahimik na tagapagtanggol ng kakahuyan. Muling nabuhay sa katawan ng Elf kasama ang kaluluwa ng alpine falcon na kanyang kinanlong."
   },
   priest: {
     realName: "Dr. Julian Alcantara",
@@ -36,7 +36,7 @@ const ISEKAI_LORE = {
     origin: "Atacama Observatory",
     summonEvent: "Enveloped by anomalous cosmic gamma pulse during a sky scan.",
     trait: "Orbital Mechanics Mastery",
-    loreDesc: "Kabisado ang celestial mechanics at orbital trajectories. Ang dating equations ng mga bulalakaw ay naging nagliliyab na Meteor Swarm."
+    loreDesc: "Kabisado ang celestial mechanics at orbital trajectories. Ang dating equations ng mga bulalakaw ay naging nagliliyab na Meteor Fall."
   },
   fighter: {
     realName: "Renzo 'Striker' Cruz",
@@ -50,10 +50,10 @@ const ISEKAI_LORE = {
 
 export class SelectScene {
   // dom = { picker, dossier }: ang hero picker (ibaba) at dossier (kanan) ay HTML na
-  constructor(roster, onHeroSelected, drawMatrixFn, dom = {}) {
+  constructor(roster, onHeroSelected, dom = {}) {
     this.roster = roster;
     this.onHeroSelected = onHeroSelected;
-    this.drawMatrixFn = drawMatrixFn;
+    this.jobAvatars = null;     // itinatakda ng main.js bago ang Job Awakening
     this.selectedIndex = 0;
     this.animTick = 0;
     this.bg = loadImage("assets/bg/portal_bg.jpg");
@@ -247,25 +247,34 @@ export class SelectScene {
     ctx.ellipse(heroX, heroY + 1, 26, 7, 0, 0, Math.PI * 2);
     ctx.fill();
 
+    // Ang mentor ng class (nasa likod, mas maliit) at ang player mismo na suot ang gear ng class.
+    // Paminsan-minsan ay ipinapakita ang atake para makita ang sandata.
     const mentor = awakening && this.mentorAvatars && this.mentorAvatars[hero.id];
+    const self = this.jobAvatars && this.jobAvatars[hero.id];
     if (mentor) {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
+      ctx.beginPath();
+      ctx.ellipse(heroX - 62, heroY - 13, 16, 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+      mentor.draw(ctx, heroX - 62, heroY - 12, "down", "idle", Math.floor(this.animTick / 40), false, false, 2);
+    }
+    if (self) {
+      const phase = this.animTick % 240;
+      const attacking = phase >= 200;
+      self.draw(ctx, heroX, heroY, "down", attacking ? "attack" : "idle",
+        attacking ? (phase >= 216 ? 1 : 0) : Math.floor(this.animTick / 40), false, false, 3);
+    } else if (mentor) {
       mentor.draw(ctx, heroX, heroY, "down", "idle", Math.floor(this.animTick / 40), false, false, 3);
-    } else if (hero.sprites && hero.sprites.idle) {
-      const frames = hero.sprites.idle;
-      const idx = Math.floor(this.animTick / 26) % frames.length;
-      ctx.save();
-      ctx.translate(heroX, heroY);
-      ctx.scale(3, 3);
-      this.drawMatrixFn(ctx, -12, -24, frames[idx]);
-      ctx.restore();
     }
 
     ctx.textAlign = "center";
     ctx.font = "bold 9px monospace";
     this.shadowText(ctx, hero.name.toUpperCase(), heroX, heroY + 16, "#ffd166");
-    ctx.font = "bold 6.8px monospace";
-    this.shadowText(ctx, `"${lore.realName}"`, heroX, heroY + 25, "#38bdf8");
     ctx.font = "6.2px monospace";
-    this.shadowText(ctx, hero.title || "", heroX, heroY + 34, "#cbd5e1");
+    this.shadowText(ctx, hero.title || "", heroX, heroY + 25, "#cbd5e1");
+    // Pangalan ng mentor sa ilalim ng mentor (o sa ilalim ng bayani kung walang mentor)
+    ctx.font = "bold 6.8px monospace";
+    if (mentor && self) this.shadowText(ctx, `"${lore.realName}"`, heroX - 62, heroY - 2, "#38bdf8");
+    else this.shadowText(ctx, `"${lore.realName}"`, heroX, heroY + 34, "#38bdf8");
   }
 }

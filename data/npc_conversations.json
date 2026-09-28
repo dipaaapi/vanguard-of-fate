@@ -1,0 +1,535 @@
+{
+  "solo": {
+    "arthur": [
+      {
+        "en": "Checking the lance tip. Balanced just like my demolition jacks back in Manila.",
+        "fil": "Sinisuri ang dulo ng sibat. Kasim-balanse ng mga jack sa demolition noon sa Maynila."
+      },
+      {
+        "en": "The Bastion Forcefield holds strong against any falling debris or demonic claws.",
+        "fil": "Matatag ang Bastion Forcefield laban sa mga bumabagsak na bato o kuko ng demonyo."
+      },
+      {
+        "en": "Two-handed lances pierce straight through monster lines like a pneumatic piston.",
+        "fil": "Ang two-handed lance ay tumatagos sa hanay ng halimaw na parang barenang pison."
+      },
+      {
+        "en": "The cobblestones here in the Barracks are reinforced with Astraea's blessing.",
+        "fil": "Ang mga laryo dito sa Barracks ay pinatibay ng basbas ni Astraea."
+      },
+      {
+        "en": "I took a crane impact on Earth to save an apprentice. I won't let anyone fall here either.",
+        "fil": "Sinapo ko ang crane sa Daigdig para iligtas ang baguhan. Hindi ako magpapabaya rito."
+      },
+      {
+        "en": "Ronald's combat drills are tough, but proper form saves lives in the field.",
+        "fil": "Mahirap ang ensayo ni Ronald, ngunit ang tamang porma ang nagliligtas ng buhay."
+      },
+      {
+        "en": "If you're using a heavy lance, remember you can't equip an offhand shield.",
+        "fil": "Kung heavy lance ang gamit mo, tandaang hindi puwedeng magsuot ng kalasag sa kaliwa."
+      },
+      {
+        "en": "The miasma outside smells like burning sulfur and ozone. Stay inside the safe zone!",
+        "fil": "Amoy asupre at kuryente ang miasma sa labas. Manatili sa loob ng ligtas na sonang ito!"
+      },
+      {
+        "en": "When charging forward, let the momentum carry your strike through the vanguard.",
+        "fil": "Kapag sumusugod pasulong, hayaang ang buwelo ang magbaon ng iyong saksak."
+      },
+      {
+        "en": "Earth feels so far away... but protecting this world gives my second life meaning.",
+        "fil": "Napakalayo na ng Daigdig... ngunit ang pagtatanggol dito ang nagbibigay-buhay sa akin."
+      }
+    ],
+
+    "lyra": [
+      {
+        "en": "My hunting falcon senses abnormal air currents coming from the Whispering Canopy.",
+        "fil": "Nararamdaman ng aking lawin ang kakaibang ihip ng hangin mula sa Whispering Canopy."
+      },
+      {
+        "en": "In Vancouver, the blizzard was cruel... but here, Astraea gave us a second dawn.",
+        "fil": "Sa Vancouver, malupit ang unos ng niyebe... ngunit dito, binigyan tayo ng bagong umaga."
+      },
+      {
+        "en": "Elven eyesight lets me spot corrupted beasts lurking through dense forest foliage.",
+        "fil": "Ang matalas na paningin ng duwende ay nagbibigay-daan upang matanaw ang mga halimaw sa gubat."
+      },
+      {
+        "en": "Keep a full quiver strapped to your side before marching past the gateway.",
+        "fil": "Tiyaking puno ang lagayan ng palaso sa iyong tagiliran bago lumabas sa lagusan."
+      },
+      {
+        "en": "Crossbows allow rapid skirmishing, while longbows deliver devastating long-range pierce.",
+        "fil": "Ang crossbow ay mabilis sa malapitan, habang ang longbow ay tumatagos mula sa malayo."
+      },
+      {
+        "en": "Listen to the birds... when the forest goes dead silent, an apex predator is stalking.",
+        "fil": "Pakinggan ang mga ibon... kapag tumahimik ang gubat, may dambuhalang mandaragit sa paligid."
+      },
+      {
+        "en": "My companion bird never misses a dive attack when I whistle the hunt command.",
+        "fil": "Hindi sumasala ang aking lawin sa pagdive kapag sumipol ako ng hudyat sa pag-atake."
+      },
+      {
+        "en": "Wind element arrows tear through water and flying beast carapaces effortlessly.",
+        "fil": "Ang mga palasong may hanging elemento ay madaling pumupunit sa mga lumilipad na halimaw."
+      },
+      {
+        "en": "The soil in the outlands is weeping black sap. Satan's miasma is poisoning the roots.",
+        "fil": "Nagluluha ng itim na dagta ang lupa sa labas. Nilalason ni Satan ang mga ugat ng kalikasan."
+      },
+      {
+        "en": "Breathe with the bowstring, release on the heartbeat. Precision over panic.",
+        "fil": "Sumabay sa hininga ng pisi, bitawan sa tibok ng puso. Asinta bago takot."
+      }
+    ],
+
+    "julian": [
+      {
+        "en": "Thirty-six hours of trauma surgery on Earth taught me that every second is sacred.",
+        "fil": "Tatlumpu't anim na oras sa emergency room ang nagturo sa akin na bawat segundo ay sagrado."
+      },
+      {
+        "en": "Smart Priority Heal channels divine light directly to whoever is nearest to death.",
+        "fil": "Kusang humahanap ang Smart Priority Heal sa kasamang pinakamalapit sa bingit ng kamatayan."
+      },
+      {
+        "en": "My Guardian Angels are manifestations of the brave nurses and paramedics I worked with.",
+        "fil": "Ang aking mga Guardian Angel ay anyo ng mga tapat na nars at medic na nakasama ko noon."
+      },
+      {
+        "en": "Holy magic burns through demons and undead like daylight through shadow.",
+        "fil": "Sinusunog ng banal na liwanag ang mga demonyo at undead na parang araw sa kadiliman."
+      },
+      {
+        "en": "The Panacea brews from Edgar clear all seven miasmic curses in an instant.",
+        "fil": "Ang mga Panacea ni Edgar ay mabilis na nag-aalis ng pitong sumpa ng miasma."
+      },
+      {
+        "en": "Pairing a Holy Rosary with a Sacred Grimoire cuts divine cooldowns in half.",
+        "fil": "Ang paggamit ng Holy Rosary at Grimoire ay nagpapabilis sa pagpapagaling."
+      },
+      {
+        "en": "Keep your stamina up with Tonics—an exhausted champion cannot dodge lethal strikes.",
+        "fil": "Uminom ng Tonic kapag pagod—ang pagod na mandirigma ay hindi makaiiwas sa matitinding dagok."
+      },
+      {
+        "en": "The Barracks courtyard is consecrated ground; dark miasma cannot penetrate Astraea's ward.",
+        "fil": "Banal ang looban ng Barracks; hindi makapapasok ang maruming hamog sa basbas ni Astraea."
+      },
+      {
+        "en": "In battle, positioning is as critical as surgical incisions. Never get cornered.",
+        "fil": "Sa labanan, ang tamang puwesto ay kasing-halaga ng operasyon. Huwag magpakorner."
+      },
+      {
+        "en": "I prayed for the power to heal without limits... and Astraea answered my final breath.",
+        "fil": "Nanalangin akong magpagaling nang walang hangganan... at dininig ni Astraea ang aking huling hininga."
+      }
+    ],
+
+    "sam": [
+      {
+        "en": "Magic in Aethelgard isn't superstition—it's planetary astrophysics governed by math.",
+        "fil": "Ang mahika sa Aethelgard ay hindi pamahiin—ito ay pisika ng kalawakan at matematika."
+      },
+      {
+        "en": "Meteor Fall is just orbital trajectory calculation pulling space debris onto target coordinates.",
+        "fil": "Ang Meteor Fall ay kalkulasyon lamang ng orbital trajectory na humihila ng bulalakaw."
+      },
+      {
+        "en": "Thunderstorm ionizes moisture in the air, creating continuous chain lightning loops.",
+        "fil": "Ang Thunderstorm ay nagpapakulo ng hangin at lumilikha ng gumagapang na kidlat."
+      },
+      {
+        "en": "The gamma burst at the Atacama observatory brought my consciousness across dimensional space.",
+        "fil": "Ang gamma burst sa Atacama ang nagdala sa aking kamalayan patawid sa ibang dimensyon."
+      },
+      {
+        "en": "Wielding a Great Staff amplifies spell radius, but a Wand and Grimoire allows rapid casting.",
+        "fil": "Ang Great Staff ay nagpapalawak ng sakop, ngunit ang Wand at Grimoire ay mas mabilis gamitin."
+      },
+      {
+        "en": "Fire spells deal heavy critical damage against earth and plant monstrosities.",
+        "fil": "Napakalakas ng apoy laban sa mga halimaw na gawa sa lupa, bato, at halamang-gubat."
+      },
+      {
+        "en": "The dimensional rift above the Citadel fluctuates whenever a celestial alignment occurs.",
+        "fil": "Pumipintig ang lagusan sa itaas ng Citadel tuwing may celestial alignment sa kalawakan."
+      },
+      {
+        "en": "Watch the elemental matrix: water extinguishes fire, while wind fans the flames.",
+        "fil": "Tandaan ang elemento: pinapatay ng tubig ang apoy, habang pinalalakas ng hangin ang liyab."
+      },
+      {
+        "en": "I'm monitoring the Void Miasma density—it peaks dramatically during nocturnal hours.",
+        "fil": "Binabantayan ko ang kapal ng miasma—tumatindi ito nang husto pagsapit ng gabi sa labas."
+      },
+      {
+        "en": "With proper telemetry, even an immortal demon lord obeys the laws of thermal destruction.",
+        "fil": "Sa tamang kalkulasyon, maging ang demon lord ay sakop pa rin ng batas ng thermodynamics."
+      }
+    ],
+
+    "renzo": [
+      {
+        "en": "Fighting monsters is just like the underground circuits: read the tells, counter the jab.",
+        "fil": "Ang labanan dito ay parang underground MMA lang: basahin ang galaw, sabayan ng suntok."
+      },
+      {
+        "en": "I took a blade defending someone in an alley back home. I have zero regrets.",
+        "fil": "Nasaksak ako sa eskinita noon dahil nagtanggol ako ng tao. Wala akong pinagsisisihan."
+      },
+      {
+        "en": "Force Spheres stagger the target and mark their pressure points with a crosshair.",
+        "fil": "Ang Force Sphere ay nagpapasuray sa kalaban at naglalagay ng target sa mahinang punto nito."
+      },
+      {
+        "en": "Once that crosshair locks on, my flying dropkick homes in with 100% critical impact!",
+        "fil": "Kapag lumitaw ang target, ang aking lumilipad na dropkick ay siguradong kritikal ang tama!"
+      },
+      {
+        "en": "Dual Claws shred demon armor in rapid melee combos. Speed beats heavy armor every time.",
+        "fil": "Ang Dual Claws ay pumupunit sa baluti ng demonyo. Bilis ang katapat ng matitigas na baluti."
+      },
+      {
+        "en": "Channel your internal Ki before throwing the right hook. Body mechanics never lie.",
+        "fil": "Ipunin ang iyong Ki bago magpakawala ng suntok. Ang tamang tindig ay hindi nagsisinungaling."
+      },
+      {
+        "en": "Ronald tried to teach me swordplay, but bare knuckles and gloves feel way more natural.",
+        "fil": "Tinuruan ako ni Ronald mag-espada, ngunit mas sanay talaga ako sa kamao at guwantes."
+      },
+      {
+        "en": "Keep moving, keep circling. If you stand still on the battlefield, you're a target.",
+        "fil": "Tuloy-tuloy ang galaw at pag-ikot. Kapag huminto ka sa labanan, madali kang tatamaan."
+      },
+      {
+        "en": "Demon Lord Satan thinks he's untouchable? Wait till he eats a flying knee to the jaw.",
+        "fil": "Akala ni Satan hindi siya matatalo? Hintayin niyang tamaan siya ng lumilipad na tuhod sa panga."
+      },
+      {
+        "en": "Adrenaline is your ally, but discipline keeps you alive when stamina runs low.",
+        "fil": "Kaibigan mo ang adrenaline, ngunit disiplina ang bubuhay sa iyo kapag kapos ka sa hangin."
+      }
+    ],
+
+    "ronald": [
+      {
+        "en": "Keep your guard high and your back to the wall! The Barracks is our fortress.",
+        "fil": "Itaas ang depensa at maging alerto! Ang Barracks ang ating matibay na tanggulan."
+      },
+      {
+        "en": "I've drilled mercenaries for twenty winters. Survival begins with proper discipline.",
+        "fil": "Dalawampung taon na akong nagtuturo ng mga sundalo. Disiplina ang unang pananggalang."
+      },
+      {
+        "en": "If you need extra blade arms in the outlands, hire my mercenaries at the guild desk.",
+        "fil": "Kung kailangan mo ng dagdag na mandirigma sa labas, mag-hire ng mercenary sa desk."
+      },
+      {
+        "en": "Axe mercenaries cleave hordes, Greatswords smash armor, and Crossbows provide cover fire.",
+        "fil": "Ang palakol ay para sa grupo, greatsword laban sa baluti, at crossbow para sa malayuan."
+      },
+      {
+        "en": "Upgrading and selling equipment is only permitted within consecrated sanctuary grounds.",
+        "fil": "Ang pagpapanday at pagbebenta ay sa loob lamang ng banal na santuwaryo pinapayagan."
+      },
+      {
+        "en": "The King placed his trust in the Grand Slaying Corps. We will not let Aethelgard fall.",
+        "fil": "Ipinagkatiwala ng Hari ang kaharian sa Slaying Corps. Hindi natin hahayaang bumagsak ito."
+      },
+      {
+        "en": "Rest at the braziers when wounded. Astraea's flame restores vitality in seconds.",
+        "fil": "Magpahinga sa tabi ng sulo kapag sugatan. Mabilis magpagaling ang apoy ni Astraea."
+      },
+      {
+        "en": "Never charge into a champion monster alone without proper elemental preparations.",
+        "fil": "Huwag lulusob sa champion na halimaw nang walang sapat na gamot at tamang elemento."
+      },
+      {
+        "en": "These Earthbound recruits fight with incredible valor. Ramirez and Cruz are formidable.",
+        "fil": "May pambihirang tapang ang mga taga-Daigdig. Matitindi sina Ramirez at Cruz sa laban."
+      },
+      {
+        "en": "Stand your ground, soldier! Every demon slain brings us closer to a peaceful dawn.",
+        "fil": "Manatiling matatag! Bawat napatay na demonyo ay hakbang patungo sa kapayapaan."
+      }
+    ],
+
+    "edgar": [
+      {
+        "en": "Healing Salves for flesh wounds, Tonics for exhausted muscles, Panaceas for curses!",
+        "fil": "Salve para sa sugat, Tonic para sa pagod na kalamnan, Panacea laban sa sumpa!"
+      },
+      {
+        "en": "Be mindful of the Seven Blights: bleeding, silence, poison, electric, burn, freeze, blindness!",
+        "fil": "Mag-ingat sa Pitong Sumpa: pagdurugo, patahimik, lason, kuryente, sunog, yelo, at bulag!"
+      },
+      {
+        "en": "Stock your belt quick-slots (1-4) before stepping through the Celestial Warp Gateways.",
+        "fil": "Ayusin ang iyong belt slots (1-4) bago pumasok sa mga Celestial Warp Gateway."
+      },
+      {
+        "en": "The auto-potion matrix can be calibrated in your Inventory to drink salves automatically.",
+        "fil": "Maaari mong itakda ang auto-potion sa Imbentaryo upang kusa itong uminom kapag mababa ang HP."
+      },
+      {
+        "en": "Miasmic spores from the Whispering Canopy require immediate alchemical purging.",
+        "fil": "Ang mga spore mula sa Whispering Canopy ay kailangang gamutin agad ng panacea."
+      },
+      {
+        "en": "I grind moonlit herbs and monster shards to formulate our most potent restorative elixirs.",
+        "fil": "Dinidikdik ko ang mga halamang-buwan at kristal ng halimaw para sa malalakas na gamot."
+      },
+      {
+        "en": "Always carry a Panacea. A silenced mage or blinded archer is an easy meal for demons.",
+        "fil": "Laging magdala ng Panacea. Ang napipi o nabulag na kasama ay madaling mapapatay ng kalaban."
+      },
+      {
+        "en": "The water in the Barracks well remains sweet and pure, untouched by demonic venom.",
+        "fil": "Ang tubig sa balon ng Barracks ay nananatiling sariwa at ligtas sa lason ng demonyo."
+      },
+      {
+        "en": "Gold from felled beasts can be exchanged here for our finest medical preparations.",
+        "fil": "Ang gintong nakukuha sa halimaw ay magagamit pambili ng mga gamot dito sa aking tindahan."
+      },
+      {
+        "en": "Don't let your stamina bar deplete completely—exhaustion leaves you wide open to critical hits.",
+        "fil": "Huwag hayaang maubos ang stamina—ang labis na pagod ay nagdudulot ng garantisadong kritikal."
+      }
+    ],
+
+    "aurelia": [
+      {
+        "en": "The Pentagram Seal brought you across the dimensional firmament to save our world.",
+        "fil": "Dinala ka ng Limang sulok ng Selyo patawid sa kalawakan upang iligtas ang ating mundo."
+      },
+      {
+        "en": "When you reach combat maturity at Level 10, meet me at the Citadel for Job Awakening.",
+        "fil": "Pag-abot mo ng Level 10, puntahan mo ako sa Citadel para sa iyong Job Awakening."
+      },
+      {
+        "en": "Forgive me for pulling you from Earth... but our kingdom had no other hope against Satan.",
+        "fil": "Patawarin mo ako sa paghila sa iyo mula sa Daigdig... ngunit ikaw na lang ang pag-asa namin."
+      },
+      {
+        "en": "The Altar of Astraea will bestow custom-forged armaments suited to your true calling.",
+        "fil": "Ipagkakaloob ng Altar ni Astraea ang mga sandatang sadyang pinanday para sa iyong tungkulin."
+      },
+      {
+        "en": "Twelve corrupted platforms surround the realm. Defeat each boss to unseal the path.",
+        "fil": "Labindalawang plataporma ang bumabalot sa kaharian. Talunin ang bawat boss para sumulong."
+      },
+      {
+        "en": "My Magic & Research Corps will provide telemetry and arcane support throughout your campaign.",
+        "fil": "Magbibigay ang Magic & Research Corps ng gabay at suporta sa buong paglalakbay mo."
+      },
+      {
+        "en": "In the quiet glades beneath the stars, I pray to Astraea every night for your safe return.",
+        "fil": "Sa ilalim ng mga bituin, gabi-gabi akong nagdarasal kay Astraea para sa iyong kaligtasan."
+      },
+      {
+        "en": "Demon Lord Satan's miasma weakens whenever a celestial monolith is purified.",
+        "fil": "Humihina ang miasma ni Demon Lord Satan sa tuwing nalilinis ang isang sinaunang monolith."
+      },
+      {
+        "en": "You are more than our Field Commander... you are the heartbeat of this entire realm.",
+        "fil": "Higit ka pa sa aming Field Commander... ikaw ang tibok ng puso ng buong kahariang ito."
+      },
+      {
+        "en": "Together, across steel and sorcery, we shall witness a dawn free of shadow.",
+        "fil": "Magkasama, sa pamamagitan ng bakal at mahika, masisilayan natin ang umagang walang kadiliman."
+      }
+    ],
+
+    "kenneth": [
+      {
+        "en": "The forbidden summoning rite held. Your fighting spirit resonated with the royal core.",
+        "fil": "Tumibay ang ipinagbabawal na ritwal. Sumabay ang iyong tapang sa lakas ng aming core."
+      },
+      {
+        "en": "At the Altar of Astraea in the Citadel, your true combat calling will be awakened.",
+        "fil": "Sa Altar ni Astraea sa Citadel, magigising ang iyong tunay na tungkulin sa labanan."
+      },
+      {
+        "en": "I bear the weight of tearing you from your mortal home, but I swear to stand by your side.",
+        "fil": "Pinasan ko ang bigat ng pagkuha sa iyo, ngunit sumusumpa akong sasamahan kita hanggang dulo."
+      },
+      {
+        "en": "Satan's legions occupy twelve platforms. Reclaim each territory step by step.",
+        "fil": "Sinasakop ng hukbo ni Satan ang 12 plataporma. Bawiin ang bawat teritoryo nang paisa-isa."
+      },
+      {
+        "en": "The Imperial Citadel stands fortified, but our garrison relies on your vanguard leadership.",
+        "fil": "Matatag ang pader ng Citadel, ngunit ang aming hukbo ay umaasa sa iyong pamumuno."
+      },
+      {
+        "en": "Inspect your equipment matrix: choose between devastating 2H force or versatile 1H shields.",
+        "fil": "Suriin ang iyong sandata: pumili sa pagitan ng malakas na 2H o madepensang 1H at kalasag."
+      },
+      {
+        "en": "The Magic & Research Corps has tracked the Demon Lord's core deep within the Maw.",
+        "fil": "Natunton ng Magic & Research Corps ang puso ng Demon Lord sa kailaliman ng Maw."
+      },
+      {
+        "en": "Your courage on the frontline gives our remaining soldiers the will to resist the darkness.",
+        "fil": "Ang iyong tapang sa unahan ang nagbibigay-lakas sa aming mga kawal upang lumaban."
+      },
+      {
+        "en": "I promise you, Champion: when this war ends, peace and honor will be restored to all.",
+        "fil": "Ipinapangako ko, Kampeon: pagkatapos ng digmaang ito, magbabalik ang kapayapaan at dangal."
+      },
+      {
+        "en": "Until the final platform falls, my arcane blade and spellcraft are pledged to you.",
+        "fil": "Hanggang sa bumagsak ang huling plataporma, ang aking sandata at mahika ay nakalaan sa iyo."
+      }
+    ],
+
+    "king": [
+      {
+        "en": "Welcome, traveler from Earth. Our ancient prophecies foretold the coming of the Vanguard.",
+        "fil": "Maligayang pagdating, manlalakbay mula sa Daigdig. Itinakda ng propesiya ang iyong pagdating."
+      },
+      {
+        "en": "Demon Lord Satan threatens to consume both our dimension and the mortal plane of Earth.",
+        "fil": "Banta ni Demon Lord Satan na lamunin ang ating daigdig at maging ang mundo ng Daigdig."
+      },
+      {
+        "en": "The Altar of Astraea on our dais awaits you once you prove your mettle on the first platform.",
+        "fil": "Naghihintay ang Altar ni Astraea sa aming dais kapag napatunayan mo ang sarili sa unang laban."
+      },
+      {
+        "en": "My Royal Guards defend this citadel with their lives, but you spearhead our counter-offensive.",
+        "fil": "Ipinagtatanggol ng aking mga bantay ang kuta, ngunit ikaw ang nangunguna sa aming pagbawi."
+      },
+      {
+        "en": "The Crown Heir spoke of your extraordinary valor. Aethelgard is honored by your presence.",
+        "fil": "Ikinuwento ng Tagapagmana ang iyong tapang. Isang malaking karangalan ang iyong pagdating."
+      },
+      {
+        "en": "The four Celestial Gateways connect our lands. Restore balance to the sundered platforms.",
+        "fil": "Pinag-uugnay ng apat na Celestial Gateway ang lupain. Ibalik ang kapayapaan sa mga plataporma."
+      },
+      {
+        "en": "May the light of Astraea guide your blade through the dark corridors of the Abyss.",
+        "fil": "Nawa'y gabayan ng liwanag ni Astraea ang iyong sandata sa madidilim na kuweba ng Kalaliman."
+      },
+      {
+        "en": "Even in my advancing years, my spirit burns with hope when I look upon our Grand Slaying Corps.",
+        "fil": "Kahit matanda na ako, nag-aalab ang aking pag-asa tuwing pinagmamasdan ang ating hukbo."
+      },
+      {
+        "en": "Cleanse the Seven Blights from our soil, and your name shall be immortalized across history.",
+        "fil": "Linisin ang Pitong Sumpa sa ating lupa, at ang iyong pangalan ay maitatala sa kasaysayan."
+      },
+      {
+        "en": "Stand tall, Champion of Astraea. The fate of two worlds rests upon your shoulders.",
+        "fil": "Tumindig ka nang buong dangal, Kampeon ni Astraea. Ang kapalaran ng dalawang mundo ay nasa iyo."
+      }
+    ],
+
+    "royalGuard": [
+      {
+        "en": "Halt! None shall approach the King or the Citadel Gate with hostile intent.",
+        "fil": "Hinto! Walang lalapit sa Hari o sa Tarangkahan ng Citadel nang may masamang tangka."
+      },
+      {
+        "en": "Our lances are forged from sacred ashlar steel, tempered against demonic corruption.",
+        "fil": "Ang aming mga sibat ay gawa sa sagradong asero, pinanday laban sa lason ng demonyo."
+      },
+      {
+        "en": "If any beast wanders near His Majesty's dais, our blades will strike without hesitation!",
+        "fil": "Kapag may halimaw na lumapit sa dais ng Mahal na Hari, tatagain namin ito agad!"
+      },
+      {
+        "en": "Maintain watch on the western horizon! The Cerulean Abyss tides are churning violently.",
+        "fil": "Bantayan ang kanlurang abot-tanaw! Nagwawala ang mga alon sa Cerulean Abyss."
+      },
+      {
+        "en": "The Citadel's perimeter remains secure. We stand vigilant day and night.",
+        "fil": "Ligtas ang paligid ng Citadel. Naninindigan kaming gising araw at gabi."
+      },
+      {
+        "en": "Champion! We salute your triumphs against Satan's vanguard forces.",
+        "fil": "Kampeon! Sumasaludo kami sa iyong mga tagumpay laban sa hukbo ni Satan."
+      },
+      {
+        "en": "Astraea protects the righteous, but steel enforces the peace.",
+        "fil": "Pinoprotektahan ni Astraea ang mabubuti, ngunit bakal ang nagpapatupad ng kapayapaan."
+      },
+      {
+        "en": "Keep clear of the gate portal until the regional seals are lifted by the Crown.",
+        "fil": "Umiwas sa lagusan hanggang hindi nabubuksan ng Maharlika ang mga selyo ng rehiyon."
+      },
+      {
+        "en": "Our heavy armor deflects monster claws, but vigilance is our truest shield.",
+        "fil": "Sinasalag ng aming baluti ang mga kuko, ngunit pagiging alerto ang aming tunay na kalasag."
+      },
+      {
+        "en": "For the Crown, for the Citadel, and for the glory of Aethelgard!",
+        "fil": "Para sa Korona, para sa Citadel, at para sa karangalan ng Aethelgard!"
+      }
+    ]
+  },
+
+  "pairs": [
+    {
+      "pair": ["arthur", "ronald"],
+      "lines": [
+        { "speaker": "arthur", "en": "Captain, lance balance feels solid today.", "fil": "Kapitan, matibay ang balanse ng sibat ngayon." },
+        { "speaker": "ronald", "en": "Keep your stance grounded, Ramirez! Discipline saves lives.", "fil": "Panatilihing matatag ang tindig mo, Ramirez! Disiplina ang susi." }
+      ]
+    },
+    {
+      "pair": ["edgar", "julian"],
+      "lines": [
+        { "speaker": "edgar", "en": "Fresh moonlit herbs ready for the emergency salves, Doctor.", "fil": "Sariwa ang mga halamang-buwan para sa emergency salves, Doktor." },
+        { "speaker": "julian", "en": "The triage beds are prepared. Thank you, Edgar.", "fil": "Handa na ang mga higaan sa pagamutan. Salamat, Edgar." }
+      ]
+    },
+    {
+      "pair": ["lyra", "sam"],
+      "lines": [
+        { "speaker": "lyra", "en": "My falcon spotted strange shadows stirring in the canopy.", "fil": "May kakaibang aninong napansin ang aking lawin sa may gubat." },
+        { "speaker": "sam", "en": "My radar confirms mana density spikes in that sector.", "fil": "Kumpirmado sa aking radar: tumataas ang kuryente ng mana doon." }
+      ]
+    },
+    {
+      "pair": ["renzo", "arthur"],
+      "lines": [
+        { "speaker": "renzo", "en": "Ready for another sparring round in the courtyard, Art?", "fil": "Handa na sa isa pang round ng ensayo sa looban, Art?" },
+        { "speaker": "arthur", "en": "Sure thing, but try not to crack my Bastion shield this time!", "fil": "Sige lang, ngunit huwag mo namang basagin ang kalasag ko!" }
+      ]
+    },
+    {
+      "pair": ["royalGuard", "royalGuard"],
+      "lines": [
+        { "speaker": "royalGuard", "en": "All quiet along the eastern parapets.", "fil": "Payapa ang kalagayan sa silangang moog." },
+        { "speaker": "royalGuard", "en": "Eyes sharp on the perimeter. For the King!", "fil": "Maging alerto sa paligid. Para sa Hari!" }
+      ]
+    },
+    {
+      "pair": ["king", "royalGuard"],
+      "lines": [
+        { "speaker": "king", "en": "Stand firm, brave sentinels of the realm.", "fil": "Manatiling matatag, mga tapat na bantay ng kaharian." },
+        { "speaker": "royalGuard", "en": "With our very lives, Your Majesty.", "fil": "Alang-alang sa inyong buhay at korona, Mahal na Hari." }
+      ]
+    },
+    {
+      "pair": ["ronald", "renzo"],
+      "lines": [
+        { "speaker": "ronald", "en": "Your footwork is unmatched, Cruz, but watch your flanks.", "fil": "Mabilis ang iyong mga hakbang, Cruz, ngunit bantayan ang tagiliran." },
+        { "speaker": "renzo", "en": "Got it, Captain! Speed and precision are my bread and butter.", "fil": "Maliwanag, Kapitan! Bilis at asinta ang puhunan ko." }
+      ]
+    },
+    {
+      "pair": ["sam", "edgar"],
+      "lines": [
+        { "speaker": "sam", "en": "Edgar, the crystalline structure of these monster shards is fascinating.", "fil": "Edgar, kamangha-mangha ang anyo ng mga kristal ng halimaw." },
+        { "speaker": "edgar", "en": "Indeed! When distilled properly, they amplify our healing tinctures.", "fil": "Tumpak! Kapag napakuluan nang maayos, pinalalakas nito ang gamot." }
+      ]
+    }
+  ]
+}

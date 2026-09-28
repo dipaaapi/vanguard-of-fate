@@ -1,0 +1,454 @@
+import { Sound } from "../audio.js";
+import { getLang } from "../i18n.js";
+
+// ==================== BOAT SAILING & SEA MONOLITH SYSTEM ====================
+// Nagbibigay-daan sa bayani na sumakay sa bangka sa baybayin ng Cerulean Coast / Hub Ocean,
+// maglayag sa malawak na karagatan, makipaglaban sa mga halimaw sa tubig, talunin ang
+// Sea MVP Boss (Leviathan Overlord), at i-activate ang Sunken Monolith upang buksan ang
+// Celestial Portal patungo sa Ikalawang Kontinente: Ang Dark Continent!
+
+export class BoatSystem {
+  constructor(stage) {
+    this.stage = stage;
+    this.tick = 0;
+
+    // Lokasyon ng Pier at nakadaong na Bangka sa Timog-Kanlurang Karagatan (Hub)
+    this.pier = { x: 210, y: 760, w: 28, h: 20 };
+    this.dockedBoat = { x: 188, y: 796 };
+
+    // Lokasyon ng Sinaunang Monolith sa Karagatan at Sea Portal
+    this.monolith = {
+      x: 75,
+      y: 890,
+      radius: 26,
+      activated: false,
+      pulseTick: 0
+    };
+
+    // Portal patungo sa Dark Continent (bubukas kapag na-activate ang monolith)
+    this.seaPortal = {
+      x: 75,
+      y: 840,
+      active: false,
+      radius: 20
+    };
+
+    // MVP Sea Boss tracking
+    this.mvpSpawned = false;
+    this.mvpDefeated = false;
+    this.mvpEnemy = null;
+
+    // Wake particle trail habang naglalayag
+    this.wakes = [];
+  }
+
+  // Sinusuri kung ang posisyon ay nasa tubig/karagatan
+  isWaterAt(px, py) {
+    if (!this.stage) return false;
+    // Hub ocean corner (southwest)
+    if (this.stage.id === "hub") {
+      const seaY = this.stage.height - 270;
+      if (px <= 360 && py >= seaY) {
+        // Curve approximation ng tubig
+        const relY = py - seaY;
+        const shoreX = Math.max(0, 360 - (relY / 270) * 150);
+        return px < shoreX + 80;
+      }
+    }
+    // Platform terrain checks
+    if (this.stage.tilemap && this.stage.tilemap.liquid) {
+      const tx = Math.floor(px / 16), ty = Math.floor(py / 16);
+      const idx = ty * this.stage.tilemap.cols + tx;
+      return Boolean(this.stage.tilemap.liquid[idx]);
+    }
+    return false;
+  }
+
+  // Sumakay o bumaba sa bangka
+  toggleBoard(player, fx = null) {
+    if (!player) return;
+
+    if (player.inBoat) {
+      // Mag-disembark: subukang bumaba sa pinakamalapit na tuyong lupa / pier
+      const checkSpots = [
+        { x: this.pier.x + 8, y: this.pier.y + 8 },
+        { x: player.x + 18, y: player.y - 18 },
+        { x: player.x - 18, y: player.y - 18 },
+        { x: player.x, y: player.y - 24 },
+        { x: player.x + 24, y: player.y }
+      ];
+
+      let landingSpot = checkSpots.find((s) => !this.isWaterAt(s.x, s.y));
+      if (!landingSpot) landingSpot = { x: this.pier.x + 10, y: this.pier.y + 10 };
+
+      player.inBoat = false;
+      player.x = landingSpot.x;
+      player.y = landingSpot.y;
+      this.dockedBoat.x = player.x - 12;
+      this.dockedBoat.y = player.y + 18;
+
+      if (Sound && Sound.playSelectMove) Sound.playSelectMove();
+      if (fx && fx.spawnDamagePopup) {
+        const lang = getLang() === "fil" ? "fil" : "en";
+        const msg = lang === "fil" ? "Bumaba sa Lupa" : "Disembarked";
+        fx.spawnDamagePopup(player.x + 10, player.y - 10, msg, false, "#38bdf8");
+      }
+    } else {
+      // Sumakay sa bangka
+      player.inBoat = true;
+      player.x = this.dockedBoat.x;
+      player.y = this.dockedBoat.y;
+
+      if (Sound && Sound.playHolyBurst) Sound.playHolyBurst();
+      if (fx && fx.spawnDamagePopup) {
+        const lang = getLang() === "fil" ? "fil" : "en";
+        const msg = lang === "fil" ? "⛵ Naglayag sa Karagatan!" : "⛵ Setting Sail!";
+        fx.spawnDamagePopup(player.x + 10, player.y - 10, msg, false, "#00f0ff");
+      }
+    }
+  }
+
+  // Pag-activate sa Monolith pagkatapos mapatay ang MVP Sea Boss
+  activateMonolith(player, fx = null, onOpenDarkContinent = null) {
+    if (this.monolith.activated) return false;
+    const lang = getLang() === "fil" ? "fil" : "en";
+
+    if (!this.mvpDefeated) {
+      if (fx && fx.spawnDamagePopup) {
+        const msg = lang === "fil"
+          ? "🔒 Selyado! Talunin muna ang MVP Leviathan Overlord!"
+          : "🔒 Sealed! Slay the MVP Leviathan Overlord first!";
+        fx.spawnDamagePopup(this.monolith.x, this.monolith.y - 20, msg, false, "#ef4444");
+      }
+      return false;
+    }
+
+    this.monolith.activated = true;
+    this.seaPortal.active = true;
+
+    if (Sound && Sound.playHolyBurst) Sound.playHolyBurst();
+    if (fx) {
+      if (fx.spawnHitSparks) fx.spawnHitSparks(this.monolith.x, this.monolith.y, "#38bdf8", 40);
+      if (fx.addScreenShake) fx.addScreenShake(6);
+      if (fx.spawnDamagePopup) {
+        const msg = lang === "fil"
+          ? "🌌 NABUKSAN ANG LAGUSAN PATUNGO SA DARK CONTINENT!"
+          : "🌌 CELESTIAL PORTAL TO THE DARK CONTINENT OPENED!";
+        fx.spawnDamagePopup(this.monolith.x, this.monolith.y - 25, msg, true, "#ffd166");
+      }
+    }
+
+    if (onOpenDarkContinent) onOpenDarkContinent();
+    return true;
+  }
+
+  update(player, enemyManager, fx, onWarp) {
+    this.tick++;
+
+    // 1. Spawning ng Sea MVP Boss (Leviathan Overlord) kapag malapit sa Monolith
+    if (!this.mvpSpawned && !this.mvpDefeated && enemyManager && player) {
+      const dToMonolith = Math.hypot(player.x - this.monolith.x, player.y - this.monolith.y);
+      if (dToMonolith < 220) {
+        this.mvpSpawned = true;
+        // Mag-spawn ng MVP Sea Boss
+        if (enemyManager.spawnAt) {
+          this.mvpEnemy = enemyManager.spawnAt("leviathan", this.monolith.x + 35, this.monolith.y - 15, "mvp");
+          if (this.mvpEnemy) {
+            this.mvpEnemy.isMVP = true;
+            this.mvpEnemy.customTitle = {
+              en: "✦ MVP LEVIATHAN OVERLORD ✦",
+              fil: "✦ MVP PANGINOON NG KALALIMAN ✦"
+            };
+            if (fx && fx.spawnDamagePopup) {
+              const lang = getLang() === "fil" ? "fil" : "en";
+              const alert = lang === "fil"
+                ? "⚠️ NAGISING ANG MVP LEVIATHAN OVERLORD!"
+                : "⚠️ MVP LEVIATHAN OVERLORD AWAKENED!";
+              fx.spawnDamagePopup(this.mvpEnemy.x + 10, this.mvpEnemy.y - 25, alert, true, "#ef4444");
+            }
+          }
+        }
+      }
+    }
+
+    // 2. Pagsubaybay kung napatay na ang MVP
+    if (this.mvpSpawned && !this.mvpDefeated) {
+      if (this.mvpEnemy && !this.mvpEnemy.isAlive) {
+        this.mvpDefeated = true;
+        const lang = getLang() === "fil" ? "fil" : "en";
+        if (fx && fx.spawnDamagePopup) {
+          const msg = lang === "fil"
+            ? "👑 NATALO ANG MVP! Maaari nang buksan ang Monolith!"
+            : "👑 MVP DEFEATED! The Ancient Monolith can now be activated!";
+          const px = player ? player.x + 10 : this.monolith.x;
+          const py = player ? player.y - 15 : this.monolith.y - 15;
+          fx.spawnDamagePopup(px, py, msg, true, "#4ade80");
+        }
+      }
+    }
+
+    // 3. Bangka wake trail kapag naglalayag
+    if (player && player.inBoat) {
+      if (this.tick % 4 === 0 && (player.state === "run" || player.sprinting)) {
+        this.wakes.push({
+          x: player.x + 10,
+          y: player.y + 22,
+          radius: 3,
+          maxRadius: 10,
+          alpha: 0.75,
+          life: 25
+        });
+      }
+
+      // Sea Portal Collision
+      if (this.seaPortal.active && onWarp) {
+        const dPortal = Math.hypot(player.x + 10 - this.seaPortal.x, player.y + 18 - this.seaPortal.y);
+        if (dPortal < 22 && (!player.portalCooldown || player.portalCooldown <= 0)) {
+          player.portalCooldown = 90;
+          onWarp({ id: "DARK_CONTINENT_PORTAL", dest: "dark_continent", color: "#9d4edd" });
+        }
+      }
+    }
+
+    // Update wakes
+    this.wakes.forEach((w) => {
+      w.radius += 0.28;
+      w.alpha -= 0.03;
+      w.life--;
+    });
+    this.wakes = this.wakes.filter((w) => w.life > 0 && w.alpha > 0);
+  }
+
+  // Pagguhit ng Pier, Bangka, Monolith, at Sea Portal
+  draw(ctx, player) {
+    ctx.save();
+    const t = this.tick;
+    const lang = getLang() === "fil" ? "fil" : "en";
+
+    // 1. WAKES SA TUBIG
+    this.wakes.forEach((w) => {
+      ctx.strokeStyle = `rgba(255, 255, 255, ${Math.max(0, w.alpha)})`;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.ellipse(w.x, w.y, w.radius * 1.6, w.radius * 0.7, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    });
+
+    // 2. PIER / WOODEN DOCK (kung nasa Hub)
+    if (this.stage && this.stage.id === "hub") {
+      const p = this.pier;
+      // Wooden Pilings
+      ctx.fillStyle = "#3e2723";
+      ctx.fillRect(p.x, p.y + p.h - 4, 4, 10);
+      ctx.fillRect(p.x + p.w - 4, p.y + p.h - 4, 4, 10);
+
+      // Wooden Deck
+      ctx.fillStyle = "#795548";
+      ctx.fillRect(p.x, p.y, p.w, p.h);
+      ctx.strokeStyle = "#4e342e";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(p.x, p.y, p.w, p.h);
+
+      // Wood Planks detail
+      ctx.fillStyle = "#5d4037";
+      for (let i = 4; i < p.w; i += 6) {
+        ctx.fillRect(p.x + i, p.y, 1, p.h);
+      }
+
+      // Mooring Post
+      ctx.fillStyle = "#3e2723";
+      ctx.fillRect(p.x + 2, p.y + p.h - 8, 4, 8);
+      ctx.fillStyle = "#d7ccc8";
+      ctx.fillRect(p.x + 1, p.y + p.h - 6, 6, 2); // Mooring rope
+    }
+
+    // 3. DOCKED BOAT (kapag hindi sakay ng player)
+    if (player && !player.inBoat && this.stage && this.stage.id === "hub") {
+      this.drawBoatSprite(ctx, this.dockedBoat.x, this.dockedBoat.y, 0, false);
+      // Prompt kapag malapit sa nakadaong na bangka o pier
+      const dPier = Math.hypot(player.x + 10 - this.pier.x, player.y + 18 - this.pier.y);
+      const dBoat = Math.hypot(player.x - this.dockedBoat.x, player.y - this.dockedBoat.y);
+      if (dPier < 36 || dBoat < 36) {
+        ctx.font = "bold 5px monospace";
+        ctx.textAlign = "center";
+        const prompt = `[E] ${lang === "fil" ? "Sumakay sa Bangka ⛵" : "Board Boat ⛵"}`;
+        const tw = ctx.measureText(prompt).width + 6;
+        ctx.fillStyle = "rgba(3, 6, 17, 0.85)";
+        ctx.fillRect(this.dockedBoat.x + 10 - tw / 2, this.dockedBoat.y - 18, tw, 7);
+        ctx.fillStyle = "#00f0ff";
+        ctx.fillText(prompt, this.dockedBoat.x + 10, this.dockedBoat.y - 13);
+      }
+    }
+
+    // 4. PLAYER IN BOAT
+    if (player && player.inBoat) {
+      const bob = Math.sin(t * 0.08) * 1.5;
+      this.drawBoatSprite(ctx, player.x, player.y + 2 + bob, player.dir === "side" ? (player.facing === "left" ? -1 : 1) : 0, true);
+
+      // Prompt para bumaba sa bangka kapag malapit sa baybayin/pier
+      const dPier = Math.hypot(player.x + 10 - this.pier.x, player.y + 18 - this.pier.y);
+      if (dPier < 45) {
+        ctx.font = "bold 5px monospace";
+        ctx.textAlign = "center";
+        const prompt = `[E] ${lang === "fil" ? "Bumaba sa Lupa" : "Disembark"}`;
+        const tw = ctx.measureText(prompt).width + 6;
+        ctx.fillStyle = "rgba(3, 6, 17, 0.85)";
+        ctx.fillRect(player.x + 10 - tw / 2, player.y - 24, tw, 7);
+        ctx.fillStyle = "#ffd166";
+        ctx.fillText(prompt, player.x + 10, player.y - 19);
+      }
+    }
+
+    // 5. ANCIENT SUNKEN MONOLITH (Southwest Deep Waters)
+    if (this.stage && this.stage.id === "hub") {
+      const m = this.monolith;
+      const pulse = 0.5 + Math.sin(t * 0.06) * 0.5;
+
+      // Island / Reef Foundation
+      ctx.fillStyle = "#2b2d42";
+      ctx.beginPath();
+      ctx.ellipse(m.x, m.y + 8, 20, 10, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#4a4e69";
+      ctx.fillRect(m.x - 14, m.y + 4, 8, 3);
+      ctx.fillRect(m.x + 6, m.y + 6, 8, 3);
+
+      // Ancient Monolith Stone Pillar
+      ctx.fillStyle = m.activated ? "#0f172a" : "#1e293b";
+      ctx.beginPath();
+      ctx.moveTo(m.x - 7, m.y + 6);
+      ctx.lineTo(m.x - 5, m.y - 24);
+      ctx.lineTo(m.x, m.y - 30);
+      ctx.lineTo(m.x + 5, m.y - 24);
+      ctx.lineTo(m.x + 7, m.y + 6);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = m.activated ? "#38bdf8" : "#94a3b8";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Glowing Runes on Pillar
+      ctx.fillStyle = m.activated ? `rgba(0, 240, 255, ${0.6 + pulse * 0.4})` : (this.mvpDefeated ? `rgba(250, 204, 21, ${0.5 + pulse * 0.5})` : "rgba(239, 68, 68, 0.6)");
+      ctx.fillRect(m.x - 1, m.y - 20, 2, 4);
+      ctx.fillRect(m.x - 2, m.y - 12, 4, 2);
+      ctx.fillRect(m.x - 1, m.y - 6, 2, 5);
+
+      // Monolith Label & Prompt
+      if (player) {
+        const dMon = Math.hypot(player.x - m.x, player.y - m.y);
+        if (dMon < 60) {
+          ctx.font = "bold 5px monospace";
+          ctx.textAlign = "center";
+          let promptText = "";
+          let promptColor = "#ffd166";
+
+          if (!this.mvpDefeated) {
+            promptText = lang === "fil" ? "⚔️ Talunin ang MVP Leviathan Overlord!" : "⚔️ Defeat MVP Leviathan Overlord!";
+            promptColor = "#ef4444";
+          } else if (!m.activated) {
+            promptText = `[E] ${lang === "fil" ? "I-activate ang Monolith" : "Activate Monolith"}`;
+            promptColor = "#38bdf8";
+          } else {
+            promptText = lang === "fil" ? "✨ Bukas ang Portal sa Dark Continent" : "✨ Dark Continent Portal Active";
+            promptColor = "#4ade80";
+          }
+
+          const tw = ctx.measureText(promptText).width + 6;
+          ctx.fillStyle = "rgba(3, 6, 17, 0.85)";
+          ctx.fillRect(m.x - tw / 2, m.y - 38, tw, 7);
+          ctx.fillStyle = promptColor;
+          ctx.fillText(promptText, m.x, m.y - 33);
+        }
+      }
+
+      // 6. CELESTIAL SEA PORTAL (KAPAG NAKABUKAS NA)
+      if (this.seaPortal.active) {
+        const sp = this.seaPortal;
+        const spPulse = 0.5 + Math.sin(t * 0.1) * 0.5;
+
+        // Swirling Portal Aura
+        const g = ctx.createRadialGradient(sp.x, sp.y, 2, sp.x, sp.y, 18 + spPulse * 4);
+        g.addColorStop(0, "rgba(255, 255, 255, 0.95)");
+        g.addColorStop(0.3, "rgba(56, 189, 248, 0.75)");
+        g.addColorStop(0.7, "rgba(157, 78, 221, 0.55)");
+        g.addColorStop(1, "rgba(0, 0, 0, 0)");
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(sp.x, sp.y, 20 + spPulse * 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Rings
+        ctx.strokeStyle = `rgba(0, 240, 255, ${0.6 + spPulse * 0.4})`;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.ellipse(sp.x, sp.y, 14, 8 + spPulse * 2, t * 0.05, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.font = "bold 5px monospace";
+        ctx.fillStyle = "#ffd166";
+        ctx.textAlign = "center";
+        ctx.fillText(lang === "fil" ? "DARK CONTINENT" : "DARK CONTINENT", sp.x, sp.y - 16);
+      }
+    }
+
+    ctx.restore();
+  }
+
+  // Pagguhit ng Wood Skiff / Boat Sprite
+  drawBoatSprite(ctx, x, y, facingSign = 0, withSails = false) {
+    ctx.save();
+    const bx = x + 10, by = y + 16;
+
+    // Boat Shadow
+    ctx.fillStyle = "rgba(0, 20, 40, 0.4)";
+    ctx.beginPath();
+    ctx.ellipse(bx, by + 4, 15, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Wooden Hull
+    ctx.fillStyle = "#5c3d2e";
+    ctx.beginPath();
+    ctx.moveTo(bx - 14, by - 2);
+    ctx.quadraticCurveTo(bx, by + 9, bx + 14, by - 2);
+    ctx.lineTo(bx + 11, by - 5);
+    ctx.quadraticCurveTo(bx, by - 3, bx - 11, by - 5);
+    ctx.closePath();
+    ctx.fill();
+
+    // Hull Trim & Gunwale
+    ctx.strokeStyle = "#8d5b4c";
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+
+    // Inner Hull Floor
+    ctx.fillStyle = "#3e2723";
+    ctx.beginPath();
+    ctx.ellipse(bx, by - 3, 10, 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Small Mast & Sail
+    if (withSails) {
+      // Wooden Mast
+      ctx.fillStyle = "#4e342e";
+      ctx.fillRect(bx - 1, by - 16, 2, 13);
+
+      // White Canvas Sail
+      const billow = Math.sin(this.tick * 0.1) * 2;
+      ctx.fillStyle = "rgba(245, 245, 240, 0.9)";
+      ctx.beginPath();
+      ctx.moveTo(bx, by - 15);
+      ctx.quadraticCurveTo(bx + 8 + billow, by - 10, bx, by - 5);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = "#d7ccc8";
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+
+      // Golden Crest on Sail
+      ctx.fillStyle = "#ffd166";
+      ctx.fillRect(bx + 2 + billow * 0.5, by - 11, 2, 2);
+    }
+
+    ctx.restore();
+  }
+}

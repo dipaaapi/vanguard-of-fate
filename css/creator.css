@@ -93,12 +93,18 @@ body[data-mode="create"] #creator {
   background: transparent;
 }
 
-.cr-controls {
+/* ---------- UTILITY BAR (Main Menu · dial · pose · fullscreen) ---------- */
+.cr-util {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 10px;
   margin-top: 12px;
+  padding: 6px 10px;
+  background: rgba(7, 12, 22, 0.85);
+  border: 1px solid #3b4661;
+  box-shadow: 0 0 0 3px rgba(3, 6, 17, 0.8);
 }
-.cr-controls button,
+.cr-util button,
 .cr-actions button,
 .cr-cycle button {
   font: inherit;
@@ -107,9 +113,72 @@ body[data-mode="create"] #creator {
   background: rgba(7, 12, 22, 0.85);
   border: 1px solid #3b4661;
 }
-.cr-controls button { font-size: 13px; padding: 6px 12px; min-width: 40px; }
-.cr-controls button:hover { color: #fff; border-color: var(--gold); }
-#crWalk.on { color: var(--ink); background: var(--gold); border-color: var(--gold); }
+.cr-util button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 64px;
+  padding: 6px 8px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.cr-util button b { font-size: 16px; line-height: 1; font-weight: 400; }
+.cr-util button:hover { color: #fff; border-color: var(--gold); }
+#crPose.on { color: var(--ink); background: var(--gold); border-color: var(--gold); }
+
+/* Dial: i-drag o i-click para iikot ang preview (harap ↓, kanan →, likod ↑, kaliwa ←) */
+.cr-dial-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.cr-dial {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  cursor: grab;
+  touch-action: none;
+  background: radial-gradient(circle at 40% 35%, #22304d, #0b1120 70%);
+  border: 2px solid #3b4661;
+  box-shadow: inset 0 0 8px rgba(56, 189, 248, 0.35);
+}
+.cr-dial:hover, .cr-dial.dragging { border-color: var(--gold); }
+.cr-dial.dragging { cursor: grabbing; }
+.cr-dial-mark {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  background: #64748b;
+}
+.cr-dial-mark.m-down { left: 50%; top: 88%; }
+.cr-dial-mark.m-right { left: 88%; top: 50%; }
+.cr-dial-mark.m-up { left: 50%; top: 12%; }
+.cr-dial-mark.m-left { left: 12%; top: 50%; }
+.cr-dial-needle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 18px;
+  margin-left: -2px;
+  background: var(--gold);
+  box-shadow: 0 0 6px rgba(255, 209, 102, 0.8);
+  transform-origin: 50% 0;
+  transform: rotate(var(--a, 0deg));
+  transition: transform 0.15s ease-out;
+}
+.cr-dial-needle::after {
+  content: "";
+  position: absolute;
+  left: -3px;
+  top: -5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #0b1120;
+  border: 2px solid var(--gold);
+}
+.cr-dial-label { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 
 .cr-trio {
   display: flex;

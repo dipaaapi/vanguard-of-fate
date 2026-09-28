@@ -20,6 +20,7 @@ const NOVICE_BASE = {
   speed: 1.4,
   attackCooldown: 18,
   cooldown: 150,
+  range: 60,           // punyal: malapitan
   sprites: Object.fromEntries(Object.entries(FRAME_COUNTS).map(([k, n]) => [k, new Array(n).fill(null)])),
 
   // KEY J: Dagger Jab
@@ -45,10 +46,20 @@ const NOVICE_BASE = {
     const vx = d === "side" ? (player.facing === "right" ? 1 : -1) : 0;
     const vy = d === "down" ? 1 : d === "up" ? -1 : 0;
     player.rollTimer = 14;
+    player.rollDuration = 14;    // para sa animation (js/player.js drawRolling)
+    player.rollGhosts = [];
     player.rollVx = vx * 4.2;
     player.rollVy = vy * 4.2;
     player.invulnTimer = 18;
     if (Sound.playDash) Sound.playDash();
+    return true;
+  },
+
+  // KEY L: Throw Stone (klasikong skill ng Novice sa Ragnarok) — batong may elementong lupa
+  cooldown2: 60,
+  onSkill2(player, target, spawnProjectile) {
+    const a = player.aimAngle;
+    spawnProjectile({ type: "bolt", x: player.x + 10, y: player.y + 10, vx: Math.cos(a) * 4.5, vy: Math.sin(a) * 4.5, damage: 9, elem: "earth", color: "#a16207", size: 2, range: 160 });
     return true;
   },
 

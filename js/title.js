@@ -1,6 +1,6 @@
 import { Sound } from "./audio.js";
 import { t, getLang, toggleLang, onLangChange } from "./i18n.js";
-import { loadLore, parseChapters } from "./lore.js";
+import { loadLore, parseChapters, actNumber, bannerSrc, BANNER_EXTS } from "./lore.js";
 
 // Title screen (buong window). HTML/CSS ang logo, menu at Chronicles;
 // ang canvas (#titleFx) ay para lang sa baga at liwanag ng espada.
@@ -45,7 +45,12 @@ export class TitleScene {
     this.tick = 0;
 
     this.bindDom();
-    onLangChange(() => this.render());
+    onLangChange(async (lang) => {
+      if (this.step === "chronicles") {
+        this.chapters = parseChapters(await loadLore(lang));
+      }
+      this.render();
+    });
     this.render();
   }
 
@@ -101,7 +106,8 @@ export class TitleScene {
     items.push(
       { id: "new",        label: t("newGame") },
       { id: "chronicles", label: t("chronicles") },
-      { id: "options",    label: t("options") }
+      { id: "options",    label: t("options") },
+      { id: "credits",    label: t("credits") }
     );
     return items;
   }
@@ -123,6 +129,8 @@ export class TitleScene {
 
     const close = this.root.querySelector("#chronClose");
     close.addEventListener("click", () => this.closeChronicles());
+    const credClose = this.root.querySelector("#credClose");
+    if (credClose) credClose.addEventListener("click", () => this.closeCredits());
   }
 
   render() {
@@ -135,11 +143,12 @@ export class TitleScene {
       el.classList.toggle("on", el.dataset.lang === getLang());
     });
 
-    const hintKey = { press: "", menu: "titleHint", options: "optionsHint", chronicles: "chroniclesHint" }[this.step];
+    const hintKey = { press: "", menu: "titleHint", options: "optionsHint", chronicles: "chroniclesHint", credits: "creditsHint" }[this.step];
     this.hintEl.innerHTML = hintKey ? t(hintKey) : "";
 
     if (this.step === "menu" || this.step === "options") this.renderMenu();
     if (this.step === "chronicles") this.renderChronicles();
+    if (this.step === "credits") this.renderCredits();
   }
 
   renderMenu() {
@@ -281,6 +290,8 @@ export class TitleScene {
       this.openChronicles();
     } else if (item.id === "options") {
       this.goTo("options", "music");
+    } else if (item.id === "credits") {
+      this.goTo("credits");
     }
   }
 
@@ -293,21 +304,93 @@ export class TitleScene {
     }
     const key = item.toggle;
     this.config[key] = !this.config[key];
+    try {
+      localStorage.setItem("vanguard_config", JSON.stringify(this.config));
+    } catch (_) {}
+
     if (key === "music") {
+      Sound.musicEnabled = Boolean(this.config.music);
       if (this.config.music) Sound.startTitleBGM();
       else Sound.stopTitleBGM();
+    } else if (key === "sfx") {
+      Sound.sfxEnabled = Boolean(this.config.sfx);
     }
     this.renderMenu();
+  }
+
+  // ---------- CREDITS ----------
+  // Ang gumawa ng laro, ang kuwento, ang teknolohiya at ang mga inspirasyon
+  closeCredits() {
+    if (Sound.playSelectMove) Sound.playSelectMove();
+    this.goTo("menu", "credits");
+  }
+
+  renderCredits() {
+    this.root.querySelector("#credTitle").textContent = t("credits");
+    const body = this.root.querySelector("#credBody");
+    if (!body) return;
+    body.innerHTML = "";
+    const add = (tag, cls, text) => {
+      const n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (text !== undefined) n.textContent = text;
+      body.appendChild(n);
+      return n;
+    };
+    add("div", "cr-game", "Vanguard of Fate");
+    add("p", "cr-tag", t("subtitle"));
+
+    add("h4", "", t("credCreator"));
+    add("p", "cr-name", "EdMaster28");
+    add("p", "cr-role", t("credCreatorRole"));
+
+    add("h4", "", t("credStory"));
+    add("p", "cr-name", "EdMaster28");
+    add("p", "cr-role", t("credStoryRole"));
+
+    add("h4", "", t("credCode"));
+    add("p", "cr-name", "EdMaster28 × Claude (Anthropic)");
+    add("p", "cr-role", t("credCodeRole"));
+
+    add("h4", "", t("credTech"));
+    const tech = add("ul");
+    [
+      ["HTML5 Canvas 2D", t("credTechCanvas")],
+      ["JavaScript ES Modules", t("credTechJs")],
+      ["CSS3", t("credTechCss")],
+      ["Web Audio API", t("credTechAudio")],
+      ["localStorage + JSON", t("credTechSave")],
+      ["Google Fonts", "Cinzel · Silkscreen"],
+      [t("credTechPixel"), t("credTechPixelSub")],
+      ["Claude Code", t("credTechClaude")]
+    ].forEach(([name, sub]) => {
+      const li = document.createElement("li");
+      const b = document.createElement("b");
+      b.textContent = name;
+      li.append(b, ` · ${sub}`);
+      tech.appendChild(li);
+    });
+
+    add("h4", "", t("credInspired"));
+    const ins = add("ul");
+    ["Ragnarok Online", "Diablo II", t("credIsekai")].forEach((name) => {
+      const li = document.createElement("li");
+      li.textContent = name;
+      ins.appendChild(li);
+    });
+
+    add("h4", "", t("credLang"));
+    add("p", "cr-role", "English · Filipino");
+
+    add("p", "cr-thanks", t("credThanks"));
   }
 
   // ---------- CHRONICLES ----------
   async openChronicles() {
     this.step = "chronicles";
     this.render();
-    if (!this.chapters) {
-      this.chapters = parseChapters(await loadLore());
-      if (this.step === "chronicles") this.renderChronicles();
-    }
+    this.chapters = parseChapters(await loadLore(getLang()));
+    if (this.step === "chronicles") this.renderChronicles();
   }
 
   closeChronicles() {
@@ -345,6 +428,23 @@ export class TitleScene {
     const ch = this.chapters[this.chapter];
     this.chronBody.innerHTML = "";
     if (!ch) return;
+    // Larawan ng Act (assets/banner/act-N.*); sinusubukan ang ibang extension, itinatago kapag wala
+    const act = actNumber(ch.tab);
+    if (act) {
+      const fig = document.createElement("figure");
+      fig.className = "c-banner";
+      const img = document.createElement("img");
+      img.alt = ch.title;
+      let ext = 0;
+      img.addEventListener("error", () => {
+        ext++;
+        if (ext < BANNER_EXTS.length) img.src = bannerSrc(act, ext);
+        else fig.remove();
+      });
+      img.src = bannerSrc(act, 0);
+      fig.appendChild(img);
+      this.chronBody.appendChild(fig);
+    }
     const h = document.createElement("h3");
     h.textContent = ch.title;
     this.chronBody.appendChild(h);
@@ -375,6 +475,14 @@ export class TitleScene {
 
     if (this.step === "press") {
       if (!e.repeat && !/^(Shift|Control|Alt|Meta|F\d+)/.test(c)) this.advance();
+      return;
+    }
+
+    if (this.step === "credits") {
+      const bodyEl = this.root.querySelector("#credBody");
+      if (up && bodyEl) bodyEl.scrollBy({ top: -80, behavior: "smooth" });
+      else if (down && bodyEl) bodyEl.scrollBy({ top: 80, behavior: "smooth" });
+      else if (back || ok) this.closeCredits();
       return;
     }
 

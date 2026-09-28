@@ -5,9 +5,14 @@ import { CastleSystem } from "./world/castle.js";
 import { PortalSystem } from "./world/portal.js";
 import { WeatherSystem } from "./world/weather.js";
 import { TileMap } from "./world/tilemap.js";
+import { BoatSystem } from "./world/boat.js";
 
+// Ang kaparangan ng Aethelgard (Acts I–VI): Barracks, Citadel, baybayin at ang 4 na Warp Gateway.
+// Ang mga platform ng Acts VII–XII ay nasa js/world/platform.js (parehong interface).
 export class Stage {
   constructor(width = 1280, height = 960) {
+    this.id = "hub";
+    this.theme = "aethelgard";
     this.width = width;
     this.height = height;
 
@@ -25,6 +30,7 @@ export class Stage {
     this.castle = new CastleSystem(this.width, this.height);
     this.portals = new PortalSystem(this.width, this.height);
     this.weather = new WeatherSystem(this.width, this.height);
+    this.boatSystem = new BoatSystem(this);
 
     // Shortcut para sa gameplay safe zone checks
     this.safeZone = this.barracks.bounds;
@@ -44,6 +50,10 @@ export class Stage {
 
   // Hindi madaanan na tiles (puno, bato)
   resolveTileCollision(entity) {
+    if (entity && entity.inBoat) {
+      // Habang nasa bangka: libreng makapaglayag sa tubig/ocean, huwag i-block ng liquid mask
+      return;
+    }
     if (this.tilemap) this.tilemap.resolveCollision(entity);
   }
 
@@ -61,7 +71,14 @@ export class Stage {
     return Boolean(this.safeZoneAt(px, py));
   }
 
-  update(player, onWarp) {
+  // Kung saan lalabas ang player pagbalik mula sa isang platform
+  arrivalFrom(platformId) {
+    if (platformId === "siege") return { x: this.castle.gatePortal.x - 10, y: this.castle.gatePortal.y + 40 };
+    const gate = this.portals.portals.find((p) => p.dest === platformId);
+    return gate ? this.portals.exitPoint(gate.id) : { x: this.safeZone.x + this.safeZone.w / 2 - 10, y: this.safeZone.y + this.safeZone.h - 30 };
+  }
+
+  update(player, onWarp, enemyManager = null, fx = null) {
     // 1. Environment Updates
     this.grassland.update();
     this.barracks.update();
@@ -69,24 +86,23 @@ export class Stage {
     this.castle.update();
     this.portals.update(player, onWarp);
     this.weather.update();
+    if (this.boatSystem) this.boatSystem.update(player, enemyManager, fx, onWarp);
 
     // 2. Solid Castle Physics
     if (player && this.castle) {
       this.castle.resolveCollision(player);
 
-      // Gate Portal Warp Check
+      // Gate ng Citadel: sa main.js ang pasya (Barracks, o ang kinubkob na Citadel sa Act XI)
       const gp = this.castle.gatePortal;
       const d = Math.hypot(player.x + 10 - gp.x, player.y + 18 - gp.y);
       if (d < 18 && (!player.portalCooldown || player.portalCooldown <= 0)) {
-        player.x = this.safeZone.x + this.safeZone.w / 2 - 10;
-        player.y = this.safeZone.y + this.safeZone.h - 30;
         player.portalCooldown = 75;
-        if (onWarp) onWarp({ id: "CITADEL_GATE", color: "#38bdf8" });
+        if (onWarp) onWarp({ id: "CITADEL_GATE", dest: "siege", color: "#38bdf8" });
       }
     }
   }
 
-  draw(ctx) {
+  draw(ctx, player = null) {
     // 1. Base Natural Ground (tile-based)
     this.tilemap.drawGround(ctx);
 
@@ -97,10 +113,13 @@ export class Stage {
     // 3. Central Sanctuary Platform
     this.barracks.draw(ctx);
 
-    // 4. 4-Way Warp Portals
+    // 4. Boat Pier, Moored Vessel, Monolith & Sea Portal
+    if (this.boatSystem) this.boatSystem.draw(ctx, player);
+
+    // 5. 4-Way Warp Portals
     this.portals.draw(ctx);
 
-    // 5. Sky Layers, Weather Shifts, & Mist Borders
+    // 6. Sky Layers, Weather Shifts, & Mist Borders
     this.weather.drawSkyClouds(ctx);
     this.weather.drawWeatherOverlay(ctx);
     this.weather.drawCloudBorders(ctx);

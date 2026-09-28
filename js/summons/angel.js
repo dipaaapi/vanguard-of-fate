@@ -1,4 +1,13 @@
 import { Sound } from "../audio.js";
+import { Avatar } from "../avatar/avatar.js";
+import { facingFrom } from "../avatar/creature.js";
+
+// Anghel: modular Avatar na may pakpak, halo, puting gown at espada
+const ANGEL = new Avatar({
+  body: "female", skin: "#ffe8d6", eyes: "#2f6db5", hairStyle: "long", hairColor: "#ece0b8",
+  outfit: "gown", outfitColor: "#ffffff", legColor: "#ffffff", gloves: "none", legs: "pants",
+  boots: "sandals", bootColor: "#e0b44c", headgear: "halo", wings: "#ffffff", weapon: "sword"
+});
 
 export class GuardianAngelCompanion {
   constructor(x, y, maxHp) {
@@ -18,9 +27,27 @@ export class GuardianAngelCompanion {
     this.attackCooldown = 0;
     this.animTimer = 0;
     this.isAlive = true;
+
+    // Direksyon/animation (batay sa aktwal na galaw o sa kalabang tinataga)
+    this.dir = "down";
+    this.flip = false;
+    this.moving = false;
+    this.aimX = 0;
+    this.aimY = 0;
   }
 
   update(player, enemyManager, fx, lootManager, idx, isInBarracks) {
+    const ox = this.x, oy = this.y;
+    this.step(player, enemyManager, fx, lootManager, idx, isInBarracks);
+    const dx = this.x - ox, dy = this.y - oy;
+    this.moving = Math.hypot(dx, dy) > 0.3;
+    const f = this.state === "ATTACKING" ? facingFrom(this.aimX, this.aimY, this)
+      : this.moving ? facingFrom(dx, dy, this) : this;
+    this.dir = f.dir;
+    this.flip = f.flip;
+  }
+
+  step(player, enemyManager, fx, lootManager, idx, isInBarracks) {
     this.animTimer++;
     this.stateTimer++;
     this.lifespan--;
@@ -64,9 +91,11 @@ export class GuardianAngelCompanion {
         this.state = "ATTACKING";
         this.stateTimer = 0;
         this.attackCooldown = 52;
+        this.aimX = tdx;
+        this.aimY = tdy;
 
-        if (Sound && Sound.playSlash) Sound.playSlash();
-        enemyManager.damage(enemyTarget, this.damage, Math.atan2(tdy, tdx), false, fx, lootManager, 12, false, player);
+        if (Sound && Sound.playSlash) Sound.playSlash(this.x, this.y);
+        enemyManager.damage(enemyTarget, this.damage, Math.atan2(tdy, tdx), false, fx, lootManager, 12, false, player, "holy");
         if (fx && fx.spawnHitSparks) fx.spawnHitSparks(enemyTarget.x + 10, enemyTarget.y + 10, "#ffd166", 14);
       }
     } else {
@@ -90,7 +119,6 @@ export class GuardianAngelCompanion {
     }
   }
 
-  // 64x64 HIGH-FIDELITY RENDERER
   draw(ctx) {
     ctx.save();
     const ax = Math.floor(this.x);
@@ -102,87 +130,28 @@ export class GuardianAngelCompanion {
     ctx.ellipse(ax + 16, ay + 36, 16, 5, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    const wingFlap = Math.floor(this.animTimer / 5) % 2 === 0;
+    // Lumulutang: ang paa ay nasa itaas ng anino, bahagyang umaalon
+    const hover = Math.round(Math.sin(this.animTimer / 12) * 1.5);
+    let anim = "idle", frame = Math.floor(this.animTimer / 10);   // idle: mabagal na pagaspas
+    if (this.state === "ATTACKING") { anim = "attack"; frame = this.stateTimer < 6 ? 0 : 1; }
+    else if (this.state === "TAUNTING") { anim = "attack"; frame = 0; }          // nakataas ang espada
+    else if (this.moving) { anim = "walk"; frame = Math.floor(this.animTimer / 5); }
+    ANGEL.draw(ctx, ax + 16, ay + 29 + hover, this.dir, anim, frame, this.flip);
 
-    // 1. Golden Glowing Halo with Radial Aura
-    ctx.strokeStyle = "#ffd166";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.ellipse(ax + 16, ay + 2, 9, 3.5, 0, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // 2. 64x64 FLAPPING FEATHERED WINGS
-    ctx.fillStyle = "#ffffff";
-    if (this.state === "TAUNTING") {
-      // High Arch Wings (Taunt Stance)
-      ctx.fillRect(ax - 6, ay - 6, 8, 22);
-      ctx.fillRect(ax + 26, ay - 6, 8, 22);
-      ctx.fillStyle = "#cbd5e1";
-      ctx.fillRect(ax - 9, ay - 3, 5, 14);
-      ctx.fillRect(ax + 32, ay - 3, 5, 14);
-    } else if (wingFlap) {
-      // Wings High
-      ctx.fillRect(ax - 4, ay - 1, 7, 20);
-      ctx.fillRect(ax + 25, ay - 1, 7, 20);
-      ctx.fillStyle = "#cbd5e1";
-      ctx.fillRect(ax - 7, ay + 3, 5, 13);
-      ctx.fillRect(ax + 30, ay + 3, 5, 13);
-    } else {
-      // Wings Low
-      ctx.fillRect(ax - 7, ay + 8, 9, 11);
-      ctx.fillRect(ax + 26, ay + 8, 9, 11);
-      ctx.fillStyle = "#cbd5e1";
-      ctx.fillRect(ax - 10, ay + 11, 5, 9);
-      ctx.fillRect(ax + 33, ay + 11, 5, 9);
-    }
-
-    // 3. Head & Robes (Seraph Vestments)
-    ctx.fillStyle = "#ffe8d6"; // Face
-    ctx.fillRect(ax + 13, ay + 6, 7, 7);
-
-    ctx.fillStyle = "#ffffff"; // Silk Gown
-    ctx.fillRect(ax + 10, ay + 13, 13, 19);
-    ctx.fillStyle = "#d9e2ec"; // Shadow folds
-    ctx.fillRect(ax + 11, ay + 26, 11, 6);
-
-    ctx.fillStyle = "#ffd166"; // Gold Scapular Trim
-    ctx.fillRect(ax + 14, ay + 13, 5, 18);
-
-    // 4. DIVINE SWORD (ATTACK, TAUNT, o IDLE)
-    if (this.state === "ATTACKING") {
-      // Slash Swing Pose
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(ax + 22, ay + 16, 20, 4);
-      ctx.fillStyle = "#ffd166";
-      ctx.fillRect(ax + 22, ay + 13, 3, 10);
-    } else if (this.state === "TAUNTING") {
-      // Upright Raised Holy Sword
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(ax + 21, ay - 10, 4, 22);
-      ctx.fillStyle = "#ffd166";
-      ctx.fillRect(ax + 18, ay + 4, 10, 3);
-    } else {
-      // Standard Sheathed / Held Stance
-      ctx.fillStyle = "#b5c4d4";
-      ctx.fillRect(ax + 23, ay + 10, 3, 22);
-      ctx.fillStyle = "#ffd166";
-      ctx.fillRect(ax + 20, ay + 20, 9, 3);
-    }
-
-    // 5. HP at LIFESPAN BARS
+    // HP at LIFESPAN BARS (sa itaas ng halo)
     const barW = 24;
     const hpRatio = Math.max(0, Math.min(1, this.hp / this.maxHp));
     const lifeRatio = Math.max(0, Math.min(1, this.lifespan / this.maxLifespan));
 
     ctx.fillStyle = "#111111";
-    ctx.fillRect(ax + 4, ay - 9, barW, 3.5);
+    ctx.fillRect(ax + 4, ay - 14, barW, 3.5);
     ctx.fillStyle = "#ffd166";
-    ctx.fillRect(ax + 4, ay - 9, Math.round(hpRatio * barW), 3.5);
+    ctx.fillRect(ax + 4, ay - 14, Math.round(hpRatio * barW), 3.5);
 
     ctx.fillStyle = "#111111";
-    ctx.fillRect(ax + 4, ay - 4.5, barW, 2);
+    ctx.fillRect(ax + 4, ay - 9.5, barW, 2);
     ctx.fillStyle = "#00f0ff";
-    ctx.fillRect(ax + 4, ay - 4.5, Math.round(lifeRatio * barW), 2);
+    ctx.fillRect(ax + 4, ay - 9.5, Math.round(lifeRatio * barW), 2);
 
     ctx.restore();
   }

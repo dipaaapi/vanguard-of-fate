@@ -10,6 +10,14 @@ import { FIELDS, DEFAULT_CONFIG, randomConfig } from "./avatar/options.js";
 
 const PREVIEW_SCALE = 3;  // internal na resolution ng malaking preview (pinapalaki pa ng CSS)
 
+// Pose ng preview (V / button): tayo → lakad → takbo
+const POSES = [
+  { anim: "idle", ticks: 32, icon: "◉", key: "crIdle" },
+  { anim: "walk", ticks: 9, icon: "🚶", key: "crWalk" },
+  { anim: "run", ticks: 5, icon: "🏃", key: "crRun" }
+];
+const DIR_LABELS = ["crFront", "crRight", "crBackView", "crLeft"];
+
 export class CreatorScene {
   constructor(rootEl, onBegin, onBack) {
     this.root = rootEl;
@@ -31,8 +39,9 @@ export class CreatorScene {
     this.config = { ...DEFAULT_CONFIG };
     this.avatar = new Avatar(this.config);
     this.row = 0;
-    this.dir = 0;          // index sa DIRS
-    this.walking = true;
+    this.dir = 0;          // 0 harap, 1 kanan, 2 likod, 3 kaliwa
+    this.dialDeg = 0;      // naiipong anggulo ng karayom ng dial (para laging maikling ikot)
+    this.pose = 1;         // index sa POSES (lakad bilang default)
     this.tick = 0;
 
     this.bindDom();
@@ -45,6 +54,7 @@ export class CreatorScene {
     this.nameEl.value = "";
     this.row = 0;
     this.dir = 0;
+    this.dialDeg = 0;
     this.rebuild();
   }
 
@@ -60,10 +70,12 @@ export class CreatorScene {
       el.addEventListener("mousedown", (e) => e.preventDefault());
       el.addEventListener("click", () => { Sound.init(); fn(); });
     };
-    btn("#crRotL", () => this.rotate(-1));
-    btn("#crRotR", () => this.rotate(1));
-    btn("#crWalk", () => { this.walking = !this.walking; this.render(); });
+    btn("#crHome", () => this.back());
+    btn("#crPose", () => this.cyclePose());
+    btn("#crFull", () => this.toggleFullscreen());
     btn("#crRandom", () => this.randomize());
+    document.addEventListener("fullscreenchange", () => this.renderUtil());
+    this.bindDial();
     btn("#crBack", () => this.back());
     btn("#crBegin", () => this.begin());
 
@@ -78,7 +90,7 @@ export class CreatorScene {
     this.root.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = t(el.dataset.i18n); });
     this.nameEl.placeholder = t("crNamePh");
     this.hintEl.innerHTML = t("crHint");
-    this.root.querySelector("#crWalk").classList.toggle("on", this.walking);
+    this.renderUtil();
     this.summonerEl.textContent = t("summonedBy", this.config.body === "female" ? t("prince") : t("princess"));
     this.renderRows();
     this.drawTrio();
@@ -168,8 +180,72 @@ export class CreatorScene {
   }
 
   rotate(d) {
-    this.dir = (this.dir + d + 4) % 4;   // down → side(kanan) → up → side(kaliwa)
+    this.setDir(this.dir + d);   // down → side(kanan) → up → side(kaliwa)
+  }
+
+  setDir(i) {
+    const next = ((i % 4) + 4) % 4;
+    if (next === this.dir) return;
+    // Pinakamaikling ikot ng karayom: -1, +1 o 2 hakbang
+    let step = next - this.dir;
+    if (step > 2) step -= 4;
+    if (step < -1) step += 4;
+    this.dir = next;
+    this.dialDeg -= step * 90;
     if (Sound.playSelectMove) Sound.playSelectMove();
+    this.renderUtil();
+  }
+
+  cyclePose() {
+    this.pose = (this.pose + 1) % POSES.length;
+    this.tick = 0;
+    if (Sound.playSelectMove) Sound.playSelectMove();
+    this.renderUtil();
+  }
+
+  toggleFullscreen() {
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    else document.documentElement.requestFullscreen().catch(() => {});
+  }
+
+  // Dial: i-click o i-drag; ang anggulo mula sa gitna ang pumipili ng direksyon
+  // (ibaba = harap, kanan = kanan, itaas = likod, kaliwa = kaliwa). Scroll = iikot din.
+  bindDial() {
+    const dial = this.root.querySelector("#crDial");
+    const pick = (e) => {
+      const r = dial.getBoundingClientRect();
+      const a = Math.atan2(e.clientY - (r.top + r.height / 2), e.clientX - (r.left + r.width / 2)) * 180 / Math.PI;
+      this.setDir(Math.round((90 - a) / 90));
+    };
+    dial.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      Sound.init();
+      dial.setPointerCapture(e.pointerId);
+      dial.classList.add("dragging");
+      pick(e);
+    });
+    dial.addEventListener("pointermove", (e) => { if (dial.classList.contains("dragging")) pick(e); });
+    ["pointerup", "pointercancel"].forEach((ev) => dial.addEventListener(ev, () => dial.classList.remove("dragging")));
+    dial.addEventListener("wheel", (e) => { e.preventDefault(); this.rotate(e.deltaY > 0 ? 1 : -1); }, { passive: false });
+  }
+
+  renderUtil() {
+    const $ = (id) => this.root.querySelector(id);
+    const pose = POSES[this.pose];
+    $("#crPoseIcon").textContent = pose.icon;
+    $("#crPoseLabel").textContent = t(pose.key);
+    $("#crPose").classList.toggle("on", pose.anim !== "idle");
+    const full = Boolean(document.fullscreenElement);
+    $("#crFullIcon").textContent = full ? "🗗" : "⛶";
+    $("#crFullLabel").textContent = full ? t("crRestore") : t("crFull");
+    $("#crDialNeedle").style.setProperty("--a", `${this.dialDeg}deg`);
+    const dialLabel = t(DIR_LABELS[this.dir]);
+    $("#crDialLabel").textContent = dialLabel;
+    const dialEl = $("#crDial");
+    if (dialEl) {
+      dialEl.setAttribute("aria-valuenow", String(this.dir));
+      dialEl.setAttribute("aria-valuetext", dialLabel);
+    }
   }
 
   randomize() {
@@ -198,6 +274,8 @@ export class CreatorScene {
     else if (c === "ArrowRight" || c === "KeyD") this.change(1);
     else if (c === "KeyQ") this.rotate(-1);
     else if (c === "KeyE") this.rotate(1);
+    else if (c === "KeyV" && !e.repeat) this.cyclePose();
+    else if (c === "KeyF" && !e.repeat) this.toggleFullscreen();
     else if (c === "KeyR" && !e.repeat) this.randomize();
     else if (c === "Enter" && !e.repeat) this.begin();
     else if (c === "Escape") this.back();
@@ -221,8 +299,9 @@ export class CreatorScene {
   draw() {
     this.tick++;
     const [dir, flip] = this.view();
-    const anim = this.walking ? "walk" : "idle";
-    const frame = this.walking ? Math.floor(this.tick / 9) : Math.floor(this.tick / 32);
+    const pose = POSES[this.pose];
+    const anim = pose.anim;
+    const frame = Math.floor(this.tick / pose.ticks);
 
     const ctx = this.pctx;
     ctx.imageSmoothingEnabled = false;

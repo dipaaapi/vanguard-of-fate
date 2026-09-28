@@ -1,91 +1,50 @@
 import { Sound } from "./audio.js";
-
-const _ = 0;
+import { facingFrom } from "./avatar/creature.js";
+import { MONSTERS, BOSSES, BLIGHTS, NIGHT_KINDS } from "./bestiary.js";
+import { TIERS, MODS, rollTier, applyTier, tierName, has, modName, damageTakenMult, damageDealtMult, windupFor, modBlight } from "./monsterTiers.js";
+import { ELEMENTS, elementMult, raceBonus, sizeMod, rollVariant, variantPrefix, elementName, raceName, sizeName, CHAMPION } from "./elements.js";
+import { getLang } from "./i18n.js";
+import { STATUS, statusName } from "./status.js";
 
 // ========================================================
-// 64-BIT HIGH-FIDELITY ENEMY SPRITES (DETAILED MATRICES)
+// MGA KALABAN
 // ========================================================
+// Ang (e.x, e.y) ay kaliwang-itaas ng lumang 20px na kahon; ang paa ay nasa (e.x + 10, e.y + 17).
+//
+// LEVEL: bawat halimaw ay level ng player ± 5. Ang kulay ng pangalan ay nagsasabi kung gaano
+// kalakas at kung agresibo:
+//   abo    (≤ −3)  mahina, hindi umaatake hangga't hindi ginagalaw
+//   berde  (−2..−1) mas mahina, hindi umaatake hangga't hindi ginagalaw
+//   dilaw  (0..+1)  kapantay — AGRESIBO
+//   kahel  (+2..+3) mas malakas — AGRESIBO
+//   pula   (≥ +4)   mapanganib — AGRESIBO
+//   lila   BOSS
+// Ang hindi agresibo ay gumagala; ang agresibo ay humahabol kapag lumapit ka.
 
-// 1. ANCIENT SLIME (May inner glowing core at translucent jelly shading)
-const slimeFrames = [
-  [
-    [_,_,_,_,_,_,_,1,1,1,1,1,_,_,_,_,_,_],
-    [_,_,_,_,_,1,1,"#9ef01a","#9ef01a","#9ef01a","#9ef01a",1,1,_,_,_,_,_],
-    [_,_,_,1,1,"#70e000","#70e000","#ccff33","#ccff33","#70e000","#70e000",1,1,_,_,_],
-    [_,_,1,"#70e000","#70e000","#ffffff","#70e000","#70e000","#ffffff","#70e000","#70e000",1,_,_],
-    [_,_,1,"#70e000","#38b000",1,"#70e000","#70e000",1,"#38b000","#70e000",1,_,_],
-    [_,1,"#70e000","#38b000","#38b000","#007200","#007200","#38b000","#38b000","#70e000","#70e000",1,_],
-    [_,1,"#38b000","#38b000","#007200","#004b23","#004b23","#007200","#38b000","#38b000","#38b000",1,_],
-    [1,"#38b000","#38b000","#38b000","#007200","#007200","#38b000","#38b000","#38b000","#004b23",1,_],
-    [1,"#004b23","#004b23","#004b23","#004b23","#004b23","#004b23","#004b23","#004b23","#004b23",1,_],
-    [_,1,1,1,1,1,1,1,1,1,1,1,_,_,_,_]
-  ],
-  [
-    [_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_],
-    [_,_,_,_,_,1,1,1,1,1,1,_,_,_,_,_,_],
-    [_,_,_,1,1,"#9ef01a","#9ef01a","#9ef01a","#9ef01a","#9ef01a",1,1,_,_,_,_],
-    [_,_,1,"#70e000","#ccff33","#ffffff","#70e000","#ffffff","#ccff33","#70e000",1,_,_,_],
-    [_,1,"#70e000","#70e000",1,"#70e000","#70e000",1,"#70e000","#70e000",1,_,_],
-    [1,"#70e000","#38b000","#38b000","#007200","#007200","#38b000","#38b000","#70e000",1,_,_],
-    [1,"#38b000","#38b000","#007200","#004b23","#004b23","#007200","#38b000","#38b000",1,_,_],
-    [1,"#004b23","#004b23","#004b23","#004b23","#004b23","#004b23","#004b23","#004b23",1,_,_],
-    [_,1,1,1,1,1,1,1,1,1,1,_,_,_,_,_]
-  ]
+const HUB_KINDS = [
+  "slime", "wolf", "skeleton", "goblinScout", "forestBear",
+  "windFalcon", "bloodBat", "skyGargoyle",
+  "riverCrab", "riverNaga", "marshLurker"
 ];
+const WALK_TICKS = 10;
+const IDLE_TICKS = 30;
+const WINDUP_SHOW = 14;   // mula rito ipinapakita ang paghahanda ng atake
+const MAX_ADDS = 4;
+const REGEN_DELAY = 300;     // 5 segundo na walang tama bago bumalik ang HP
+const BOSS_ATTACK_RANGE = 260;
+const ORB_RANGE = 220;
 
-// 2. SHADOW DIRE WOLF (May muscular frame, crimson eyes, at pangil)
-const wolfFrames = [
-  [
-    [_,_,_,_,_,1,1,_,_,_,_,_,_,_,_,_,_,_,_],
-    [_,_,_,1,1,"#495057",1,_,_,_,_,_,_,_,_,_,_,_,_],
-    [_,_,1,"#adb5bd","#6c757d",1,_,_,_,_,_,_,_,_,_,_,_,_],
-    [_,1,"#6c757d","#ced4da","#adb5bd",1,1,1,1,1,1,_,_,_,_,_,_,_],
-    [1,"#ff0055","#adb5bd","#6c757d","#495057","#343a40","#495057","#495057","#343a40",1,_,_,_,_,_,_],
-    [1,"#ffffff","#495057","#343a40","#343a40","#212529","#212529","#343a40","#495057","#495057",1,_,_,_,_],
-    [_,1,1,"#343a40","#212529","#212529","#212529","#212529","#212529","#343a40","#495057",1,_,_,_],
-    [_,_,1,"#212529","#212529","#212529","#212529","#212529","#212529","#212529","#343a40","#212529",1,_],
-    [_,_,1,"#343a40",1,"#212529",1,_,_,1,"#343a40",1,"#212529",1,_],
-    [_,_,1,1,_,1,1,_,_,1,1,_,1,1,_,_]
-  ],
-  [
-    [_,_,_,_,_,1,1,_,_,_,_,_,_,_,_,_,_,_,_],
-    [_,_,_,1,1,"#495057",1,_,_,_,_,_,_,_,_,_,_,_,_],
-    [_,_,1,"#adb5bd","#6c757d",1,_,_,_,_,_,_,_,_,_,_,_,_],
-    [_,1,"#6c757d","#ced4da","#adb5bd",1,1,1,1,1,1,_,_,_,_,_,_,_],
-    [1,"#ff0055","#adb5bd","#6c757d","#495057","#343a40","#495057","#495057","#343a40",1,_,_,_,_,_,_],
-    [1,"#ffffff","#495057","#343a40","#343a40","#212529","#212529","#343a40","#495057","#495057",1,_,_,_,_],
-    [_,1,1,"#343a40","#212529","#212529","#212529","#212529","#212529","#343a40","#495057",1,_,_,_],
-    [_,_,1,"#212529","#212529","#212529","#212529","#212529","#212529","#212529","#343a40","#212529",1,_],
-    [_,_,_,1,"#343a40",1,"#212529",_,_,_,1,"#343a40",1,"#212529",_],
-    [_,_,_,1,1,_,1,1,_,_,_,1,1,_,1,1]
-  ]
-];
+const lang = () => (getLang() === "fil" ? "fil" : "en");
+const rint = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 
-// 3. UNDEAD SKELETON LANCER (May bone structure at bakal na sibat)
-const skeletonFrames = [
-  [
-    [_,_,_,_,_,_,1,1,1,1,_,_,_,_,_,_,_],
-    [_,_,_,_,_,1,"#f8f9fa","#e9ecef","#dee2e6",1,_,_,_,_,_,_,_],
-    [_,_,_,_,_,1,1,1,1,1,_,_,_,_,_,_,_],
-    [_,_,_,_,_,_,1,"#ced4da",1,_,_,_,_,_,_,_,_],
-    [_,_,_,_,_,1,"#e9ecef","#dee2e6",1,_,_,_,_,_,_,_],
-    [_,_,1,1,1,1,"#6c757d","#495057",1,1,1,1,1,1,1,1,_], // Iron Pike
-    [_,_,_,_,_,1,"#dee2e6","#ced4da",1,_,_,_,_,_,_,_],
-    [_,_,_,_,1,"#dee2e6",_,1,"#ced4da",1,_,_,_,_,_,_],
-    [_,_,_,_,1,1,_,_,1,1,_,_,_,_,_,_]
-  ],
-  [
-    [_,_,_,_,_,_,1,1,1,1,_,_,_,_,_,_,_],
-    [_,_,_,_,_,1,"#f8f9fa","#e9ecef","#dee2e6",1,_,_,_,_,_,_,_],
-    [_,_,_,_,_,1,1,1,1,1,_,_,_,_,_,_,_],
-    [_,_,_,_,_,_,1,"#ced4da",1,_,_,_,_,_,_,_,_],
-    [_,_,_,_,_,1,"#e9ecef","#dee2e6",1,_,_,_,_,_,_,_],
-    [_,_,1,1,1,1,"#adb5bd","#6c757d",1,1,1,1,1,1,1,1,_],
-    [_,_,_,_,_,1,"#dee2e6","#ced4da",1,_,_,_,_,_,_,_],
-    [_,_,_,_,_,1,"#dee2e6",1,"#ced4da",_,_,_,_,_,_,_],
-    [_,_,_,_,_,1,1,_,1,1,_,_,_,_,_,_]
-  ]
-];
+export function levelColor(diff, boss = false) {
+  if (boss) return "#c084fc";
+  if (diff <= -3) return "#9ca3af";
+  if (diff < 0) return "#4ade80";
+  if (diff <= 1) return "#facc15";
+  if (diff <= 3) return "#fb923c";
+  return "#ef4444";
+}
 
 export class EnemyManager {
   constructor(worldW, worldH) {
@@ -93,174 +52,809 @@ export class EnemyManager {
     this.worldH = worldH;
     this.enemies = [];
     this.spawnTimer = 0;
+    this.kinds = HUB_KINDS;
+    this.tier = 0;
+    this.stage = null;
+    this.player = null;
+    this.loot = null;              // LootManager (itinatakda ng main.js)
+    this.hazards = [];             // mga babalang bilog ng boss (sasabog pagkatapos)
+    this.orbs = [];                // mga bolang ibinabato ng boss
+    this.onBossDefeated = null;    // (enemy) => void
+    this.maxAlive = 16;
+    this.night = 0;                // 0 = araw, 1 = gabi (itinatakda ng main.js mula sa DayNight)
+    this.targetId = null;          // kasalukuyang target ng bayani (may info tag)
+    this.allies = [];              // mga mercenary (puwedeng atakihin at mang-provoke)
+    this.sparks = [];              // kidlat ng elementong hangin (para sa guhit)
   }
 
+  // May anyong-tubig ba o dagat/moat/liquid sa kasalukuyang lugar
+  hasWaterNearby() {
+    if (!this.stage) return false;
+    if (this.stage.id === "hub" || this.stage.ocean) return true;
+    if (this.stage.tilemap && this.stage.tilemap.liquidTiles && this.stage.tilemap.liquidTiles.size > 0) return true;
+    if (["coast", "canopy", "frost", "ash", "maw"].includes(this.stage.theme)) return true;
+    return false;
+  }
+
+  // Lumipat ng lugar (Aethelgard o platform ng Act)
+  setArea(stage, kinds = HUB_KINDS, tier = 0) {
+    this.stage = stage;
+    this.kinds = kinds;
+    this.tier = tier;
+    this.enemies = [];
+    this.hazards = [];
+    this.orbs = [];
+    this.spawnTimer = 0;
+    this.maxAlive = 16;
+  }
+
+  // Pagsisimula ng lugar: may nakakalat na 2 hanggang 3 Elite para sa Land, Sky, at Sea (kung may tubig)
   init(playerLevel = 1) {
     this.enemies = [];
+    this.maxAlive = 16;
+
+    const pool = this.stage && this.stage.id === "hub" && this.night > 0.5 ? [...this.kinds, ...NIGHT_KINDS] : this.kinds;
+    
+    const landKinds = pool.filter((k) => {
+      const def = MONSTERS[k];
+      return def && !def.flying && !def.aquatic;
+    });
+    const skyKinds = pool.filter((k) => {
+      const def = MONSTERS[k];
+      return def && def.flying;
+    });
+    const seaKinds = pool.filter((k) => {
+      const def = MONSTERS[k];
+      return def && (def.aquatic || def.medium === "sea");
+    });
+
+    const hasWater = this.hasWaterNearby();
+
+    // 1. Nakakalat na 2 o 3 Elite para sa Land (Lupa)
+    const landEliteCount = rint(2, 3);
+    for (let i = 0; i < landEliteCount; i++) {
+      const kList = landKinds.length ? landKinds : pool;
+      const k = kList[Math.floor(Math.random() * kList.length)];
+      const spot = this.randomSpot(MONSTERS[k]);
+      this.spawn(k, playerLevel, spot.x, spot.y, rint(1, 4), "elite");
+    }
+
+    // 2. Nakakalat na 2 o 3 Elite para sa Sky (Himpapawid)
+    const skyEliteCount = rint(2, 3);
+    for (let i = 0; i < skyEliteCount; i++) {
+      const kList = skyKinds.length ? skyKinds : pool;
+      const k = kList[Math.floor(Math.random() * kList.length)];
+      const spot = this.randomSpot(MONSTERS[k]);
+      this.spawn(k, playerLevel, spot.x, spot.y, rint(1, 4), "elite");
+    }
+
+    // 3. Nakakalat na 2 o 3 Elite para sa Sea (Dagat/Tubig) kapag may anyong-tubig
+    if (hasWater && seaKinds.length > 0) {
+      const seaEliteCount = rint(2, 3);
+      for (let i = 0; i < seaEliteCount; i++) {
+        const k = seaKinds[Math.floor(Math.random() * seaKinds.length)];
+        const spot = this.randomSpot(MONSTERS[k]);
+        this.spawn(k, playerLevel, spot.x, spot.y, rint(1, 4), "elite");
+      }
+    }
+
+    // 4. Dagdag na mga normal/champion na halimaw
     for (let i = 0; i < 6; i++) {
       this.spawnRandomEnemy(playerLevel);
     }
   }
 
+  // Lugar na akma sa katangian ng halimaw (Lupa, Himpapawid, o Dagat/Tubig)
+  randomSpot(forKind = null) {
+    const st = this.stage;
+    const b = st ? st.bounds : { minX: 140, maxX: this.worldW - 140, minY: 140, maxY: this.worldH - 140 };
+
+    // Para sa mga nilalang ng Dagat/Tubig: sa baybayin, dagat o liquid tiles
+    if (forKind && (forKind.aquatic || forKind.medium === "sea")) {
+      if (st && st.id === "hub") {
+        for (let k = 0; k < 35; k++) {
+          const x = 50 + Math.random() * 260;
+          const y = this.worldH - 220 + Math.random() * 180;
+          if (this.player && Math.hypot(x - this.player.x, y - this.player.y) < 140) continue;
+          return { x, y };
+        }
+      }
+      if (st && st.tilemap) {
+        for (let k = 0; k < 40; k++) {
+          const x = b.minX + 30 + Math.random() * (b.maxX - b.minX - 60);
+          const y = b.minY + 30 + Math.random() * (b.maxY - b.minY - 60);
+          if (st.safeZoneAt && st.safeZoneAt(x + 10, y + 17)) continue;
+          if (this.player && Math.hypot(x - this.player.x, y - this.player.y) < 140) continue;
+          if (st.tilemap.isLiquidAt && st.tilemap.isLiquidAt(x + 10, y + 20)) return { x, y };
+        }
+      }
+    }
+
+    // Para sa mga lumilipad (Sky): malayang makakapuwesto kahit sa ibabaw ng tubig o bangin
+    if (forKind && (forKind.flying || forKind.medium === "sky")) {
+      for (let k = 0; k < 35; k++) {
+        const x = b.minX + 30 + Math.random() * (b.maxX - b.minX - 60);
+        const y = b.minY + 30 + Math.random() * (b.maxY - b.minY - 60);
+        if (st && st.safeZoneAt && st.safeZoneAt(x + 10, y + 17)) continue;
+        if (this.player && Math.hypot(x - this.player.x, y - this.player.y) < 140) continue;
+        return { x, y };
+      }
+    }
+
+    // Para sa mga nilalang ng Lupa: matibay at madaanan na lupa
+    for (let k = 0; k < 45; k++) {
+      const x = b.minX + 40 + Math.random() * (b.maxX - b.minX - 80);
+      const y = b.minY + 40 + Math.random() * (b.maxY - b.minY - 80);
+      if (st && st.safeZoneAt && st.safeZoneAt(x + 10, y + 17)) continue;
+      if (st && st.tilemap && (st.tilemap.isSolidAt(x + 10, y + 20) || (st.tilemap.isLiquidAt && st.tilemap.isLiquidAt(x + 10, y + 20)) || (st.tilemap.isReachable && !st.tilemap.isReachable(x + 10, y + 20)))) continue;
+      if (this.player && Math.hypot(x - this.player.x, y - this.player.y) < 150) continue;
+      return { x, y };
+    }
+    return { x: 140 + Math.random() * (this.worldW - 280), y: 140 + Math.random() * (this.worldH - 280) };
+  }
+
   spawnRandomEnemy(playerLevel) {
-    // Normal, calibrated chase speeds (0.55 hanggang 0.78) para hindi mabilis
-    const kinds = [
-      { name: "Forest Slime", type: "slime", frames: slimeFrames, speed: 0.52, hpMult: 1.0, dmg: 8 },
-      { name: "Dire Wolf", type: "wolf", frames: wolfFrames, speed: 0.72, hpMult: 1.25, dmg: 14 },
-      { name: "Skeleton Lancer", type: "skeleton", frames: skeletonFrames, speed: 0.58, hpMult: 1.4, dmg: 16 }
-    ];
+    const pool = this.stage && this.stage.id === "hub" && this.night > 0.5 ? [...this.kinds, ...NIGHT_KINDS] : this.kinds;
+    const key = pool[Math.floor(Math.random() * pool.length)];
+    const def = MONSTERS[key];
+    const { x, y } = this.randomSpot(def);
+    return this.spawn(key, playerLevel, x, y);
+  }
 
-    const pick = kinds[Math.floor(Math.random() * kinds.length)];
-    const lvl = Math.max(1, playerLevel + Math.floor(Math.random() * 5) - 2);
+  // forceTier: "normal" para sa mga alagad (hindi nagiging champion/elite)
+  spawn(key, playerLevel, x, y, levelOffset = null, forceTier = null) {
+    const kind = MONSTERS[key];
+    if (!kind) return null;
+    const lvl = Math.max(1, playerLevel + (levelOffset ?? rint(-5, 5)));
+    const hp = Math.round((35 + lvl * 12) * kind.hpMult);
+    const e = {
+      id: Math.random(), key, type: key, kind, level: lvl,
+      maxHp: hp, hp, speed: kind.speed, damage: Math.round(kind.dmg + lvl * 1.6), reach: kind.reach || 16,
+      x, y, homeX: x, homeY: y, isAlive: true, facing: "left",
+      anim: "idle", dir: "down", flip: false, animTimer: 0, strikeTimer: 0,
+      hitTimer: 0, stunTimer: 0, windupTimer: 0,
+      provoked: false, engaged: false, wanderX: x, wanderY: y, wanderTimer: rint(20, 120),
+      element: kind.element || "neutral", variant: null, champion: false
+    };
+    // Elemental na variant (Blazing, Frozen, …) at uri: Champion / Elite (Diablo II)
+    const v = rollVariant(this.stage ? this.stage.id : "hub");
+    if (v && v !== e.element) { e.variant = v; e.element = v; }
+    applyTier(e, forceTier || rollTier());
+    this.enemies.push(e);
+    // Ang Elite ay may kasamang mga alagad
+    if (e.elite) {
+      for (let k = 0; k < TIERS.elite.minions; k++) {
+        const m = this.spawn(key, playerLevel, x + (k ? 18 : -18), y + 10, lvl - playerLevel - 1, "normal");
+        if (m) { m.minionOf = e.id; m.homeX = x; m.homeY = y; }
+      }
+    }
+    return e;
+  }
 
-    this.enemies.push({
-      id: Math.random(),
-      name: pick.name,
-      type: pick.type,
-      frames: pick.frames,
-      animFrame: 0,
-      animTimer: 0,
-      x: 140 + Math.random() * (this.worldW - 280),
-      y: 140 + Math.random() * (this.worldH - 280),
-      level: lvl,
-      maxHp: Math.round((35 + lvl * 12) * pick.hpMult),
-      hp: Math.round((35 + lvl * 12) * pick.hpMult),
-      speed: pick.speed,
-      damage: pick.dmg + lvl * 2,
-      isAlive: true,
-      facing: "left",
-      hitTimer: 0,
-      stunTimer: 0,
-      windupTimer: 0
-    });
+  // Boss ng platform (laging mas mataas ng 3 level sa player)
+  spawnBoss(key, x, y, playerLevel) {
+    const def = BOSSES[key];
+    if (!def || this.boss()) return null;
+    const lvl = playerLevel + 3;
+    const hp = Math.round((35 + lvl * 12) * def.hpBase);
+    const e = {
+      id: Math.random(), key, type: key, kind: def, boss: true, level: lvl,
+      maxHp: hp, hp, speed: def.speed, damage: Math.round(def.dmg + lvl * 1.8), reach: def.reach, tier: "mvp",
+      hitR: def.hitR, hitUp: def.hitUp,
+      x, y, homeX: x, homeY: y, isAlive: true, facing: "left",
+      anim: "idle", dir: "down", flip: false, animTimer: 0, strikeTimer: 0,
+      hitTimer: 0, stunTimer: 0, windupTimer: 0, provoked: true, engaged: false,
+      bossTimer: 60, pattern: 0, castTimer: 0, enraged: false, element: def.element || "neutral"
+    };
+    this.enemies.push(e);
+    return e;
+  }
+
+  boss() {
+    return this.enemies.find((e) => e.boss && e.isAlive) || null;
+  }
+
+  displayName(e) {
+    const base = e.kind.name[lang()];
+    const pre = e.variant ? `${variantPrefix(e.variant)} ` : "";
+    if (e.elite) return `${tierName(e)} (${pre}${base})`;
+    return `${e.champion ? `${tierName(e)} ` : ""}${pre}${base}`;
   }
 
   update(player, fx, lootManager, stage) {
+    this.player = player;
+    if (stage) this.stage = stage;
     this.spawnTimer++;
-    if (this.spawnTimer > 200 && this.enemies.filter((e) => e.isAlive).length < 9) {
+    const alive = this.enemies.filter((e) => e.isAlive && !e.boss).length;
+    // Mas marami at mas madalas lumitaw sa gabi
+    if (this.spawnTimer > 200 - 60 * this.night && alive < this.maxAlive + Math.round(3 * this.night)) {
       this.spawnTimer = 0;
       this.spawnRandomEnemy(player.level);
     }
 
     this.enemies.forEach((e) => {
       if (!e.isAlive) return;
-
       if (e.hitTimer > 0) e.hitTimer--;
+      this.regen(e, fx);
+      this.tickElement(e, fx);
+      if (!e.isAlive) return;
       if (e.stunTimer > 0) {
         e.stunTimer--;
         return;
       }
 
-      // Safe Zone check
-      // Itinutulak palabas mula sa gitna ng sanctuary (Barracks o audience dais ng Citadel)
-      const zone = stage && stage.safeZoneAt ? stage.safeZoneAt(e.x, e.y) : null;
+      // Itinutulak palabas mula sa sanctuary (Barracks, dais ng Citadel, kampo ng platform)
+      const zone = this.stage && this.stage.safeZoneAt ? this.stage.safeZoneAt(e.x + 10, e.y + 17) : null;
       if (zone) {
-        e.x += e.x > zone.x + zone.w / 2 ? 1.5 : -1.5;
-        e.y += e.y > zone.y + zone.h / 2 ? 1.5 : -1.5;
+        const px = e.x + 10 > zone.x + zone.w / 2 ? 1.5 : -1.5;
+        const py = e.y + 17 > zone.y + zone.h / 2 ? 1.5 : -1.5;
+        e.x += px;
+        e.y += py;
+        e.engaged = false;
+        this.animate(e, px, py, true);
         return;
       }
 
-      // Animation tick
-      e.animTimer++;
-      if (e.animTimer >= 14) {
-        e.animTimer = 0;
-        e.animFrame = (e.animFrame + 1) % e.frames.length;
-      }
+      if (e.boss) this.updateBoss(e, player, fx);
+      else this.updateMonster(e, player, fx);
 
-      // Target finding: Unahin ang mga buhay na Angels ng Priest kung mayroon
-      let targetEntity = player;
-      if (player.angels && player.angels.length > 0) {
-        const liveAngel = player.angels.find((a) => a.isAlive);
-        if (liveAngel) targetEntity = liveAngel;
-      }
-
-      const dx = targetEntity.x - e.x;
-      const dy = targetEntity.y - e.y;
-      const dist = Math.hypot(dx, dy);
-
-      // Normal Chase
-      if (dist > 10 && dist < 280) {
-        e.x += (dx / dist) * e.speed;
-        e.y += (dy / dist) * e.speed;
-        e.facing = dx >= 0 ? "right" : "left";
-      }
-
-      // Attack Execution
-      if (dist <= 16) {
-        e.windupTimer++;
-        if (e.windupTimer > 36) {
-          e.windupTimer = 0;
-          if (targetEntity === player && player.takeDamage) {
-            player.takeDamage(e.damage, fx);
-          } else if (targetEntity !== player) {
-            targetEntity.hp -= e.damage;
-            targetEntity.hitTimer = 16;
-            if (fx && fx.spawnDamagePopup) {
-              fx.spawnDamagePopup(targetEntity.x + 8, targetEntity.y - 6, `-${e.damage}`, false, "#ffd166");
-            }
-          }
+      // Soft separation repulsion between enemies upang hindi magpatong-patong
+      for (let j = 0; j < this.enemies.length; j++) {
+        const other = this.enemies[j];
+        if (other === e || !other.isAlive) continue;
+        const sepDx = e.x - other.x;
+        const sepDy = e.y - other.y;
+        const sepDist = Math.hypot(sepDx, sepDy);
+        if (sepDist < 22 && sepDist > 0.01) {
+          const push = ((22 - sepDist) / 22) * 0.5;
+          e.x += (sepDx / sepDist) * push;
+          e.y += (sepDy / sepDist) * push;
         }
-      } else {
-        e.windupTimer = 0;
       }
     });
+
+    this.updateHazards(player, fx);
+    this.enemies = this.enemies.filter((e) => e.isAlive);
   }
 
-  damage(enemy, amount, angle, isCrit, fx, lootManager, pushDist = 8, isStun = false, player = null) {
+  // ---------- EPEKTO NG ELEMENTO SA KALABAN ----------
+  // fire → paso (DoT) · water → lamig (−50% bilis; pangalawang lamig = yelo) · wind → kidlat na tumatalon
+  // earth → natitigilan · poison → lason (DoT) · shadow → sumpa (−20% pinsala)
+  applyElement(e, elem, dealt, fx) {
+    if (!elem || !e.isAlive) return;
+    e.st = e.st || {};
+    const r = Math.random();
+    if (elem === "fire" && r < 0.35) { e.st.burn = 180; e.st.burnDmg = Math.max(1, Math.round(dealt * 0.08)); }
+    else if (elem === "water" && r < 0.4) {
+      if (e.st.chill > 0 && !e.boss) { e.stunTimer = Math.max(e.stunTimer, 80); e.frozen = 80; }
+      e.st.chill = 150;
+    }
+    else if (elem === "wind" && r < 0.3) {
+      const next = this.enemies.find((o) => o !== e && o.isAlive && Math.hypot(o.x - e.x, o.y - e.y) < 70);
+      if (next) {
+        this.damage(next, Math.round(dealt * 0.35), 0, false, fx, null, 2);
+        this.sparks.push({ x0: e.x + 10, y0: e.y + 8, x1: next.x + 10, y1: next.y + 8, t: 10 });
+      }
+    }
+    else if (elem === "earth" && r < 0.18 && !e.boss) e.stunTimer = Math.max(e.stunTimer, 30);
+    else if (elem === "poison" && r < 0.35) { e.st.poison = 240; e.st.poisonDmg = Math.max(1, Math.round(e.maxHp * 0.01)); }
+    else if (elem === "shadow" && r < 0.3) e.st.curse = 240;
+  }
+
+  tickElement(e, fx) {
+    const s = e.st;
+    if (!s) return;
+    if (e.frozen > 0) e.frozen--;
+    ["burn", "chill", "poison", "curse"].forEach((k) => { if (s[k] > 0) s[k]--; });
+    if (s.burn > 0 && s.burn % 30 === 0) this.dot(e, s.burnDmg, "#f97316", fx);
+    if (s.poison > 0 && s.poison % 45 === 0) this.dot(e, s.poisonDmg, "#4ade80", fx);
+  }
+
+  dot(e, amt, color, fx) {
+    e.hp -= amt;
+    if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(e.x + 10, e.y - 4, amt, false, color);
+    if (e.hp <= 0) this.kill(e, fx);
+  }
+
+  // Kapag hindi tinatamaan nang 5 segundo, bumabalik ang HP (1% bawat 0.5s; boss 0.5%)
+  regen(e, fx) {
+    e.sinceHit = (e.sinceHit || 0) + 1;
+    if (e.sinceHit < REGEN_DELAY || e.hp >= e.maxHp) return;
+    if (e.sinceHit % 30 === 0) {
+      const amt = Math.max(1, Math.round(e.maxHp * (e.boss ? 0.005 : 0.01)));
+      e.hp = Math.min(e.maxHp, e.hp + amt);
+      if (e.sinceHit % 90 === 0 && fx && fx.spawnDamagePopup) fx.spawnDamagePopup(e.x + 10, e.y + (e.kind.barY || 0) - 4, `+${amt * 3}`, false, "#4ade80");
+      if (e.hp >= e.maxHp && !e.boss && !e.engaged) e.provoked = false;   // nakalimutan ka na
+    }
+  }
+
+  // Agresibo kapag kapantay o mas mataas ang level, o kapag ginalaw
+  isAggressive(e, player) {
+    return e.boss || e.provoked || e.level - player.level >= 0;
+  }
+
+  updateMonster(e, player, fx) {
+    const aggressive = this.isAggressive(e, player);
+
+    // Target: ang mga Guardian Angel ng Priest muna kung mayroon
+    let target = player;
+    const angels = player.angelCompanions || player.angels;
+    if (aggressive && angels && angels.length) {
+      const a = angels.find((x) => x.isAlive);
+      if (a) target = a;
+    }
+    // Mercenary na humaharang (mas malapit kaysa sa bayani) o nang-provoke
+    const blocker = this.allies.find((m) => m.isAlive && Math.hypot(m.x - e.x, m.y - e.y) < 22);
+    if (aggressive && blocker && Math.hypot(blocker.x - e.x, blocker.y - e.y) < Math.hypot(target.x - e.x, target.y - e.y)) target = blocker;
+    if (e.taunt && e.taunt.t > 0 && e.taunt.merc.isAlive) { e.taunt.t--; target = e.taunt.merc; e.provoked = true; }
+    const dx = target.x - e.x, dy = target.y - e.y;
+    const dist = Math.hypot(dx, dy);
+    const diff = e.level - player.level;
+    const aggroR = 120 + Math.max(0, diff) * 12 + 60 * this.night;     // mas malayong nakakakita sa gabi
+
+    let mx = 0, my = 0;
+    const spd = e.speed * (1 + 0.15 * this.night) * (e.st && e.st.chill > 0 ? 0.5 : 1);
+    if (aggressive && (e.engaged ? dist < 320 : dist < aggroR) && !(this.stage && this.stage.isInsideSafeZone(player.x + 10, player.y + 17))) {
+      e.engaged = true;
+      if (dist > e.reach * 0.6) { mx = (dx / dist) * spd; my = (dy / dist) * spd; }
+    } else {
+      e.engaged = false;
+      // Gumagala sa paligid ng tahanan
+      e.wanderTimer--;
+      if (e.wanderTimer <= 0) {
+        if (Math.random() < 0.55) {
+          const a = Math.random() * Math.PI * 2, r = 20 + Math.random() * 60;
+          e.wanderX = e.homeX + Math.cos(a) * r;
+          e.wanderY = e.homeY + Math.sin(a) * r;
+        } else {
+          e.wanderX = e.x; e.wanderY = e.y;
+        }
+        e.wanderTimer = rint(90, 220);
+      }
+      const wx = e.wanderX - e.x, wy = e.wanderY - e.y, wd = Math.hypot(wx, wy);
+      if (wd > 2) { mx = (wx / wd) * e.speed * 0.5; my = (wy / wd) * e.speed * 0.5; }
+    }
+    e.x += mx;
+    e.y += my;
+    if (mx) e.facing = mx >= 0 ? "right" : "left";
+    // Teleporter: sumusulpot sa tabi ng bayani bawat ~5 segundo
+    if (has(e, "teleporter") && e.engaged && dist > 60 && (e.tpTimer = (e.tpTimer || 0) + 1) > 300) {
+      e.tpTimer = 0;
+      if (fx && fx.spawnHitSparks) fx.spawnHitSparks(e.x + 10, e.y + 10, MODS.teleporter.color, 12);
+      e.x = player.x + (Math.random() < 0.5 ? -22 : 22);
+      e.y = player.y + 4;
+      if (fx && fx.spawnHitSparks) fx.spawnHitSparks(e.x + 10, e.y + 10, MODS.teleporter.color, 12);
+    }
+
+    // Atake
+    if (e.engaged && dist <= e.reach) {
+      e.windupTimer++;
+      if (e.windupTimer > windupFor(e, 36)) {
+        e.windupTimer = 0;
+        e.strikeTimer = 12;
+        this.hitTarget(e, target, player, fx, e.damage);
+      }
+    } else {
+      e.windupTimer = 0;
+    }
+
+    const moved = Math.hypot(mx, my) > 0.01;
+    this.animate(e, e.engaged ? dx : mx, e.engaged ? dy : my, moved);
+  }
+
+  hitTarget(e, target, player, fx, dmg) {
+    dmg = Math.round(dmg * (1 + 0.2 * this.night) * (e.st && e.st.curse > 0 ? 0.8 : 1) * damageDealtMult(e));   // gabi · sumpa · berserk
+    // Vampiric: gumagaling ng 30% ng pinsala
+    if (has(e, "vampiric")) e.hp = Math.min(e.maxHp, e.hp + Math.round(dmg * 0.3));
+    if (target === player) {
+      const before = player.hp;
+      player.takeDamage(dmg, fx);
+      const ELEM_BLIGHT = { fire: "burn", water: "freeze", poison: "poison", shadow: "curse", wind: "electrified", undead: "curse", ghost: "confusion" };
+      const d = modBlight(e) || e.kind.debuff || (ELEM_BLIGHT[e.element] ? { type: ELEM_BLIGHT[e.element], chance: e.variant ? 0.2 : 0.08, time: 180 } : null);
+      if (d && player.hp < before && Math.random() < d.chance) {
+        const type = d.type === "all" ? BLIGHTS[Math.floor(Math.random() * BLIGHTS.length)] : d.type;
+        const hit = player.inflictDebuff(type, d.time);
+        if (fx && fx.spawnDamagePopup) {
+          fx.spawnDamagePopup(player.x + 10, player.y - 14, hit ? statusName(type).toUpperCase() : "RESIST!", false, hit ? (STATUS[type] || {}).color || "#c084fc" : "#94a3b8");
+        }
+      }
+    } else {
+      target.hp -= dmg;
+      target.hitTimer = 16;
+      if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(target.x + 8, target.y - 6, `-${dmg}`, false, "#ffd166");
+    }
+  }
+
+  // ---------- BOSS ----------
+  updateBoss(e, player, fx) {
+    const def = e.kind;
+    const px = player.x + 10, py = player.y + 17;
+    const bx = e.x + 10, by = e.y + 17;
+    const dx = px - bx, dy = py - by;
+    const dist = Math.hypot(dx, dy);
+    const playerSafe = this.stage && this.stage.isInsideSafeZone(px, py);
+    e.engaged = !playerSafe && dist < 360;
+
+    if (!e.enraged && e.hp < e.maxHp * 0.5) {
+      e.enraged = true;
+      if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(bx, by - 60, lang() === "fil" ? "NAGNGINGITNGIT!" : "ENRAGED!", true, "#ef4444");
+      if (fx && fx.addScreenShake) fx.addScreenShake(6);
+    }
+    // MVP desperation (25%): tumatawag agad ng alagad at mas mabilis ang mga atake
+    if (!e.desperate && e.hp < e.maxHp * 0.25) {
+      e.desperate = true;
+      e.speed *= 1.2;
+      e.bossTimer = 20;
+      e.pattern = Object.keys(def.attacks).indexOf("summon");
+      if (e.pattern < 0) e.pattern = 0;
+      if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(bx, by - 70, lang() === "fil" ? "HULING LAKAS!" : "DESPERATION!", true, "#f59e0b");
+      if (fx && fx.addScreenShake) fx.addScreenShake(8);
+    }
+
+    // Galaw: lumalapit sa player pero hindi lumalayo sa arena
+    let mx = 0, my = 0;
+    const home = Math.hypot(e.x - e.homeX, e.y - e.homeY);
+    if (e.castTimer > 0) {
+      e.castTimer--;
+    } else if (!def.static && e.engaged && dist > e.reach * 0.8 && home < 230) {
+      mx = (dx / dist) * e.speed * (e.enraged ? 1.3 : 1);
+      my = (dy / dist) * e.speed * (e.enraged ? 1.3 : 1);
+    } else if (!def.static && (!e.engaged || home >= 230) && home > 4) {
+      mx = ((e.homeX - e.x) / home) * e.speed;
+      my = ((e.homeY - e.y) / home) * e.speed;
+    }
+    e.x += mx;
+    e.y += my;
+
+    // Suntok/palo kapag malapit
+    if (e.engaged && dist <= e.reach) {
+      e.windupTimer++;
+      if (e.windupTimer > 45) {
+        e.windupTimer = 0;
+        e.strikeTimer = 14;
+        this.hitTarget(e, player, player, fx, Math.round(e.damage * 0.85));
+      }
+    } else e.windupTimer = 0;
+
+    // Mga espesyal na atake
+    if (e.engaged && dist < BOSS_ATTACK_RANGE) {
+      e.bossTimer--;
+      if (e.bossTimer <= 0) {
+        e.bossTimer = e.desperate ? 75 : e.enraged ? 95 : 150;
+        this.bossAttack(e, player, fx, dist);
+      }
+    }
+
+    this.animate(e, dx, dy, Math.hypot(mx, my) > 0.01);
+    if (e.castTimer > 0 && e.strikeTimer <= 0) e.anim = "attack";
+  }
+
+  bossAttack(e, player, fx, dist) {
+    const a = e.kind.attacks;
+    const list = Object.keys(a);
+    const pick = list[e.pattern++ % list.length];
+    const bx = e.x + 10, by = e.y + 17;
+    const px = player.x + 10, py = player.y + 17;
+    e.castTimer = 40;
+
+    if (pick === "slam") {
+      // Malayo ang player: lumipat sa susunod na atake (laging may iba pang atake ang boss na may slam)
+      if (dist > a.slam.radius + 30) return this.bossAttack(e, player, fx, dist);
+      this.hazards.push({ x: bx, y: by, r: a.slam.radius, t: 50, max: 50, color: a.slam.color, dmg: Math.round(e.damage * 1.3), src: e });
+    } else if (pick === "hazard") {
+      const n = e.enraged ? 5 : 3;
+      for (let k = 0; k < n; k++) {
+        const ang = Math.random() * Math.PI * 2, r = k === 0 ? 0 : 30 + Math.random() * 50;
+        this.hazards.push({ x: px + Math.cos(ang) * r, y: py + Math.sin(ang) * r, r: a.hazard.radius, t: 55 + k * 8, max: 55 + k * 8, color: a.hazard.color, dmg: e.damage, src: e });
+      }
+    } else if (pick === "orb") {
+      const n = e.enraged ? 5 : 3;
+      const base = Math.atan2(py - (by - 20), px - bx);
+      for (let k = 0; k < n; k++) {
+        const ang = base + (k - (n - 1) / 2) * 0.28;
+        this.orbs.push({ x: bx, y: by - 20, vx: Math.cos(ang) * a.orb.speed, vy: Math.sin(ang) * a.orb.speed, life: Math.round(ORB_RANGE / a.orb.speed), color: a.orb.color, dmg: Math.round(e.damage * 0.7), src: e });
+      }
+      if (Sound && Sound.playSlash) Sound.playSlash();
+    } else if (pick === "summon") {
+      const adds = this.enemies.filter((x) => x.isAlive && x.summoned).length;
+      if (adds >= MAX_ADDS) return;
+      a.summon.forEach((key, k) => {
+        const m = this.spawn(key, player.level, bx - 40 + k * 60, by + 20, rint(-1, 1), "normal");
+        if (m) { m.summoned = true; m.provoked = true; }
+      });
+      if (fx && fx.spawnHitSparks) fx.spawnHitSparks(bx, by, "#c084fc", 20);
+    }
+  }
+
+  updateHazards(player, fx) {
+    const px = player.x + 10, py = player.y + 17;
+    this.hazards.forEach((h) => {
+      h.t--;
+      if (h.t === 0) {
+        if (Math.hypot(px - h.x, (py - h.y) * 1.6) <= h.r) this.hitTarget(h.src, player, player, fx, h.dmg);
+        if (fx && fx.spawnHitSparks) fx.spawnHitSparks(h.x, h.y, h.color, 12);
+        if (fx && fx.addScreenShake) fx.addScreenShake(3);
+      }
+    });
+    this.hazards = this.hazards.filter((h) => h.t > -10);
+
+    this.orbs.forEach((o) => {
+      o.x += o.vx;
+      o.y += o.vy;
+      o.life--;
+      if (Math.hypot(px - o.x, py - 8 - o.y) < 9) {
+        this.hitTarget(o.src, player, player, fx, o.dmg);
+        o.life = 0;
+      }
+      // Dumadaan sa tubig/lava/void pero humihinto sa pader at puno
+      const tm = this.stage && this.stage.tilemap;
+      if (tm) {
+        const tx = Math.floor(o.x / 16), ty = Math.floor(o.y / 16);
+        if (tm.inBounds(tx, ty) && tm.solid[tm.idx(tx, ty)] && !tm.liquid[tm.idx(tx, ty)]) o.life = 0;
+      }
+    });
+    this.orbs = this.orbs.filter((o) => o.life > 0);
+  }
+
+  // Direksyon at animation batay sa aktwal na galaw ng kalaban
+  animate(e, dx, dy, moved) {
+    const f = facingFrom(dx, dy, e);
+    e.dir = f.dir;
+    e.flip = f.flip;
+    if (e.strikeTimer > 0) e.strikeTimer--;
+
+    const anim = e.strikeTimer > 0 || e.windupTimer > WINDUP_SHOW ? "attack" : moved ? "walk" : "idle";
+    if (anim !== e.anim) {
+      e.anim = anim;
+      e.animTimer = 0;
+    }
+    e.animTimer++;
+  }
+
+  frameOf(e) {
+    if (e.anim === "attack") return e.strikeTimer > 0 ? 1 : 0;   // 0 = handa, 1 = tama
+    return Math.floor(e.animTimer / (e.anim === "walk" ? WALK_TICKS : IDLE_TICKS));
+  }
+
+  // player = ang may gawa (dagdag na pinsala at crit mula sa stats at kagamitan)
+  // elem = elemento ng atake (hal. "fire" ng Meteor). player = ang may gawa (stats, kagamitan, class)
+  damage(enemy, amount, angle, isCrit, fx, lootManager, pushDist = 8, isStun = false, player = null, elem = null) {
     if (!enemy || !enemy.isAlive) return;
+
+    // Talaan ng elemento, lahi at laki (Ragnarok)
+    const em = elementMult(elem || "neutral", enemy.element || "neutral");
+    let mod = em;
+    if (player && player.heroData) {
+      mod *= raceBonus(player.heroData.id, enemy.kind.race) * sizeMod(player.weaponIcon, enemy.kind.size);
+      mod *= (player.timeMods && player.timeMods.dmg) || 1;
+    }
+    amount *= mod * damageTakenMult(enemy);
+    // Lightning Enchanted: naglalabas ng kislap sa malapit na bayani kapag tinamaan
+    const pl = this.player;
+    if (has(enemy, "lightning") && pl && Math.random() < 0.2 && Math.hypot(pl.x - enemy.x, pl.y - enemy.y) < 70) {
+      pl.takeDamage(Math.round(enemy.damage * 0.3), fx);
+      this.sparks.push({ x0: enemy.x + 10, y0: enemy.y + 8, x1: pl.x + 10, y1: pl.y + 10, t: 10 });
+    }
+    if (fx && fx.spawnDamagePopup && em !== 1) {
+      fx.spawnDamagePopup(enemy.x + 10, enemy.y - 16 - (enemy.hitUp || 0), em > 1 ? "WEAK!" : "RESIST", false, em > 1 ? "#facc15" : "#94a3b8");
+    }
+
+    if (player && typeof player.attack === "number") {
+      const d = player.debuffs || {};
+      amount = (amount + player.attack) * (player.dmgMult || 1) * (player.buffs && player.buffs.damage > 0 ? 1.5 : 1) * (d.curse > 0 ? 0.75 : 1);
+      // Walang critical kapag bulag o isinumpa
+      const canCrit = !(d.blind > 0 || d.curse > 0);
+      if (!isCrit && canCrit && Math.random() < (player.crit || 0)) { isCrit = true; amount *= 1.8; }
+      amount = Math.round(amount);
+    }
 
     enemy.hp -= amount;
     enemy.hitTimer = 8;
-    enemy.x += Math.cos(angle) * pushDist;
-    enemy.y += Math.sin(angle) * pushDist;
+    enemy.sinceHit = 0;       // naantala ang pagbalik ng HP
+    enemy.provoked = true;
+    enemy.engaged = true;
+    const push = enemy.boss ? pushDist * 0.1 : pushDist;
+    enemy.x += Math.cos(angle) * push;
+    enemy.y += Math.sin(angle) * push;
 
-    if (isStun) enemy.stunTimer = 65;
+    if (isStun && !enemy.boss) enemy.stunTimer = 65;
 
     if (fx && fx.spawnDamagePopup) {
-      fx.spawnDamagePopup(enemy.x + 8, enemy.y - 6, amount, isCrit);
+      fx.spawnDamagePopup(enemy.x + 8, enemy.y - 6 - (enemy.hitUp || 0), amount, isCrit);
     }
 
     if (Sound && Sound.playSlash) Sound.playSlash();
 
-    if (enemy.hp <= 0) {
-      enemy.isAlive = false;
-      if (lootManager) {
-        if (typeof lootManager.spawnLoot === "function") lootManager.spawnLoot(enemy.x, enemy.y);
-        else if (typeof lootManager.dropLoot === "function") lootManager.dropLoot(enemy.x, enemy.y);
-      }
-      if (player && typeof player.addExp === "function") {
-        player.addExp(25 + enemy.level * 8);
-      }
+    if (enemy.hp <= 0) this.kill(enemy, fx);
+    else this.applyElement(enemy, elem, amount, fx);
+  }
+
+  kill(e, fx) {
+    e.isAlive = false;
+    const p = this.player;
+    const diff = p ? e.level - p.level : 0;
+    const tierExp = e.boss ? 12 : e.tier && TIERS[e.tier] ? TIERS[e.tier].exp : 1;
+    const mult = Math.max(0.25, Math.min(1.8, 1 + diff * 0.12)) * (1 + 0.3 * this.night) * tierExp;
+    if (p && typeof p.addExp === "function") p.addExp(Math.round((25 + e.level * 8) * mult));
+    // Fire Enchanted: sumasabog kapag namatay
+    if (has(e, "fire") && p && Math.hypot(p.x - e.x, p.y - e.y) < 42) {
+      p.takeDamage(Math.round(e.damage * 0.8), fx);
+      p.inflictDebuff("burn", 180);
+    }
+    if (has(e, "fire") && fx && fx.spawnHitSparks) fx.spawnHitSparks(e.x + 10, e.y + 10, "#f97316", 24);
+    if (this.loot) {
+      this.loot.spawnLoot(e.x + 10, e.y + 12, {
+        grade: this.tier, level: e.level, cls: p ? p.heroData.id : "novice", key: e.key,
+        boss: Boolean(e.boss), drop: e.boss ? e.kind.drop : null,
+        tier: e.boss ? "mvp" : e.tier || "normal", diff,
+        extra: Math.random() < 0.3 * this.night ? 1 : 0     // gabi: dagdag na samsam
+      });
+    }
+    if (e.boss) {
+      this.hazards = [];
+      this.orbs = [];
+      this.enemies.forEach((m) => { if (m.summoned) m.isAlive = false; });
+      if (fx && fx.addScreenShake) fx.addScreenShake(10);
+      if (fx && fx.spawnHitSparks) { fx.spawnHitSparks(e.x + 10, e.y - 10, "#ffd166", 40); fx.spawnHitSparks(e.x + 10, e.y - 30, "#ffffff", 30); }
+      if (this.onBossDefeated) this.onBossDefeated(e);
     }
   }
 
-  draw(ctx, drawMatrixFn) {
-    this.enemies.forEach((e) => {
-      if (!e.isAlive) return;
+  // ---------- DRAW ----------
+  draw(ctx) {
+    // Babala ng boss (sa lupa, bago ang mga karakter)
+    this.hazards.forEach((h) => {
+      const k = 1 - Math.max(0, h.t) / h.max;
+      ctx.save();
+      ctx.globalAlpha = h.t > 0 ? 0.25 + k * 0.35 : 0.8;
+      ctx.fillStyle = h.color;
+      ctx.beginPath();
+      ctx.ellipse(h.x, h.y, h.r * (h.t > 0 ? k : 1), h.r * 0.6 * (h.t > 0 ? k : 1), 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 0.9;
+      ctx.strokeStyle = h.color;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.ellipse(h.x, h.y, h.r, h.r * 0.6, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    });
 
-      // Contact Shadow
+    const pl = this.player;
+    // Y-sort para tama ang patong
+    [...this.enemies].filter((e) => e.isAlive).sort((a, b) => a.y - b.y).forEach((e) => {
+      const k = e.kind;
+      const scale = k.scale || 1;
+      const fy = e.y + 17;
+
+      // Anino (maliit at malayo kapag lumilipad)
       ctx.fillStyle = "rgba(0,0,0,0.28)";
       ctx.beginPath();
-      ctx.ellipse(e.x + 10, e.y + 16, 9, 3.5, 0, 0, Math.PI * 2);
+      ctx.ellipse(e.x + 10, fy - 1, (k.flying ? 6 : 9) * (e.boss ? 2.2 : 1), (k.flying ? 2 : 3.5) * (e.boss ? 1.6 : 1), 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Matrix Renderer na may Flip Support
-      ctx.save();
-      if (e.facing === "left") {
-        ctx.translate(Math.floor(e.x) + 20, Math.floor(e.y));
-        ctx.scale(-1, 1);
-        drawMatrixFn(ctx, 0, 0, e.frames[e.animFrame], e.hitTimer > 0);
-      } else {
-        drawMatrixFn(ctx, e.x, e.y, e.frames[e.animFrame], e.hitTimer > 0);
+      // Aura ng elemental na variant at singsing ng Champion
+      if (e.variant || e.champion || e.elite) {
+        const pulse = 0.5 + Math.sin(e.animTimer / 8) * 0.25;
+        ctx.save();
+        ctx.globalAlpha = pulse * 0.6;
+        ctx.strokeStyle = e.elite ? TIERS.elite.color : e.champion ? TIERS.champion.color : ELEMENTS[e.variant].color;
+        ctx.lineWidth = e.champion || e.elite ? 1.5 : 1;
+        ctx.beginPath();
+        ctx.ellipse(e.x + 10, fy - 1, 11 * (e.boss ? 2 : 1), 4 * (e.boss ? 1.6 : 1), 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
       }
-      ctx.restore();
 
-      // HP Bar na may Level Badge
-      const w = 18;
-      ctx.fillStyle = "#111";
-      ctx.fillRect(e.x + 1, e.y - 7, w, 2.5);
-      ctx.fillStyle = e.type === "wolf" ? "#ff4d6d" : e.type === "skeleton" ? "#00b4d8" : "#70e000";
-      ctx.fillRect(e.x + 1, e.y - 7, Math.max(0, (e.hp / e.maxHp) * w), 2.5);
+      k.sprite.draw(ctx, e.x + 10, fy, e.dir, e.anim, this.frameOf(e), e.flip, e.hitTimer > 0, scale);
+      // Nagyelo: asul na yelo sa ibabaw
+      if (e.frozen > 0) {
+        ctx.save();
+        ctx.globalAlpha = 0.45;
+        ctx.fillStyle = "#bfe9ff";
+        ctx.fillRect(e.x + 2, fy - 18 * scale, 16 * scale, 18 * scale);
+        ctx.restore();
+      }
+
+      // HP bar + "Lv N Pangalan" na may kulay ayon sa level
+      const diff = pl ? e.level - pl.level : 0;
+      const color = levelColor(diff, e.boss);
+      const by = e.y + k.barY;
+      if (!e.boss) {
+        const w = 20;
+        ctx.fillStyle = "#111";
+        ctx.fillRect(e.x, by, w, 2.5);
+        ctx.fillStyle = color;
+        ctx.fillRect(e.x, by, Math.max(0, (e.hp / e.maxHp) * w), 2.5);
+      }
+      ctx.font = "bold 4px monospace";
+      ctx.textAlign = "center";
+      const mark = e.boss ? "☠ MVP " : e.elite ? `${TIERS.elite.mark} ` : e.champion ? `${TIERS.champion.mark} ` : "";
+      const label = `${mark}Lv${e.level} ${this.displayName(e)}`;
+      const tw = ctx.measureText(label).width;
+      ctx.fillStyle = "rgba(3, 6, 17, 0.6)";
+      ctx.fillRect(e.x + 10 - tw / 2 - 1, by - 6, tw + 2, 5);
+      ctx.fillStyle = e.elite ? TIERS.elite.color : e.champion ? TIERS.champion.color : color;
+      ctx.fillText(label, e.x + 10, by - 2);
+      // ang kulay ng level ay nasa maliit na bar sa ilalim para hindi mawala ang babala
+      if (e.elite || e.champion) { ctx.fillStyle = color; ctx.fillRect(e.x + 10 - tw / 2, by - 0.5, tw, 0.8); }
+      // tuldok na pula = agresibo
+      if (pl && this.isAggressive(e, pl) && !e.boss) {
+        ctx.fillStyle = "#ef4444";
+        ctx.fillRect(e.x + 10 - tw / 2 - 3, by - 5, 1.5, 1.5);
+      }
+      // Tuldok ng epekto ng elemento sa kalaban
+      if (e.st) {
+        const dots = [["burn", "#f97316"], ["chill", "#7dd3fc"], ["poison", "#4ade80"], ["curse", "#a855f7"]].filter(([s]) => e.st[s] > 0);
+        dots.forEach(([, c], i) => { ctx.fillStyle = c; ctx.fillRect(e.x + 10 + tw / 2 + 2 + i * 3, by - 5, 2, 2); });
+      }
+      // Naka-lock na target (Shift): pulang panturo sa itaas
+      if (e.id === this.lockedId) {
+        const ly = by - 14 + Math.sin(e.animTimer / 6);
+        ctx.fillStyle = "#ef4444";
+        ctx.beginPath(); ctx.moveTo(e.x + 10, ly + 4); ctx.lineTo(e.x + 7, ly); ctx.lineTo(e.x + 13, ly); ctx.closePath(); ctx.fill();
+      }
+      // Target ng bayani: lahi · laki · elemento (parang monster info ng Ragnarok)
+      if (e.id === this.targetId) {
+        const el = ELEMENTS[e.element] || ELEMENTS.neutral;
+        const info = `${raceName(e.kind.race)} · ${sizeName(e.kind.size)} · ${elementName(e.element)}${e.mods ? ` · ${e.mods.map(modName).join(", ")}` : ""}`;
+        ctx.font = "3.6px monospace";
+        const iw = ctx.measureText(info).width;
+        ctx.fillStyle = "rgba(3, 6, 17, 0.7)";
+        ctx.fillRect(e.x + 10 - iw / 2 - 1, by - 11, iw + 2, 4.5);
+        ctx.fillStyle = el.color;
+        ctx.fillText(info, e.x + 10, by - 7.6);
+        ctx.strokeStyle = e.id === this.lockedId ? "rgba(239, 68, 68, 0.95)" : "rgba(255, 209, 102, 0.8)";
+        ctx.lineWidth = e.id === this.lockedId ? 1 : 0.6;
+        ctx.beginPath();
+        ctx.ellipse(e.x + 10, fy - 1, 12 * (e.boss ? 2 : 1), 4.5 * (e.boss ? 1.6 : 1), 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
     });
+
+    // Kidlat ng hangin na tumalon sa kalapit na kalaban
+    this.sparks.forEach((s) => {
+      s.t--;
+      ctx.strokeStyle = `rgba(190, 242, 100, ${s.t / 10})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(s.x0, s.y0);
+      ctx.lineTo((s.x0 + s.x1) / 2 + (Math.random() - 0.5) * 8, (s.y0 + s.y1) / 2 + (Math.random() - 0.5) * 8);
+      ctx.lineTo(s.x1, s.y1);
+      ctx.stroke();
+    });
+    this.sparks = this.sparks.filter((s) => s.t > 0);
+
+    // Mga bola ng boss
+    this.orbs.forEach((o) => {
+      ctx.fillStyle = o.color;
+      ctx.beginPath();
+      ctx.arc(o.x, o.y, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(Math.round(o.x - 1), Math.round(o.y - 1), 2, 2);
+    });
+  }
+
+  // Malaking HP bar ng boss sa itaas ng screen (screen space)
+  drawBossBar(ctx, W) {
+    const e = this.boss();
+    if (!e || !e.engaged) return;
+    const w = 220, x = Math.round(W / 2 - w / 2), y = 16;
+    ctx.save();
+    ctx.fillStyle = "rgba(3, 6, 17, 0.85)";
+    ctx.fillRect(x - 3, y - 9, w + 6, 16);
+    ctx.fillStyle = "#1f1026";
+    ctx.fillRect(x, y, w, 4);
+    ctx.fillStyle = e.enraged ? "#ef4444" : "#c084fc";
+    ctx.fillRect(x, y, Math.max(0, (e.hp / e.maxHp) * w), 4);
+    ctx.strokeStyle = "#ffd166";
+    ctx.lineWidth = 0.6;
+    ctx.strokeRect(x - 0.5, y - 0.5, w + 1, 5);
+    ctx.font = "bold 5px monospace";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#ffd166";
+    ctx.fillText(`☠ ${this.displayName(e)} · Lv${e.level}${e.enraged ? "  ⚠" : ""}`, W / 2, y - 3);
+    ctx.restore();
   }
 }

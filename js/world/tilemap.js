@@ -1,5 +1,5 @@
 import {
-  TILE, ATLAS_COLS, T,
+  TILE, ATLAS_COLS, T, THEMES,
   buildTileset, drawTreeSplit, drawRock, drawBush, mulberry32
 } from "./tileset.js";
 
@@ -24,7 +24,10 @@ const FOOT = { ox: 7, oy: 16, w: 10, h: 7 };
 
 export class TileMap {
   // stage: kailangan ng width, height, safeZone; opsyonal: ocean, castle, barracks, portals
+  // Para sa mga platform: stage.theme (key sa THEMES), stage.terrain(tx, ty, cols, rows, noise)
+  // → "liquid" | "wall" | null, stage.pathTargets ([x, y] na pixel), stage.coverageSystems.
   constructor(stage, seed = 20260928) {
+    this.theme = THEMES[stage.theme] || THEMES.aethelgard;
     this.tile = TILE;
     this.pxW = stage.width;
     this.pxH = stage.height;
@@ -37,9 +40,38 @@ export class TileMap {
     this.objects = [];                                    // puno, bato, bush
     this.debug = false;
 
-    this.atlas = buildTileset();
+    this.liquid = new Uint8Array(this.cols * this.rows);  // dagat / lava / void (hindi madaanan)
+    this.atlas = buildTileset(this.theme);
     this.generate(stage, seed);
+    this.computeReach(stage);
     this.render();
+  }
+
+  // Mga tile na maaabot mula sa sanctuary (para hindi lumitaw ang halimaw sa saradong bulsa)
+  computeReach(stage) {
+    this.reach = new Uint8Array(this.cols * this.rows);
+    const s = stage.safeZone;
+    if (!s) return;
+    const sx = Math.floor((s.x + s.w / 2) / TILE), sy = Math.floor((s.y + s.h / 2) / TILE);
+    if (!this.inBounds(sx, sy)) return;
+    const q = [[sx, sy]];
+    this.reach[this.idx(sx, sy)] = 1;
+    for (let h = 0; h < q.length; h++) {
+      const [x, y] = q[h];
+      [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dx, dy]) => {
+        const nx = x + dx, ny = y + dy;
+        if (!this.inBounds(nx, ny)) return;
+        const i = this.idx(nx, ny);
+        if (this.solid[i] || this.reach[i]) return;
+        this.reach[i] = 1;
+        q.push([nx, ny]);
+      });
+    }
+  }
+
+  isReachable(px, py) {
+    const tx = Math.floor(px / TILE), ty = Math.floor(py / TILE);
+    return this.inBounds(tx, ty) && this.reach[this.idx(tx, ty)] === 1;
   }
 
   idx(tx, ty) { return ty * this.cols + tx; }
@@ -59,7 +91,7 @@ export class TileMap {
       cv.width = this.pxW;
       cv.height = this.pxH;
       const c = cv.getContext("2d");
-      [stage.ocean, stage.castle, stage.barracks, stage.portals].forEach((sys) => {
+      (stage.coverageSystems || [stage.ocean, stage.castle, stage.barracks, stage.portals]).forEach((sys) => {
         try { if (sys && sys.draw) sys.draw(c); } catch (_) { /* skip */ }
       });
       const data = c.getImageData(0, 0, this.pxW, this.pxH).data;
@@ -152,21 +184,48 @@ export class TileMap {
     const hubX = sz ? Math.floor((sz.x + sz.w / 2) / TILE) : Math.floor(cols / 2);
     const hubY = sz ? Math.floor((sz.y + sz.h / 2) / TILE) : Math.floor(rows / 2);
 
-    const targets = [
+    let targets = [
       [Math.floor(cols / 2), 2], [Math.floor(cols / 2), rows - 4],
       [2, Math.floor(rows / 2)], [cols - 4, Math.floor(rows / 2)]
     ];
+    if (stage.pathTargets) targets = stage.pathTargets.map(([x, y]) => [Math.floor(x / TILE), Math.floor(y / TILE)]);
     const gate = stage.castle && stage.castle.gatePortal;
     if (gate) targets.push([Math.floor(gate.x / TILE), Math.floor(gate.y / TILE)]);
     targets.forEach(([tx, ty]) => this.carvePath(path, rnd, hubX, hubY, tx, ty));
     this.eachClearTile(stage, (tx, ty) => { path[this.idx(tx, ty)] = 1; });   // plaza
     const pathNear = this.dilate(path, 1);
 
+    // ----- Terrain ng platform: dagat / lava / void at bangin (ang landas ay nagiging tulay) -----
+    const wall = new Uint8Array(cols * rows);
+    if (stage.terrain) {
+      const noise = (x, y, s = 0) => vnoise(x, y, seed + 31 + s);
+      for (let ty = 0; ty < rows; ty++) {
+        for (let tx = 0; tx < cols; tx++) {
+          const i = this.idx(tx, ty);
+          if (path[i] || coverage[i]) continue;
+          const kind = stage.terrain(tx, ty, cols, rows, noise);
+          if (kind === "liquid") { this.liquid[i] = 1; this.solid[i] = 1; }
+          else if (kind === "wall") { wall[i] = 1; this.solid[i] = 1; }
+        }
+      }
+    }
+
     // ----- Ground tiles -----
     const hasPath = (tx, ty) => this.inBounds(tx, ty) && path[this.idx(tx, ty)] === 1;
+    const hasLiquid = (tx, ty) => !this.inBounds(tx, ty) || this.liquid[this.idx(tx, ty)] === 1;
     for (let ty = 0; ty < rows; ty++) {
       for (let tx = 0; tx < cols; tx++) {
         const i = this.idx(tx, ty);
+        if (this.liquid[i]) {
+          const mask = (hasLiquid(tx, ty - 1) ? 1 : 0) | (hasLiquid(tx + 1, ty) ? 2 : 0) |
+                       (hasLiquid(tx, ty + 1) ? 4 : 0) | (hasLiquid(tx - 1, ty) ? 8 : 0);
+          this.ids[i] = T.LIQUID_BASE + mask;
+          continue;
+        }
+        if (wall[i]) {
+          this.ids[i] = (tx + ty) % 3 ? T.WALL_A : T.WALL_B;
+          continue;
+        }
         if (path[i]) {
           const mask = (hasPath(tx, ty - 1) ? 1 : 0) | (hasPath(tx + 1, ty) ? 2 : 0) |
                        (hasPath(tx, ty + 1) ? 4 : 0) | (hasPath(tx - 1, ty) ? 8 : 0);
@@ -193,13 +252,14 @@ export class TileMap {
     const free = (tx, ty) => {
       if (tx < M || ty < M + 1 || tx >= cols - M || ty >= rows - M) return false;
       const i = this.idx(tx, ty);
-      return !keep[i] && !occ[i] && !pathNear[i];
+      return !keep[i] && !occ[i] && !pathNear[i] && !this.solid[i];
     };
+    const density = this.theme.treeDensity || 0.6;
 
     for (let ty = M + 1; ty < rows - M; ty++) {
       for (let tx = M; tx < cols - M - 1; tx++) {
         const forest = vnoise(tx * 0.09, ty * 0.09, seed + 11) * 0.7 + vnoise(tx * 0.21, ty * 0.21, seed + 23) * 0.3;
-        const wantTree = (forest > 0.6 && rnd() < 0.5) || rnd() < 0.004;
+        const wantTree = (forest > density && rnd() < 0.5) || rnd() < 0.004;
 
         if (wantTree &&
             free(tx, ty) && free(tx + 1, ty) && free(tx, ty - 1) && free(tx + 1, ty - 1)) {
@@ -254,9 +314,10 @@ export class TileMap {
     // Pataas-pababa para tama ang patong ng mga puno
     const sorted = [...this.objects].sort((a, b) => a.ty - b.ty);
     sorted.forEach((ob) => {
-      if (ob.type === "tree") drawTreeSplit(g.ctx, o.ctx, ob.tx * TILE, (ob.ty - 1) * TILE, ob.seed);
-      else if (ob.type === "rock") drawRock(g.ctx, ob.tx * TILE, ob.ty * TILE, ob.seed);
-      else if (ob.type === "bush") drawBush(g.ctx, ob.tx * TILE, ob.ty * TILE, ob.seed);
+      const th = this.theme;
+      if (ob.type === "tree") drawTreeSplit(g.ctx, o.ctx, ob.tx * TILE, (ob.ty - 1) * TILE, ob.seed, th.tree);
+      else if (ob.type === "rock") drawRock(g.ctx, ob.tx * TILE, ob.ty * TILE, ob.seed, th.rock);
+      else if (ob.type === "bush") drawBush(g.ctx, ob.tx * TILE, ob.ty * TILE, ob.seed, th.bush);
     });
   }
 

@@ -1,9 +1,11 @@
 import { getLang, t } from "./i18n.js";
+import { MENTOR_BY_CLASS } from "./quest.js";
 
-// ==================== DIALOGUE NG MGA TAUHAN (Acts I–IV) ====================
+// ==================== DIALOGUE NG MGA TAUHAN (Acts II–VI) ====================
 // getDialogue(id, ctx) → { lines, action }
-//   ctx.step   = kasalukuyang hakbang ng main quest (tingnan ang js/quest.js)
-//   ctx.cls    = class ng player ("novice", "knight", ...)
+//   ctx.step     = kasalukuyang hakbang ng main quest (tingnan ang js/quest.js)
+//   ctx.cls      = class ng player ("novice", "knight", ...)
+//   ctx.summoner = "aurelia" | "kenneth" (para sa {Heir} sa mga linya)
 //   action     = "shop" | "merc" | "awaken" | null (ginagawa pagkatapos ng huling linya)
 
 const NAMES = {
@@ -31,6 +33,11 @@ const LINES = {
       "Captain Ronald drills our auxiliaries, and Edgar brews panaceas against the seven blights.",
       "Speak with them both. You will need their help beyond these walls."
     ],
+    summonerSouls: [
+      "You are not the first soul to cross the veil. Five answered the seal before you.",
+      "An engineer, an archer, a surgeon, an astrophysicist and a street fighter. Each carries a discipline from Earth.",
+      "They wait here in the Barracks. Speak with all five; at your Awakening, one of their paths will become yours."
+    ],
     summonerTrial: [
       "The grassland is overrun with slimes, wild drakes and corrupted beasts.",
       "Grow stronger out there. When you reach level 10, come to the Imperial Citadel.",
@@ -44,10 +51,20 @@ const LINES = {
     summonerAwakened: [
       "It is done. Rise, Field Commander of the Grand Slaying Corps.",
       "Take this weapon, forged for you by the Royal Armory.",
-      "Beyond the four Warp Gateways the frontier still burns. When the Corps marches, we march together."
+      "Your calling has unsealed the Dual Equipment Matrix. Return to the Barracks: {mentor} will help you choose your armaments."
+    ],
+    summonerArmory: [
+      "Two hands on one great weapon, or a blade with an offhand beside it. Every loadout has its price.",
+      "{mentor} is waiting in the Barracks. Inspect your gear before the Corps departs."
+    ],
+    summonerCovenant: [
+      "Commander. I came down from the observatory… the casualty reports can wait a little longer.",
+      "The miasma thins wherever the Corps has marched. Your shard yields alone have fed the Research Corps for a month.",
+      "…I tore you from your world and placed ours on your shoulders. I have not forgiven myself for that.",
+      "Tell me about Earth sometime. I want to know what I took from you. And I promise: we will see an uncorrupted dawn together."
     ],
     summonerLater: [
-      "The Corps is preparing to march on the Gateway Frontier.",
+      "The scouts report black sap weeping from the Whispering Canopy. The Corps marches on the forest next.",
       "Rest while you can, Commander. …I am glad it was you who answered my seal."
     ],
 
@@ -66,7 +83,7 @@ const LINES = {
     guardLater: ["The Citadel stands with you, Commander!"],
 
     ronaldFirst: [
-      "Captain Ronald, Mercenary Commander. So you're the one the Princess risked the seal for.",
+      "Captain Ronald, Mercenary Commander. So you're the one the {Heir} risked the seal for.",
       "Out there the miasma turns beasts into monsters. Don't go alone if you don't have to.",
       "For 10 gold I'll lend you one of my auxiliaries for ten minutes. Axemen, apprentices, crossbowmen, knights."
     ],
@@ -85,8 +102,8 @@ const LINES = {
       "If you choose the Knight's path at your Awakening, I'll teach you to stand like a wall."
     ],
     lyra: [
-      "Lyra Vance. Wildlife biologist, archer… and apparently an elf now.",
-      "The falcon I tried to save crossed over with me. We hunt as one.",
+      "Lyra Vance. Wildlife biologist, Olympic recurve archer… and apparently an elf now.",
+      "The alpine falcon I sheltered in the blizzard crossed over with me. We hunt as one.",
       "Choose the Archer's path, and I'll show you how to read the wind."
     ],
     julian: [
@@ -104,16 +121,47 @@ const LINES = {
       "Ki is adrenaline you can aim. Force Spheres mark them; the dropkick finishes them.",
       "Choose the Fighter's path and I'll put you through training camp."
     ],
+    armoryKnight: [
+      "Knight's doctrine, Commander. Two hands on the Heavy Lance and you become a battering ram. Thrusts that pierce whole columns.",
+      "Or a broadsword and a Tower Shield: less reach, but you hold inside the Bastion Forcefield and blow the horde back.",
+      "Remember: a two-handed weapon locks your offhand slot. Choose before you leave these walls."
+    ],
+    armoryArcher: [
+      "A Recurve Longbow with a strapped Quiver: long-range piercing shots, as long as you time your reloads.",
+      "Or an automatic Crossbow with Trapper Tools: close skirmishes, snares, and the falcon diving where you point.",
+      "Two hands on the bow means no offhand. Read the wind, then read your loadout."
+    ],
+    armoryPriest: [
+      "The Grand Scepter takes both hands, but its sacred shockwaves break dark rituals wide open.",
+      "The Holy Rosary with a Grimoire shortens your triage cooldowns and keeps the Guardian Angels standing longer.",
+      "Triage is choosing. So is this. Choose before we march."
+    ],
+    armoryMage: [
+      "Great Staff: two hands, planetary leylines, bigger meteors. Entire battalions, gone.",
+      "Wand plus an Arcane Grimoire or Focus Shield: faster incantations, and something between you and a flanker.",
+      "A two-handed staff locks the offhand. That's not a rule, it's physics."
+    ],
+    armoryFighter: [
+      "Dual Claws take both hands. Relentless flurries that tear through demon carapace.",
+      "Brawler Gloves with a Qi Talisman: guided spirit blasts, then the flying finisher kick.",
+      "Two-handed means no offhand. Pick your stance before you walk out of this camp."
+    ],
     mentorMine: ["You chose my path. Make it count, Commander."],
     mentorOther: ["Every path leads to the same enemy. Good luck, Commander."],
 
     elvenMatriarch: ["The Whispering Canopy weeps black sap. When you come, come quickly."]
   },
 
+
   fil: {
     summonerAllies: [
       "Si Kapitan Ronald ang nagsasanay sa aming mga auxiliary, at si Edgar ang gumagawa ng panlunas sa pitong sumpa.",
       "Kausapin mo silang dalawa. Kakailanganin mo ang tulong nila sa labas ng mga pader na ito."
+    ],
+    summonerSouls: [
+      "Hindi ka ang unang kaluluwang tumawid sa tabing. Lima ang naunang tumugon sa selyo.",
+      "Isang inhinyero, isang mamamana, isang siruhano, isang astrophysicist at isang mandirigma ng lansangan. Bawat isa'y may dalang disiplina mula sa Daigdig.",
+      "Naghihintay sila rito sa Barracks. Kausapin mo silang lima; sa iyong Awakening, magiging iyo ang isa sa kanilang landas."
     ],
     summonerTrial: [
       "Pinamumugaran ang kaparangan ng mga slime, mababangis na drake at nilamong halimaw.",
@@ -128,10 +176,20 @@ const LINES = {
     summonerAwakened: [
       "Tapos na. Tumayo ka, Field Commander ng Grand Slaying Corps.",
       "Tanggapin mo ang sandatang ito, hinulma para sa iyo ng Royal Armory.",
-      "Lampas sa apat na Warp Gateway ay nagliliyab pa ang hangganan. Kapag lumakad ang Corps, sabay tayong lalakad."
+      "Nabuksan ng iyong tungkulin ang Dual Equipment Matrix. Bumalik ka sa Barracks: tutulungan ka ni {mentor} na pumili ng sandata."
+    ],
+    summonerArmory: [
+      "Dalawang kamay sa isang malaking sandata, o talim na may offhand sa tabi. May kapalit ang bawat loadout.",
+      "Naghihintay si {mentor} sa Barracks. Suriin mo ang iyong gamit bago umalis ang Corps."
+    ],
+    summonerCovenant: [
+      "Commander. Bumaba ako mula sa obserbatoryo… makapaghihintay muna ang mga ulat ng nasawi.",
+      "Numinipis ang miasma saanman dumaan ang Corps. Ang mga shard na nakuha mo ay nagpakain sa Research Corps nang isang buwan.",
+      "…Hinila kita mula sa iyong mundo at ipinasan sa iyo ang amin. Hindi ko pa napapatawad ang sarili ko.",
+      "Ikuwento mo sa akin ang Daigdig balang araw. Gusto kong malaman kung ano ang kinuha ko sa iyo. At pangako: sabay nating makikita ang malinis na bukang-liwayway."
     ],
     summonerLater: [
-      "Naghahanda ang Corps na sumalakay sa Gateway Frontier.",
+      "Ayon sa mga scout, lumuluha ng itim na dagta ang Whispering Canopy. Ang kagubatan ang susunod na sasalakayin ng Corps.",
       "Magpahinga ka habang may pagkakataon, Commander. …Masaya akong ikaw ang tumugon sa aking selyo."
     ],
 
@@ -150,7 +208,7 @@ const LINES = {
     guardLater: ["Kasama mo ang Citadel, Commander!"],
 
     ronaldFirst: [
-      "Kapitan Ronald, Mercenary Commander. Ikaw pala ang dahilan kung bakit isinugal ng Prinsesa ang selyo.",
+      "Kapitan Ronald, Mercenary Commander. Ikaw pala ang dahilan kung bakit isinugal ng {Heir} ang selyo.",
       "Sa labas, ginagawang halimaw ng miasma ang mga hayop. Huwag kang mag-isa kung hindi kailangan.",
       "Sa halagang 10 gold, ipahihiram ko sa iyo ang isa sa aking mga auxiliary nang sampung minuto."
     ],
@@ -169,8 +227,8 @@ const LINES = {
       "Kung pipiliin mo ang landas ng Knight sa iyong Awakening, tuturuan kitang tumayo na parang pader."
     ],
     lyra: [
-      "Lyra Vance. Wildlife biologist, mamamana… at mukhang elf na rin ngayon.",
-      "Tumawid kasama ko ang falcon na sinubukan kong iligtas. Sabay kaming nangangaso.",
+      "Lyra Vance. Wildlife biologist, Olympic recurve archer… at mukhang elf na rin ngayon.",
+      "Tumawid kasama ko ang alpine falcon na kinanlong ko sa gitna ng blizzard. Sabay kaming nangangaso.",
       "Piliin mo ang landas ng Archer, at ituturo ko sa iyo kung paano basahin ang hangin."
     ],
     julian: [
@@ -188,6 +246,31 @@ const LINES = {
       "Ang Ki ay adrenaline na kayang itutok. Minamarkahan sila ng Force Sphere; tinatapos ng dropkick.",
       "Piliin mo ang landas ng Fighter at isasabak kita sa training camp."
     ],
+    armoryKnight: [
+      "Doktrina ng Knight, Commander. Dalawang kamay sa Heavy Lance at magiging battering ram ka. Tusok na tumatagos sa buong hanay.",
+      "O broadsword at Tower Shield: mas maikli ang abot, pero matibay ka sa loob ng Bastion Forcefield at maitataboy mo ang kawan.",
+      "Tandaan: kapag two-handed ang sandata, sarado ang offhand slot. Pumili ka bago lumabas sa mga pader na ito."
+    ],
+    armoryArcher: [
+      "Recurve Longbow at Quiver: malayuang palasong tumatagos, basta tama ang tiyempo ng reload.",
+      "O awtomatikong Crossbow at Trapper Tools: labanang malapitan, mga bitag, at ang falcon na sumisisid kung saan mo ituro.",
+      "Dalawang kamay sa pana, walang offhand. Basahin mo ang hangin, saka ang iyong loadout."
+    ],
+    armoryPriest: [
+      "Dalawang kamay ang Grand Scepter, pero binabasag ng banal nitong shockwave ang madidilim na ritwal.",
+      "Ang Holy Rosary at Grimoire ay nagpapaikli ng cooldown ng triage at nagpapatibay sa mga Guardian Angel.",
+      "Ang triage ay pagpili. Ganoon din ito. Pumili ka bago tayo lumakad."
+    ],
+    armoryMage: [
+      "Great Staff: dalawang kamay, leyline ng planeta, mas malalaking bulalakaw. Buong batalyon, wala na.",
+      "Wand at Arcane Grimoire o Focus Shield: mas mabilis na orasyon, at may pananggalang laban sa sumasalakay sa gilid.",
+      "Sarado ang offhand kapag two-handed ang staff. Hindi iyan patakaran, physics iyan."
+    ],
+    armoryFighter: [
+      "Dalawang kamay ang Dual Claws. Walang tigil na sunod-sunod na atake na pumupunit sa baluti ng demonyo.",
+      "Brawler Gloves at Qi Talisman: ginagabayang spirit blast, saka ang lumilipad na finisher kick.",
+      "Two-handed, walang offhand. Piliin mo ang tindig bago ka lumabas ng kampo."
+    ],
     mentorMine: ["Pinili mo ang aking landas. Pagbutihin mo, Commander."],
     mentorOther: ["Iisa lang ang kalaban sa dulo ng bawat landas. Good luck, Commander."],
 
@@ -195,42 +278,60 @@ const LINES = {
   }
 };
 
-function L(key) {
-  return (LINES[getLang()] || LINES.en)[key] || LINES.en[key] || [];
+// Mga token sa linya: {Heir} = Princess/Prince, {mentor} = pangalan ng mentor ng class ng player
+const HEIR = { en: { aurelia: "Princess", kenneth: "Prince" }, fil: { aurelia: "Prinsesa", kenneth: "Prinsipe" } };
+
+function L(key, ctx = {}) {
+  const lines = (LINES[getLang()] || LINES.en)[key] || LINES.en[key] || [];
+  const heir = (HEIR[getLang()] || HEIR.en)[ctx.summoner] || (HEIR[getLang()] || HEIR.en).aurelia;
+  const mentorId = MENTOR_BY_CLASS[ctx.cls];
+  const mentor = mentorId ? npcName(mentorId) : npcName("ronald");
+  return lines.map((ln) => ln.replace(/\{Heir\}/g, heir).replace(/\{mentor\}/g, mentor));
 }
 
 const MENTOR_CLASS = { arthur: "knight", lyra: "archer", julian: "priest", sam: "mage", renzo: "fighter" };
+const ARMORY = { knight: "armoryKnight", archer: "armoryArcher", priest: "armoryPriest", mage: "armoryMage", fighter: "armoryFighter" };
 
-// ctx: { step, cls, summoner, met: { ronald, edgar } }
+// Mga hakbang ng quest (tingnan ang js/quest.js):
+// 0 Act II summoner · 1 Act II Ronald+Edgar · 2 Act III limang kaluluwa · 3 Act IV Lv 10
+// 4 Act IV Awakening sa dais · 5 Act V loadout kasama ang mentor · 6 Act VI summoner sa Barracks · 7 tapos
+// ctx: { step, cls, summoner, met, justAwakened }
 export function getDialogue(id, ctx) {
   const step = ctx.step;
 
   if (id === "aurelia" || id === "kenneth") {
+    if (ctx.justAwakened) return { lines: L("summonerAwakened", ctx), action: null };
     if (step === 0) {
       const rank = id === "aurelia" ? t("rankPrincess") : t("rankPrince");
       const name = id === "aurelia" ? "Aurelia" : "Kenneth";
       return { lines: t("welcome", name, rank), action: null };
     }
-    if (step === 1) return { lines: L("summonerAllies"), action: null };
-    if (step === 2) return { lines: L("summonerTrial"), action: null };
-    if (step === 3) return { lines: L("summonerAudience"), action: "awaken" };
-    if (ctx.justAwakened) return { lines: L("summonerAwakened"), action: null };
-    return { lines: L("summonerLater"), action: null };
+    if (step === 1) return { lines: L("summonerAllies", ctx), action: null };
+    if (step === 2) return { lines: L("summonerSouls", ctx), action: null };
+    if (step === 3) return { lines: L("summonerTrial", ctx), action: null };
+    if (step === 4) return { lines: L("summonerAudience", ctx), action: "awaken" };
+    if (step === 5) return { lines: L("summonerArmory", ctx), action: null };
+    if (step === 6) return { lines: L("summonerCovenant", ctx), action: null };
+    return { lines: L("summonerLater", ctx), action: null };
   }
 
   if (id === "king") {
-    if (step === 3) return { lines: L("kingAudience"), action: null };
-    return { lines: step >= 4 ? L("kingLater") : L("kingEarly"), action: null };
+    if (step === 4) return { lines: L("kingAudience", ctx), action: null };
+    return { lines: step >= 5 ? L("kingLater", ctx) : L("kingEarly", ctx), action: null };
   }
-  if (id === "royalGuard") return { lines: step >= 4 ? L("guardLater") : L("guardEarly"), action: null };
+  if (id === "royalGuard") return { lines: step >= 5 ? L("guardLater", ctx) : L("guardEarly", ctx), action: null };
 
-  if (id === "ronald") return { lines: ctx.met.ronald ? L("ronaldAgain") : L("ronaldFirst"), action: "merc" };
-  if (id === "edgar") return { lines: ctx.met.edgar ? L("edgarAgain") : L("edgarFirst"), action: "shop" };
+  if (id === "ronald") return { lines: ctx.met.ronald ? L("ronaldAgain", ctx) : L("ronaldFirst", ctx), action: "merc" };
+  if (id === "edgar") return { lines: ctx.met.edgar ? L("edgarAgain", ctx) : L("edgarFirst", ctx), action: "shop" };
 
+  // Ang limang kaluluwang taga-Daigdig (Act III) → mentor ng class (Act V)
   if (MENTOR_CLASS[id]) {
-    if (ctx.cls === "novice") return { lines: L(id), action: null };
-    return { lines: ctx.cls === MENTOR_CLASS[id] ? L("mentorMine") : L("mentorOther"), action: null };
+    if (ctx.cls === "novice") return { lines: L(id, ctx), action: null };
+    if (ctx.cls === MENTOR_CLASS[id]) {
+      return { lines: step === 5 ? L(ARMORY[ctx.cls], ctx) : L("mentorMine", ctx), action: null };
+    }
+    return { lines: L("mentorOther", ctx), action: null };
   }
 
-  return { lines: L(id), action: null };
+  return { lines: L(id, ctx), action: null };
 }

@@ -106,9 +106,10 @@ export class DialogBox {
 
 export class QuestHud {
   constructor(root) {
-    this.tracker = root.querySelector("#questTracker");
-    this.actEl = root.querySelector("#qtAct");
-    this.goalEl = root.querySelector("#qtGoal");
+    // Ang quest tracker ay nasa bottom bar na (labas ng game screen)
+    this.tracker = document.getElementById("questTracker");
+    this.actEl = document.getElementById("qtAct");
+    this.goalEl = document.getElementById("qtGoal");
     this.toastEl = root.querySelector("#questToast");
     this.logEl = root.querySelector("#questLog");
     this.logOpen = false;
@@ -121,14 +122,14 @@ export class QuestHud {
     if (!v) this.closeLog();
   }
 
-  update(quest, player, summonerName) {
-    const { act, goal } = quest.text(player, summonerName);
+  update(quest, player, summonerName, mentorName) {
+    const { act, goal } = quest.text(player, summonerName, mentorName);
     const key = act + "|" + goal;
     if (key === this.last) return;
     this.last = key;
     this.actEl.textContent = act;
     this.goalEl.textContent = goal;
-    if (this.logOpen) this.renderLog(quest, player, summonerName);
+    if (this.logOpen) this.renderLog(quest, player, summonerName, mentorName);
   }
 
   toast(text) {
@@ -138,11 +139,11 @@ export class QuestHud {
     this.toastEl.classList.add("show");
   }
 
-  toggleLog(quest, player, summonerName) {
+  toggleLog(quest, player, summonerName, mentorName) {
     if (this.logOpen) this.closeLog();
     else {
       this.logOpen = true;
-      this.renderLog(quest, player, summonerName);
+      this.renderLog(quest, player, summonerName, mentorName);
       this.logEl.classList.add("open");
     }
   }
@@ -152,7 +153,7 @@ export class QuestHud {
     this.logEl.classList.remove("open");
   }
 
-  renderLog(quest, player, summonerName) {
+  renderLog(quest, player, summonerName, mentorName) {
     this.logEl.innerHTML = "";
     const h = document.createElement("h3");
     h.textContent = qt("log");
@@ -162,7 +163,7 @@ export class QuestHud {
     sub.textContent = qt("title");
     this.logEl.appendChild(sub);
 
-    quest.entries(player, summonerName).forEach((e) => {
+    quest.entries(player, summonerName, mentorName).forEach((e) => {
       const row = document.createElement("div");
       row.className = "ql-row " + e.state;
       const mark = document.createElement("span");

@@ -3,7 +3,7 @@ import { MageClass } from "./classes/mage.js";
 import { PriestClass } from "./classes/priest.js";
 import { ArcherClass } from "./classes/archer.js";
 import { FighterClass } from "./classes/fighter.js";
-import { Player } from "./player.js";
+import { Player, expFor } from "./player.js";
 import { InputController } from "./controller.js";
 import { Camera } from "./camera.js";
 import { FXManager } from "./fx.js";
@@ -17,18 +17,30 @@ import { Stage } from "./stage.js";
 import { TitleScene } from "./title.js";
 import { SelectScene } from "./select.js";
 import { CreatorScene } from "./creator.js";
+import { PrologueScene } from "./prologue.js";
 import { getNovice } from "./classes/novice.js";
-import { QuestManager } from "./quest.js";
+import { equipJob, refreshLook } from "./classes/job.js";
+import { Platform } from "./world/platform.js";
+import { PLATFORMS } from "./world/platforms.js";
+import { QuestManager, MENTOR_BY_CLASS, FINAL_STEP } from "./quest.js";
 import { NPCManager } from "./npc/npcs.js";
 import { NPC_DEFS, MENTOR_OF, summonerIdFor } from "./npc/roster.js";
 import { getDialogue, npcName } from "./dialogue.js";
 import { DialogBox, QuestHud } from "./dialog.js";
 import { Avatar } from "./avatar/avatar.js";
-import { startLore } from "./lore.js";
-import { t, onLangChange } from "./i18n.js";
+import { createLorePanel } from "./lore.js";
+import { HudBar } from "./hudbar.js";
+import { ActionPanel } from "./actionpanel.js";
+import { WorldMap } from "./worldmap.js";
+import { ActReader } from "./actreader.js";
+import { InventoryPanel } from "./inventory.js";
+import { DayNight } from "./daynight.js";
+import { CharacterPanel } from "./charpanel.js";
+import { t, onLangChange, getLang } from "./i18n.js";
 
 import { FalconCompanion } from "./summons/falcon.js";
 import { GuardianAngelCompanion } from "./summons/angel.js";
+import "./saveSecurity.js";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -78,6 +90,8 @@ function setLayoutMode(mode) {
 function refreshLabels() {
   const head = document.getElementById("sideHead");
   if (head) head.textContent = layoutMode === "select" ? t("sideDossier") : t("sideLore");
+  const more = document.getElementById("loreMore");
+  if (more) more.textContent = `${t("readMore")} ▸`;
   const selectHint = selectScene && selectScene.mode === "awakening" ? t("awakenHint") : t("selectHint");
   hudText.innerHTML = layoutMode === "select" ? selectHint : (layoutMode === "play" ? t("playHint") : "");
 }
@@ -89,49 +103,376 @@ const hudText = document.getElementById("hudText");
 const fileInput = document.getElementById("saveFileInput");
 const ROSTER = [KnightClass, MageClass, PriestClass, ArcherClass, FighterClass];
 
-const gameConfig = {
-  music: true,
-  sfx: true,
-  blood: true,
-  weather: true
-};
+const CONFIG_KEY = "vanguard_config";
+function loadGameConfig() {
+  try {
+    const raw = localStorage.getItem(CONFIG_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return {
+        music: parsed.music !== undefined ? Boolean(parsed.music) : true,
+        sfx: parsed.sfx !== undefined ? Boolean(parsed.sfx) : true,
+        blood: parsed.blood !== undefined ? Boolean(parsed.blood) : true,
+        weather: parsed.weather !== undefined ? Boolean(parsed.weather) : true
+      };
+    }
+  } catch (_) {}
+  return { music: true, sfx: true, blood: true, weather: true };
+}
 
-const stage = new Stage(1280, 960);
-const camera = new Camera(VIEW_W, VIEW_H, stage.width, stage.height);
+const gameConfig = loadGameConfig();
+Sound.musicEnabled = gameConfig.music;
+Sound.sfxEnabled = gameConfig.sfx;
+
+// Ang kaparangan ng Aethelgard (hub) at ang mga platform ng Acts VII–XII (ginagawa kapag unang pinasok).
+// Pareho ang laki (1280x960), kaya iisa ang camera, kalaban at projectile manager.
+const hub = new Stage(1280, 960);
+let stage = hub;
+const platformCache = {};
+function platformById(id) {
+  if (id === "hub" || !PLATFORMS[id]) return hub;
+  if (!platformCache[id]) platformCache[id] = new Platform(id);
+  return platformCache[id];
+}
+
+const camera = new Camera(VIEW_W, VIEW_H, hub.width, hub.height);
 const fx = new FXManager();
-const enemyManager = new EnemyManager(stage.width, stage.height);
-const projectileManager = new ProjectileManager(stage.width, stage.height);
+const enemyManager = new EnemyManager(hub.width, hub.height);
+const projectileManager = new ProjectileManager(hub.width, hub.height);
 const ui = new UIManager();
 const lootManager = new LootManager();
 const mercManager = new MercenaryManager();
 const controller = new InputController();
+enemyManager.loot = lootManager;
+// Araw at gabi (js/daynight.js): may epekto sa halimaw at sa bayani
+const dayNight = new DayNight();
+let lastPhase = "";
+enemyManager.setArea(hub);
 
 // Kuwento: quest, mga NPC ng lore, dialogue box
 const quest = new QuestManager();
-const npcManager = new NPCManager(stage);
+const npcManager = new NPCManager(hub);
 const dialog = new DialogBox(viewportEl);
 const questHud = new QuestHud(viewportEl);
 const summonerName = () => (npcManager.summonerId ? npcName(npcManager.summonerId) : "");
+const playerClass = () => (player ? player.heroData.id : "novice");
+// Pangalan ng mentor ng class ng player (Act V); null habang Novice pa
+const mentorName = () => (MENTOR_BY_CLASS[playerClass()] ? npcName(MENTOR_BY_CLASS[playerClass()]) : null);
+
+// Lore panel sa kanan: sumusunod sa Act ng kasalukuyang hakbang ng quest (teksto + banner)
+let lorePanel = null;
+function syncLoreAct() {
+  if (lorePanel) lorePanel.setAct(player ? quest.act() : 0);
+}
+
+// "Read more": buong teksto ng tapos at kasalukuyang act (nakakandado ang susunod)
+const actReader = new ActReader(document.getElementById("actReader"));
+function openActReader() {
+  if (!player || gameState !== "PLAYING") return;
+  controller.clearAll();
+  if (questHud.logOpen) questHud.closeLog();
+  inventory.close();
+  showShopModal = false;
+  showMercModal = false;
+  actReader.show(quest.act(), quest.step >= FINAL_STEP);
+}
+
+// Inventory (I): kagamitan, stats, gold at aktibong buff. Naka-pause ang laro habang bukas.
+const inventory = new InventoryPanel(document.getElementById("inventory"));
+function toggleInventory() {
+  if (!player || gameState !== "PLAYING" || dialog.open || actReader.open || showShopModal || showMercModal) return;
+  controller.clearAll();
+  if (questHud.logOpen) questHud.closeLog();
+  worldMap.close();
+  charPanel.close();
+  inventory.toggle(player, {
+    fx,
+    // Ang upgrade at pagbebenta ay sa sanctuary lang (Barracks, dais ng Citadel o kampo ng platform)
+    inSanctuary: () => Boolean(player && stage.isInsideSafeZone(player.x + 10, player.y + 17)),
+    // Itinapong item: ibinababa sa lupa sa harap ng bayani
+    onDrop: (inst) => {
+      lootManager.drop({ x: player.x + 10 + (player.facing === "left" ? -18 : 18), y: player.y + 14 }, inst);
+      const it = lootManager.items[lootManager.items.length - 1];
+      if (it) it.blocked = 240;     // huwag agad mapulot muli
+    }
+  });
+}
+
+// Character (C): stat builder at skill tree (parang Ragnarok Online). Naka-pause ang laro habang bukas.
+const charPanel = new CharacterPanel(document.getElementById("character"));
+function toggleCharacter() {
+  if (!player || gameState !== "PLAYING" || dialog.open || actReader.open || showShopModal || showMercModal) return;
+  controller.clearAll();
+  if (questHud.logOpen) questHud.closeLog();
+  worldMap.close();
+  inventory.close();
+  charPanel.toggle(player);
+}
+
+// Ikinokonekta ang bag ng player: kapag nagbago ang suot, bagong itsura at stats
+function attachBag(p) {
+  p.bag.onChange = (equipChanged) => {
+    if (equipChanged) refreshLook(p);
+    p.recalc();
+    inventory.dirty = true;
+  };
+  refreshLook(p);
+  p.recalc();
+}
+
+// ==================== TARGET LOCK (Shift) ====================
+// Bawat pindot ng Shift: susunod na kalaban na abot ng atake, mula sa pinakamalapit.
+// Ang naka-lock na target ang tinututukan ng J/K/L hanggang mamatay o lumayo.
+let lockedTarget = null;
+function cycleTarget() {
+  if (!player) return;
+  const range = (player.heroData.range || 200) + 40;
+  const list = enemyManager.enemies
+    .filter((e) => e.isAlive && Math.hypot(e.x - player.x, e.y - player.y) <= range)
+    .sort((a, b) => Math.hypot(a.x - player.x, a.y - player.y) - Math.hypot(b.x - player.x, b.y - player.y));
+  if (!list.length) {
+    lockedTarget = null;
+    fx.spawnDamagePopup(player.x + 10, player.y - 14, getLang() === "fil" ? "WALANG TARGET" : "NO TARGET", false, "#94a3b8");
+    return;
+  }
+  lockedTarget = list[(list.indexOf(lockedTarget) + 1) % list.length];
+  fx.spawnDamagePopup(lockedTarget.x + 10, lockedTarget.y - 22 - (lockedTarget.hitUp || 0), `🎯 ${enemyManager.displayName(lockedTarget)}`, false, "#ef4444");
+  if (Sound.playSelectMove) Sound.playSelectMove();
+}
+
+// Quick slot (1–4): ang item na nakatalaga sa slot (itinatakda sa Inventory)
+const QUICK = { Digit1: 0, Digit2: 1, Digit3: 2, Digit4: 3 };
+function quickUse(slot) {
+  if (!player || typeof slot !== "number") return false;
+  const id = player.belt[slot];
+  if (!id || !player.bag.has(id)) {
+    fx.spawnDamagePopup(player.x + 10, player.y - 6, "—", false, "#64748b");
+    return true;
+  }
+  player.bag.useById(id, player, fx);
+  return true;
+}
+
+// Auto-potion (parang Ragnarok/Diablo): kusang iinom kapag bumaba ang HP sa itinakdang porsyento,
+// gagamit ng Panacea kapag may sumpa, at ng Tonic kapag pagod. May pagitan na 1 segundo.
+const HEAL_ORDER = ["salve", "elixir", "herb"];
+const HARMFUL = ["poison", "bleeding", "burn", "freeze", "electrified", "silence", "blind", "curse", "confusion"];
+function autoPotion() {
+  const p = player, a = p.autoPot;
+  if (p.autoPotTimer > 0) { p.autoPotTimer--; return; }
+  const use = (id) => { if (p.bag.has(id) && p.bag.useById(id, p, fx)) { p.autoPotTimer = 60; return true; } return false; };
+  if (a.hp && p.hp / p.maxHp * 100 < a.hp) {
+    // mas malakas na gamot kapag malaki ang kulang
+    const order = p.maxHp - p.hp > 120 ? ["elixir", "salve", "herb"] : HEAL_ORDER;
+    if (order.some(use)) return;
+  }
+  if (a.cure && HARMFUL.some((k) => p.debuffs[k] > 0) && use("panacea")) return;
+  if (a.stamina && p.exhausted) use("tonic");
+}
+document.getElementById("loreMore").addEventListener("mousedown", (e) => e.preventDefault());
+document.getElementById("loreMore").addEventListener("click", () => { Sound.init(); openActReader(); });
+
+// Pause / tuloy (P, Esc o button sa bottom bar)
+function togglePause() {
+  if (gameState === "PLAYING") {
+    gameState = "PAUSED";
+    saveGame();
+    Sound.stopGameplayBGM();
+  } else if (gameState === "PAUSED") {
+    gameState = "PLAYING";
+    if (gameConfig.music) Sound.startGameplayBGM();
+  }
+}
+
+// Kanang panel, gitna: profile, quest at estado ng field
+const hudBar = new HudBar();
+
+// Mapa ng buong mundo (M). Naka-pause ang laro habang bukas.
+const worldMap = new WorldMap(stage);
+function toggleMap() {
+  if (!player || gameState !== "PLAYING" || dialog.open || actReader.open) return;
+  controller.clearAll();
+  if (questHud.logOpen) questHud.closeLog();
+  inventory.close();
+  showShopModal = false;
+  showMercModal = false;
+  worldMap.toggle();
+}
+
+// Bumalik sa title (naka-save muna)
+function exitToTitle() {
+  saveGame();
+  controller.clearAll();
+  if (questHud.logOpen) questHud.closeLog();
+  inventory.close();
+  charPanel.close();
+  showShopModal = false;
+  showMercModal = false;
+  gameState = "TITLE";
+  player = null;
+  syncLoreAct();
+  Sound.stopGameplayBGM();
+  if (gameConfig.music) Sound.startTitleBGM();
+  titleScene.refreshSaveStatus();
+}
+
+// Kanang panel, ibaba: mga skill (J, K, Space, E) at options (Q, I, M, Esc, H)
+const actionPanel = new ActionPanel({
+  quests: () => {
+    Sound.init();
+    if (gameState === "PLAYING" && !dialog.open && !actReader.open && !showShopModal && !showMercModal) {
+      inventory.close();
+      questHud.toggleLog(quest, player, summonerName(), mentorName());
+    }
+  },
+  inventory: () => { Sound.init(); toggleInventory(); },
+  character: () => { Sound.init(); toggleCharacter(); },
+  quick: (i) => { Sound.init(); if (gameState === "PLAYING" && !dialog.open) quickUse(i); },
+  pause: () => {
+    Sound.init();
+    if (dialog.open || actReader.open) return;
+    if (questHud.logOpen) questHud.closeLog();
+    inventory.close();
+    togglePause();
+  },
+  menu: () => {
+    Sound.init();
+    if (dialog.open || actReader.open || !player) return;
+    worldMap.close();
+    exitToTitle();
+  },
+  map: () => { Sound.init(); toggleMap(); }
+});
+
 quest.onChange = () => {
-  npcManager.applyQuest(quest);
-  if (player) questHud.toast(quest.text(player, summonerName()).goal);
+  npcManager.applyQuest(quest, playerClass());
+  syncLoreAct();
+  syncPlatformFlags();
+  syncBoss();
+  if (player) questHud.toast(quest.text(player, summonerName(), mentorName()).goal);
   saveGame();
 };
 
-function drawSpriteMatrix(targetCtx, x, y, spriteGrid, flashWhite = false) {
-  if (!spriteGrid) return;
-  const numRows = spriteGrid.length;
-  for (let r = 0; r < numRows; r++) {
-    const row = spriteGrid[r];
-    const numCols = row.length;
-    for (let c = 0; c < numCols; c++) {
-      const color = row[c];
-      if (color && color !== 0) {
-        targetCtx.fillStyle = flashWhite ? "#ffffff" : color;
-        targetCtx.fillRect(Math.floor(x) + c, Math.floor(y) + r, 1, 1);
-      }
-    }
+// ==================== PAGLALAKBAY SA MGA PLATFORM (Acts VII–XII) ====================
+const lang = () => (getLang() === "fil" ? "fil" : "en");
+const fillNames = (lines) => lines.map((s) => s.replace(/\{s\}/g, summonerName()).replace(/\{h\}/g, (player && player.heroName) || "Champion"));
+
+// Mga palatandaan ng platform ayon sa quest: natalo na ang boss, bukas ang lamat patungo sa Maw
+function syncPlatformFlags() {
+  Object.values(platformCache).forEach((p) => {
+    p.cleared = quest.cleared(p.id);
+    if (p.def.rift) p.riftOpen = quest.unlocked(p.def.rift.dest);
+  });
+}
+
+// Lumilitaw ang boss kapag ito ang layunin ng quest at wala pang quest item
+function syncBoss() {
+  if (!player || stage === hub) return;
+  const def = stage.def;
+  if (!quest.wantsBoss(stage.id) || enemyManager.boss()) return;
+  if (player.bag.has(def.item) || lootManager.items.some((it) => it.id === def.item)) return;
+  enemyManager.spawnBoss(def.boss, def.bossSpawn.x, def.bossSpawn.y, player.level);
+}
+
+// Lumipat sa ibang lugar. at = { x, y } (pixel ng player) o wala para sa default na pagdating.
+function travelTo(id, at = null) {
+  const from = stage.id;
+  lockedTarget = null;
+  stage = platformById(id);
+  syncPlatformFlags();
+  const spot = at || (stage === hub ? hub.arrivalFrom(from) : stage.arrival());
+  player.x = spot.x;
+  player.y = spot.y;
+  player.portalCooldown = 75;
+  camera.update(player.x, player.y);
+
+  npcManager.setPlatform(stage.id);
+  npcManager.applyQuest(quest, playerClass());
+  dayNight.setPlace(stage.id);
+  worldMap.stage = stage;
+  worldMap.close();
+  const def = stage === hub ? null : stage.def;
+  enemyManager.setArea(stage, def ? def.monsters : undefined, def ? def.tier : 0);
+  enemyManager.init(player.level);
+  projectileManager.clear();
+  lootManager.clear();
+  // Sumusunod ang mga mercenary at summon
+  mercManager.mercenaries.forEach((m, k) => { m.x = player.x - 16 + k * 10; m.y = player.y + 14; });
+  if (player.falconCompanion) { player.falconCompanion.x = player.x - 22; player.falconCompanion.y = player.y - 18; }
+  (player.angelCompanions || []).forEach((a, k) => { a.x = player.x + (k ? 30 : -30); a.y = player.y - 16; });
+
+  if (fx.spawnHitSparks) fx.spawnHitSparks(player.x + 10, player.y + 10, def ? def.color : "#ffd166", 22);
+  if (Sound.playHolyBurst) Sound.playHolyBurst();
+
+  // Unang pagdating sa platform ng kasalukuyang Act: sinasalubong ng tagapagtawag
+  if (def && quest.step === quest.baseStep(id)) {
+    quest.onArrive(id);
+    const s = npcManager.find(npcManager.summonerId);
+    dialog.start(npcManager.summonerId, s && s.avatar, fillNames(def.text[lang()].arrive));
   }
+  syncBoss();
+  saveGame();
+}
+
+// Pagpasok sa gateway / gate / lamat / karagatan
+function handlePortal(portal) {
+  if (!player) return;
+  const dest = portal.dest;
+  if (portal.id === "RETURN") return travelTo("hub");
+  if (portal.id === "DARK_CONTINENT_PORTAL" || dest === "dark_continent") {
+    // Paglalakbay patungo sa Ikalawang Kontinente: Dark Continent (Siege / Act XI-XII platform)
+    travelTo("siege");
+    if (fx && fx.spawnDamagePopup) {
+      fx.spawnDamagePopup(player.x + 10, player.y - 12, lang() === "fil" ? "🌌 DARK CONTINENT" : "🌌 THE DARK CONTINENT", true, "#9d4edd");
+    }
+    return;
+  }
+  if (portal.id === "CITADEL_GATE" && !quest.unlocked("siege")) {
+    // Bago ang Act XI: shortcut pabalik sa Barracks (tulad ng dati)
+    player.x = hub.safeZone.x + hub.safeZone.w / 2 - 10;
+    player.y = hub.safeZone.y + hub.safeZone.h - 30;
+    if (fx.spawnHitSparks) fx.spawnHitSparks(player.x + 10, player.y + 10, "#38bdf8", 16);
+    if (Sound.playHolyBurst) Sound.playHolyBurst();
+    return;
+  }
+  if (dest && PLATFORMS[dest]) {
+    if (!quest.unlocked(dest)) {
+      const act = PLATFORMS[dest].act;
+      fx.spawnDamagePopup(player.x + 10, player.y - 10, lang() === "fil" ? `SELYADO · ACT ${act}` : `SEALED · ACT ${act}`, false, "#94a3b8");
+      return;
+    }
+    travelTo(dest);
+  }
+}
+
+// Mga label ng 4 na Warp Gateway sa hub: pangalan ng platform, nakasara hanggang sa Act nito
+hub.portals.stateOf = (p) => ({
+  sealed: !quest.unlocked(p.dest),
+  label: PLATFORMS[p.dest] ? PLATFORMS[p.dest].name[lang()].toUpperCase() : ""
+});
+
+// Natalo ang boss: pulutin ang quest item
+enemyManager.onBossDefeated = (e) => {
+  const item = stage.def && stage.def.item;
+  questHud.toast(lang() === "fil" ? `Natalo si ${e.kind.name.fil}! Pulutin ang iniwan niya.` : `${e.kind.name.en} has fallen! Claim what was left behind.`);
+  if (item) fx.spawnDamagePopup(e.x + 10, e.y - 40, "✦ QUEST ITEM ✦", true, "#facc15");
+};
+lootManager.onQuestItem = (id) => quest.onQuestItem(id);
+
+// Pakikipag-usap sa tagapagtawag sa kampo ng platform
+function talkField(npc) {
+  const def = PLATFORMS[npc.platform];
+  const T = def.text[lang()];
+  if (quest.canDeliver(def.id) && player.bag.has(def.item)) {
+    dialog.start(npc.id, npc.avatar, fillNames(T.deliver), () => {
+      player.bag.take(def.item, 1);
+      quest.onDeliver(def.id);
+      if (fx.spawnHitSparks) fx.spawnHitSparks(npc.x, npc.y - 20, "#ffd166", 30);
+    });
+    return;
+  }
+  const lines = quest.cleared(def.id) ? [T.deliver[0]] : quest.wantsBoss(def.id) ? T.hint : [T.arrive[0]];
+  dialog.start(npc.id, npc.avatar, fillNames(lines));
 }
 
 let gameState = "TITLE";
@@ -140,13 +481,13 @@ let showShopModal = false;
 let showMercModal = false;
 
 // ========================================================
-// EXPORT & IMPORT SAVE SYSTEM (.JSON FILE & LOCALSTORAGE)
+// SECURE EXPORT & IMPORT SAVE SYSTEM (.VOF SECURE FORMAT)
 // ========================================================
 function getSavePayload() {
   if (!player || player.hp <= 0) return null;
   return {
     game: "Vanguard of Fate",
-    version: "1.0.0",
+    version: "2.5.0",
     savedAt: new Date().toISOString(),
     heroId: player.heroData.id,
     name: player.heroName || "",
@@ -164,6 +505,14 @@ function getSavePayload() {
     bonusCrit: player.bonusCrit,
     bonusCooldown: player.bonusCooldown,
     hp: player.hp,
+    bag: player.bag.serialize(),            // bag at suot na kagamitan
+    stats: { ...player.stats },             // STR/AGI/VIT/INT/DEX/LUK
+    skills: { ...player.skillLevels },
+    skillPoints: player.skillPoints,
+    belt: [...player.belt],
+    autoPot: { ...player.autoPot },
+    dayTick: dayNight.serialize(),
+    platform: stage.id,                     // "hub" o platform ng Act
     x: player.x,
     y: player.y
   };
@@ -178,27 +527,35 @@ function saveGame() {
   } catch (e) {}
 }
 
-// 1. Export as .json File Download
+// 1. Export as Encrypted .vof (Vanguard of Fate Protected Save)
 function exportSaveFile() {
-  let raw = localStorage.getItem("vanguard_savegame");
-  if (!raw && player) {
-    saveGame();
-    raw = localStorage.getItem("vanguard_savegame");
-  }
-  if (!raw) return;
+  const payload = getSavePayload();
+  if (!payload) return;
+  saveGame();
 
-  const blob = new Blob([raw], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `vanguard_savegame_${Date.now()}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  try {
+    const secureContent = SaveSecurity.exportSecureSave(payload);
+    const blob = new Blob([secureContent], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const safeHero = (player.heroName || "hero").replace(/[^a-zA-Z0-9_-]/g, "_");
+    a.download = `vanguard_save_${safeHero}_${Date.now()}.vof`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    if (fx && fx.spawnDamagePopup) {
+      fx.spawnDamagePopup(player.x + 10, player.y - 12, "🔒 ENCRYPTED SAVE EXPORTED (.VOF)", true, "#4ade80");
+    }
+  } catch (err) {
+    console.error("Export save failed:", err);
+    alert(lang() === "fil" ? "Pumalya ang pag-export ng secure save file." : "Failed to export secure save file.");
+  }
 }
 
-// 2. Import via .json File Dialog
+// 2. Import via .vof / .json File Dialog with Cryptographic & Anti-Tamper Verification
 function importSaveFile() {
   if (!fileInput) return;
   fileInput.value = "";
@@ -213,14 +570,27 @@ if (fileInput) {
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
-        const json = JSON.parse(event.target.result);
+        const fileContent = event.target.result;
+        const result = SaveSecurity.importSecureSave(fileContent);
+
+        if (!result.success) {
+          alert(result.error || (lang() === "fil" ? "Hindi ligtas o binago ang nilalaman ng save file!" : "Invalid or tampered save file!"));
+          return;
+        }
+
+        const json = result.data;
         if (!json.heroId || !json.level) {
           alert(t("invalidSave"));
           return;
         }
+
         localStorage.setItem("vanguard_savegame", JSON.stringify(json));
         titleScene.refreshSaveStatus();
         loadGame();
+
+        if (result.isLegacy) {
+          console.log("[SaveSecurity] Upgraded legacy save to encrypted format.");
+        }
       } catch (err) {
         alert(t("badSave"));
       }
@@ -237,14 +607,15 @@ function loadGame() {
 
     const foundHero = data.heroId === "novice"
       ? getNovice(data.avatar, data.name)
-      : ROSTER.find((h) => h.id === data.heroId) || ROSTER[0];
-    player = new Player(data.x || stage.width / 2, data.y || stage.height / 2, foundHero);
+      : equipJob(ROSTER.find((h) => h.id === data.heroId) || ROSTER[0], data.avatar);
+    player = new Player(data.x || hub.width / 2, data.y || hub.height / 2, foundHero);
     player.heroName = data.name || "";
-    player.avatarConfig = data.avatar || null;
+    player.avatarConfig = data.avatar || foundHero.avatarConfig || null;
 
     player.level = data.level || 1;
     player.exp = data.exp || 0;
-    player.expNext = data.expNext || 60;
+    player.expNext = expFor(player.level);          // bagong EXP curve (hindi ang luma sa save)
+    player.exp = Math.min(player.exp, player.expNext - 1);
     player.gold = data.gold || 150;
     player.statPoints = data.statPoints || 0;
     player.bonusHp = data.bonusHp || 0;
@@ -254,7 +625,22 @@ function loadGame() {
     player.bonusCrit = data.bonusCrit || 0;
     player.bonusCooldown = data.bonusCooldown || 0;
 
-    applyDerivedStats(player);
+    // Stat builder at skill tree. Lumang save (walang stats): ibinabalik ang mga puntos para ibuo muli
+    if (data.stats) {
+      Object.keys(player.stats).forEach((k) => { player.stats[k] = Math.max(1, Math.min(99, data.stats[k] | 0 || 1)); });
+      player.skillLevels = { ...(data.skills || {}) };
+      player.skillPoints = data.skillPoints || 0;
+    } else {
+      player.statPoints = (data.statPoints || 0) + 10 + (player.level - 1) * 3;
+      player.skillPoints = player.level - 1;
+    }
+    dayNight.load(data.dayTick);
+    if (Array.isArray(data.belt)) player.belt = data.belt.slice(0, 4).map((x) => x || null);
+    if (data.autoPot) player.autoPot = { hp: data.autoPot.hp | 0, cure: Boolean(data.autoPot.cure), stamina: Boolean(data.autoPot.stamina) };
+    // Bag: lumang save na walang bag → default na kagamitan ng class
+    if (data.bag) player.bag.load(data.bag);
+    else starterKit(player);
+    attachBag(player);
     player.hp = Math.min(player.maxHp, data.hp || player.maxHp);
     quest.load(data.quest, player);
 
@@ -263,28 +649,41 @@ function loadGame() {
     }
 
     beginPlaying();
+    // Ibalik sa platform kung saan nag-save (kung bukas pa ayon sa quest)
+    const saved = data.platform && PLATFORMS[data.platform] && quest.unlocked(data.platform) ? data.platform : null;
+    if (saved) travelTo(saved, { x: player.x, y: player.y });
     return true;
   } catch (e) {
+    console.error(e);
     return false;
   }
 }
 
-// Max HP = base ng class + bonus mula sa stat points + 12 bawat level (katulad ng addExp)
-function applyDerivedStats(p) {
-  p.maxHp = p.baseMaxHp + p.bonusHp + (p.level - 1) * 12;
-  p.defense = p.bonusDefense;
-  p.speed = p.baseSpeed + p.bonusSpeed;
+// Unang kagamitan: kit ng class (tier 1 kung may class na) + ilang gamot
+function starterKit(p) {
+  const cls = p.heroData.id;
+  p.bag.giveKit(cls, cls === "novice" ? 0 : 1);
+  p.bag.add("salve", 3);
+  p.bag.add("tonic", 1);
 }
 
 // Karaniwang reset kapag papasok sa laro (bagong laro o load)
 function beginPlaying() {
   controller.clearAll();
+  stage = hub;
+  worldMap.stage = hub;
+  dayNight.setPlace("hub");
   npcManager.build(summonerIdFor(player.avatarConfig));
-  npcManager.applyQuest(quest);
+  npcManager.setPlatform("hub");
+  npcManager.applyQuest(quest, playerClass());
+  syncLoreAct();
+  syncPlatformFlags();
   gameState = "PLAYING";
   showShopModal = false;
   showMercModal = false;
   fx.reset();
+  enemyManager.setArea(hub);
+  enemyManager.player = player;
   enemyManager.init(player.level);
   projectileManager.clear();
   lootManager.clear();
@@ -296,19 +695,22 @@ function backToTitle() {
   controller.clearAll();
   gameState = "TITLE";
   player = null;
+  syncLoreAct();
   Sound.stopGameplayBGM();
   if (gameConfig.music) Sound.startTitleBGM();
   titleScene.refreshSaveStatus();
 }
 
 // ==================== JOB AWAKENING (Act IV: audience dais ng Imperial Citadel) ====================
-// Nagsisimula pagkatapos kausapin ang tagapagtawag sa Citadel (quest step 3).
+// Nagsisimula pagkatapos kausapin ang tagapagtawag sa Citadel (quest step 4).
 function canAwaken(p) {
-  return p && p.heroData.id === "novice" && quest.step === 3;
+  return p && p.heroData.id === "novice" && quest.step === 4;
 }
 
 function startAwakening() {
   controller.clearAll();
+  // Preview: ang player mismo na suot ang gear ng bawat class
+  selectScene.jobAvatars = Object.fromEntries(ROSTER.map((h) => [h.id, equipJob(h, player.avatarConfig).avatar]));
   selectScene.setMode("awakening");
   gameState = "SELECT";
   Sound.stopGameplayBGM();
@@ -318,10 +720,15 @@ function startAwakening() {
 // Pinapalitan ang Novice ng napiling class; dala ang level, exp, gold, stats at pangalan
 function awaken(chosenHero) {
   const old = player;
-  const p = new Player(old.x, old.y, chosenHero);
+  // Pareho pa rin ang itsura mula sa Character Creator; ang class ang nagbibigay ng bagong gear
+  const p = new Player(old.x, old.y, equipJob(chosenHero, old.avatarConfig));
   ["level", "exp", "expNext", "gold", "statPoints", "bonusHp", "bonusDamage",
-    "bonusDefense", "bonusSpeed", "bonusCrit", "bonusCooldown", "heroName", "avatarConfig"].forEach((k) => { p[k] = old[k]; });
-  applyDerivedStats(p);
+    "bonusDefense", "bonusSpeed", "bonusCrit", "bonusCooldown", "heroName", "avatarConfig",
+    "stats", "skillLevels", "skillPoints", "belt", "autoPot"].forEach((k) => { p[k] = old[k]; });
+  // Dala ang bag; ang tagapagtawag ay nagbibigay ng custom-forged na sandata ng class (LORE Act IV)
+  p.bag = old.bag;
+  p.bag.giveKit(chosenHero.id, 1);
+  attachBag(p);
   p.hp = p.maxHp;
   if (chosenHero.id === "archer") p.falconCompanion = new FalconCompanion(p.x, p.y);
   player = p;
@@ -331,20 +738,23 @@ function awaken(chosenHero) {
   if (fx.spawnHitSparks) fx.spawnHitSparks(p.x + 10, p.y + 10, "#ffd166", 28);
   if (Sound.playHolyBurst) Sound.playHolyBurst();
   if (gameConfig.music) Sound.startGameplayBGM();
-  quest.advance(4);
+  quest.advance(5);   // Act V: Dual Equipment Matrix
 
   // Ibinibigay ng tagapagtawag ang sandata at ang titulong Field Commander
   const summoner = npcManager.find(npcManager.summonerId);
-  const d = getDialogue(npcManager.summonerId, { step: quest.step, cls: p.heroData.id, met: quest.met, justAwakened: true });
+  const d = getDialogue(npcManager.summonerId, {
+    step: quest.step, cls: p.heroData.id, met: quest.met, summoner: npcManager.summonerId, justAwakened: true
+  });
   dialog.start(npcManager.summonerId, summoner && summoner.avatar, d.lines);
 }
 
 // Pakikipag-usap sa NPC (E). Pagkatapos ng huling linya: quest + shop/merc/awakening
 function talkTo(npc) {
-  const d = getDialogue(npc.id, { step: quest.step, cls: player.heroData.id, met: quest.met });
+  if (npc.tag === "field") return talkField(npc);
+  const d = getDialogue(npc.id, { step: quest.step, cls: playerClass(), met: quest.met, summoner: npcManager.summonerId });
   dialog.start(npc.id, npc.avatar, d.lines, () => {
-    quest.onTalk(npc.id, npcManager.summonerId);
-    npcManager.applyQuest(quest);
+    quest.onTalk(npc.id, npcManager.summonerId, playerClass());
+    npcManager.applyQuest(quest, playerClass());
     saveGame();   // naitala kung sino na ang nakausap
     if (d.action === "shop") { showShopModal = true; showMercModal = false; }
     else if (d.action === "merc") { showMercModal = true; showShopModal = false; }
@@ -371,17 +781,26 @@ const titleScene = new TitleScene(
   document.getElementById("title")
 );
 
-// Bagong expedition: Character Creator → Novice sa Barracks
-const creatorScene = new CreatorScene(
-  document.getElementById("creator"),
-  (config, name) => {
-    player = new Player(stage.width / 2, stage.height / 2, getNovice(config, name));
-    player.heroName = name;
-    player.avatarConfig = player.heroData.avatarConfig;
-    quest.reset();
+// Bagong expedition: Character Creator → Act I Prologue → Novice sa Barracks
+const prologueScene = new PrologueScene(
+  document.getElementById("prologue"),
+  () => {
     titleScene.flash();
     beginPlaying();
     saveGame();
+  }
+);
+
+const creatorScene = new CreatorScene(
+  document.getElementById("creator"),
+  (config, name) => {
+    player = new Player(hub.width / 2, hub.height / 2, getNovice(config, name));
+    player.heroName = name;
+    player.avatarConfig = player.heroData.avatarConfig;
+    starterKit(player);
+    attachBag(player);
+    quest.reset();
+    prologueScene.start(name);
   },
   () => {
     controller.clearAll();
@@ -392,7 +811,7 @@ const creatorScene = new CreatorScene(
 // Ang hero select ay para na lang sa Job Awakening
 const selectScene = new SelectScene(ROSTER, (chosenHero) => {
   if (canAwaken(player)) awaken(chosenHero);
-}, drawSpriteMatrix, {
+}, {
   picker: document.getElementById("picker"),
   dossier: document.getElementById("dossier")
 });
@@ -403,37 +822,33 @@ selectScene.mentorAvatars = Object.fromEntries(
 );
 
 setLayoutMode("title");
-startLore(document.getElementById("lore"));
+lorePanel = createLorePanel(document.getElementById("lore"));
 
-canvas.addEventListener("pointerdown", (e) => {
-  Sound.init();
+// Patugtugin agad ang BGM sa title screen bago pa may pindutin, kung naka-enable sa settings
+if (gameConfig.music) {
+  Sound.startTitleBGM();
+}
 
-  if (gameState === "PLAYING" || gameState === "PAUSED") {
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = VIEW_W / rect.width;
-    const scaleY = VIEW_H / rect.height;
-    const clickX = (e.clientX - rect.left) * scaleX;
-    const clickY = (e.clientY - rect.top) * scaleY;
-
-    const pb = ui.buttons.pause;
-    if (clickX >= pb.x && clickX <= pb.x + pb.w && clickY >= pb.y && clickY <= pb.y + pb.h) {
-      if (gameState === "PLAYING") {
-        gameState = "PAUSED";
-        saveGame();
-        Sound.stopGameplayBGM();
-      } else {
-        gameState = "PLAYING";
-        if (gameConfig.music) Sound.startGameplayBGM();
-      }
-    }
+// Kapag hinarang ng browser autoplay policy, kusang magpe-play sa unang interaction/movement
+const unlockAudio = () => {
+  if (Sound.ctx && Sound.ctx.state === "suspended") {
+    Sound.ctx.resume().catch(() => {});
   }
+  if (gameState === "TITLE" && gameConfig.music && !Sound.titleBgmInterval) {
+    Sound.startTitleBGM();
+  }
+};
+["pointerdown", "pointermove", "keydown", "touchstart", "focus"].forEach((evt) => {
+  window.addEventListener(evt, unlockAudio, { passive: true });
 });
 
 window.addEventListener("keydown", (e) => {
   Sound.init();
   if (e.code === "F2") { stage.tilemap.debug = !stage.tilemap.debug; e.preventDefault(); }
 
-  if (gameState === "TITLE") {
+  if (prologueScene.open) {
+    prologueScene.handleInput(e);
+  } else if (gameState === "TITLE") {
     titleScene.handleInput(e);
   } else if (gameState === "CREATE") {
     creatorScene.handleInput(e);
@@ -442,13 +857,39 @@ window.addEventListener("keydown", (e) => {
   } else if (gameState === "GAMEOVER" && e.code === "Enter") {
     Sound.playSelectConfirm();
     backToTitle();
+  } else if (actReader.open) {
+    actReader.handleInput(e);
+  } else if (worldMap.open) {
+    if (e.code === "KeyM" || e.code === "Escape") worldMap.close();
+    else if (e.code === "Tab") worldMap.toggleView();         // Kontinente / Rehiyon
+    e.preventDefault();
   } else if (gameState === "PLAYING" && dialog.open) {
     dialog.handleInput(e);
   } else if (gameState === "PLAYING" && questHud.logOpen) {
     if (e.code === "KeyQ" || e.code === "Escape") questHud.closeLog();
+  } else if (gameState === "PLAYING" && inventory.open) {
+    if (e.code === "KeyI" || e.code === "Escape") inventory.close();
+  } else if (gameState === "PLAYING" && charPanel.open) {
+    if (e.code === "KeyC" || e.code === "Escape") charPanel.close();
   } else if (gameState === "PLAYING" || gameState === "PAUSED") {
+    // R = "Read more" ng lore panel (keyboard shortcut)
+    if (e.code === "KeyR" && gameState === "PLAYING" && !showShopModal && !showMercModal) {
+      openActReader();
+      return;
+    }
+
+    if (e.code === "KeyI" && gameState === "PLAYING") {
+      toggleInventory();
+      return;
+    }
+
+    if (e.code === "KeyC" && gameState === "PLAYING") {
+      toggleCharacter();
+      return;
+    }
+
     if (e.code === "KeyQ" && gameState === "PLAYING" && !showShopModal && !showMercModal) {
-      questHud.toggleLog(quest, player, summonerName());
+      questHud.toggleLog(quest, player, summonerName(), mentorName());
       return;
     }
 
@@ -464,28 +905,48 @@ window.addEventListener("keydown", (e) => {
         showShopModal = false;
       } else if (showMercModal) {
         showMercModal = false;
+      } else if (stage.boatSystem && (
+        (player.inBoat && Math.hypot(player.x + 10 - stage.boatSystem.pier.x, player.y + 18 - stage.boatSystem.pier.y) < 55) ||
+        (!player.inBoat && Math.hypot(player.x + 10 - stage.boatSystem.pier.x, player.y + 18 - stage.boatSystem.pier.y) < 45) ||
+        (!player.inBoat && Math.hypot(player.x - stage.boatSystem.dockedBoat.x, player.y - stage.boatSystem.dockedBoat.y) < 45)
+      )) {
+        stage.boatSystem.toggleBoard(player, fx);
+      } else if (stage.boatSystem && Math.hypot(player.x - stage.boatSystem.monolith.x, player.y - stage.boatSystem.monolith.y) < 65) {
+        stage.boatSystem.activateMonolith(player, fx, () => {
+          questHud.toast(lang() === "fil" ? "Bukas na ang lagusan patungo sa Dark Continent!" : "Celestial Portal to the Dark Continent is open!");
+        });
       } else if (gameState === "PLAYING" && npcManager.nearest) {
         talkTo(npcManager.nearest);
       }
       return;
     }
 
-    if (e.code === "KeyM" && gameState === "PLAYING") {
-      if (npcManager.isNear("ronald")) {
-        showMercModal = !showMercModal;
-        showShopModal = false;
-        return;
-      }
+    // M = mapa ng buong mundo (ang mercenary ni Ronald ay sa pakikipag-usap na, E)
+    if (e.code === "KeyM" && gameState === "PLAYING" && !showShopModal && !showMercModal) {
+      toggleMap();
+      return;
     }
 
-    if (e.code === "KeyM" && gameState === "PAUSED") {
-      saveGame();
-      controller.clearAll();
-      gameState = "TITLE";
-      player = null;
-      Sound.stopGameplayBGM();
-      if (gameConfig.music) Sound.startTitleBGM();
-      titleScene.refreshSaveStatus();
+    // H habang naka-pause = bumalik sa Main Menu
+    if (e.code === "KeyH" && gameState === "PAUSED") {
+      exitToTitle();
+      return;
+    }
+
+    // Space: diinan = sprint; i-tap = i-lock/i-unlock ang sprint (tingnan ang keyup sa ibaba)
+    if (e.code === "Space" && !e.repeat && gameState === "PLAYING") {
+      spaceDownAt = performance.now();
+    }
+
+    // Shift: palitan ang naka-lock na target
+    if ((e.code === "ShiftLeft" || e.code === "ShiftRight") && gameState === "PLAYING" && !e.repeat) {
+      cycleTarget();
+      return;
+    }
+
+    // 1–4: mabilisang gamit ng gamot (kapag walang bukas na tindahan)
+    if (gameState === "PLAYING" && !showShopModal && !showMercModal && QUICK[e.code] !== undefined && !e.repeat) {
+      quickUse(QUICK[e.code]);
       return;
     }
 
@@ -518,8 +979,9 @@ window.addEventListener("keydown", (e) => {
     }
 
     if (e.code === "KeyK" && player.heroData.id === "archer" && player.falconCompanion && player.skillCooldownTimer <= 0 && !stage.isInsideSafeZone(player.x, player.y)) {
+      // Abot ng falcon: 240px
       const closestEnemy = enemyManager.enemies
-        .filter((en) => en.isAlive)
+        .filter((en) => en.isAlive && Math.hypot(en.x - player.x, en.y - player.y) <= 240)
         .sort((a, b) => Math.hypot(a.x - player.x, a.y - player.y) - Math.hypot(b.x - player.x, b.y - player.y))[0] || null;
 
       player.falconCompanion.triggerStrike(
@@ -530,25 +992,28 @@ window.addEventListener("keydown", (e) => {
       player.skillCooldownTimer = 220;
     }
 
-    if (e.code === "Escape" || e.code === "KeyP") {
+    // Esc lang ang pause/tuloy (hindi na P)
+    if (e.code === "Escape") {
       if (showShopModal) { showShopModal = false; return; }
       if (showMercModal) { showMercModal = false; return; }
 
-      if (gameState === "PLAYING") {
-        gameState = "PAUSED";
-        saveGame();
-        Sound.stopGameplayBGM();
-      } else if (gameState === "PAUSED") {
-        gameState = "PLAYING";
-        if (gameConfig.music) Sound.startGameplayBGM();
-      }
+      togglePause();
       return;
     }
   }
 });
 
+// Tap sa Space (mas maikli sa 220ms) = toggle ng sprint lock
+let spaceDownAt = 0;
+window.addEventListener("keyup", (e) => {
+  if (e.code !== "Space" || !spaceDownAt) return;
+  const tapped = performance.now() - spaceDownAt < 220;
+  spaceDownAt = 0;
+  if (tapped && player && gameState === "PLAYING" && !dialog.open) player.sprintLock = !player.sprintLock;
+});
+
 function updateGame() {
-  if (gameState !== "PLAYING" || !player || showShopModal || showMercModal || dialog.open || questHud.logOpen) return;
+  if (gameState !== "PLAYING" || !player || showShopModal || showMercModal || dialog.open || questHud.logOpen || inventory.open || charPanel.open || actReader.open || worldMap.open) return;
 
   if (player.hp <= 0) {
     gameState = "GAMEOVER";
@@ -558,19 +1023,45 @@ function updateGame() {
 
   const isInBarracks = stage.isInsideSafeZone(player.x, player.y);
 
-  stage.update(player, (portal) => {
-    if (Sound && Sound.playHolyBurst) Sound.playHolyBurst();
-    if (fx && fx.spawnHitSparks) fx.spawnHitSparks(player.x + 10, player.y + 10, portal.color, 16);
-  });
+  // Araw at gabi: lakas ng halimaw, bonus ng class, abiso kapag nagbago
+  dayNight.update();
+  enemyManager.night = dayNight.night();
+  player.timeMods = dayNight.heroMods(player.heroData.id);
+  const phase = dayNight.phase();
+  if (phase !== lastPhase) {
+    if (lastPhase && (phase === "NIGHT" || phase === "DAY")) {
+      questHud.toast(phase === "NIGHT"
+        ? (getLang() === "fil" ? "Sumapit ang gabi — mas mabagsik ang mga halimaw (+30% EXP)" : "Night falls — monsters grow fiercer (+30% EXP)")
+        : (getLang() === "fil" ? "Sumikat ang araw sa Aethelgard" : "Dawn breaks over Aethelgard"));
+    }
+    lastPhase = phase;
+  }
+
+  // Update real-time listener coordinates para sa spatial/positional combat sound filtering
+  if (player && Sound && Sound.setListener) {
+    Sound.setListener(player.x + 10, player.y + 21);
+  }
+
+  // Warp Gateway, gate ng Citadel, Return Gateway, lamat o sea portal (maaaring lumipat ng platform)
+  const before = stage;
+  stage.update(player, handlePortal, enemyManager, fx);
+  if (stage !== before) return;
 
   if (stage.castle) {
     stage.castle.resolveCollision(player);
   }
   stage.resolveTileCollision(player);
 
-  const closestEnemy = enemyManager.enemies
+  let closestEnemy = enemyManager.enemies
     .filter((e) => e.isAlive)
     .sort((a, b) => Math.hypot(a.x - player.x, a.y - player.y) - Math.hypot(b.x - player.x, b.y - player.y))[0] || null;
+  // Naka-lock na target (Shift): nananatili hangga't buhay at abot pa
+  if (lockedTarget) {
+    const range = (player.heroData.range || 200) * 1.3;
+    if (lockedTarget.isAlive && enemyManager.enemies.includes(lockedTarget) && Math.hypot(lockedTarget.x - player.x, lockedTarget.y - player.y) <= range) closestEnemy = lockedTarget;
+    else lockedTarget = null;
+  }
+  enemyManager.lockedId = lockedTarget ? lockedTarget.id : null;
 
   player.update(
     controller,
@@ -580,6 +1071,8 @@ function updateGame() {
     isInBarracks,
     fx
   );
+
+  autoPotion();
 
   if (player.falconCompanion) {
     player.falconCompanion.update(player, enemyManager, fx, lootManager);
@@ -594,6 +1087,7 @@ function updateGame() {
 
   camera.update(player.x, player.y);
 
+  enemyManager.allies = mercManager.mercenaries;
   enemyManager.update(player, fx, lootManager, stage);
   if (stage.castle) {
     enemyManager.enemies.forEach((enemy) => {
@@ -605,7 +1099,7 @@ function updateGame() {
   });
 
   quest.update(player);
-  npcManager.update(player);
+  npcManager.update(player, enemyManager, fx);
 
   mercManager.update(player, enemyManager, lootManager, fx, (proj) => projectileManager.add(proj), stage);
   projectileManager.update(enemyManager.enemies, enemyManager, fx, lootManager, player);
@@ -613,10 +1107,32 @@ function updateGame() {
 }
 
 // Gintong palaso sa gilid ng screen na nakaturo sa layunin ng quest (kapag wala sa screen)
+// Nasaan ang layunin sa kasalukuyang lugar: NPC, boss, o ang daan patungo sa susunod na platform
+function objectivePoint() {
+  const npc = npcManager.find(quest.targetNpc(npcManager.summonerId, playerClass()));
+  if (npc) return { x: npc.x, y: npc.y - 18 };
+  const boss = enemyManager.boss();
+  if (boss) return { x: boss.x + 10, y: boss.y - 10 };
+  const next = quest.currentPlatform();
+  if (!next || quest.step !== quest.baseStep(next)) {
+    // Nasa platform ang quest item na hindi pa napupulot
+    const drop = stage !== hub && lootManager.items.find((it) => it.quest);
+    return drop ? { x: drop.x, y: drop.y } : null;
+  }
+  // Kailangang pumunta sa susunod na platform
+  if (stage === hub) {
+    if (next === "siege") return { x: hub.castle.gatePortal.x, y: hub.castle.gatePortal.y };
+    const gate = hub.portals.portals.find((p) => p.dest === next);
+    return gate ? { x: gate.x, y: gate.y } : null;
+  }
+  if (stage.def.rift && stage.def.rift.dest === next) return { x: stage.def.rift.x, y: stage.def.rift.y };
+  return { x: stage.gate.x, y: stage.gate.y };
+}
+
 function drawObjectiveArrow() {
-  const target = npcManager.find(quest.targetNpc(npcManager.summonerId));
+  const target = objectivePoint();
   if (!target) return;
-  const sx = target.x - camera.x, sy = target.y - 18 - camera.y;
+  const sx = target.x - camera.x, sy = target.y - camera.y;
   const m = 14;
   if (sx > m && sx < VIEW_W - m && sy > m && sy < VIEW_H - m) return;
   const cx = VIEW_W / 2, cy = VIEW_H / 2;
@@ -640,14 +1156,15 @@ function renderGameWorld() {
   ctx.save();
   ctx.translate(Math.round(-camera.x + offsetX), Math.round(-camera.y + offsetY));
 
-  stage.draw(ctx);
+  stage.draw(ctx, player);
   const footY = player ? player.y + 21 : 0;
   npcManager.drawLayer(ctx, footY, false);   // mga NPC sa likod ng player
   lootManager.draw(ctx);
-  mercManager.draw(ctx, drawSpriteMatrix);
-  enemyManager.draw(ctx, drawSpriteMatrix);
+  mercManager.draw(ctx);
+  enemyManager.draw(ctx);
   projectileManager.draw(ctx);
 
+  enemyManager.targetId = player && player.target ? player.target.id : null;
   if (player && player.hp > 0) {
     player.draw(ctx);
 
@@ -667,8 +1184,24 @@ function renderGameWorld() {
 
   stage.drawOverlay(ctx);   // canopy ng mga puno, nasa ibabaw ng mga karakter
   if (player && gameState !== "GAMEOVER") npcManager.drawLabels(ctx, player);
-  fx.updateAndDraw(ctx, gameConfig);
+  // Ang ulan/bagyo ng fx ay para sa Aethelgard lang; may sariling ambient ang bawat platform
+  fx.updateAndDraw(ctx, stage === hub ? gameConfig : { ...gameConfig, weather: false });
   ctx.restore();
+  // Gabi: dilim na may liwanag sa paligid ng bayani (mas malawak ang paningin ng Archer)
+  if (player) {
+    const mods = dayNight.heroMods(player.heroData.id);
+    dayNight.draw(ctx, VIEW_W, VIEW_H, player.x + 10 - camera.x, player.y + 10 - camera.y, mods.sight, stage.id === "siege");
+  }
+  // Blind: dilim sa paligid ng bayani
+  if (player && player.debuffs.blind > 0) {
+    const px = player.x + 10 - camera.x, py = player.y + 10 - camera.y;
+    const g = ctx.createRadialGradient(px, py, 26, px, py, 110);
+    g.addColorStop(0, "rgba(0, 0, 0, 0)");
+    g.addColorStop(1, "rgba(0, 0, 0, 0.92)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+  }
+  enemyManager.drawBossBar(ctx, VIEW_W);
 
   const isInBarracks = player ? stage.isInsideSafeZone(player.x, player.y) : false;
   ui.drawHUD(
@@ -677,7 +1210,22 @@ function renderGameWorld() {
     fx.timeOfDay, fx.weatherType, isInBarracks
   );
 
-  if (gameState === "PLAYING") drawObjectiveArrow();
+  if (gameState === "PLAYING" && !worldMap.open) drawObjectiveArrow();
+
+  if (worldMap.open && player) {
+    const tq = quest.text(player, summonerName(), mentorName());
+    worldMap.draw(ctx, VIEW_W, VIEW_H, {
+      player,
+      npcs: npcManager.npcs.filter((n) => npcManager.shown(n)),
+      targetId: quest.targetNpc(npcManager.summonerId, playerClass()),
+      enemies: enemyManager.enemies,
+      loot: lootManager.items || [],
+      act: tq.act,
+      goal: tq.goal,
+      quest,
+      stageId: stage.id
+    });
+  }
 
   if (showShopModal && player) {
     ui.drawShopModal(ctx, player, VIEW_W, VIEW_H);
@@ -693,14 +1241,17 @@ function renderGameWorld() {
     ctx.fillStyle = "#ffd166";
     ctx.font = "bold 9px monospace";
     ctx.textAlign = "center";
-    ctx.fillText("⚔️ BARRACKS MERCENARY GUILD (10G EACH - 10 MINS) ⚔️", VIEW_W / 2, 60);
+    const mercCost = MercenaryManager.cost(player.level);
+    ctx.fillText(`⚔️ BARRACKS MERCENARY GUILD (${mercCost}G EACH - 10 MINS) ⚔️`, VIEW_W / 2, 60);
 
     ctx.fillStyle = "#ffffff";
     ctx.font = "7px monospace";
-    ctx.fillText("[1] AXEMAN (Whirlwind AOE) - 10G", VIEW_W / 2, 85);
-    ctx.fillText("[2] MAGE APPRENTICE (Arcane Blast) - 10G", VIEW_W / 2, 105);
-    ctx.fillText("[3] CROSSBOWMAN (3-Way Volley) - 10G", VIEW_W / 2, 125);
-    ctx.fillText("[4] VANGUARD KNIGHT (Earthshatter Slam) - 10G", VIEW_W / 2, 145);
+    ctx.fillText(`[1] AXEMAN - Whirlwind · War Cry · Bloodlust`, VIEW_W / 2, 85);
+    ctx.fillText(`[2] MAGE APPRENTICE - Arcane Surge · Heal Ally · Frost Nova`, VIEW_W / 2, 105);
+    ctx.fillText(`[3] CROSSBOWMAN - 3-Way Volley · Snare Trap · Eagle Eye`, VIEW_W / 2, 125);
+    ctx.fillText(`[4] VANGUARD KNIGHT - Earthshatter · Provoke · Guardian Aura`, VIEW_W / 2, 145);
+    ctx.fillStyle = "#94a3b8";
+    ctx.fillText(`${mercCost}G each · power scales with your level (Lv ${player.level})`, VIEW_W / 2, 160);
     ctx.fillText("Press 1-4 to Hire | ESC to Close", VIEW_W / 2, 175);
   }
 
@@ -710,7 +1261,7 @@ function renderGameWorld() {
     ctx.fillStyle = "#ffd166";
     ctx.font = "bold 6px monospace";
     ctx.textAlign = "center";
-    ctx.fillText("[ X ]   EXPORT SAVE FILE (.JSON)", VIEW_W / 2, VIEW_H / 2 + 32);
+    ctx.fillText("[ X ]   EXPORT SECURE SAVE (.VOF)", VIEW_W / 2, VIEW_H / 2 + 32);
   }
 
   if (gameState === "GAMEOVER") {
@@ -718,13 +1269,51 @@ function renderGameWorld() {
   }
 }
 
-function gameLoop() {
-  updateGame();
+// Fixed timestep: ang laro ay laging 60 update bawat segundo kahit 120/144 Hz ang monitor
+// (dati ay dumodoble ang bilis ng lahat sa mabilis na screen). Ang pagguhit ay sumusunod sa screen.
+const STEP = 1000 / 60;
+let lastTime = performance.now();
+let acc = 0;
+
+function gameLoop(now = performance.now()) {
+  acc += Math.min(250, now - lastTime);      // huwag humabol nang sobra pagkatapos ng tab switch
+  lastTime = now;
+  while (acc >= STEP) {
+    updateGame();
+    acc -= STEP;
+  }
   const MODES = { TITLE: "title", SELECT: "select", CREATE: "create" };
   setLayoutMode(MODES[gameState] || "play");
   dialog.update();
   questHud.setVisible(layoutMode === "play" && Boolean(player) && gameState !== "GAMEOVER");
-  if (player && layoutMode === "play") questHud.update(quest, player, summonerName());
+  if (player && layoutMode === "play") {
+    questHud.update(quest, player, summonerName(), mentorName());
+    hudBar.update({
+      player,
+      foes: enemyManager.enemies.filter((en) => en.isAlive).length,
+      loot: lootManager.items ? lootManager.items.length : 0,
+      weather: stage === hub ? fx.weatherType : "",
+      time: dayNight.label(),
+      inSanctuary: stage.isInsideSafeZone(player.x, player.y),
+      paused: gameState === "PAUSED"
+    });
+    actionPanel.update({
+      player,
+      inSanctuary: stage.isInsideSafeZone(player.x, player.y),
+      paused: gameState === "PAUSED",
+      canTalk: Boolean(npcManager.nearest),
+      sprinting: Boolean(player.sprinting || player.sprintLock),
+      mapOpen: worldMap.open,
+      inventoryOpen: inventory.open,
+      charOpen: charPanel.open,
+      pointsAvailable: player.statPoints > 0 || player.skillPoints > 0
+    });
+  }
+  if (inventory.open && (gameState !== "PLAYING" || !player)) inventory.close();
+  if (charPanel.open && (gameState !== "PLAYING" || !player)) charPanel.close();
+  inventory.update();
+  if (actReader.open && (layoutMode !== "play" || !player)) actReader.close();
+  if (worldMap.open && (gameState !== "PLAYING" || !player)) worldMap.close();
   if (gameState === "TITLE") {
     titleScene.draw();
   } else if (gameState === "CREATE") {
@@ -738,3 +1327,10 @@ function gameLoop() {
 }
 
 requestAnimationFrame(gameLoop);
+// Pang-debug para sa automated na pagsubok: aktibo lang kapag may ?debug sa URL
+if (new URLSearchParams(location.search).has("debug")) {
+  window.__vof = {
+    get player() { return player; }, get stage() { return stage; }, get state() { return gameState; },
+    quest, enemyManager, lootManager, projectileManager, mercManager, inventory, charPanel, travelTo, saveGame, awaken, ROSTER
+  };
+}
