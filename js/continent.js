@@ -9,7 +9,7 @@ import { PLATFORMS } from "./world/platforms.js";
 // Celestial Monolith in the Cerulean Abyss, drawn as a sea route around the south of Aethelgard.
 
 const LANDS = [
-  // ---- 1. AETHELGARD CONTINENT (KANLURAN / GITNA) ----
+  // ---- 1. AETHELGARD CONTINENT (WEST / CENTRE) ----
   { id: "hub", continent: "aethelgard", x: 0.24, y: 0.50, act: 1, color: "#ffd166", icon: "castle", name: { en: "Imperial Citadel & Barracks", fil: "Imperial Citadel at Barracks" } },
   { id: "frost", continent: "aethelgard", x: 0.27, y: 0.16, color: "#bfe9ff", icon: "peak" },
   { id: "canopy", continent: "aethelgard", x: 0.40, y: 0.42, color: "#c77dff", icon: "tree" },
@@ -239,7 +239,7 @@ export class ContinentMap {
         ctx.lineWidth = 1;
       }
 
-      // Pangalan at kalagayan
+      // Name and state
       const status = !open ? "🔒" : cleared ? "✔" : def ? "⚔" : land.id === "monolith" ? (awake ? "✦" : "⛓") : "";
       const label = `${status} ${land.id === "hub" || !act ? name : `Act ${ROMAN[act]} · ${name}`}`.trim();
       ctx.font = "bold 4.5px monospace";

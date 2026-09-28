@@ -42,7 +42,7 @@ export function drawGateway(ctx, p, t, sealed = false, label = "") {
   ctx.setLineDash([]);
 
   if (sealed) {
-    // kandado
+    // lock
     ctx.fillStyle = "#94a3b8";
     ctx.fillRect(p.x - 3, p.y - 1, 6, 5);
     ctx.strokeStyle = "#94a3b8";

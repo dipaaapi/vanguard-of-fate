@@ -72,7 +72,7 @@ export const MENTOR_BY_CLASS = { knight: "arthur", archer: "lyra", priest: "juli
 // Which LORE.md chapter the current step belongs to (for the lore panel and banner on the right)
 const STEP_ACT = [2, 2, 3, 4, 4, 5, 6, ...PLATFORM_ORDER.flatMap((id) => [PLATFORMS[id].act, PLATFORMS[id].act, PLATFORMS[id].act]), 12];
 
-// Lumang save (v1, 5 hakbang: 0 summoner, 1 allies, 2 Lv10, 3 dais, 4 tapos) → bagong hakbang
+// Old save (v1, 5 steps: 0 summoner, 1 allies, 2 Lv10, 3 dais, 4 done) → new steps
 const V1_TO_V2 = [0, 1, 2, 4, 5];
 
 const TEXT = {
@@ -226,7 +226,7 @@ export class QuestManager {
     if (this.step === 3 && player.level >= AWAKEN_LEVEL) this.advance(4);
   }
 
-  // ---------- KAMPANYA (Acts VII–XII) ----------
+  // ---------- CAMPAIGN (Acts VII–XII) ----------
   // First step of a platform (entering it)
   baseStep(platformId) {
     return CAMPAIGN_START + PLATFORM_ORDER.indexOf(platformId) * 3;

@@ -143,7 +143,7 @@ export class Pix {
   }
 }
 
-// ---------- GALAW (gait) ----------
+// ---------- GAIT ----------
 function gait(anim, i) {
   if (anim === "walk") {
     return [
@@ -170,7 +170,7 @@ function gait(anim, i) {
 
 // ==================== PARTS ====================
 
-// ---- PAA at BINTI ----
+// ---- FEET and LEGS ----
 function footHeight(style) {
   return style === "boots" ? 5 : 2;
 }
@@ -181,7 +181,7 @@ function drawFoot(p, c, cfg, x, bottom, w, dark) {
   if (cfg.boots === "sandals") {
     p.rect(x, top, w, h, dark ? c.skinD : c.skin);
     p.rect(x, top, w, 1, dark ? c.bootD : c.boot);        // strap
-    p.rect(x, bottom, w, 1, c.bootD);                       // suwelas
+    p.rect(x, bottom, w, 1, c.bootD);                       // sole
     return top;
   }
   p.rect(x, top, w, h, dark ? c.bootD : c.boot);
@@ -298,7 +298,7 @@ function drawCape(p, c, dy, view) {
   }
 }
 
-// ---- KATAWAN (torso) ----
+// ---- BODY (torso) ----
 function torsoRows(cfg, side) {
   const female = cfg.body === "female";
   if (side) {
@@ -358,7 +358,7 @@ function drawTorso(p, c, cfg, dy, view) {
     }
   }
 
-  // Sinturon
+  // Belt
   const beltY = 21 + dy;
   const plainBelt = cfg.outfit === "robe" || cfg.outfit === "gown";
   rows.forEach(([y, x0, x1]) => {
@@ -382,10 +382,10 @@ function drawPelvis(p, c, cfg, side) {
   for (let x = x0; x <= x1; x++) p.set(x, 24, x >= x1 - 1 ? c.legsD : c.legs);
 }
 
-// ---- BRASO at KAMAY ----
+// ---- ARMS and HANDS ----
 function sleeveColor(c, cfg, rowFromShoulder, dark) {
   if (cfg.outfit === "robe" || cfg.outfit === "gown" || cfg.outfit === "coat" || cfg.outfit === "armor") {
-    if (cfg.outfit === "coat" && rowFromShoulder >= 5) return c.gold;          // gintong puños
+    if (cfg.outfit === "coat" && rowFromShoulder >= 5) return c.gold;          // golden cuffs
     return dark ? c.clothD : c.cloth;
   }
   if (cfg.outfit === "vest") return dark ? c.shirtD : c.shirt;
@@ -442,7 +442,7 @@ function drawBuckler(p, c, cx, cy) {
   }));
 }
 
-// Punyal/espada: dir = "down" | "up" | "right"
+// Dagger/sword: dir = "down" | "up" | "right"
 function drawBlade(p, c, x, y, dir, len = 4) {
   if (dir === "right") {
     p.set(x, y, c.woodD);
@@ -559,7 +559,7 @@ function drawHeld(p, c, cfg, view, weapon, shield, g) {
   const x = weapon.hx + (side ? 1 : weapon.hx < 16 ? 0 : 1);
   const hy = weapon.hy;
 
-  // ---- Espada at palakol: windup = nakataas, strike = pasulong (gilid) / pababa (harap) ----
+  // ---- Sword and axe: windup = raised, strike = forward (side) / downward (front) ----
   if (held === "sword" || held === "greatsword") {
     const len = held === "greatsword" ? 10 : 7;
     if (side && atk === 2) drawBlade(p, c, weapon.hx + 2, hy, "right", len - 1);
@@ -616,7 +616,7 @@ function drawHeld(p, c, cfg, view, weapon, shield, g) {
     drawPole(p, c, x, 4, 33, weapon, c.woodD, c.belt);
     p.rows([[0, x, x], [1, x, x + 1], [2, x - 1, x + 1], [3, x - 1, x + 1]], c.metal);
     p.set(x - 1, 3, c.metalD);
-    if (!up) p.rows([[5, x + 1, x + 3], [6, x + 1, x + 2], [7, x + 1, x + 1]], c.plume);   // bandila
+    if (!up) p.rows([[5, x + 1, x + 3], [6, x + 1, x + 2], [7, x + 1, x + 1]], c.plume);   // banner
     return;
   }
   if (held === "scepter") {
@@ -629,7 +629,7 @@ function drawHeld(p, c, cfg, view, weapon, shield, g) {
     return;
   }
 
-  // ---- Busog at pana ----
+  // ---- Bow and arrow ----
   if (held === "bow") {
     if (side) {
       // Held in front; on the strike the arm is raised, string drawn, arrow nocked
@@ -667,7 +667,7 @@ function drawHeld(p, c, cfg, view, weapon, shield, g) {
   }
 }
 
-// ---- ULO at MUKHA ----
+// ---- HEAD and FACE ----
 const HEAD_FRONT = [[3, 11, 20], [4, 10, 21], [5, 9, 22], [6, 9, 22], [7, 9, 22], [8, 9, 22], [9, 9, 22], [10, 9, 22], [11, 9, 22], [12, 10, 21], [13, 11, 20]];
 const HEAD_SIDE = [[3, 12, 19], [4, 11, 20], [5, 10, 21], [6, 10, 21], [7, 10, 21], [8, 10, 21], [9, 10, 21], [10, 10, 21], [11, 10, 21], [12, 11, 20], [13, 12, 19]];
 
@@ -676,10 +676,10 @@ function drawHead(p, c, cfg, dy, view) {
   rows.forEach(([y, x0, x1]) => {
     for (let x = x0; x <= x1; x++) p.set(x, y + dy, x >= x1 - 1 && view !== "side" ? c.skinD : c.skin);
   });
-  // leeg
+  // neck
   const nx = view === "side" ? 14 : 15;
   p.set(nx, 14 + dy, c.skinD); p.set(nx + 1, 14 + dy, c.skinD);
-  // baba (anino)
+  // chin (shade)
   if (view !== "side") for (let x = 12; x <= 19; x++) p.set(x, 13 + dy, c.skinD);
 
   if (cfg.face === "skull") {
@@ -688,10 +688,10 @@ function drawHead(p, c, cfg, dy, view) {
   }
 
   if (view === "down") {
-    // tainga
+    // ears
     p.set(8, 8 + dy, c.skin); p.set(8, 9 + dy, c.skinD);
     p.set(23, 8 + dy, c.skinD); p.set(23, 9 + dy, c.skinDD);
-    // kilay
+    // eyebrows
     p.rows([[7, 12, 13], [7, 18, 19]], c.hairD, dy);
     // eyes: lashes, iris with a glint, lower shade
     [[12, 13], [18, 19]].forEach(([a, b]) => {
@@ -700,7 +700,7 @@ function drawHead(p, c, cfg, dy, view) {
       p.set(a, 10 + dy, c.eyeD); p.set(b, 10 + dy, c.eye);
     });
     if (cfg.body === "female") { p.set(11, 8 + dy, c.lash); p.set(20, 8 + dy, c.lash); }
-    // ilong at bibig
+    // nose and mouth
     p.set(16, 10 + dy, c.skinD);
     const mouth = cfg.body === "female" ? mix(c.skin, "#c2506e", 0.4) : c.skinDD;
     p.set(15, 12 + dy, mouth); p.set(16, 12 + dy, mouth);
@@ -718,9 +718,9 @@ function drawHead(p, c, cfg, dy, view) {
     p.set(18, 9 + dy, c.white); p.set(19, 9 + dy, c.eye);
     p.set(19, 10 + dy, c.eyeD);
     if (cfg.body === "female") p.set(20, 8 + dy, c.lash);
-    p.set(22, 9 + dy, c.skin); p.set(22, 10 + dy, c.skinD);          // ilong
+    p.set(22, 9 + dy, c.skin); p.set(22, 10 + dy, c.skinD);          // nose
     p.set(20, 12 + dy, c.skinDD);                                      // bibig
-    p.set(14, 8 + dy, c.skinD); p.set(14, 9 + dy, c.skinDD);          // tainga
+    p.set(14, 8 + dy, c.skinD); p.set(14, 9 + dy, c.skinDD);          // ears
     if (cfg.body === "female") p.set(20, 11 + dy, mix(c.skin, c.blush, 0.45));
   }
 }
@@ -749,7 +749,7 @@ function drawFaceExtras(p, c, cfg, dy, view) {
     const B = c.hair, D = c.hairD;
     if (view === "down") {
       for (let y = 8; y <= 11; y++) { p.set(9, y + dy, B); p.set(22, y + dy, D); }
-      p.rows([[11, 13, 18]], B, dy);                                   // bigote
+      p.rows([[11, 13, 18]], B, dy);                                   // moustache
       p.rows([[12, 10, 14], [12, 17, 21], [13, 11, 20], [14, 13, 18]], B, dy);
       p.set(20, 12 + dy, D); p.set(21, 12 + dy, D); p.set(19, 13 + dy, D); p.set(20, 13 + dy, D);
       p.set(15, 12 + dy, c.skinDD); p.set(16, 12 + dy, c.skinDD);    // bibig
@@ -783,7 +783,7 @@ function drawElfEars(p, c, dy, view) {
   }
 }
 
-// ---- BUHOK ----
+// ---- HAIR ----
 // Back layer (behind the body in front/side views)
 function drawHairBack(p, c, cfg, dy, view) {
   const H = c.hair, D = c.hairD;
@@ -869,7 +869,7 @@ function drawHairFront(p, c, cfg, dy, view) {
     p.rows([[1, 12, 18], [2, 10, 20], [3, 9, 21], [4, 9, 21], [5, 9, 21]], H, dy);
     p.rows([[2, 13, 16], [3, 12, 14]], L, dy);
     for (let y = 6; y <= 10; y++) for (let x = 9; x <= 13; x++) p.set(x, y + dy, x <= 10 ? D : H);
-    p.rows([[6, 16, 16], [7, 16, 16], [8, 16, 16]], H, dy);                 // patilya
+    p.rows([[6, 16, 16], [7, 16, 16], [8, 16, 16]], H, dy);                 // sideburns
     p.rows([[6, 19, 21], [7, 21, 21]], H, dy);                              // front bangs
     p.set(21, 6 + dy, D);
     if (st === "spiky") {
@@ -880,7 +880,7 @@ function drawHairFront(p, c, cfg, dy, view) {
     return;
   }
 
-  // ---- harap (down) ----
+  // ---- front (down) ----
   if (st === "buzz") {
     p.rows([[2, 12, 19], [3, 10, 21], [4, 9, 22]], D, dy);
     for (let y = 5; y <= 7; y++) { p.set(9, y + dy, D); p.set(22, y + dy, D); }
@@ -892,7 +892,7 @@ function drawHairFront(p, c, cfg, dy, view) {
   // shaped bangs
   [9, 10, 12, 13, 16, 19, 21, 22].forEach((x) => p.set(x, 6 + dy, x >= 21 ? D : H));
   [9, 10, 13, 21, 22].forEach((x) => p.set(x, 7 + dy, D));
-  // gilid
+  // side
   const sideLen = st === "long" || st === "bob" ? 12 : 8;
   for (let y = 6; y <= sideLen; y++) {
     p.set(9, y + dy, H); p.set(22, y + dy, D);
@@ -945,7 +945,7 @@ function drawHeadgear(p, c, cfg, dy, view) {
       p.rows([[2, 12, 15], [3, 11, 13]], L, dy);
       for (let y = 2; y <= 6; y++) { p.set(21, y + dy, D); p.set(22, y + dy, D); }
     }
-    // pulang plumahe
+    // red plume
     if (side) p.rows([[0, 10, 15], [1, 8, 10], [2, 7, 9]], c.plume, dy);
     else p.rows([[0, 13, 18]], c.plume, dy);
   } else if (hg === "hat") {
@@ -1010,7 +1010,7 @@ function drawHeadgear(p, c, cfg, dy, view) {
   }
 }
 
-// ---- PAKPAK (anghel). flap 0 = nakataas, 1 = nakababa ----
+// ---- WINGS (angel). flap 0 = raised, 1 = lowered ----
 const WING_UP = [[8, 3, 5], [9, 2, 7], [10, 2, 8], [11, 2, 9], [12, 3, 10], [13, 3, 11], [14, 4, 11], [15, 4, 11], [16, 5, 11], [17, 5, 10], [18, 6, 10], [19, 7, 9]];
 const WING_DOWN = [[14, 6, 11], [15, 4, 11], [16, 3, 11], [17, 2, 10], [18, 2, 10], [19, 2, 9], [20, 3, 9], [21, 3, 8], [22, 4, 7], [23, 5, 6]];
 
@@ -1024,7 +1024,7 @@ function drawWings(p, c, dy, view, flap) {
     }
   });
   if (view === "side") {
-    wing(false, true, 2);     // malayong pakpak (mas madilim)
+    wing(false, true, 2);     // far wing (darker)
     wing(false, false, 4);
   } else {
     wing(false, false, 0);
@@ -1070,7 +1070,7 @@ function renderFrame(cfg, dir, anim, i) {
     if (!back && !helmet) drawHairBack(p, c, cfg, dy, "down");
     if (back && cfg.shield === "tower") drawShield(p, c, cfg, "up", { hx: female ? 21 : 22, hy: 23 + dy });
 
-    // Binti at paa
+    // Legs and feet
     drawLegFront(p, c, cfg, 12, g.lLift);
     drawLegFront(p, c, cfg, 17, g.rLift);
     drawPelvis(p, c, cfg, false);
@@ -1107,7 +1107,7 @@ function renderFrame(cfg, dir, anim, i) {
     if (cfg.ears === "elf") drawElfEars(p, c, dy, dir);
     drawHeadgear(p, c, cfg, dy, dir);
   } else {
-    // ---- GILID (nakaharap pakanan) ----
+    // ---- SIDE (facing right) ----
     const s = g.stride;
     if (cfg.cape) drawCape(p, c, dy, "side");
     if (cfg.quiver) drawQuiver(p, c, dy, "side");
@@ -1207,7 +1207,7 @@ export class Avatar {
     const img = this.frame("down", "idle", 0);
     ctx.clearRect(0, 0, w, h);
     ctx.imageSmoothingEnabled = false;
-    // bahaging x 4..28, y 0..22 (ulo hanggang dibdib)
+    // region x 4..28, y 0..22 (head down to the chest)
     ctx.drawImage(img, 4, 0, 24, 22, 0, 0, w, h);
   }
 }

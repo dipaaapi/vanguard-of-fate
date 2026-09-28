@@ -307,7 +307,7 @@ body[data-mode="create"] #creator {
 .cr-actions .primary { color: var(--ink); background: var(--gold); border-color: var(--gold); font-weight: 700; }
 .cr-actions .primary:hover { color: var(--ink); background: #ffe08f; }
 
-/* ---------- BOTTOM TRAY (Main Menu · Tayo/Lakad/Takbo · Full Screen) ---------- */
+/* ---------- BOTTOM TRAY (Main Menu · Idle/Walk/Dash · Full Screen) ---------- */
 .cr-tray {
   position: relative;
   display: flex;
@@ -353,7 +353,7 @@ body[data-mode="create"] #creator {
 }
 .cr-foot span { color: var(--gold); }
 
-/* ---------- MALIIT / MABABANG SCREEN ---------- */
+/* ---------- SMALL / SHORT SCREEN ---------- */
 @media (max-width: 760px) {
   body[data-mode="create"] #creator { overflow-y: auto; }
   .cr-layout { grid-template-columns: 1fr; padding: 12px 16px 0; }

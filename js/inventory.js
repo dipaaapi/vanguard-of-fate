@@ -270,7 +270,7 @@ export class InventoryPanel {
     avatar.draw(c, cv.width / 2, cv.height - 4, "down", "idle", Math.floor(this.tick / 30), false, false, 2);
   }
 
-  // ---------- AKSYON ----------
+  // ---------- ACTIONS ----------
   selected() {
     const bag = this.player.bag;
     if (!this.sel) return null;

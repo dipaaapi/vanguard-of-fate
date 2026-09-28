@@ -87,9 +87,9 @@ export class DrakeSprite extends CreatureSprite {
   side(p, c, m, lift, flapUp) {
     const sh = m.atk === 1 ? -1 : m.atk === 2 ? 3 : 0;
     const by = 15 - lift + m.bob;
-    // malayong pakpak
+    // far wing
     if (this.flying) this.wingRows(!flapUp).forEach(([y, a, b]) => { for (let x = a; x <= b; x++) p.set(x + sh - 2, y - lift + 2, c.wingD); });
-    // buntot
+    // tail
     line(p, 9 + sh, by, 5 + sh, by - 2, c.bodyD, 2);
     line(p, 5 + sh, by - 2, 1 + sh, by - 5 + m.bob, c.bodyD);
     // legs
@@ -132,7 +132,7 @@ export class DrakeSprite extends CreatureSprite {
       });
     };
     if (!back) { wing(false); wing(true); }
-    if (back) line(p, 18, by + 4, 18 + (m.bob ? 1 : -1), by + 12, c.bodyD, 2);   // buntot palayo
+    if (back) line(p, 18, by + 4, 18 + (m.bob ? 1 : -1), by + 12, c.bodyD, 2);   // tail pointing away
     if (!this.flying) {
       [[13, m.liftA], [21, m.liftB]].forEach(([x, l]) => { for (let y = by + 3; y <= 27 - l; y++) { p.set(x, y, c.body); p.set(x + 1, y, c.bodyD); } });
     }
@@ -276,13 +276,13 @@ export class BruteSprite extends CreatureSprite {
     const legs = side ? [[16 + m.swing * 2, m.liftA, c.furD], [21 - m.swing * 2, m.liftB, c.fur]] : [[14, m.liftA, c.fur], [25, m.liftB, c.fur]];
     legs.forEach(([x, l, col]) => { p.rect(x, 36 + by, 5, 9 - l - by, col); p.rect(x - 1, 44 - l, 7, 2, shade(col, -0.25)); });
 
-    // katawan
+    // body
     ellipse(p, cx, 26 + by, side ? 10 : 12, 10.5, body);
     if (!back) ellipse(p, cx + (side ? 3 : 0), 29 + by, side ? 4 : 6, 5, () => c.furL);
     if (o.cracks) [[cx - 4, 22], [cx - 3, 23], [cx - 2, 24], [cx + 3, 27], [cx + 4, 28], [cx + 5, 29], [cx - 1, 31], [cx, 32]].forEach(([x, y]) => p.set(x, y + by, c.crack));
     if (o.crystals) [[cx - 11, 17], [cx - 10, 15], [cx + 10, 17], [cx + 11, 15], [cx - 9, 16], [cx + 9, 16]].forEach(([x, y]) => p.set(x, y + by, c.crystal));
 
-    // ulo
+    // head
     const hx = side ? cx + 6 : cx, hy = 13 + by + (m.atk === 1 ? 1 : 0);
     ellipse(p, hx, hy, 6, 5.5, body);
     if (o.horns) {
@@ -342,7 +342,7 @@ export class ImpSprite extends CreatureSprite {
     const lunge = m.atk === 2 ? (side ? 2 : 0) : 0;
     const by = m.bob + (m.atk === 2 && !side ? 1 : 0);
     const x0 = 12 + lunge;
-    // pakpak at buntot
+    // wings and tail
     const wing = (s) => [[10, 4, 6], [11, 3, 7], [12, 3, 8], [13, 5, 8]].forEach(([y, a, b]) => {
       for (let x = a; x <= b; x++) p.set(s > 0 ? 23 - x + lunge : x + lunge, y + by - (i % 2), c.wing);
     });
@@ -353,13 +353,13 @@ export class ImpSprite extends CreatureSprite {
     // binti
     [[x0 - 3, m.liftA], [x0 + 1, m.liftB]].forEach(([x, l]) => { p.rect(x + (side ? m.swing : 0), 18 + by, 2, 5 - l - by, c.skinD); p.rect(x - 1, 23 - l, 3, 1, c.horn); });
     ellipse(p, x0, 15 + by, 4, 4, shaded(c.skin, c.skinD, c.skinL));
-    // braso at kuko
+    // arms and claws
     const ay = m.atk === 1 ? 7 : m.atk === 2 ? 13 : 13;
     const ax = m.atk === 2 ? (side ? x0 + 6 : x0 + 5) : x0 + 4;
     line(p, x0 + 3, 13 + by, ax, ay + by, c.skin, 2);
     p.set(ax + 1, ay - 1 + by, "#f1f5f9"); p.set(ax + 2, ay + by, "#f1f5f9");
     if (!side) line(p, x0 - 4, 13 + by, x0 - 6, 17 + by, c.skin, 2);
-    // ulo, sungay, tainga, mata, ngisi
+    // head, horns, ears, eyes, grin
     const hx = x0 + (side ? 1 : 0), hy = 8 + by;
     ellipse(p, hx, hy, 5, 4.5, shaded(c.skin, c.skinD, c.skinL));
     const horns = side ? [[hx - 1, -1]] : [[hx - 3, -1], [hx + 3, 1]];
@@ -384,7 +384,7 @@ export class SpecterSprite extends CreatureSprite {
 
   render(p, dir, anim, i) {
     const c = this.c, m = motion(anim, i);
-    const fl = anim === "idle" ? i : (i % 2);     // lumulutang
+    const fl = anim === "idle" ? i : (i % 2);     // floating
     const fwd = m.atk === 2 ? (dir === "side" ? 2 : 0) : 0;
     const top = 2 + fl;
     // tattered hem of the robe
@@ -404,7 +404,7 @@ export class SpecterSprite extends CreatureSprite {
       line(p, x + fwd, 12 + top, ex + fwd, ay + top, c.robeD, 2);
       p.set(ex + fwd + s, ay + top - 1, c.claw); p.set(ex + fwd + s, ay + top + 1, c.claw);
     });
-    // hood at mukha
+    // hood and face
     ellipse(p, 13 + fwd, 6 + top, 5.5, 5.5, shaded(c.robe, c.robeD, c.robeL));
     if (dir !== "up") {
       const fx = 13 + fwd + (dir === "side" ? 2 : 0);
@@ -445,7 +445,7 @@ export class TreantSprite extends CreatureSprite {
     // moss and black sap
     [[24, 30], [25, 31], [43, 36], [44, 37], [27, 50], [42, 52]].forEach(([x, y]) => p.set(x + sway, y, c.moss));
     [[30, 44], [30, 45], [30, 46], [39, 47], [39, 48]].forEach(([x, y]) => p.set(x + sway, y, c.sap));
-    // koronang sanga
+    // crown of branches
     const branches = [[34, 22, 34, 2], [30, 22, 20, 4], [38, 22, 48, 3], [26, 24, 12, 10], [42, 24, 56, 9], [22, 8, 16, 2], [44, 7, 52, 1]];
     branches.forEach(([x0, y0, x1, y1], k) => line(p, x0 + sway, y0, x1 + sway + (k % 2 ? sway : -sway), y1, k < 3 ? c.bark : c.barkD, k < 5 ? 2 : 1));
     [[18, 6], [50, 5], [14, 11], [54, 12], [34, 3]].forEach(([x, y]) => { p.set(x + sway, y, c.moss); p.set(x + sway + 1, y, c.mossL); });
@@ -501,14 +501,14 @@ export class LeviathanSprite extends CreatureSprite {
     const hx = 44 + sway, hy = 17 + lunge;
     // side fin
     [[-1, 30], [1, 58]].forEach(([s, x]) => { for (let k = 0; k < 8; k++) line(p, hx + s * 8, hy - 2 + k, x + sway + s * (k > 4 ? -2 : 0), hy - 6 + k * 2, k % 2 ? c.fin : c.finL); });
-    // ulo
+    // head
     ellipse(p, hx, hy, 12, 9, shaded(c.scale, c.scaleD, c.scaleL));
     // abyssal helm with golden spikes
     for (let x = hx - 10; x <= hx + 10; x++) p.set(x, hy - 7, c.helm);
     [-9, -5, 0, 5, 9].forEach((d, k) => line(p, hx + d, hy - 8, hx + d, hy - 13 - (k === 2 ? 3 : 0), k === 2 ? c.gold : c.helm, 2));
     if (dir !== "up") {
       p.rect(hx - 7, hy - 2, 3, 2, c.eye); p.rect(hx + 5, hy - 2, 3, 2, c.eye);
-      // panga
+      // jaw
       const open = m.atk === 2 ? 3 : 0;
       p.rows([[hy + 4, hx - 6, hx + 6]], c.scaleD);
       if (open) { p.rect(hx - 5, hy + 5, 11, open, "#07050d"); for (let x = hx - 5; x <= hx + 5; x += 2) { p.set(x, hy + 5, "#ffffff"); p.set(x + 1, hy + 4 + open, "#ffffff"); } }

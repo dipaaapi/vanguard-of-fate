@@ -5,7 +5,7 @@
 const base = { gloves: "none", legs: "pants", boots: "boots", eyes: "#4a3222" };
 
 export const NPC_DEFS = {
-  // ---- Maharlikang pamilya ----
+  // ---- Royal family ----
   aurelia: {
     look: { ...base, body: "female", skin: "#f7d9c4", eyes: "#2f6db5", hairStyle: "long", hairColor: "#ece0b8",
       outfit: "gown", outfitColor: "#f2ecf8", legColor: "#f2ecf8", headgear: "tiara", cape: "#3b3f9a", weapon: "staff" }

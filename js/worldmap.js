@@ -46,7 +46,7 @@ export class WorldMap {
     this.open = false;
     this.base = null;
     this.tick = 0;
-    this.view = "region";          // "region" (kasalukuyang lugar) | "continent" (buong Aethelgard)
+    this.view = "region";          // "region" (current place) | "continent" (the whole world)
     this.continent = new ContinentMap();
   }
 
@@ -201,7 +201,7 @@ export class WorldMap {
       ctx.beginPath(); ctx.arc(x, y, 5 + pulse * 2, 0, Math.PI * 2); ctx.stroke();
     }
 
-    // ---- Kanang hanay: layunin + palatandaan ----
+    // ---- Right column: objective + legend ----
     const rx = mx + mw + 12, rw = W - rx - pad;
     let y = my + 4;
     ctx.textAlign = "left";

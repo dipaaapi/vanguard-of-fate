@@ -375,7 +375,7 @@ function inventoryCtx() {
     onDrop: (inst) => {
       lootManager.drop({ x: player.x + 10 + (player.facing === "left" ? -18 : 18), y: player.y + 14 }, inst);
       const it = lootManager.items[lootManager.items.length - 1];
-      if (it) it.blocked = 240;     // huwag agad mapulot muli
+      if (it) it.blocked = 240;     // don't pick it up again right away
     },
     onRepair: (n, cost) => chatLog.event("equip", lang() === "fil" ? `Naayos ang ${n} kagamitan (−${cost}G)` : `Repaired ${n} item${n > 1 ? "s" : ""} (−${cost}G)`, dayNight.label())
   };

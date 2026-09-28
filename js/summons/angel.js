@@ -16,7 +16,7 @@ export class GuardianAngelCompanion {
     this.y = y;
     this.maxHp = maxHp;
     this.hp = maxHp;
-    this.lifespan = 720;     // 12s standard lifespan[cite: 14]
+    this.lifespan = 720;     // 12s standard lifespan
     this.maxLifespan = 1080; // Can be extended with Heal (J)
     this.damage = 18;
 

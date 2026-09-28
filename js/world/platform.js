@@ -223,7 +223,7 @@ export class Platform {
     ctx.ellipse(cx, cy, c.w / 2 - 6, c.h / 2 - 6, 0, 0, Math.PI * 2);
     ctx.stroke();
     ctx.setLineDash([]);
-    // tolda
+    // tent
     ctx.fillStyle = "#8a2c2c";
     ctx.beginPath(); ctx.moveTo(cx - 44, cy - 4); ctx.lineTo(cx - 28, cy - 30); ctx.lineTo(cx - 12, cy - 4); ctx.closePath(); ctx.fill();
     ctx.fillStyle = "#5a1a1a"; ctx.fillRect(cx - 31, cy - 14, 6, 10);

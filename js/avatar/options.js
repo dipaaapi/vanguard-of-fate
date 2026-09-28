@@ -86,7 +86,7 @@ export function normalizeConfig(cfg = {}) {
   });
   if (HEX.test(cfg.cape || "")) out.cape = cfg.cape;
   if (HEX.test(cfg.wings || "")) out.wings = cfg.wings;
-  if (cfg.hairStyle === "none") out.hairStyle = "none";   // kalbo (hal. kalansay)
+  if (cfg.hairStyle === "none") out.hairStyle = "none";   // bald (e.g. a skeleton)
   if (cfg.beard) out.beard = true;
   if (cfg.glasses) out.glasses = true;
   if (cfg.quiver) out.quiver = true;

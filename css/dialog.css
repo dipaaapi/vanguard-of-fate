@@ -236,7 +236,7 @@
 .inv-qty { right: 1px; bottom: 1px; color: #f8fafc; }
 .inv-plus { left: 1px; top: 1px; color: #ffd166; }
 
-/* detalye */
+/* details */
 .inv-detail {
   margin-top: calc(4px * var(--s));
   min-height: calc(46px * var(--s));

@@ -419,7 +419,7 @@ class NPC {
       }
     }
 
-    // Idle / Tumigil at magmasid
+    // Idle / stop and look around
     this.state = "idle";
     this.vx = 0;
     this.vy = 0;

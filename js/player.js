@@ -77,7 +77,7 @@ export class Player {
 
     this.attackCooldownTimer = 0;
     this.skillCooldownTimer = 0;
-    this.skill2CooldownTimer = 0;   // pangatlong skill (L)
+    this.skill2CooldownTimer = 0;   // third skill (L)
     this.hitFlashTimer = 0;
     this.portalCooldown = 0;
 
@@ -486,7 +486,7 @@ export class Player {
     if (this.dir === "side") {
       const sign = this.facing === "left" ? -1 : 1;
       ctx.rotate(sign * p * Math.PI * 2);
-      ctx.scale(0.85, 0.85);                   // nakatiklop
+      ctx.scale(0.85, 0.85);                   // tucked
     } else {
       // Forward/backward tumble: squash the height so it looks like a flip
       const c = Math.cos(p * Math.PI * 2);

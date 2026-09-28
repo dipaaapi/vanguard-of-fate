@@ -281,7 +281,7 @@ body[data-mode="play"] #chatLog {
 .log-level b, .log-level span { color: #4ade80; }
 .log-info b, .log-info span { color: #64748b; }
 
-/* ---------- KANANG PANEL: 3 bahagi ---------- */
+/* ---------- RIGHT PANEL: 3 parts ---------- */
 /* (1) lore of the current act  (2) player UI  (3) skills and options */
 .side-lore, .side-ui, .side-actions { display: none; }
 body[data-mode="play"] .side-lore { display: flex; }

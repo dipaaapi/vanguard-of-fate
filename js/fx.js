@@ -73,7 +73,7 @@ export class FXManager {
     }
   }
 
-  // 2. MAGE METEOR BURN EFFECT (Nagbabagang Apoy at Usok)
+  // 2. MAGE METEOR BURN EFFECT (glowing fire and smoke)
   spawnBurnFlames(x, y, radius = 24, count = 12) {
     for (let i = 0; i < count; i++) {
       const offsetAngle = Math.random() * Math.PI * 2;
@@ -261,7 +261,7 @@ export class FXManager {
       ctx.restore();
     }
 
-    // C. FREEZE AURA (Nagyeyelong Paanan)
+    // C. FREEZE AURA (frozen ground at the feet)
     if (enemy.isFrozen || (enemy.debuff && enemy.debuff.freeze > 0)) {
       ctx.save();
       ctx.fillStyle = "rgba(0, 240, 255, 0.4)";

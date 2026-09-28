@@ -111,7 +111,7 @@ export class TileMap {
       }
     } catch (_) { /* no coverage info: only the safeZone is used */ }
 
-    // Safe zone + palibot
+    // Safe zone + surroundings
     const s = stage.safeZone;
     if (s) {
       const pad = 4;
@@ -178,7 +178,7 @@ export class TileMap {
     this.keepOut = coverage;
     const keep = this.dilate(coverage, 1);
 
-    // ----- Landas (dirt path) -----
+    // ----- Path (dirt path) -----
     const path = new Uint8Array(cols * rows);
     const sz = stage.safeZone;
     const hubX = sz ? Math.floor((sz.x + sz.w / 2) / TILE) : Math.floor(cols / 2);

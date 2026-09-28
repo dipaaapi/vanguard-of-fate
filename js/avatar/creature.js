@@ -120,7 +120,7 @@ export class WolfSprite extends CreatureSprite {
   // One leg: 2px wide, from the body down to the ground (bottom)
   leg(p, x, top, bottom, col, colD) {
     for (let y = top; y <= bottom; y++) { p.set(x, y, col); p.set(x + 1, y, colD); }
-    p.set(x + 2, bottom, colD);   // paa
+    p.set(x + 2, bottom, colD);   // leg
   }
 
   render(p, dir, anim, i) {
@@ -132,7 +132,7 @@ export class WolfSprite extends CreatureSprite {
   renderSide(p, anim, i) {
     const c = this.c;
     const walk = anim === "walk";
-    const atk = anim === "attack" ? i + 1 : 0;       // 1 = yuko, 2 = lundag
+    const atk = anim === "attack" ? i + 1 : 0;       // 1 = crouch, 2 = leap
     const bob = anim === "idle" ? i : walk ? i % 2 : atk === 1 ? 1 : 0;
     const shift = atk === 1 ? -1 : atk === 2 ? 3 : 0;
     const swing = walk ? [2, 0, -2, 0][i] : 0;
@@ -150,7 +150,7 @@ export class WolfSprite extends CreatureSprite {
       p.set(x + shift, y + bob, c.furD); p.set(x + shift, y + 1 + bob, c.fur);
     });
 
-    // Katawan
+    // Body
     ellipse(p, 15 + shift, 11 + bob, 9, 4.5, (nx, ny) => (ny > 0.45 ? c.belly : ny < -0.4 ? c.furL : nx > 0.6 ? c.furD : c.fur));
     // Fur on the nape
     p.rows([[7 + bob, 18 + shift, 21 + shift], [8 + bob, 17 + shift, 21 + shift]], c.furD);
@@ -162,7 +162,7 @@ export class WolfSprite extends CreatureSprite {
     // Head (lowered during the windup)
     const hx = 22 + shift, hy = 5 + bob + (atk === 1 ? 2 : 0);
     for (let y = hy + 1; y <= hy + 5; y++) for (let x = hx; x <= hx + 5; x++) p.set(x, y, y === hy + 1 ? c.furL : c.fur);
-    // tainga
+    // ears
     p.set(hx + 1, hy - 1, c.furD); p.set(hx + 1, hy, c.fur); p.set(hx + 2, hy, c.fur);
     // muzzle (jaw open when attacking)
     const open = atk === 2 ? 1 : 0;
@@ -189,18 +189,18 @@ export class WolfSprite extends CreatureSprite {
     this.leg(p, 13, 14 + bob + dy, 21 - liftA, c.fur, c.furD);
     this.leg(p, 18, 14 + bob + dy, 21 - liftB, c.fur, c.furD);
 
-    // Ulo
+    // Head
     const hy = 3 + bob + dy + (atk === 1 ? 2 : 0);
     for (let y = hy + 2; y <= hy + 8; y++) for (let x = 12; x <= 21; x++) {
       if ((y === hy + 8) && (x === 12 || x === 21)) continue;
       p.set(x, y, x >= 20 ? c.furD : y === hy + 2 ? c.furL : c.fur);
     }
-    // tainga
+    // ears
     p.rows([[hy, 12, 13], [hy + 1, 12, 14]], c.furD);
     p.rows([[hy, 20, 21], [hy + 1, 19, 21]], c.furDD);
-    // mata
+    // eyes
     p.set(14, hy + 5, c.eye); p.set(19, hy + 5, c.eye);
-    // nguso
+    // muzzle
     for (let y = hy + 7; y <= hy + 10; y++) for (let x = 14; x <= 19; x++) p.set(x, y, y === hy + 7 ? c.belly : c.furL);
     p.set(16, hy + 7, c.nose); p.set(17, hy + 7, c.nose);
     if (atk === 2) {
@@ -223,12 +223,12 @@ export class WolfSprite extends CreatureSprite {
     // Front legs (far)
     this.leg(p, 12, 12 + bob, 20 - liftA, c.furD, c.furDD);
     this.leg(p, 19, 12 + bob, 20 - liftB, c.furD, c.furDD);
-    // Katawan (likod)
+    // Body (back)
     ellipse(p, 17, 12 + bob, 7, 5.5, (nx, ny) => (Math.abs(nx) < 0.18 ? c.furD : nx > 0.5 ? c.furD : ny < -0.4 ? c.furL : c.fur));
-    // Hulihang paa
+    // Hind legs
     this.leg(p, 10, 15 + bob, 21 - liftB, c.fur, c.furD);
     this.leg(p, 21, 15 + bob, 21 - liftA, c.fur, c.furD);
-    // Buntot (kumakawag)
+    // Tail (wagging)
     const wag = anim === "idle" ? i : walk ? (i % 2) * 2 - 1 : 0;
     for (let k = 0; k < 5; k++) { p.set(16 + (k > 2 ? wag : 0), 15 + k + bob, c.fur); p.set(17 + (k > 2 ? wag : 0), 15 + k + bob, c.furD); }
   }
@@ -241,10 +241,10 @@ const FALCON = {
 };
 // Wing shape per beat phase: [y, x0, x1]
 const FALCON_WING = [
-  [[1, 8, 10], [2, 8, 12], [3, 9, 13], [4, 9, 14], [5, 10, 15], [6, 10, 15], [7, 11, 15]],   // taas
-  [[7, 5, 16], [8, 4, 16], [9, 6, 15]],                                                     // gitna
-  [[11, 10, 15], [12, 9, 15], [13, 9, 14], [14, 8, 13], [15, 8, 12], [16, 8, 10]],           // baba
-  [[7, 5, 16], [8, 4, 16], [9, 6, 15]]                                                      // gitna
+  [[1, 8, 10], [2, 8, 12], [3, 9, 13], [4, 9, 14], [5, 10, 15], [6, 10, 15], [7, 11, 15]],   // up
+  [[7, 5, 16], [8, 4, 16], [9, 6, 15]],                                                     // middle
+  [[11, 10, 15], [12, 9, 15], [13, 9, 14], [14, 8, 13], [15, 8, 12], [16, 8, 10]],           // down
+  [[7, 5, 16], [8, 4, 16], [9, 6, 15]]                                                      // middle
 ];
 
 export class FalconSprite extends CreatureSprite {
@@ -275,7 +275,7 @@ export class FalconSprite extends CreatureSprite {
     ellipse(p, 13, 10, 5.5, 3.2, (nx, ny) => (ny > 0.2 && nx > -0.2 ? c.breast : ny < -0.4 ? c.body : c.bodyD));
     p.set(15, 11, c.body); p.set(13, 12, c.body);
 
-    // Ulo, maskara, mata at tukang nakakurba
+    // Head, mask, eyes and hooked beak
     p.rect(17, 6, 4, 4, c.head);
     p.rows([[7, 18, 20]], c.mask);
     p.set(19, 7, c.eye);

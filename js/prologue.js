@@ -82,7 +82,7 @@ function citadel(ctx, cx, baseY, stone, shade, t, bannerA = "#8a2c2c", bannerB =
     ctx.fillStyle = bannerB;
     ctx.fillRect(x + (w >> 1) + 3, baseY - h - 13, 2, 1);
   });
-  // gate at bintana
+  // gate and window
   ctx.fillStyle = shade;
   ctx.fillRect(cx - 5, baseY - 14, 10, 14);
   ctx.fillStyle = "#1a1420";
@@ -180,8 +180,8 @@ const SCENES = [
         ctx.fillStyle = "#12071a";
         ctx.beginPath();
         ctx.moveTo(150, H); ctx.lineTo(170, by + 60); ctx.lineTo(200, by + 30); ctx.lineTo(206, by);
-        ctx.lineTo(196, by - 40); ctx.lineTo(214, by - 8); ctx.lineTo(240, by - 14);          // kaliwang sungay
-        ctx.lineTo(266, by - 8); ctx.lineTo(284, by - 40); ctx.lineTo(274, by);                // kanang sungay
+        ctx.lineTo(196, by - 40); ctx.lineTo(214, by - 8); ctx.lineTo(240, by - 14);          // left horn
+        ctx.lineTo(266, by - 8); ctx.lineTo(284, by - 40); ctx.lineTo(274, by);                // right horn
         ctx.lineTo(280, by + 30); ctx.lineTo(310, by + 60); ctx.lineTo(330, H);
         ctx.closePath(); ctx.fill();
         const blink = Math.floor(f / 90) % 7 === 0 && f % 90 < 6 ? 0 : 1;
@@ -213,7 +213,7 @@ const SCENES = [
         // rising Void Miasma
         if (f % 2 === 0) s.spawn({ x: 200 + Math.random() * 80, y: 236, vx: (Math.random() - 0.5) * 1.2, vy: -0.4 - Math.random() * 0.6, life: 160, r: 2 + Math.random() * 3, c: Math.random() < 0.7 ? "140, 60, 200" : "60, 20, 90" });
       }
-      // Kidlat
+      // Lightning
       if (p > 0.3 && Math.random() < 0.012) { s.flash = 0.8; if (Sound.playThunder) Sound.playThunder(); }
     }
   },
@@ -261,10 +261,10 @@ const SCENES = [
       const wx = -60 + ease(span(p, 0.2, 0.9)) * 600;
       const leg = Math.floor(f / 6) % 2;
       ctx.fillStyle = "#050308";
-      ctx.fillRect(wx, 236, 34, 10);                 // katawan
-      ctx.fillRect(wx + 30, 230, 10, 9);             // ulo
+      ctx.fillRect(wx, 236, 34, 10);                 // body
+      ctx.fillRect(wx + 30, 230, 10, 9);             // head
       ctx.fillRect(wx + 38, 234, 5, 3);              // nguso
-      ctx.fillRect(wx + 31, 227, 2, 4); ctx.fillRect(wx + 36, 227, 2, 4);   // tainga
+      ctx.fillRect(wx + 31, 227, 2, 4); ctx.fillRect(wx + 36, 227, 2, 4);   // ears
       ctx.fillRect(wx - 8, 236, 9, 3);               // buntot
       ctx.fillRect(wx + 2 + leg * 3, 246, 3, 8); ctx.fillRect(wx + 24 - leg * 3, 246, 3, 8);
       ctx.fillStyle = "#ff3b3b"; ctx.fillRect(wx + 36, 232, 2, 1);
@@ -301,11 +301,11 @@ const SCENES = [
         ctx.fillStyle = "#3a3346"; ctx.fillRect(x, 10, 22, 180);
         ctx.fillStyle = "#4a4258"; ctx.fillRect(x, 10, 4, 180);
         ctx.fillStyle = "#2a2433"; ctx.fillRect(x - 3, 184, 28, 8); ctx.fillRect(x - 3, 10, 28, 6);
-        // tanglaw
+        // torch
         glow(ctx, x + 11, 100, 22, "255, 160, 60", 0.4 + Math.sin(f / 5 + x) * 0.08);
         ctx.fillStyle = "#ffb347"; ctx.fillRect(x + 9, 96 - (Math.floor(f / 6 + x) % 2), 4, 4);
       });
-      // sahig, alpombra, trono
+      // floor, carpet, throne
       fillGrad(ctx, [[0, "#3a3140"], [1, "#221c28"]], 190, H);
       ctx.fillStyle = "#6e1f24"; ctx.fillRect(222, 190, 36, 80);
       ctx.fillStyle = "#ffd166"; ctx.fillRect(222, 190, 1, 80); ctx.fillRect(257, 190, 1, 80);
@@ -352,7 +352,7 @@ const SCENES = [
           ctx.fillRect(b.x + wx, 200 - b.h + wy, 2, 2);
         });
       });
-      // kalsada at bangketa
+      // road and pavement
       ctx.fillStyle = "#23262e"; ctx.fillRect(0, 200, W, 70);
       ctx.fillStyle = "#3a3e48"; ctx.fillRect(0, 200, W, 16);
       ctx.fillStyle = "#c9b458";

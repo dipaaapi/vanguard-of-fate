@@ -48,17 +48,17 @@ function findNearestWalkableSpot(startX, startY, stage) {
     return { x: startX, y: startY };
   }
 
-  // Radial spiral search palabas
+  // Radial spiral search outward
   for (let r = 8; r <= 220; r += 8) {
     const angles = [
-      Math.PI / 2,          // Pababa (South)
+      Math.PI / 2,          // Down (South)
       Math.PI / 2 + 0.45,
       Math.PI / 2 - 0.45,
       Math.PI / 2 + 0.9,
       Math.PI / 2 - 0.9,
-      0,                    // Pakanan (East)
-      Math.PI,              // Pakaliwa (West)
-      -Math.PI / 2,         // Pataas (North)
+      0,                    // Right (East)
+      Math.PI,              // Left (West)
+      -Math.PI / 2,         // Up (North)
       Math.PI / 4,
       (3 * Math.PI) / 4,
       -Math.PI / 4,

@@ -241,8 +241,8 @@ export const PLATFORMS = {
     monsters: ["yeti", "iceGolem", "frostStalker", "wyvern", "blizzardHawk", "frostGargoyle", "frostSerpent", "frozenCrab"],
     pathTargets: [[1030, 200], [640, 470], [1210, 820], [640, 60]],
     terrain(tx, ty, cols, rows, noise) {
-      if (noise(tx * 0.09, ty * 0.09) > 0.7) return "wall";                     // bangin
-      if (noise(tx * 0.14, ty * 0.14, 5) > 0.8) return "liquid";                // nagyelong lawa
+      if (noise(tx * 0.09, ty * 0.09) > 0.7) return "wall";                     // cliffs
+      if (noise(tx * 0.14, ty * 0.14, 5) > 0.8) return "liquid";                // frozen lake
       return null;
     },
     landmark(ctx, t, cleared) {
@@ -358,7 +358,7 @@ export const PLATFORMS = {
     },
     landmark(ctx, t, cleared, riftOpen) {
       const a = this.arena, cx = a.x + a.w / 2;
-      // pulang karpet at trono
+      // red carpet and throne
       ctx.fillStyle = "#6b1a24"; ctx.fillRect(cx - 14, a.y + 30, 28, a.h + 40);
       ctx.fillStyle = "#ffd166"; ctx.fillRect(cx - 14, a.y + 30, 2, a.h + 40); ctx.fillRect(cx + 12, a.y + 30, 2, a.h + 40);
       ctx.fillStyle = "#5e3b1a"; ctx.fillRect(cx - 12, a.y - 6, 24, 30);

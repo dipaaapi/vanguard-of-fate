@@ -13,11 +13,11 @@ export class CastleSystem {
 
     // SOLID PHYSICAL HITBOXES (nobody may walk on or through them)
     this.solidColliders = [
-      // Gitnang Citadel Keep at Likod
+      // Central Citadel keep and back
       { x: this.x + 80, y: this.y + 20, w: 160, h: 110 },
-      // Kaliwang Tore (West Tower)
+      // Left tower (West Tower)
       { x: this.x + 16, y: this.y + 20, w: 64, h: 165 },
-      // Kanang Tore (East Tower)
+      // Right tower (East Tower)
       { x: this.x + 240, y: this.y + 20, w: 64, h: 165 },
       // Front wall (left of the gate)
       { x: this.x + 80, y: this.y + 115, w: 56, h: 70 },

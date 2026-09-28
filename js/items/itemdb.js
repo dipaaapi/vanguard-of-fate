@@ -85,7 +85,7 @@ const EQUIP = {
   claws:      { slot: "weapon", hands: 2, cls: ["fighter"], icon: "claws", stats: { atk: 13, crit: 5 }, look: { gloves: "leather" }, sockets: 2, name: N("Dual Katar", "Dalawang Katar") },
   knuckle:    { slot: "weapon", hands: 1, cls: ["fighter"], icon: "knuckle", stats: { atk: 9, def: 2 }, look: { gloves: "wraps" }, sockets: 2, name: N("Brawler Knuckle", "Knuckle ng Brawler") },
   talisman:   { slot: "offhand", cls: ["fighter"], icon: "talisman", stats: { cdr: 6, crit: 3 }, sockets: 1, name: N("Qi Talisman", "Qi Talisman") },
-  // ---- Ulo (Ragnarok headgear) ----
+  // ---- Head (Ragnarok headgear) ----
   bandana:    { slot: "head", icon: "bandana", stats: { def: 1, agi: 1 }, sockets: 1, name: N("Bandana", "Bandana") },
   helm:       { slot: "head", cls: ["knight", "fighter", "archer", "novice"], icon: "helm", stats: { def: 4, hp: 10 }, sockets: 1, name: N("Helm", "Helmet") },
   wizhat:     { slot: "head", cls: ["mage", "priest"], icon: "hat", stats: { def: 1, int: 2 }, sockets: 1, name: N("Wizard Hat", "Sombrero ng Salamangkero") },
@@ -351,7 +351,7 @@ export function upgradeCost(item) {
   };
 }
 
-// Tsansang magtagumpay (Ragnarok): ligtas hanggang +4
+// Success chance (Ragnarok): safe up to +4
 export function refineChance(plus) {
   const next = plus + 1;
   if (next <= SAFE_PLUS) return 1;

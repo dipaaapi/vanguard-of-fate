@@ -148,13 +148,13 @@ function drawDeco(ctx, x, y, color, rnd, th) {
       break;
     case "rubble":
       px(ctx, cx - 2, cy, "#b5b0a6", 3, 2); px(ctx, cx + 1, cy + 1, "#8f8a80", 2, 2);
-      if (color === "#8a2c2c") px(ctx, cx - 3, cy - 2, "#5e3b1a", 1, 4);      // palaso
+      if (color === "#8a2c2c") px(ctx, cx - 3, cy - 2, "#5e3b1a", 1, 4);      // arrow
       break;
     case "void":
       px(ctx, cx - 3, cy, "#110e16", 6, 1); px(ctx, cx - 1, cy - 1, "#110e16", 2, 1);
       px(ctx, cx - 2, cy, color, 4, 1);
       break;
-    default: // bulaklak
+    default: // flowers
       px(ctx, cx, cy + 1, th.grassDark, 1, 3);
       px(ctx, cx - 1, cy + 2, th.grassLight);
       px(ctx, cx, cy - 1, color);
@@ -368,7 +368,7 @@ function drawRuin(ctx, x, y, rnd) {
   }
   px(ctx, x + 6, y + 30 - h, "#ece8df", 20, 1);
   for (let k = 0; k < 4; k++) px(ctx, x + 8 + k * 5, y + 30 - h - (k % 2 ? 2 : 0), "#c9c4ba", 3, 2);
-  if (rnd() < 0.5) { px(ctx, x + 14, y + 30 - h - 6, "#ff7a1a", 3, 4); px(ctx, x + 15, y + 30 - h - 8, "#ffd166", 1, 3); } // apoy
+  if (rnd() < 0.5) { px(ctx, x + 14, y + 30 - h - 6, "#ff7a1a", 3, 4); px(ctx, x + 15, y + 30 - h - 8, "#ffd166", 1, 3); } // fire
 }
 
 // Broken pillar (Maw of Damnation)

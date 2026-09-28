@@ -77,7 +77,7 @@ export class CreatorScene {
     this.bindDial();
     btn("#crBegin", () => this.begin());
 
-    // Tray: Tayo / Lakad / Takbo bilang magkakatabing pindutan
+    // Tray: Idle / Walk / Dash as side-by-side buttons
     const poses = this.root.querySelector("#crPoses");
     POSES.forEach((pose, i) => {
       const b = document.createElement("button");
