@@ -1,17 +1,17 @@
 import { getLang } from "./i18n.js";
 
 // ==================== ABNORMAL STATUS (LORE Act I: Seven Anomaly Blights + Ragnarok/Diablo) ====================
-// Mga sumpa ng Void Miasma na tumatama sa bayani. Ang bawat isa ay may tunay na epekto:
-//   poison      — nababawasan ng 2% max HP bawat 1.5s (hindi nakamamatay, tulad sa Ragnarok); walang regen
-//   bleeding    — pinsala bawat 0.75s (nakamamatay); walang regen
-//   burn        — pinsala ng apoy bawat 0.5s (nakamamatay)
-//   freeze      — mabagal (−55%), walang sprint, mas mabagal ang atake (Diablo: chill)
-//   electrified — paralisado nang pana-panahon (Ragnarok: stun)
-//   silence     — hindi magamit ang K; ang Mage at Priest ay hindi rin makapag-cast ng J
-//   blind       — madilim ang paningin at walang critical
-//   curse       — −25% ATK, walang critical, −15% bilis (Ragnarok: Curse)
-//   confusion   — baligtad ang kontrol (Ragnarok: Chaos)
-// RESISTANCE (Ragnarok): ang stat ay may tsansang pigilan ang sumpa (hanggang 60%).
+// Void Miasma blights that afflict the hero. Each has a real effect:
+//   poison      — loses 2% max HP every 1.5s (never lethal, as in Ragnarok); no regen
+//   bleeding    — damage every 0.75s (lethal); no regen
+//   burn        — fire damage every 0.5s (lethal)
+//   freeze      — slowed (−55%), no sprint, slower attacks (Diablo: chill)
+//   electrified — paralysed now and then (Ragnarok: stun)
+//   silence     — K cannot be used; Mage and Priest cannot cast J either
+//   blind       — darkened sight and no criticals
+//   curse       — −25% ATK, no criticals, −15% speed (Ragnarok: Curse)
+//   confusion   — reversed controls (Ragnarok: Chaos)
+// RESISTANCE (Ragnarok): stats give a chance to resist a blight (up to 60%).
 
 export const STATUS = {
   poison:      { color: "#4ade80", icon: "☠", res: "vit", name: { en: "Poison", fil: "Lason" } },
@@ -28,14 +28,14 @@ export const STATUS_KEYS = Object.keys(STATUS);
 
 export const statusName = (k) => (STATUS[k] ? STATUS[k].name[getLang() === "fil" ? "fil" : "en"] : k);
 
-// Tsansang pigilan: 0.8% bawat puntos ng stat, hanggang 60%
+// Resist chance: 0.8% per stat point, up to 60%
 export function resistChance(player, type) {
   const s = STATUS[type];
   if (!s || !player.totalStat) return 0;
   return Math.min(0.6, player.totalStat(s.res) * 0.008);
 }
 
-// Bawat frame: pinsala at pagbilang pababa. Ibinabalik ang { paralyzed } para sa galaw.
+// Every frame: damage and countdown. Returns { paralyzed } for movement.
 export function tickStatuses(player, fx) {
   const d = player.debuffs;
   const pop = (text, color) => { if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(player.x + 10, player.y - 4, text, false, color); };
@@ -57,11 +57,11 @@ export function tickStatuses(player, fx) {
       player.hp = Math.max(0, player.hp - dmg);
       pop(`-${dmg}`, STATUS.burn.color);
     } else if (k === "electrified" && t % 70 < 22) {
-      paralyzed = true;                                   // 22 sa bawat 70 frame: hindi makagalaw
+      paralyzed = true;                                   // 22 of every 70 frames: cannot move
     }
   });
   return { paralyzed };
 }
 
-// Pumipigil ba ang status sa regen ng HP
+// Does the status block HP regen?
 export const blocksRegen = (player) => player.debuffs.poison > 0 || player.debuffs.bleeding > 0;

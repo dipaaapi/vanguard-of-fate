@@ -2,9 +2,9 @@ import { getLang } from "./i18n.js";
 import { PLATFORMS } from "./world/platforms.js";
 
 // ==================== DUAL-CONTINENT WORLD MAP ====================
-// Ang buong mundo ng Vanguard of Fate ay binubuo ng dalawang dakilang kontinente:
-// 1. KONTINENTE NG AETHELGARD (Soberanya ni Haring Alden at Basbas ni Astraea)
-// 2. ANG DARK CONTINENT (Nox Aeterna / Imperyo ni Demon Lord Satan)
+// The world of Vanguard of Fate is made of two great continents:
+// 1. THE CONTINENT OF AETHELGARD (realm of High King Alden, blessed by Astraea)
+// 2. THE DARK CONTINENT (Nox Aeterna / empire of Demon Lord Satan)
 // The two continents do not touch: open sea lies between them. The only crossing is the portal of the
 // Celestial Monolith in the Cerulean Abyss, drawn as a sea route around the south of Aethelgard.
 
@@ -39,7 +39,7 @@ export class ContinentMap {
     this.activeContinent = "all"; // "all" | "aethelgard" | "dark_continent"
   }
 
-  // Pagguhit ng dalawang kontinente at karagatan sa background canvas
+  // Draws both continents and the sea into the background canvas
   buildBase(w, h) {
     const c = document.createElement("canvas");
     c.width = w;
@@ -56,7 +56,7 @@ export class ContinentMap {
       g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + 4, y - 2, x + 8, y); g.stroke();
     }
 
-    // 2. KONTINENTE 1: AETHELGARD (Luntiang Lupa sa Kaliwa)
+    // 2. CONTINENT 1: AETHELGARD (green land on the left)
     const pts1 = [];
     const N1 = 40;
     const cx1 = w * 0.27, cy1 = h * 0.47;
@@ -82,10 +82,10 @@ export class ContinentMap {
     g.save(); g.translate(2, 3); drawLand(pts1, "rgba(0, 0, 0, 0.4)"); g.restore();
     drawLand(pts1, "#365314", "#ca8a04");
 
-    // Detalye ng Aethelgard:
+    // Details of Aethelgard:
     g.save();
     g.clip();
-    // Frostfang sa Hilaga
+    // Frostfang in the north
     g.fillStyle = "rgba(224, 242, 254, 0.9)";
     g.beginPath(); g.ellipse(w * 0.27, h * 0.16, w * 0.16, h * 0.10, 0, 0, Math.PI * 2); g.fill();
     for (let k = 0; k < 7; k++) {
@@ -93,17 +93,17 @@ export class ContinentMap {
       g.fillStyle = "#64748b"; g.beginPath(); g.moveTo(x - 5, y + 5); g.lineTo(x, y - 5); g.lineTo(x + 5, y + 5); g.fill();
       g.fillStyle = "#ffffff"; g.beginPath(); g.moveTo(x - 2, y); g.lineTo(x, y - 5); g.lineTo(x + 2, y); g.fill();
     }
-    // Whispering Canopy sa Silangan
+    // Whispering Canopy in the east
     g.fillStyle = "rgba(19, 78, 74, 0.85)";
     g.beginPath(); g.ellipse(w * 0.40, h * 0.42, w * 0.08, h * 0.16, 0, 0, Math.PI * 2); g.fill();
-    // Ashfall sa Timog
+    // Ashfall in the south
     g.fillStyle = "rgba(41, 37, 36, 0.95)";
     g.beginPath(); g.ellipse(w * 0.30, h * 0.76, w * 0.12, h * 0.10, 0, 0, Math.PI * 2); g.fill();
     g.strokeStyle = "#ff7a1a"; g.lineWidth = 1.2;
     g.beginPath(); g.moveTo(w * 0.22, h * 0.74); g.bezierCurveTo(w * 0.28, h * 0.80, w * 0.34, h * 0.70, w * 0.38, h * 0.78); g.stroke();
     g.restore();
 
-    // 3. KONTINENTE 2: THE DARK CONTINENT (Itim/Lilaw na Lupa sa Silangan)
+    // 3. CONTINENT 2: THE DARK CONTINENT (black/violet land in the east)
     const pts2 = [];
     const N2 = 36;
     const cx2 = w * 0.80, cy2 = h * 0.50;
@@ -115,7 +115,7 @@ export class ContinentMap {
     g.save(); g.translate(2, 3); drawLand(pts2, "rgba(0, 0, 0, 0.45)"); g.restore();
     drawLand(pts2, "#1e102a", "#9333ea");
 
-    // Detalye ng Dark Continent
+    // Details of the Dark Continent
     g.save();
     g.clip();
     // Void Cracks & Blood Marshes
@@ -125,7 +125,7 @@ export class ContinentMap {
     g.moveTo(w * 0.72, h * 0.44); g.lineTo(w * 0.79, h * 0.50); g.lineTo(w * 0.86, h * 0.46);
     g.moveTo(w * 0.75, h * 0.56); g.lineTo(w * 0.82, h * 0.62);
     g.stroke();
-    // Maw of Damnation Swirl sa Gitna ng Dark Continent
+    // Maw of Damnation swirl in the middle of the Dark Continent
     g.fillStyle = "rgba(15, 7, 26, 0.95)";
     g.beginPath(); g.ellipse(w * 0.84, h * 0.62, w * 0.06, h * 0.08, 0, 0, Math.PI * 2); g.fill();
     g.restore();
@@ -211,7 +211,7 @@ export class ContinentMap {
     const pulse = 0.5 + Math.sin(tick / 6) * 0.5;
     const list = [];
 
-    // Header Labels sa ibabaw ng dalawang kontinente
+    // Header labels over the two continents
     ctx.font = "bold 6px monospace";
     ctx.textAlign = "center";
     ctx.fillStyle = "#ffd166";

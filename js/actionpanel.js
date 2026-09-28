@@ -2,13 +2,13 @@ import { getLang, onLangChange } from "./i18n.js";
 import { getItem } from "./items/itemdb.js";
 import { iconURL } from "./items/icons.js";
 
-// ==================== SKILLS & OPTIONS (ibabang bahagi ng kanang panel) ====================
-// Bawat button: icon + pangalan + shortcut key.
-//   Skills  (J, K, Space, E): pindutin at diinan = parang pinindot ang key (hold works).
-//                             May cooldown overlay at "SAFE" kapag nasa sanctuary.
-//   Options (Q, I, C, M, Esc, H): tinatawag ang handler mula sa main.js.
-//   (Ang lore ng act ay binabasa sa "Read more" ng lore panel, kaya wala na itong button dito.)
-// Ang pangalan ng J/K ay batay sa class ng player (LORE.md, Acts III–IV).
+// ==================== SKILLS & OPTIONS (lower part of the right panel) ====================
+// Each button: icon + name + shortcut key.
+//   Skills  (J, K, L, Space, E): press and hold = like holding the key (hold works).
+//                             Cooldown overlay, and "SAFE" inside a sanctuary.
+//   Options (Q, I, C, M, N, Esc, H): call the handler from main.js.
+//   (Act lore is read through the lore panel's "Read more", so it has no button here.)
+// The J/K/L names follow the player's class (LORE.md, Acts III–IV).
 
 const SKILLS = {
   novice:  { J: ["🗡️", "Dagger Jab"],        K: ["🌀", "Dodge Roll"],            L: ["🪨", "Throw Stone"] },
@@ -56,7 +56,7 @@ export class ActionPanel {
     onLangChange(() => { this.cls = null; this.build(); });
   }
 
-  // Button na ginagaya ang key (keydown habang diniinan, keyup kapag binitawan)
+  // A button that mimics a key (keydown while held, keyup on release)
   holdButton(code) {
     const b = document.createElement("button");
     b.type = "button";
@@ -130,7 +130,7 @@ export class ActionPanel {
     this.set(this.options.menu, "🏠", tx("menu"));
     Object.values(this.options).forEach((b) => this.optionsEl.appendChild(b));
 
-    // Quick slot 1–4 (i-click o pindutin ang numero)
+    // Quick slots 1–4 (click or press the number)
     this.belt = [];
     if (this.beltEl) {
       this.beltEl.innerHTML = "";
@@ -155,7 +155,7 @@ export class ActionPanel {
     btn.title = name;
   }
 
-  // Cooldown overlay: 0 = handa, 1 = kagagamit lang
+  // Cooldown overlay: 0 = ready, 1 = just used
   setCooldown(btn, key, ratio) {
     const v = Math.max(0, Math.min(1, ratio || 0));
     const pct = `${Math.round(v * 100)}%`;
@@ -189,7 +189,7 @@ export class ActionPanel {
     this.setCooldown(this.buttons.K, "cdK", hd.cooldown ? p.skillCooldownTimer / hd.cooldown : 0);
     this.setCooldown(this.buttons.L, "cdL", hd.cooldown2 ? p.skill2CooldownTimer / hd.cooldown2 : 0);
 
-    // Hindi magagamit ang J/K sa loob ng sanctuary
+    // J/K cannot be used inside a sanctuary
     const safe = Boolean(s.inSanctuary);
     this.toggle(this.buttons.J, "safeJ", "safe", safe);
     this.toggle(this.buttons.K, "safeK", "safe", safe);
@@ -205,10 +205,10 @@ export class ActionPanel {
     this.toggle(this.options.map, "map", "on", Boolean(s.mapOpen));
     this.toggle(this.options.inventory, "inv", "on", Boolean(s.inventoryOpen));
     this.toggle(this.options.character, "char", "on", Boolean(s.charOpen));
-    // May stat/skill point na hindi pa nagagamit
+    // Unspent stat/skill points
     this.toggle(this.options.character, "charAlert", "alert", Boolean(s.pointsAvailable));
 
-    // Quick slot: icon at bilang ng bawat item; "AUTO" kapag may auto-potion
+    // Quick slot: icon and count of each item; "AUTO" when auto-potion is on
     if (this.belt.length && p.belt) {
       const sig = p.belt.map((id) => `${id}:${id ? p.bag.count(id) : 0}`).join("|") + (p.autoPot ? p.autoPot.hp : "");
       if (this.cache.belt !== sig) {

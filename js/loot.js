@@ -3,22 +3,22 @@ import { describe, rollDrop } from "./items/itemdb.js";
 import { iconCanvas } from "./items/icons.js";
 
 // ==================== SAMSAM (LOOT) ====================
-// Bawat napatay na halimaw ay naghuhulog ng gold at minsan ng item (gamot, shard, materyales,
-// kagamitan). Ang item ay pumapasok sa bag; kapag puno ang bag, naiiwan ito sa lupa.
-// Ang boss ay naghuhulog ng quest item ng Act (hal. Blighted Heartstone).
+// Every slain monster drops gold and sometimes an item (potion, shard, material,
+// equipment). Items go into the bag; when the bag is full they stay on the ground.
+// A boss drops its Act's quest item (e.g. Blighted Heartstone).
 
-// Tinitiyak kung ang posisyon ay nasa ibabaw ng balakid, pader ng Citadel, puno, o hindi maabot na lugar
+// Whether a position is on an obstacle, a Citadel wall, a tree, or an unreachable spot
 function isObstacle(x, y, stage) {
   if (!stage) return false;
 
-  // 1. Bounds ng mapa
+  // 1. Map bounds
   if (stage.bounds) {
     if (x < stage.bounds.minX || x > stage.bounds.maxX || y < stage.bounds.minY || y > stage.bounds.maxY) {
       return true;
     }
   }
 
-  // 2. Mga pader, tore, at keep ng Citadel Castle
+  // 2. The Citadel castle's walls, towers and keep
   if (stage.castle && Array.isArray(stage.castle.solidColliders)) {
     for (const box of stage.castle.solidColliders) {
       if (
@@ -32,7 +32,7 @@ function isObstacle(x, y, stage) {
     }
   }
 
-  // 3. Tilemap solids (puno, bato, bangin), liquid (lava, malalim na dagat, void), at unreachable zones
+  // 3. Tilemap solids (trees, rocks, cliffs), liquids (lava, deep sea, void) and unreachable zones
   if (stage.tilemap) {
     if (stage.tilemap.isSolidAt && stage.tilemap.isSolidAt(x, y)) return true;
     if (stage.tilemap.isLiquidAt && stage.tilemap.isLiquidAt(x, y)) return true;
@@ -42,7 +42,7 @@ function isObstacle(x, y, stage) {
   return false;
 }
 
-// Naghahanap ng pinakamalapit na ligtas at malayang matatapakan ng player
+// Finds the nearest safe spot the player can stand on
 function findNearestWalkableSpot(startX, startY, stage) {
   if (!isObstacle(startX, startY, stage)) {
     return { x: startX, y: startY };
@@ -79,8 +79,8 @@ function findNearestWalkableSpot(startX, startY, stage) {
 export class LootManager {
   constructor() {
     this.items = [];
-    this.onQuestItem = null;   // (id) => void — napulot ang quest item
-    this.onCollect = null;     // ({ gold } | { name, qty, color }) => void — para sa talaan sa bottom tray
+    this.onQuestItem = null;   // (id) => void — a quest item was picked up
+    this.onCollect = null;     // ({ gold } | { id, name, qty, color }) => void — for the bottom tray log
     this.fullWarn = 0;
   }
 
@@ -113,7 +113,7 @@ export class LootManager {
     if (info.drop) this.drop({ x, y }, { id: info.drop, qty: 1 }, true, stage);
   }
 
-  // inst = { id, qty, ... } (tingnan ang js/items/itemdb.js)
+  // inst = { id, qty, ... } (see js/items/itemdb.js)
   drop(pos, inst, quest = false, stage = null) {
     const it = describe(inst);
     if (!it) return;
@@ -125,7 +125,7 @@ export class LootManager {
     this.items.push({ ...finalPos, type: "item", id: inst.id, inst: { qty: 1, ...inst }, color: it.color, quest, bobTimer: Math.random() * 6 });
   }
 
-  // Lumang tawag (hal. mula sa ibang system)
+  // Old entry point (e.g. from another system)
   dropLoot(x, y, stage = null) {
     this.spawnLoot(x, y, {}, stage);
   }
@@ -181,7 +181,7 @@ export class LootManager {
 
       if (dist < collectRadius) {
         if (!this.collect(player, item, fx)) {
-          // puno ang bag: iwan muna sa lupa
+          // bag full: leave it on the ground for now
           item.blocked = 90;
           item.x -= (dx / (dist || 1)) * 14;
           item.y -= (dy / (dist || 1)) * 14;
@@ -239,7 +239,7 @@ export class LootManager {
         ctx.fillStyle = "#fff4b0";
         ctx.fillRect(item.x - 1, hoverY - 2, 1, 1);
       } else {
-        // Pixel icon ng item (mas malaki ang quest item)
+        // Item pixel icon (quest items are bigger)
         const icon = iconCanvas(describe(item.inst));
         const sz = item.quest ? 14 : 10;
         if (icon) ctx.drawImage(icon, Math.round(item.x - sz / 2), Math.round(hoverY - sz / 2), sz, sz);

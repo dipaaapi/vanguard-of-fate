@@ -1,16 +1,16 @@
 import { getLang } from "./i18n.js";
 
-// ==================== STAT BUILDER + SKILL TREE (parang Ragnarok Online, may isekai na timpla) ====================
-// STATS: STR AGI VIT INT DEX LUK — nagsisimula sa 1. Ang gastos sa pagtaas ay tumataas
-// (Ragnarok): mula x → x+1 ay floor((x − 1) / 10) + 2 na stat point.
-// Pangunahing stat bawat class (dagdag na ATK): Novice/Knight/Fighter = STR, Archer = DEX, Mage/Priest = INT.
+// ==================== STAT BUILDER + SKILL TREE (Ragnarok Online style, with an isekai twist) ====================
+// STATS: STR AGI VIT INT DEX LUK — start at 1. Raising one costs more as it grows
+// (Ragnarok): from x → x+1 costs floor((x − 1) / 10) + 2 stat points.
+// Primary stat per class (extra ATK): Novice/Knight/Fighter = STR, Archer = DEX, Mage/Priest = INT.
 //
-// SKILL TREE: may sariling puno ang Novice at bawat job. Isang skill point bawat level.
-// Ang mga skill ng Novice ay nananatili pagkatapos ng Job Awakening (tulad sa Ragnarok).
-// Bawat skill ay may max level, kinakailangang skill (req) at epekto bawat level:
-//   dmg (+% pinsala) · kcd (−% cooldown ng K) · atk · def · hpPct · dmgReduce (%) · crit (%) · move (%)
-//   cdr (%) · aspd (%) · stamina · regen (HP bawat 3s) · exp (%) · heal (% lakas ng heal) · lcd (−% cooldown ng L)
-//   str/agi/vit/int/dex/luk (dagdag na stat)
+// SKILL TREE: the Novice and every job have their own tree. One skill point per level.
+// Novice skills stay after the Job Awakening (as in Ragnarok).
+// Each skill has a max level, a required skill (req) and an effect per level:
+//   dmg (+% damage) · kcd (−% K cooldown) · atk · def · hpPct · dmgReduce (%) · crit (%) · move (%)
+//   cdr (%) · aspd (%) · stamina · regen (HP every 3s) · exp (%) · heal (% heal power) · lcd (−% L cooldown)
+//   str/agi/vit/int/dex/luk (extra stat)
 
 export const STATS = ["str", "agi", "vit", "int", "dex", "luk"];
 export const PRIMARY = { novice: "str", knight: "str", fighter: "str", archer: "dex", mage: "int", priest: "int" };
@@ -26,11 +26,11 @@ export const STAT_INFO = {
   luk: N("Luck — critical hits. Fortune favors the summoned.", "Suwerte — critical hit. Pinapaboran ng tadhana ang tinawag.")
 };
 
-// Gastos ng pagtaas ng stat mula sa kasalukuyang value
+// Cost of raising a stat from its current value
 export const statCost = (v) => Math.floor((v - 1) / 10) + 2;
 export const STAT_MAX = 99;
 
-// row/col = posisyon sa puno (grid)
+// row/col = position in the tree (grid)
 export const TREES = {
   novice: [
     { id: "adapt", icon: "🌐", max: 5, row: 0, col: 1, name: N("Isekai Adaptation", "Pag-angkop sa Ibang Mundo"),
@@ -137,7 +137,7 @@ export const skillText = (s) => {
   return { name: s.name[L], desc: s.desc[L] };
 };
 
-// Mga punong puwede sa class: laging kasama ang Novice
+// Trees available to the class: the Novice tree is always included
 export function treesFor(cls) {
   return cls === "novice" ? ["novice"] : ["novice", cls];
 }
@@ -147,14 +147,14 @@ export function findSkill(id) {
   return null;
 }
 
-// Puwede bang dagdagan ang skill
+// Can the skill be raised?
 export function canLearn(player, s) {
   const lv = player.skillLevels[s.id] || 0;
   if (player.skillPoints <= 0 || lv >= s.max) return false;
   return Object.entries(s.req || {}).every(([id, need]) => (player.skillLevels[id] || 0) >= need);
 }
 
-// Kabuuang epekto ng lahat ng natutunang skill
+// Combined effect of every learned skill
 export function skillBonus(player) {
   const out = {};
   treesFor(player.heroData.id).forEach((t) => TREES[t].forEach((s) => {

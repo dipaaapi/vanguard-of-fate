@@ -1,15 +1,15 @@
 import { Sound } from "../audio.js";
 import { Avatar } from "../avatar/avatar.js";
 
-// ==================== NOVICE (panimulang anyo ng tinawag na bayani) ====================
-// Walang class pa: punyal at kahoy na buckler lang. Ang itsura ay galing sa Character
-// Creator (modular Avatar). Sa Lv 10 (tapos ang Platform 1) magaganap ang Job Awakening.
+// ==================== NOVICE (the summoned hero's starting form) ====================
+// No class yet: just a dagger and a wooden buckler. The look comes from the Character
+// Creator (modular Avatar). The Job Awakening happens at Lv 10 (after Platform 1).
 //
-// J = Dagger Jab (maikling saksak sa direksyon ng target)
-// K = Dodge Roll (mabilis na gulong, hindi tinatamaan habang gumugulong)
+// J = Dagger Jab (a short stab toward the target)
+// K = Dodge Roll (a quick roll, untouchable while rolling)
 
-// Bilang ng frame bawat state (ginagamit ng Player.update para sa animation timing).
-// Ang idle ay 8 "tick" para mabagal ang paghinga (Avatar: 2 frame × 4).
+// Frame count per state (used by Player.update for animation timing).
+// Idle is 8 "ticks" for slow breathing (Avatar: 2 frames × 4).
 const FRAME_COUNTS = { idle: 8, run: 4, slash: 2, bash: 4 };
 
 const NOVICE_BASE = {
@@ -40,13 +40,13 @@ const NOVICE_BASE = {
     return true;
   },
 
-  // KEY K: Dodge Roll — sa direksyon na hinaharap
+  // KEY K: Dodge Roll — in the facing direction
   onSkill(player) {
     const d = player.dir || "side";
     const vx = d === "side" ? (player.facing === "right" ? 1 : -1) : 0;
     const vy = d === "down" ? 1 : d === "up" ? -1 : 0;
     player.rollTimer = 14;
-    player.rollDuration = 14;    // para sa animation (js/player.js drawRolling)
+    player.rollDuration = 14;    // for the animation (js/player.js drawRolling)
     player.rollGhosts = [];
     player.rollVx = vx * 4.2;
     player.rollVy = vy * 4.2;
@@ -55,7 +55,7 @@ const NOVICE_BASE = {
     return true;
   },
 
-  // KEY L: Throw Stone (klasikong skill ng Novice sa Ragnarok) — batong may elementong lupa
+  // KEY L: Throw Stone (the Novice's classic Ragnarok skill) — a stone with the earth element
   cooldown2: 60,
   onSkill2(player, target, spawnProjectile) {
     const a = player.aimAngle;
@@ -72,7 +72,7 @@ const NOVICE_BASE = {
   }
 };
 
-// config = galing sa Character Creator; name = pangalan ng bayani (HUD)
+// config = from the Character Creator; name = the hero's name (HUD)
 export function getNovice(config, name = "") {
   const avatar = new Avatar(config);
   return {

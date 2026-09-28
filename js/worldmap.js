@@ -2,9 +2,9 @@ import { getLang } from "./i18n.js";
 import { ContinentMap } from "./continent.js";
 
 // ==================== WORLD MAP (M) ====================
-// Buong mundo sa isang tingin: lupa, Barracks, Citadel, baybayin, 4 na Warp Gateway,
-// ang player, mga NPC, kalaban, samsam at ang kasalukuyang layunin ng quest.
-// Iginuguhit sa ibabaw ng game canvas (480x270 logical). Naka-pause ang laro habang bukas.
+// The whole world at a glance: land, Barracks, Citadel, coast, the 4 Warp Gateways,
+// the player, NPCs, foes, loot and the current quest objective.
+// Drawn over the game canvas (480x270 logical). The game is paused while it is open.
 
 const TEXT = {
   en: {
@@ -26,7 +26,7 @@ const TEXT = {
 };
 const tx = (k) => (TEXT[getLang()] || TEXT.en)[k];
 
-// Hatiin ang mahabang teksto sa ilang linya na kasya sa lapad
+// Wrap long text into lines that fit the width
 function wrap(ctx, text, maxW) {
   const words = String(text || "").split(/\s+/);
   const lines = [];
@@ -54,7 +54,7 @@ export class WorldMap {
     this.view = this.view === "region" ? "continent" : "region";
   }
 
-  // Isang beses bawat bukas: iguhit ang buong mundo sa offscreen canvas
+  // Once per opening: draw the whole world into an offscreen canvas
   buildBase() {
     const st = this.stage;
     if (!this.base) {
@@ -66,7 +66,7 @@ export class WorldMap {
     c.setTransform(1, 0, 0, 1, 0, 0);
     c.clearRect(0, 0, st.width, st.height);
     if (st.id !== "hub") {
-      // Platform ng Act: lupa, landmark, kampo at Return Gateway
+      // An Act platform: ground, landmark, camp and Return Gateway
       st.draw(c);
       if (st.tilemap.overlayCanvas) c.drawImage(st.tilemap.overlayCanvas, 0, 0);
       return;
@@ -103,7 +103,7 @@ export class WorldMap {
     ctx.fillStyle = "rgba(3, 6, 17, 0.92)";
     ctx.fillRect(0, 0, W, H);
 
-    // ---- Mapa (kaliwa) ----
+    // ---- Map (left) ----
     const pad = 10, top = 20;
     const mapH = H - top - pad;
     const k = Math.min((W * 0.66) / st.width, mapH / st.height);
@@ -123,7 +123,7 @@ export class WorldMap {
     ctx.lineWidth = 1;
     ctx.strokeRect(mx - 0.5, my - 0.5, mw + 1, mh + 1);
 
-    // Mga pangalan ng lugar
+    // Place names
     const label = (text, wx, wy, color = "#f8fafc") => {
       const [x, y] = P(wx, wy);
       ctx.font = "bold 5px monospace";
@@ -158,7 +158,7 @@ export class WorldMap {
       });
     }
 
-    // Samsam at kalaban
+    // Loot and foes
     (s.loot || []).forEach((it) => {
       const [x, y] = P(it.x, it.y);
       ctx.fillStyle = "#22c55e";
@@ -171,7 +171,7 @@ export class WorldMap {
       ctx.fillRect(x - 1.5, y - 1.5, 3, 3);
     });
 
-    // Mga NPC (kumikislap ang layunin ng quest)
+    // NPCs (the quest objective blinks)
     const pulse = 0.5 + Math.sin(this.tick / 6) * 0.5;
     (s.npcs || []).forEach((n) => {
       if (!n.visible) return;
@@ -243,7 +243,7 @@ export class WorldMap {
     ctx.restore();
   }
 
-  // Buong kontinente: lahat ng lupain, kalagayan (selyado / bukas / napalaya) at kung nasaan ka
+  // Whole continent: every land, its state (sealed / open / freed) and where you are
   drawContinent(ctx, W, H, s) {
     ctx.save();
     ctx.fillStyle = "rgba(3, 6, 17, 0.94)";
@@ -257,7 +257,7 @@ export class WorldMap {
     const lands = this.continent.draw(ctx, pad, top, mw, mh, s, this.tick);
     ctx.textAlign = "left";
 
-    // Kanang hanay: layunin at listahan ng mga lupain
+    // Right column: objective and the list of lands
     const rx = pad + mw + 12, rw = W - rx - pad;
     let y = top + 4;
     ctx.fillStyle = "#38bdf8";

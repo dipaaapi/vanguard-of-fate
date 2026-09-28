@@ -1,9 +1,9 @@
 import { getLang } from "./i18n.js";
 
 // ==================== RACE · ELEMENT · SIZE · TYPE (parang Ragnarok Online) ====================
-// Bawat halimaw ay may lahi (race), elemento at laki. Ang atake ng bayani ay may elemento rin
-// (hal. Meteor = apoy). Ang talaan ng elemento ang nagpapasya kung malakas o mahina ang tama.
-// May mga VARIANT: elemental na bersyon (Blazing, Frozen, …) at CHAMPION (mas malakas, mas maraming samsam).
+// Every monster has a race, an element and a size. The hero's attacks have elements too
+// (e.g. Meteor = fire). The element table decides whether a hit is strong or weak.
+// VARIANTS: elemental versions (Blazing, Frozen, …) and CHAMPION (stronger, more loot).
 
 const L = () => (getLang() === "fil" ? "fil" : "en");
 
@@ -28,7 +28,7 @@ const RACES = {
 };
 const SIZES = { small: { en: "Small", fil: "Maliit" }, medium: { en: "Medium", fil: "Katamtaman" }, large: { en: "Large", fil: "Malaki" } };
 
-// Talaan ng elemento: [atake][depensa] → multiplier (kung wala sa talaan, 1)
+// Element table: [attack][defence] → multiplier (1 when not listed)
 const TABLE = {
   neutral: { ghost: 0.5 },
   water: { fire: 1.5, wind: 0.75, water: 0.5, undead: 1.1 },
@@ -46,18 +46,18 @@ export function elementMult(atk = "neutral", def = "neutral") {
   return row[def] ?? 1;
 }
 
-// Dagdag na pinsala ng class laban sa ilang lahi (kaalaman mula sa Daigdig at sa pagsasanay)
+// Extra class damage against certain races (knowledge from Earth and training)
 const RACE_BONUS = {
-  priest: { undead: 1.25, demon: 1.25 },     // Banal na liwanag
-  knight: { dragon: 1.15, demon: 1.1 },      // Lance laban sa malalaki
+  priest: { undead: 1.25, demon: 1.25 },     // Holy light
+  knight: { dragon: 1.15, demon: 1.1 },      // Lance against big foes
   archer: { brute: 1.15, insect: 1.15 },     // Biyologo at mangangaso
-  mage: { formless: 1.15, plant: 1.1 },      // Pisika ng materya
+  mage: { formless: 1.15, plant: 1.1 },      // Physics of matter
   fighter: { demihuman: 1.15, demon: 1.1 },  // Street fighter
   novice: {}
 };
 export const raceBonus = (cls, race) => (RACE_BONUS[cls] && RACE_BONUS[cls][race]) || 1;
 
-// Laki: epekto ng uri ng sandata (Ragnarok size modifier, pinalambot)
+// Size: effect of the weapon type (Ragnarok size modifier, softened)
 const SIZE_MOD = {
   dagger: { small: 1, medium: 0.9, large: 0.75 },
   sword: { small: 0.9, medium: 1, large: 0.9 },
@@ -70,7 +70,7 @@ const SIZE_MOD = {
 };
 export const sizeMod = (weaponIcon, size) => (SIZE_MOD[weaponIcon] && SIZE_MOD[weaponIcon][size]) || 1;
 
-// Elemental na variant ng halimaw (unlapi sa pangalan)
+// Elemental monster variant (prefix on the name)
 const VARIANTS = {
   fire: { en: "Blazing", fil: "Nagliliyab na" },
   water: { en: "Frozen", fil: "Nagyelong" },
@@ -81,7 +81,7 @@ const VARIANTS = {
   holy: { en: "Radiant", fil: "Maningning na" },
   ghost: { en: "Phantom", fil: "Multong" }
 };
-// Mas madalas ang variant na bagay sa lugar
+// Variants that suit the place are more common
 const PLACE_VARIANTS = {
   hub: ["earth", "wind", "water", "fire", "holy"],
   canopy: ["poison", "earth", "poison", "shadow"],

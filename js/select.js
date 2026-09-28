@@ -49,18 +49,18 @@ const ISEKAI_LORE = {
 };
 
 export class SelectScene {
-  // dom = { picker, dossier }: ang hero picker (ibaba) at dossier (kanan) ay HTML na
+  // dom = { picker, dossier }: the hero picker (bottom) and dossier (right) are HTML
   constructor(roster, onHeroSelected, dom = {}) {
     this.roster = roster;
     this.onHeroSelected = onHeroSelected;
-    this.jobAvatars = null;     // itinatakda ng main.js bago ang Job Awakening
+    this.jobAvatars = null;     // set by main.js before the Job Awakening
     this.selectedIndex = 0;
     this.animTick = 0;
     this.bg = loadImage("assets/bg/portal_bg.jpg");
 
     this.pickerEl = dom.picker || null;
     this.dossierEl = dom.dossier || null;
-    this.mode = "select";   // "select" | "awakening" (Job Awakening ng Novice sa Lv 10)
+    this.mode = "select";   // "select" | "awakening" (the Novice's Job Awakening at Lv 10)
     this.renderDom();
     onLangChange(() => this.renderDom());
   }
@@ -81,7 +81,7 @@ export class SelectScene {
     };
   }
 
-  // ---------- HTML (ibaba at kanan) ----------
+  // ---------- HTML (bottom and right) ----------
   renderDom() {
     if (this.pickerEl) {
       this.pickerEl.innerHTML = "";
@@ -140,7 +140,7 @@ export class SelectScene {
       };
 
       add("div", "dz-name", hero.name.toUpperCase());
-      // Sa awakening, ang Earth profile ay ng mentor ng class (isa sa limang naunang tinawag, Act III)
+      // At the awakening, the Earth profile is the class mentor's (one of the five earlier souls, Act III)
       const awakening = this.mode === "awakening";
       if (awakening) add("div", "dz-label dz-mentor", t("mentorLabel"));
       add("div", "dz-real", `"${lore.realName}"`);
@@ -192,7 +192,7 @@ export class SelectScene {
     ctx.fillText(text, x, y);
   }
 
-  // ---------- CANVAS: background + hero sa harap ng portal ----------
+  // ---------- CANVAS: background + hero in front of the portal ----------
   draw(ctx, width, height) {
     this.animTick++;
 
@@ -203,7 +203,7 @@ export class SelectScene {
     ctx.fillStyle = "rgba(3, 6, 17, 0.15)";
     ctx.fillRect(0, 0, width, height);
 
-    // Pulsing glow ng portal
+    // Pulsing portal glow
     const px = width * 0.605;
     const py = height * 0.46;
     const pulse = 1 + Math.sin(this.animTick / 20) * 0.10;
@@ -230,7 +230,7 @@ export class SelectScene {
     ctx.font = "6.5px monospace";
     this.shadowText(ctx, awakening ? t("awakenSub") : "CHOOSE A REINCARNATED SOUL TO EMBARK ON AETHELGARD", width / 2, 27, "#94a3b8");
 
-    // Hero (3x laki) nakatayo sa harap ng portal
+    // Hero (3x size) standing in front of the portal
     const hero = this.roster[this.selectedIndex];
     const lore = this.getLore(hero);
     const heroX = Math.round(width * 0.605);
@@ -247,8 +247,8 @@ export class SelectScene {
     ctx.ellipse(heroX, heroY + 1, 26, 7, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Ang mentor ng class (nasa likod, mas maliit) at ang player mismo na suot ang gear ng class.
-    // Paminsan-minsan ay ipinapakita ang atake para makita ang sandata.
+    // The class mentor (behind, smaller) and the player wearing the class gear.
+    // Now and then the attack pose shows, so the weapon can be seen.
     const mentor = awakening && this.mentorAvatars && this.mentorAvatars[hero.id];
     const self = this.jobAvatars && this.jobAvatars[hero.id];
     if (mentor) {
@@ -272,7 +272,7 @@ export class SelectScene {
     this.shadowText(ctx, hero.name.toUpperCase(), heroX, heroY + 16, "#ffd166");
     ctx.font = "6.2px monospace";
     this.shadowText(ctx, hero.title || "", heroX, heroY + 25, "#cbd5e1");
-    // Pangalan ng mentor sa ilalim ng mentor (o sa ilalim ng bayani kung walang mentor)
+    // Mentor's name under the mentor (or under the hero when there is no mentor)
     ctx.font = "bold 6.8px monospace";
     if (mentor && self) this.shadowText(ctx, `"${lore.realName}"`, heroX - 62, heroY - 2, "#38bdf8");
     else this.shadowText(ctx, `"${lore.realName}"`, heroX, heroY + 34, "#38bdf8");

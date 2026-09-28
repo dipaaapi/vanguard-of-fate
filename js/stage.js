@@ -5,9 +5,9 @@ import { PortalSystem } from "./world/portal.js";
 import { WeatherSystem } from "./world/weather.js";
 import { TileMap } from "./world/tilemap.js";
 
-// Ang kaparangan ng Aethelgard (Acts I–VI): Barracks, Citadel at ang 4 na Warp Gateway.
-// Ang bangka at dagat ay nasa Cerulean Abyss (platform na "coast").
-// Ang mga platform ng Acts VII–XII ay nasa js/world/platform.js (parehong interface).
+// The plains of Aethelgard (Acts I–VI): Barracks, Citadel and the 4 Warp Gateways.
+// The boat and the sea are in the Cerulean Abyss (the "coast" platform).
+// The platforms of Acts VII–XII live in js/world/platform.js (same interface).
 export class Stage {
   constructor(width = 1280, height = 960) {
     this.id = "hub";
@@ -29,28 +29,28 @@ export class Stage {
     this.portals = new PortalSystem(this.width, this.height);
     this.weather = new WeatherSystem(this.width, this.height);
 
-    // Shortcut para sa gameplay safe zone checks
+    // Shortcut for gameplay safe-zone checks
     this.safeZone = this.barracks.bounds;
 
-    // Audience dais sa harap ng Citadel gate: walang puno o bato (dito ang Hari, tagapagtawag at mga mentor)
+    // Audience dais in front of the Citadel gate: no trees or rocks (the King, summoner and mentors stand here)
     const gate = this.castle.gatePortal;
     this.dais = { x: gate.x - 110, y: gate.y - 4, w: 220, h: 128 };
     this.clearAreas = [this.dais];
 
-    // Mga sagradong lugar na hindi mapapasok ng halimaw: Barracks at ang audience dais ng Citadel
+    // Sacred places monsters cannot enter: the Barracks and the Citadel's audience dais
     this.safeZones = [this.safeZone, this.dais];
 
-    // Tile-based na lupa (damo, landas, puno, bato). Huling ginagawa dahil binabasa nito
-    // kung saan nakaguhit ang castle, barracks at portals.
+    // Tile-based ground (grass, paths, trees, rocks). Built last because it reads
+    // where the castle, barracks and portals are drawn.
     this.tilemap = new TileMap(this);
   }
 
-  // Hindi madaanan na tiles (puno, bato)
+  // Impassable tiles (trees, rocks)
   resolveTileCollision(entity) {
     if (this.tilemap) this.tilemap.resolveCollision(entity);
   }
 
-  // Canopy ng mga puno: tinatawag SA IBABAW ng mga karakter
+  // Tree canopy: drawn ABOVE the characters
   drawOverlay(ctx, player = null) {
     if (this.tilemap) this.tilemap.drawOverlay(ctx);
     // Weather above everything on the ground: clouds, rain/fog tint, and the cloud banks at the map edges
@@ -59,7 +59,7 @@ export class Stage {
     this.weather.drawCloudBorders(ctx);
   }
 
-  // Aling sanctuary ang kinaroroonan ng punto (o null)
+  // Which sanctuary contains the point (or null)
   safeZoneAt(px, py) {
     return this.safeZones.find((s) => px >= s.x && px <= s.x + s.w && py >= s.y && py <= s.y + s.h) || null;
   }
@@ -68,7 +68,7 @@ export class Stage {
     return Boolean(this.safeZoneAt(px, py));
   }
 
-  // Kung saan lalabas ang player pagbalik mula sa isang platform
+  // Where the player comes out when returning from a platform
   arrivalFrom(platformId) {
     if (platformId === "siege") return { x: this.castle.gatePortal.x - 10, y: this.castle.gatePortal.y + 40 };
     const gate = this.portals.portals.find((p) => p.dest === platformId);
@@ -87,7 +87,7 @@ export class Stage {
     if (player && this.castle) {
       this.castle.resolveCollision(player);
 
-      // Gate ng Citadel: sa main.js ang pasya (Barracks, o ang kinubkob na Citadel sa Act XI)
+      // Citadel gate: main.js decides (it is a shortcut back to the Barracks)
       const gp = this.castle.gatePortal;
       const d = Math.hypot(player.x + 10 - gp.x, player.y + 18 - gp.y);
       if (d < 18 && (!player.portalCooldown || player.portalCooldown <= 0)) {

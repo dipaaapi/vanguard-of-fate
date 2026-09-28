@@ -1,16 +1,16 @@
 import { npcName } from "./dialogue.js";
 import { getLang, onLangChange } from "./i18n.js";
 
-// ==================== BOTTOM TRAY: TALAAN NG PAKIKIPAGSAPALARAN ====================
-// Nasa ilalim ng screen ng laro (kapantay ng canvas). Itinatala rito ang bawat linya ng NPC,
-// ang tama ng kalaban, ang napulot na loot at ang isinuot/hinubad na kagamitan; ang pinakabago ay
-// nasa ibaba. Ang magkakasunod na kaparehong pangyayari (hal. 3 tama ng iisang lobo) ay pinagsasama
-// sa isang linya para hindi bumaha ang talaan. Hanggang MAX na linya lang.
+// ==================== BOTTOM TRAY: ADVENTURE LOG ====================
+// Below the game screen (as wide as the canvas). Logs every NPC line,
+// hits taken, loot picked up and gear equipped/unequipped; the newest is
+// at the bottom. Repeated identical events (e.g. 3 hits from the same wolf) merge
+// into one line so the log doesn't flood. At most MAX lines.
 
 const MAX = 150;
-const MERGE_MS = 2500;   // gaano katagal pinagsasama ang magkaparehong pangyayari
+const MERGE_MS = 2500;   // how long identical events keep merging
 
-// Tatak sa kaliwa ng bawat uri ng pangyayari
+// Tag on the left for each kind of event
 const TAGS = { hit: "⚔", loot: "✦", equip: "⛨", exp: "★", level: "▲", info: "·" };
 
 export class ChatLog {
@@ -19,7 +19,7 @@ export class ChatLog {
     this.head = root.querySelector(".log-head");
     this.list = root.querySelector(".log-list");
     this.count = 0;
-    this.last = null;        // huling linya na puwedeng pagsamahan
+    this.last = null;        // last line that can still be merged into
     this.renderHead();
     onLangChange(() => this.renderHead());
   }
@@ -30,14 +30,14 @@ export class ChatLog {
     if (!this.count) this.list.innerHTML = `<p class="log-empty">${fil ? "Wala pang naitala. Makipag-usap, lumaban at mamulot — lahat ay itatala rito." : "Nothing logged yet. Talk, fight and loot — it all shows up here."}</p>`;
   }
 
-  // Linya ng NPC: id = sino ang nagsasalita (para sa pangalan)
+  // NPC line: id = who is speaking (for the name)
   add(id, line, time = "") {
     if (!line) return;
     this.push("npc", npcName(id), line, time);
   }
 
-  // Pangyayari sa laro. merge = { key, value, format(n, total) }: pinagsasama sa huling linya
-  // kapag pareho ang key at kamakailan lang; kung wala, text ang ipinapakita.
+  // A game event. merge = { key, value, format(n, total) }: merged into the last line
+  // when the key matches and it was recent; otherwise text is shown.
   event(kind, text, time = "", merge = null, color = "") {
     const now = performance.now();
     const l = this.last;

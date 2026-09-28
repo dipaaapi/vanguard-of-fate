@@ -1,6 +1,6 @@
 import { getLang, onLangChange } from "./i18n.js";
 
-// Auto-scrolling lore panel (loop). Binabasa ang LORE.md / LORE_FIL.md sa project root.
+// Auto-scrolling lore panel (loop). Reads LORE.md / LORE_FIL.md from the project root.
 const FALLBACK = `# Vanguard of Fate
 
 ## The Sundered Dominion of Aethelgard
@@ -15,12 +15,12 @@ function cleanInline(s) {
   return s.replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1").replace(/`(.+?)`/g, "$1");
 }
 
-// Tinatanggal ang emoji sa unahan ng heading (iba-iba ang itsura bawat OS)
+// Strips the emoji at the start of a heading (it looks different on every OS)
 function cleanHeading(s) {
   return cleanInline(s).replace(/^[^\p{L}\p{N}]+/u, "");
 }
 
-// Caching ng LORE.md (English) at LORE_FIL.md (Filipino)
+// Caches LORE.md (English) and LORE_FIL.md (Filipino)
 const loreCache = {};
 export function loadLore(lang = getLang()) {
   const l = lang === "fil" ? "fil" : "en";
@@ -39,7 +39,7 @@ export function loadLore(lang = getLang()) {
   return loreCache[l];
 }
 
-// Hinahati ang lore sa mga kabanata (bawat "## " heading) para sa Chronicles screen.
+// Splits the lore into chapters (each "## " heading) for the Chronicles screen.
 // "Act I: The Sundered Dominion" → { tab: "Act I", title: "The Sundered Dominion" }
 export function parseChapters(md) {
   const chapters = [];
@@ -89,7 +89,7 @@ function buildCopy(md) {
   return copy;
 }
 
-// "Act II" → 2 (para itugma ang kabanata sa numero ng Act ng quest at sa banner na act-N.jpeg)
+// "Act II" → 2 (to match a chapter with the quest's Act number and the act-N.jpeg banner)
 const ROMAN = { I: 1, V: 5, X: 10, L: 50 };
 export function actNumber(tab) {
   const m = /Act\s+([IVXL]+)/i.exec(tab || "");
@@ -103,17 +103,17 @@ export function actNumber(tab) {
   return n;
 }
 
-// Tinatanggap ang .jpeg, .jpg, .png at .webp (sinusubukan sa ganitong ayos)
+// Accepts .jpeg, .jpg, .png and .webp (tried in this order)
 export const BANNER_EXTS = ["jpeg", "jpg", "png", "webp"];
 export function bannerSrc(act, i = 0) {
   return `assets/banner/act-${act}.${BANNER_EXTS[i]}`;
 }
 
-// Isang kabanata lang (ang kasalukuyang Act ng quest)
+// A single chapter (the quest's current Act)
 function buildChapterCopy(ch) {
   const copy = document.createElement("div");
   copy.className = "lore-copy";
-  // Ang pamagat ay nasa caption ng banner na, kaya teksto na lang dito
+  // The title is already in the banner caption, so only the text here
   ch.paragraphs.forEach((text) => {
     const p = document.createElement("p");
     p.textContent = text;
@@ -122,9 +122,9 @@ function buildChapterCopy(ch) {
   return copy;
 }
 
-// Lore panel sa kanan. setAct(n): ipinapakita ang banner at teksto ng Act n ng LORE.md
-// (sumusunod sa quest). setAct(0): buong LORE.md (walang aktibong laro).
-// Kapag wala pang banner ang isang Act (hal. act-10.jpeg), teksto at pamagat lang ang lalabas.
+// Lore panel on the right. setAct(n): shows the banner and text of Act n from LORE.md
+// (follows the quest). setAct(0): the whole LORE.md (no game in progress).
+// When an Act has no banner yet (e.g. act-10.jpeg), only the text and title show.
 export function createLorePanel(panelEl, speed = 0.45) {
   const view = panelEl.querySelector(".lore-view");
   const track = panelEl.querySelector(".lore-track");
@@ -142,12 +142,12 @@ export function createLorePanel(panelEl, speed = 0.45) {
   capTitle.className = "lb-title";
   cap.append(capAct, capTitle);
   banner.append(img, cap);
-  view.parentNode.insertBefore(banner, view);   // nasa itaas ng teksto, sa loob ng lore section
+  view.parentNode.insertBefore(banner, view);   // above the text, inside the lore section
 
-  let extIndex = 0;   // aling extension ang sinusubukan ngayon
+  let extIndex = 0;   // which extension is being tried now
   img.addEventListener("load", () => banner.classList.remove("no-img"));
   img.addEventListener("error", () => {
-    // Subukan ang susunod na extension bago sumuko (hal. act-2.jpg sa halip na act-2.jpeg)
+    // Try the next extension before giving up (e.g. act-2.jpg instead of act-2.jpeg)
     if (act > 0 && extIndex < BANNER_EXTS.length - 1) {
       extIndex++;
       img.src = bannerSrc(act, extIndex);
@@ -183,7 +183,7 @@ export function createLorePanel(panelEl, speed = 0.45) {
       banner.classList.remove("show");
       first = buildCopy(md);
     }
-    track.append(first, first.cloneNode(true)); // dalawang kopya para seamless ang loop
+    track.append(first, first.cloneNode(true)); // two copies so the loop is seamless
   }
 
   function reloadLore() {
