@@ -19,6 +19,7 @@ import { SelectScene } from "./select.js";
 import { CreatorScene } from "./creator.js";
 import { PrologueScene } from "./prologue.js";
 import { getNovice } from "./classes/novice.js";
+import { DevTools, devEnabled } from "./devtools.js";
 import { equipJob, refreshLook } from "./classes/job.js";
 import { Platform } from "./world/platform.js";
 import { PLATFORMS, PLATFORM_ORDER, SEAL_STONES } from "./world/platforms.js";
@@ -1154,6 +1155,7 @@ const unlockAudio = () => {
 
 window.addEventListener("keydown", (e) => {
   Sound.init();
+  if (devTools && devTools.handleKey(e)) return;   // F9 panel: its keys never reach the game
   if (e.code === "F2") { stage.tilemap.debug = !stage.tilemap.debug; e.preventDefault(); }
 
   if (prologueScene.open) {
@@ -1336,7 +1338,7 @@ window.addEventListener("keyup", (e) => {
 });
 
 function updateGame() {
-  if (gameState !== "PLAYING" || !player || showShopModal || showMercModal || dialog.open || serviceMenu.open || codex.open || questHud.logOpen || inventory.open || charPanel.open || actReader.open || worldMap.open) return;
+  if (gameState !== "PLAYING" || !player || (devTools && devTools.open) || showShopModal || showMercModal || dialog.open || serviceMenu.open || codex.open || questHud.logOpen || inventory.open || charPanel.open || actReader.open || worldMap.open) return;
 
   if (player.hp <= 0) {
     gameState = "GAMEOVER";
@@ -1716,6 +1718,12 @@ function gameLoop(now = performance.now()) {
 }
 
 requestAnimationFrame(gameLoop);
+// Developer tools (admin panel): only with ?dev in the URL — F9 opens it
+const devTools = devEnabled() ? new DevTools({
+  getPlayer: () => player, getStage: () => stage, getState: () => gameState,
+  enemyManager, quest, fx, controller, getSavePayload, saveGame, loadGame, travelTo
+}) : null;
+
 // Debug handle for automated testing: only active with ?debug in the URL
 if (new URLSearchParams(location.search).has("debug")) {
   window.__vof = {
