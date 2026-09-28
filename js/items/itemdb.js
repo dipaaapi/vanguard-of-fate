@@ -22,8 +22,34 @@ export const RARITY = {
   normal: { color: "#e2e8f0", en: "Normal", fil: "Karaniwan" },
   magic: { color: "#60a5fa", en: "Magic", fil: "Mahiwaga" },
   rare: { color: "#facc15", en: "Rare", fil: "Bihira" },
-  unique: { color: "#f59e0b", en: "Unique", fil: "Natatangi" }
+  unique: { color: "#f59e0b", en: "Unique", fil: "Natatangi" },
+  set: { color: "#22c55e", en: "Set", fil: "Set" }
 };
+
+// ---------- MINERAL SETS (forged by Brakka in Emberhold from mined minerals) ----------
+// Every piece is a class-appropriate base item at a high grade plus a per-piece bonus; wearing several
+// pieces of the same set adds the bonuses at 2, 4 and 5 pieces (5 = the set's named passive).
+export const SETS = {
+  ember: {
+    grade: 5, color: "#f97316", name: { en: "Emberforged", fil: "Emberforged" },
+    piece: { def: 3, hp: 12 },
+    bonus: { 2: { def: 12 }, 4: { hp: 120, atk: 10 }, 5: { crit: 8, aspd: 8 } },
+    passive: { en: "Forge Heart", fil: "Puso ng Pandayan" }
+  },
+  mythril: {
+    grade: 6, color: "#93c5fd", name: { en: "Mythril Vanguard", fil: "Mythril Vanguard" },
+    piece: { def: 4, cdr: 1 },
+    bonus: { 2: { cdr: 6 }, 4: { def: 20, hp: 150 }, 5: { atk: 25, spd: 0.1 } },
+    passive: { en: "Unbroken Line", fil: "Hindi Nasisirang Hanay" }
+  },
+  star: {
+    grade: 7, color: "#fde68a", name: { en: "Starforged", fil: "Starforged" },
+    piece: { atk: 4, crit: 1 },
+    bonus: { 2: { crit: 6, luk: 6 }, 4: { atk: 30, aspd: 10 }, 5: { str: 8, agi: 8, vit: 8, int: 8, dex: 8, luk: 8, cdr: 10 } },
+    passive: { en: "Sovereign Star", fil: "Soberanong Bituin" }
+  }
+};
+export const SET_THRESHOLDS = [2, 4, 5];
 export const GRADE_NAMES = ["Aethelgard", "Iron", "Sylvan", "Tidal", "Frostforged", "Hellforged", "Imperial", "Sovereign"];
 
 const lang = () => (getLang() === "fil" ? "fil" : "en");
@@ -128,6 +154,12 @@ const RARE_B = ["Bite", "Song", "Ward", "Fang", "Veil", "Spire", "Mark", "Wreath
 
 // ---------- GAMIT, MATERYALES, QUEST ITEM ----------
 const OTHER = {
+  // Minerals: mined in the Ashfall Wastelands (emberite, obsidian) and the Siege (mythril, starsteel)
+  emberite:    { type: "material", icon: "ore", tint: "#f97316", price: 30, name: N("Emberite", "Emberite"), desc: N("Ore still warm from the Hellforge. Forges Emberforged gear and tempers weapons.", "Mineral na mainit pa mula sa Hellforge. Pang-forge ng Emberforged at pampatibay ng sandata.") },
+  obsidianOre: { type: "material", icon: "crystal", tint: "#818cf8", price: 40, name: N("Obsidian Ore", "Obsidian Ore"), desc: N("Glassy volcanic ore. Used in set forging and to temper armor.", "Makinang na bulkanikong mineral. Pang-forge ng set at pampatibay ng baluti.") },
+  mythril:     { type: "material", icon: "ore", tint: "#93c5fd", price: 80, name: N("Mythril", "Mythril"), desc: N("Light, unbreakable silver from the Citadel's buried veins. Forges Mythril Vanguard and tempers accessories.", "Magaan at matibay na pilak mula sa ilalim ng Citadel. Pang-forge ng Mythril Vanguard at pampatibay ng aksesorya.") },
+  starsteel:   { type: "material", icon: "crystal", tint: "#fde68a", price: 200, name: N("Starsteel", "Starsteel"), desc: N("A rare fallen-star alloy. Needed for Starforged gear.", "Bihirang haluang metal mula sa bumagsak na bituin. Kailangan sa Starforged.") },
+  dwarvenPickaxe: { type: "quest", icon: "ore", tint: "#a8a29e", name: N("Dwarven Pickaxe", "Piko ng Dwarf"), desc: N("Thane Durgrim's gift. Lets you mine ore veins in the Ashfall Wastelands and the Siege.", "Regalo ni Thane Durgrim. Nagbibigay-daan sa pagmimina sa Ashfall Wastelands at sa Siege.") },
   salve:    { type: "consume", icon: "potion", tint: "#ef4444", price: 10, effect: { heal: 40 }, name: N("Red Potion", "Pulang Potion"), desc: N("Restores 40 HP.", "Nagbabalik ng 40 HP.") },
   elixir:   { type: "consume", icon: "potion", tint: "#f8fafc", price: 30, effect: { heal: 150 }, name: N("White Potion", "Puting Potion"), desc: N("Restores 150 HP.", "Nagbabalik ng 150 HP.") },
   tonic:    { type: "consume", icon: "potion", tint: "#facc15", price: 12, effect: { stamina: 100, fresh: 600 }, name: N("Stamina Tonic", "Tonic ng Lakas"), desc: N("Refills stamina; no fatigue for 10s.", "Puno ang stamina; walang pagod sa 10s.") },
@@ -246,15 +278,18 @@ export function describe(inst) {
     const mult = (1 + grade * 0.6) * (1 + plus * 0.1);
     const stats = scaleStats(e.stats, mult, (1 + grade * 0.25) * (1 + plus * 0.05));
     if (unique) addStats(stats, scaleStats(unique.stats, 1 + grade * 0.4, 1));
+    const set = inst.set && SETS[inst.set];
+    if (set) addStats(stats, set.piece);
     (inst.affixes || []).forEach((a) => addStats(stats, { [a.k]: a.v }));
     (inst.cards || []).forEach((cid) => { const c = CARDS[cid.slice(5)]; if (c) addStats(stats, c.stats); });
 
-    const rarity = unique ? "unique" : inst.rarity || "normal";
+    const rarity = set ? "set" : unique ? "unique" : inst.rarity || "normal";
     let name = e.name[L];
-    if (unique) name = unique.name[L];
+    if (set) name = `${set.name[L]} ${e.name[L]}`;
+    else if (unique) name = unique.name[L];
     else if (rarity === "magic") {
       const pre = (inst.affixes || []).find((a) => a.pre);
-      const suf = (inst.affixes || []).find((a) => !a.pre);
+      const suf = (inst.affixes || []).find((a) => !a.pre && a.name);   // tempering affixes have no name
       if (pre) name = `${pre.name[L]} ${name}`;
       if (suf) name = `${name} ${suf.name[L]}`;
     } else if (rarity === "rare" && inst.rareName) name = inst.rareName;
@@ -263,8 +298,8 @@ export function describe(inst) {
     return {
       id, base, grade, plus, type: "equip", slot: e.slot, hands: e.hands || 1, cls: e.cls || null,
       icon: e.icon, look: e.look || null, stats, rarity, color: RARITY[rarity].color,
-      baseName: e.name[L], sockets: slots, cards: inst.cards || [],
-      price: Math.round(12 * (1 + grade) * (1 + plus * 0.3) * (rarity === "unique" ? 6 : rarity === "rare" ? 3 : rarity === "magic" ? 1.6 : 1)),
+      baseName: e.name[L], sockets: slots, cards: inst.cards || [], set: set ? inst.set : null, temper: inst.temper || 0,
+      price: Math.round(12 * (1 + grade) * (1 + plus * 0.3) * (rarity === "set" ? 8 : rarity === "unique" ? 6 : rarity === "rare" ? 3 : rarity === "magic" ? 1.6 : 1)),
       name: `${plus ? `+${plus} ` : ""}${name}${slots ? ` [${slots}]` : ""}`,
       desc: e.hands === 2 ? (L === "fil" ? "Dalawang kamay: ila-lock ang offhand." : "Two-handed: locks the off-hand slot.") : ""
     };

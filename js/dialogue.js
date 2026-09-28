@@ -387,5 +387,5 @@ export function getDialogue(id, ctx) {
 }
 
 // Which service each dwarf of Emberhold opens after talking (null = conversation only)
-const DWARF_ACTION = { brakka: "smith", hilde: "repair", pip: "dwarfShop", durgrim: null };
+const DWARF_ACTION = { brakka: "smith", hilde: "repair", pip: "dwarfShop", durgrim: "noble" };
 const dwarvesMet = new Set();   // introductions already heard this session

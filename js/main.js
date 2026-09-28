@@ -29,7 +29,8 @@ import { getDialogue, npcName } from "./dialogue.js";
 import { DialogBox, QuestHud } from "./dialog.js";
 import { ChatLog } from "./chatlog.js";
 import { ServiceMenu } from "./services.js";
-import { getItem } from "./items/itemdb.js";
+import { getItem, SETS } from "./items/itemdb.js";
+import { SET_SLOTS, recipeCost, forgePiece } from "./items/forge.js";
 import { wear, WEAR_WEAPON, WEAR_ARMOR, ARMOR_SLOTS } from "./items/durability.js";
 import { Avatar } from "./avatar/avatar.js";
 import { createLorePanel } from "./lore.js";
@@ -226,8 +227,106 @@ function openSmithMenu() {
   const fil = lang() === "fil", who = npcName("brakka");
   serviceMenu.show(who, [
     { label: fil ? "Mag-refine (hanggang +10)" : "Refine gear (up to +10)", hint: fil ? "Phracon, Oridecon at ginto" : "Phracon, Oridecon and gold",
-      onPick: () => openService("refine", { serviceName: who }) }
+      onPick: () => openService("refine", { serviceName: who }) },
+    { label: fil ? "Mag-forge ng set" : "Forge a set piece", hint: fil ? "Mga mineral mula sa minahan" : "From mined minerals", onPick: openForgeSets },
+    { label: fil ? "Patibayin gamit ang mineral" : "Temper with minerals", hint: fil ? "Hanggang 3 beses bawat hindi-set na gamit" : "Up to 3 times on any non-set gear",
+      onPick: () => openService("temper", { serviceName: who }) }
   ]);
+}
+
+// Forging: pick a set, then a slot; each option shows its mineral cost
+const costText = (cost) => Object.entries(cost).map(([id, n]) => (id === "gold" ? `${n}G` : `${getItem(id).name} ${player.bag.count(id)}/${n}`)).join(" · ");
+function openForgeSets() {
+  const fil = lang() === "fil";
+  serviceMenu.show(fil ? "Pumili ng set" : "Choose a set", Object.entries(SETS).map(([id, set]) => ({
+    label: `${set.name[lang()]} · ${fil ? "Grado" : "Grade"} ${set.grade}`,
+    hint: `5: ${set.passive[lang()]}`,
+    onPick: () => openForgeSlots(id)
+  })));
+}
+function openForgeSlots(setId) {
+  const fil = lang() === "fil", set = SETS[setId];
+  const SLOT_NAME = { weapon: fil ? "Sandata" : "Weapon", head: fil ? "Ulo" : "Head", armor: fil ? "Baluti" : "Armor", gloves: fil ? "Guwantes" : "Gloves", boots: fil ? "Bota" : "Boots" };
+  serviceMenu.show(`${set.name[lang()]} · ◆ ${player.gold}G`, SET_SLOTS.map((slot) => ({
+    label: SLOT_NAME[slot],
+    hint: costText(recipeCost(setId, slot)),
+    onPick: () => {
+      const err = forgePiece(player, setId, slot);
+      if (err) {
+        const why = { gold: fil ? "Kulang ang ginto" : "Not enough gold", minerals: fil ? "Kulang ang mineral" : "Not enough minerals", full: fil ? "Puno ang bag" : "Bag is full" }[err];
+        fx.spawnDamagePopup(player.x + 10, player.y - 10, why, false, "#ef4444");
+      } else {
+        fx.spawnHitSparks(player.x + 10, player.y + 6, set.color, 24);
+        if (Sound.playHolyBurst) Sound.playHolyBurst();
+        chatLog.event("loot", fil ? `Na-forge: ${set.name.fil} ${SLOT_NAME[slot]}` : `Forged: ${set.name.en} ${SLOT_NAME[slot]}`, dayNight.label(), null, set.color);
+        inventory.dirty = true;
+      }
+      openForgeSlots(setId);
+    }
+  })));
+}
+
+// Thane Durgrim's charge: slay Ashfall beasts, receive the Dwarven Pickaxe, mining unlocked
+const MINING_KILLS = 15;
+function openNobleMenu() {
+  const fil = lang() === "fil", who = npcName("durgrim");
+  if (quest.mining === 0) {
+    serviceMenu.show(who, [{
+      label: fil ? "Tanggapin: Ang Tungkulin ng Thane" : "Accept: The Thane's Charge",
+      hint: fil ? `Pumatay ng ${MINING_KILLS} halimaw sa Ashfall; kapalit ang piko at karapatang magmina` : `Slay ${MINING_KILLS} beasts in the Ashfall; earn a pickaxe and the right to mine`,
+      onPick: () => {
+        quest.mining = 1;
+        quest.miningKills = 0;
+        questHud.toast(fil ? `Tungkulin ng Thane: pumatay ng ${MINING_KILLS} halimaw sa Ashfall Wastelands` : `The Thane's Charge: slay ${MINING_KILLS} beasts in the Ashfall Wastelands`);
+        chatLog.event("info", fil ? "Tinanggap ang Tungkulin ng Thane" : "Accepted the Thane's Charge", dayNight.label());
+        saveGame();
+      }
+    }]);
+  } else if (quest.mining === 1) {
+    const done = quest.miningKills >= MINING_KILLS;
+    serviceMenu.show(who, [{
+      label: done ? (fil ? "Mag-ulat kay Thane Durgrim" : "Report to Thane Durgrim") : `${fil ? "Tungkulin ng Thane" : "The Thane's Charge"}: ${quest.miningKills}/${MINING_KILLS}`,
+      hint: done ? (fil ? "Tanggapin ang Dwarven Pickaxe" : "Receive the Dwarven Pickaxe") : (fil ? "Ipagpatuloy ang pangangaso sa Ashfall" : "Keep hunting in the Ashfall"),
+      disabled: !done,
+      onPick: () => {
+        quest.mining = 2;
+        player.bag.add("dwarvenPickaxe", 1);
+        syncPlatformFlags();
+        if (Sound.playHolyBurst) Sound.playHolyBurst();
+        questHud.toast(fil ? "Nabuksan ang pagmimina! Hanapin ang mga ugat ng mineral sa Ashfall at sa Siege." : "Mining unlocked! Look for ore veins in the Ashfall and the Siege.");
+        chatLog.event("loot", fil ? "Natanggap ang Dwarven Pickaxe — maaari ka nang magmina" : "Received the Dwarven Pickaxe — you can now mine", dayNight.label());
+        saveGame();
+      }
+    }]);
+  } else {
+    serviceMenu.show(who, [{
+      label: fil ? "Tungkol sa pagmimina" : "About mining",
+      hint: fil ? "Emberite at Obsidian sa Ashfall · Mythril at Starsteel sa Siege · dalhin kay Brakka" : "Emberite & Obsidian in the Ashfall · Mythril & Starsteel in the Siege · take them to Brakka",
+      onPick: () => {}
+    }]);
+  }
+}
+
+// Mining: one pickaxe strike on the vein beside the hero
+function mineVein(v) {
+  const fil = lang() === "fil";
+  if (quest.mining !== 2) {
+    fx.spawnDamagePopup(player.x + 10, player.y - 10, fil ? "Kailangan ang piko ni Thane Durgrim" : "Needs Thane Durgrim's pickaxe", false, "#94a3b8");
+    return;
+  }
+  const r = stage.ore.strike(v);
+  fx.spawnHitSparks(v.x, v.y - 8, getItem(v.kind).tint, r.broke ? 20 : 8);
+  if (Sound.playSlash) Sound.playSlash();
+  if (!r.broke) return;
+  if (!player.bag.add(r.id, r.qty)) {
+    lootManager.drop({ x: v.x, y: v.y + 6 }, { id: r.id, qty: r.qty });   // bag full: leave it on the ground
+  } else {
+    fx.spawnDamagePopup(v.x, v.y - 18, `+${r.qty} ${getItem(r.id).name}`, true, getItem(r.id).tint);
+    chatLog.event("loot", "", dayNight.label(), {
+      key: `mine:${r.id}`, value: r.qty,
+      format: (n, total) => (fil ? `Namina ang ${getItem(r.id).name} ×${total}` : `Mined ${getItem(r.id).name} ×${total}`)
+    }, getItem(r.id).tint);
+  }
 }
 
 // Pip's stall: buy one at a time; the menu reopens after each purchase with the gold left
@@ -474,6 +573,7 @@ function syncPlatformFlags() {
   Object.values(platformCache).forEach((p) => {
     p.cleared = quest.cleared(p.id);
     if (p.def.rift) p.riftOpen = quest.unlocked(p.def.rift.dest);
+    p.miningUnlocked = quest.mining === 2;
     // Celestial Monolith: chained until the Leviathan Regent falls; awakened once the Seal Stones are placed
     if (p.boatSystem) {
       p.boatSystem.chained = !p.cleared;
@@ -605,6 +705,15 @@ enemyManager.onKill = (e, byPlayer, exp) => {
         : (fil ? `Kakampi ang huling tumama kay ${name} — walang EXP o samsam` : `An ally landed the last hit on ${name} — no EXP or loot`))
     });
     return;
+  }
+  if (quest.mining === 1 && stage.id === "ash" && quest.miningKills < MINING_KILLS) {
+    quest.miningKills++;
+    if (quest.miningKills === MINING_KILLS) {
+      questHud.toast(fil ? "Tapos ang Tungkulin ng Thane — bumalik kay Thane Durgrim" : "The Thane's Charge is done — return to Thane Durgrim");
+      saveGame();
+    } else if (quest.miningKills % 5 === 0) {
+      chatLog.event("info", fil ? `Tungkulin ng Thane: ${quest.miningKills}/${MINING_KILLS}` : `The Thane's Charge: ${quest.miningKills}/${MINING_KILLS}`, dayNight.label());
+    }
   }
   chatLog.event("exp", "", dayNight.label(), {
     key: "exp", value: exp,
@@ -932,6 +1041,7 @@ function talkTo(npc) {
     else if (d.action === "smith") openSmithMenu();
     else if (d.action === "repair") openService("repair", { repairMult: 1, serviceName: npcName("hilde") });
     else if (d.action === "dwarfShop") openDwarfShop();
+    else if (d.action === "noble") openNobleMenu();
     else if (d.action === "awaken" && canAwaken(player)) startAwakening();
   });
 }
@@ -1093,6 +1203,8 @@ window.addEventListener("keydown", (e) => {
           saveGame();
           questHud.toast(lang() === "fil" ? "Bukas na ang lagusan patungo sa Dark Continent!" : "Celestial Portal to the Dark Continent is open!");
         });
+      } else if (gameState === "PLAYING" && stage.ore && stage.ore.nearest(player)) {
+        mineVein(stage.ore.nearest(player));
       } else if (gameState === "PLAYING" && npcManager.nearest) {
         talkTo(npcManager.nearest);
       }

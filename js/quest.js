@@ -150,6 +150,8 @@ export class QuestManager {
     this.step = 0;
     this.met = emptyMet();
     this.monolith = false;   // Celestial Monolith awakened (all four Seal Stones placed)
+    this.mining = 0;         // Thane Durgrim's charge: 0 not offered · 1 hunting · 2 mining unlocked
+    this.miningKills = 0;    // Ashfall beasts slain for the charge
   }
 
   // Galing sa save. Inaayos din ang lumang save (v1) at save na walang quest.
@@ -163,6 +165,8 @@ export class QuestManager {
       const m = data.met || {};
       Object.keys(this.met).forEach((k) => { this.met[k] = Boolean(m[k]); });
       this.monolith = Boolean(data.monolith);
+      this.mining = Math.max(0, Math.min(2, data.mining | 0));
+      this.miningKills = Math.max(0, data.miningKills | 0);
     } else if (!isNovice) {
       this.step = 5;
     }
@@ -173,7 +177,7 @@ export class QuestManager {
   }
 
   serialize() {
-    return { v: QUEST_VERSION, step: this.step, met: { ...this.met }, monolith: this.monolith };
+    return { v: QUEST_VERSION, step: this.step, met: { ...this.met }, monolith: this.monolith, mining: this.mining, miningKills: this.miningKills };
   }
 
   // Numero ng Act sa LORE.md para sa kasalukuyang hakbang

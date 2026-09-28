@@ -1,4 +1,5 @@
 import { isBroken } from "./durability.js";
+import { SETS, SET_THRESHOLDS } from "./itemdb.js";
 import { describe, canEquip, upgradeCost, refineChance, slotsFor, SLOTS, MAX_PLUS, CLASS_KIT } from "./itemdb.js";
 
 // ==================== BAG + EQUIPMENT ====================
@@ -14,7 +15,8 @@ const STACK_MAX = { equip: 20, other: 999 };
 // Pirma ng item: magkapareho lang kung eksaktong pareho ang lahat ng katangian
 export function signature(s) {
   return [s.id, s.plus | 0, s.rarity || "normal", s.sockets | 0, (s.cards || []).join(","),
-    JSON.stringify((s.affixes || []).map((a) => [a.k, a.v])), s.rareName || "", s.dur === undefined ? "" : Math.ceil(s.dur)].join("|");
+    JSON.stringify((s.affixes || []).map((a) => [a.k, a.v])), s.rareName || "", s.dur === undefined ? "" : Math.ceil(s.dur),
+    s.set || "", s.temper | 0].join("|");
 }
 const TYPE_ORDER = { quest: 0, equip: 1, card: 2, consume: 3, material: 4 };
 
@@ -24,7 +26,9 @@ const clean = (s) => ({
   sockets: Math.max(0, Math.min(3, s.sockets | 0)), cards: Array.isArray(s.cards) ? s.cards.slice(0, 3) : [],
   ...(s.rareName ? { rareName: s.rareName } : {}),
   ...(s.at ? { at: s.at } : {}),         // when the stack was last added to (for "Recent" sorting)
-  ...(s.dur !== undefined ? { dur: Math.max(0, +s.dur) } : {})   // durability (missing = new)
+  ...(s.dur !== undefined ? { dur: Math.max(0, +s.dur) } : {}),  // durability (missing = new)
+  ...(s.set ? { set: s.set } : {}),       // mineral set id (see SETS)
+  ...(s.temper ? { temper: s.temper | 0 } : {})   // times tempered with minerals (max 3)
 });
 
 export class Bag {
@@ -191,7 +195,23 @@ export class Bag {
       if (!it || isBroken(this.equip[slot])) return;
       Object.entries(it.stats).forEach(([k, v]) => { out[k] = +((out[k] || 0) + v).toFixed(2); });
     });
+    // set bonuses (2 / 4 / 5 pieces; broken pieces don't count)
+    Object.entries(this.setCounts()).forEach(([id, n]) => {
+      SET_THRESHOLDS.filter((k) => n >= k).forEach((k) => {
+        Object.entries(SETS[id].bonus[k]).forEach(([s, v]) => { out[s] = +((out[s] || 0) + v).toFixed(2); });
+      });
+    });
     return out;
+  }
+
+  // How many working pieces of each mineral set are worn: { ember: 3, ... }
+  setCounts() {
+    const n = {};
+    SLOTS.forEach((slot) => {
+      const inst = this.equip[slot];
+      if (inst && inst.set && SETS[inst.set] && !isBroken(inst)) n[inst.set] = (n[inst.set] || 0) + 1;
+    });
+    return n;
   }
 
   // Piyesa ng Avatar mula sa suot (weapon/offhand)

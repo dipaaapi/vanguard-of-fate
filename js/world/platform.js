@@ -2,6 +2,7 @@ import { TileMap } from "./tilemap.js";
 import { Ambient } from "./ambient.js";
 import { drawGateway } from "./portal.js";
 import { BoatSystem } from "./boat.js";
+import { OreVeins } from "./mining.js";
 import { PLATFORMS, PLATFORM_SIZE } from "./platforms.js";
 import { getLang } from "../i18n.js";
 
@@ -40,6 +41,9 @@ export class Platform {
     this.tilemap = new TileMap(this, def.seed);
     // Bangka at Sunken Monolith (Cerulean Abyss lang)
     this.boatSystem = def.boat ? new BoatSystem(this, def.boat) : null;
+    // Ore veins (Ashfall and the Siege only); miningUnlocked is synced from the quest by main.js
+    this.ore = def.ore ? new OreVeins(this, def.ore) : null;
+    this.miningUnlocked = false;
   }
 
   name() {
@@ -70,6 +74,7 @@ export class Platform {
     this.tick++;
     this.ambient.update();
     if (this.boatSystem) this.boatSystem.update(player, onPortal);
+    if (this.ore) this.ore.update();
     if (!player || player.portalCooldown > 0) return;
     const fx = player.x + 10, fy = player.y + 18;
     const g = this.gate;
@@ -241,6 +246,7 @@ export class Platform {
     this.def.landmark.call(this.def, ctx, this.tick / 20, this.cleared, this.riftOpen, this);
     this.drawCamp(ctx);
     if (this.boatSystem) this.boatSystem.draw(ctx, player);
+    if (this.ore) this.ore.draw(ctx, player, this.miningUnlocked);
     const L = getLang() === "fil" ? "fil" : "en";
     drawGateway(ctx, this.gate, this.tick * 0.08, false, L === "fil" ? "PABALIK SA AETHELGARD" : "RETURN TO AETHELGARD");
   }

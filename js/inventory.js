@@ -1,5 +1,6 @@
 import { getLang } from "./i18n.js";
-import { describe, canEquip, upgradeCost, refineChance, SLOTS, slotName, MAX_PLUS, statText, RARITY, GRADE_NAMES, slotsFor } from "./items/itemdb.js";
+import { describe, canEquip, upgradeCost, refineChance, SLOTS, slotName, MAX_PLUS, statText, RARITY, GRADE_NAMES, slotsFor, SETS, SET_THRESHOLDS, getItem } from "./items/itemdb.js";
+import { temperInfo, temper, MAX_TEMPER } from "./items/forge.js";
 import { iconURL } from "./items/icons.js";
 import { BAG_SIZE } from "./items/bag.js";
 import { DUR_MAX, LOW_DUR, durOf, isBroken, repairCost, repair } from "./items/durability.js";
@@ -35,7 +36,10 @@ const TEXT = {
     smithLimit: (n) => `This smith can only refine up to +${n}.`,
     svcRefine: (who) => `Refine at ${who}`, svcRepair: (who) => `Repair at ${who}`,
     durability: "Durability", broken: "BROKEN — no stats until repaired",
-    doRepair: "Repair", repairAll: "Repair all", repaired: "Repaired!", nothingToRepair: "Nothing needs repair."
+    doRepair: "Repair", repairAll: "Repair all", repaired: "Repaired!", nothingToRepair: "Nothing needs repair.",
+    svcTemper: (who) => `Temper at ${who}`, doTemper: "Temper", tempered: "Tempered!", setBonus: (n) => `Set bonus (${n} worn)`,
+    temperErr: { set: "Set gear cannot be tempered.", max: "Already tempered 3 times.", gold: "Not enough gold", minerals: "Not enough minerals" },
+    passive: "Passive"
   },
   fil: {
     title: "Imbentaryo", equip: "Kagamitan", stats: "Katangian", bag: "Bag", buffs: "Aktibong epekto", none: "Wala",
@@ -60,13 +64,16 @@ const TEXT = {
     smithLimit: (n) => `Hanggang +${n} lang ang kaya ng panday na ito.`,
     svcRefine: (who) => `Mag-refine kay ${who}`, svcRepair: (who) => `Magpaayos kay ${who}`,
     durability: "Tibay", broken: "SIRA — walang stats hangga't hindi naaayos",
-    doRepair: "Ayusin", repairAll: "Ayusin lahat", repaired: "Naayos na!", nothingToRepair: "Walang kailangang ayusin."
+    doRepair: "Ayusin", repairAll: "Ayusin lahat", repaired: "Naayos na!", nothingToRepair: "Walang kailangang ayusin.",
+    svcTemper: (who) => `Magpatibay kay ${who}`, doTemper: "Patibayin", tempered: "Napatibay!", setBonus: (n) => `Bonus ng set (${n} suot)`,
+    temperErr: { set: "Hindi puwedeng patibayin ang set.", max: "Tatlong beses nang napatibay.", gold: "Kulang ang ginto", minerals: "Kulang ang mineral" },
+    passive: "Passive"
   }
 };
 
 // Bag tabs: which item types each tab shows
 const TABS = { equip: ["equip"], use: ["consume", "material", "card"], quest: ["quest"] };
-const RARITY_RANK = { normal: 0, magic: 1, rare: 2, unique: 3 };
+const RARITY_RANK = { normal: 0, magic: 1, rare: 2, unique: 3, set: 4 };
 // How much each stat point is worth when judging whether a piece of gear is an upgrade
 const STAT_WEIGHT = { atk: 3, def: 2.5, hp: 0.3, aspd: 2, crit: 2, cdr: 2, spd: 30, str: 2, agi: 2, vit: 2, int: 2, dex: 2, luk: 1.5 };
 const power = (it) => (it ? Object.entries(it.stats || {}).reduce((sum, [k, v]) => sum + (STAT_WEIGHT[k] || 1) * v, 0) : 0);
@@ -308,6 +315,13 @@ export class InventoryPanel {
         this.msg = r.ok ? (r.success ? T.upgraded : T.failed) : { max: T.maxed, shards: T.noShards, crystals: T.noCrystals, gold: T.noGold }[r.reason] || "";
         if (r.ok && this.ctx.fx && this.ctx.fx.spawnHitSparks) this.ctx.fx.spawnHitSparks(p.x + 10, p.y + 6, r.success ? "#ffd166" : "#64748b", 16);
       }
+    } else if (action === "temper") {
+      const err = temper(p, this.selectedInst());
+      this.msg = err ? T.temperErr[err] : T.tempered;
+      if (!err) {
+        bag.changed(Boolean(this.sel.kind === "slot"));
+        if (this.ctx.fx && this.ctx.fx.spawnHitSparks) this.ctx.fx.spawnHitSparks(p.x + 10, p.y + 6, "#f97316", 16);
+      }
     } else if (action === "repair") {
       this.repairItems([this.selectedInst()]);
     } else if (action.startsWith("belt:")) {
@@ -370,7 +384,7 @@ export class InventoryPanel {
     add(el, "div", "ql-sub", `${p.heroName || ""} · ${cls === "novice" ? "Novice" : p.heroData.name} · Lv ${p.level}`);
     if (this.ctx.service) {
       const who = this.ctx.serviceName || "";
-      add(el, "div", "inv-service", this.ctx.service === "refine" ? T.svcRefine(who) : T.svcRepair(who));
+      add(el, "div", "inv-service", { refine: T.svcRefine, repair: T.svcRepair, temper: T.svcTemper }[this.ctx.service](who));
     }
 
     const grid = add(el, "div", "inv-grid");
@@ -518,6 +532,21 @@ export class InventoryPanel {
         if (inBag) actBtn(T.doEquip, "equip", !canEquip(it, cls));
         else actBtn(T.doUnequip, "unequip");
         const inst = this.selectedInst();
+        if (it.set) {
+          const set = SETS[it.set], worn = bag.setCounts()[it.set] || 0, Lg2 = getLang() === "fil" ? "fil" : "en";
+          add(det, "div", "inv-meta", T.setBonus(worn));
+          SET_THRESHOLDS.forEach((k) => {
+            const line = Object.entries(set.bonus[k]).map(([s, v]) => statText(s, v)).join("  ");
+            const row = add(det, "div", "inv-setrow" + (worn >= k ? " on" : ""), `(${k}) ${k === 5 ? `${T.passive} · ${set.passive[Lg2]}: ` : ""}${line}`);
+            row.style.setProperty("--set", set.color);
+          });
+        }
+        if (this.ctx.service === "temper") {
+          const info = temperInfo(inst);
+          if (!info) add(det, "div", "inv-warn", T.temperErr.set);
+          else if (info.done >= MAX_TEMPER) add(det, "div", "inv-warn", T.temperErr.max);
+          else actBtn(`🔥 ${T.doTemper} ${info.done + 1}/${MAX_TEMPER}: ${info.add.map(([k, v]) => statText(k, v)).join(" ")} (${getItem(info.mineral).name} ${bag.count(info.mineral)}/${info.qty} · ${info.gold}G)`, "temper");
+        }
         if (this.ctx.service === "repair" && durOf(inst) < DUR_MAX) actBtn(`⚒ ${T.doRepair} (${repairCost(inst, this.ctx.repairMult || 1)}G)`, "repair");
         if (this.ctx.service === "refine" && it.plus >= (this.ctx.maxPlus ?? MAX_PLUS) && it.plus < MAX_PLUS) add(det, "div", "inv-warn", T.smithLimit(this.ctx.maxPlus));
         if (this.ctx.service === "refine" && it.plus < (this.ctx.maxPlus ?? MAX_PLUS)) {

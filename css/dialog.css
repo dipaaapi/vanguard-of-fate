@@ -189,6 +189,8 @@
   text-shadow: 0 0 2px #000, 0 0 2px #000;
 }
 .inv-recnote { margin-top: calc(1px * var(--s)); color: #4ade80; }
+.inv-setrow { color: #475569; }
+.inv-setrow.on { color: var(--set, #22c55e); }
 .inv-service { margin: calc(1px * var(--s)) 0 calc(2px * var(--s)); text-align: center; font-size: calc(5px * var(--s)); color: #fb923c; letter-spacing: 0.1em; text-transform: uppercase; }
 .inv-dur-low { color: #f87171 !important; }
 .inv-eq.broken b { color: #f87171 !important; text-decoration: line-through; }

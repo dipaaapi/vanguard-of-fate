@@ -291,6 +291,7 @@ export const PLATFORMS = {
     // The camp is Emberhold, a walled dwarven village (safe zone); see Platform.drawVillage
     camp: { x: 880, y: 680, w: 320, h: 196 }, gate: { x: 1070, y: 878 }, village: "Emberhold",
     villagers: { brakka: [942, 778], hilde: [934, 842], durgrim: [1040, 752], pip: [1152, 774] },
+    ore: { count: 10, kinds: [["emberite", 0.6], ["obsidianOre", 0.4]] },   // mining (js/world/mining.js)
     arena: { x: 110, y: 110, w: 330, h: 220 }, bossSpawn: { x: 260, y: 200 }, boss: "ignis", item: "forgeCore",
     arenaName: { en: "Hellforge", fil: "Hellforge" },
     monsters: ["obsidianGolem", "demonKnight", "hellHound", "imp", "magmaDrake", "fireGargoyle", "lavaSerpent", "lavaCrab"],
@@ -339,6 +340,7 @@ export const PLATFORMS = {
 
   // ==================== ACT XI ====================
   siege: {
+    ore: { count: 8, kinds: [["mythril", 0.7], ["obsidianOre", 0.15], ["starsteel", 0.15]] },
     id: "siege", act: 11, tier: 6, theme: "siege", ambient: "siege", seed: 11111, hubGate: "MONOLITH", color: "#ef4444",
     name: { en: "Siege of the Imperial Citadel", fil: "Pagkubkob sa Imperial Citadel" },
     camp: { x: 560, y: 790, w: 160, h: 110 }, gate: { x: 640, y: 878 },
