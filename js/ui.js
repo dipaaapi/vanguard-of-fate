@@ -144,6 +144,7 @@ export class UIManager {
 
     // Pause Button
     const pb = this.buttons.pause;
+    pb.x = screenWidth - pb.w - 6;   // sumusunod sa lapad ng screen (480)
     ctx.fillStyle = isPaused ? "#ffd166" : "#1e293b";
     ctx.fillRect(pb.x, pb.y, pb.w, pb.h);
     ctx.strokeStyle = "#ffd166";

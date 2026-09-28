@@ -1,21 +1,21 @@
 import { Sound } from "./audio.js";
+import { loadImage, drawCover } from "./background.js";
 
+// Ang TitleScene ay canvas animation lang (summoning orb).
+// Ang menu ay HTML sa ibaba ng canvas (menuEl), hindi na dini-draw sa loob ng game screen.
 export class TitleScene {
-  constructor(onStartGame, onContinueGame, onExportSave, onImportSave, config) {
+  constructor(onStartGame, onContinueGame, onExportSave, onImportSave, config, menuEl = null) {
     this.onStartGame = onStartGame;
     this.onContinueGame = onContinueGame;
     this.onExportSave = onExportSave;
     this.onImportSave = onImportSave;
     this.config = config;
+    this.menuEl = menuEl;
 
     this.menuIndex = 0;
     this.animTick = 0;
-    this.hasSaveFile = Boolean(localStorage.getItem("vanguard_savegame"));
-
     this.inSettings = false;
     this.settingsIndex = 0;
-
-    this.updateMenuItems();
 
     this.settingsOptions = [
       { id: "music",   label: "BGM MUSIC", key: "music" },
@@ -25,18 +25,13 @@ export class TitleScene {
       { id: "back",    label: "RETURN TO TITLE" }
     ];
 
-    this.stars = [];
-    for (let i = 0; i < 45; i++) {
-      this.stars.push({
-        x: Math.random() * 426,
-        y: Math.random() * 140,
-        size: Math.random() < 0.25 ? 2 : 1,
-        twinkleSpeed: 0.03 + Math.random() * 0.05,
-        phase: Math.random() * Math.PI * 2
-      });
-    }
+    this.bg = loadImage("assets/bg/title_bg.jpg");
+    this.particles = [];
+
+    this.updateMenuItems();
   }
 
+  // ---------- MENU DATA ----------
   updateMenuItems() {
     this.hasSaveFile = Boolean(localStorage.getItem("vanguard_savegame"));
     this.menuItems = [
@@ -46,248 +41,205 @@ export class TitleScene {
       { id: "IMPORT",   label: "IMPORT SAVE (.JSON)", enabled: true },
       { id: "SETTINGS", label: "EXPEDITION CONFIG", enabled: true }
     ];
+    this.renderDom();
   }
 
   refreshSaveStatus() {
     this.updateMenuItems();
   }
 
-  handleInput(e) {
+  // ---------- HTML MENU ----------
+  renderDom() {
+    if (!this.menuEl) return;
+    const list = this.inSettings ? this.settingsOptions : this.menuItems;
+    this.menuEl.innerHTML = "";
+    this.menuEl.classList.toggle("settings", this.inSettings);
+
+    list.forEach((item, i) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "menu-btn";
+      if (item.enabled === false) btn.classList.add("disabled");
+
+      const label = document.createElement("span");
+      label.textContent = item.label;
+      btn.appendChild(label);
+
+      if (item.key) {
+        const state = document.createElement("span");
+        const on = Boolean(this.config[item.key]);
+        state.className = "state " + (on ? "on" : "off");
+        state.textContent = on ? "ON" : "OFF";
+        btn.appendChild(state);
+      }
+
+      // Iwas focus para hindi mag-double trigger ang Space/Enter
+      btn.addEventListener("mousedown", (e) => e.preventDefault());
+      btn.addEventListener("mouseenter", () => this.setIndex(i, false));
+      btn.addEventListener("click", () => {
+        Sound.init();
+        this.setIndex(i, false);
+        this.confirm();
+      });
+
+      this.menuEl.appendChild(btn);
+    });
+
+    this.syncSelection();
+  }
+
+  syncSelection() {
+    if (!this.menuEl) return;
+    const sel = this.inSettings ? this.settingsIndex : this.menuIndex;
+    Array.from(this.menuEl.children).forEach((el, i) => el.classList.toggle("selected", i === sel));
+  }
+
+  setIndex(i, playSound = true) {
+    const prev = this.inSettings ? this.settingsIndex : this.menuIndex;
+    if (this.inSettings) this.settingsIndex = i; else this.menuIndex = i;
+    if (i !== prev && playSound && Sound && Sound.playSelectMove) Sound.playSelectMove();
+    this.syncSelection();
+  }
+
+  // ---------- ACTIONS ----------
+  confirm() {
     if (this.inSettings) {
-      if (e.code === "ArrowUp" || e.code === "KeyW") {
-        this.settingsIndex = (this.settingsIndex - 1 + this.settingsOptions.length) % this.settingsOptions.length;
-        if (Sound && Sound.playSelectMove) Sound.playSelectMove();
+      const cur = this.settingsOptions[this.settingsIndex];
+      if (cur.id === "back") {
+        this.inSettings = false;
+        if (Sound && Sound.playSelectConfirm) Sound.playSelectConfirm();
+        this.renderDom();
+        return;
       }
-      if (e.code === "ArrowDown" || e.code === "KeyS") {
-        this.settingsIndex = (this.settingsIndex + 1) % this.settingsOptions.length;
-        if (Sound && Sound.playSelectMove) Sound.playSelectMove();
-      }
-      if (e.code === "Enter" || e.code === "Space" || e.code === "KeyJ") {
-        const cur = this.settingsOptions[this.settingsIndex];
-        if (cur.id === "back") {
-          this.inSettings = false;
-          if (Sound && Sound.playSelectConfirm) Sound.playSelectConfirm();
-        } else {
-          this.config[cur.key] = !this.config[cur.key];
-          if (Sound && Sound.playSelectMove) Sound.playSelectMove();
-          if (cur.key === "music") {
-            if (this.config.music) {
-              if (Sound && Sound.startTitleBGM) Sound.startTitleBGM();
-            } else {
-              if (Sound && Sound.stopTitleBGM) Sound.stopTitleBGM();
-            }
-          }
+      this.config[cur.key] = !this.config[cur.key];
+      if (Sound && Sound.playSelectMove) Sound.playSelectMove();
+      if (cur.key === "music") {
+        if (this.config.music) {
+          if (Sound && Sound.startTitleBGM) Sound.startTitleBGM();
+        } else if (Sound && Sound.stopTitleBGM) {
+          Sound.stopTitleBGM();
         }
       }
+      this.renderDom();
       return;
     }
 
-    if (e.code === "ArrowUp" || e.code === "KeyW") {
-      this.menuIndex = (this.menuIndex - 1 + this.menuItems.length) % this.menuItems.length;
+    const selected = this.menuItems[this.menuIndex];
+    if (!selected.enabled) {
       if (Sound && Sound.playSelectMove) Sound.playSelectMove();
+      return;
     }
-    if (e.code === "ArrowDown" || e.code === "KeyS") {
-      this.menuIndex = (this.menuIndex + 1) % this.menuItems.length;
-      if (Sound && Sound.playSelectMove) Sound.playSelectMove();
-    }
-    if (e.code === "Enter" || e.code === "Space" || e.code === "KeyJ") {
-      const selected = this.menuItems[this.menuIndex];
-      if (!selected.enabled) {
-        if (Sound && Sound.playSelectMove) Sound.playSelectMove();
-        return;
-      }
 
-      if (selected.id === "START") {
-        if (Sound && Sound.playSelectConfirm) Sound.playSelectConfirm();
-        this.onStartGame();
-      } else if (selected.id === "CONTINUE") {
-        if (Sound && Sound.playSelectConfirm) Sound.playSelectConfirm();
-        this.onContinueGame();
-      } else if (selected.id === "EXPORT") {
-        if (Sound && Sound.playSelectConfirm) Sound.playSelectConfirm();
-        this.onExportSave();
-      } else if (selected.id === "IMPORT") {
-        if (Sound && Sound.playSelectConfirm) Sound.playSelectConfirm();
-        this.onImportSave();
-      } else if (selected.id === "SETTINGS") {
-        this.inSettings = true;
-        this.settingsIndex = 0;
-        if (Sound && Sound.playSelectConfirm) Sound.playSelectConfirm();
-      }
+    if (Sound && Sound.playSelectConfirm) Sound.playSelectConfirm();
+    if (selected.id === "START") this.onStartGame();
+    else if (selected.id === "CONTINUE") this.onContinueGame();
+    else if (selected.id === "EXPORT") this.onExportSave();
+    else if (selected.id === "IMPORT") this.onImportSave();
+    else if (selected.id === "SETTINGS") {
+      this.inSettings = true;
+      this.settingsIndex = 0;
+      this.renderDom();
     }
+  }
+
+  handleInput(e) {
+    const list = this.inSettings ? this.settingsOptions : this.menuItems;
+    const cur = this.inSettings ? this.settingsIndex : this.menuIndex;
+
+    if (e.code === "ArrowUp" || e.code === "KeyW" || e.code === "ArrowLeft" || e.code === "KeyA") {
+      this.setIndex((cur - 1 + list.length) % list.length);
+    } else if (e.code === "ArrowDown" || e.code === "KeyS" || e.code === "ArrowRight" || e.code === "KeyD") {
+      this.setIndex((cur + 1) % list.length);
+    } else if (e.code === "Enter" || e.code === "Space" || e.code === "KeyJ") {
+      e.preventDefault();
+      this.confirm();
+    }
+  }
+
+  // ---------- CANVAS ANIMATION ----------
+  spawnEmber(cx, cy) {
+    const colors = ["#ffb347", "#ff8a3d", "#ffd166", "#38bdf8", "#a5f3fc"];
+    this.particles.push({
+      x: cx + (Math.random() - 0.5) * 22,
+      y: cy + Math.random() * 60,
+      vx: (Math.random() - 0.5) * 0.25,
+      vy: -(0.2 + Math.random() * 0.45),
+      life: 80 + Math.random() * 70,
+      max: 150,
+      size: Math.random() < 0.3 ? 2 : 1,
+      color: colors[Math.floor(Math.random() * colors.length)]
+    });
   }
 
   draw(ctx, width, height) {
     this.animTick++;
 
-    // Celestial Night Sky
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, height);
-    skyGrad.addColorStop(0, "#030611");
-    skyGrad.addColorStop(0.5, "#0b152d");
-    skyGrad.addColorStop(0.85, "#182038");
-    skyGrad.addColorStop(1, "#070c18");
-    ctx.fillStyle = skyGrad;
-    ctx.fillRect(0, 0, width, height);
+    // Background: assets/bg/title_bg.jpg (may fallback kung hindi pa loaded)
+    if (!drawCover(ctx, this.bg, width, height)) {
+      const sky = ctx.createLinearGradient(0, 0, 0, height);
+      sky.addColorStop(0, "#030611");
+      sky.addColorStop(1, "#182038");
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, width, height);
+    }
 
-    // Stars
-    this.stars.forEach((star) => {
-      const alpha = 0.3 + (Math.sin(this.animTick * star.twinkleSpeed + star.phase) + 1) * 0.35;
-      ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-      ctx.fillRect(star.x, star.y, star.size, star.size);
+    // Pulsing glow sa espada (nasa gitna ng larawan)
+    const sx = width * 0.5;
+    const sy = height * 0.42;
+    const pulse = 1 + Math.sin(this.animTick / 16) * 0.12;
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    const glow = ctx.createRadialGradient(sx, sy, 2, sx, sy, 60 * pulse);
+    glow.addColorStop(0, "rgba(255, 170, 70, 0.30)");
+    glow.addColorStop(0.5, "rgba(56, 160, 248, 0.10)");
+    glow.addColorStop(1, "rgba(0, 0, 0, 0)");
+    ctx.fillStyle = glow;
+    ctx.fillRect(sx - 70, sy - 70, 140, 140);
+    ctx.restore();
+
+    // Lumilipad na baga
+    if (this.animTick % 3 === 0) this.spawnEmber(sx, sy);
+    this.particles = this.particles.filter((p) => p.life > 0);
+    this.particles.forEach((p) => {
+      p.x += p.vx + Math.sin((p.y + this.animTick) / 14) * 0.08;
+      p.y += p.vy;
+      p.life--;
+      ctx.globalAlpha = Math.max(0, p.life / p.max);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(Math.round(p.x), Math.round(p.y), p.size, p.size);
     });
+    ctx.globalAlpha = 1;
 
-    // Moon
-    const moonX = width - 75;
-    const moonY = 38;
-    ctx.fillStyle = "rgba(255, 209, 102, 0.12)";
-    ctx.beginPath();
-    ctx.arc(moonX, moonY, 22, 0, Math.PI * 2);
-    ctx.fill();
+    // Dilim sa taas at baba para mabasa ang text
+    const top = ctx.createLinearGradient(0, 0, 0, 62);
+    top.addColorStop(0, "rgba(3, 6, 17, 0.75)");
+    top.addColorStop(1, "rgba(3, 6, 17, 0)");
+    ctx.fillStyle = top;
+    ctx.fillRect(0, 0, width, 62);
 
-    ctx.fillStyle = "#ffd166";
-    ctx.beginPath();
-    ctx.arc(moonX, moonY, 12, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "#0b152d";
-    ctx.beginPath();
-    ctx.arc(moonX - 5, moonY - 3, 11, 0, Math.PI * 2);
-    ctx.fill();
+    const bottom = ctx.createLinearGradient(0, height - 26, 0, height);
+    bottom.addColorStop(0, "rgba(3, 6, 17, 0)");
+    bottom.addColorStop(1, "rgba(3, 6, 17, 0.8)");
+    ctx.fillStyle = bottom;
+    ctx.fillRect(0, height - 26, width, 26);
 
-    // Mountains Silhouette
-    ctx.fillStyle = "#0c1322";
-    ctx.beginPath();
-    ctx.moveTo(0, height - 25);
-    ctx.lineTo(50, height - 70);
-    ctx.lineTo(110, height - 50);
-    ctx.lineTo(190, height - 90);
-    ctx.lineTo(280, height - 55);
-    ctx.lineTo(360, height - 85);
-    ctx.lineTo(width, height - 35);
-    ctx.lineTo(width, height);
-    ctx.lineTo(0, height);
-    ctx.fill();
-
-    // Floating Vanguard Title Logo
-    const logoY = 38 + Math.sin(this.animTick / 22) * 2;
-
-    ctx.fillStyle = "#000000";
-    ctx.font = "900 16px monospace";
+    // Title
+    const logoY = 22 + Math.sin(this.animTick / 22) * 1.5;
     ctx.textAlign = "center";
+    ctx.font = "900 18px monospace";
+    ctx.fillStyle = "#000000";
     ctx.fillText("VANGUARD OF FATE", width / 2 + 1, logoY + 1);
-
     ctx.fillStyle = "#ffd166";
     ctx.fillText("VANGUARD OF FATE", width / 2, logoY);
 
-    ctx.fillStyle = "#38bdf8";
     ctx.font = "bold 6.5px monospace";
-    ctx.fillText("— ISEKAI REBIRTH : CHRONICLES OF AETHELGARD —", width / 2, logoY + 10);
-
-    // Panels
-    if (this.inSettings) {
-      this.drawSettings(ctx, width, height);
-    } else {
-      this.drawMainMenu(ctx, width, height);
-    }
-
-    ctx.fillStyle = "#64748b";
-    ctx.font = "6px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText("SUMMONED FROM EARTH • FIVE SOULS BOUND BY PROPHECY", width / 2, height - 6);
-  }
-
-  drawMainMenu(ctx, width, height) {
-    const boxW = 196;
-    const boxH = 112;
-    const boxX = Math.round(width / 2 - boxW / 2);
-    const boxY = 62;
-
-    ctx.fillStyle = "rgba(7, 12, 22, 0.9)";
-    ctx.fillRect(boxX, boxY, boxW, boxH);
-
-    ctx.strokeStyle = "#ffd166";
-    ctx.lineWidth = 1;
-    ctx.strokeRect(boxX, boxY, boxW, boxH);
-
-    // Corner rivets
-    ctx.fillStyle = "#ffd166";
-    ctx.fillRect(boxX, boxY, 3, 3);
-    ctx.fillRect(boxX + boxW - 3, boxY, 3, 3);
-    ctx.fillRect(boxX, boxY + boxH - 3, 3, 3);
-    ctx.fillRect(boxX + boxW - 3, boxY + boxH - 3, 3, 3);
-
-    this.menuItems.forEach((item, idx) => {
-      const isSelected = idx === this.menuIndex;
-      const iy = boxY + 18 + idx * 17;
-
-      if (isSelected) {
-        ctx.fillStyle = "rgba(255, 209, 102, 0.15)";
-        ctx.fillRect(boxX + 6, iy - 9, boxW - 12, 13);
-
-        const blink = Math.floor(this.animTick / 12) % 2 === 0;
-        if (blink) {
-          ctx.fillStyle = "#ffd166";
-          ctx.font = "bold 8px monospace";
-          ctx.textAlign = "right";
-          ctx.fillText("▶", boxX + 18, iy + 1);
-          ctx.textAlign = "left";
-          ctx.fillText("◀", boxX + boxW - 18, iy + 1);
-        }
-      }
-
-      ctx.textAlign = "center";
-      ctx.font = isSelected ? "bold 7.5px monospace" : "7px monospace";
-      ctx.fillStyle = !item.enabled ? "#475569" : (isSelected ? "#ffffff" : "#94a3b8");
-      ctx.fillText(item.label, width / 2, iy);
-    });
-
-    ctx.fillStyle = "#64748b";
-    ctx.font = "6px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText("PRESS [W / S] NAVIGATE • [ENTER / SPACE] CONFIRM", width / 2, boxY + boxH - 5);
-  }
-
-  drawSettings(ctx, width, height) {
-    const boxW = 210;
-    const boxH = 114;
-    const boxX = Math.round(width / 2 - boxW / 2);
-    const boxY = 62;
-
-    ctx.fillStyle = "rgba(7, 12, 22, 0.94)";
-    ctx.fillRect(boxX, boxY, boxW, boxH);
-    ctx.strokeStyle = "#38bdf8";
-    ctx.lineWidth = 1;
-    ctx.strokeRect(boxX, boxY, boxW, boxH);
-
+    ctx.fillStyle = "#000000";
+    ctx.fillText("— ISEKAI REBIRTH : CHRONICLES OF AETHELGARD —", width / 2 + 0.5, logoY + 11.5);
     ctx.fillStyle = "#38bdf8";
-    ctx.font = "bold 8px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText("— EXPEDITION CONFIGURATION —", width / 2, boxY + 15);
+    ctx.fillText("— ISEKAI REBIRTH : CHRONICLES OF AETHELGARD —", width / 2, logoY + 11);
 
-    this.settingsOptions.forEach((opt, idx) => {
-      const isSelected = idx === this.settingsIndex;
-      const iy = boxY + 32 + idx * 15;
-
-      if (isSelected) {
-        ctx.fillStyle = "rgba(56, 189, 248, 0.15)";
-        ctx.fillRect(boxX + 6, iy - 9, boxW - 12, 13);
-      }
-
-      ctx.textAlign = "left";
-      ctx.font = isSelected ? "bold 7.5px monospace" : "7px monospace";
-      ctx.fillStyle = isSelected ? "#ffffff" : "#94a3b8";
-      ctx.fillText(opt.label, boxX + 14, iy);
-
-      if (opt.key) {
-        ctx.textAlign = "right";
-        const val = this.config[opt.key];
-        ctx.fillStyle = val ? "#4ade80" : "#f87171";
-        ctx.fillText(val ? "[ ON ]" : "[ OFF ]", boxX + boxW - 14, iy);
-      }
-    });
-
-    ctx.fillStyle = "#64748b";
+    ctx.fillStyle = "#94a3b8";
     ctx.font = "6px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText("ENTER / SPACE TO TOGGLE • RETURN TO APPLY", width / 2, boxY + boxH - 5);
+    ctx.fillText("SUMMONED FROM EARTH • FIVE SOULS BOUND BY PROPHECY", width / 2, height - 7);
   }
 }

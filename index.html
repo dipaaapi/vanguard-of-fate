@@ -2,15 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Vanguard of Fate - 64-Bit Widescreen</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vanguard of Fate</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
-<body>
+<body data-mode="title">
 
-  <canvas id="gameCanvas" width="426" height="240"></canvas>
-  
-  <div class="hud" id="hudText">
-    Loading Vanguard of Fate...
+  <div id="app">
+    <main id="stage">
+      <canvas id="gameCanvas" width="480" height="270"></canvas>
+
+      <!-- Ibaba: menu (title) / hero picker (select) / control hints (lahat) -->
+      <div id="bar">
+        <div id="menu"></div>
+        <div id="picker"></div>
+        <div class="hud" id="hudText"></div>
+      </div>
+    </main>
+
+    <!-- Kanan: lore auto-loop (title at laro) / dossier ng hero (select) -->
+    <aside id="lore">
+      <div class="lore-head" id="sideHead">CHRONICLES OF AETHELGARD</div>
+      <div class="lore-view"><div class="lore-track"></div></div>
+      <div class="dossier" id="dossier"></div>
+    </aside>
   </div>
 
   <!-- Nakatagong file input para sa .json import -->
