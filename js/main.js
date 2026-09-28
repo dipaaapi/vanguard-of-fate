@@ -225,6 +225,25 @@ function attachBag(p) {
     p.recalc();
     inventory.dirty = true;
   };
+  // Bottom tray: isinuot/hinubad na kagamitan at mga tama ng kalaban
+  p.bag.onEquip = (item, on) => {
+    const fil = lang() === "fil";
+    const verb = on ? (fil ? "Isinuot ang" : "Equipped") : (fil ? "Hinubad ang" : "Unequipped");
+    chatLog.event("equip", `${verb} ${item.name}`, dayNight.label());
+  };
+  p.onHurt = (dmg, src) => {
+    const fil = lang() === "fil";
+    const name = src ? enemyManager.displayName(src) : "";
+    chatLog.event("hit", "", dayNight.label(), {
+      key: `hit:${src ? src.id : "-"}`,
+      value: dmg,
+      format: (n, total) => {
+        const times = n > 1 ? ` ×${n}` : "";
+        if (!name) return fil ? `Nasaktan ka${times} (−${total} HP)` : `You were hurt${times} (−${total} HP)`;
+        return fil ? `Tinamaan ka ng ${name}${times} (−${total} HP)` : `${name} hit you${times} (−${total} HP)`;
+      }
+    });
+  };
   refreshLook(p);
   p.recalc();
 }
@@ -467,6 +486,21 @@ enemyManager.onBossDefeated = (e) => {
   if (item) fx.spawnDamagePopup(e.x + 10, e.y - 40, "✦ QUEST ITEM ✦", true, "#facc15");
 };
 lootManager.onQuestItem = (id) => quest.onQuestItem(id);
+// Bottom tray: napulot na ginto at item (pinagsasama ang magkakasunod na kapareho)
+lootManager.onCollect = (it) => {
+  const fil = lang() === "fil";
+  if (it.gold) {
+    chatLog.event("loot", "", dayNight.label(), {
+      key: "gold", value: it.gold,
+      format: (n, total) => (fil ? `Napulot ang ${total}G` : `Picked up ${total}G`)
+    });
+    return;
+  }
+  chatLog.event("loot", "", dayNight.label(), {
+    key: `loot:${it.name}`, value: it.qty,
+    format: (n, total) => (fil ? `Napulot ang ${it.name}${total > 1 ? ` ×${total}` : ""}` : `Picked up ${it.name}${total > 1 ? ` ×${total}` : ""}`)
+  }, it.color);
+};
 
 // Pakikipag-usap sa tagapagtawag sa kampo ng platform
 function talkField(npc) {

@@ -29,6 +29,7 @@ export class Bag {
     this.slots = [];
     this.equip = Object.fromEntries(SLOTS.map((s) => [s, null]));
     this.onChange = null;     // (equipChanged) — para i-refresh ang itsura at stats
+    this.onEquip = null;      // (item, on) — isinuot (true) o hinubad (false); para sa talaan sa bottom tray
   }
 
   changed(equipChanged = false) {
@@ -163,6 +164,7 @@ export class Bag {
       this.equip.offhand = null;
     }
     this.changed(true);
+    if (this.onEquip) this.onEquip(item, true);
     return "";
   }
 
@@ -172,6 +174,7 @@ export class Bag {
     if (!this.add({ ...e, qty: 1 })) return false;      // napapatong sa kapareho kung mayroon
     this.equip[slot] = null;
     this.changed(true);
+    if (this.onEquip) this.onEquip(describe(e), false);
     return true;
   }
 

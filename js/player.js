@@ -175,7 +175,8 @@ export class Player {
     return true;
   }
 
-  takeDamage(amount, fx) {
+  // source: ang kalabang tumama (opsyonal, para sa talaan sa bottom tray)
+  takeDamage(amount, fx, source = null) {
     if (this.hp <= 0) return;
     if (this.hitFlashTimer > 0) return;
     if (this.invulnTimer > 0) return;   // hal. Dodge Roll ng Novice
@@ -184,6 +185,7 @@ export class Player {
     const netDmg = Math.max(1, Math.round(amount * guard * (1 - (this.dmgReduce || 0))) - this.defense);
     this.hp -= netDmg;
     this.hitFlashTimer = 16;
+    if (this.onHurt) this.onHurt(netDmg, source);
 
     if (Sound && Sound.playPlayerHurt) Sound.playPlayerHurt();
     if (fx && fx.spawnDamagePopup) {

@@ -264,6 +264,17 @@ body[data-mode="play"] #chatLog {
   color: #ffd166;
 }
 .log-empty { margin: 4px 0; color: #475569; font-size: 12px; }
+/* Mga pangyayari (hindi usapan): mas maliit at monospace */
+.log-hit span, .log-loot span, .log-equip span {
+  font-family: "Consolas", "Courier New", monospace;
+  font-size: 12px;
+}
+.log-hit b { color: #ff4d6d; }
+.log-hit span { color: #fca5a5; }
+.log-loot b { color: #facc15; }
+.log-loot span { color: #cbd5e1; }
+.log-equip b { color: #38bdf8; }
+.log-equip span { color: #bae6fd; }
 
 /* ---------- KANANG PANEL: 3 bahagi ---------- */
 /* (1) lore ng kasalukuyang act  (2) UI ng player  (3) skills at options */

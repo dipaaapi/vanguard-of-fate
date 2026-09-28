@@ -438,7 +438,7 @@ export class EnemyManager {
     if (has(e, "vampiric")) e.hp = Math.min(e.maxHp, e.hp + Math.round(dmg * 0.3));
     if (target === player) {
       const before = player.hp;
-      player.takeDamage(dmg, fx);
+      player.takeDamage(dmg, fx, e);
       const ELEM_BLIGHT = { fire: "burn", water: "freeze", poison: "poison", shadow: "curse", wind: "electrified", undead: "curse", ghost: "confusion" };
       const d = modBlight(e) || e.kind.debuff || (ELEM_BLIGHT[e.element] ? { type: ELEM_BLIGHT[e.element], chance: e.variant ? 0.2 : 0.08, time: 180 } : null);
       if (d && player.hp < before && Math.random() < d.chance) {
@@ -622,7 +622,7 @@ export class EnemyManager {
     // Lightning Enchanted: naglalabas ng kislap sa malapit na bayani kapag tinamaan
     const pl = this.player;
     if (has(enemy, "lightning") && pl && Math.random() < 0.2 && Math.hypot(pl.x - enemy.x, pl.y - enemy.y) < 70) {
-      pl.takeDamage(Math.round(enemy.damage * 0.3), fx);
+      pl.takeDamage(Math.round(enemy.damage * 0.3), fx, enemy);
       this.sparks.push({ x0: enemy.x + 10, y0: enemy.y + 8, x1: pl.x + 10, y1: pl.y + 10, t: 10 });
     }
     if (fx && fx.spawnDamagePopup && em !== 1) {
@@ -668,7 +668,7 @@ export class EnemyManager {
     if (p && typeof p.addExp === "function") p.addExp(Math.round((25 + e.level * 8) * mult));
     // Fire Enchanted: sumasabog kapag namatay
     if (has(e, "fire") && p && Math.hypot(p.x - e.x, p.y - e.y) < 42) {
-      p.takeDamage(Math.round(e.damage * 0.8), fx);
+      p.takeDamage(Math.round(e.damage * 0.8), fx, e);
       p.inflictDebuff("burn", 180);
     }
     if (has(e, "fire") && fx && fx.spawnHitSparks) fx.spawnHitSparks(e.x + 10, e.y + 10, "#f97316", 24);

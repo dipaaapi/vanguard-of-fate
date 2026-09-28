@@ -80,6 +80,7 @@ export class LootManager {
   constructor() {
     this.items = [];
     this.onQuestItem = null;   // (id) => void — napulot ang quest item
+    this.onCollect = null;     // ({ gold } | { name, qty, color }) => void — para sa talaan sa bottom tray
     this.fullWarn = 0;
   }
 
@@ -197,6 +198,7 @@ export class LootManager {
     const pX = player.x + 10, pY = player.y - 6;
     if (item.type === "gold") {
       player.gold += item.amount;
+      if (this.onCollect) this.onCollect({ gold: item.amount });
       if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(pX, pY, `+${item.amount}G`, false, "#ffd166");
       return true;
     }
@@ -208,6 +210,7 @@ export class LootManager {
     const it = describe(item.inst);
     const qty = item.inst.qty || 1;
     if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(pX, pY, `${it.name}${qty > 1 ? ` x${qty}` : ""}`, item.quest || it.rarity === "unique" || it.type === "card", it.color);
+    if (this.onCollect) this.onCollect({ name: it.name, qty, color: it.color });
     if (item.quest && this.onQuestItem) this.onQuestItem(item.id);
     return true;
   }
