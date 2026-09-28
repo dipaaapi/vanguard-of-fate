@@ -66,6 +66,7 @@ export class EnemyManager {
     this.sparks = [];              // kidlat ng elementong hangin (para sa guhit)
     this.hitSource = null;         // overrides who a damage() call is credited to (chain lightning)
     this.onKill = null;            // (enemy, byPlayer, exp) => void — for the bottom tray log
+    this.onHeroHit = null;         // () => void — the hero landed a hit (wears the weapon)
   }
 
   // May anyong-tubig ba o dagat/moat/liquid sa kasalukuyang lugar
@@ -647,6 +648,7 @@ export class EnemyManager {
     // Last-hit rule: only a kill landed by the hero (or the hero's summons) earns EXP and loot.
     // Hero attacks pass `player`; mercenaries and NPC allies do not.
     enemy.lastHitBy = this.hitSource || (player ? "player" : "ally");
+    if (player && !this.hitSource && this.onHeroHit) this.onHeroHit();
     enemy.hitTimer = 8;
     enemy.sinceHit = 0;       // naantala ang pagbalik ng HP
     enemy.provoked = true;

@@ -1,3 +1,4 @@
+import { isBroken } from "./durability.js";
 import { describe, canEquip, upgradeCost, refineChance, slotsFor, SLOTS, MAX_PLUS, CLASS_KIT } from "./itemdb.js";
 
 // ==================== BAG + EQUIPMENT ====================
@@ -13,7 +14,7 @@ const STACK_MAX = { equip: 20, other: 999 };
 // Pirma ng item: magkapareho lang kung eksaktong pareho ang lahat ng katangian
 export function signature(s) {
   return [s.id, s.plus | 0, s.rarity || "normal", s.sockets | 0, (s.cards || []).join(","),
-    JSON.stringify((s.affixes || []).map((a) => [a.k, a.v])), s.rareName || ""].join("|");
+    JSON.stringify((s.affixes || []).map((a) => [a.k, a.v])), s.rareName || "", s.dur === undefined ? "" : Math.ceil(s.dur)].join("|");
 }
 const TYPE_ORDER = { quest: 0, equip: 1, card: 2, consume: 3, material: 4 };
 
@@ -22,7 +23,8 @@ const clean = (s) => ({
   rarity: s.rarity || "normal", affixes: Array.isArray(s.affixes) ? s.affixes : [],
   sockets: Math.max(0, Math.min(3, s.sockets | 0)), cards: Array.isArray(s.cards) ? s.cards.slice(0, 3) : [],
   ...(s.rareName ? { rareName: s.rareName } : {}),
-  ...(s.at ? { at: s.at } : {})          // when the stack was last added to (for "Recent" sorting)
+  ...(s.at ? { at: s.at } : {}),         // when the stack was last added to (for "Recent" sorting)
+  ...(s.dur !== undefined ? { dur: Math.max(0, +s.dur) } : {})   // durability (missing = new)
 });
 
 export class Bag {
@@ -186,7 +188,7 @@ export class Bag {
     const out = { atk: 0, def: 0, hp: 0, spd: 0, crit: 0, cdr: 0, aspd: 0, str: 0, agi: 0, vit: 0, int: 0, dex: 0, luk: 0 };
     SLOTS.forEach((slot) => {
       const it = this.equippedItem(slot);
-      if (!it) return;
+      if (!it || isBroken(this.equip[slot])) return;
       Object.entries(it.stats).forEach(([k, v]) => { out[k] = +((out[k] || 0) + v).toFixed(2); });
     });
     return out;

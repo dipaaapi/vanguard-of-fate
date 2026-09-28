@@ -2,6 +2,7 @@ import { getLang } from "./i18n.js";
 import { describe, canEquip, upgradeCost, refineChance, SLOTS, slotName, MAX_PLUS, statText, RARITY, GRADE_NAMES, slotsFor } from "./items/itemdb.js";
 import { iconURL } from "./items/icons.js";
 import { BAG_SIZE } from "./items/bag.js";
+import { DUR_MAX, LOW_DUR, durOf, isBroken, repairCost, repair } from "./items/durability.js";
 
 // ==================== INVENTORY (I) ====================
 // Kaliwa: itsura ng bayani, suot na kagamitan (5 slot) at stats.
@@ -15,7 +16,7 @@ const TEXT = {
     title: "Inventory", equip: "Equipment", stats: "Stats", bag: "Bag", buffs: "Active effects", none: "Empty",
     hp: "HP", def: "DEF", spd: "SPD", atk: "ATK", crit: "CRIT", cdr: "CDR", points: "Stat pts", gold: "Gold",
     doEquip: "Equip", doUnequip: "Unequip", doUse: "Use", doUpgrade: "Refine", sortStack: "Sort & Stack", sellAll: "Sell all", doSell: "Sell", doDrop: "Drop", confirm: "Confirm drop?",
-    locked: "Locked by 2H weapon", wrongClass: "Not for your class", needSanctuary: "Upgrade and sell in a sanctuary (Barracks or camp)",
+    locked: "Locked by 2H weapon", wrongClass: "Not for your class", needSanctuary: "Sell in a sanctuary (Barracks or camp)",
     maxed: "Maximum upgrade", noShards: "Not enough Monster Shards", noCrystals: "Not enough Void Crystals", noGold: "Not enough gold",
     upgraded: "Refine succeeded!", failed: "Refine failed... the materials crumbled (your item is safe).", cost: "Cost",
     type: { equip: "Equipment", consume: "Consumable", material: "Refine material", quest: "Quest item", card: "Card" },
@@ -29,13 +30,18 @@ const TEXT = {
     sortBy: "Sort", sorts: { recent: "Recent", rarity: "Rarity", price: "Price" }, stack: "Stack",
     rec: "Recommended", recAll: "Equip recommended", recNote: (slot, d) => `▲ Better than your current ${slot} (+${d} power)`,
     drag: "Drag an item onto your hero or a slot to equip it · drag worn gear back to the bag to unequip.",
-    emptyTab: "Nothing here yet."
+    emptyTab: "Nothing here yet.",
+    needSmith: "Refining is done by a smith: Captain Ronald (up to +4) or the dwarf smith in Ashfall.",
+    smithLimit: (n) => `This smith can only refine up to +${n}.`,
+    svcRefine: (who) => `Refine at ${who}`, svcRepair: (who) => `Repair at ${who}`,
+    durability: "Durability", broken: "BROKEN — no stats until repaired",
+    doRepair: "Repair", repairAll: "Repair all", repaired: "Repaired!", nothingToRepair: "Nothing needs repair."
   },
   fil: {
     title: "Imbentaryo", equip: "Kagamitan", stats: "Katangian", bag: "Bag", buffs: "Aktibong epekto", none: "Wala",
     hp: "HP", def: "DEP", spd: "BLS", atk: "ATK", crit: "CRIT", cdr: "CDR", points: "Stat pts", gold: "Ginto",
     doEquip: "Isuot", doUnequip: "Hubarin", doUse: "Gamitin", doUpgrade: "I-refine", sortStack: "Ayusin at Pagsamahin", sellAll: "Ibenta lahat", doSell: "Ibenta", doDrop: "Itapon", confirm: "Sigurado?",
-    locked: "Naka-lock dahil sa 2H", wrongClass: "Hindi para sa iyong class", needSanctuary: "Mag-upgrade at magbenta sa sanctuary (Barracks o kampo)",
+    locked: "Naka-lock dahil sa 2H", wrongClass: "Hindi para sa iyong class", needSanctuary: "Magbenta sa sanctuary (Barracks o kampo)",
     maxed: "Pinakamataas na upgrade", noShards: "Kulang ang Monster Shard", noCrystals: "Kulang ang Void Crystal", noGold: "Kulang ang ginto",
     upgraded: "Tagumpay ang refine!", failed: "Pumalya ang refine... gumuho ang materyales (ligtas ang item).", cost: "Halaga",
     type: { equip: "Kagamitan", consume: "Nagagamit", material: "Pang-refine", quest: "Quest item", card: "Card" },
@@ -49,7 +55,12 @@ const TEXT = {
     sortBy: "Ayos", sorts: { recent: "Bago", rarity: "Rarity", price: "Presyo" }, stack: "Pagsamahin",
     rec: "Inirerekomenda", recAll: "Isuot ang inirerekomenda", recNote: (slot, d) => `▲ Mas mahusay kaysa suot mong ${slot} (+${d} lakas)`,
     drag: "I-drag ang item sa bayani o sa slot para isuot · i-drag pabalik sa bag para hubarin.",
-    emptyTab: "Wala pang laman."
+    emptyTab: "Wala pang laman.",
+    needSmith: "Ang panday ang nagre-refine: si Kapitan Ronald (hanggang +4) o ang dwarf na panday sa Ashfall.",
+    smithLimit: (n) => `Hanggang +${n} lang ang kaya ng panday na ito.`,
+    svcRefine: (who) => `Mag-refine kay ${who}`, svcRepair: (who) => `Magpaayos kay ${who}`,
+    durability: "Tibay", broken: "SIRA — walang stats hangga't hindi naaayos",
+    doRepair: "Ayusin", repairAll: "Ayusin lahat", repaired: "Naayos na!", nothingToRepair: "Walang kailangang ayusin."
   }
 };
 
@@ -92,9 +103,10 @@ export class InventoryPanel {
       const it = describe(s);
       if (!it || it.type !== "equip" || !canEquip(it, cls)) return;
       if (it.slot === "offhand" && bag.offhandLocked()) return;
-      const worn = Math.min(...slotsFor(it).map((sl) => power(bag.equippedItem(sl))));
+      const wornPower = (sl) => (isBroken(bag.equip[sl]) ? 0 : power(bag.equippedItem(sl)));
+      const worn = Math.min(...slotsFor(it).map(wornPower));
       let gain = power(it) - worn;
-      if (it.slot === "weapon" && it.hands === 2) gain -= power(bag.equippedItem("offhand"));
+      if (it.slot === "weapon" && it.hands === 2) gain -= wornPower("offhand");
       if (gain > 0.5 && (!bySlot[it.slot] || gain > bySlot[it.slot].gain)) bySlot[it.slot] = { index: i, gain };
     });
     const best = {};
@@ -124,6 +136,34 @@ export class InventoryPanel {
     else if (this.sort === "rarity") list.sort((a, b) => rank(b) - rank(a) || price(b) - price(a) || a.i - b.i);
     else list.sort((a, b) => price(b) - price(a) || rank(b) - rank(a) || a.i - b.i);
     return list.map((x) => x.i);
+  }
+
+  // ---------- REPAIR ----------
+  // Every worn or bagged equipment instance that has lost durability
+  damagedInsts() {
+    const bag = this.player.bag;
+    return [...SLOTS.map((sl) => bag.equip[sl]), ...bag.slots].filter((inst) => {
+      const it = inst && describe(inst);
+      return it && it.type === "equip" && durOf(inst) < DUR_MAX;
+    });
+  }
+
+  repairItems(list) {
+    const p = this.player, T = tx(), mult = this.ctx.repairMult || 1;
+    const todo = list.filter((inst) => inst && durOf(inst) < DUR_MAX);
+    if (!todo.length) { this.msg = T.nothingToRepair; this.render(); return; }
+    const cost = todo.reduce((n, inst) => n + repairCost(inst, mult), 0);
+    if (p.gold < cost) { this.msg = T.noGold; this.render(); return; }
+    p.gold -= cost;
+    todo.forEach(repair);
+    p.bag.compact();                 // repaired pieces may now stack with identical ones
+    this.sel = null;
+    this.msg = `${T.repaired} −${cost}G`;
+    if (this.ctx.fx && this.ctx.fx.spawnHitSparks) this.ctx.fx.spawnHitSparks(p.x + 10, p.y + 6, "#94a3b8", 14);
+    if (this.ctx.onRepair) this.ctx.onRepair(todo.length, cost);
+    p.bag.changed(true);
+    p.recalc();
+    this.render();
   }
 
   // ---------- DRAG & DROP ----------
@@ -259,13 +299,17 @@ export class InventoryPanel {
       bag.use(this.sel.index, p, this.ctx.fx);
       if (!bag.slots[this.sel.index] || bag.slots[this.sel.index].id !== it.id) this.sel = null;
     } else if (action === "upgrade") {
-      if (!sanctuary) this.msg = T.needSanctuary;
+      const cap = this.ctx.maxPlus ?? MAX_PLUS;
+      if (this.ctx.service !== "refine") this.msg = T.needSmith;
+      else if (it.plus >= cap) this.msg = T.smithLimit(cap);
       else {
         const where = this.sel.kind === "slot" ? { slot: this.sel.slot } : { index: this.sel.index };
         const r = bag.upgrade(where, p);
         this.msg = r.ok ? (r.success ? T.upgraded : T.failed) : { max: T.maxed, shards: T.noShards, crystals: T.noCrystals, gold: T.noGold }[r.reason] || "";
         if (r.ok && this.ctx.fx && this.ctx.fx.spawnHitSparks) this.ctx.fx.spawnHitSparks(p.x + 10, p.y + 6, r.success ? "#ffd166" : "#64748b", 16);
       }
+    } else if (action === "repair") {
+      this.repairItems([this.selectedInst()]);
     } else if (action.startsWith("belt:")) {
       p.belt[Number(action.slice(5))] = it.base;
     } else if (action.startsWith("insert:") && this.sel.kind === "bag") {
@@ -324,6 +368,10 @@ export class InventoryPanel {
 
     add(el, "h3", "", T.title);
     add(el, "div", "ql-sub", `${p.heroName || ""} · ${cls === "novice" ? "Novice" : p.heroData.name} · Lv ${p.level}`);
+    if (this.ctx.service) {
+      const who = this.ctx.serviceName || "";
+      add(el, "div", "inv-service", this.ctx.service === "refine" ? T.svcRefine(who) : T.svcRepair(who));
+    }
 
     const grid = add(el, "div", "inv-grid");
     const left = add(grid, "div", "inv-left");
@@ -344,7 +392,10 @@ export class InventoryPanel {
       const ic = add(b, "span", "inv-eq-icon", it ? "" : locked ? "🔒" : "·");
       if (it) { const img = add(ic, "img"); img.src = iconURL(it); img.alt = ""; }
       const txt = add(b, "span", "inv-eq-text");
-      add(txt, "small", "", slotName(slot));
+      const inst = bag.equip[slot];
+      const dur = inst ? Math.ceil(durOf(inst)) : DUR_MAX;
+      const lbl = add(txt, "small", "", it && dur < DUR_MAX ? `${slotName(slot)} · ${isBroken(inst) ? "✖" : `${dur}%`}` : slotName(slot));
+      if (it && dur <= LOW_DUR) { lbl.classList.add("inv-dur-low"); b.classList.add(isBroken(inst) ? "broken" : "worn"); }
       const nm = add(txt, "b", "", it ? it.name : locked ? T.locked : T.none);
       if (it) nm.style.color = it.color;
     });
@@ -383,7 +434,13 @@ export class InventoryPanel {
       const b = button(tools, "inv-act" + (this.sort === key ? " on" : ""), () => { this.sort = key; this.render(); });
       b.textContent = T.sorts[key];
     });
-    if (this.tab === "equip" && Object.keys(rec).length) {
+    if (this.ctx.service === "repair") {
+      const damaged = this.damagedInsts();
+      const total = damaged.reduce((n, inst) => n + repairCost(inst, this.ctx.repairMult || 1), 0);
+      const b = button(tools, "inv-act inv-rec-all", () => this.repairItems(damaged));
+      b.textContent = damaged.length ? `⚒ ${T.repairAll} (${damaged.length}) · ${total}G` : T.nothingToRepair;
+      b.disabled = !damaged.length;
+    } else if (this.tab === "equip" && Object.keys(rec).length) {
       const b = button(tools, "inv-act inv-rec-all", () => this.equipRecommended());
       b.textContent = `▲ ${T.recAll} (${Object.keys(rec).length})`;
     }
@@ -406,6 +463,7 @@ export class InventoryPanel {
       if (s.plus) add(b, "span", "inv-plus", `+${s.plus}`);
       if (rec[i]) { add(b, "span", "inv-rec", "▲"); b.title = `${it.name} — ${T.rec}`; }
       if (it.type === "equip" && !canEquip(it, cls)) b.classList.add("unusable");
+      if (isBroken(s)) b.classList.add("broken");
     });
     const free = BAG_SIZE - bag.slots.length;
     const pad = Math.max(free, (10 - (shown.length % 10)) % 10);
@@ -415,7 +473,10 @@ export class InventoryPanel {
     // Detalye ng napili
     const det = add(right, "div", "inv-detail");
     const it = this.selected();
-    if (!it) add(det, "div", "inv-dim", T.select);
+    if (!it) {
+      add(det, "div", "inv-dim", T.select);
+      if (this.msg) add(det, "div", "inv-msg", this.msg);
+    }
     else {
       const head = add(det, "div", "inv-name");
       const hImg = add(head, "img", "inv-name-ico");
@@ -438,6 +499,11 @@ export class InventoryPanel {
         }
         if (it.cls && !canEquip(it, cls)) add(det, "div", "inv-warn", T.wrongClass);
         if (this.sel.kind === "bag" && rec[this.sel.index]) add(det, "div", "inv-recnote", T.recNote(slotName(it.slot), Math.round(rec[this.sel.index])));
+        if (it.type === "equip") {
+          const inst = this.selectedInst();
+          if (isBroken(inst)) add(det, "div", "inv-warn", T.broken);
+          else add(det, "div", "inv-meta" + (durOf(inst) <= LOW_DUR ? " inv-dur-low" : ""), `${T.durability} ${Math.ceil(durOf(inst))}/${DUR_MAX}`);
+        }
       }
       if (it.desc) add(det, "div", "inv-desc", it.desc);
 
@@ -451,7 +517,10 @@ export class InventoryPanel {
       if (it.type === "equip") {
         if (inBag) actBtn(T.doEquip, "equip", !canEquip(it, cls));
         else actBtn(T.doUnequip, "unequip");
-        if (it.plus < MAX_PLUS) {
+        const inst = this.selectedInst();
+        if (this.ctx.service === "repair" && durOf(inst) < DUR_MAX) actBtn(`⚒ ${T.doRepair} (${repairCost(inst, this.ctx.repairMult || 1)}G)`, "repair");
+        if (this.ctx.service === "refine" && it.plus >= (this.ctx.maxPlus ?? MAX_PLUS) && it.plus < MAX_PLUS) add(det, "div", "inv-warn", T.smithLimit(this.ctx.maxPlus));
+        if (this.ctx.service === "refine" && it.plus < (this.ctx.maxPlus ?? MAX_PLUS)) {
           const c = upgradeCost(it);
           const ch = Math.round(refineChance(it.plus) * 100);
           actBtn(`${T.doUpgrade} +${it.plus + 1} · ${ch}% ${T.chance} (Phracon ${c.shards}${c.crystals ? ` · Oridecon ${c.crystals}` : ""} · ${c.gold}G)`, "upgrade");

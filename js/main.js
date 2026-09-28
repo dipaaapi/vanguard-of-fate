@@ -28,6 +28,8 @@ import { NPC_DEFS, MENTOR_OF, summonerIdFor } from "./npc/roster.js";
 import { getDialogue, npcName } from "./dialogue.js";
 import { DialogBox, QuestHud } from "./dialog.js";
 import { ChatLog } from "./chatlog.js";
+import { ServiceMenu } from "./services.js";
+import { wear, WEAR_WEAPON, WEAR_ARMOR, ARMOR_SLOTS } from "./items/durability.js";
 import { Avatar } from "./avatar/avatar.js";
 import { createLorePanel } from "./lore.js";
 import { HudBar } from "./hudbar.js";
@@ -189,12 +191,37 @@ function openActReader() {
 // Inventory (I): kagamitan, stats, gold at aktibong buff. Naka-pause ang laro habang bukas.
 const inventory = new InventoryPanel(document.getElementById("inventory"));
 function toggleInventory() {
-  if (!player || gameState !== "PLAYING" || dialog.open || actReader.open || showShopModal || showMercModal) return;
+  if (!player || gameState !== "PLAYING" || dialog.open || actReader.open || serviceMenu.open || showShopModal || showMercModal) return;
   controller.clearAll();
   if (questHud.logOpen) questHud.closeLog();
   worldMap.close();
   charPanel.close();
-  inventory.toggle(player, {
+  inventory.toggle(player, inventoryCtx());
+}
+
+// Refine / repair: the inventory opened as an NPC service (see js/services.js and the NPC menus below)
+function openService(service, opts) {
+  controller.clearAll();
+  worldMap.close();
+  charPanel.close();
+  inventory.show(player, { ...inventoryCtx(), service, ...opts });
+}
+
+// NPC service menus. Ronald: mercenaries, safe refines up to +4, and field repairs at double the dwarves' price.
+const serviceMenu = new ServiceMenu(document.getElementById("serviceMenu"));
+function openRonaldMenu() {
+  const fil = lang() === "fil", who = npcName("ronald");
+  serviceMenu.show(who, [
+    { label: fil ? "Umupa ng mercenary" : "Hire mercenaries", hint: `${MercenaryManager.cost(player.level)}G`, onPick: () => { showMercModal = true; } },
+    { label: fil ? "Mag-refine (hanggang +4)" : "Refine gear (up to +4)", hint: fil ? "Ang dwarf na panday sa Ashfall ang lampas +4" : "Beyond +4 needs the dwarf smith of Ashfall",
+      onPick: () => openService("refine", { maxPlus: 4, serviceName: who }) },
+    { label: fil ? "Field repair (dobleng halaga)" : "Field repair (double cost)", hint: fil ? "Mas mura sa dwarf sa Ashfall" : "Cheaper with the dwarves of Ashfall",
+      onPick: () => openService("repair", { repairMult: 2, serviceName: who }) }
+  ]);
+}
+
+function inventoryCtx() {
+  return {
     fx,
     // Ang upgrade at pagbebenta ay sa sanctuary lang (Barracks, dais ng Citadel o kampo ng platform)
     inSanctuary: () => Boolean(player && stage.isInsideSafeZone(player.x + 10, player.y + 17)),
@@ -203,9 +230,31 @@ function toggleInventory() {
       lootManager.drop({ x: player.x + 10 + (player.facing === "left" ? -18 : 18), y: player.y + 14 }, inst);
       const it = lootManager.items[lootManager.items.length - 1];
       if (it) it.blocked = 240;     // huwag agad mapulot muli
+    },
+    onRepair: (n, cost) => chatLog.event("equip", lang() === "fil" ? `Naayos ang ${n} kagamitan (−${cost}G)` : `Repaired ${n} item${n > 1 ? "s" : ""} (−${cost}G)`, dayNight.label())
+  };
+}
+
+// Durability: wear the worn piece(s) and warn in the log when one runs low or breaks
+function wearGear(slots, amount) {
+  if (!player) return;
+  const fil = lang() === "fil";
+  slots.forEach((slot) => {
+    const inst = player.bag.equip[slot];
+    const ev = wear(inst, amount);
+    if (!ev) return;
+    const name = player.bag.equippedItem(slot).name;
+    if (ev === "broken") {
+      player.recalc();
+      fx.spawnDamagePopup(player.x + 10, player.y - 16, fil ? `SIRA: ${name}!` : `${name} BROKE!`, true, "#f87171");
+      chatLog.event("hit", fil ? `Nasira ang ${name} — walang stats hangga't hindi naaayos` : `${name} broke — it gives no stats until repaired`, dayNight.label());
+    } else {
+      chatLog.event("equip", fil ? `Halos sira na ang ${name} — ipaayos agad` : `${name} is badly worn — get it repaired soon`, dayNight.label());
     }
+    inventory.dirty = true;
   });
 }
+enemyManager.onHeroHit = () => wearGear(["weapon"], WEAR_WEAPON);
 
 // Character (C): stat builder at skill tree (parang Ragnarok Online). Naka-pause ang laro habang bukas.
 const charPanel = new CharacterPanel(document.getElementById("character"));
@@ -235,6 +284,7 @@ function attachBag(p) {
     chatLog.event("level", lang() === "fil" ? `Umakyat ka sa Level ${level}! +stat at +skill point` : `Level up! You are now Lv ${level} (+stat & skill points)`, dayNight.label());
   };
   p.onHurt = (dmg, src) => {
+    wearGear(ARMOR_SLOTS, WEAR_ARMOR);
     const fil = lang() === "fil";
     const name = src ? enemyManager.displayName(src) : "";
     chatLog.event("hit", "", dayNight.label(), {
@@ -847,7 +897,7 @@ function talkTo(npc) {
     npcManager.applyQuest(quest, playerClass());
     saveGame();   // naitala kung sino na ang nakausap
     if (d.action === "shop") { showShopModal = true; showMercModal = false; }
-    else if (d.action === "merc") { showMercModal = true; showShopModal = false; }
+    else if (d.action === "merc") { showShopModal = false; openRonaldMenu(); }
     else if (d.action === "awaken" && canAwaken(player)) startAwakening();
   });
 }
@@ -955,6 +1005,8 @@ window.addEventListener("keydown", (e) => {
     e.preventDefault();
   } else if (gameState === "PLAYING" && dialog.open) {
     dialog.handleInput(e);
+  } else if (gameState === "PLAYING" && serviceMenu.open) {
+    serviceMenu.handleInput(e);
   } else if (gameState === "PLAYING" && questHud.logOpen) {
     if (e.code === "KeyQ" || e.code === "Escape") questHud.closeLog();
   } else if (gameState === "PLAYING" && inventory.open) {
@@ -1105,7 +1157,7 @@ window.addEventListener("keyup", (e) => {
 });
 
 function updateGame() {
-  if (gameState !== "PLAYING" || !player || showShopModal || showMercModal || dialog.open || questHud.logOpen || inventory.open || charPanel.open || actReader.open || worldMap.open) return;
+  if (gameState !== "PLAYING" || !player || showShopModal || showMercModal || dialog.open || serviceMenu.open || questHud.logOpen || inventory.open || charPanel.open || actReader.open || worldMap.open) return;
 
   if (player.hp <= 0) {
     gameState = "GAMEOVER";
@@ -1411,6 +1463,7 @@ function gameLoop(now = performance.now()) {
   inventory.update();
   if (actReader.open && (layoutMode !== "play" || !player)) actReader.close();
   if (worldMap.open && (gameState !== "PLAYING" || !player)) worldMap.close();
+  if (serviceMenu.open && (gameState !== "PLAYING" || !player)) serviceMenu.close();
   if (gameState === "TITLE") {
     titleScene.draw();
   } else if (gameState === "CREATE") {
