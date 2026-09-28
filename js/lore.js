@@ -13,6 +13,46 @@ function cleanInline(s) {
   return s.replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1").replace(/`(.+?)`/g, "$1");
 }
 
+// Tinatanggal ang emoji sa unahan ng heading (iba-iba ang itsura bawat OS)
+function cleanHeading(s) {
+  return cleanInline(s).replace(/^[^\p{L}\p{N}]+/u, "");
+}
+
+// Isang beses lang kinukuha ang LORE.md (ginagamit ng side panel at ng Chronicles)
+let lorePromise = null;
+export function loadLore() {
+  if (!lorePromise) {
+    lorePromise = fetch("LORE.md", { cache: "no-cache" })
+      .then((res) => (res.ok ? res.text() : FALLBACK))
+      .catch(() => FALLBACK);
+  }
+  return lorePromise;
+}
+
+// Hinahati ang lore sa mga kabanata (bawat "## " heading) para sa Chronicles screen.
+// "Act I: The Sundered Dominion" → { tab: "Act I", title: "The Sundered Dominion" }
+export function parseChapters(md) {
+  const chapters = [];
+  let cur = null;
+  md.replace(/\r\n/g, "\n").split(/\n{2,}/).forEach((block) => {
+    const text = block.trim();
+    if (!text || /^-{3,}$/.test(text) || text.startsWith("# ")) return;
+    if (text.startsWith("## ")) {
+      const heading = cleanHeading(text.slice(3));
+      const colon = heading.indexOf(":");
+      cur = {
+        tab: colon > 0 ? heading.slice(0, colon) : heading,
+        title: colon > 0 ? heading.slice(colon + 1).trim() : heading,
+        paragraphs: []
+      };
+      chapters.push(cur);
+    } else if (cur) {
+      cur.paragraphs.push(cleanInline(text));
+    }
+  });
+  return chapters;
+}
+
 function buildCopy(md) {
   const copy = document.createElement("div");
   copy.className = "lore-copy";
@@ -23,11 +63,11 @@ function buildCopy(md) {
 
     if (text.startsWith("## ")) {
       const h = document.createElement("h3");
-      h.textContent = cleanInline(text.slice(3));
+      h.textContent = cleanHeading(text.slice(3));
       copy.appendChild(h);
     } else if (text.startsWith("# ")) {
       const h = document.createElement("h2");
-      h.textContent = cleanInline(text.slice(2));
+      h.textContent = cleanHeading(text.slice(2));
       copy.appendChild(h);
     } else {
       const p = document.createElement("p");
@@ -44,12 +84,7 @@ export async function startLore(panelEl, speed = 0.45) {
   const track = panelEl.querySelector(".lore-track");
   if (!view || !track) return;
 
-  let md = FALLBACK;
-  try {
-    const res = await fetch("LORE.md", { cache: "no-cache" });
-    if (res.ok) md = await res.text();
-  } catch (_) { /* gumamit ng fallback */ }
-
+  const md = await loadLore();
   const first = buildCopy(md);
   track.append(first, first.cloneNode(true)); // dalawang kopya para seamless ang loop
 
