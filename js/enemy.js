@@ -21,7 +21,7 @@ import { STATUS, statusName } from "./status.js";
 //   lila   BOSS
 // Ang hindi agresibo ay gumagala; ang agresibo ay humahabol kapag lumapit ka.
 
-const HUB_KINDS = [
+export const HUB_KINDS = [
   "slime", "wolf", "skeleton", "goblinScout", "forestBear",
   "windFalcon", "bloodBat", "skyGargoyle"
 ];

@@ -23,12 +23,12 @@ const TEXT = {
   en: {
     skills: "Skills", options: "Options", attack: "Attack", skill: "Skill", belt: "Quick slots", auto: "AUTO",
     sprint: "Sprint", talk: "Talk", quests: "Quests", inventory: "Inventory", character: "Character",
-    pause: "Pause", resume: "Resume", menu: "Main Menu", map: "World Map", safe: "Safe zone", nobody: "No one nearby"
+    pause: "Pause", resume: "Resume", menu: "Main Menu", map: "World Map", codex: "Codex", safe: "Safe zone", nobody: "No one nearby"
   },
   fil: {
     skills: "Mga Skill", options: "Mga Opsyon", attack: "Atake", skill: "Skill", belt: "Mabilisang gamit", auto: "AUTO",
     sprint: "Takbo", talk: "Kausapin", quests: "Quest", inventory: "Imbentaryo", character: "Karakter",
-    pause: "Pause", resume: "Ituloy", menu: "Main Menu", map: "Mapa ng Mundo", safe: "Ligtas na lugar", nobody: "Walang malapit"
+    pause: "Pause", resume: "Ituloy", menu: "Main Menu", map: "Mapa ng Mundo", codex: "Codex", safe: "Ligtas na lugar", nobody: "Walang malapit"
   }
 };
 const tx = (k) => (TEXT[getLang()] || TEXT.en)[k];
@@ -116,6 +116,7 @@ export class ActionPanel {
       inventory: this.clickButton("inventory", "KeyI", h.inventory),
       character: this.clickButton("character", "KeyC", h.character),
       map: this.clickButton("map", "KeyM", h.map),
+      codex: this.clickButton("codex", "KeyN", h.codex),
       pause: this.clickButton("pause", "Escape", h.pause),
       menu: this.clickButton("menu", "KeyH", h.menu)
     };
@@ -124,6 +125,7 @@ export class ActionPanel {
     this.set(this.options.inventory, "🎒", tx("inventory"));
     this.set(this.options.character, "📜", tx("character"));
     this.set(this.options.map, "🗺️", tx("map"));
+    this.set(this.options.codex, "📖", tx("codex"));
     this.set(this.options.pause, "❚❚", tx("pause"));
     this.set(this.options.menu, "🏠", tx("menu"));
     Object.values(this.options).forEach((b) => this.optionsEl.appendChild(b));

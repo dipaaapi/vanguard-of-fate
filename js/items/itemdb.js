@@ -314,6 +314,17 @@ export function describe(inst) {
   };
 }
 
+// Everything the Codex lists: base equipment, uniques, mineral sets, other items and cards (grade 0 samples)
+export function codexItems() {
+  return {
+    equip: Object.keys(EQUIP).map((id) => describe({ id })),
+    uniques: Object.keys(UNIQUES).map((key) => describe({ id: `u:${key}` })),
+    sets: Object.keys(SETS),
+    other: Object.keys(OTHER).map((id) => describe({ id })),
+    cards: Object.keys(CARDS).map((key) => describe({ id: `card:${key}` }))
+  };
+}
+
 // Para sa simpleng id (tindahan, quest, pangalan)
 export function getItem(id, plus = 0) {
   return describe({ id, plus });

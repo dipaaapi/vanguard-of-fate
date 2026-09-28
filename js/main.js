@@ -29,6 +29,7 @@ import { getDialogue, npcName } from "./dialogue.js";
 import { DialogBox, QuestHud } from "./dialog.js";
 import { ChatLog } from "./chatlog.js";
 import { ServiceMenu } from "./services.js";
+import { Codex } from "./codex.js";
 import { getItem, SETS } from "./items/itemdb.js";
 import { SET_SLOTS, recipeCost, forgePiece } from "./items/forge.js";
 import { wear, WEAR_WEAPON, WEAR_ARMOR, ARMOR_SLOTS } from "./items/durability.js";
@@ -211,6 +212,18 @@ function openService(service, opts) {
 
 // NPC service menus. Ronald: mercenaries, safe refines up to +4, and field repairs at double the dwarves' price.
 const serviceMenu = new ServiceMenu(document.getElementById("serviceMenu"));
+
+// Codex (N): encyclopedia of NPCs, monsters, MVPs and items; progress is saved with the game
+const codex = new Codex(document.getElementById("codex"));
+function toggleCodex() {
+  if (!player || gameState !== "PLAYING" || dialog.open || serviceMenu.open) return;
+  controller.clearAll();
+  if (questHud.logOpen) questHud.closeLog();
+  inventory.close();
+  charPanel.close();
+  worldMap.close();
+  codex.toggle();
+}
 function openRonaldMenu() {
   const fil = lang() === "fil", who = npcName("ronald");
   serviceMenu.show(who, [
@@ -552,7 +565,8 @@ const actionPanel = new ActionPanel({
     worldMap.close();
     exitToTitle();
   },
-  map: () => { Sound.init(); toggleMap(); }
+  map: () => { Sound.init(); toggleMap(); },
+  codex: () => { Sound.init(); toggleCodex(); }
 });
 
 quest.onChange = () => {
@@ -695,6 +709,7 @@ enemyManager.onBossDefeated = (e) => {
 lootManager.onQuestItem = (id) => quest.onQuestItem(id);
 // Bottom tray: EXP from the hero's kills (merged while chaining kills), or a note when an ally took the last hit
 enemyManager.onKill = (e, byPlayer, exp) => {
+  codex.recordKill(e.key);
   const fil = lang() === "fil";
   const name = enemyManager.displayName(e);
   if (!byPlayer) {
@@ -793,6 +808,7 @@ function getSavePayload() {
     skillPoints: player.skillPoints,
     belt: [...player.belt],
     autoPot: { ...player.autoPot },
+    codex: codex.serialize(),
     dayTick: dayNight.serialize(),
     platform: stage.id,                     // "hub" o platform ng Act
     x: player.x,
@@ -917,6 +933,7 @@ function loadGame() {
       player.skillPoints = player.level - 1;
     }
     dayNight.load(data.dayTick);
+    codex.load(data.codex);
     if (Array.isArray(data.belt)) player.belt = data.belt.slice(0, 4).map((x) => x || null);
     if (data.autoPot) player.autoPot = { hp: data.autoPot.hp | 0, cure: Boolean(data.autoPot.cure), stamina: Boolean(data.autoPot.stamina) };
     // Bag: lumang save na walang bag → default na kagamitan ng class
@@ -1033,6 +1050,7 @@ function awaken(chosenHero) {
 
 // Pakikipag-usap sa NPC (E). Pagkatapos ng huling linya: quest + shop/merc/awakening
 function talkTo(npc) {
+  codex.meet(npc.id);
   if (npc.tag === "field") return talkField(npc);
   const d = getDialogue(npc.id, { step: quest.step, cls: playerClass(), met: quest.met, summoner: npcManager.summonerId });
   dialog.start(npc.id, npc.avatar, d.lines, () => {
@@ -1087,6 +1105,7 @@ const creatorScene = new CreatorScene(
     starterKit(player);
     attachBag(player);
     quest.reset();
+    codex.reset();
     prologueScene.start(name, player.avatarConfig);
   },
   () => {
@@ -1154,6 +1173,8 @@ window.addEventListener("keydown", (e) => {
     dialog.handleInput(e);
   } else if (gameState === "PLAYING" && serviceMenu.open) {
     serviceMenu.handleInput(e);
+  } else if (gameState === "PLAYING" && codex.open) {
+    codex.handleInput(e);
   } else if (gameState === "PLAYING" && questHud.logOpen) {
     if (e.code === "KeyQ" || e.code === "Escape") questHud.closeLog();
   } else if (gameState === "PLAYING" && inventory.open) {
@@ -1174,6 +1195,11 @@ window.addEventListener("keydown", (e) => {
 
     if (e.code === "KeyC" && gameState === "PLAYING") {
       toggleCharacter();
+      return;
+    }
+
+    if (e.code === "KeyN" && gameState === "PLAYING") {
+      toggleCodex();
       return;
     }
 
@@ -1306,7 +1332,7 @@ window.addEventListener("keyup", (e) => {
 });
 
 function updateGame() {
-  if (gameState !== "PLAYING" || !player || showShopModal || showMercModal || dialog.open || serviceMenu.open || questHud.logOpen || inventory.open || charPanel.open || actReader.open || worldMap.open) return;
+  if (gameState !== "PLAYING" || !player || showShopModal || showMercModal || dialog.open || serviceMenu.open || codex.open || questHud.logOpen || inventory.open || charPanel.open || actReader.open || worldMap.open) return;
 
   if (player.hp <= 0) {
     gameState = "GAMEOVER";
@@ -1624,6 +1650,7 @@ function gameLoop(now = performance.now()) {
   if (actReader.open && (layoutMode !== "play" || !player)) actReader.close();
   if (worldMap.open && (gameState !== "PLAYING" || !player)) worldMap.close();
   if (serviceMenu.open && (gameState !== "PLAYING" || !player)) serviceMenu.close();
+  if (codex.open && (gameState !== "PLAYING" || !player)) codex.close();
   if (gameState === "TITLE") {
     titleScene.draw();
   } else if (gameState === "CREATE") {
