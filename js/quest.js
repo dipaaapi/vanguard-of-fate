@@ -22,10 +22,10 @@ import { getItem } from "./items/itemdb.js";
 //  +2   dalhin ang quest item sa tagapagtawag sa kampo ng platform
 // 25    XII✔  ang Sovereign Dawn (tapos ang kuwento)
 
-export const AWAKEN_LEVEL = 10;
-export const CAMPAIGN_START = 7;
+const AWAKEN_LEVEL = 10;
+const CAMPAIGN_START = 7;
 export const FINAL_STEP = CAMPAIGN_START + PLATFORM_ORDER.length * 3;
-export const QUEST_VERSION = 2;
+const QUEST_VERSION = 2;
 
 // Paraan ng pagpasok sa bawat platform (para sa teksto ng layunin)
 const ENTRY = {
@@ -54,7 +54,7 @@ function campaignText(L) {
   return { act, goal };
 }
 
-export const SOULS = ["arthur", "lyra", "julian", "sam", "renzo"];
+const SOULS = ["arthur", "lyra", "julian", "sam", "renzo"];
 export const MENTOR_BY_CLASS = { knight: "arthur", archer: "lyra", priest: "julian", mage: "sam", fighter: "renzo" };
 
 // Aling kabanata ng LORE.md ang kasalukuyang hakbang (para sa lore panel at banner sa kanan)

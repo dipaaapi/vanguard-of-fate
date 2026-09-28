@@ -71,7 +71,7 @@ export class Stage {
     return gate ? this.portals.exitPoint(gate.id) : { x: this.safeZone.x + this.safeZone.w / 2 - 10, y: this.safeZone.y + this.safeZone.h - 30 };
   }
 
-  update(player, onWarp, enemyManager = null, fx = null) {
+  update(player, onWarp) {
     // 1. Environment Updates
     this.grassland.update();
     this.barracks.update();
@@ -93,7 +93,7 @@ export class Stage {
     }
   }
 
-  draw(ctx, player = null) {
+  draw(ctx) {
     // 1. Base Natural Ground (tile-based)
     this.tilemap.drawGround(ctx);
 

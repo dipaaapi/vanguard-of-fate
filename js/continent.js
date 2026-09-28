@@ -8,21 +8,6 @@ import { PLATFORMS } from "./world/platforms.js";
 // The two continents do not touch: open sea lies between them. The only crossing is the portal of the
 // Celestial Monolith in the Cerulean Abyss, drawn as a sea route around the south of Aethelgard.
 
-export const CONTINENTS = {
-  aethelgard: {
-    id: "aethelgard",
-    name: { en: "Aethelgard Continent", fil: "Kontinente ng Aethelgard" },
-    subtitle: { en: "Sovereign Realm of High King Alden", fil: "Kaharian ng Kataas-taasang Haring Alden" },
-    color: "#ffd166"
-  },
-  dark_continent: {
-    id: "dark_continent",
-    name: { en: "The Dark Continent (Nox Aeterna)", fil: "Ang Dark Continent (Nox Aeterna)" },
-    subtitle: { en: "Corrupted Empire of Demon Lord Satan", fil: "Imperyo ng Kadiliman ni Demon Lord Satan" },
-    color: "#9d4edd"
-  }
-};
-
 const LANDS = [
   // ---- 1. AETHELGARD CONTINENT (KANLURAN / GITNA) ----
   { id: "hub", continent: "aethelgard", x: 0.24, y: 0.50, act: 1, color: "#ffd166", icon: "castle", name: { en: "Imperial Citadel & Barracks", fil: "Imperial Citadel at Barracks" } },

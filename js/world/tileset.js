@@ -387,7 +387,7 @@ function drawPillar(ctx, x, y, rnd) {
 
 const TREES = { oak: drawOak, weeping: drawWeeping, pine: drawPine, seastack: drawSeastack, spire: drawSpire, ruin: drawRuin, pillar: drawPillar };
 
-export function drawTree(ctx, x, y, seed, kind = "oak") {
+function drawTree(ctx, x, y, seed, kind = "oak") {
   const rnd = mulberry32(seed);
   ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
   ctx.beginPath();

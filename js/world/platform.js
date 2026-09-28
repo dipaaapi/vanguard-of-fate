@@ -66,10 +66,10 @@ export class Platform {
     return g.dir === "vertical" ? { x: g.x - 60, y: g.y - 12 } : { x: g.x - 10, y: g.y - 58 };
   }
 
-  update(player, onPortal, enemyManager = null, effects = null) {
+  update(player, onPortal) {
     this.tick++;
     this.ambient.update();
-    if (this.boatSystem) this.boatSystem.update(player, enemyManager, effects, onPortal);
+    if (this.boatSystem) this.boatSystem.update(player, onPortal);
     if (!player || player.portalCooldown > 0) return;
     const fx = player.x + 10, fy = player.y + 18;
     const g = this.gate;

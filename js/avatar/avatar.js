@@ -21,10 +21,10 @@ import { normalizeConfig } from "./options.js";
 
 export const FRAME_W = 32;
 export const FRAME_H = 36;
-export const ANCHOR_X = 16;
-export const ANCHOR_Y = 34;
+const ANCHOR_X = 16;
+const ANCHOR_Y = 34;
 export const DIRS = ["down", "side", "up"];
-export const FRAMES = { idle: 2, walk: 4, run: 4, attack: 2 };
+const FRAMES = { idle: 2, walk: 4, run: 4, attack: 2 };
 
 // ---------- KULAY ----------
 function hexToRgb(hex) {

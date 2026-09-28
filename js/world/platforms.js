@@ -37,7 +37,7 @@ function glow(ctx, x, y, r, color, alpha = 0.35) {
 const inEllipse = (x, y, cx, cy, rx, ry) => ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1;
 
 // Seal Stones needed by the Celestial Monolith (dropped by the bosses of Acts VII–X)
-export const SEAL_STONES = ["sylvanSeal", "tideSeal", "frostSeal", "emberSeal"];
+const SEAL_STONES = ["sylvanSeal", "tideSeal", "frostSeal", "emberSeal"];
 
 export const PLATFORMS = {
   // ==================== ACT VII ====================

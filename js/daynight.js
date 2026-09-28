@@ -12,7 +12,7 @@ import { getLang } from "./i18n.js";
 // Maw of Damnation: laging gabi (walang langit). Kinubkob na Citadel: laging pulang takipsilim.
 
 const FPS = 60;
-export const DAY_LENGTH = 6 * 60 * FPS;          // 21600 frame
+const DAY_LENGTH = 6 * 60 * FPS;          // 21600 frame
 const PHASES = [
   { id: "DAY", start: 0, end: 3 * 60 * FPS },
   { id: "DUSK", start: 3 * 60 * FPS, end: 3.5 * 60 * FPS },

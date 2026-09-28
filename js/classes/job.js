@@ -6,11 +6,11 @@ import { Avatar } from "../avatar/avatar.js";
 
 // Bilang ng frame bawat state (para sa animation timing ng Player.update)
 export const FRAME_COUNTS = { idle: 8, run: 4, slash: 2, bash: 2 };
-export const placeholderSprites = () =>
+const placeholderSprites = () =>
   Object.fromEntries(Object.entries(FRAME_COUNTS).map(([k, n]) => [k, new Array(n).fill(null)]));
 
 // Gear bawat class (tingnan ang mga mentor sa js/npc/roster.js para sa inspirasyon)
-export const JOB_GEAR = {
+const JOB_GEAR = {
   knight: { outfit: "armor", outfitColor: "#2c4f8a", legColor: "#7d8c9e", bootColor: "#2b2b33", gloves: "leather",
     cape: "#8a2c2c", weapon: "lance", shield: "tower" },
   archer: { outfit: "vest", outfitColor: "#2f6b3f", legColor: "#4a3a28", bootColor: "#5e3b1a", gloves: "leather",
@@ -27,7 +27,7 @@ export const JOB_GEAR = {
 const ANIM_MAP = { bash: "attack" };
 
 // Itsura = katawan mula sa Character Creator + kasuotan ng class + hawak na kagamitan (bag)
-export function lookFor(classId, baseConfig, gearLook = {}) {
+function lookFor(classId, baseConfig, gearLook = {}) {
   return { ...(baseConfig || {}), ...(JOB_GEAR[classId] || {}), ...gearLook };
 }
 

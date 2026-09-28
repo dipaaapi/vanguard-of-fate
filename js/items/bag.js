@@ -8,7 +8,7 @@ import { describe, canEquip, upgradeCost, refineChance, slotsFor, SLOTS, MAX_PLU
 // equip: { weapon, offhand, head, armor, garment, gloves, boots, amulet, ring1, ring2 } → instance | null
 
 export const BAG_SIZE = 40;
-export const STACK_MAX = { equip: 20, other: 999 };
+const STACK_MAX = { equip: 20, other: 999 };
 
 // Pirma ng item: magkapareho lang kung eksaktong pareho ang lahat ng katangian
 export function signature(s) {

@@ -1136,7 +1136,7 @@ function updateGame() {
 
   // Warp Gateway, gate ng Citadel, Return Gateway, lamat o sea portal (maaaring lumipat ng platform)
   const before = stage;
-  stage.update(player, handlePortal, enemyManager, fx);
+  stage.update(player, handlePortal);
   if (stage !== before) return;
 
   if (stage.castle) {

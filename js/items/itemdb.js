@@ -16,10 +16,8 @@ import { getLang } from "../i18n.js";
 // Ang id ng kagamitan ay "base@grade" (hal. "lance@3"); ang unique ay "u:susi".
 
 export const MAX_PLUS = 10;
-export const SAFE_PLUS = 4;
+const SAFE_PLUS = 4;
 export const SLOTS = ["weapon", "offhand", "head", "armor", "garment", "gloves", "boots", "amulet", "ring1", "ring2"];
-export const STAT_NAMES = ["str", "agi", "vit", "int", "dex", "luk"];
-
 export const RARITY = {
   normal: { color: "#e2e8f0", en: "Normal", fil: "Karaniwan" },
   magic: { color: "#60a5fa", en: "Magic", fil: "Mahiwaga" },
@@ -202,7 +200,7 @@ export function statText(k, v) {
 }
 
 // "lance@3" → { base: "lance", grade: 3 }
-export function parseId(id) {
+function parseId(id) {
   const [base, g] = String(id).split("@");
   return { base, grade: g === undefined ? 0 : Math.max(0, Math.min(7, parseInt(g, 10) || 0)) };
 }
@@ -319,7 +317,7 @@ const pick = (arr, rnd) => arr[Math.floor(rnd() * arr.length)];
 const RARITY_ORDER = ["normal", "magic", "rare"];
 
 // minRarity: pinakamababang kalidad (hal. ang Elite ay laging magic o mas mataas)
-export function makeEquip(grade, cls, rnd = Math.random, forceBase = null, minRarity = "normal") {
+function makeEquip(grade, cls, rnd = Math.random, forceBase = null, minRarity = "normal") {
   const pool = Object.entries(EQUIP).filter(([, e]) => !e.cls || e.cls.includes(cls)).map(([k]) => k);
   const base = forceBase || pick(pool, rnd);
   const e = EQUIP[base];
@@ -348,7 +346,7 @@ export function makeEquip(grade, cls, rnd = Math.random, forceBase = null, minRa
   return inst;
 }
 
-export function makeUnique(grade, cls, rnd = Math.random) {
+function makeUnique(grade, cls, rnd = Math.random) {
   const keys = Object.keys(UNIQUES).filter((k) => { const e = EQUIP[UNIQUES[k].base]; return !e.cls || e.cls.includes(cls); });
   if (!keys.length) return null;
   const key = pick(keys, rnd);
@@ -363,7 +361,7 @@ export function makeUnique(grade, cls, rnd = Math.random) {
 // unique/card = tsansa ng unique na kagamitan at ng card ng halimaw
 // Sinuri gamit ang simulator (bawat 100 normal na patay sa grade 2): ~5 kagamitan (60/30/10),
 // ~0.25 unique, ~0.8 card, ~36 Phracon, ~8 Oridecon, ~30 gamot/shard.
-export const LOOT_TIERS = {
+const LOOT_TIERS = {
   normal:   { rolls: 1, equip: 0.05, minRarity: "normal", rareBoost: 0,    unique: 0.0025, card: 0.008, crystals: 0, shards: 0 },
   champion: { rolls: 2, equip: 0.25, minRarity: "normal", rareBoost: 0.15, unique: 0.01,   card: 0.03,  crystals: 0, shards: 1 },
   elite:    { rolls: 3, equip: 1,    minRarity: "magic",  rareBoost: 0.3,  unique: 0.04,   card: 0.08,  crystals: 1, shards: 2 },

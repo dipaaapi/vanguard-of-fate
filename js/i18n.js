@@ -67,32 +67,22 @@ const STRINGS = {
     hbQuests: "Quests",
     hbPause: "Pause",
     hbResume: "Resume",
-    hbMap: "Map",
     readMore: "Read more",
     readerTitle: "Chronicles of Aethelgard",
     actDone: "Finished",
     actActive: "Active",
     actLocked: "Locked",
-    lockedNote: "This chapter unlocks when the act becomes active.",
     readerHint: "<span>← →</span> Act &nbsp;·&nbsp; <span>↑ ↓</span> Scroll &nbsp;·&nbsp; <span>Esc</span> Close",
 
     invalidSave: "Invalid save file format!",
     badSave: "Failed to load secure save file (.vof / .json) — file may be corrupted or tampered!",
 
     // ---- Act 1: Summoning ----
-    genderTitle: "Who answers the summons?",
     male: "Male",
     female: "Female",
     summonedBy: (name) => `Summoned by ${name}`,
     princess: "Princess Aurelia",
     prince: "Prince Kenneth",
-    genderHint: "<span>← →</span> Choose &nbsp;·&nbsp; <span>Enter</span> Confirm &nbsp;·&nbsp; <span>Esc</span> Back",
-    cutsceneHint: "<span>Enter</span> Next &nbsp;·&nbsp; <span>Esc</span> Skip",
-    narration: [
-      "Year 2026. A total eclipse darkens the skies of Earth…",
-      "…and in another world, a royal summoner begins a forbidden rite.",
-      "The Pentagram Seal awakens."
-    ],
     welcome: (name, rank) => [
       "It worked… the seal held. Can you hear me, traveler from Earth?",
       `I am ${name}, ${rank} of Aethelgard and Supreme Commander of the Imperial Magic & Research Corps.`,
@@ -106,13 +96,11 @@ const STRINGS = {
     rankPrince: "Crown Prince",
 
     // ---- Job Awakening ----
-    awakenReady: "✦ JOB AWAKENING READY — GO TO THE IMPERIAL CITADEL ✦",
     awakenTitle: "JOB AWAKENING",
     awakenSub: "CHOOSE YOUR TRUE CALLING AT THE ALTAR OF ASTRAEA",
     awakenBtn: "AWAKEN ▶",
     embarkBtn: "EMBARK ▶",
     awakenHint: "<span>A / D</span> Choose calling &nbsp;|&nbsp; <span>Enter / Space</span> Awaken &nbsp;|&nbsp; or click below",
-    gameOverRestart: "PRESS ENTER TO RETURN TO TITLE",
 
     // ---- Character Creator ----
     crTitle: "Create Your Novice",
@@ -238,32 +226,22 @@ const STRINGS = {
     hbQuests: "Quest",
     hbPause: "Pause",
     hbResume: "Ituloy",
-    hbMap: "Mapa",
     readMore: "Magbasa pa",
     readerTitle: "Mga Salaysay ng Aethelgard",
     actDone: "Tapos",
     actActive: "Kasalukuyan",
     actLocked: "Nakakandado",
-    lockedNote: "Mabubuksan ang kabanatang ito kapag naging aktibo na ang act.",
     readerHint: "<span>← →</span> Act &nbsp;·&nbsp; <span>↑ ↓</span> Mag-scroll &nbsp;·&nbsp; <span>Esc</span> Isara",
 
     invalidSave: "Mali ang format ng save file!",
     badSave: "Hindi mabasa o nabago ang ligtas na save file (.vof / .json)!",
 
     // ---- Act 1: Summoning ----
-    genderTitle: "Sino ang tutugon sa pagtawag?",
     male: "Lalaki",
     female: "Babae",
     summonedBy: (name) => `Tinawag ni ${name}`,
     princess: "Prinsesa Aurelia",
     prince: "Prinsipe Kenneth",
-    genderHint: "<span>← →</span> Pumili &nbsp;·&nbsp; <span>Enter</span> Kumpirmahin &nbsp;·&nbsp; <span>Esc</span> Bumalik",
-    cutsceneHint: "<span>Enter</span> Susunod &nbsp;·&nbsp; <span>Esc</span> Laktawan",
-    narration: [
-      "Taong 2026. Isang ganap na eklipse ang bumalot sa kalangitan ng Daigdig…",
-      "…at sa ibang mundo, sinimulan ng isang maharlikang tagapagtawag ang ipinagbabawal na ritwal.",
-      "Nagising ang Limang sulok ng Selyo."
-    ],
     welcome: (name, rank) => [
       "Gumana… tumibay ang selyo. Naririnig mo ba ako, manlalakbay mula sa Daigdig?",
       `Ako si ${name}, ${rank} ng Aethelgard at Pinakamataas na Komandante ng Imperial Magic & Research Corps.`,
@@ -277,13 +255,11 @@ const STRINGS = {
     rankPrince: "Prinsipe",
 
     // ---- Job Awakening ----
-    awakenReady: "✦ HANDA NA ANG JOB AWAKENING — PUMUNTA SA IMPERIAL CITADEL ✦",
     awakenTitle: "JOB AWAKENING",
     awakenSub: "PILIIN ANG IYONG TUNAY NA TUNGKULIN SA ALTAR NI ASTRAEA",
     awakenBtn: "GISINGIN ▶",
     embarkBtn: "SUMABAK ▶",
     awakenHint: "<span>A / D</span> Pumili ng tungkulin &nbsp;|&nbsp; <span>Enter / Space</span> Gisingin &nbsp;|&nbsp; o i-click sa ibaba",
-    gameOverRestart: "PINDUTIN ANG ENTER PARA BUMALIK SA TITLE",
 
     // ---- Character Creator ----
     crTitle: "Likhain ang Iyong Novice",
@@ -342,11 +318,6 @@ const STRINGS = {
     opt_sandals: "Sandalyas"
   }
 };
-
-export const LANGS = [
-  { id: "en", label: "EN" },
-  { id: "fil", label: "FIL" }
-];
 
 const KEY = "vanguard_lang";
 let lang = "en";

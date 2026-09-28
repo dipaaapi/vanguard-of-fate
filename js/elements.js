@@ -20,13 +20,13 @@ export const ELEMENTS = {
   undead:  { color: "#94a3b8", icon: "💀", name: { en: "Undead", fil: "Undead" } }
 };
 
-export const RACES = {
+const RACES = {
   formless: { en: "Formless", fil: "Walang Anyo" }, brute: { en: "Brute", fil: "Hayop" }, plant: { en: "Plant", fil: "Halaman" },
   insect: { en: "Insect", fil: "Insekto" }, fish: { en: "Fish", fil: "Isda" }, dragon: { en: "Dragon", fil: "Dragon" },
   demihuman: { en: "Demi-Human", fil: "Demi-Tao" }, demon: { en: "Demon", fil: "Demonyo" }, undead: { en: "Undead", fil: "Undead" },
   angel: { en: "Angel", fil: "Anghel" }
 };
-export const SIZES = { small: { en: "Small", fil: "Maliit" }, medium: { en: "Medium", fil: "Katamtaman" }, large: { en: "Large", fil: "Malaki" } };
+const SIZES = { small: { en: "Small", fil: "Maliit" }, medium: { en: "Medium", fil: "Katamtaman" }, large: { en: "Large", fil: "Malaki" } };
 
 // Talaan ng elemento: [atake][depensa] → multiplier (kung wala sa talaan, 1)
 const TABLE = {
@@ -71,7 +71,7 @@ const SIZE_MOD = {
 export const sizeMod = (weaponIcon, size) => (SIZE_MOD[weaponIcon] && SIZE_MOD[weaponIcon][size]) || 1;
 
 // Elemental na variant ng halimaw (unlapi sa pangalan)
-export const VARIANTS = {
+const VARIANTS = {
   fire: { en: "Blazing", fil: "Nagliliyab na" },
   water: { en: "Frozen", fil: "Nagyelong" },
   wind: { en: "Storm", fil: "Bagyong" },
@@ -101,4 +101,3 @@ export const variantPrefix = (el) => (VARIANTS[el] ? VARIANTS[el][L()] : "");
 export const elementName = (el) => (ELEMENTS[el] ? ELEMENTS[el].name[L()] : el);
 export const raceName = (r) => (RACES[r] ? RACES[r][L()] : r);
 export const sizeName = (s) => (SIZES[s] ? SIZES[s][L()] : s);
-export const CHAMPION = { en: "Champion", fil: "Kampeong" };

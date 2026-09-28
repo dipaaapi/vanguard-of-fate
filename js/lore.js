@@ -224,8 +224,3 @@ export function createLorePanel(panelEl, speed = 0.45) {
     }
   };
 }
-
-// Lumang API (buong LORE.md, walang banner)
-export function startLore(panelEl, speed = 0.45) {
-  return createLorePanel(panelEl, speed);
-}

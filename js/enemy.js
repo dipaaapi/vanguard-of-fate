@@ -2,7 +2,7 @@ import { Sound } from "./audio.js";
 import { facingFrom } from "./avatar/creature.js";
 import { MONSTERS, BOSSES, BLIGHTS, NIGHT_KINDS } from "./bestiary.js";
 import { TIERS, MODS, rollTier, applyTier, tierName, has, modName, damageTakenMult, damageDealtMult, windupFor, modBlight } from "./monsterTiers.js";
-import { ELEMENTS, elementMult, raceBonus, sizeMod, rollVariant, variantPrefix, elementName, raceName, sizeName, CHAMPION } from "./elements.js";
+import { ELEMENTS, elementMult, raceBonus, sizeMod, rollVariant, variantPrefix, elementName, raceName, sizeName } from "./elements.js";
 import { getLang } from "./i18n.js";
 import { STATUS, statusName } from "./status.js";
 
@@ -36,7 +36,7 @@ const ORB_RANGE = 220;
 const lang = () => (getLang() === "fil" ? "fil" : "en");
 const rint = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 
-export function levelColor(diff, boss = false) {
+function levelColor(diff, boss = false) {
   if (boss) return "#c084fc";
   if (diff <= -3) return "#9ca3af";
   if (diff < 0) return "#4ade80";

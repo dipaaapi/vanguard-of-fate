@@ -142,7 +142,7 @@ export class BoatSystem {
     return true;
   }
 
-  update(player, enemyManager, fx, onWarp) {
+  update(player, onWarp) {
     this.tick++;
 
     // Wake trail while sailing
@@ -223,7 +223,7 @@ export class BoatSystem {
 
     // 3. DOCKED BOAT (kapag hindi sakay ng player)
     if (player && !player.inBoat) {
-      this.drawBoatSprite(ctx, this.dockedBoat.x, this.dockedBoat.y, 0, false);
+      this.drawBoatSprite(ctx, this.dockedBoat.x, this.dockedBoat.y, false);
       // Prompt kapag malapit sa nakadaong na bangka o pier
       const dPier = Math.hypot(player.x + 10 - this.pier.x, player.y + 18 - this.pier.y);
       const dBoat = Math.hypot(player.x - this.dockedBoat.x, player.y - this.dockedBoat.y);
@@ -242,7 +242,7 @@ export class BoatSystem {
     // 4. PLAYER IN BOAT
     if (player && player.inBoat) {
       const bob = Math.sin(t * 0.08) * 1.5;
-      this.drawBoatSprite(ctx, player.x, player.y + 2 + bob, player.dir === "side" ? (player.facing === "left" ? -1 : 1) : 0, true);
+      this.drawBoatSprite(ctx, player.x, player.y + 2 + bob, true);
 
       // Prompt para bumaba sa bangka kapag malapit sa baybayin/pier
       const dPier = Math.hypot(player.x + 10 - this.pier.x, player.y + 18 - this.pier.y);
@@ -329,7 +329,7 @@ export class BoatSystem {
   }
 
   // Pagguhit ng Wood Skiff / Boat Sprite
-  drawBoatSprite(ctx, x, y, facingSign = 0, withSails = false) {
+  drawBoatSprite(ctx, x, y, withSails = false) {
     ctx.save();
     const bx = x + 10, by = y + 16;
 
