@@ -44,14 +44,13 @@ canvas {
 }
 .hud span { color: #ffd166; font-weight: bold; }
 
-#menu, #picker {
+#picker {
   display: none;
   width: 100%;
   gap: 8px;
   justify-content: center;
   flex-wrap: wrap;
 }
-body[data-mode="title"]  #menu   { display: flex; }
 body[data-mode="select"] #picker { display: flex; }
 
 .menu-btn {
@@ -90,7 +89,6 @@ body[data-mode="select"] #picker { display: flex; }
   border-color: #ffd166;
 }
 .menu-btn.embark:hover { background: rgba(255, 209, 102, 0.2); }
-#menu.settings .menu-btn.selected { border-color: #38bdf8; box-shadow: 0 0 0 1px #38bdf8 inset; background: rgba(56, 189, 248, 0.14); }
 
 /* ---------- RIGHT PANEL (lahat ng scene) ---------- */
 #lore {

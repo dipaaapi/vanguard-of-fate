@@ -17,6 +17,7 @@ import { Stage } from "./stage.js";
 import { TitleScene } from "./title.js";
 import { SelectScene } from "./select.js";
 import { startLore } from "./lore.js";
+import { t, onLangChange } from "./i18n.js";
 
 import { FalconCompanion } from "./summons/falcon.js";
 import { GuardianAngelCompanion } from "./summons/angel.js";
@@ -59,15 +60,17 @@ function setLayoutMode(mode) {
   layoutMode = mode;
   document.body.dataset.mode = mode;
 
-  const head = document.getElementById("sideHead");
-  if (head) head.textContent = mode === "select" ? "EARTHBOUND DOSSIER" : "CHRONICLES OF AETHELGARD";
-
-  if (mode === "title") hudText.innerHTML = TITLE_HINT;
-  else if (mode === "select") hudText.innerHTML = SELECT_HINT;
-  else hudText.innerHTML = PLAY_HINT;
-
+  refreshLabels();
   fitCanvas();
 }
+
+// Side panel title at control hints (sumusunod sa napiling wika)
+function refreshLabels() {
+  const head = document.getElementById("sideHead");
+  if (head) head.textContent = layoutMode === "select" ? t("sideDossier") : t("sideLore");
+  hudText.innerHTML = layoutMode === "select" ? t("selectHint") : (layoutMode === "play" ? t("playHint") : "");
+}
+onLangChange(refreshLabels);
 
 window.addEventListener("resize", fitCanvas);
 
@@ -186,14 +189,14 @@ if (fileInput) {
       try {
         const json = JSON.parse(event.target.result);
         if (!json.heroId || !json.level) {
-          alert("Invalid Save File format!");
+          alert(t("invalidSave"));
           return;
         }
         localStorage.setItem("vanguard_savegame", JSON.stringify(json));
         titleScene.refreshSaveStatus();
         loadGame();
       } catch (err) {
-        alert("Failed to parse .json save file!");
+        alert(t("badSave"));
       }
     };
     reader.readAsText(file);
@@ -240,8 +243,6 @@ function loadGame() {
 
     Sound.stopTitleBGM();
     if (gameConfig.music) Sound.startGameplayBGM();
-
-    hudText.innerHTML = `<span>WASD</span> Lakad &nbsp;|&nbsp; <span>SPACE</span> Sprint &nbsp;|&nbsp; <span>J</span> Atake &nbsp;|&nbsp; <span>K</span> Skill &nbsp;|&nbsp; <span>E</span> Shop &nbsp;|&nbsp; <span>M</span> Hire Merc (10G) &nbsp;|&nbsp; <span>P</span> Pause`;
     return true;
   } catch (e) {
     return false;
@@ -260,13 +261,9 @@ const titleScene = new TitleScene(
   exportSaveFile,
   importSaveFile,
   gameConfig,
-  document.getElementById("menu")
+  document.getElementById("title")
 );
 
-const SELECT_HINT = `<span>A / D</span>: Pumili ng Hero &nbsp;|&nbsp; <span>ENTER / SPACE</span>: Embark &nbsp;|&nbsp; o i-click ang hero sa ibaba`;
-const PLAY_HINT = `<span>WASD</span> Lakad &nbsp;|&nbsp; <span>SPACE</span> Sprint &nbsp;|&nbsp; <span>J</span> Atake &nbsp;|&nbsp; <span>K</span> Skill &nbsp;|&nbsp; <span>E</span> Shop &nbsp;|&nbsp; <span>M</span> Hire Merc (10G) &nbsp;|&nbsp; <span>P</span> Pause`;
-const TITLE_HINT = `<span>W / S o Arrows</span>: Navigate Menu &nbsp;|&nbsp; <span>ENTER / SPACE</span>: Select &nbsp;|&nbsp; o i-click ang menu`;
-hudText.innerHTML = TITLE_HINT;
 setLayoutMode("title");
 startLore(document.getElementById("lore"));
 
@@ -287,8 +284,6 @@ const selectScene = new SelectScene(ROSTER, (chosenHero) => {
   lootManager.clear();
 
   saveGame();
-
-  hudText.innerHTML = `<span>WASD</span> Lakad &nbsp;|&nbsp; <span>SPACE</span> Sprint &nbsp;|&nbsp; <span>J</span> Atake &nbsp;|&nbsp; <span>K</span> Skill &nbsp;|&nbsp; <span>E</span> Shop &nbsp;|&nbsp; <span>M</span> Hire Merc (10G) &nbsp;|&nbsp; <span>P</span> Pause`;
 }, drawSpriteMatrix, {
   picker: document.getElementById("picker"),
   dossier: document.getElementById("dossier")
@@ -364,7 +359,6 @@ window.addEventListener("keydown", (e) => {
       Sound.stopGameplayBGM();
       if (gameConfig.music) Sound.startTitleBGM();
       titleScene.refreshSaveStatus();
-      hudText.innerHTML = TITLE_HINT;
       return;
     }
 
@@ -569,7 +563,7 @@ function gameLoop() {
   updateGame();
   setLayoutMode(gameState === "TITLE" ? "title" : (gameState === "SELECT" ? "select" : "play"));
   if (gameState === "TITLE") {
-    titleScene.draw(ctx, VIEW_W, VIEW_H);
+    titleScene.draw();
   } else if (gameState === "SELECT") {
     selectScene.draw(ctx, VIEW_W, VIEW_H);
   } else {
