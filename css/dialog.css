@@ -1,5 +1,5 @@
 /* ==================== DIALOGUE + QUEST OVERLAYS ==================== */
-/* --s = integer scale ng canvas (itinatakda ng fitCanvas sa main.js). 1 unit = 1 game pixel. */
+/* --s = integer canvas scale (set by fitCanvas in main.js). 1 unit = 1 game pixel. */
 
 #viewport {
   position: relative;
@@ -7,9 +7,9 @@
   font-family: "Silkscreen", "Consolas", monospace;
 }
 
-/* Ang QUEST TRACKER ay nasa bottom bar na: tingnan ang #hudBar sa style.css */
+/* The QUEST TRACKER lives in the side panel: see #hudBar in style.css */
 
-/* Maikling abiso kapag may bagong layunin */
+/* Short notice when there is a new objective */
 #questToast {
   position: absolute;
   left: 50%;
@@ -126,7 +126,7 @@
 .inv-stats { display: grid; grid-template-columns: 1fr 1fr; column-gap: calc(6px * var(--s)); text-align: left; }
 .inv-note { margin: calc(4px * var(--s)) 0 0; font-size: calc(4.5px * var(--s)); color: #64748b; text-align: center; }
 
-/* suot na kagamitan */
+/* worn equipment */
 .inv-eq, .inv-cell, .inv-act {
   font: inherit;
   cursor: pointer;

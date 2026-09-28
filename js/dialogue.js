@@ -1,12 +1,12 @@
 import { getLang, t } from "./i18n.js";
 import { MENTOR_BY_CLASS } from "./quest.js";
 
-// ==================== DIALOGUE NG MGA TAUHAN (Acts II–VI) ====================
+// ==================== CHARACTER DIALOGUE (Acts II–VI) ====================
 // getDialogue(id, ctx) → { lines, action }
-//   ctx.step     = kasalukuyang hakbang ng main quest (tingnan ang js/quest.js)
-//   ctx.cls      = class ng player ("novice", "knight", ...)
-//   ctx.summoner = "aurelia" | "kenneth" (para sa {Heir} sa mga linya)
-//   action     = "shop" | "merc" | "awaken" | null (ginagawa pagkatapos ng huling linya)
+//   ctx.step     = current main-quest step (see js/quest.js)
+//   ctx.cls      = the player's class ("novice", "knight", ...)
+//   ctx.summoner = "aurelia" | "kenneth" (for {Heir} in the lines)
+//   action     = "shop" | "merc" | "awaken" | … | null (runs after the last line)
 
 const NAMES = {
   en: {
@@ -322,7 +322,7 @@ const LINES = {
   }
 };
 
-// Mga token sa linya: {Heir} = Princess/Prince, {mentor} = pangalan ng mentor ng class ng player
+// Tokens in lines: {Heir} = Princess/Prince, {mentor} = name of the mentor of the player's class
 const HEIR = { en: { aurelia: "Princess", kenneth: "Prince" }, fil: { aurelia: "Prinsesa", kenneth: "Prinsipe" } };
 
 function L(key, ctx = {}) {
@@ -336,9 +336,9 @@ function L(key, ctx = {}) {
 const MENTOR_CLASS = { arthur: "knight", lyra: "archer", julian: "priest", sam: "mage", renzo: "fighter" };
 const ARMORY = { knight: "armoryKnight", archer: "armoryArcher", priest: "armoryPriest", mage: "armoryMage", fighter: "armoryFighter" };
 
-// Mga hakbang ng quest (tingnan ang js/quest.js):
-// 0 Act II summoner · 1 Act II Ronald+Edgar · 2 Act III limang kaluluwa · 3 Act IV Lv 10
-// 4 Act IV Awakening sa dais · 5 Act V loadout kasama ang mentor · 6 Act VI summoner sa Barracks · 7 tapos
+// Quest steps (see js/quest.js):
+// 0 Act II summoner · 1 Act II Ronald+Edgar · 2 Act III five souls · 3 Act IV Lv 10
+// 4 Act IV Awakening at the dais · 5 Act V loadout with the mentor · 6 Act VI summoner in the Barracks · 7 done
 // ctx: { step, cls, summoner, met, justAwakened }
 export function getDialogue(id, ctx) {
   const step = ctx.step;
@@ -368,7 +368,7 @@ export function getDialogue(id, ctx) {
   if (id === "ronald") return { lines: ctx.met.ronald ? L("ronaldAgain", ctx) : L("ronaldFirst", ctx), action: "merc" };
   if (id === "edgar") return { lines: ctx.met.edgar ? L("edgarAgain", ctx) : L("edgarFirst", ctx), action: "shop" };
 
-  // Ang limang kaluluwang taga-Daigdig (Act III) → mentor ng class (Act V)
+  // The five souls from Earth (Act III) → class mentors (Act V)
   if (MENTOR_CLASS[id]) {
     if (ctx.cls === "novice") return { lines: L(id, ctx), action: null };
     if (ctx.cls === MENTOR_CLASS[id]) {

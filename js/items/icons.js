@@ -1,8 +1,8 @@
 import { Pix, shade } from "../avatar/avatar.js";
 
-// ==================== PIXEL ICON NG MGA ITEM (16x16) ====================
-// Parehong estilo ng Avatar: pixel buffer + selective outline. Naka-cache bawat (uri + kulay).
-// iconCanvas(item) → canvas (para sa lupa); iconURL(item) → data URL (para sa bag sa HTML).
+// ==================== ITEM PIXEL ICONS (16x16) ====================
+// Same style as the Avatar: pixel buffer + selective outline. Cached per (kind + colour).
+// iconCanvas(item) → canvas (for the ground); iconURL(item) → data URL (for the bag in HTML).
 
 const METAL = "#cbd5e1", METAL_D = "#7d8c9e", METAL_L = "#f1f5f9";
 const WOOD = "#8a5a2b", WOOD_D = "#5e3b1a";
@@ -20,7 +20,7 @@ function disc(p, cx, cy, r, c, cD, cL) {
   }
 }
 
-// Mga guhit bawat uri (t = tint)
+// Drawing per kind (t = tint)
 const DRAW = {
   dagger(p) { line(p, 4, 12, 11, 5, METAL); line(p, 5, 12, 12, 5, METAL_D); p.set(12, 4, METAL_L); line(p, 2, 11, 5, 14, GOLD); p.rect(2, 13, 2, 2, LEATHER); },
   sword(p) { line(p, 3, 13, 12, 4, METAL); line(p, 4, 13, 13, 4, METAL_D); p.set(13, 3, METAL_L); line(p, 2, 10, 6, 14, GOLD); p.rect(1, 13, 3, 2, LEATHER); },

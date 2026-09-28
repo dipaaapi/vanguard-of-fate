@@ -1,5 +1,5 @@
-// Mga pagpipilian sa Character Creator. Lahat ng kulay ay base; ang anino at liwanag
-// ay awtomatikong kinukuha sa avatar.js.
+// Character Creator choices. Every colour is a base; shade and highlight
+// are derived automatically in avatar.js.
 
 const BODIES = ["male", "female"];
 
@@ -29,7 +29,7 @@ const BOOTS = ["boots", "shoes", "sandals"];
 
 const BOOT_COLORS = ["#3a2616", "#5e3b1a", "#2b2b33", "#7d2b2b", "#c9a063", "#e8e2d0"];
 
-// Pagkakasunod ng mga row sa creator (key → listahan ng pagpipilian)
+// Order of the creator rows (key → list of choices)
 export const FIELDS = [
   { key: "body",        section: "crBody",   type: "cycle",  options: BODIES },
   { key: "skin",        section: "crBody",   type: "swatch", options: SKIN },
@@ -61,7 +61,7 @@ export const DEFAULT_CONFIG = {
   weapon: "novice"
 };
 
-// Mga piyesa na pang-NPC lang (wala sa Character Creator)
+// Parts for NPCs only (not in the Character Creator)
 const NPC_OUTFITS = ["gown", "armor", "coat"];
 const EXTRA = {
   headgear: ["crown", "tiara", "helmet", "headband", "hat", "hood", "halo", "horns"],
@@ -72,13 +72,13 @@ const EXTRA = {
 };
 const HEX = /^#[0-9a-f]{6}$/i;
 
-// Tinitiyak na tama ang bawat value (hal. galing sa lumang save o .json import)
+// Makes sure every value is valid (e.g. from an old save or a .json import)
 export function normalizeConfig(cfg = {}) {
   const out = { ...DEFAULT_CONFIG };
   FIELDS.forEach(({ key, type, options }) => {
     const v = cfg[key];
     if (options.includes(v)) out[key] = v;
-    else if (type === "swatch" && HEX.test(v || "")) out[key] = v;     // NPC: kahit anong kulay
+    else if (type === "swatch" && HEX.test(v || "")) out[key] = v;     // NPC: any colour
     else if (key === "outfit" && NPC_OUTFITS.includes(v)) out[key] = v;
   });
   Object.entries(EXTRA).forEach(([key, allowed]) => {
@@ -99,13 +99,13 @@ export function randomConfig(keepBody) {
   const cfg = { ...DEFAULT_CONFIG };
   FIELDS.forEach(({ key, options }) => { cfg[key] = pick(options); });
   if (keepBody) cfg.body = keepBody;
-  // Hindi pareho ang kulay ng pang-itaas at pang-ibaba para malinaw ang hiwalay na bahagi
+  // Top and bottom colours differ so the separate pieces read clearly
   while (cfg.legColor === cfg.outfitColor) cfg.legColor = pick(CLOTH);
   return cfg;
 }
 
-// Pangalan ng tinawag na kaluluwa mula sa Daigdig (2026): halong Pilipino at pandaigdigang pangalan,
-// ayon sa napiling katawan. Lahat ay ≤ 12 titik (maxlength ng #crName).
+// Name of the soul summoned from Earth (2026): a mix of Filipino and international names,
+// chosen by body. All are ≤ 12 letters (maxlength of #crName).
 const NAMES = {
   male: ["Miguel", "Rafael", "Gabriel", "Andres", "Paolo", "Joaquin", "Marco", "Adrian", "Carlo", "Elias",
     "Diego", "Lucas", "Nathan", "Ethan", "Liam", "Kenji", "Isaac", "Tomas", "Leon", "Julian"],

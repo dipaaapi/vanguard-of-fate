@@ -29,9 +29,9 @@ class SoundEngine {
     this.listenerY = y;
   }
 
-  // Tinitiyak kung nasa loob ng kasalukuyang screen game viewport ang aktibidad
+  // Checks whether the activity is inside the current game viewport
   isInsideScreen(x, y, margin = 8) {
-    if (x === null || x === undefined || y === null || y === undefined) return true; // UI at sariling aksyon ng player
+    if (x === null || x === undefined || y === null || y === undefined) return true; // UI and the player's own actions
     if (this.camX === null || this.camY === null) return true;
     return (
       x >= this.camX - margin &&
@@ -41,12 +41,12 @@ class SoundEngine {
     );
   }
 
-  // Kinakalkula ang lakas ng tunog batay sa distansya at screen boundary (0 kapag nasa labas ng screen)
+  // Volume from distance and the screen bounds (0 when off screen)
   getPositionalVolume(x, y, maxDist = this.maxAudibleRange) {
     if (x === null || x === undefined || y === null || y === undefined) {
-      return 1; // UI at sariling aksyon ng player
+      return 1; // UI and the player's own actions
     }
-    // Mahigpit na pagsuri: KAPAG NASA LABAS NG SCREEN NG GAME, WALANG TUNOG (0)
+    // Strict check: OFF THE GAME SCREEN MEANS NO SOUND (0)
     if (!this.isInsideScreen(x, y)) {
       return 0;
     }

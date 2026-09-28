@@ -2,7 +2,7 @@ import { getLang } from "./i18n.js";
 import { getItem } from "./items/itemdb.js";
 import { STATUS, STATUS_KEYS } from "./status.js";
 
-// Paninda ni Edgar the Apothecary (pumapasok sa bag)
+// Edgar the Apothecary's wares (go into the bag)
 const SHOP = ["salve", "panacea", "tonic", "elixir"];
 
 export class UIManager {
@@ -15,8 +15,8 @@ export class UIManager {
   drawHUD(ctx, player, enemyManager, lootManager, stage, screenWidth, isPaused, timeOfDay, weatherType, isInBarracks) {
     if (!player) return;
 
-    // Ang profile ng player, estado ng field at mga button (Quest/Pause) ay nasa
-    // bottom bar na (js/hudbar.js). Ang minimap na lang ang nasa loob ng screen.
+    // The player profile, field state and buttons (Quest/Pause) live in
+    // the side panel (js/hudbar.js). Only the minimap is drawn inside the screen.
 
     // ========================================================
     // 3. RIGHT PANEL: LIVE MINI-MAP (UPPER RIGHT CORNER)
@@ -36,7 +36,7 @@ export class UIManager {
       const scaleX = mapW / stage.width;
       const scaleY = mapH / stage.height;
 
-      // Safe Zone Outline (Barracks + audience dais ng Citadel)
+      // Safe Zone Outline (Barracks + the Citadel's audience dais)
       ctx.fillStyle = "rgba(255, 209, 102, 0.22)";
       (stage.safeZones || (stage.safeZone ? [stage.safeZone] : [])).forEach((z) => {
         ctx.fillRect(mapX + z.x * scaleX, mapY + z.y * scaleY, z.w * scaleX, z.h * scaleY);
@@ -77,7 +77,7 @@ export class UIManager {
       ctx.fillRect(player.x + 2, player.y - 7, barW - progress, 2);
     }
 
-    // Stamina sa ilalim ng paa (lumalabas lang kapag hindi puno); "PAGOD" kapag naubos
+    // Stamina under the feet (shown only when not full); "TIRED" when empty
     if (player.stamina < player.maxStamina) {
       const w = 16;
       ctx.fillStyle = "rgba(17, 17, 17, 0.8)";
@@ -92,7 +92,7 @@ export class UIManager {
       }
     }
 
-    // Kulay na tuldok ng bawat aktibong sumpa sa itaas ng ulo
+    // A coloured dot above the head for each active blight
     const active = STATUS_KEYS.filter((k) => player.debuffs[k] > 0);
     active.forEach((k, i) => {
       ctx.fillStyle = "#030611";

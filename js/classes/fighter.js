@@ -1,13 +1,13 @@
 // ==================== FIGHTER (Brawler) ====================
-// Ang itsura ay ang Avatar ng player na may vest, headband at balot sa kamao (js/classes/job.js).
+// The look is the player's Avatar with a vest, headband and fist wraps (js/classes/job.js).
 export const FighterClass = {
     id: "fighter",
     name: "Fighter",
     title: "Brawler",
-    range: 170,          // abot ng Force Sphere
+    range: 170,          // Force Sphere reach
     speed: 1.55,
-    attackCooldown: 30, // 0.5 segundo bago makapaghagis muli ng Force Sphere
-    cooldown: 180,       // 3 seconds para sa Flying Kick
+    attackCooldown: 30, // 0.5 seconds before another Force Sphere
+    cooldown: 180,       // 3 seconds for Flying Kick
 
     onAttack(player, target, spawnProjectile) {
         const spawnX = player.x + 12;
@@ -25,7 +25,7 @@ export const FighterClass = {
         });
     },
 
-    // KEY K: Flying Dropkick — lumilipad pasulong; ×2 pinsala sa kalabang minarkahan ng Force Sphere
+    // KEY K: Flying Dropkick — flies forward; ×2 damage to foes marked by Force Sphere
     onSkill(player, target, spawnProjectile) {
         const angle = player.aimAngle;
         player.kickTimer = 16;
@@ -35,7 +35,7 @@ export const FighterClass = {
         return true;
     },
 
-    // KEY L: Ki Explosion — pagsabog ng Ki sa paligid; natitigilan ang mga tinamaan
+    // KEY L: Ki Explosion — a burst of Ki all around; stuns whoever it hits
     cooldown2: 300,
     onSkill2(player, target, spawnProjectile) {
         spawnProjectile({ type: "shockwave", x: player.x + 10, y: player.y + 14, r: 6, max: 44, grow: 4, damage: 36, hit: new Set(), color: "#c4b5fd", push: 22, elem: "ghost", stun: 70 });

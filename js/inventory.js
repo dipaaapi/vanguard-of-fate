@@ -6,11 +6,11 @@ import { BAG_SIZE } from "./items/bag.js";
 import { DUR_MAX, LOW_DUR, durOf, isBroken, repairCost, repair } from "./items/durability.js";
 
 // ==================== INVENTORY (I) ====================
-// Kaliwa: itsura ng bayani, suot na kagamitan (5 slot) at stats.
-// Kanan: bag (30 slot) at detalye ng napiling item na may mga aksyon:
-//   Isuot / Hubarin (equip)   Gamitin (consume)   I-upgrade (sa sanctuary lang: Barracks o kampo)
-//   Ibenta (sa sanctuary)     Itapon (hindi puwede ang quest item)
-// Ang 2H na sandata ay nagla-lock ng offhand slot (LORE Act V). Naka-pause ang laro habang bukas.
+// Left: the hero's look, worn equipment and stats.
+// Right: tabbed bag and the selected item's details with its actions:
+//   Equip / Unequip · Use (consumables) · Refine, Repair and Temper only through NPC services
+//   Sell (in a sanctuary) · Drop (not quest items)
+// A 2H weapon locks the off-hand slot (LORE Act V). The game is paused while it is open.
 
 const TEXT = {
   en: {
@@ -398,7 +398,7 @@ export class InventoryPanel {
     cv.width = 72;
     cv.height = 80;
 
-    // Mga slot ng kagamitan
+    // Equipment slots
     add(left, "div", "inv-head", T.equip);
     const eqGrid = add(left, "div", "inv-eqgrid");
     SLOTS.forEach((slot) => {
@@ -489,7 +489,7 @@ export class InventoryPanel {
     for (let k = 0; k < Math.min(pad, free); k++) button(cells, "inv-cell empty", () => {});
     if (!shown.length) add(right, "div", "inv-dim inv-empty-tab", T.emptyTab);
 
-    // Detalye ng napili
+    // Details of the selected item
     const det = add(right, "div", "inv-detail");
     const it = this.selected();
     if (!it) {
@@ -562,7 +562,7 @@ export class InventoryPanel {
       }
       if (it.type === "consume" && inBag) {
         actBtn(it.effect && it.effect.respec && this.confirmUse ? T.confirmRespec : T.doUse, "use");
-        // Italaga sa quick slot 1–4
+        // Assign to quick slot 1–4
         [0, 1, 2, 3].forEach((k) => actBtn(`${T.slot} ${k + 1}${p.belt[k] === it.base ? " ✔" : ""}`, `belt:${k}`));
       }
       if (it.type === "card" && inBag) {

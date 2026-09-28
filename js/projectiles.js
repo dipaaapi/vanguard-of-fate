@@ -1,11 +1,11 @@
 import { Sound } from "./audio.js";
 
-// Gitna at dagdag na laki ng hitbox ng kalaban (mas malaki at mas mataas ang katawan ng boss)
+// Centre and extra hitbox size of an enemy (a boss's body is bigger and taller)
 const cx = (e) => e.x + 12;
 const cy = (e) => e.y + 12 - (e.hitUp || 0);
 const hr = (e) => e.hitR || 0;
 
-// Pinakamalayong abot ng mga lumilipad na atake (player, mercenary): hindi na tumatawid ng buong mapa
+// Farthest reach of flying attacks (player, mercenary): they no longer cross the whole map
 const RANGE = { arrow: 220, force_sphere: 170 };
 
 export class ProjectileManager {
@@ -41,7 +41,7 @@ export class ProjectileManager {
             if (fx) {
               fx.addScreenShake(6);
               fx.spawnHitSparks(p.targetX, p.targetY, "#ff5500", 18);
-              // BURN EFFECT: Nagbabagang apoy at usok sa ground zero
+              // BURN EFFECT: glowing fire and smoke at ground zero
               fx.spawnBurnFlames(p.targetX, p.targetY, p.maxExplosionRadius, 16);
             }
           }
@@ -110,7 +110,7 @@ export class ProjectileManager {
           continue;
         }
       }
-      // 5. Dagger Slash (Novice J): maikling arko, isang beses tatamaan bawat kalaban
+      // 5. Dagger Slash (Novice J): a short arc, hits each foe once
       else if (p.type === "dagger_slash") {
         for (let e of enemies) {
           if (e.isAlive && !p.hit.has(e) && Math.hypot(cx(e) - p.x, cy(e) - p.y) <= p.radius + 8 + hr(e)) {
@@ -124,13 +124,13 @@ export class ProjectileManager {
           continue;
         }
       }
-      // 6. Shockwave (Knight J: Bastion Forcefield) — lumalaking singsing, isang tama bawat kalaban
+      // 6. Shockwave (Knight J: Bastion Forcefield) — a growing ring, one hit per foe
       else if (p.type === "shockwave") {
         p.r += p.grow || 3;
         for (let e of enemies) {
           if (e.isAlive && !p.hit.has(e) && Math.hypot(cx(e) - p.x, cy(e) - p.y) <= p.r + hr(e)) {
             p.hit.add(e);
-            if (!p.damage) continue;                       // pang-visual lang
+            if (!p.damage) continue;                       // visual only
             if (p.stun && !e.boss) e.stunTimer = Math.max(e.stunTimer, p.stun);
             enemyManager.damage(e, p.damage, Math.atan2(cy(e) - p.y, cx(e) - p.x), false, fx, lootManager, p.push || 12, false, player, p.elem || null);
           }
@@ -140,7 +140,7 @@ export class ProjectileManager {
           continue;
         }
       }
-      // 8. Bolt (Throw Stone, Holy Light, Frost Diver) — lumilipad na may elemento
+      // 8. Bolt (Throw Stone, Holy Light, Frost Diver) — a flying shot with an element
       else if (p.type === "bolt") {
         p.x += p.vx;
         p.y += p.vy;
@@ -160,7 +160,7 @@ export class ProjectileManager {
           continue;
         }
       }
-      // 9. Rain (Arrow Shower) — ilang alon ng tama sa isang lugar
+      // 9. Rain (Arrow Shower) — several waves of hits on one spot
       else if (p.type === "rain") {
         p.timer++;
         if (p.timer % p.every === 1) {
@@ -176,7 +176,7 @@ export class ProjectileManager {
           continue;
         }
       }
-      // 7. Follow (Knight K: Lance Charge, Fighter K: Flying Dropkick) — hitbox na sumasabay sa bayani
+      // 7. Follow (Knight K: Lance Charge, Fighter K: Flying Dropkick) — a hitbox that moves with the hero
       else if (p.type === "follow") {
         const o = p.owner;
         p.x = o.x + 10 + Math.cos(p.angle) * (p.offset || 14);
@@ -184,7 +184,7 @@ export class ProjectileManager {
         for (let e of enemies) {
           if (e.isAlive && !p.hit.has(e) && Math.hypot(cx(e) - p.x, cy(e) - p.y) <= p.radius + hr(e)) {
             p.hit.add(e);
-            const bonus = p.markBonus && e.isMarkedCritical ? p.markBonus : 1;   // Fighter: tamang tama sa minarkahan
+            const bonus = p.markBonus && e.isMarkedCritical ? p.markBonus : 1;   // Fighter: bonus against a marked foe
             enemyManager.damage(e, Math.round(p.damage * bonus), p.angle, bonus > 1, fx, lootManager, p.push || 16, false, player, p.elem || null);
             if (bonus > 1) e.isMarkedCritical = false;
             if (fx) fx.spawnHitSparks(cx(e), cy(e), p.color || "#ffd166", 10);

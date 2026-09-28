@@ -2,11 +2,11 @@ import { loadLore, parseChapters, actNumber, bannerSrc, BANNER_EXTS } from "./lo
 import { t, onLangChange, getLang } from "./i18n.js";
 
 // ==================== ACT READER ("Read more") ====================
-// Buong teksto ng bawat Act ng LORE.md, may banner.
-//   Tapos na na act  → mababasa (✔)
-//   Kasalukuyang act → mababasa (▸)
-//   Susunod na act   → nakakandado (🔒) hanggang maging aktibo
-// Ang Act I ay kasaysayan bago dumating ang player, kaya laging "tapos" ito.
+// Full text of each Act from LORE.md, with its banner.
+//   Finished act    → readable (✔)
+//   Current act     → readable (▸)
+//   Next act        → locked (🔒) until it becomes active
+// Act I is history from before the player arrived, so it always counts as finished.
 
 export class ActReader {
   constructor(root) {
@@ -23,7 +23,7 @@ export class ActReader {
 
     root.querySelector("#arClose").addEventListener("click", () => this.close());
     root.querySelector("#arClose").addEventListener("mousedown", (e) => e.preventDefault());
-    // Pag-click sa labas ng panel = isara
+    // Clicking outside the panel closes it
     root.addEventListener("mousedown", (e) => { if (e.target === root) this.close(); });
     onLangChange(async (lang) => {
       const md = await loadLore(lang);
@@ -48,7 +48,7 @@ export class ActReader {
     return this.stateOf(n) !== "locked";
   }
 
-  // activeAct = Act ng kasalukuyang quest; completed = tapos na ang act na iyon
+  // activeAct = the current quest's Act; completed = that act is finished
   show(activeAct, completed = false) {
     this.activeAct = activeAct;
     this.completed = completed;
@@ -70,7 +70,7 @@ export class ActReader {
     this.bodyEl.scrollTop = 0;
   }
 
-  // ← →: lumipat sa katabing act na bukas
+  // ← →: move to the neighbouring unlocked act
   step(dir) {
     if (!this.chapters) return;
     const acts = this.chapters.map((c) => actNumber(c.tab)).filter((n) => this.unlocked(n));

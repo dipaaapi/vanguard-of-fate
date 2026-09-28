@@ -2,10 +2,10 @@ import { t, onLangChange } from "./i18n.js";
 import { STATUS, STATUS_KEYS, statusName } from "./status.js";
 
 // ==================== BOTTOM BAR HUD ====================
-// Ang impormasyon ng player (pangalan, level, HP, EXP, gold), ang layunin ng quest,
-// ang estado ng field (kalaban, samsam, panahon, zone) at ang mga button (Quest, Pause)
-// ay nasa ibaba na ng game screen, hindi na nakapatong sa laro.
-// Binabago lang ang DOM kapag may nagbago (walang layout thrash bawat frame).
+// The player's info (name, level, HP, EXP, gold), the quest objective,
+// the field state (foes, loot, weather, zone) and the buttons (Quest, Pause)
+// sit outside the game screen instead of on top of the game.
+// The DOM is only touched when something changed (no layout thrash every frame).
 
 const WEATHER_ICON = { STORM: "⛈️", RAIN: "🌧️", FOG: "🌫️", CLEAR: "☀️" };
 
@@ -23,7 +23,7 @@ export class HudBar {
     this.cache = {};
     this.paused = false;
 
-    // Hindi kinukuha ng button ang focus para hindi mag-double trigger ang Space/Enter
+    // Buttons don't take focus, so Space/Enter never double-trigger
     [this.el.questBtn, this.el.pauseBtn].forEach((b) => b && b.addEventListener("mousedown", (e) => e.preventDefault()));
     if (this.el.questBtn && onQuest) this.el.questBtn.addEventListener("click", () => onQuest());
     if (this.el.pauseBtn && onPause) this.el.pauseBtn.addEventListener("click", () => onPause());
@@ -70,11 +70,11 @@ export class HudBar {
     this.set("hp", e.hp, `${Math.round(hpRatio * 100)}%`, "width");
     this.set("hpCls", e.hp, hpRatio > 0.5 ? "" : hpRatio > 0.25 ? "mid" : "low", "className");
     this.set("hpText", e.hpText, `${Math.max(0, Math.ceil(p.hp))} / ${p.maxHp}`);
-    // Stamina (sprint); kumikislap na pula kapag pagod
+    // Stamina (sprint); flashes red when exhausted
     const stRatio = Math.max(0, Math.min(1, p.stamina / p.maxStamina));
     this.set("st", e.st, `${Math.round(stRatio * 100)}%`, "width");
     this.set("stCls", e.stBox, p.exhausted ? "hb-meter st tired" : "hb-meter st", "className");
-    // Mga aktibong sumpa na may natitirang segundo
+    // Active blights with the seconds left
     const active = STATUS_KEYS.filter((k) => p.debuffs[k] > 0);
     const sig = active.map((k) => `${k}${Math.ceil(p.debuffs[k] / 60)}`).join(",");
     if (e.status && this.cache.status !== sig) {
@@ -93,7 +93,7 @@ export class HudBar {
 
     this.set("foes", e.foes, String(s.foes));
     this.set("loot", e.loot, String(s.loot));
-    // Oras ng araw + panahon (ang panahon ay sa Aethelgard lang)
+    // Time of day + weather (weather only in Aethelgard)
     const w = s.weather;
     this.set("weather", e.weather, `${s.time || ""}${w ? ` · ${WEATHER_ICON[w] || ""} ${w}` : ""}`);
     this.set("zone", e.zone, s.inSanctuary ? `🛡️ ${t("hbSanctuary")}` : `⚔️ ${t("hbOutlands")}`);

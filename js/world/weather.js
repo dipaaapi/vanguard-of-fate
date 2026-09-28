@@ -84,7 +84,7 @@ export class WeatherSystem {
 
     this.weatherType = "CLEAR"; // CLEAR, RAIN, STORM, FOG
     this.weatherTimer = 0;
-    this.weatherDuration = 2400; // ~40 segundo bawat pagpapalit
+    this.weatherDuration = 2400; // ~40 seconds per change
 
     // Drifting pixel cumulus (sprites are rendered lazily in cloudSprite)
     this.skyClouds = [];

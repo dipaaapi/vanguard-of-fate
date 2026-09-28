@@ -1,4 +1,4 @@
-// Mga teksto ng UI sa English at Filipino. English ang default; naka-save ang pinili sa localStorage.
+// UI text in English and Filipino. English is the default; the choice is saved in localStorage.
 const STRINGS = {
   en: {
     subtitle: "Summoned Across Worlds · The Pentagram Prophecy",
@@ -59,7 +59,7 @@ const STRINGS = {
     sideLore: "CHRONICLES OF AETHELGARD",
     sideDossier: "EARTHBOUND DOSSIER",
 
-    // ---- Bottom bar (HUD sa labas ng screen) + Act reader ----
+    // ---- Bottom bar (HUD outside the screen) + Act reader ----
     hbFoes: "Foes",
     hbLoot: "Loot",
     hbSanctuary: "Sanctuary",
@@ -218,7 +218,7 @@ const STRINGS = {
     sideLore: "MGA SALAYSAY NG AETHELGARD",
     sideDossier: "TALAAN NG MGA BAYANI",
 
-    // ---- Bottom bar (HUD sa labas ng screen) + Act reader ----
+    // ---- Bottom bar (HUD outside the screen) + Act reader ----
     hbFoes: "Kalaban",
     hbLoot: "Samsam",
     hbSanctuary: "Santuwaryo",
@@ -335,7 +335,7 @@ export function getLang() {
 export function setLang(next) {
   if (!STRINGS[next] || next === lang) return;
   lang = next;
-  try { localStorage.setItem(KEY, lang); } catch (_) { /* hindi na-save, ayos lang */ }
+  try { localStorage.setItem(KEY, lang); } catch (_) { /* not saved; that is fine */ }
   document.documentElement.setAttribute("data-game-lang", lang);
   listeners.forEach((fn) => fn(lang));
 }

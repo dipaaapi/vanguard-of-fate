@@ -1,4 +1,4 @@
-// Itsura: modular Avatar (tingnan ang js/avatar/avatar.js)
+// Look: modular Avatar (see js/avatar/avatar.js)
 export const CrossbowMercenary = {
   type: "crossbow",
   name: "Crossbowman",
@@ -13,7 +13,7 @@ export const CrossbowMercenary = {
     outfit: "vest", outfitColor: "#2d6a4f", gloves: "leather", legs: "pants", legColor: "#4a3a28",
     boots: "boots", bootColor: "#5e3b1a", headgear: "hood", quiver: true, weapon: "crossbow"
   },
-  // Snare Trap (pinipigil ang pinakamalapit) at Eagle Eye (passive: +15% pinsala)
+  // Snare Trap (roots the nearest foe) and Eagle Eye (passive: +15% damage)
   skills: [
     { id: "snare", name: { en: "Snare Trap", fil: "Bitag" }, cd: 600,
       ready: (m, c) => c.foes.length > 0,

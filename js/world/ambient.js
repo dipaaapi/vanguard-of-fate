@@ -1,12 +1,12 @@
-// ==================== AMBIENT NG PLATFORM ====================
-// Mga particle at kulay ng langit ayon sa lugar (LORE Acts VII–XII):
-//   spores   — Whispering Canopy: lumulutang na spore, lila-berdeng hamog
-//   storm    — Cerulean Abyss: ulan na pahilis, kidlat, asul-abong langit
-//   blizzard — Frostfang: makapal na niyebe, puting hamog
-//   embers   — Ashfall: pumapailanlang na baga, bumabagsak na abo, pulang init
-//   siege    — Citadel: nasusunog na langit, bumabagsak na bolang apoy
-//   void     — Maw of Damnation: umiikot na lilang alikabok, madilim na gilid
-// Nasa screen space ang mga particle (sumusunod sa camera), kaya mura kahit malaki ang mapa.
+// ==================== PLATFORM AMBIENCE ====================
+// Particles and sky colour per place (LORE Acts VII–XII):
+//   spores   — Whispering Canopy: floating spores, violet-green haze
+//   storm    — Cerulean Abyss: slanting rain, lightning, blue-grey sky
+//   blizzard — Frostfang: thick snow, white haze
+//   embers   — Ashfall: rising embers, falling ash, red heat
+//   siege    — Obsidian Citadel: burning sky, falling fireballs
+//   void     — Maw of Damnation: swirling violet dust, dark edges
+// The particles live in screen space (they follow the camera), so they stay cheap on a big map.
 
 const VIEW_W = 480, VIEW_H = 270;
 
@@ -64,7 +64,7 @@ export class Ambient {
     this.meteors = this.meteors.filter((m) => m.life > 0);
   }
 
-  // Tinatawag sa loob ng camera transform (sa ibabaw ng mga karakter)
+  // Called inside the camera transform (above the characters)
   draw(ctx) {
     if (!this.k) return;
     const t = ctx.getTransform();

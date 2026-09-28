@@ -3,9 +3,9 @@ import { STATS, PRIMARY, STAT_INFO, statCost, STAT_MAX, TREES, treesFor, canLear
 
 // ==================== CHARACTER (C): STAT BUILDER + SKILL TREE ====================
 // Parang Ragnarok Online: dalawang tab.
-//   Stats  — STR/AGI/VIT/INT/DEX/LUK na may [+] (tumataas ang gastos), at ang mga resultang katangian.
-//   Skills — puno ng Novice at ng job; bawat node ay may level, kinakailangang skill at [+].
-// Naka-pause ang laro habang bukas.
+//   Stats  — STR/AGI/VIT/INT/DEX/LUK with [+] (costs rise), and the resulting attributes.
+//   Skills — the Novice and job trees; each node has a level, a required skill and [+].
+// The game is paused while it is open.
 
 const TEXT = {
   en: {
@@ -149,7 +149,7 @@ export class CharacterPanel {
       });
     });
 
-    // Detalye ng napiling skill
+    // Details of the selected skill
     const det = add(el, "div", "inv-detail");
     const s = this.sel && findSkill(this.sel);
     if (!s) { add(det, "div", "inv-dim", T.pick); return; }

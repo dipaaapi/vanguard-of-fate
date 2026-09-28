@@ -2,7 +2,7 @@ import { Sound } from "../audio.js";
 import { Avatar } from "../avatar/avatar.js";
 import { facingFrom } from "../avatar/creature.js";
 
-// Anghel: modular Avatar na may pakpak, halo, puting gown at espada
+// Angel: modular Avatar with wings, halo, white gown and a sword
 const ANGEL = new Avatar({
   body: "female", skin: "#ffe8d6", eyes: "#2f6db5", hairStyle: "long", hairColor: "#ece0b8",
   outfit: "gown", outfitColor: "#ffffff", legColor: "#ffffff", gloves: "none", legs: "pants",
@@ -17,7 +17,7 @@ export class GuardianAngelCompanion {
     this.maxHp = maxHp;
     this.hp = maxHp;
     this.lifespan = 720;     // 12s standard lifespan[cite: 14]
-    this.maxLifespan = 1080; // Pwedeng ma-extend gamit ang Heal (J)[cite: 14]
+    this.maxLifespan = 1080; // Can be extended with Heal (J)
     this.damage = 18;
 
     this.state = "HOVERING"; // HOVERING, ATTACKING, TAUNTING
@@ -28,7 +28,7 @@ export class GuardianAngelCompanion {
     this.animTimer = 0;
     this.isAlive = true;
 
-    // Direksyon/animation (batay sa aktwal na galaw o sa kalabang tinataga)
+    // Direction/animation (from the actual movement or the foe being struck)
     this.dir = "down";
     this.flip = false;
     this.moving = false;
@@ -99,11 +99,11 @@ export class GuardianAngelCompanion {
         if (fx && fx.spawnHitSparks) fx.spawnHitSparks(enemyTarget.x + 10, enemyTarget.y + 10, "#ffd166", 14);
       }
     } else {
-      // Balik sa tabi ng Priest
+      // Back beside the Priest
       this.x += (flankX - this.x) * 0.1;
       this.y += (flankY - this.y) * 0.1;
 
-      // Random Taunt Check kapag nakatigil
+      // Random taunt check while standing still
       this.tauntCooldown--;
       if (this.tauntCooldown <= 0 && this.state !== "ATTACKING") {
         this.state = "TAUNTING";
@@ -130,15 +130,15 @@ export class GuardianAngelCompanion {
     ctx.ellipse(ax + 16, ay + 36, 16, 5, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Lumulutang: ang paa ay nasa itaas ng anino, bahagyang umaalon
+    // Floating: the feet hover above the shadow, bobbing slightly
     const hover = Math.round(Math.sin(this.animTimer / 12) * 1.5);
-    let anim = "idle", frame = Math.floor(this.animTimer / 10);   // idle: mabagal na pagaspas
+    let anim = "idle", frame = Math.floor(this.animTimer / 10);   // idle: slow wing beats
     if (this.state === "ATTACKING") { anim = "attack"; frame = this.stateTimer < 6 ? 0 : 1; }
-    else if (this.state === "TAUNTING") { anim = "attack"; frame = 0; }          // nakataas ang espada
+    else if (this.state === "TAUNTING") { anim = "attack"; frame = 0; }          // sword raised
     else if (this.moving) { anim = "walk"; frame = Math.floor(this.animTimer / 5); }
     ANGEL.draw(ctx, ax + 16, ay + 29 + hover, this.dir, anim, frame, this.flip);
 
-    // HP at LIFESPAN BARS (sa itaas ng halo)
+    // HP and LIFESPAN BARS (above the halo)
     const barW = 24;
     const hpRatio = Math.max(0, Math.min(1, this.hp / this.maxHp));
     const lifeRatio = Math.max(0, Math.min(1, this.lifespan / this.maxLifespan));

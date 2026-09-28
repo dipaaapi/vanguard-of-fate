@@ -6,10 +6,10 @@ import {
 } from "./avatar/beasts.js";
 
 // ==================== BESTIARY ====================
-// Lahat ng halimaw ayon sa LORE.md at sa mga banner ng bawat Act.
-//   speed/hpMult/dmg — batayan (lumalaki sa level)   barY — taas ng HP bar/pangalan mula sa e.y
-//   reach — layo ng atake     debuff — sumpa ng miasma (LORE Act I: Seven Anomaly Blights)
-//   scale — laki ng guhit     flying — lumilipad (maliit na anino)
+// Every monster, following LORE.md and each Act's banner.
+//   speed/hpMult/dmg — base values (grow with level)   barY — height of the HP bar/name above e.y
+//   reach — attack reach     debuff — miasma blight (LORE Act I: Seven Anomaly Blights)
+//   scale — drawing size     flying — airborne (small shadow)
 
 const skeletonLook = {
   body: "male", skin: "#e9e4d4", eyes: "#1b1b2f", hairStyle: "none", face: "skull",
@@ -186,7 +186,7 @@ export const MONSTERS = {
     speed: 0.64, hpMult: 1.45, dmg: 18, barY: -4, aquatic: true, medium: "sea", debuff: { type: "curse", chance: 0.25, time: 220 } }
 };
 
-// Mga boss (isa bawat platform). hp = hpBase × (35 + level × 12). Ang drop ay quest item.
+// Bosses (one per platform). hp = hpBase × (35 + level × 12). The drop is a quest item.
 export const BOSSES = {
   malakor: {
     name: { en: "Malakor the Blight Herald", fil: "Malakor, ang Tagapagbalita ng Salot" },
@@ -233,7 +233,7 @@ export const BOSSES = {
   }
 };
 
-// Lahi, elemento at laki bawat halimaw at boss (js/elements.js)
+// Race, element and size of every monster and boss (js/elements.js)
 const TRAITS = {
   // Aethelgard
   slime: ["formless", "water", "small"], wolf: ["brute", "earth", "medium"], skeleton: ["undead", "undead", "medium"],
@@ -272,7 +272,7 @@ const TRAITS = {
 };
 Object.entries(TRAITS).forEach(([k, [race, element, size]]) => Object.assign(MONSTERS[k] || BOSSES[k], { race, element, size }));
 
-// Mga nilalang ng gabi sa kaparangan (LORE Act I: "nocturnal abominations")
+// Night creatures of the plains (LORE Act I: "nocturnal abominations")
 export const NIGHT_KINDS = ["voidSlime", "shadowDrake", "specter", "bloodBat", "chaosGargoyle"];
 
 export const BLIGHTS = ["bleeding", "silence", "poison", "electrified", "burn", "freeze", "blind", "curse", "confusion"];

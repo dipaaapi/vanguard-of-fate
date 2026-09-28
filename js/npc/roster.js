@@ -1,6 +1,6 @@
-// ==================== MGA TAUHAN NG LORE (LORE.md) ====================
-// Bawat NPC ay ginuguhit gamit ang modular Avatar. Ang pangalan at dialogue ay nasa
-// js/dialogue.js (English at Filipino). `mentor` = class na itinuturo sa Job Awakening.
+// ==================== LORE CHARACTERS (LORE.md) ====================
+// Every NPC is drawn with the modular Avatar. Names and dialogue live in
+// js/dialogue.js (English and Filipino). `mentor` = the class they teach at the Job Awakening.
 
 const base = { gloves: "none", legs: "pants", boots: "boots", eyes: "#4a3222" };
 
@@ -55,7 +55,7 @@ export const NPC_DEFS = {
       outfit: "tunic", outfitColor: "#a16207", legColor: "#57534e", bootColor: "#5e3b1a", headgear: "hat", weapon: "flask" }
   },
 
-  // ---- Ang limang Earthbound soul: mga mentor ng class ----
+  // ---- The five Earthbound souls: class mentors ----
   arthur: {
     mentor: "knight",
     look: { ...base, body: "male", skin: "#c68642", eyes: "#2b1d14", hairStyle: "short", hairColor: "#2b1d14", gloves: "leather",
@@ -82,19 +82,19 @@ export const NPC_DEFS = {
       outfit: "vest", outfitColor: "#c73e3a", legColor: "#2b2b33", legs: "pants", bootColor: "#2b2b33", gloves: "wraps", weapon: "none" }
   },
 
-  // ---- Act VII (para sa susunod na platform) ----
+  // ---- Act VII (for the next platform) ----
   elvenMatriarch: {
     look: { ...base, body: "female", skin: "#f7d9c4", eyes: "#7a3fb0", hairStyle: "long", hairColor: "#dfe6ee", ears: "elf",
       outfit: "gown", outfitColor: "#2f6b4f", legColor: "#2f6b4f", headgear: "tiara", cape: "#e8e2d0", weapon: "staff" }
   }
 };
 
-// Ang mentor bawat class (para sa Job Awakening screen)
+// Each class's mentor (for the Job Awakening screen)
 export const MENTOR_OF = Object.fromEntries(
   Object.entries(NPC_DEFS).filter(([, d]) => d.mentor).map(([id, d]) => [d.mentor, id])
 );
 
-// Ang tagapagtawag ay batay sa katawan ng player: lalaki → Prinsesa Aurelia, babae → Prinsipe Kenneth
+// The summoner depends on the player's body: male → Princess Aurelia, female → Prince Kenneth
 export function summonerIdFor(avatarConfig) {
   return avatarConfig && avatarConfig.body === "female" ? "kenneth" : "aurelia";
 }

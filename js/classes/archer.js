@@ -1,7 +1,7 @@
 import { Sound } from "../audio.js";
 
 // ==================== ARCHER (Elven Windstrider) ====================
-// Ang itsura ay ang Avatar ng player na may vest, busog at quiver (js/classes/job.js).
+// The look is the player's Avatar with a vest, bow and quiver (js/classes/job.js).
 export const ArcherClass = {
   id: "archer",
   name: "Archer",
@@ -11,7 +11,7 @@ export const ArcherClass = {
   attackCooldown: 20,
   cooldown: 220,
   reloadDuration: 75,
-  range: 220,          // abot ng palaso
+  range: 220,          // arrow reach
 
   onInit(player) {
     player.arrowCount = 5;
@@ -102,7 +102,7 @@ export const ArcherClass = {
     }
   },
 
-  // KEY L: Arrow Shower — tatlong ulan ng palaso sa lugar ng target (elementong hangin)
+  // KEY L: Arrow Shower — three volleys of arrows on the target's area (wind element)
   cooldown2: 300,
   onSkill2(player, target, spawnProjectile) {
     const a = player.aimAngle;

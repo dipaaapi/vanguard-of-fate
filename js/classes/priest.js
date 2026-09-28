@@ -3,7 +3,7 @@ import { Sound } from "../audio.js";
 // ========================================================
 // PRIEST CLASS MECHANICS (HEAL & GUARDIAN ANGEL SUMMON)
 // ========================================================
-// Ang itsura ay ang Avatar ng player na may puting robe at setro (js/classes/job.js).
+// The look is the player's Avatar with a white robe and scepter (js/classes/job.js).
 export const PriestClass = {
   id: "priest",
   name: "Priest",
@@ -11,7 +11,7 @@ export const PriestClass = {
   speed: 1.4,
   maxHp: 110,
   attackCooldown: 25,
-  cooldown: 180, // Cooldown ng K (Summon)
+  cooldown: 180, // Cooldown of K (Summon)
   range: 200,
 
   // KEY J: PRIORITY HEAL (Priest: 10% HP | Angel: +5 HP at +180 ticks Lifespan)
@@ -28,7 +28,7 @@ export const PriestClass = {
       }
     });
 
-    // Piliin ang may pinakamababang porsyento ng HP
+    // Pick the lowest HP percentage
     candidates.sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp));
     const chosen = candidates[0];
 
@@ -56,7 +56,7 @@ export const PriestClass = {
     return true;
   },
 
-  // KEY L: Holy Light — banal na liwanag na tumatama (malakas laban sa Undead at Demonyo)
+  // KEY L: Holy Light — a striking holy light (strong against Undead and Demons)
   cooldown2: 80,
   onSkill2(player, target, spawnSpell) {
     const a = player.aimAngle;
@@ -83,7 +83,7 @@ export const PriestClass = {
       hp: angelMaxHp,
       damage: 18,
       lifespan: 720,      // 12s standard lifespan
-      maxLifespan: 1080,  // Kayang palawigin sa tulong ng Heal (J)
+      maxLifespan: 1080,  // Can be extended with Heal (J)
       attackCooldown: 0,
       isAttacking: false,
       attackTimer: 0,

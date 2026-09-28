@@ -1,5 +1,5 @@
 /* ==================== CHARACTER CREATOR ==================== */
-/* Gumagamit ng mga variable mula sa title.css (--gold, --sky, --ink, --muted, fonts) */
+/* Uses variables from title.css (--gold, --sky, --ink, --muted, fonts) */
 
 body[data-mode="create"] #app { display: none; }
 #creator { display: none; }
@@ -69,7 +69,7 @@ body[data-mode="create"] #creator {
   align-items: flex-end;
   justify-content: center;
 }
-/* Kumikinang na pentagram na bilog sa ilalim ng paa */
+/* Glowing pentagram circle under the feet */
 .cr-pedestal::before {
   content: "";
   position: absolute;
@@ -127,7 +127,7 @@ body[data-mode="create"] #creator {
 .cr-util button b { font-size: 16px; line-height: 1; font-weight: 400; }
 .cr-util button:hover { color: #fff; border-color: var(--gold); }
 
-/* Dial: i-drag o i-click para iikot ang preview (harap ↓, kanan →, likod ↑, kaliwa ←) */
+/* Dial: drag or click to rotate the preview (front ↓, right →, back ↑, left ←) */
 .cr-dial-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
 .cr-dial {
   position: relative;
@@ -201,7 +201,7 @@ body[data-mode="create"] #creator {
   text-shadow: 0 1px 0 #000;
 }
 
-/* ---------- PANEL NG MGA PAGPIPILIAN ---------- */
+/* ---------- OPTIONS PANEL ---------- */
 .cr-panel {
   display: flex;
   flex-direction: column;

@@ -3,7 +3,7 @@ import { npcName } from "./dialogue.js";
 import { qt } from "./quest.js";
 
 // ==================== DIALOGUE BOX + QUEST TRACKER + QUEST LOG ====================
-// HTML overlay sa ibabaw ng game canvas (#viewport), para malinaw ang teksto sa kahit anong scale.
+// HTML overlay above the game canvas (#viewport), so the text stays crisp at any scale.
 
 const CHARS_PER_FRAME = 1.6;
 
@@ -22,12 +22,12 @@ export class DialogBox {
     this.index = 0;
     this.shown = 0;
     this.onEnd = null;
-    this.onLine = null;      // (id, line): tinatawag sa bawat bagong linya (para sa talaan sa bottom tray)
+    this.onLine = null;      // (id, line): called for each new line (for the log in the bottom tray)
 
     this.box.addEventListener("pointerdown", (e) => { e.preventDefault(); this.next(); });
   }
 
-  // avatar: Avatar ng nagsasalita (para sa portrait); id: para sa pangalan
+  // avatar: the speaker's Avatar (for the portrait); id: for the name
   start(id, avatar, lines, onEnd) {
     this.id = id;
     this.lines = lines && lines.length ? lines : ["…"];
@@ -55,7 +55,7 @@ export class DialogBox {
     this.nextEl.classList.toggle("ready", this.shown >= line.length);
   }
 
-  // Tinatawag bawat frame (typewriter)
+  // Called every frame (typewriter)
   update() {
     if (!this.open) return;
     const len = this.current().length;
@@ -69,7 +69,7 @@ export class DialogBox {
     if (!this.open) return;
     const len = this.current().length;
     if (this.shown < len) {
-      this.shown = len;             // tapusin agad ang linya
+      this.shown = len;             // finish the line at once
       this.render();
       return;
     }
@@ -99,7 +99,7 @@ export class DialogBox {
       e.preventDefault();
       this.next();
     } else if (c === "Escape") {
-      // Laktawan ang natitirang linya (pero gawin pa rin ang action)
+      // Skip the remaining lines (but still run the action)
       this.index = this.lines.length - 1;
       this.shown = this.current().length;
       this.next();
@@ -109,7 +109,7 @@ export class DialogBox {
 
 export class QuestHud {
   constructor(root) {
-    // Ang quest tracker ay nasa bottom bar na (labas ng game screen)
+    // The quest tracker lives in the side panel (outside the game screen)
     this.tracker = document.getElementById("questTracker");
     this.actEl = document.getElementById("qtAct");
     this.goalEl = document.getElementById("qtGoal");

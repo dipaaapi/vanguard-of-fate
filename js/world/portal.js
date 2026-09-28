@@ -1,10 +1,10 @@
 // ==================== CELESTIAL WARP GATEWAYS (LORE Act I) ====================
-// Apat na sinaunang gateway sa kaparangan ng Aethelgard. Bawat isa ay patungo sa isang
-// platform ng kampanya (Acts VII–X); nakasara (sealed) hangga't hindi pa umaabot ang kuwento.
-// Hindi na nagte-teleport ang system mismo: tinatawag lang ang handler, at ang main.js ang
-// nagpapasya (lumipat ng platform o ipakitang nakasara).
+// Four ancient gateways on the plains of Aethelgard. Each leads to a campaign
+// platform (Acts VII–X); sealed until the story reaches it.
+// The system itself no longer teleports: it only calls the handler, and main.js
+// decides (change platform or show that it is sealed).
 
-// Iginuguhit ang isang gateway. dir: "vertical" | "horizontal"; sealed = madilim na may kandado
+// Draws one gateway. dir: "vertical" | "horizontal"; sealed = dark with a lock
 export function drawGateway(ctx, p, t, sealed = false, label = "") {
   ctx.save();
   const pulse = sealed ? 0 : Math.sin(t * 1.8) * 3;
@@ -71,18 +71,18 @@ export class PortalSystem {
     this.worldHeight = worldHeight;
     this.animTick = 0;
 
-    // 4 Celestial Warp Gateways. dest = id ng platform (tingnan ang js/world/platforms.js)
+    // 4 Celestial Warp Gateways. dest = platform id (see js/world/platforms.js)
     this.portals = [
       { id: "NORTH", dest: "frost", dir: "horizontal", x: Math.round(this.worldWidth / 2), y: 46, w: 58, h: 22, color: "#bfe9ff" },
       { id: "SOUTH", dest: "ash", dir: "horizontal", x: Math.round(this.worldWidth / 2), y: this.worldHeight - 46, w: 58, h: 22, color: "#ff7a1a" },
       { id: "WEST", dest: "coast", dir: "vertical", x: 48, y: Math.round(this.worldHeight / 2), w: 22, h: 58, color: "#38bdf8" },
       { id: "EAST", dest: "canopy", dir: "vertical", x: this.worldWidth - 48, y: Math.round(this.worldHeight / 2), w: 22, h: 58, color: "#c77dff" }
     ];
-    // Itinatakda ng main.js bawat frame: (portal) => { sealed, label }
+    // Set by main.js every frame: (portal) => { sealed, label }
     this.stateOf = () => ({ sealed: false, label: "" });
   }
 
-  // Punto sa harap ng gateway (dito lumalabas ang player pagbalik)
+  // Point in front of the gateway (where the player comes out on return)
   exitPoint(id) {
     const p = this.portals.find((q) => q.id === id);
     if (!p) return { x: this.worldWidth / 2, y: this.worldHeight / 2 };

@@ -1,4 +1,4 @@
-// Helper para sa mga background image (assets/bg/)
+// Helpers for background images (assets/bg/)
 export function loadImage(src) {
   const holder = { img: new Image(), ready: false };
   holder.img.onload = () => { holder.ready = true; };
@@ -6,8 +6,8 @@ export function loadImage(src) {
   return holder;
 }
 
-// "Cover" fit: pinupuno ang buong screen, hindi nababago ang aspect ratio.
-// Smoothing ang ginagamit dito (painting ito, hindi sprite) para hindi magulo sa non-integer na resize.
+// "Cover" fit: fills the whole screen without changing the aspect ratio.
+// Uses smoothing here (it is a painting, not a sprite) so it stays clean at non-integer sizes.
 export function drawCover(ctx, holder, w, h) {
   const img = holder.img;
   if (!holder.ready || !img.naturalWidth) return false;

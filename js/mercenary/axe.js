@@ -1,4 +1,4 @@
-// Itsura: modular Avatar (tingnan ang js/avatar/avatar.js)
+// Look: modular Avatar (see js/avatar/avatar.js)
 export const AxeMercenary = {
   type: "axe",
   name: "Axeman",
@@ -13,7 +13,7 @@ export const AxeMercenary = {
     outfit: "vest", outfitColor: "#8a2c2c", gloves: "leather", legs: "pants", legColor: "#3b3f4a",
     boots: "boots", bootColor: "#3a2616", headgear: "headband", weapon: "axe"
   },
-  // Mga skill (bukod sa atake at Whirlwind): War Cry at Bloodlust (passive)
+  // Skills (besides the attack and Whirlwind): War Cry and Bloodlust (passive)
   skills: [
     { id: "warcry", name: { en: "War Cry", fil: "Sigaw ng Digmaan" }, cd: 1200,
       ready: (m, c) => c.foes.length >= 2,

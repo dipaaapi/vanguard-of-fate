@@ -1,4 +1,4 @@
-// Itsura: modular Avatar (tingnan ang js/avatar/avatar.js)
+// Look: modular Avatar (see js/avatar/avatar.js)
 export const WandMercenary = {
   type: "wand",
   name: "Mage Apprentice",
@@ -13,7 +13,7 @@ export const WandMercenary = {
     outfit: "robe", outfitColor: "#5a3d91", gloves: "none", legs: "pants", legColor: "#2b2b33",
     boots: "shoes", bootColor: "#2b2b33", headgear: "hat", weapon: "wand"
   },
-  // Heal Ally (kapag mababa ang HP ng bayani) at Frost Nova (pinapatigil ang mga malapit)
+  // Heal Ally (when the hero's HP is low) and Frost Nova (freezes nearby foes)
   skills: [
     { id: "heal", name: { en: "Heal Ally", fil: "Pagalingin ang Kakampi" }, cd: 720,
       ready: (m, c) => c.player.hp < c.player.maxHp * 0.6,

@@ -1,19 +1,19 @@
 import { FalconSprite } from "../avatar/creature.js";
 
-// Iisang sprite para sa lahat ng falcon (naka-cache ang mga frame)
+// One sprite for every falcon (frames are cached)
 const SPRITE = new FalconSprite();
 
 export class FalconCompanion {
   constructor(ownerX, ownerY) {
     this.x = ownerX - 22;
     this.y = ownerY - 18;
-    this.vx = 0;              // aktwal na galaw bawat frame (para sa direksyon at pagsisid)
+    this.vx = 0;              // actual movement per frame (for direction and diving)
     this.vy = 0;
     this.wingTimer = 0;
     this.state = "HOVERING"; // HOVERING, ATTACKING, RETURNING, TAUNTING
     this.stateTimer = 0;
 
-    // Taunt timer (mag-ra-random taunt tuwing ~7-10 segundo kapag nakatigil)
+    // Taunt timer (a random taunt every ~7–10 seconds while idle)
     this.tauntCooldown = 420 + Math.floor(Math.random() * 240);
 
     this.target = null;
@@ -92,7 +92,7 @@ export class FalconCompanion {
       return;
     }
 
-    // 4. IDLE HOVERING SA BALIKAT
+    // 4. IDLE HOVERING AT THE SHOULDER
     const hoverX = player.x + (player.facing === "right" ? -22 : 28);
     const hoverY = player.y - 18 + Math.sin(Date.now() / 200) * 4;
     this.x += (hoverX - this.x) * 0.14;
@@ -109,29 +109,29 @@ export class FalconCompanion {
     }
   }
 
-  // facingRight = direksyon ng player; ginagamit kapag halos nakatigil ang falcon
+  // facingRight = the player's direction; used when the falcon is nearly still
   draw(ctx, facingRight) {
     const cx = Math.floor(this.x) + 16;
     const cy = Math.floor(this.y) + 14;
 
-    // Anino sa lupa
+    // Shadow on the ground
     ctx.fillStyle = "rgba(0, 0, 0, 0.32)";
     ctx.beginPath();
     ctx.ellipse(cx, Math.floor(this.y) + 36, 10, 3.5, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Humarap sa direksyon ng lipad; kapag nakalutang, sa direksyon ng player
+    // Face the direction of flight; when hovering, the player's direction
     const flying = Math.abs(this.vx) > 0.35;
     const left = flying ? this.vx < 0 : !facingRight;
 
     if (this.state === "ATTACKING") {
-      // Pagsisid: nakaturo ang tuka sa direksyon ng galaw
+      // Diving: the beak points along the movement
       const rot = left ? Math.atan2(-this.vy, -this.vx) : Math.atan2(this.vy, this.vx);
       SPRITE.draw(ctx, cx, cy, "side", "dive", 0, left, false, 1, rot);
     } else if (this.state === "TAUNTING") {
       SPRITE.draw(ctx, cx, cy, "side", "taunt", Math.floor(this.stateTimer / 10), left);
     } else {
-      // Mas mabilis ang pagaspas kapag bumabalik nang mabilis
+      // Faster wing beats when flying back quickly
       const rate = this.state === "RETURNING" ? 3 : 5;
       SPRITE.draw(ctx, cx, cy, "side", "fly", Math.floor(this.wingTimer / rate), left);
     }

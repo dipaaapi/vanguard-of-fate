@@ -1,5 +1,5 @@
 // ==================== MAGE (Arcane Sage) ====================
-// Ang itsura ay ang Avatar ng player na may robe, sombrero at tungkod (js/classes/job.js).
+// The look is the player's Avatar with a robe, hat and staff (js/classes/job.js).
 
 export const MageClass = {
   id: "mage",
@@ -9,7 +9,7 @@ export const MageClass = {
   speed: 1.3,
   attackCooldown: 100, // Meteor cooldown
   cooldown: 340,       // Thunderstorm cooldown
-  range: 200,          // abot ng Meteor at Thunderstorm
+  range: 200,          // reach of Meteor and Thunderstorm
 
   onAttack(player, target, spawnSpell) {
     const targetX = target && target.isAlive ? target.x + 10 : player.x + (player.facing === "right" ? 85 : -85);
@@ -31,7 +31,7 @@ export const MageClass = {
     return true;
   },
 
-  // KEY L: Frost Diver — sibat ng yelo na nagpapatigil sa target (elementong tubig)
+  // KEY L: Frost Diver — an ice spear that freezes the target (water element)
   cooldown2: 90,
   onSkill2(player, target, spawnSpell) {
     const a = player.aimAngle;

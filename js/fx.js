@@ -56,7 +56,7 @@ export class FXManager {
     }
   }
 
-  // 1. KNIGHT BLEED EFFECT (Dumadanak na Dugo sa Armas at Kalaban)
+  // 1. KNIGHT BLEED EFFECT (blood dripping from the weapon and the foe)
   spawnBloodSplatter(x, y, count = 10, isHeavy = false) {
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
@@ -211,7 +211,7 @@ export class FXManager {
     }
   }
 
-  // Visual Overlays sa mga Kalaban (Target Lock, Freeze, Stun)
+  // Visual overlays on enemies (Target Lock, Freeze, Stun)
   drawEnemyStatusEffects(ctx, enemy, animTick) {
     if (!enemy || !enemy.isAlive) return;
 
@@ -244,7 +244,7 @@ export class FXManager {
       ctx.restore();
     }
 
-    // B. STUN EFFECT (Dizzy Stars Halo sa ulo)
+    // B. STUN EFFECT (dizzy stars halo over the head)
     if (enemy.isStunned || enemy.stunTimer > 0) {
       ctx.save();
       const starAngle = animTick * 0.12;

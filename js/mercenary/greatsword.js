@@ -1,4 +1,4 @@
-// Itsura: modular Avatar (tingnan ang js/avatar/avatar.js)
+// Look: modular Avatar (see js/avatar/avatar.js)
 export const GreatswordMercenary = {
   type: "greatsword",
   name: "Vanguard Knight",
@@ -13,7 +13,7 @@ export const GreatswordMercenary = {
     outfit: "armor", outfitColor: "#c9a063", gloves: "leather", legs: "pants", legColor: "#7d8c9e",
     boots: "boots", bootColor: "#2b2b33", headgear: "helmet", cape: "#c9a063", weapon: "greatsword"
   },
-  // Provoke (inaagaw ang atensyon ng mga halimaw) at Guardian Aura (passive: −15% pinsala sa bayani kapag malapit)
+  // Provoke (draws the monsters' attention) and Guardian Aura (passive: −15% damage to the hero when close)
   skills: [
     { id: "provoke", name: { en: "Provoke", fil: "Hamon" }, cd: 900,
       ready: (m, c) => c.foes.some((e) => e.engaged),

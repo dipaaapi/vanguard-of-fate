@@ -1,15 +1,15 @@
 import { Avatar } from "../avatar/avatar.js";
 
-// ==================== JOB LOOK (pagkatapos ng Job Awakening) ====================
-// Ang bayani ay pareho pa rin ang katawan, balat, mata at buhok mula sa Character Creator;
-// ang class lang ang nagpapalit ng kasuotan at sandata (katulad ng pagbuo sa Novice at NPC).
+// ==================== JOB LOOK (after the Job Awakening) ====================
+// The hero keeps the same body, skin, eyes and hair from the Character Creator;
+// only the class changes the outfit and weapon (built the same way as the Novice and NPCs).
 
-// Bilang ng frame bawat state (para sa animation timing ng Player.update)
+// Frame count per state (for Player.update animation timing)
 export const FRAME_COUNTS = { idle: 8, run: 4, slash: 2, bash: 2 };
 const placeholderSprites = () =>
   Object.fromEntries(Object.entries(FRAME_COUNTS).map(([k, n]) => [k, new Array(n).fill(null)]));
 
-// Gear bawat class (tingnan ang mga mentor sa js/npc/roster.js para sa inspirasyon)
+// Gear per class (see the mentors in js/npc/roster.js for inspiration)
 const JOB_GEAR = {
   knight: { outfit: "armor", outfitColor: "#2c4f8a", legColor: "#7d8c9e", bootColor: "#2b2b33", gloves: "leather",
     cape: "#8a2c2c", weapon: "lance", shield: "tower" },
@@ -23,15 +23,15 @@ const JOB_GEAR = {
     gloves: "wraps", headgear: "headband", weapon: "none" }
 };
 
-// Anong Avatar animation ang gagamitin bawat state ng player (ang K ay "cast/strike" pose)
+// Which Avatar animation each player state uses (K is the "cast/strike" pose)
 const ANIM_MAP = { bash: "attack" };
 
-// Itsura = katawan mula sa Character Creator + kasuotan ng class + hawak na kagamitan (bag)
+// Look = body from the Character Creator + class outfit + held gear (bag)
 function lookFor(classId, baseConfig, gearLook = {}) {
   return { ...(baseConfig || {}), ...(JOB_GEAR[classId] || {}), ...gearLook };
 }
 
-// Pinapalitan ang Avatar ng player kapag nagbago ang suot (tinatawag ng Bag.onChange)
+// Replaces the player's Avatar when the worn gear changes (called by Bag.onChange)
 export function refreshLook(player) {
   const hd = player.heroData;
   if (!hd) return;
@@ -40,7 +40,7 @@ export function refreshLook(player) {
   hd.avatarConfig = avatar.config;
 }
 
-// Ibinabalik ang class na may sariling Avatar batay sa itsura ng player
+// Returns the class with its own Avatar built from the player's look
 export function equipJob(classDef, baseConfig) {
   const look = lookFor(classDef.id, baseConfig);
   const avatar = new Avatar(look);
