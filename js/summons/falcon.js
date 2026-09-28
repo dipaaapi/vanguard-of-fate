@@ -36,6 +36,10 @@ export class FalconCompanion {
     this.step(player, enemyManager, fx, lootManager);
     this.vx = this.x - ox;
     this.vy = this.y - oy;
+    // Afterimages of the dive (the last few positions)
+    this.trail = this.trail || [];
+    if (this.state === "ATTACKING") this.trail.push({ x: this.x, y: this.y, vx: this.vx, vy: this.vy });
+    if (this.trail.length > 5 || (this.state !== "ATTACKING" && this.trail.length)) this.trail.shift();
   }
 
   step(player, enemyManager, fx, lootManager) {
@@ -127,7 +131,21 @@ export class FalconCompanion {
     if (this.state === "ATTACKING") {
       // Diving: the beak points along the movement
       const rot = left ? Math.atan2(-this.vy, -this.vx) : Math.atan2(this.vy, this.vx);
+      (this.trail || []).forEach((g, i, arr) => {
+        ctx.save();
+        ctx.globalAlpha = 0.12 + 0.3 * (i / arr.length);
+        SPRITE.draw(ctx, Math.floor(g.x) + 16, Math.floor(g.y) + 14, "side", "dive", 0, left, true, 1, rot);
+        ctx.restore();
+      });
+      // Stretched along the dive for speed
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(Math.atan2(this.vy, this.vx));
+      ctx.scale(1.2, 0.85);
+      ctx.rotate(-Math.atan2(this.vy, this.vx));
+      ctx.translate(-cx, -cy);
       SPRITE.draw(ctx, cx, cy, "side", "dive", 0, left, false, 1, rot);
+      ctx.restore();
     } else if (this.state === "TAUNTING") {
       SPRITE.draw(ctx, cx, cy, "side", "taunt", Math.floor(this.stateTimer / 10), left);
     } else {

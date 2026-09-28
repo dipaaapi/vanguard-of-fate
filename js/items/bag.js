@@ -10,6 +10,7 @@ import { describe, canEquip, upgradeCost, refineChance, slotsFor, SLOTS, MAX_PLU
 // equip: { weapon, offhand, head, armor, garment, gloves, boots, amulet, ring1, ring2 } → instance | null
 
 export const BAG_SIZE = 40;
+const POTION_CD = 150;   // 2.5s shared cooldown between healing items
 const STACK_MAX = { equip: 20, other: 999 };
 
 // Item signature: equal only when every property is exactly the same
@@ -251,9 +252,13 @@ export class Bag {
     const pop = (text, color) => { if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(player.x + 10, player.y - 6, text, true, color); };
     if (e.cure && !(player.hasAnyDebuff && player.hasAnyDebuff())) { pop("NO BLIGHT", "#94a3b8"); return ""; }
     if (e.heal && !e.resetSkill && player.hp >= player.maxHp) { pop("HP FULL", "#94a3b8"); return ""; }
+    // Every healing item shares one cooldown (2.5s), auto-potion included
+    if (e.heal && player.potionCd > 0) { pop("WAIT", "#94a3b8"); return ""; }
+    // The Yggdrasil Leaf cannot refresh a skill while a boss is engaged
+    if (e.resetSkill && player.bossFight && player.hp >= player.maxHp) { pop("STIFLED", "#a855f7"); return ""; }
 
-    if (e.heal) player.hp = Math.min(player.maxHp, player.hp + e.heal);
-    if (e.resetSkill) player.skillCooldownTimer = 0;
+    if (e.heal) { player.hp = Math.min(player.maxHp, player.hp + e.heal); player.potionCd = POTION_CD; }
+    if (e.resetSkill && !player.bossFight) player.skillCooldownTimer = 0;
     if (e.cure && player.cureAllDebuffs) player.cureAllDebuffs();
     if (e.stamina) { player.stamina = player.maxStamina; player.exhausted = false; }
     if (e.fresh) player.freshTimer = e.fresh;

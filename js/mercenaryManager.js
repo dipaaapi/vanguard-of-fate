@@ -1,4 +1,5 @@
 import { AxeMercenary } from "./mercenary/axe.js";
+import { around, mix, hitPose, attackPose, breathPose, drawSwing } from "./juice.js";
 import { WandMercenary } from "./mercenary/wand.js";
 import { CrossbowMercenary } from "./mercenary/crossbow.js";
 import { GreatswordMercenary } from "./mercenary/greatsword.js";
@@ -331,7 +332,17 @@ export class MercenaryManager {
       ctx.fill();
 
       // Modular Avatar: the feet are at (x + 8, y + 15)
-      avatarOf(m.data).draw(ctx, m.x + 8, m.y + 15, m.dir, m.anim, this.frameOf(m), m.flip, m.hitTimer > 0);
+      // Squash & stretch: lean into each swing, recoil when struck, breathe when idle
+      const p = m.attackAnim > 0 ? 1 - m.attackAnim / 16 : 0;
+      const ax = Math.cos(m.aimAngle || 0), ay = Math.sin(m.aimAngle || 0);
+      const pose = mix(
+        hitPose(m.hitTimer, 16, m.facing === "right" ? 1 : -1),
+        attackPose(p, ax, ay, m.data.attackRange < 60 ? 3 : 1.5),
+        m.anim === "idle" ? breathPose(m.animTimer || 0) : null
+      );
+      around(ctx, m.x + 8, m.y + 15, pose, () =>
+        avatarOf(m.data).draw(ctx, m.x + 8, m.y + 15, m.dir, m.anim, this.frameOf(m), m.flip, m.hitTimer > 0));
+      if (p && m.data.attackRange < 60) drawSwing(ctx, m.x + 8, m.y + 6, m.aimAngle || 0, 12, (p - 0.3) / 0.7, m.data.color);
 
       // HP bar (above the head)
       const w = 16;

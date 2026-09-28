@@ -1,4 +1,5 @@
 import { Avatar } from "../avatar/avatar.js";
+import { around, attackPose, drawSwing } from "../juice.js";
 import { NPC_DEFS } from "./roster.js";
 import { npcName } from "../dialogue.js";
 import { qt } from "../quest.js";
@@ -262,6 +263,7 @@ class NPC {
       if (eDist <= this.combatRange + 6 && this.attackCooldown <= 0) {
         this.attackCooldown = 32 + Math.floor(Math.random() * 12);
         this.attackAnimTimer = 14;
+        this.atkAngle = Math.atan2(threatEnemy.y + 10 - (this.y - 10), threatEnemy.x + 10 - this.x);
         this.state = "attack";
         this.vx = 0;
         this.vy = 0;
@@ -329,6 +331,7 @@ class NPC {
             sparkColor = "#ffd166";
             break;
         }
+        this.swingColor = sparkColor;
 
         const isCrit = Math.random() < 0.28;
         enemyManager.damage(threatEnemy, dmg, ang, isCrit, fx, null, knockback, false, null, element);
@@ -441,7 +444,11 @@ class NPC {
 
     if (this.attackAnimTimer > 0) {
       const frame = this.attackAnimTimer > 7 ? 0 : 1;
-      this.avatar.draw(ctx, this.x, this.y, this.dir, "attack", frame, this.flip, false, 1, this.squash);
+      const p = 1 - this.attackAnimTimer / 14;
+      const a = this.atkAngle || 0;
+      around(ctx, this.x, this.y, attackPose(p, Math.cos(a), Math.sin(a), 3), () =>
+        this.avatar.draw(ctx, this.x, this.y, this.dir, "attack", frame, this.flip, false, 1, this.squash));
+      drawSwing(ctx, this.x, this.y - 10, a, 13, (p - 0.3) / 0.7, this.swingColor || "#ffd166");
     } else if (this.state === "walk" && (Math.abs(this.vx) > 0.01 || Math.abs(this.vy) > 0.01)) {
       const frame = Math.floor(this.walkAnimTick / 8) % 4;
       this.avatar.draw(ctx, this.x, this.y, this.dir, "walk", frame, this.flip, false, 1, this.squash);

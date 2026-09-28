@@ -1,4 +1,5 @@
 import { Sound } from "../audio.js";
+import { around, mix, hitPose, attackPose, drawSwing } from "../juice.js";
 import { Avatar } from "../avatar/avatar.js";
 import { facingFrom } from "../avatar/creature.js";
 
@@ -38,7 +39,10 @@ export class GuardianAngelCompanion {
 
   update(player, enemyManager, fx, lootManager, idx, isInBarracks) {
     const ox = this.x, oy = this.y;
+    const hp0 = this.hp;
     this.step(player, enemyManager, fx, lootManager, idx, isInBarracks);
+    if (this.hp < hp0) this.hurtT = 12;          // recoil when struck
+    else if (this.hurtT > 0) this.hurtT--;
     const dx = this.x - ox, dy = this.y - oy;
     this.moving = Math.hypot(dx, dy) > 0.3;
     const f = this.state === "ATTACKING" ? facingFrom(this.aimX, this.aimY, this)
@@ -136,7 +140,14 @@ export class GuardianAngelCompanion {
     if (this.state === "ATTACKING") { anim = "attack"; frame = this.stateTimer < 6 ? 0 : 1; }
     else if (this.state === "TAUNTING") { anim = "attack"; frame = 0; }          // sword raised
     else if (this.moving) { anim = "walk"; frame = Math.floor(this.animTimer / 5); }
-    ANGEL.draw(ctx, ax + 16, ay + 29 + hover, this.dir, anim, frame, this.flip);
+    // The blow lands on the first frame, so the pose starts at the strike and follows through
+    const len = Math.hypot(this.aimX || 0, this.aimY || 0) || 1;
+    const adx = (this.aimX || 0) / len, ady = (this.aimY || 0) / len;
+    const p = this.state === "ATTACKING" ? 0.35 + 0.65 * Math.min(1, this.stateTimer / 20) : 0;
+    const pose = mix(hitPose(this.hurtT || 0, 12, this.flip ? -1 : 1), attackPose(p, adx, ady, 4));
+    const fy = ay + 29 + hover;
+    around(ctx, ax + 16, fy, pose, () => ANGEL.draw(ctx, ax + 16, fy, this.dir, anim, frame, this.flip));
+    if (p) drawSwing(ctx, ax + 16, fy - 12, Math.atan2(ady, adx), 15, (p - 0.35) / 0.65, "#ffd166", 2.4, 3);
 
     // HP and LIFESPAN BARS (above the halo)
     const barW = 24;

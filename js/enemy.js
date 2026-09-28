@@ -5,14 +5,17 @@ import { TIERS, MODS, rollTier, applyTier, tierName, has, modName, damageTakenMu
 import { ELEMENTS, elementMult, raceBonus, sizeMod, rollVariant, variantPrefix, elementName, raceName, sizeName } from "./elements.js";
 import { getLang } from "./i18n.js";
 import { STATUS, statusName } from "./status.js";
+import { around, mix, hitPose, attackPose, windupPose, breathPose, spawnPose, REST } from "./juice.js";
 
 // ========================================================
 // ENEMIES
 // ========================================================
 // (e.x, e.y) is the top-left of the old 20px box; the feet are at (e.x + 10, e.y + 17).
 //
-// LEVEL: every monster is the player's level ± 5 (with an Act floor). The name colour tells how
-// strong it is and whether it is aggressive:
+// LEVEL: every place has a FIXED level band (it does not follow the hero): Aethelgard 1–8
+// (+3 at night), Act VII 10–17, VIII 15–22 … XII 35–42. Out-level a place and it becomes easy
+// (and gives little EXP); walk in too early and it is deadly. The name colour tells how strong
+// it is compared to you and whether it is aggressive:
 //   grey   (≤ −3)  weak, won't attack unless provoked
 //   green  (−2..−1) weaker, won't attack unless provoked
 //   yellow (0..+1)  even — AGGRESSIVE
@@ -27,6 +30,8 @@ export const HUB_KINDS = [
 ];
 const WALK_TICKS = 10;
 const IDLE_TICKS = 30;
+const SPAWN_POP = 14;     // frames a new monster takes to rise out of the ground
+const DEATH_T = 26;       // frames of the death dissolve
 const WINDUP_SHOW = 14;   // from here on the attack windup is shown
 const MAX_ADDS = 4;
 const REGEN_DELAY = 300;     // 5 seconds without being hit before HP regenerates
@@ -58,6 +63,7 @@ export class EnemyManager {
     this.loot = null;              // LootManager (set by main.js)
     this.hazards = [];             // the boss's warning circles (explode afterwards)
     this.orbs = [];                // orbs thrown by the boss
+    this.corpses = [];             // dying monsters still dissolving ({ e, t })
     this.onBossDefeated = null;    // (enemy) => void
     this.maxAlive = 16;
     this.night = 0;                // 0 = day, 1 = night (set by main.js from DayNight)
@@ -84,7 +90,9 @@ export class EnemyManager {
     this.tier = tier;
     // Act level floor: VII 10 · VIII 15 · IX 20 · X 25 · XI 30 · XII 35 (Aethelgard has none)
     this.levelFloor = tier >= 2 ? tier * 5 : 1;
+    this.levelCap = this.levelFloor + 7;
     this.enemies = [];
+    this.corpses = [];
     this.hazards = [];
     this.orbs = [];
     this.spawnTimer = 0;
@@ -188,6 +196,12 @@ export class EnemyManager {
     return { x: 140 + Math.random() * (this.worldW - 280), y: 140 + Math.random() * (this.worldH - 280) };
   }
 
+  // A level from the place's fixed band (night in Aethelgard is 3 levels harder)
+  rollLevel() {
+    const nightBonus = this.stage && this.stage.id === "hub" && this.night > 0.5 ? 3 : 0;
+    return rint(this.levelFloor || 1, this.levelCap || 8) + nightBonus;
+  }
+
   spawnRandomEnemy(playerLevel) {
     const pool = this.stage && this.stage.id === "hub" && this.night > 0.5 ? [...this.kinds, ...NIGHT_KINDS] : this.kinds;
     const key = pool[Math.floor(Math.random() * pool.length)];
@@ -196,18 +210,19 @@ export class EnemyManager {
     return this.spawn(key, playerLevel, x, y);
   }
 
+  // levelOffset: added to the rolled band level · fixedLevel: exact level (minions)
   // forceTier: "normal" for minions (never champion/elite)
-  spawn(key, playerLevel, x, y, levelOffset = null, forceTier = null) {
+  spawn(key, playerLevel, x, y, levelOffset = null, forceTier = null, fixedLevel = null) {
     const kind = MONSTERS[key];
     if (!kind) return null;
-    const lvl = Math.max(this.levelFloor || 1, playerLevel + (levelOffset ?? rint(-5, 5)));
+    const lvl = Math.max(1, fixedLevel ?? this.rollLevel() + (levelOffset || 0));
     const hp = Math.round((35 + lvl * 12) * kind.hpMult);
     const e = {
       id: Math.random(), key, type: key, kind, level: lvl,
       maxHp: hp, hp, speed: kind.speed, damage: Math.round(kind.dmg + lvl * 1.6), reach: kind.reach || 16,
       x, y, homeX: x, homeY: y, isAlive: true, facing: "left",
       anim: "idle", dir: "down", flip: false, animTimer: 0, strikeTimer: 0,
-      hitTimer: 0, stunTimer: 0, windupTimer: 0,
+      hitTimer: 0, stunTimer: 0, windupTimer: 0, spawnT: 0,
       provoked: false, engaged: false, wanderX: x, wanderY: y, wanderTimer: rint(20, 120),
       element: kind.element || "neutral", variant: null, champion: false
     };
@@ -219,18 +234,18 @@ export class EnemyManager {
     // Elites bring minions
     if (e.elite) {
       for (let k = 0; k < TIERS.elite.minions; k++) {
-        const m = this.spawn(key, playerLevel, x + (k ? 18 : -18), y + 10, lvl - playerLevel - 1, "normal");
+        const m = this.spawn(key, playerLevel, x + (k ? 18 : -18), y + 10, null, "normal", lvl - 1);
         if (m) { m.minionOf = e.id; m.homeX = x; m.homeY = y; }
       }
     }
     return e;
   }
 
-  // The platform boss (3 levels above the player, and at least the Act floor + 5)
+  // The platform boss: fixed, 2 levels above the top of the Act's band
   spawnBoss(key, x, y, playerLevel) {
     const def = BOSSES[key];
     if (!def || this.boss()) return null;
-    const lvl = Math.max(playerLevel + 3, (this.levelFloor || 1) + 5);
+    const lvl = (this.levelCap || 8) + 2;
     const hp = Math.round((35 + lvl * 12) * def.hpBase);
     const e = {
       id: Math.random(), key, type: key, kind: def, boss: true, level: lvl,
@@ -238,7 +253,7 @@ export class EnemyManager {
       hitR: def.hitR, hitUp: def.hitUp,
       x, y, homeX: x, homeY: y, isAlive: true, facing: "left",
       anim: "idle", dir: "down", flip: false, animTimer: 0, strikeTimer: 0,
-      hitTimer: 0, stunTimer: 0, windupTimer: 0, provoked: true, engaged: false,
+      hitTimer: 0, stunTimer: 0, windupTimer: 0, spawnT: 0, provoked: true, engaged: false,
       bossTimer: 60, pattern: 0, castTimer: 0, enraged: false, element: def.element || "neutral"
     };
     this.enemies.push(e);
@@ -258,6 +273,7 @@ export class EnemyManager {
 
   update(player, fx, lootManager, stage) {
     this.player = player;
+    this.corpses = this.corpses.filter((c) => ++c.t < DEATH_T);
     if (stage) this.stage = stage;
     this.spawnTimer++;
     const alive = this.enemies.filter((e) => e.isAlive && !e.boss).length;
@@ -270,6 +286,7 @@ export class EnemyManager {
     this.enemies.forEach((e) => {
       if (!e.isAlive) return;
       if (e.hitTimer > 0) e.hitTimer--;
+      if (e.spawnT < SPAWN_POP) e.spawnT++;
       this.regen(e, fx);
       this.tickElement(e, fx);
       if (!e.isAlive) return;
@@ -429,7 +446,7 @@ export class EnemyManager {
       e.windupTimer++;
       if (e.windupTimer > windupFor(e, 36)) {
         e.windupTimer = 0;
-        e.strikeTimer = 12;
+        e.strikeTimer = e.strikeMax = 12;
         this.hitTarget(e, target, player, fx, e.damage);
       }
     } else {
@@ -509,7 +526,7 @@ export class EnemyManager {
       e.windupTimer++;
       if (e.windupTimer > 45) {
         e.windupTimer = 0;
-        e.strikeTimer = 14;
+        e.strikeTimer = e.strikeMax = 14;
         this.hitTarget(e, player, player, fx, Math.round(e.damage * 0.85));
       }
     } else e.windupTimer = 0;
@@ -557,7 +574,7 @@ export class EnemyManager {
       const adds = this.enemies.filter((x) => x.isAlive && x.summoned).length;
       if (adds >= MAX_ADDS) return;
       a.summon.forEach((key, k) => {
-        const m = this.spawn(key, player.level, bx - 40 + k * 60, by + 20, rint(-1, 1), "normal");
+        const m = this.spawn(key, player.level, bx - 40 + k * 60, by + 20, null, "normal", e.level - 4 + rint(-1, 1));
         if (m) { m.summoned = true; m.provoked = true; }
       });
       if (fx && fx.spawnHitSparks) fx.spawnHitSparks(bx, by, "#c084fc", 20);
@@ -599,6 +616,8 @@ export class EnemyManager {
     const f = facingFrom(dx, dy, e);
     e.dir = f.dir;
     e.flip = f.flip;
+    const len = Math.hypot(dx, dy);
+    if (len > 0.001) { e.aimX = dx / len; e.aimY = dy / len; }   // for the lunge
     if (e.strikeTimer > 0) e.strikeTimer--;
 
     const anim = e.strikeTimer > 0 || e.windupTimer > WINDUP_SHOW ? "attack" : moved ? "walk" : "idle";
@@ -607,6 +626,24 @@ export class EnemyManager {
       e.animTimer = 0;
     }
     e.animTimer++;
+  }
+
+  // Squash & stretch from the monster's timers: rising in, recoiling, winding up, lunging, breathing
+  poseOf(e) {
+    const scale = e.kind.scale || 1;
+    const spawn = e.spawnT < SPAWN_POP ? spawnPose(e.spawnT, SPAWN_POP) : REST;
+    const hit = hitPose(e.hitTimer, e.hitMax || 8, e.hitDir || 0);
+    if (e.frozen > 0 || e.stunTimer > 0) return mix(spawn, hit);
+    let act = REST;
+    if (e.strikeTimer > 0) {
+      const max = e.strikeMax || 12;
+      act = attackPose(0.35 + 0.65 * (1 - e.strikeTimer / max), e.aimX || 0, e.aimY || 0, 4 * scale);
+    } else if (e.windupTimer > WINDUP_SHOW) {
+      act = windupPose(e.windupTimer - WINDUP_SHOW, (e.boss ? 45 : windupFor(e, 36)) - WINDUP_SHOW, e.animTimer);
+    } else if (e.anim === "idle") {
+      act = breathPose(e.animTimer + ((e.id * 1000) | 0));
+    }
+    return mix(spawn, hit, act);
   }
 
   frameOf(e) {
@@ -651,7 +688,9 @@ export class EnemyManager {
     // Hero attacks pass `player`; mercenaries and NPC allies do not.
     enemy.lastHitBy = this.hitSource || (player ? "player" : "ally");
     if (player && !this.hitSource && this.onHeroHit) this.onHeroHit();
-    enemy.hitTimer = 8;
+    enemy.hitTimer = enemy.hitMax = isCrit ? 12 : 8;
+    enemy.hitDir = -Math.cos(angle);   // recoil away from the blow
+    if (isCrit && player && fx && fx.hitStop) fx.hitStop(3);
     enemy.sinceHit = 0;       // delays HP regeneration
     enemy.provoked = true;
     enemy.engaged = true;
@@ -681,6 +720,13 @@ export class EnemyManager {
     const exp = byPlayer ? Math.round((25 + e.level * 8) * mult) : 0;
     if (exp && p && typeof p.addExp === "function") p.addExp(exp);
     if (this.onKill) this.onKill(e, byPlayer, exp);
+    // Death: the body dissolves (drawn from this.corpses), a burst in its colour, and a beat of hit-stop
+    this.corpses.push({ e, t: 0 });
+    if (fx && fx.spawnDeathBurst) {
+      const col = e.elite ? TIERS.elite.color : e.champion ? TIERS.champion.color : e.variant ? ELEMENTS[e.variant].color : "#e2e8f0";
+      fx.spawnDeathBurst(e.x + 10, e.y + 12, e.boss ? "#c084fc" : col, e.boss ? 2.4 : e.elite ? 1.5 : 1);
+    }
+    if (byPlayer && fx && fx.hitStop) fx.hitStop(e.boss ? 16 : e.elite ? 6 : e.champion ? 4 : 2);
     // Fire Enchanted: explodes on death
     if (has(e, "fire") && p && Math.hypot(p.x - e.x, p.y - e.y) < 42) {
       p.takeDamage(Math.round(e.damage * 0.8), fx, e);
@@ -728,6 +774,18 @@ export class EnemyManager {
       ctx.restore();
     });
 
+    // Dying: a white flash, then the body flattens and fades (flyers drop to the ground)
+    this.corpses.forEach(({ e, t }) => {
+      const k = t / DEATH_T;
+      const scale = e.kind.scale || 1;
+      const fy = e.y + 17;
+      const pose = { sx: 1 + 0.35 * k, sy: Math.max(0.1, 1 - 0.85 * k * k), ox: 0, oy: e.kind.flying ? k * 7 : 0 };
+      ctx.save();
+      ctx.globalAlpha = 1 - k * k;
+      around(ctx, e.x + 10, fy, pose, () => e.kind.sprite.draw(ctx, e.x + 10, fy, e.dir, e.anim, this.frameOf(e), e.flip, t < 4, scale));
+      ctx.restore();
+    });
+
     const pl = this.player;
     // Y-sort so they overlap correctly
     [...this.enemies].filter((e) => e.isAlive).sort((a, b) => a.y - b.y).forEach((e) => {
@@ -754,7 +812,7 @@ export class EnemyManager {
         ctx.restore();
       }
 
-      k.sprite.draw(ctx, e.x + 10, fy, e.dir, e.anim, this.frameOf(e), e.flip, e.hitTimer > 0, scale);
+      around(ctx, e.x + 10, fy, this.poseOf(e), () => k.sprite.draw(ctx, e.x + 10, fy, e.dir, e.anim, this.frameOf(e), e.flip, e.hitTimer > 0, scale));
       // Frozen: blue ice on top
       if (e.frozen > 0) {
         ctx.save();

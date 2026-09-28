@@ -1345,6 +1345,8 @@ function updateGame() {
   }
 
   const isInBarracks = stage.isInsideSafeZone(player.x, player.y);
+  const activeBoss = enemyManager.boss();
+  player.bossFight = Boolean(activeBoss && activeBoss.engaged);
 
   // Day and night: monster strength, class bonuses, a notice when it changes
   dayNight.update();
@@ -1663,7 +1665,8 @@ function gameLoop(now = performance.now()) {
   acc += Math.min(250, now - lastTime);      // don't catch up too much after a tab switch
   lastTime = now;
   while (acc >= STEP) {
-    updateGame();
+    // Hit-stop: a heavy blow freezes the fight for a few steps (drawing carries on)
+    if (!(gameState === "PLAYING" && fx.consumeHitStop())) updateGame();
     acc -= STEP;
   }
   const MODES = { TITLE: "title", SELECT: "select", CREATE: "create" };

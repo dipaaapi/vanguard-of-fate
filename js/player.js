@@ -2,6 +2,7 @@ import { Sound } from "./audio.js";
 import { Bag } from "./items/bag.js";
 import { STATS, PRIMARY, statCost, STAT_MAX, skillBonus, canLearn, findSkill } from "./skills.js";
 import { STATUS_KEYS, tickStatuses, resistChance, blocksRegen } from "./status.js";
+import { around, mix, hitPose, attackPose, breathPose, drawSwing } from "./juice.js";
 
 // Stamina (Diablo style): drains while sprinting, refills when walking or standing.
 // When empty, "tired" until it climbs back to EXHAUST_RECOVER.
@@ -59,6 +60,13 @@ export class Player {
     this.exhausted = false;
     this.staminaDelay = 0;
     this.freshTimer = 0;      // Stamina Tonic: no fatigue while > 0
+    this.atkT = 0;            // frames into the current attack pose (0 = none)
+    this.atkMax = 0;
+    this.atkAngle = 0;
+    this.hurtT = 0;           // hurt recoil (counts down)
+    this.hurtDir = 0;
+    this.potionCd = 0;        // shared healing cooldown (frames) — healing is a decision, not a spam button
+    this.bossFight = false;   // set by main.js while an Act boss is engaged
 
     // Bag and worn equipment (see js/items)
     this.bag = new Bag();
@@ -200,6 +208,10 @@ export class Player {
     const netDmg = Math.max(1, Math.round(amount * guard * (1 - (this.dmgReduce || 0)) * (1 - mitigation)));
     this.hp -= netDmg;
     this.hitFlashTimer = 16;
+    this.hurtT = 12;
+    this.hurtDir = source && typeof source.x === "number" ? Math.sign(source.x - this.x) : 0;
+    // A heavy blow (≥ 12% of max HP) stops the fight for a beat so you feel it
+    if (fx && fx.hitStop && netDmg >= this.maxHp * 0.12) fx.hitStop(4);
     if (this.onHurt) this.onHurt(netDmg, source);
 
     if (Sound && Sound.playPlayerHurt) Sound.playPlayerHurt();
@@ -242,7 +254,8 @@ export class Player {
       this.statPoints += 3 + Math.floor(this.level / 5);
       this.skillPoints += 1;
       this.recalc();
-      this.hp = this.maxHp;
+      // A level-up restores a quarter of max HP (no longer a free full heal mid-fight)
+      this.hp = Math.min(this.maxHp, this.hp + Math.round(this.maxHp * 0.25));
       if (Sound && Sound.playSelectConfirm) Sound.playSelectConfirm();
       if (this.onLevelUp) this.onLevelUp(this.level);
     }
@@ -271,6 +284,7 @@ export class Player {
   // Stamina per frame. wantSprint = Space held / sprint locked while moving
   updateStamina(wantSprint) {
     if (this.freshTimer > 0) this.freshTimer--;
+    if (this.potionCd > 0) this.potionCd--;
     const canSprint = wantSprint && !this.exhausted && this.debuffs.freeze <= 0;
     if (canSprint) {
       if (this.freshTimer <= 0) this.stamina = Math.max(0, this.stamina - STAMINA_DRAIN);
@@ -296,6 +310,8 @@ export class Player {
     this.target = closestEnemy;
 
     if (this.hitFlashTimer > 0) this.hitFlashTimer--;
+    if (this.hurtT > 0) this.hurtT--;
+    if (this.atkT > 0 && ++this.atkT >= this.atkMax) this.atkT = 0;
     // First Aid / Thirty-Six Hour Shift: HP every 3 seconds (blocked by poison and bleeding)
     if (this.sk.regen && this.hp < this.maxHp && !blocksRegen(this) && ++this.regenTimer >= 180) {
       this.regenTimer = 0;
@@ -405,6 +421,7 @@ export class Player {
           this.faceAim();
           this.state = "slash";
           this.animFrame = 0;
+          this.startAttackPose(14);
           const rapid = this.buffs.atkSpeed > 0 ? 0.5 : 1.0;
           const chill = this.debuffs.freeze > 0 ? 1.5 : 1;   // Diablo: cold slows attacks
           this.attackCooldownTimer = Math.round((this.heroData.attackCooldown || 22) * rapid * chill * (1 - this.aspd) * (1 - this.cdr * 0.5));
@@ -421,6 +438,7 @@ export class Player {
           if (this.heroData.animMap) this.faceAim();
           this.state = "bash";
           this.animFrame = 0;
+          if (!this.rollTimer) this.startAttackPose(20);
           this.skillCooldownTimer = Math.round((this.heroData.cooldown || 180) * Math.max(0.3, 1 - this.cdr - (this.sk.kcd || 0) / 100));
         }
       }
@@ -434,6 +452,7 @@ export class Player {
           this.faceAim();
           this.state = "slash";
           this.animFrame = 0;
+          this.startAttackPose(18);
           this.skill2CooldownTimer = Math.round((this.heroData.cooldown2 || 120) * Math.max(0.3, 1 - this.cdr - (this.sk.lcd || 0) / 100));
         }
       }
@@ -496,6 +515,17 @@ export class Player {
     ctx.restore();
   }
 
+  // Begin the anticipation → strike → recover pose (and the swing trail for melee heroes)
+  startAttackPose(frames) {
+    this.atkT = 1;
+    this.atkMax = frames;
+    this.atkAngle = this.aimAngle;
+  }
+
+  isMelee() {
+    return ((this.heroData && this.heroData.range) || 200) <= 60;
+  }
+
   // Face the attack direction (for the 4-direction Avatar)
   faceAim() {
     const a = this.aimAngle;
@@ -540,7 +570,16 @@ export class Player {
         ctx.restore();
         return;
       }
-      avatar.draw(ctx, this.x + 10, this.y + 21, this.dir, anim, frame, this.facing === "left", this.hitFlashTimer > 0);
+      const p = this.atkT > 0 ? this.atkT / this.atkMax : 0;
+      const pose = mix(
+        hitPose(this.hurtT, 12, this.hurtDir),
+        attackPose(p, Math.cos(this.atkAngle), Math.sin(this.atkAngle), this.isMelee() ? 3 : 1.5),
+        anim === "idle" && !p ? breathPose(this.idleTick = (this.idleTick || 0) + 1) : null
+      );
+      around(ctx, this.x + 10, this.y + 21, pose, () =>
+        avatar.draw(ctx, this.x + 10, this.y + 21, this.dir, anim, frame, this.facing === "left", this.hitFlashTimer > 0));
+      // Melee: a crescent follows the blade through the strike
+      if (p && this.isMelee()) drawSwing(ctx, this.x + 10, this.y + 12, this.atkAngle, 13, (p - 0.3) / 0.7, "#e2e8f0");
     }
     ctx.restore();
   }
