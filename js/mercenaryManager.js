@@ -10,6 +10,9 @@ import { facingFrom } from "./avatar/creature.js";
 const AVATARS = {};
 const avatarOf = (data) => AVATARS[data.type] || (AVATARS[data.type] = new Avatar(data.look));
 
+// Tagal ng pagkahilo bago bumangon muli ang mercenary (15 segundo sa 60 fps)
+const KO_TIME = 900;
+
 const MERC_CLASSES = {
   axe: AxeMercenary,
   wand: WandMercenary,
@@ -85,12 +88,38 @@ export class MercenaryManager {
       m.lifespan--;
       if (m.hitTimer > 0) m.hitTimer--;
 
-      // 1. Kapag ubos na ang buhay o kontrata, mawawala at hindi na babalik
-      if (m.lifespan <= 0 || m.hp <= 0) {
+      // 1. Tapos ang kontrata: mawawala at hindi na babalik
+      if (m.lifespan <= 0) {
         m.isAlive = false;
         if (fx && fx.spawnHitSparks) fx.spawnHitSparks(m.x + 8, m.y + 8, "#999999", 14);
-        if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(m.x + 8, m.y - 6, m.hp <= 0 ? `${m.data.name} FELL!` : "CONTRACT EXPIRED!", false);
+        if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(m.x + 8, m.y - 6, "CONTRACT EXPIRED!", false);
         this.mercenaries.splice(i, 1);
+        continue;
+      }
+
+      // 2. Knockout: hilo lang (hindi umaatake at hindi inaatake) hanggang matapos ang cooldown,
+      //    saka babangon nang buo ang HP. Ang isAlive = false ang nagpapaiwas sa mga kalaban.
+      if (m.downed > 0) {
+        m.downed--;
+        m.animTimer++;
+        if (m.downed === 0) {
+          m.hp = m.maxHp;
+          m.isAlive = true;
+          if (Sound && Sound.playHolyBurst) Sound.playHolyBurst();
+          if (fx && fx.spawnHitSparks) fx.spawnHitSparks(m.x + 8, m.y + 4, "#4ade80", 16);
+          if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(m.x + 8, m.y - 10, `${m.data.name} IS BACK!`, true, "#4ade80");
+        }
+        continue;
+      }
+      if (m.hp <= 0) {
+        m.hp = 0;
+        m.isAlive = false;
+        m.downed = KO_TIME;
+        m.attackAnim = 0;
+        m.anim = "idle";
+        m.animTimer = 0;
+        if (fx && fx.spawnHitSparks) fx.spawnHitSparks(m.x + 8, m.y + 8, "#999999", 14);
+        if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(m.x + 8, m.y - 6, `${m.data.name} IS DOWN!`, false, "#ef4444");
         continue;
       }
 
@@ -244,8 +273,53 @@ export class MercenaryManager {
       }
   }
 
+  // Nahilong mercenary: umuugoy, may umiikot na bituin, at cooldown na bilog sa ulo (pula → berde)
+  drawDowned(ctx, m) {
+    const t = m.animTimer;
+    const fx = m.x + 8, fy = m.y + 15;
+    ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
+    ctx.beginPath();
+    ctx.ellipse(fx, m.y + 14, 7, 2.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.save();
+    ctx.translate(fx, fy);
+    ctx.rotate(Math.sin(t / 14) * 0.18);
+    ctx.globalAlpha = 0.85;
+    avatarOf(m.data).draw(ctx, 0, 0, "down", "idle", 0, false, false);
+    ctx.restore();
+
+    // Umiikot na bituin sa itaas ng ulo
+    const hy = m.y - 16;
+    for (let k = 0; k < 3; k++) {
+      const a = t / 10 + (k * Math.PI * 2) / 3;
+      const sx = Math.round(fx + Math.cos(a) * 7), sy = Math.round(hy + Math.sin(a) * 2.5);
+      ctx.fillStyle = k === 0 ? "#fde047" : "#facc15";
+      ctx.fillRect(sx, sy - 1, 1, 3);
+      ctx.fillRect(sx - 1, sy, 3, 1);
+    }
+
+    // Cooldown na bilog: pumupuno habang lumilipas ang oras, pula (0°) → berde (120°)
+    const p = 1 - m.downed / KO_TIME;
+    const cy = m.y - 25, r = 5;
+    const col = `hsl(${Math.round(p * 120)}, 85%, 55%)`;
+    ctx.fillStyle = "rgba(3, 6, 17, 0.85)";
+    ctx.beginPath(); ctx.arc(fx, cy, r + 1.5, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(fx, cy, r, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeStyle = col;
+    ctx.beginPath(); ctx.arc(fx, cy, r, -Math.PI / 2, -Math.PI / 2 + p * Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = col;
+    ctx.font = "bold 5px monospace";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(String(Math.ceil(m.downed / 60)), fx, cy + 0.5);
+    ctx.textBaseline = "alphabetic";
+  }
+
   draw(ctx) {
     this.mercenaries.forEach((m) => {
+      if (m.downed > 0) { this.drawDowned(ctx, m); return; }
       if (!m.isAlive) return;
 
       // Contact Shadow
