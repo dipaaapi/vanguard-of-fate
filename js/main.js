@@ -1396,6 +1396,7 @@ function updateGame() {
   );
 
   autoPotion();
+  summonerHeal();
 
   if (player.falconCompanion) {
     player.falconCompanion.update(player, enemyManager, fx, lootManager);
@@ -1427,6 +1428,49 @@ function updateGame() {
   mercManager.update(player, enemyManager, lootManager, fx, (proj) => projectileManager.add(proj), stage);
   projectileManager.update(enemyManager.enemies, enemyManager, fx, lootManager, player);
   lootManager.update(player, fx);
+}
+
+// The summoner (Prince/Princess) heals the hero, but only inside a sanctuary and only when they are
+// there too: 15% of max HP every 1.5 s, with a golden beam from the summoner to the hero.
+const SUMMONER_HEAL_EVERY = 90;
+let summonerHealTimer = 0;
+let healBeam = null;          // { npc, t } while the beam is visible
+function summonerHeal() {
+  if (healBeam && --healBeam.t <= 0) healBeam = null;
+  if (summonerHealTimer > 0) summonerHealTimer--;
+  const zone = stage.safeZoneAt(player.x + 10, player.y + 17);
+  if (!zone || player.hp >= player.maxHp || summonerHealTimer > 0) return;
+  const inZone = (n) => n.x >= zone.x && n.x <= zone.x + zone.w && n.y >= zone.y && n.y <= zone.y + zone.h;
+  const npc = npcManager.npcs.find((n) => n.id === npcManager.summonerId && npcManager.shown(n) && inZone(n));
+  if (!npc) return;
+  summonerHealTimer = SUMMONER_HEAL_EVERY;
+  const amount = Math.min(player.maxHp - player.hp, Math.max(8, Math.round(player.maxHp * 0.15)));
+  player.hp += amount;
+  healBeam = { npc, t: 24 };
+  fx.spawnDamagePopup(player.x + 10, player.y - 10, `+${amount}`, false, "#4ade80");
+  if (fx.spawnHitSparks) fx.spawnHitSparks(player.x + 10, player.y + 8, "#fde68a", 10);
+  const fil = lang() === "fil";
+  chatLog.event("level", "", dayNight.label(), {
+    key: "summonerHeal", value: amount,
+    format: (n, total) => (fil ? `Pinagaling ka ni ${npcName(npc.id)} (+${total} HP)` : `${npcName(npc.id)} healed you (+${total} HP)`)
+  });
+}
+
+function drawHealBeam() {
+  if (!healBeam || !player) return;
+  const a = healBeam.t / 24, n = healBeam.npc;
+  const x0 = n.x, y0 = n.y - 20, x1 = player.x + 10, y1 = player.y + 6;
+  ctx.save();
+  ctx.globalAlpha = a;
+  ctx.strokeStyle = "rgba(253, 230, 138, 0.9)";
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
+  ctx.lineWidth = 0.8;
+  ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+  ctx.fillStyle = "rgba(253, 230, 138, 0.35)";
+  ctx.beginPath(); ctx.ellipse(x1, player.y + 20, 12, 4, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
 }
 
 // Gintong palaso sa gilid ng screen na nakaturo sa layunin ng quest (kapag wala sa screen)
@@ -1518,6 +1562,7 @@ function renderGameWorld() {
     }
 
     ui.drawInWorldUI(ctx, player);
+    drawHealBeam();
   }
   npcManager.drawLayer(ctx, footY, true);    // mga NPC sa harap ng player
 
