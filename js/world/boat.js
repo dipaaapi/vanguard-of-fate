@@ -12,14 +12,14 @@ export class BoatSystem {
     this.stage = stage;
     this.tick = 0;
 
-    // Pier at nakadaong na Bangka
+    // Pier and the moored boat
     this.pier = { w: 26, h: 18, ...spots.pier };
     this.dockedBoat = { ...spots.dockedBoat };
 
-    // Sinaunang Monolith sa Karagatan
+    // The ancient monolith in the sea
     this.monolith = { ...spots.monolith, radius: 26, activated: false, pulseTick: 0 };
 
-    // Portal patungo sa Dark Continent (bubukas kapag na-activate ang monolith)
+    // Portal to the Dark Continent (opens once the monolith is awakened)
     this.seaPortal = { ...spots.seaPortal, active: false, radius: 20 };
 
     // Chained until the Leviathan Regent falls (synced from the quest by main.js)
@@ -27,11 +27,11 @@ export class BoatSystem {
     // Seal Stone item ids required to awaken the monolith
     this.seals = spots.seals || [];
 
-    // Wake particle trail habang naglalayag
+    // Wake particle trail while sailing
     this.wakes = [];
   }
 
-  // Sinusuri kung ang posisyon ay nasa tubig/karagatan
+  // Whether a position is on water
   isWaterAt(px, py) {
     if (!this.stage) return false;
     if (this.stage.tilemap && this.stage.tilemap.liquid) {
@@ -42,8 +42,8 @@ export class BoatSystem {
     return false;
   }
 
-  // Sa tubig lang puwede ang bangka: kapag tumama sa lupa, dumudulas sa baybayin o ibinabalik
-  // sa huling posisyon sa tubig (sinusuri ang gitna ng katawan ng bangka)
+  // The boat only floats on water: hitting land it slides along the shore or is put back
+  // at its last position on water (checks the middle of the hull)
   keepAfloat(p) {
     const wet = (x, y) => this.isWaterAt(x + 10, y + 20);
     if (wet(p.x, p.y)) {
@@ -56,12 +56,12 @@ export class BoatSystem {
     else { p.x = l.x; p.y = l.y; }
   }
 
-  // Sumakay o bumaba sa bangka
+  // Board or leave the boat
   toggleBoard(player, fx = null) {
     if (!player) return;
 
     if (player.inBoat) {
-      // Mag-disembark: subukang bumaba sa pinakamalapit na tuyong lupa / pier
+      // Disembark: try to step onto the nearest dry land / pier
       const checkSpots = [
         { x: this.pier.x + 8, y: this.pier.y + 8 },
         { x: player.x + 18, y: player.y - 18 },
@@ -86,7 +86,7 @@ export class BoatSystem {
         fx.spawnDamagePopup(player.x + 10, player.y - 10, msg, false, "#38bdf8");
       }
     } else {
-      // Sumakay sa bangka
+      // Board the boat
       player.inBoat = true;
       player.x = this.dockedBoat.x;
       player.y = this.dockedBoat.y;
@@ -178,13 +178,13 @@ export class BoatSystem {
     this.wakes = this.wakes.filter((w) => w.life > 0 && w.alpha > 0);
   }
 
-  // Pagguhit ng Pier, Bangka, Monolith, at Sea Portal
+  // Draws the pier, boat, monolith prompt and sea portal
   draw(ctx, player) {
     ctx.save();
     const t = this.tick;
     const lang = getLang() === "fil" ? "fil" : "en";
 
-    // 1. WAKES SA TUBIG
+    // 1. WAKES ON THE WATER
     this.wakes.forEach((w) => {
       ctx.strokeStyle = `rgba(255, 255, 255, ${Math.max(0, w.alpha)})`;
       ctx.lineWidth = 1.2;
@@ -221,10 +221,10 @@ export class BoatSystem {
       ctx.fillRect(p.x + 1, p.y + p.h - 6, 6, 2); // Mooring rope
     }
 
-    // 3. DOCKED BOAT (kapag hindi sakay ng player)
+    // 3. DOCKED BOAT (when the player is not aboard)
     if (player && !player.inBoat) {
       this.drawBoatSprite(ctx, this.dockedBoat.x, this.dockedBoat.y, false);
-      // Prompt kapag malapit sa nakadaong na bangka o pier
+      // Prompt when close to the moored boat or the pier
       const dPier = Math.hypot(player.x + 10 - this.pier.x, player.y + 18 - this.pier.y);
       const dBoat = Math.hypot(player.x - this.dockedBoat.x, player.y - this.dockedBoat.y);
       if (dPier < 36 || dBoat < 36) {
@@ -244,7 +244,7 @@ export class BoatSystem {
       const bob = Math.sin(t * 0.08) * 1.5;
       this.drawBoatSprite(ctx, player.x, player.y + 2 + bob, true);
 
-      // Prompt para bumaba sa bangka kapag malapit sa baybayin/pier
+      // Prompt to disembark when close to the shore/pier
       const dPier = Math.hypot(player.x + 10 - this.pier.x, player.y + 18 - this.pier.y);
       if (dPier < 45) {
         ctx.font = "bold 5px monospace";
@@ -295,7 +295,7 @@ export class BoatSystem {
         }
       }
 
-      // 6. CELESTIAL SEA PORTAL (KAPAG NAKABUKAS NA)
+      // 6. CELESTIAL SEA PORTAL (ONCE OPEN)
       if (this.seaPortal.active) {
         const sp = this.seaPortal;
         const spPulse = 0.5 + Math.sin(t * 0.1) * 0.5;
@@ -328,7 +328,7 @@ export class BoatSystem {
     ctx.restore();
   }
 
-  // Pagguhit ng Wood Skiff / Boat Sprite
+  // Draws the wooden skiff sprite
   drawBoatSprite(ctx, x, y, withSails = false) {
     ctx.save();
     const bx = x + 10, by = y + 16;

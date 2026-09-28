@@ -1,21 +1,21 @@
 import { getLang } from "./i18n.js";
 
-// ==================== URI NG HALIMAW: NORMAL · CHAMPION · ELITE · MVP ====================
-// Hango sa Diablo II (champion at unique monster) at Ragnarok Online (MVP).
-//   CHAMPION (asul ★, 7%)  — 1 kapangyarihan · HP ×2 · pinsala ×1.2 · EXP ×2.5 · mas magandang samsam
-//   ELITE    (ginto ✦, 2%) — may sariling pangalan · 2 kapangyarihan · 2 alagad · HP ×3.5 · pinsala ×1.35 · EXP ×5
-//   MVP      (ang boss ng bawat Act) — tingnan ang BOSSES sa js/bestiary.js
+// ==================== MONSTER TIERS: NORMAL · CHAMPION · ELITE · MVP ====================
+// Inspired by Diablo II (champion and unique monsters) and Ragnarok Online (MVP).
+//   CHAMPION (blue ★, 7%)  — 1 power · HP ×2 · damage ×1.2 · EXP ×2.5 · better loot
+//   ELITE    (gold ✦, 2%) — its own name · 2 powers · 2 minions · HP ×3.5 · damage ×1.35 · EXP ×5
+//   MVP      (each Act's boss) — see BOSSES in js/bestiary.js
 //
-// KAPANGYARIHAN (modifier) — may tunay na epekto sa laban:
-//   swift       mas mabilis gumalaw at umatake
-//   stoneskin   −40% pinsalang natatanggap
-//   fire        apoy ang atake (paso) at sumasabog kapag namatay
-//   cold        yelo ang atake (lamig), pinababagal ang bayani
-//   lightning   kidlat ang atake (stun) at naglalabas ng kislap kapag tinamaan
-//   cursed      isinusumpa ang bayani sa bawat tama
-//   vampiric    gumagaling mula sa pinsalang ibinibigay
-//   teleporter  biglang sumusulpot sa tabi ng bayani
-//   berserk     +30% pinsala kapag mababa na ang HP
+// POWERS (modifiers) — with real effects in combat:
+//   swift       moves and attacks faster
+//   stoneskin   −40% damage taken
+//   fire        fire attacks (burn) and explodes on death
+//   cold        ice attacks (chill), slows the hero
+//   lightning   lightning attacks (stun) and sparks when hit
+//   cursed      curses the hero with every hit
+//   vampiric    heals from the damage it deals
+//   teleporter  suddenly appears beside the hero
+//   berserk     +30% damage when its HP is low
 
 const L = () => (getLang() === "fil" ? "fil" : "en");
 
@@ -38,7 +38,7 @@ export const TIERS = {
   elite: { chance: 0.02, hp: 3.5, dmg: 1.35, speed: 1.05, exp: 5, mods: 2, color: "#f59e0b", mark: "✦", minions: 2, name: { en: "Elite", fil: "Elite" } }
 };
 
-// Pangalan ng Elite (parang unique monster ng Diablo II): "Grimtooth ang Malupit"
+// Elite name (like a Diablo II unique monster): "Grimtooth the Cruel"
 const FIRST = ["Grim", "Vex", "Mor", "Skar", "Ul", "Dread", "Hollow", "Rot", "Blight", "Ash", "Frost", "Bane"];
 const SECOND = ["tooth", "maw", "fang", "claw", "gore", "shade", "skull", "hide", "spine", "howl"];
 const TITLE = {
@@ -46,7 +46,7 @@ const TITLE = {
   fil: ["ang Malupit", "ang Di-Mabali", "ang Gutom", "ang Walang-Awa", "ang Nilamon ng Dilim", "ang Kaawa-awa", "ang Di-Tumitigil"]
 };
 
-// Magpasya ng uri pagkasilang. Ibinabalik ang uri ("normal" | "champion" | "elite")
+// Decide the tier at spawn. Returns the tier ("normal" | "champion" | "elite")
 export function rollTier(rnd = Math.random) {
   const r = rnd();
   if (r < TIERS.elite.chance) return "elite";
@@ -54,7 +54,7 @@ export function rollTier(rnd = Math.random) {
   return "normal";
 }
 
-// Ilapat ang uri sa bagong halimaw
+// Apply the tier to a new monster
 export function applyTier(e, tier, rnd = Math.random) {
   e.tier = tier;
   if (tier === "normal") return;
@@ -88,13 +88,13 @@ export const has = (e, m) => Boolean(e.mods && e.mods.includes(m));
 // Pinsalang natatanggap (Stoneskin)
 export const damageTakenMult = (e) => (has(e, "stoneskin") ? 0.6 : 1);
 
-// Pinsalang ibinibigay (Berserk kapag mababa ang HP)
+// Damage dealt (Berserk when its HP is low)
 export const damageDealtMult = (e) => (has(e, "berserk") && e.hp < e.maxHp * 0.5 ? 1.3 : 1);
 
-// Bilis ng pag-atake (Swift: mas maikling paghahanda)
+// Attack speed (Swift: shorter wind-up)
 export const windupFor = (e, base) => Math.round(base * (has(e, "swift") ? 0.8 : 1));
 
-// Sumpa sa bayani ayon sa kapangyarihan (kapag tumama)
+// Blight on the hero from its power (when it hits)
 export function modBlight(e) {
   if (has(e, "fire")) return { type: "burn", chance: 0.4, time: 200 };
   if (has(e, "cold")) return { type: "freeze", chance: 0.35, time: 140 };

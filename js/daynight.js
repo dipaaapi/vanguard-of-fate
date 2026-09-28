@@ -1,15 +1,15 @@
 import { getLang } from "./i18n.js";
 
-// ==================== ARAW AT GABI NG AETHELGARD ====================
-// Isang araw = 6 minuto: Araw (3m) → Takipsilim (30s) → Gabi (2m) → Bukang-liwayway (30s).
-// LORE Act I: sa gabi, ang mga halimaw ay "prowling with crimson and violet ocular gleams".
+// ==================== DAY AND NIGHT IN AETHELGARD ====================
+// One day = 6 minutes: Day (3m) → Dusk (30s) → Night (2m) → Dawn (30s).
+// LORE Act I: at night the monsters are "prowling with crimson and violet ocular gleams".
 //
-// GABI (night = 1; unti-unti sa takipsilim at bukang-liwayway):
-//   Halimaw: +20% pinsala, +15% bilis, mas malayong nakakakita, mas marami; +30% EXP at mas maraming samsam
-//   Bayani:  limitado ang paningin; Mage +10% pinsala (mga bituin ni Sam)
-// ARAW: Priest +10% lakas ng heal (liwanag ni Astraea)
-// Archer (elf): mas malawak ang paningin sa dilim.
-// Maw of Damnation: laging gabi (walang langit). Kinubkob na Citadel: laging pulang takipsilim.
+// NIGHT (night = 1; blended through dusk and dawn):
+//   Monsters: +20% damage, +15% speed, see farther, more of them; +30% EXP and more loot
+//   Hero:     limited sight; Mage +10% damage (Sam's stars)
+// DAY: Priest +10% heal power (Astraea's light)
+// Archer (elf): sees farther in the dark.
+// Maw of Damnation: always night (no sky). Obsidian Citadel: always a red dusk.
 
 const FPS = 60;
 const DAY_LENGTH = 6 * 60 * FPS;          // 21600 frame
@@ -27,11 +27,11 @@ const ICON = { DAY: "☀️", DUSK: "🌇", NIGHT: "🌙", DAWN: "🌅" };
 
 export class DayNight {
   constructor() {
-    this.tick = 60 * FPS;          // magsimula sa umaga
-    this.forced = null;            // lugar na may sariling langit
+    this.tick = 60 * FPS;          // start in the morning
+    this.forced = null;            // a place with its own sky
   }
 
-  // Tawagin kapag lumipat ng lugar
+  // Call when changing place
   setPlace(id) {
     this.forced = id === "maw" ? "NIGHT" : id === "siege" ? "DUSK" : null;
   }
@@ -45,7 +45,7 @@ export class DayNight {
     return PHASES.find((p) => this.tick >= p.start && this.tick < p.end).id;
   }
 
-  // 0 = araw, 1 = gabi (unti-unting nagbabago sa takipsilim/bukang-liwayway)
+  // 0 = day, 1 = night (blends through dusk/dawn)
   night() {
     if (this.forced === "NIGHT") return 1;
     if (this.forced === "DUSK") return 0.6;
@@ -57,7 +57,7 @@ export class DayNight {
     return 1 - (t - dawn.start) / (dawn.end - dawn.start);
   }
 
-  // Oras sa Aethelgard: 06:00 ang simula ng araw
+  // Aethelgard time: the day starts at 06:00
   clock() {
     const mins = Math.floor(((this.tick / DAY_LENGTH) * 24 * 60 + 6 * 60) % (24 * 60));
     return `${String(Math.floor(mins / 60)).padStart(2, "0")}:${String(mins % 60).padStart(2, "0")}`;
@@ -69,17 +69,17 @@ export class DayNight {
     return `${ICON[ph]} ${NAMES[L][ph]} ${this.forced ? "" : this.clock()}`.trim();
   }
 
-  // Epekto sa bayani ayon sa class
+  // Effect on the hero by class
   heroMods(cls) {
     const n = this.night();
     return {
       dmg: cls === "mage" ? 1 + 0.1 * n : 1,
       heal: cls === "priest" ? 1 + 0.1 * (1 - n) : 1,
-      sight: cls === "archer" ? 0.55 : 1          // gaano kadilim ang gabi para sa bayani
+      sight: cls === "archer" ? 0.55 : 1          // how dark the night is for the hero
     };
   }
 
-  // Dilim sa screen: tint + liwanag sa paligid ng bayani (screen space)
+  // Screen darkness: tint + light around the hero (screen space)
   draw(ctx, W, H, px, py, sight = 1, siege = false) {
     const n = this.night();
     if (n <= 0.01) return;
@@ -93,7 +93,7 @@ export class DayNight {
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
     if (n > 0.3 && !siege) {
-      // bahagyang bughaw na liwanag ng buwan
+      // faint blue moonlight
       ctx.fillStyle = `rgba(90, 120, 200, ${0.05 * n})`;
       ctx.fillRect(0, 0, W, H);
     }

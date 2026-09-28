@@ -1,12 +1,12 @@
 // ============================================================
-// TILESET: procedural 16x16 pixel-art tiles (walang external asset)
-// Atlas layout (16 columns x 4 rows, 16px bawat tile):
-//   row 0:  0-2 lupa A/B/C | 3 tuft | 4-6 dekorasyon | 7 pebbles | 8-9 dirt
-//   row 1:  16-31 path autotile (16 + mask; N=1 E=2 S=4 W=8 = may kakonektang path)
-//   row 2:  32-47 liquid autotile (dagat / lava / void; mask = kakonektang liquid)
-//   row 3:  48-49 pader/bangin
-// Bawat platform ay may sariling THEME (kulay, dekorasyon, uri ng puno). Ang default na
-// theme ay ang kaparangan ng Aethelgard (Acts I–VI).
+// TILESET: procedural 16x16 pixel-art tiles (no external assets)
+// Atlas layout (16 columns x 4 rows, 16px per tile):
+//   row 0:  0-2 ground A/B/C | 3 tuft | 4-6 decoration | 7 pebbles | 8-9 dirt
+//   row 1:  16-31 path autotile (16 + mask; N=1 E=2 S=4 W=8 = connected path)
+//   row 2:  32-47 liquid autotile (sea / lava / void; mask = connected liquid)
+//   row 3:  48-49 wall/cliff
+// Each platform has its own THEME (colours, decoration, tree kind). The default
+// theme is the plains of Aethelgard (Acts I–VI).
 // ============================================================
 export const TILE = 16;
 export const ATLAS_COLS = 16;
@@ -125,7 +125,7 @@ function drawTuft(ctx, x, y, rnd, th) {
   });
 }
 
-// Dekorasyon ng lupa ayon sa theme (bulaklak, kabute, kabibe, kristal, baga, guho, bitak)
+// Ground decoration by theme (flowers, mushrooms, shells, crystals, embers, ruins, cracks)
 function drawDeco(ctx, x, y, color, rnd, th) {
   drawGrass(ctx, x, y, 1, rnd, th);
   const cx = x + 6 + Math.floor(rnd() * 4);
@@ -181,13 +181,13 @@ function drawDirt(ctx, x, y, variant, rnd, th) {
   }
 }
 
-// mask bits: N=1, E=2, S=4, W=8 (may kakonektang path sa direksyong iyon)
+// mask bits: N=1, E=2, S=4, W=8 (a connected path in that direction)
 function drawPathTile(ctx, x, y, mask, rnd, th) {
   drawDirt(ctx, x, y, 0, rnd, th);
 
   const fringe = (side) => {
     for (let i = 0; i < TILE; i++) {
-      const d = 2 + Math.floor(rnd() * 3);            // 2-4 px ang kapal, hindi pantay
+      const d = 2 + Math.floor(rnd() * 3);            // 2-4 px thick, uneven
       for (let k = 0; k < d; k++) {
         const isEdge = k === d - 1;
         const color = isEdge ? th.grassDark : th.grass[(i + k) % 3];
@@ -205,7 +205,7 @@ function drawPathTile(ctx, x, y, mask, rnd, th) {
   if (!(mask & 8)) fringe(3);
 }
 
-// Dagat / lava / void: alon sa gitna, baybay (lupa + bula/liwanag) sa gilid na walang kakonekta
+// Sea / lava / void: waves in the middle, shoreline (ground + foam/glow) on unconnected edges
 function drawLiquidTile(ctx, x, y, mask, rnd, th) {
   const L = th.liquid;
   px(ctx, x, y, L.base, TILE, TILE);
@@ -232,7 +232,7 @@ function drawLiquidTile(ctx, x, y, mask, rnd, th) {
   if (!(mask & 8)) shore(3);
 }
 
-// Pader ng bato / bangin
+// Stone wall / cliff
 function drawWall(ctx, x, y, variant, rnd, th) {
   const W = th.wall;
   px(ctx, x, y, W.base, TILE, TILE);
@@ -271,8 +271,8 @@ export function buildTileset(th = THEMES.aethelgard) {
 }
 
 // ---------------- OBJECTS ----------------
-// Puno/haligi: 32x32. Ang itaas na 16 rows = overlay (nasa ibabaw ng mga karakter);
-// ang ibabang 16 rows = ground layer (may collision).
+// Tree/pillar: 32x32. The top 16 rows = overlay (above the characters);
+// the bottom 16 rows = ground layer (with collision).
 function drawOak(ctx, x, y, rnd) {
   const tint = rnd() < 0.5 ? 0 : 1;
   const dark = tint ? "#0f3a2c" : "#123524";
@@ -297,11 +297,11 @@ function drawOak(ctx, x, y, rnd) {
   }
 }
 
-// Umiiyak na puno ng Whispering Canopy: nakabitin na baging, itim na dagta, kumikinang na kabute
+// Weeping tree of the Whispering Canopy: hanging vines, black sap, glowing mushrooms
 function drawWeeping(ctx, x, y, rnd) {
   px(ctx, x + 12, y + 16, "#3b2618", 8, 14);
   px(ctx, x + 12, y + 16, "#5a3d2b", 2, 14);
-  px(ctx, x + 15, y + 20, "#0d0810", 1, 5);                    // itim na dagta
+  px(ctx, x + 15, y + 20, "#0d0810", 1, 5);                    // black sap
   px(ctx, x + 9, y + 28, "#3b2618", 4, 2); px(ctx, x + 19, y + 28, "#3b2618", 4, 2);
   fillCircle(ctx, x + 16, y + 10, 12, "#16241c");
   fillCircle(ctx, x + 15, y + 9, 9, "#223a2a");
@@ -316,7 +316,7 @@ function drawWeeping(ctx, x, y, rnd) {
   for (let i = 0; i < 4; i++) px(ctx, x + 4 + Math.floor(rnd() * 24), y + 2 + Math.floor(rnd() * 14), "#c77dff");
 }
 
-// Pino na may niyebe (Frostfang)
+// Snow-laden pine (Frostfang)
 function drawPine(ctx, x, y, rnd) {
   px(ctx, x + 14, y + 24, "#4a3222", 4, 6);
   const layers = [[4, 6], [9, 9], [14, 12], [19, 14]];
@@ -330,7 +330,7 @@ function drawPine(ctx, x, y, rnd) {
   for (let i = 0; i < 6; i++) px(ctx, x + 6 + Math.floor(rnd() * 20), y + 6 + Math.floor(rnd() * 18), "#ffffff");
 }
 
-// Sea stack na may coral at buto (Cerulean Abyss)
+// Sea stack with coral and bones (Cerulean Abyss)
 function drawSeastack(ctx, x, y, rnd) {
   const B = "#2f3e4a", D = "#1c2730", L = "#46586a";
   for (let r = 0; r < 30; r++) {
@@ -345,7 +345,7 @@ function drawSeastack(ctx, x, y, rnd) {
   px(ctx, x + 6, y + 29, "#e0f7ff", 20, 1);
 }
 
-// Obsidian na tinik na may baga (Ashfall)
+// Obsidian spike with embers (Ashfall)
 function drawSpire(ctx, x, y, rnd) {
   for (let r = 0; r < 30; r++) {
     const w = Math.max(1, Math.round(r * 0.3));
@@ -358,7 +358,7 @@ function drawSpire(ctx, x, y, rnd) {
   }
 }
 
-// Gumuhong pader ng Citadel (Siege)
+// Crumbled Citadel wall (Siege)
 function drawRuin(ctx, x, y, rnd) {
   const h = 14 + Math.floor(rnd() * 12);
   for (let r = 30 - h; r < 30; r++) {
@@ -371,7 +371,7 @@ function drawRuin(ctx, x, y, rnd) {
   if (rnd() < 0.5) { px(ctx, x + 14, y + 30 - h - 6, "#ff7a1a", 3, 4); px(ctx, x + 15, y + 30 - h - 8, "#ffd166", 1, 3); } // apoy
 }
 
-// Basag na haligi (Maw of Damnation)
+// Broken pillar (Maw of Damnation)
 function drawPillar(ctx, x, y, rnd) {
   const h = 16 + Math.floor(rnd() * 12);
   for (let r = 30 - h; r < 30; r++) {
@@ -396,7 +396,7 @@ function drawTree(ctx, x, y, seed, kind = "oak") {
   (TREES[kind] || drawOak)(ctx, x, y, rnd);
 }
 
-// Hinahati ang puno sa dalawang layer
+// Splits the tree into two layers
 export function drawTreeSplit(groundCtx, overlayCtx, x, y, seed, kind = "oak") {
   groundCtx.save();
   groundCtx.beginPath();

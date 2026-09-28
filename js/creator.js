@@ -4,13 +4,13 @@ import { Avatar, FRAME_W, FRAME_H, DIRS } from "./avatar/avatar.js";
 import { FIELDS, DEFAULT_CONFIG, randomConfig, randomName } from "./avatar/options.js";
 
 // ==================== CHARACTER CREATOR ====================
-// Dito nililikha ang Novice bago ang summoning: katawan, balat, mata, buhok,
-// kasuotan, kamay, binti at paa — bawat isa ay hiwalay na bahagi ng Avatar.
-// Ang class (Knight, Mage, …) ay pinipili na lang sa Job Awakening (Lv 10).
+// Here the Novice is created before the summoning: body, skin, eyes, hair,
+// outfit, hands, legs and feet — each a separate part of the Avatar.
+// The class (Knight, Mage, …) is chosen later at the Job Awakening (Lv 10).
 
-const PREVIEW_SCALE = 3;  // internal na resolution ng malaking preview (pinapalaki pa ng CSS)
+const PREVIEW_SCALE = 3;  // internal resolution of the big preview (CSS scales it further)
 
-// Pose ng preview (V / button): tayo → lakad → takbo
+// Preview pose (V / buttons): idle → walk → run
 const POSES = [
   { anim: "idle", ticks: 32, icon: "◉", key: "crIdle" },
   { anim: "walk", ticks: 9, icon: "🚶", key: "crWalk" },
@@ -39,16 +39,16 @@ export class CreatorScene {
     this.config = { ...DEFAULT_CONFIG };
     this.avatar = new Avatar(this.config);
     this.row = 0;
-    this.dir = 0;          // 0 harap, 1 kanan, 2 likod, 3 kaliwa
-    this.dialDeg = 0;      // naiipong anggulo ng karayom ng dial (para laging maikling ikot)
-    this.pose = 1;         // index sa POSES (lakad bilang default)
+    this.dir = 0;          // 0 front, 1 right, 2 back, 3 left
+    this.dialDeg = 0;      // accumulated dial needle angle (so it always takes the short way round)
+    this.pose = 1;         // index into POSES (walk by default)
     this.tick = 0;
 
     this.bindDom();
     onLangChange(() => this.render());
   }
 
-  // Tinatawag tuwing papasok sa creator (bagong expedition)
+  // Called whenever the creator opens (new expedition)
   reset() {
     this.config = { ...DEFAULT_CONFIG };
     this.nameEl.value = "";
@@ -90,7 +90,7 @@ export class CreatorScene {
       poses.appendChild(b);
     });
 
-    // Enter/Esc sa name field: tapusin ang pag-type
+    // Enter/Esc in the name field: finish typing
     this.nameEl.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === "Escape") { e.preventDefault(); this.nameEl.blur(); }
       e.stopPropagation();
@@ -191,13 +191,13 @@ export class CreatorScene {
   }
 
   rotate(d) {
-    this.setDir(this.dir + d);   // down → side(kanan) → up → side(kaliwa)
+    this.setDir(this.dir + d);   // down → side (right) → up → side (left)
   }
 
   setDir(i) {
     const next = ((i % 4) + 4) % 4;
     if (next === this.dir) return;
-    // Pinakamaikling ikot ng karayom: -1, +1 o 2 hakbang
+    // Shortest needle turn: -1, +1 or 2 steps
     let step = next - this.dir;
     if (step > 2) step -= 4;
     if (step < -1) step += 4;
@@ -223,8 +223,8 @@ export class CreatorScene {
     else document.documentElement.requestFullscreen().catch(() => {});
   }
 
-  // Dial: i-click o i-drag; ang anggulo mula sa gitna ang pumipili ng direksyon
-  // (ibaba = harap, kanan = kanan, itaas = likod, kaliwa = kaliwa). Scroll = iikot din.
+  // Dial: click or drag; the angle from the centre picks the direction
+  // (down = front, right = right, up = back, left = left). Scrolling rotates too.
   bindDial() {
     const dial = this.root.querySelector("#crDial");
     const pick = (e) => {
@@ -301,7 +301,7 @@ export class CreatorScene {
 
   // ---------- PREVIEW ----------
   view() {
-    // 0: harap, 1: kanan, 2: likod, 3: kaliwa
+    // 0: front, 1: right, 2: back, 3: left
     return [["down", false], ["side", false], ["up", false], ["side", true]][this.dir];
   }
 
@@ -313,7 +313,7 @@ export class CreatorScene {
     });
   }
 
-  // Tinatawag bawat frame ng game loop habang nasa CREATE
+  // Called every frame of the game loop while in CREATE
   draw() {
     this.tick++;
     const [dir, flip] = this.view();

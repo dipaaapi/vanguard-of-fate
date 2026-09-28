@@ -6,11 +6,11 @@ import { OreVeins } from "./mining.js";
 import { PLATFORMS, PLATFORM_SIZE } from "./platforms.js";
 import { getLang } from "../i18n.js";
 
-// ==================== PLATFORM (isang Act ng kampanya) ====================
-// Kaparehong interface ng Stage (js/stage.js) para magamit ng camera, kalaban, NPC at world map:
+// ==================== PLATFORM (one Act of the campaign) ====================
+// Same interface as Stage (js/stage.js), so the camera, enemies, NPCs and world map can use it:
 //   width/height, bounds, safeZone(s), safeZoneAt(), isInsideSafeZone(), resolveTileCollision(),
 //   update(player, onPortal), draw(ctx), drawOverlay(ctx), tilemap.
-// Ang kampo (camp) ay sanctuary na may Return Gateway pabalik sa Aethelgard.
+// The camp is a sanctuary with a Return Gateway back to Aethelgard.
 
 export class Platform {
   constructor(id) {
@@ -31,15 +31,15 @@ export class Platform {
     this.gate = { id: "RETURN", dir: def.gate.dir || "horizontal", x: def.gate.x, y: def.gate.y, w: def.gate.dir === "vertical" ? 22 : 58, h: def.gate.dir === "vertical" ? 58 : 22, color: "#ffd166", dest: "hub" };
     this.castle = null;
     this.tick = 0;
-    this.cleared = false;     // natalo na ang boss (itinatakda ng main.js mula sa quest)
-    this.riftOpen = false;    // Siege: bukas ang lamat patungo sa Maw
+    this.cleared = false;     // the boss has been defeated (set by main.js from the quest)
+    this.riftOpen = false;    // Siege: the rift to the Maw is open
 
     this.terrain = (...a) => def.terrain.apply(def, a);
-    // Ang kampo ay "coverage" para walang puno o bato sa loob nito
+    // The camp is "coverage", so no trees or rocks grow inside it
     this.coverageSystems = [{ draw: (c) => this.drawCamp(c) }];
     this.ambient = new Ambient(def.ambient);
     this.tilemap = new TileMap(this, def.seed);
-    // Bangka at Sunken Monolith (Cerulean Abyss lang)
+    // Boat and the Celestial Monolith (Cerulean Abyss only)
     this.boatSystem = def.boat ? new BoatSystem(this, def.boat) : null;
     // Ore veins (Ashfall and the Siege only); miningUnlocked is synced from the quest by main.js
     this.ore = def.ore ? new OreVeins(this, def.ore) : null;
@@ -51,7 +51,7 @@ export class Platform {
   }
 
   resolveTileCollision(entity) {
-    // Habang nasa bangka: libreng makapaglayag sa tubig, huwag i-block ng liquid mask
+    // While in the boat: sail freely on water, don't block on the liquid mask
     if (entity && entity.inBoat) return;
     this.tilemap.resolveCollision(entity);
   }
@@ -64,7 +64,7 @@ export class Platform {
     return Boolean(this.safeZoneAt(px, py));
   }
 
-  // Punto sa tabi ng Return Gateway (pagdating sa platform)
+  // Point beside the Return Gateway (arrival on the platform)
   arrival() {
     const g = this.gate;
     return g.dir === "vertical" ? { x: g.x - 60, y: g.y - 12 } : { x: g.x - 10, y: g.y - 58 };
@@ -206,7 +206,7 @@ export class Platform {
     ctx.restore();
   }
 
-  // Kampo ng Slaying Corps: runic na bilog, apat na brazier, tolda at bandila
+  // Slaying Corps camp: runic circle, four braziers, a tent and a banner
   drawCamp(ctx) {
     if (this.def.village) return this.drawVillage(ctx);
     const c = this.camp, cx = c.x + c.w / 2, cy = c.y + c.h / 2;
@@ -228,11 +228,11 @@ export class Platform {
     ctx.beginPath(); ctx.moveTo(cx - 44, cy - 4); ctx.lineTo(cx - 28, cy - 30); ctx.lineTo(cx - 12, cy - 4); ctx.closePath(); ctx.fill();
     ctx.fillStyle = "#5a1a1a"; ctx.fillRect(cx - 31, cy - 14, 6, 10);
     ctx.fillStyle = "#ffd166"; ctx.fillRect(cx - 29, cy - 32, 2, 4);
-    // bandila ng Slaying Corps
+    // Slaying Corps banner
     ctx.fillStyle = "#5e3b1a"; ctx.fillRect(cx + 30, cy - 34, 2, 30);
     ctx.fillStyle = "#8a2c2c"; ctx.fillRect(cx + 32, cy - 34, 12, 8);
     ctx.fillStyle = "#ffd166"; ctx.fillRect(cx + 36, cy - 32, 3, 3);
-    // apat na brazier
+    // four braziers
     [[c.x + 12, c.y + 12], [c.x + c.w - 16, c.y + 12], [c.x + 12, c.y + c.h - 16], [c.x + c.w - 16, c.y + c.h - 16]].forEach(([x, y], k) => {
       ctx.fillStyle = "#3a2f3f"; ctx.fillRect(x, y, 5, 5);
       ctx.fillStyle = "#ff7a1a"; ctx.fillRect(x + 1, y - 3 - ((Math.floor(t) + k) % 2), 3, 3);

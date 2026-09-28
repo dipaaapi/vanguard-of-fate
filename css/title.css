@@ -22,7 +22,7 @@ body[data-mode="title"] #title {
   user-select: none;
 }
 
-/* Background: dahan-dahang zoom para buhay ang painting */
+/* Background: a slow zoom keeps the painting alive */
 .t-bg {
   position: absolute;
   inset: 0;
@@ -43,7 +43,7 @@ body[data-mode="title"] #title {
   pointer-events: none;
 }
 
-/* Hamog na dumadaan sa dagat */
+/* Mist drifting over the sea */
 .t-fog {
   position: absolute;
   left: -50%;
@@ -75,7 +75,7 @@ body[data-mode="title"] #title {
   to   { transform: translateX(25%); }
 }
 
-/* Dilim sa taas/baba; sa menu step, dilim din sa kaliwa para mabasa ang menu */
+/* Darkening top and bottom; on the menu step also on the left, so the menu stays readable */
 .t-shade {
   position: absolute;
   inset: 0;
@@ -130,7 +130,7 @@ body[data-mode="title"] #title {
   display: inline-block;
   margin: 0.9em 0 0;
   padding: 0.35em 1em;
-  background: rgba(3, 6, 17, 0.6);   /* para mabasa kahit nasa ibabaw ng espada */
+  background: rgba(3, 6, 17, 0.6);   /* readable even over the sword */
   font-size: clamp(10px, 1.1vw, 15px);
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -207,7 +207,7 @@ body[data-mode="title"] #title {
   transform: translateX(-4px);
   transition: opacity 0.12s, transform 0.12s;
 }
-/* Gintong liwanag sa likod ng napiling item */
+/* Golden glow behind the selected item */
 .t-item::after {
   content: "";
   position: absolute;
@@ -430,7 +430,7 @@ body[data-mode="title"] #title {
 .c-tab:hover { color: #fff; }
 .c-tab.on { color: var(--ink); background: var(--gold); border-color: var(--gold); }
 
-/* Larawan ng bawat Act sa Chronicles */
+/* Picture of each Act in the Chronicles */
 .c-banner {
   margin: 0 0 14px;
   border: 1px solid #3b4661;
@@ -473,7 +473,7 @@ body[data-mode="title"] #title {
   border-top: 1px solid #22304d;
 }
 
-/* ---------- FLASH (pagpili ng New/Continue) ---------- */
+/* ---------- FLASH (choosing New/Continue) ---------- */
 #flash {
   position: fixed;
   inset: 0;
@@ -488,14 +488,14 @@ body[data-mode="title"] #title {
   to   { opacity: 0; }
 }
 
-/* ---------- MALIIT NA SCREEN ---------- */
+/* ---------- SMALL SCREEN ---------- */
 @media (max-width: 640px) {
   .t-menu { left: 16px; right: 16px; min-width: 0; }
   .t-tag { display: none; }
   .t-lang { top: 10px; right: 10px; }
 }
 
-/* Mababang window: siksikin ang options para hindi tumama sa logo */
+/* Short window: compress the options so they don't hit the logo */
 @media (max-height: 520px) {
   .t-menu { top: 60%; }
   .t-menu.options .t-item { padding-top: 3px; padding-bottom: 3px; }
@@ -509,7 +509,7 @@ body[data-mode="title"] #title {
 
 /* ================================================================= */
 /* PROLOGUE CUTSCENE (ACT I) — pixel canvas + subtitles              */
-/* --s = integer scale ng canvas (itinatakda ng js/prologue.js)      */
+/* --s = integer canvas scale (set by js/prologue.js)      */
 /* ================================================================= */
 .prologue-modal {
   position: fixed;
@@ -542,7 +542,7 @@ body[data-mode="title"] #title {
   image-rendering: pixelated;
 }
 
-/* Title card ng Act (lumilitaw at naglalaho) */
+/* Act title card (fades in and out) */
 .pro-card {
   position: absolute;
   inset: 0;
@@ -579,7 +579,7 @@ body[data-mode="title"] #title {
   100% { opacity: 0; }
 }
 
-/* Subtitle sa ibabang letterbox */
+/* Subtitle in the lower letterbox */
 .pro-sub {
   position: absolute;
   left: 8%;

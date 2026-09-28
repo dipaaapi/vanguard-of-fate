@@ -1,17 +1,17 @@
-// ==================== MGA PLATFORM NG KAMPANYA (LORE Acts VII–XII) ====================
-// Bawat Act ay may sariling lugar, halimaw, boss at quest item:
+// ==================== CAMPAIGN PLATFORMS (LORE Acts VII–XII) ====================
+// Each Act has its own place, monsters, boss and quest item:
 //   canopy  VII  Whispering Canopy        (EAST gateway)   boss: Malakor      → Blighted Heartstone
 //   coast   VIII Cerulean Abyss            (WEST gateway)   boss: Leviathan    → Abyssal Helm Shard
 //   frost   IX   Frostfang Precipice       (NORTH gateway)  boss: Cryonix      → Cryonix Core
 //   ash     X    Ashfall Wastelands        (SOUTH gateway)  boss: Ignis        → Hellforge Reactor Core
 //   siege   XI   Siege of the Obsidian Citadel (Dark Continent, via the Celestial Monolith) boss: Commander   → Imperial Crest
-//   maw     XII  Maw of Damnation          (lamat sa trono ng kinubkob na Citadel) boss: Satan → Astral Ash
-// Ang mapa ay 1280x960 (80x60 tiles). Ang (x, y) ng camp, arena at gate ay pixel.
-// Sa dialogue: {s} = pangalan ng tagapagtawag, {h} = pangalan ng bayani.
+//   maw     XII  Maw of Damnation          (rift behind the Obsidian Citadel's throne) boss: Satan → Astral Ash
+// The map is 1280x960 (80x60 tiles). Camp, arena and gate (x, y) are in pixels.
+// In dialogue: {s} = the summoner's name, {h} = the hero's name.
 
 const W = 1280, H = 960;
 
-// ---------- helper sa pagguhit ng landmark ----------
+// ---------- landmark drawing helpers ----------
 function circle(ctx, x, y, r, color) {
   ctx.fillStyle = color;
   ctx.beginPath();
@@ -50,11 +50,11 @@ export const PLATFORMS = {
     monsters: ["sporeling", "beastman", "mossTreant", "shadowDrake", "blightHarpy", "sporeHornet", "bogSerpent", "swampCrab"],
     pathTargets: [[640, 215], [70, 470], [1210, 470]],
     terrain(tx, ty, cols, rows, noise) {
-      return noise(tx * 0.12, ty * 0.12) > 0.72 ? "liquid" : null;      // itim na lusak ng dagta
+      return noise(tx * 0.12, ty * 0.12) > 0.72 ? "liquid" : null;      // black pools of sap
     },
     landmark(ctx, t, cleared) {
       const a = this.arena, cx = a.x + a.w / 2, cy = a.y + a.h / 2;
-      // Singsing ng dambuhalang ugat sa paligid ng Heartwood Grove
+      // A ring of giant roots around the Heartwood Grove
       for (let k = 0; k < 14; k++) {
         const ang = (k / 14) * Math.PI * 2;
         const x = cx + Math.cos(ang) * (a.w / 2 + 6), y = cy + Math.sin(ang) * (a.h / 2 + 4);
@@ -97,15 +97,15 @@ export const PLATFORMS = {
     arenaName: { en: "Sunken Altar", fil: "Lubog na Altar" },
     monsters: ["reefCrab", "mariner", "coralGolem", "stormPetrel", "drownedSpecter", "tideSlime", "tideSerpent", "siren", "deepKraken"],
     pathTargets: [[425, 480], [700, 60], [700, 900]],
-    // Bangka sa dulo ng batong daan pa-timog (landas patungong [700, 900]).
-    // Ang monolith ng bangka ay ang mismong celestial monolith ng landmark (x 120, y 210) sa kanlurang dagat.
+    // The boat waits at the end of the stone causeway heading south (path to [700, 900]).
+    // The boat's monolith is the landmark's Celestial Monolith itself (x 120, y 210) in the western sea.
     boat: {
       pier: { x: 664, y: 882 }, dockedBoat: { x: 634, y: 868 },
       monolith: { x: 120, y: 210 }, seaPortal: { x: 185, y: 260 }, seals: SEAL_STONES
     },
     terrain(tx, ty, cols, rows, noise) {
-      if (tx < 15 + noise(0, ty * 0.1) * 6) return "liquid";                 // dagat sa kanluran
-      if (ty > rows - 7 - noise(tx * 0.1, 0, 3) * 4) return "liquid";         // baybayin sa timog
+      if (tx < 15 + noise(0, ty * 0.1) * 6) return "liquid";                 // sea to the west
+      if (ty > rows - 7 - noise(tx * 0.1, 0, 3) * 4) return "liquid";         // shore to the south
       if (noise(tx * 0.15, ty * 0.15, 5) > 0.8) return "liquid";              // tide pools
       return null;
     },
@@ -246,7 +246,7 @@ export const PLATFORMS = {
       return null;
     },
     landmark(ctx, t, cleared) {
-      // Watchtower ng Glacial Crest at ang ice spire ni Cryonix
+      // The Glacial Crest watchtower and Cryonix's ice spire
       const x = 1120, y = 70;
       ctx.fillStyle = "#44566b"; ctx.fillRect(x - 14, y - 10, 28, 46);
       ctx.fillStyle = "#6b819a"; ctx.fillRect(x - 14, y - 10, 28, 3);
@@ -298,12 +298,12 @@ export const PLATFORMS = {
     pathTargets: [[275, 220], [640, 90], [1210, 420], [300, 860]],
     terrain(tx, ty, cols, rows, noise) {
       const center = rows * 0.5 + Math.sin(tx * 0.11) * 6 - (tx - cols / 2) * 0.25;
-      if (Math.abs(ty - center) < 2.2 + noise(tx * 0.2, 0, 7) * 1.5) return "liquid";   // ilog ng lava
-      if (noise(tx * 0.15, ty * 0.15, 9) > 0.8) return "liquid";                          // lawa ng magma
+      if (Math.abs(ty - center) < 2.2 + noise(tx * 0.2, 0, 7) * 1.5) return "liquid";   // river of lava
+      if (noise(tx * 0.15, ty * 0.15, 9) > 0.8) return "liquid";                          // pools of magma
       return null;
     },
     landmark(ctx, t, cleared) {
-      // Pader ng Hellforge sa likod ng arena at ang hukay ng apoy
+      // The Hellforge wall behind the arena and the fire pit
       const a = this.arena;
       ctx.fillStyle = "#15101a"; ctx.fillRect(a.x - 10, a.y - 70, a.w + 20, 60);
       for (let k = 0; k < 12; k++) { ctx.fillStyle = "#15101a"; ctx.fillRect(a.x - 10 + k * 30, a.y - 80, 16, 12); }
@@ -348,11 +348,11 @@ export const PLATFORMS = {
     arenaName: { en: "Obsidian Throne Hall", fil: "Bulwagan ng Obsidian na Trono" },
     monsters: ["shockTrooper", "voidSpider", "demonKnight", "abyssalJuggernaut", "shadowDrake", "chaosGargoyle", "specter", "voidSerpent", "corruptedCrab"],
     pathTargets: [[640, 200], [170, 500], [1110, 500]],
-    // Lamat patungo sa Maw of Damnation (bumubukas pagkatapos matalo ang Commander)
+    // Rift to the Maw of Damnation (opens once the Commander is defeated)
     rift: { x: 640, y: 150, dest: "maw" },
     terrain(tx, ty, cols) {
       const breach = (tx >= 37 && tx <= 42) || (tx >= 17 && tx <= 20) || (tx >= 58 && tx <= 61);
-      if ((ty === 21 || ty === 22) && tx >= 8 && tx <= cols - 9 && !breach) return "wall";        // panlabas na pader
+      if ((ty === 21 || ty === 22) && tx >= 8 && tx <= cols - 9 && !breach) return "wall";        // outer wall
       if ((tx === 8 || tx === 9 || tx === cols - 10 || tx === cols - 9) && ty >= 21 && ty <= 50 && !(ty >= 34 && ty <= 38)) return "wall";
       return null;
     },
@@ -368,7 +368,7 @@ export const PLATFORMS = {
         ctx.fillStyle = "#8a2c2c"; ctx.fillRect(cx + dx - 6, a.y + dy - 20, 12, 26);
         ctx.fillStyle = "#ffd166"; ctx.fillRect(cx + dx - 2, a.y + dy - 12, 4, 6);
       });
-      // mga nasusunog na brazier at tirador sa labas ng pader
+      // burning braziers and catapults outside the wall
       [[140, 420], [1140, 420], [300, 640], [980, 640]].forEach(([x, y], k) => {
         ctx.fillStyle = "#5e3b1a"; ctx.fillRect(x - 10, y, 20, 6); ctx.fillRect(x - 2, y - 18, 3, 18);
         ctx.strokeStyle = "#5e3b1a"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y - 16); ctx.lineTo(x + (k % 2 ? -14 : 14), y - 26); ctx.stroke();
@@ -416,7 +416,7 @@ export const PLATFORMS = {
       const x = tx * 16 + 8, y = ty * 16 + 8;
       const wob = (noise(tx * 0.25, ty * 0.25) - 0.5) * 0.5;
       const land = this.islands.some(([cx, cy, rx, ry]) => inEllipse(x, y, cx, cy, rx * (1 + wob), ry * (1 + wob)));
-      return land ? null : "liquid";                                            // walang hanggang void
+      return land ? null : "liquid";                                            // endless void
     },
     landmark(ctx, t, cleared) {
       const a = this.arena, cx = a.x + a.w / 2, cy = a.y + a.h / 2;

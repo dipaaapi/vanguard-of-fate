@@ -2,19 +2,19 @@ import { Sound } from "./audio.js";
 import { t, getLang, setLang, toggleLang, onLangChange } from "./i18n.js";
 import { loadLore, parseChapters, actNumber, bannerSrc, BANNER_EXTS } from "./lore.js";
 
-// Title screen (buong window). HTML/CSS ang logo, menu at Chronicles;
-// ang canvas (#titleFx) ay para lang sa baga at liwanag ng espada.
+// Title screen (full window). The logo, menu and Chronicles are HTML/CSS;
+// the canvas (#titleFx) only draws the embers and the sword's glow.
 //
-// Mga hakbang (data-step sa #title):
-//   press      → "Press any key" (dito rin nagsisimula ang musika, dahil kailangan ng browser ng user input)
+// Steps (data-step on #title):
+//   press      → "Press any key" (music also starts here, since browsers need user input)
 //   menu       → Continue / New Expedition / Chronicles / Options
-//   options    → settings, wika, save data
-//   chronicles → lore, hinati bawat Act
+//   options    → settings, language, save data
+//   chronicles → lore, split by Act
 
 const SAVE_KEY = "vanguard_savegame";
 const BG_SRC = "assets/bg/title_bg.gif";
-const SWORD = { x: 0.5, y: 0.42 };   // posisyon ng espada sa larawan (0–1)
-const FX_PIXEL = 3;                  // laki ng isang "pixel" ng baga sa screen
+const SWORD = { x: 0.5, y: 0.42 };   // position of the sword in the picture (0–1)
+const FX_PIXEL = 3;                  // size of one ember "pixel" on screen
 
 export class TitleScene {
   constructor(onStartGame, onContinueGame, onExportSave, onImportSave, config, rootEl) {
@@ -100,7 +100,7 @@ export class TitleScene {
       ];
     }
 
-    // Walang save → nakatago ang Continue (hindi naka-gray)
+    // No save → Continue is hidden (not greyed out)
     const items = [];
     if (save) items.push({ id: "continue", label: t("continue"), sub: this.saveSummary(save) });
     items.push(
@@ -114,7 +114,7 @@ export class TitleScene {
 
   // ---------- DOM ----------
   bindDom() {
-    // Pag-click kahit saan sa "press" step → tuloy sa menu
+    // Clicking anywhere on the "press" step → continue to the menu
     this.root.addEventListener("pointerdown", (e) => {
       Sound.init();
       if (this.step === "press" && !e.target.closest(".t-lang")) this.advance();
@@ -170,7 +170,7 @@ export class TitleScene {
     if (this.step === "credits") this.renderCredits();
   }
 
-  // Label ng dropdown: kasalukuyang wika (EN / TL) at Full Screen ↔ Normal Screen
+  // Dropdown label: current language (EN / TL) and Full Screen ↔ Normal Screen
   renderLang() {
     const cur = getLang();
     this.langBtn.querySelector("#langCur").textContent = cur === "fil" ? "TL" : "EN";
@@ -233,7 +233,7 @@ export class TitleScene {
         btn.appendChild(v);
       }
 
-      // Iwas focus para hindi mag-double trigger ang Space/Enter
+      // Avoid focus so Space/Enter don't double-trigger
       btn.addEventListener("mousedown", (e) => e.preventDefault());
       btn.addEventListener("mouseenter", () => { if (!item.disabled) this.setIndex(i, false); });
       btn.addEventListener("click", () => {
@@ -284,7 +284,7 @@ export class TitleScene {
     const el = document.getElementById("flash");
     if (!el) return;
     el.classList.remove("go");
-    void el.offsetWidth; // i-restart ang animation
+    void el.offsetWidth; // restart the animation
     el.classList.add("go");
   }
 
@@ -328,11 +328,11 @@ export class TitleScene {
     }
   }
 
-  // Toggle ng setting o wika (Enter o ← →)
+  // Toggle a setting or the language (Enter or ← →)
   change(item) {
     if (Sound.playSelectMove) Sound.playSelectMove();
     if (item.lang) {
-      toggleLang(); // tinatawag ng onLangChange ang render()
+      toggleLang(); // onLangChange calls render()
       return;
     }
     const key = item.toggle;
@@ -352,7 +352,7 @@ export class TitleScene {
   }
 
   // ---------- CREDITS ----------
-  // Ang gumawa ng laro, ang kuwento, ang teknolohiya at ang mga inspirasyon
+  // The game's author, the story, the technology and the inspirations
   closeCredits() {
     if (Sound.playSelectMove) Sound.playSelectMove();
     this.goTo("menu", "credits");
@@ -461,7 +461,7 @@ export class TitleScene {
     const ch = this.chapters[this.chapter];
     this.chronBody.innerHTML = "";
     if (!ch) return;
-    // Larawan ng Act (assets/banner/act-N.*); sinusubukan ang ibang extension, itinatago kapag wala
+    // Act picture (assets/banner/act-N.*); tries other extensions, hidden when missing
     const act = actNumber(ch.tab);
     if (act) {
       const fig = document.createElement("figure");
@@ -541,7 +541,7 @@ export class TitleScene {
   }
 
   // ---------- EMBERS (canvas) ----------
-  // Low-res canvas na naka-scale ng FX_PIXEL para chunky ang baga, bagay sa pixel art.
+  // Low-res canvas scaled by FX_PIXEL so the embers are chunky, matching the pixel art.
   draw() {
     this.tick++;
     const W = Math.ceil(window.innerWidth / FX_PIXEL);
@@ -553,15 +553,15 @@ export class TitleScene {
     const ctx = this.fxCtx;
     ctx.clearRect(0, 0, W, H);
 
-    // Parehong "cover" fit ng CSS background, para tumapat sa espada
+    // Same "cover" fit as the CSS background, so it lines up with the sword
     const iw = this.bg.naturalWidth || 1024;
     const ih = this.bg.naturalHeight || 571;
     const s = Math.max(W / iw, H / ih);
-    const k = (ih * s) / 270;   // sukat kumpara sa lumang 480x270 na title
+    const k = (ih * s) / 270;   // scale compared to the old 480x270 title
     const sx = (W - iw * s) / 2 + iw * s * SWORD.x;
     const sy = (H - ih * s) / 2 + ih * s * SWORD.y;
 
-    // Pumipintig na liwanag
+    // Pulsing glow
     const pulse = 1 + Math.sin(this.tick / 16) * 0.12;
     const r = 60 * k * pulse;
     ctx.save();
@@ -574,7 +574,7 @@ export class TitleScene {
     ctx.fillRect(sx - r, sy - r, r * 2, r * 2);
     ctx.restore();
 
-    // Lumilipad na baga
+    // Flying embers
     if (this.tick % 3 === 0) {
       const colors = ["#ffb347", "#ff8a3d", "#ffd166", "#38bdf8", "#a5f3fc"];
       this.particles.push({
