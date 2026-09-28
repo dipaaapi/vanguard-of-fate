@@ -1,6 +1,9 @@
 export class FXManager {
   constructor() {
     this.screenShake = 0;
+    this.hitStopFrames = 0;   // simulation frames still frozen (hit-stop)
+    this.hitStopRest = 0;     // frames of free play before another hit-stop may start
+    this.rings = [];          // shockwave rings
     this.damagePopups = [];
     this.hitParticles = [];
     this.bloodSplats = [];
@@ -28,16 +31,46 @@ export class FXManager {
     this.screenShake = Math.max(this.screenShake, amount);
   }
 
-  spawnDamagePopup(x, y, text, isCrit = false) {
+  // Hit-stop: freeze the fight for a few frames so heavy blows land with weight.
+  // A short rest between stops keeps rapid multi-hits (AoE, burn ticks) from stuttering.
+  hitStop(frames) {
+    if (this.hitStopRest > 0 || frames <= this.hitStopFrames) return;
+    this.hitStopFrames = frames;
+  }
+
+  // Called once per simulation step; true = skip this step
+  consumeHitStop() {
+    if (this.hitStopFrames > 0) {
+      this.hitStopFrames--;
+      if (this.hitStopFrames === 0) this.hitStopRest = 8;
+      return true;
+    }
+    if (this.hitStopRest > 0) this.hitStopRest--;
+    return false;
+  }
+
+  spawnDamagePopup(x, y, text, isCrit = false, color = null) {
     this.damagePopups.push({
       x: x + (Math.random() * 8 - 4),
       y: y - 4,
       text: text,
-      color: isCrit ? "#ffea00" : "#ffffff",
+      color: color || (isCrit ? "#ffea00" : "#ffffff"),
       alpha: 1.0,
       vy: isCrit ? -1.3 : -0.85,
+      scale: isCrit ? 1.8 : 1.25,  // pops in big, then settles
       isCrit: isCrit
     });
+  }
+
+  // A death burst: a ring shockwave plus debris flung outward and falling
+  spawnDeathBurst(x, y, color = "#ffffff", size = 1) {
+    this.rings.push({ x, y, r: 3 * size, max: 16 * size, color, life: 14, maxLife: 14 });
+    const n = Math.round(10 * size);
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const sp = (1 + Math.random() * 2.2) * Math.min(1.6, size);
+      this.hitParticles.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 1.2, g: 0.12, color: i % 3 ? color : "#ffffff", life: 18 + Math.floor(Math.random() * 12), size: Math.random() > 0.4 ? 2 : 1 });
+    }
   }
 
   spawnHitSparks(x, y, color = "#ffdd00", count = 6) {
@@ -56,7 +89,7 @@ export class FXManager {
     }
   }
 
-  // 1. KNIGHT BLEED EFFECT (Dumadanak na Dugo sa Armas at Kalaban)
+  // 1. KNIGHT BLEED EFFECT (blood dripping from the weapon and the foe)
   spawnBloodSplatter(x, y, count = 10, isHeavy = false) {
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
@@ -73,7 +106,7 @@ export class FXManager {
     }
   }
 
-  // 2. MAGE METEOR BURN EFFECT (Nagbabagang Apoy at Usok)
+  // 2. MAGE METEOR BURN EFFECT (glowing fire and smoke)
   spawnBurnFlames(x, y, radius = 24, count = 12) {
     for (let i = 0; i < count; i++) {
       const offsetAngle = Math.random() * Math.PI * 2;
@@ -159,10 +192,28 @@ export class FXManager {
       const pt = this.hitParticles[s];
       pt.x += pt.vx;
       pt.y += pt.vy;
+      if (pt.g) { pt.vy += pt.g; pt.vx *= 0.96; }
       pt.life--;
       ctx.fillStyle = pt.color;
       ctx.fillRect(Math.round(pt.x), Math.round(pt.y), pt.size, pt.size);
       if (pt.life <= 0) this.hitParticles.splice(s, 1);
+    }
+
+    // 2b. Shockwave rings (deaths, heavy blows)
+    for (let r = this.rings.length - 1; r >= 0; r--) {
+      const ring = this.rings[r];
+      ring.life--;
+      const k = 1 - ring.life / ring.maxLife;
+      const rad = ring.r + (ring.max - ring.r) * k;
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, 1 - k) * 0.8;
+      ctx.strokeStyle = ring.color;
+      ctx.lineWidth = Math.max(0.5, 2 * (1 - k));
+      ctx.beginPath();
+      ctx.ellipse(ring.x, ring.y, rad, rad * 0.55, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+      if (ring.life <= 0) this.rings.splice(r, 1);
     }
 
     // 3. Draw Burn Flames
@@ -194,10 +245,15 @@ export class FXManager {
     for (let d = this.damagePopups.length - 1; d >= 0; d--) {
       const pop = this.damagePopups[d];
       pop.y += pop.vy;
+      pop.vy *= 0.97;
       pop.alpha -= 0.025;
+      if (pop.scale > 1) pop.scale = Math.max(1, pop.scale - 0.12);
 
       ctx.save();
-      ctx.globalAlpha = Math.max(0, pop.alpha);
+      ctx.globalAlpha = Math.max(0, Math.min(1, pop.alpha * 1.6));
+      ctx.translate(pop.x, pop.y);
+      ctx.scale(pop.scale || 1, pop.scale || 1);
+      ctx.translate(-pop.x, -pop.y);
       ctx.font = pop.isCrit ? "bold 9px monospace" : "bold 7px monospace";
       ctx.textAlign = "center";
       ctx.fillStyle = "#000000";
@@ -211,7 +267,7 @@ export class FXManager {
     }
   }
 
-  // Visual Overlays sa mga Kalaban (Target Lock, Freeze, Stun)
+  // Visual overlays on enemies (Target Lock, Freeze, Stun)
   drawEnemyStatusEffects(ctx, enemy, animTick) {
     if (!enemy || !enemy.isAlive) return;
 
@@ -244,7 +300,7 @@ export class FXManager {
       ctx.restore();
     }
 
-    // B. STUN EFFECT (Dizzy Stars Halo sa ulo)
+    // B. STUN EFFECT (dizzy stars halo over the head)
     if (enemy.isStunned || enemy.stunTimer > 0) {
       ctx.save();
       const starAngle = animTick * 0.12;
@@ -261,7 +317,7 @@ export class FXManager {
       ctx.restore();
     }
 
-    // C. FREEZE AURA (Nagyeyelong Paanan)
+    // C. FREEZE AURA (frozen ground at the feet)
     if (enemy.isFrozen || (enemy.debuff && enemy.debuff.freeze > 0)) {
       ctx.save();
       ctx.fillStyle = "rgba(0, 240, 255, 0.4)";
@@ -387,6 +443,9 @@ export class FXManager {
 
   reset() {
     this.screenShake = 0;
+    this.hitStopFrames = 0;
+    this.hitStopRest = 0;
+    this.rings = [];
     this.damagePopups = [];
     this.hitParticles = [];
     this.bloodSplats = [];

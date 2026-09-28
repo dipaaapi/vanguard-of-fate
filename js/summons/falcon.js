@@ -1,12 +1,19 @@
+import { FalconSprite } from "../avatar/creature.js";
+
+// One sprite for every falcon (frames are cached)
+const SPRITE = new FalconSprite();
+
 export class FalconCompanion {
   constructor(ownerX, ownerY) {
     this.x = ownerX - 22;
     this.y = ownerY - 18;
+    this.vx = 0;              // actual movement per frame (for direction and diving)
+    this.vy = 0;
     this.wingTimer = 0;
     this.state = "HOVERING"; // HOVERING, ATTACKING, RETURNING, TAUNTING
     this.stateTimer = 0;
 
-    // Taunt timer (mag-ra-random taunt tuwing ~7-10 segundo kapag nakatigil)
+    // Taunt timer (a random taunt every ~7–10 seconds while idle)
     this.tauntCooldown = 420 + Math.floor(Math.random() * 240);
 
     this.target = null;
@@ -25,6 +32,17 @@ export class FalconCompanion {
   }
 
   update(player, enemyManager, fx, lootManager) {
+    const ox = this.x, oy = this.y;
+    this.step(player, enemyManager, fx, lootManager);
+    this.vx = this.x - ox;
+    this.vy = this.y - oy;
+    // Afterimages of the dive (the last few positions)
+    this.trail = this.trail || [];
+    if (this.state === "ATTACKING") this.trail.push({ x: this.x, y: this.y, vx: this.vx, vy: this.vy });
+    if (this.trail.length > 5 || (this.state !== "ATTACKING" && this.trail.length)) this.trail.shift();
+  }
+
+  step(player, enemyManager, fx, lootManager) {
     this.wingTimer++;
     this.stateTimer++;
 
@@ -43,7 +61,7 @@ export class FalconCompanion {
         if (!this.damageDealt) {
           this.damageDealt = true;
           if (this.target && this.target.isAlive) {
-            enemyManager.damage(this.target, 38, Math.atan2(dy, dx), true, fx, lootManager, 14, false, player);
+            enemyManager.damage(this.target, 38, Math.atan2(dy, dx), true, fx, lootManager, 14, false, player, "wind");
             if (fx && fx.spawnHitSparks) fx.spawnHitSparks(this.x + 12, this.y + 12, "#ffd166", 16);
           }
         }
@@ -78,7 +96,7 @@ export class FalconCompanion {
       return;
     }
 
-    // 4. IDLE HOVERING SA BALIKAT
+    // 4. IDLE HOVERING AT THE SHOULDER
     const hoverX = player.x + (player.facing === "right" ? -22 : 28);
     const hoverY = player.y - 18 + Math.sin(Date.now() / 200) * 4;
     this.x += (hoverX - this.x) * 0.14;
@@ -95,111 +113,45 @@ export class FalconCompanion {
     }
   }
 
-  // 64x64 HIGH-FIDELITY RENDERER
+  // facingRight = the player's direction; used when the falcon is nearly still
   draw(ctx, facingRight) {
-    ctx.save();
-    const fxPos = Math.floor(this.x);
-    const fyPos = Math.floor(this.y);
+    const cx = Math.floor(this.x) + 16;
+    const cy = Math.floor(this.y) + 14;
 
-    // Dynamic Contact Shadow
+    // Shadow on the ground
     ctx.fillStyle = "rgba(0, 0, 0, 0.32)";
     ctx.beginPath();
-    ctx.ellipse(fxPos + 16, fyPos + 36, 14, 4.5, 0, 0, Math.PI * 2);
+    ctx.ellipse(cx, Math.floor(this.y) + 36, 10, 3.5, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    if (!facingRight) {
-      ctx.translate(fxPos + 32, fyPos);
-      ctx.scale(-1, 1);
-    } else {
-      ctx.translate(fxPos, fyPos);
-    }
+    // Face the direction of flight; when hovering, the player's direction
+    const flying = Math.abs(this.vx) > 0.35;
+    const left = flying ? this.vx < 0 : !facingRight;
 
-    const flapState = Math.floor(this.wingTimer / 4) % 4;
-
-    // STANCE ADJUSTMENTS
     if (this.state === "ATTACKING") {
-      ctx.rotate(0.5); // Dive tilt
+      // Diving: the beak points along the movement
+      const rot = left ? Math.atan2(-this.vy, -this.vx) : Math.atan2(this.vy, this.vx);
+      (this.trail || []).forEach((g, i, arr) => {
+        ctx.save();
+        ctx.globalAlpha = 0.12 + 0.3 * (i / arr.length);
+        SPRITE.draw(ctx, Math.floor(g.x) + 16, Math.floor(g.y) + 14, "side", "dive", 0, left, true, 1, rot);
+        ctx.restore();
+      });
+      // Stretched along the dive for speed
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(Math.atan2(this.vy, this.vx));
+      ctx.scale(1.2, 0.85);
+      ctx.rotate(-Math.atan2(this.vy, this.vx));
+      ctx.translate(-cx, -cy);
+      SPRITE.draw(ctx, cx, cy, "side", "dive", 0, left, false, 1, rot);
+      ctx.restore();
     } else if (this.state === "TAUNTING") {
-      ctx.rotate(-0.25); // Puffed chest screech
-    }
-
-    // 1. Shaded Tail Feathers
-    ctx.fillStyle = "#2b170e";
-    ctx.fillRect(2, 14, 8, 6);
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(2, 18, 3, 2);
-
-    // 2. 64x64 Multi-Tone Raptor Body (Deep Mahogany, Tawny Brown, at Ochre)
-    ctx.fillStyle = "#3d200c";
-    ctx.fillRect(8, 8, 16, 12);
-    ctx.fillStyle = "#5c3315";
-    ctx.fillRect(10, 10, 12, 8);
-    ctx.fillStyle = "#d4b895"; // Speckled breast plumage
-    ctx.fillRect(12, 12, 3, 3);
-    ctx.fillRect(16, 14, 3, 3);
-
-    // 3. Crown & Head
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(18, 4, 10, 9);
-    ctx.fillStyle = "#2b170e"; // Dark raptor mask
-    ctx.fillRect(20, 6, 8, 3);
-    ctx.fillStyle = "#ffd166"; // Sharp Amber Eye
-    ctx.fillRect(23, 6, 3, 3);
-    ctx.fillStyle = "#000000";
-    ctx.fillRect(25, 7, 1.5, 1.5);
-
-    // 4. Curved Hook Beak
-    ctx.fillStyle = "#f59e0b";
-    ctx.fillRect(28, 7, 5, 4);
-    ctx.fillStyle = "#1e293b";
-    ctx.fillRect(32, 9, 2, 4);
-
-    // 5. FLAPPING WINGS (IDLE, SPREAD, DIVE, TAUNT)
-    if (this.state === "ATTACKING") {
-      // Razor Dive Wings
-      ctx.fillStyle = "#3d200c";
-      ctx.fillRect(4, 3, 16, 6);
-      ctx.fillStyle = "#7c441b";
-      ctx.fillRect(6, 1, 12, 5);
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(14, 0, 4, 2);
-    } else if (this.state === "TAUNTING") {
-      // Full Wingspan Flex
-      ctx.fillStyle = "#3d200c";
-      ctx.fillRect(4, -8, 8, 18);
-      ctx.fillRect(12, -10, 8, 20);
-      ctx.fillStyle = "#8a5024";
-      ctx.fillRect(7, -8, 5, 15);
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(14, -12, 5, 3);
-    } else if (flapState === 0 || flapState === 2) {
-      // Wings Up
-      ctx.fillStyle = "#3d200c";
-      ctx.fillRect(6, -5, 8, 14);
-      ctx.fillRect(12, -8, 8, 16);
-      ctx.fillStyle = "#7c441b";
-      ctx.fillRect(9, -6, 6, 12);
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(14, -10, 5, 3);
+      SPRITE.draw(ctx, cx, cy, "side", "taunt", Math.floor(this.stateTimer / 10), left);
     } else {
-      // Wings Down
-      ctx.fillStyle = "#3d200c";
-      ctx.fillRect(0, 11, 14, 7);
-      ctx.fillRect(8, 12, 14, 6);
-      ctx.fillStyle = "#7c441b";
-      ctx.fillRect(3, 12, 10, 4);
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(18, 14, 5, 3);
+      // Faster wing beats when flying back quickly
+      const rate = this.state === "RETURNING" ? 3 : 5;
+      SPRITE.draw(ctx, cx, cy, "side", "fly", Math.floor(this.wingTimer / rate), left);
     }
-
-    // 6. Talons
-    ctx.fillStyle = "#f59e0b";
-    ctx.fillRect(14, 18, 4, 6);
-    ctx.fillRect(20, 18, 4, 6);
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(16, 23, 2, 3);
-    ctx.fillRect(22, 23, 2, 3);
-
-    ctx.restore();
   }
 }

@@ -1,128 +1,9 @@
 import { Sound } from "../audio.js";
 
-const _ = 0;
-const K = "#14171d"; // Dark outline
-const W1 = "#ffffff"; // Holy Silk White
-const W2 = "#d9e2ec"; // Robe Fold Shadow
-const W3 = "#9fb3c8"; // Deep Robe Crease
-const G1 = "#ffd166"; // Divine Gold Highlight
-const G2 = "#e0a926"; // Liturgical Gold Trim
-const S1 = "#ffe8d6"; // Fair Skin Tone
-const S2 = "#f3c5a5"; // Skin Shadow
-const S3 = "#c78f6c"; // Jaw / Neck shadow
-const M1 = "#8d5b32"; // Wooden Crucifix Staff
-const B1 = "#4a2810"; // Boots
-
-// ========================================================
-// PRIEST 24x24 SPRITES (BALANSE AT KAPAREHO NG ARCHER)
-// ========================================================
-
-const priestIdle = [
-  [
-    [_,_,_,_,_,_,G2,G1,G1,G2,_,_,_,_,_,_,_,_],
-    [_,_,_,_,_,G2,G1,W1,W1,G1,G2,_,_,_,_,_,_,_],
-    [_,_,_,_,W2,W1,W1,W1,W1,W1,W2,_,_,_,_,_,_,_],
-    [_,_,_,W2,W1,S2,S1,S1,S2,W1,W2,_,_,_,_,_,_,_],
-    [_,_,_,W2,S3,S2,K,S1,K,S2,S3,W2,_,_,_,_,_,_],
-    [_,_,_,_,W2,S3,S1,S1,S1,S3,W2,_,_,_,_,_,M1,_],
-    [_,_,_,_,_,W3,S3,S2,S3,W3,_,_,_,_,_,G1,M1,G1],
-    [_,_,_,_,W2,W1,G2,G1,G2,W1,W2,_,_,_,_,_,M1,_],
-    [_,_,_,W2,W1,W1,G2,G1,G2,W1,W1,W2,_,_,_,_,M1,_],
-    [_,_,W2,W1,W1,W1,G2,G1,G2,W1,W1,W1,W2,_,_,_,M1,_],
-    [_,_,W2,W1,W1,W1,G2,G1,G2,W1,W1,W1,W2,_,_,_,M1,_],
-    [_,_,_,W2,W1,W1,G2,G1,G2,W1,W1,W2,_,_,_,_,M1,_],
-    [_,_,_,_,W3,W2,G2,G1,G2,W2,W3,_,_,_,_,_,M1,_],
-    [_,_,_,_,W3,W2,W2,W2,W2,W2,W3,_,_,_,_,_,M1,_],
-    [_,_,_,_,W3,W3,W3,W3,W3,W3,W3,_,_,_,_,_,_,_],
-    [_,_,_,_,_,S2,_,_,_,S2,_,_,_,_,_,_,_,_],
-    [_,_,_,_,_,B1,_,_,_,B1,_,_,_,_,_,_,_,_],
-    [_,_,_,_,K,B1,_,_,_,B1,K,_,_,_,_,_,_,_]
-  ],
-  [
-    [_,_,_,_,_,_,G2,G1,G1,G2,_,_,_,_,_,_,_,_],
-    [_,_,_,_,_,G2,G1,W1,W1,G1,G2,_,_,_,_,_,_,_],
-    [_,_,_,_,W2,W1,W1,W1,W1,W1,W2,_,_,_,_,_,_,_],
-    [_,_,_,W2,W1,S2,S1,S1,S2,W1,W2,_,_,_,_,_,_,_],
-    [_,_,_,W2,S3,S2,K,S1,K,S2,S3,W2,_,_,_,_,_,_],
-    [_,_,_,_,W2,S3,S1,S1,S1,S3,W2,_,_,_,_,_,M1,_],
-    [_,_,_,_,_,W3,S3,S2,S3,W3,_,_,_,_,_,G1,M1,G1],
-    [_,_,_,_,W2,W1,G2,G1,G2,W1,W2,_,_,_,_,_,M1,_],
-    [_,_,_,W2,W1,W1,G2,G1,G2,W1,W1,W2,_,_,_,_,M1,_],
-    [_,_,W2,W1,W1,W1,G2,G1,G2,W1,W1,W1,W2,_,_,_,M1,_],
-    [_,_,W2,W1,W1,W1,G2,G1,G2,W1,W1,W1,W2,_,_,_,M1,_],
-    [_,_,_,W2,W1,W1,G2,G1,G2,W1,W1,W2,_,_,_,_,M1,_],
-    [_,_,_,_,W3,W2,G2,G1,G2,W2,W3,_,_,_,_,_,M1,_],
-    [_,_,_,_,W3,W2,W2,W2,W2,W2,W3,_,_,_,_,_,M1,_],
-    [_,_,_,_,W3,W3,W3,W3,W3,W3,W3,_,_,_,_,_,_,_],
-    [_,_,_,_,_,S2,_,_,_,S2,_,_,_,_,_,_,_,_],
-    [_,_,_,_,_,B1,_,_,_,B1,_,_,_,_,_,_,_,_],
-    [_,_,_,_,K,B1,_,_,_,B1,K,_,_,_,_,_,_,_]
-  ]
-];
-
-const priestRun = [
-  [
-    [_,_,_,_,_,_,G2,G1,G1,G2,_,_,_,_,_,_,_,_],
-    [_,_,_,_,_,G2,G1,W1,W1,G1,G2,_,_,_,_,_,_,_],
-    [_,_,_,_,W2,W1,W1,W1,W1,W1,W2,_,_,_,_,_,_,_],
-    [_,_,_,W2,W1,S2,S1,S1,S2,W1,W2,_,_,_,_,_,_,_],
-    [_,_,_,W2,S3,S2,K,S1,K,S2,S3,W2,_,_,_,_,_,_],
-    [_,_,_,_,W2,S3,S1,S1,S1,S3,W2,_,_,_,_,_,M1,_],
-    [_,_,_,_,_,W3,S3,S2,S3,W3,_,_,_,_,_,G1,M1,G1],
-    [_,_,_,_,W2,W1,G2,G1,G2,W1,W2,_,_,_,_,_,M1,_],
-    [_,_,_,W2,W1,W1,G2,G1,G2,W1,W1,W2,_,_,_,_,M1,_],
-    [_,_,W2,W1,W1,W1,G2,G1,G2,W1,W1,W1,W2,_,_,_,M1,_],
-    [_,_,_,W2,W1,W1,G2,G1,G2,W1,W1,W2,_,_,_,_,M1,_],
-    [_,_,_,_,W3,W2,W2,W2,W2,W2,W3,_,_,_,_,_,M1,_],
-    [_,_,_,_,_,S2,_,_,_,_,S2,_,_,_,_,_,_,_],
-    [_,_,_,_,B1,_,_,_,_,_,_,B1,_,_,_,_,_,_],
-    [_,_,_,K,B1,_,_,_,_,_,_,B1,K,_,_,_,_,_]
-  ],
-  priestIdle[0],
-  [
-    [_,_,_,_,_,_,G2,G1,G1,G2,_,_,_,_,_,_,_,_],
-    [_,_,_,_,_,G2,G1,W1,W1,G1,G2,_,_,_,_,_,_,_],
-    [_,_,_,_,W2,W1,W1,W1,W1,W1,W2,_,_,_,_,_,_,_],
-    [_,_,_,W2,W1,S2,S1,S1,S2,W1,W2,_,_,_,_,_,_,_],
-    [_,_,_,W2,S3,S2,K,S1,K,S2,S3,W2,_,_,_,_,_,_],
-    [_,_,_,_,W2,S3,S1,S1,S1,S3,W2,_,_,_,_,_,M1,_],
-    [_,_,_,_,_,W3,S3,S2,S3,W3,_,_,_,_,_,G1,M1,G1],
-    [_,_,_,_,W2,W1,G2,G1,G2,W1,W2,_,_,_,_,_,M1,_],
-    [_,_,_,W2,W1,W1,G2,G1,G2,W1,W1,W2,_,_,_,_,M1,_],
-    [_,_,W2,W1,W1,W1,G2,G1,G2,W1,W1,W1,W2,_,_,_,M1,_],
-    [_,_,_,W2,W1,W1,G2,G1,G2,W1,W1,W2,_,_,_,_,M1,_],
-    [_,_,_,_,W3,W2,W2,W2,W2,W2,W3,_,_,_,_,_,M1,_],
-    [_,_,_,_,_,_,S2,_,_,S2,_,_,_,_,_,_,_,_],
-    [_,_,_,_,_,_,B1,_,_,B1,_,_,_,_,_,_,_,_],
-    [_,_,_,_,_,K,B1,_,_,B1,K,_,_,_,_,_,_,_]
-  ],
-  priestIdle[1]
-];
-
-const priestCast = [
-  [
-    [_,_,_,_,_,_,G2,G1,G1,G2,_,_,_,_,_,G1,G1,G1],
-    [_,_,_,_,_,G2,G1,W1,W1,G1,G2,_,_,_,G1,M1,G1],
-    [_,_,_,_,W2,W1,W1,W1,W1,W1,W2,_,_,_,_,M1,_],
-    [_,_,_,W2,W1,S2,S1,S1,S2,W1,W2,_,_,_,_,M1,_],
-    [_,_,_,W2,S3,S2,K,S1,K,S2,S3,W2,_,_,_,M1,_],
-    [_,_,_,_,W2,S3,S1,S1,S1,S3,W2,_,_,_,_,M1,_],
-    [_,_,_,_,_,W3,S3,S2,S3,W3,_,_,_,_,_,M1,_],
-    [_,_,_,_,W2,W1,G2,G1,G2,W1,W2,_,_,_,M1,_],
-    [_,_,_,W2,W1,W1,G2,G1,G2,W1,W1,W2,_,M1,_],
-    [_,_,W2,W1,W1,W1,G2,G1,G2,W1,W1,W1,W2,M1,_],
-    [_,_,_,W2,W1,W1,G2,G1,G2,W1,W1,W2,_,M1,_],
-    [_,_,_,_,W3,W2,W2,W2,W2,W2,W3,_,_,M1,_],
-    [_,_,_,_,_,S2,_,_,_,S2,_,_,_,_,_,_,_,_],
-    [_,_,_,_,_,B1,_,_,_,B1,_,_,_,_,_,_,_,_],
-    [_,_,_,_,K,B1,_,_,_,B1,K,_,_,_,_,_,_,_]
-  ],
-  priestIdle[0]
-];
-
 // ========================================================
 // PRIEST CLASS MECHANICS (HEAL & GUARDIAN ANGEL SUMMON)
 // ========================================================
+// The look is the player's Avatar with a white robe and scepter (js/classes/job.js).
 export const PriestClass = {
   id: "priest",
   name: "Priest",
@@ -130,13 +11,8 @@ export const PriestClass = {
   speed: 1.4,
   maxHp: 110,
   attackCooldown: 25,
-  cooldown: 180, // Cooldown ng K (Summon)
-  sprites: {
-    idle: priestIdle,
-    run: priestRun,
-    slash: priestCast,
-    bash: priestCast
-  },
+  cooldown: 180, // Cooldown of K (Summon)
+  range: 200,
 
   // KEY J: PRIORITY HEAL (Priest: 10% HP | Angel: +5 HP at +180 ticks Lifespan)
   onAttack(player, target, spawnSpell) {
@@ -152,11 +28,11 @@ export const PriestClass = {
       }
     });
 
-    // Piliin ang may pinakamababang porsyento ng HP
+    // Pick the lowest HP percentage
     candidates.sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp));
     const chosen = candidates[0];
 
-    const healAmount = chosen.isAngel ? 5 : Math.round(player.maxHp * 0.10);
+    const healAmount = Math.round((chosen.isAngel ? 5 : player.maxHp * 0.10) * (player.healMult || 1) * ((player.timeMods && player.timeMods.heal) || 1));
     chosen.entity.hp = Math.min(chosen.maxHp, chosen.entity.hp + healAmount);
 
     if (chosen.isAngel) {
@@ -180,6 +56,15 @@ export const PriestClass = {
     return true;
   },
 
+  // KEY L: Holy Light — a striking holy light (strong against Undead and Demons)
+  cooldown2: 80,
+  onSkill2(player, target, spawnSpell) {
+    const a = player.aimAngle;
+    spawnSpell({ type: "bolt", x: player.x + 10, y: player.y + 8, vx: Math.cos(a) * 4, vy: Math.sin(a) * 4, damage: 28, elem: "holy", color: "#fde68a", size: 3, range: 200 });
+    if (Sound && Sound.playHolyBurst) Sound.playHolyBurst();
+    return true;
+  },
+
   // KEY K: SUMMON GUARDIAN ANGEL (Maximum of 2 Angels)
   onSkill(player, target, spawnSpell) {
     if (!player.angels) player.angels = [];
@@ -198,7 +83,7 @@ export const PriestClass = {
       hp: angelMaxHp,
       damage: 18,
       lifespan: 720,      // 12s standard lifespan
-      maxLifespan: 1080,  // Kayang palawigin sa tulong ng Heal (J)
+      maxLifespan: 1080,  // Can be extended with Heal (J)
       attackCooldown: 0,
       isAttacking: false,
       attackTimer: 0,

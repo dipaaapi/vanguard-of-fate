@@ -22,11 +22,11 @@ body[data-mode="title"] #title {
   user-select: none;
 }
 
-/* Background: dahan-dahang zoom para buhay ang painting */
+/* Background: a slow zoom keeps the painting alive */
 .t-bg {
   position: absolute;
   inset: 0;
-  background: url("../assets/bg/title_bg.jpg") center / cover no-repeat;
+  background: url("../assets/bg/title_bg.gif") center / cover no-repeat;
   animation: t-pan 38s ease-in-out infinite alternate;
 }
 @keyframes t-pan {
@@ -43,7 +43,7 @@ body[data-mode="title"] #title {
   pointer-events: none;
 }
 
-/* Hamog na dumadaan sa dagat */
+/* Mist drifting over the sea */
 .t-fog {
   position: absolute;
   left: -50%;
@@ -75,7 +75,7 @@ body[data-mode="title"] #title {
   to   { transform: translateX(25%); }
 }
 
-/* Dilim sa taas/baba; sa menu step, dilim din sa kaliwa para mabasa ang menu */
+/* Darkening top and bottom; on the menu step also on the left, so the menu stays readable */
 .t-shade {
   position: absolute;
   inset: 0;
@@ -130,7 +130,7 @@ body[data-mode="title"] #title {
   display: inline-block;
   margin: 0.9em 0 0;
   padding: 0.35em 1em;
-  background: rgba(3, 6, 17, 0.6);   /* para mabasa kahit nasa ibabaw ng espada */
+  background: rgba(3, 6, 17, 0.6);   /* readable even over the sword */
   font-size: clamp(10px, 1.1vw, 15px);
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -207,7 +207,7 @@ body[data-mode="title"] #title {
   transform: translateX(-4px);
   transition: opacity 0.12s, transform 0.12s;
 }
-/* Gintong liwanag sa likod ng napiling item */
+/* Golden glow behind the selected item */
 .t-item::after {
   content: "";
   position: absolute;
@@ -257,21 +257,54 @@ body[data-mode="title"] #title {
   top: 18px;
   right: 18px;
   z-index: 3;
-  display: flex;
-  padding: 3px;
-  font: inherit;
   font-size: 12px;
-  background: rgba(3, 6, 17, 0.7);
-  border: 1px solid rgba(255, 209, 102, 0.5);
+}
+.t-lang button {
+  font: inherit;
   cursor: pointer;
 }
-.t-lang span {
-  padding: 5px 10px;
-  color: var(--muted);
+.t-lang-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 74px;
+  justify-content: space-between;
+  padding: 7px 12px;
+  color: var(--ink);
+  background: var(--gold);
+  border: 1px solid rgba(255, 209, 102, 0.5);
+  box-shadow: 0 0 0 3px rgba(3, 6, 17, 0.7);
   letter-spacing: 0.1em;
 }
-.t-lang span.on { color: var(--ink); background: var(--gold); }
-.t-lang:hover { border-color: var(--gold); }
+.t-lang-btn i { font-style: normal; font-size: 10px; transition: transform 0.15s ease; }
+.t-lang.open .t-lang-btn i { transform: rotate(180deg); }
+.t-lang-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  display: none;
+  flex-direction: column;
+  min-width: 168px;
+  padding: 3px;
+  background: rgba(3, 6, 17, 0.95);
+  border: 1px solid rgba(255, 209, 102, 0.5);
+}
+.t-lang.open .t-lang-menu { display: flex; }
+.t-lang-menu button {
+  display: flex;
+  gap: 10px;
+  padding: 7px 10px;
+  text-align: left;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  letter-spacing: 0.06em;
+}
+.t-lang-menu button b { width: 22px; color: var(--gold); font-weight: normal; letter-spacing: 0.1em; }
+.t-lang-menu button:hover { color: #fff; background: rgba(255, 209, 102, 0.12); }
+.t-lang-menu button.on { color: var(--ink); background: var(--gold); }
+.t-lang-menu button.on b { color: var(--ink); }
+.t-lang-screen { margin-top: 3px; border-top: 1px solid rgba(255, 209, 102, 0.25) !important; }
 
 /* ---------- FOOTER ---------- */
 .t-foot {
@@ -307,8 +340,40 @@ body[data-mode="title"] #title {
   pointer-events: none;
   transition: opacity 0.3s;
 }
-#title[data-step="chronicles"] .t-chron { opacity: 1; pointer-events: auto; }
-#title[data-step="chronicles"] .t-logo { opacity: 0; }
+#title[data-step="chronicles"] #chronicles,
+#title[data-step="credits"] #credits { opacity: 1; pointer-events: auto; }
+#title[data-step="chronicles"] .t-logo,
+#title[data-step="credits"] .t-logo { opacity: 0; }
+
+/* ---------- CREDITS ---------- */
+.cr-body, .cr-body p { text-align: center; }
+.cr-body .cr-game {
+  margin: 6px 0 2px;
+  font-family: var(--logo-font);
+  font-size: clamp(22px, 3vw, 34px);
+  color: var(--gold);
+  letter-spacing: 0.06em;
+}
+.cr-body .cr-tag { margin: 0 0 18px; color: var(--sky); letter-spacing: 0.14em; text-transform: uppercase; font-size: 12px; }
+.cr-body h4 {
+  margin: 18px 0 6px;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--sky);
+}
+.cr-body .cr-name { margin: 2px 0; font-size: 17px; color: #f8fafc; }
+.cr-body .cr-role { margin: 0 0 4px; font-size: 12px; color: var(--muted); }
+.cr-body ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.cr-body li {
+  padding: 5px 10px;
+  font-size: 12px;
+  color: #e2e8f0;
+  border: 1px solid #3b4661;
+  background: rgba(15, 23, 42, 0.8);
+}
+.cr-body li b { color: var(--gold); font-weight: 400; }
+.cr-body .cr-thanks { margin: 22px 0 8px; font-family: Georgia, serif; font-style: italic; color: #cbd5e1; font-size: 15px; }
 
 .c-panel {
   display: flex;
@@ -365,6 +430,20 @@ body[data-mode="title"] #title {
 .c-tab:hover { color: #fff; }
 .c-tab.on { color: var(--ink); background: var(--gold); border-color: var(--gold); }
 
+/* Picture of each Act in the Chronicles */
+.c-banner {
+  margin: 0 0 14px;
+  border: 1px solid #3b4661;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  background: #0b1120;
+}
+.c-banner img {
+  display: block;
+  width: 100%;
+  max-height: 260px;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
 .c-body {
   flex: 1;
   overflow-y: auto;
@@ -394,7 +473,7 @@ body[data-mode="title"] #title {
   border-top: 1px solid #22304d;
 }
 
-/* ---------- FLASH (pagpili ng New/Continue) ---------- */
+/* ---------- FLASH (choosing New/Continue) ---------- */
 #flash {
   position: fixed;
   inset: 0;
@@ -409,14 +488,14 @@ body[data-mode="title"] #title {
   to   { opacity: 0; }
 }
 
-/* ---------- MALIIT NA SCREEN ---------- */
+/* ---------- SMALL SCREEN ---------- */
 @media (max-width: 640px) {
   .t-menu { left: 16px; right: 16px; min-width: 0; }
   .t-tag { display: none; }
   .t-lang { top: 10px; right: 10px; }
 }
 
-/* Mababang window: siksikin ang options para hindi tumama sa logo */
+/* Short window: compress the options so they don't hit the logo */
 @media (max-height: 520px) {
   .t-menu { top: 60%; }
   .t-menu.options .t-item { padding-top: 3px; padding-bottom: 3px; }
@@ -426,4 +505,121 @@ body[data-mode="title"] #title {
 
 @media (prefers-reduced-motion: reduce) {
   .t-bg, .t-fog, .t-press, .t-item.selected::before { animation: none; }
+}
+
+/* ================================================================= */
+/* PROLOGUE CUTSCENE (ACT I) — pixel canvas + subtitles              */
+/* --s = integer canvas scale (set by js/prologue.js)      */
+/* ================================================================= */
+.prologue-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+  outline: none;
+}
+
+.prologue-modal.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.pro-stage {
+  --s: 2;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+
+.pro-stage canvas {
+  display: block;
+  image-rendering: pixelated;
+}
+
+/* Act title card (fades in and out) */
+.pro-card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--s) * 3px);
+  pointer-events: none;
+  opacity: 0;
+}
+
+.pro-card.show { animation: proCard 4.2s ease forwards; }
+
+.pro-card-act {
+  font-size: calc(var(--s) * 7px);
+  letter-spacing: 0.5em;
+  color: var(--sky);
+  text-shadow: 0 0 calc(var(--s) * 4px) rgba(56, 189, 248, 0.7);
+}
+
+.pro-card-title {
+  font-family: var(--logo-font);
+  font-size: calc(var(--s) * 16px);
+  color: var(--gold);
+  letter-spacing: 0.08em;
+  text-shadow: 0 calc(var(--s) * 1px) 0 #000, 0 0 calc(var(--s) * 8px) rgba(255, 209, 102, 0.5);
+}
+
+@keyframes proCard {
+  0%   { opacity: 0; transform: scale(1.04); }
+  18%  { opacity: 1; transform: scale(1); }
+  70%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Subtitle in the lower letterbox */
+.pro-sub {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: calc(var(--s) * 20px);
+  padding: calc(var(--s) * 4px) calc(var(--s) * 8px);
+  background: rgba(3, 6, 17, 0.72);
+  border-left: calc(var(--s) * 1px) solid rgba(255, 209, 102, 0.6);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: calc(var(--s) * 7.5px);
+  line-height: 1.45;
+  color: #f1f5f9;
+  text-shadow: 0 1px 2px #000;
+  min-height: calc(var(--s) * 20px);
+}
+
+.pro-speaker {
+  display: none;
+  font-family: inherit;
+  font-size: calc(var(--s) * 6px);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: calc(var(--s) * 1px);
+}
+
+.pro-sub.spoken .pro-speaker { display: block; }
+.pro-sub.spoken .pro-line { font-style: italic; }
+
+.pro-hint {
+  position: absolute;
+  right: calc(var(--s) * 6px);
+  top: calc(var(--s) * 3px);
+  font-size: calc(var(--s) * 5px);
+  color: #94a3b8;
+  letter-spacing: 0.08em;
+}
+
+.pro-hint b { color: var(--gold); font-weight: normal; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pro-card.show { animation-duration: 0.01s; opacity: 0; }
 }

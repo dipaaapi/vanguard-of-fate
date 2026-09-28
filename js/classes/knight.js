@@ -1,155 +1,10 @@
-import { parseSprite } from "../sprite.js";
 import { Sound } from "../audio.js";
 
-// ==================== PALETTE SYMBOLS ====================
-// H = Steel Armor, h = Dark Steel, S = Skin, O = Visor Glow, 1 = Outline
-// R = Red Plume, 4 = Silver Lance Shaft, 5 = Lance Tip, B = Tower Shield Gold Trim, G = Tower Shield Plate
-
-const knightIdle = [
-  parseSprite([
-    "..........1111..........",
-    "........11RRRR11........", // Crimson Helm Plume
-    ".......1HHHHHHHH1.......",
-    ".......1H111111H1.......",
-    ".......111SOOS111...5...", // Long Pointed Lance Tip (5)
-    "........11SOOS11...555..",
-    "........11111111...545..",
-    "......11HHHHHHHH11..4...",
-    ".....1BBGGGGGGGG11..4...", // Heavy Gold-Trimmed Tower Shield (B, G)
-    ".....1BBGGGGGGGG11..4...",
-    ".....1BBGGGGGGGG11..4...",
-    ".....1BBGGGGGGGG11..4...",
-    "......1BBGGGGGG11...4...",
-    ".......11HHHH11.....4...",
-    "........1HHHH1......4...",
-    "........1hhhh1......4...",
-    "........1hhhh1......4...",
-    "........1hhhh1......1...",
-    ".......111..111.........",
-    ".......1H1..1H1.........",
-    ".......111..111.........",
-    "........................",
-    "........................",
-    "........................"
-  ]),
-  parseSprite([
-    "..........1111..........",
-    "........11RRRR11........",
-    ".......1HHHHHHHH1.......",
-    ".......1H111111H1.......",
-    ".......111SOOS111...5...",
-    "........11SOOS11...555..",
-    "........11111111...545..",
-    "......11HHHHHHHH11..4...",
-    ".....1BBGGGGGGGG11..4...",
-    ".....1BBGGGGGGGG11..4...",
-    ".....1BBGGGGGGGG11..4...",
-    ".....1BBGGGGGGGG11..4...",
-    "......1BBGGGGGG11...4...",
-    ".......11HHHH11.....4...",
-    "........1HHHH1......4...",
-    "........1hhhh1......4...",
-    "........1hhhh1......4...",
-    "........1hhhh1......1...",
-    ".......111..111.........",
-    ".......1H1..1H1.........",
-    "........11...11.........",
-    "........................",
-    "........................",
-    "........................"
-  ])
-];
-
-// RUNNING WITH LANCE
-const knightRun = [
-  parseSprite([
-    "..........1111..........",
-    "........11RRRR11........",
-    ".......1HHHHHHHH1.......",
-    ".......1H111111H1...5...",
-    ".......111SOOS111..555..",
-    "........11SOOS11...545..",
-    "........11111111....4...",
-    ".....11HHHHHHHHHH11.4...",
-    "....1BBGGGGGGGGGG11.4...",
-    "....1BBGGGGGGGGGG11.4...",
-    "....1BBGGGGGGGGGG11.4...",
-    ".....1BBGGGGGGGG11..4...",
-    "......111HHHH1111...4...",
-    "........1hhhh1......4...",
-    ".......11hhhh11.....1...",
-    "......11H1..1H11........",
-    "......111....111........",
-    "........................",
-    "........................",
-    "........................",
-    "........................",
-    "........................",
-    "........................",
-    "........................"
-  ]),
-  knightIdle[0]
-];
-
-// HOLD SHIELD STANCE (Aegis Bastion Stance)
-const knightShieldStance = [
-  parseSprite([
-    "........................",
-    "..........1111..........",
-    "........11RRRR11........",
-    ".......1HHHHHHHH1.......",
-    "....111BBGGGGGGG1111....", // Locked Tower Shield Paharap
-    "...1BBGGGGGGGGGGGGGB1...",
-    "...1BBGGGGGGGGGGGGGB1...",
-    "...1BBGGGGGGGGGGGGGB1.5.",
-    "...1BBGGGGGGGGGGGGGB1555", // Nakaipit ang Lance sa gilid
-    "...1BBGGGGGGGGGGGGGB1.4.",
-    "...1BBGGGGGGGGGGGGGB1.4.",
-    "....111BBGGGGGGG1111..4.",
-    ".......1HHHHHHHH1.....4.",
-    "........1hhhhhh1......4.",
-    ".......11hhhhhh11.....1.",
-    ".......111....111.......",
-    "........................",
-    "........................",
-    "........................",
-    "........................",
-    "........................",
-    "........................",
-    "........................",
-    "........................"
-  ])
-];
-
-// PIERCING LANCE CHARGE POSE (Nakasulong paharap ang Lance)
-const knightChargeStance = [
-  parseSprite([
-    "........................",
-    "..........1111..........",
-    "........11RRRR11........",
-    ".......1HHHHHHHH1.......",
-    ".......111SOOS111.......",
-    "........11111111.4444455", // Forward Thrusting Lance
-    ".....11HHHHHHHH1.4444555",
-    "....1BBGGGGGGGG1.4444455",
-    "....1BBGGGGGGGG1........",
-    ".....1111HHHH111........",
-    "........1hhhh1..........",
-    ".......11hhhh11.........",
-    "......11H1..1H11........",
-    "......111....111........",
-    "........................",
-    "........................",
-    "........................",
-    "........................",
-    "........................",
-    "........................",
-    "........................",
-    "........................",
-    "........................",
-    "........................"
-  ])
-];
+// ==================== KNIGHT (Aegis Lancer) ====================
+// The look is the player's Avatar with armor, a tower shield and a lance (js/classes/job.js).
+//   J = Bastion Forcefield: an electric pulse all around (hits everything close) and
+//       half damage to the hero while the shield is up.
+//   K = Piercing Lance Charge: charges forward and pierces everything in the way.
 
 export const KnightClass = {
   id: "knight",
@@ -157,42 +12,45 @@ export const KnightClass = {
   title: "Aegis Lancer",
   speed: 1.35,
   maxHp: 130,
-  attackCooldown: 15,
-  cooldown: 180, // Cooldown sa charge kapag binitawan
-  sprites: {
-    idle: knightIdle,
-    run: knightRun,
-    slash: knightShieldStance,
-    bash: knightChargeStance
+  attackCooldown: 28,
+  cooldown: 180,
+  range: 60,           // thrust reach (melee)
+
+  // KEY J: Bastion Forcefield
+  onAttack(player, target, spawnProjectile) {
+    spawnProjectile({ type: "shockwave", x: player.x + 10, y: player.y + 14, r: 6, max: 38, grow: 3, damage: 18, hit: new Set(), color: "#5ee7ff", push: 14, elem: "wind" });
+    player.guardTimer = 36;       // −35% damage while active (js/player.js takeDamage)
+    if (Sound.playHolyBurst) Sound.playHolyBurst();
+    return true;
   },
 
-  // KEY J (Hold): Bastion Forcefield State
-  onAttack(player) {
-    if (!player.isShieldGuarding) {
-      player.isShieldGuarding = true;
-      player.shieldAuraRadius = 32;
-      player.shieldShockTimer = 0;
+  // KEY K: Piercing Lance Charge
+  onSkill(player, target, spawnProjectile) {
+    const angle = player.aimAngle;
+    player.chargeTimer = 18;
+    player.chargeVx = Math.cos(angle) * 5.2;
+    player.chargeVy = Math.sin(angle) * 5.2;
+    spawnProjectile({ type: "follow", owner: player, angle, offset: 16, radius: 18, life: 20, damage: 32, hit: new Set(), color: "#ffd166", push: 22 });
+    if (Sound.playSlash) Sound.playSlash();
+    return true;
+  },
+
+  // KEY L: Brandish Spear — a wide sweep in front (strong, slow)
+  cooldown2: 240,
+  onSkill2(player, target, spawnProjectile) {
+    const angle = player.aimAngle;
+    spawnProjectile({ type: "follow", owner: player, angle, offset: 22, radius: 28, life: 8, damage: 48, hit: new Set(), color: "#e2e8f0", push: 26 });
+    spawnProjectile({ type: "shockwave", x: player.x + 10 + Math.cos(angle) * 22, y: player.y + 12 + Math.sin(angle) * 22, r: 4, max: 26, grow: 4, damage: 0, hit: new Set(), color: "#e2e8f0" });
+    if (Sound.playSlash) Sound.playSlash();
+    return true;
+  },
+
+  onUpdate(player) {
+    if (player.guardTimer > 0) player.guardTimer--;
+    if (player.chargeTimer > 0) {
+      player.chargeTimer--;
+      player.x += player.chargeVx;
+      player.y += player.chargeVy;
     }
-  },
-
-  // KEY SPACE: Piercing Lance Charge
-  onSkill(player) {
-    if (player.isChargingLance || player.isShieldGuarding) return;
-
-    player.isChargingLance = true;
-    player.chargeDuration = 28; // ~0.45s sustained blitz charge
-    player.piercedEnemies = new Set(); // Para isang beses lang matamaan bawat kalaban habang tumatagos
-
-    // Tukuyin ang direksyon ng charge
-    let angle = player.aimAngle;
-    if (player.facing === "right" && Math.abs(angle) > Math.PI / 2) angle = 0;
-    if (player.facing === "left" && Math.abs(angle) < Math.PI / 2) angle = Math.PI;
-
-    player.chargeVx = Math.cos(angle) * 5.8;
-    player.chargeVy = Math.sin(angle) * 5.8;
-
-    Sound.playSlash();
-  },
-
-  onSkillUpdate() {}
+  }
 };

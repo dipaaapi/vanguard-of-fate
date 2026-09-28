@@ -1,59 +1,96 @@
+// ==================== CELESTIAL WARP GATEWAYS (LORE Act I) ====================
+// Four ancient gateways on the plains of Aethelgard. Each leads to a campaign
+// platform (Acts VII–X); sealed until the story reaches it.
+// The system itself no longer teleports: it only calls the handler, and main.js
+// decides (change platform or show that it is sealed).
+
+// Draws one gateway. dir: "vertical" | "horizontal"; sealed = dark with a lock
+export function drawGateway(ctx, p, t, sealed = false, label = "") {
+  ctx.save();
+  const pulse = sealed ? 0 : Math.sin(t * 1.8) * 3;
+  const color = sealed ? "#475569" : p.color;
+  const vertical = p.dir !== "horizontal";
+
+  ctx.fillStyle = "#090d16";
+  if (vertical) ctx.fillRect(p.x - 9, p.y - 30, 18, 60);
+  else ctx.fillRect(p.x - 30, p.y - 9, 60, 18);
+  ctx.strokeStyle = sealed ? "#64748b" : "#ffd166";
+  ctx.lineWidth = 1.5;
+  if (vertical) ctx.strokeRect(p.x - 9, p.y - 30, 18, 60);
+  else ctx.strokeRect(p.x - 30, p.y - 9, 60, 18);
+
+  const grad = ctx.createRadialGradient(p.x, p.y, 2, p.x, p.y, 26 + pulse);
+  grad.addColorStop(0, sealed ? "#94a3b8" : "#ffffff");
+  grad.addColorStop(0.3, color);
+  grad.addColorStop(0.8, "rgba(10, 15, 30, 0.7)");
+  grad.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = grad;
+  ctx.globalAlpha = sealed ? 0.45 : 1;
+  ctx.beginPath();
+  if (vertical) ctx.ellipse(p.x, p.y, 14, 26 + pulse, 0, 0, Math.PI * 2);
+  else ctx.ellipse(p.x, p.y, 26 + pulse, 14, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+
+  ctx.strokeStyle = sealed ? "#64748b" : "#ffffff";
+  ctx.lineWidth = 1.2;
+  ctx.setLineDash([4, 3]);
+  ctx.beginPath();
+  if (vertical) ctx.ellipse(p.x, p.y, 5, 18, sealed ? 0 : t * 0.6, 0, Math.PI * 2);
+  else ctx.ellipse(p.x, p.y, 18, 5, sealed ? 0 : t * 0.6, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  if (sealed) {
+    // lock
+    ctx.fillStyle = "#94a3b8";
+    ctx.fillRect(p.x - 3, p.y - 1, 6, 5);
+    ctx.strokeStyle = "#94a3b8";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y - 1, 2, Math.PI, 0);
+    ctx.stroke();
+  }
+
+  if (label) {
+    ctx.font = "bold 5px monospace";
+    ctx.textAlign = "center";
+    const ly = vertical ? p.y - 36 : p.y - 16;
+    const w = ctx.measureText(label).width + 6;
+    ctx.fillStyle = "rgba(3, 6, 17, 0.75)";
+    ctx.fillRect(p.x - w / 2, ly - 5, w, 7);
+    ctx.fillStyle = sealed ? "#94a3b8" : "#ffd166";
+    ctx.fillText(label, p.x, ly);
+  }
+  ctx.restore();
+}
+
 export class PortalSystem {
   constructor(worldWidth, worldHeight) {
     this.worldWidth = worldWidth;
     this.worldHeight = worldHeight;
     this.animTick = 0;
 
-    // 4-Way Warp Portals sa loob ng active player bounds
+    // 4 Celestial Warp Gateways. dest = platform id (see js/world/platforms.js)
     this.portals = [
-      {
-        id: "NORTH",
-        dir: "horizontal",
-        x: Math.round(this.worldWidth / 2),
-        y: 46,
-        w: 58,
-        h: 22,
-        targetX: Math.round(this.worldWidth / 2),
-        targetY: this.worldHeight - 95,
-        color: "#00f0ff"
-      },
-      {
-        id: "SOUTH",
-        dir: "horizontal",
-        x: Math.round(this.worldWidth / 2),
-        y: this.worldHeight - 46,
-        w: 58,
-        h: 22,
-        targetX: Math.round(this.worldWidth / 2),
-        targetY: 95,
-        color: "#00f0ff"
-      },
-      {
-        id: "WEST",
-        dir: "vertical",
-        x: 48,
-        y: Math.round(this.worldHeight / 2),
-        w: 22,
-        h: 58,
-        targetX: this.worldWidth - 95,
-        targetY: Math.round(this.worldHeight / 2),
-        color: "#c77dff"
-      },
-      {
-        id: "EAST",
-        dir: "vertical",
-        x: this.worldWidth - 48,
-        y: Math.round(this.worldHeight / 2),
-        w: 22,
-        h: 58,
-        targetX: 95,
-        targetY: Math.round(this.worldHeight / 2),
-        color: "#c77dff"
-      }
+      { id: "NORTH", dest: "frost", dir: "horizontal", x: Math.round(this.worldWidth / 2), y: 46, w: 58, h: 22, color: "#bfe9ff" },
+      { id: "SOUTH", dest: "ash", dir: "horizontal", x: Math.round(this.worldWidth / 2), y: this.worldHeight - 46, w: 58, h: 22, color: "#ff7a1a" },
+      { id: "WEST", dest: "coast", dir: "vertical", x: 48, y: Math.round(this.worldHeight / 2), w: 22, h: 58, color: "#38bdf8" },
+      { id: "EAST", dest: "canopy", dir: "vertical", x: this.worldWidth - 48, y: Math.round(this.worldHeight / 2), w: 22, h: 58, color: "#c77dff" }
     ];
+    // Set by main.js every frame: (portal) => { sealed, label }
+    this.stateOf = () => ({ sealed: false, label: "" });
   }
 
-  update(player, onWarp) {
+  // Point in front of the gateway (where the player comes out on return)
+  exitPoint(id) {
+    const p = this.portals.find((q) => q.id === id);
+    if (!p) return { x: this.worldWidth / 2, y: this.worldHeight / 2 };
+    const inward = { NORTH: [0, 44], SOUTH: [0, -56], WEST: [44, -10], EAST: [-60, -10] }[p.id];
+    return { x: p.x + inward[0] - 10, y: p.y + inward[1] - 12 };
+  }
+
+  update(player, onEnter) {
     this.animTick += 0.08;
 
     if (!player || player.portalCooldown > 0) return;
@@ -67,10 +104,8 @@ export class PortalSystem {
         player.y + 22 >= p.y - halfH &&
         player.y + 2 <= p.y + halfH
       ) {
-        player.x = p.targetX;
-        player.y = p.targetY;
         player.portalCooldown = 75; // 1.25s cooldown
-        if (onWarp) onWarp(p);
+        if (onEnter) onEnter(p);
         break;
       }
     }
@@ -78,61 +113,8 @@ export class PortalSystem {
 
   draw(ctx) {
     this.portals.forEach((p) => {
-      ctx.save();
-      const t = this.animTick;
-      const pPulse = Math.sin(t * 1.8) * 3;
-
-      if (p.dir === "vertical") {
-        // Obsidian Frame Pillars
-        ctx.fillStyle = "#090d16";
-        ctx.fillRect(p.x - 9, p.y - 30, 18, 60);
-        ctx.strokeStyle = "#ffd166";
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(p.x - 9, p.y - 30, 18, 60);
-
-        // Radial Energy Field
-        const grad = ctx.createRadialGradient(p.x, p.y, 2, p.x, p.y, 26 + pPulse);
-        grad.addColorStop(0, "#ffffff");
-        grad.addColorStop(0.3, p.color);
-        grad.addColorStop(0.8, "rgba(10, 15, 30, 0.7)");
-        grad.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.ellipse(p.x, p.y, 14, 26 + pPulse, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Counter-rotating Rune Ring
-        ctx.strokeStyle = "#ffffff";
-        ctx.lineWidth = 1.2;
-        ctx.setLineDash([4, 3]);
-        ctx.beginPath();
-        ctx.ellipse(p.x, p.y, 5, 18, t * 0.6, 0, Math.PI * 2);
-        ctx.stroke();
-      } else {
-        ctx.fillStyle = "#090d16";
-        ctx.fillRect(p.x - 30, p.y - 9, 60, 18);
-        ctx.strokeStyle = "#ffd166";
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(p.x - 30, p.y - 9, 60, 18);
-
-        const grad = ctx.createRadialGradient(p.x, p.y, 2, p.x, p.y, 26 + pPulse);
-        grad.addColorStop(0, "#ffffff");
-        grad.addColorStop(0.3, p.color);
-        grad.addColorStop(0.8, "rgba(10, 15, 30, 0.7)");
-        grad.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.ellipse(p.x, p.y, 26 + pPulse, 14, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.strokeStyle = "#ffffff";
-        ctx.lineWidth = 1.2;
-        ctx.setLineDash([4, 3]);
-        ctx.beginPath();
-        ctx.ellipse(p.x, p.y, 18, 5, t * 0.6, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-      ctx.restore();
+      const s = this.stateOf(p) || {};
+      drawGateway(ctx, p, this.animTick, s.sealed, s.label);
     });
   }
 }

@@ -1,11 +1,11 @@
-// ==================== MGA TAUHAN NG LORE (LORE.md) ====================
-// Bawat NPC ay ginuguhit gamit ang modular Avatar. Ang pangalan at dialogue ay nasa
-// js/dialogue.js (English at Filipino). `mentor` = class na itinuturo sa Job Awakening.
+// ==================== LORE CHARACTERS (LORE.md) ====================
+// Every NPC is drawn with the modular Avatar. Names and dialogue live in
+// js/dialogue.js (English and Filipino). `mentor` = the class they teach at the Job Awakening.
 
 const base = { gloves: "none", legs: "pants", boots: "boots", eyes: "#4a3222" };
 
 export const NPC_DEFS = {
-  // ---- Maharlikang pamilya ----
+  // ---- Royal family ----
   aurelia: {
     look: { ...base, body: "female", skin: "#f7d9c4", eyes: "#2f6db5", hairStyle: "long", hairColor: "#ece0b8",
       outfit: "gown", outfitColor: "#f2ecf8", legColor: "#f2ecf8", headgear: "tiara", cape: "#3b3f9a", weapon: "staff" }
@@ -33,7 +33,29 @@ export const NPC_DEFS = {
       outfit: "robe", outfitColor: "#2f6b3f", legColor: "#3b3f4a", bootColor: "#5e3b1a", weapon: "flask" }
   },
 
-  // ---- Ang limang Earthbound soul: mga mentor ng class ----
+  // ---- Emberhold, the Dwarven Village of the Ashfall Wastelands (Act X) ----
+  brakka: {   // master smith: refines to the maximum (and forges mineral sets)
+    dwarf: true,
+    look: { ...base, body: "male", skin: "#e0ac69", hairStyle: "buzz", hairColor: "#b45309", beard: true, gloves: "leather",
+      outfit: "coat", outfitColor: "#7c2d12", legColor: "#3b2a1a", bootColor: "#2b1d14", weapon: "axe" }
+  },
+  hilde: {    // repairs weapons and armor
+    dwarf: true,
+    look: { ...base, body: "female", skin: "#f1c27d", hairStyle: "twintails", hairColor: "#c2410c", gloves: "wraps",
+      outfit: "vest", outfitColor: "#57534e", legColor: "#44403c", bootColor: "#3a2616", weapon: "none" }
+  },
+  durgrim: {  // thane of Emberhold: gives the mining quest
+    dwarf: true,
+    look: { ...base, body: "male", skin: "#c68642", hairStyle: "short", hairColor: "#dfe6ee", beard: true,
+      outfit: "robe", outfitColor: "#1e3a5f", legColor: "#1e293b", bootColor: "#2b2b33", headgear: "crown", cape: "#991b1b", weapon: "scepter" }
+  },
+  pip: {      // shopkeeper
+    dwarf: true,
+    look: { ...base, body: "male", skin: "#f1c27d", hairStyle: "spiky", hairColor: "#7a5230", beard: true,
+      outfit: "tunic", outfitColor: "#a16207", legColor: "#57534e", bootColor: "#5e3b1a", headgear: "hat", weapon: "flask" }
+  },
+
+  // ---- The five Earthbound souls: class mentors ----
   arthur: {
     mentor: "knight",
     look: { ...base, body: "male", skin: "#c68642", eyes: "#2b1d14", hairStyle: "short", hairColor: "#2b1d14", gloves: "leather",
@@ -60,19 +82,19 @@ export const NPC_DEFS = {
       outfit: "vest", outfitColor: "#c73e3a", legColor: "#2b2b33", legs: "pants", bootColor: "#2b2b33", gloves: "wraps", weapon: "none" }
   },
 
-  // ---- Act VII (para sa susunod na platform) ----
+  // ---- Act VII (for the next platform) ----
   elvenMatriarch: {
     look: { ...base, body: "female", skin: "#f7d9c4", eyes: "#7a3fb0", hairStyle: "long", hairColor: "#dfe6ee", ears: "elf",
       outfit: "gown", outfitColor: "#2f6b4f", legColor: "#2f6b4f", headgear: "tiara", cape: "#e8e2d0", weapon: "staff" }
   }
 };
 
-// Ang mentor bawat class (para sa Job Awakening screen)
+// Each class's mentor (for the Job Awakening screen)
 export const MENTOR_OF = Object.fromEntries(
   Object.entries(NPC_DEFS).filter(([, d]) => d.mentor).map(([id, d]) => [d.mentor, id])
 );
 
-// Ang tagapagtawag ay batay sa katawan ng player: lalaki → Prinsesa Aurelia, babae → Prinsipe Kenneth
+// The summoner depends on the player's body: male → Princess Aurelia, female → Prince Kenneth
 export function summonerIdFor(avatarConfig) {
   return avatarConfig && avatarConfig.body === "female" ? "kenneth" : "aurelia";
 }

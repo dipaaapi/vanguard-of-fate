@@ -1,14 +1,22 @@
 import { Sound } from "./audio.js";
 import { t, onLangChange } from "./i18n.js";
 import { Avatar, FRAME_W, FRAME_H, DIRS } from "./avatar/avatar.js";
-import { FIELDS, DEFAULT_CONFIG, randomConfig } from "./avatar/options.js";
+import { FIELDS, DEFAULT_CONFIG, randomConfig, randomName } from "./avatar/options.js";
 
 // ==================== CHARACTER CREATOR ====================
-// Dito nililikha ang Novice bago ang summoning: katawan, balat, mata, buhok,
-// kasuotan, kamay, binti at paa — bawat isa ay hiwalay na bahagi ng Avatar.
-// Ang class (Knight, Mage, …) ay pinipili na lang sa Job Awakening (Lv 10).
+// Here the Novice is created before the summoning: body, skin, eyes, hair,
+// outfit, hands, legs and feet — each a separate part of the Avatar.
+// The class (Knight, Mage, …) is chosen later at the Job Awakening (Lv 10).
 
-const PREVIEW_SCALE = 3;  // internal na resolution ng malaking preview (pinapalaki pa ng CSS)
+const PREVIEW_SCALE = 3;  // internal resolution of the big preview (CSS scales it further)
+
+// Preview pose (V / buttons): idle → walk → run
+const POSES = [
+  { anim: "idle", ticks: 32, icon: "◉", key: "crIdle" },
+  { anim: "walk", ticks: 9, icon: "🚶", key: "crWalk" },
+  { anim: "run", ticks: 5, icon: "🏃", key: "crRun" }
+];
+const DIR_LABELS = ["crFront", "crRight", "crBackView", "crLeft"];
 
 export class CreatorScene {
   constructor(rootEl, onBegin, onBack) {
@@ -31,20 +39,22 @@ export class CreatorScene {
     this.config = { ...DEFAULT_CONFIG };
     this.avatar = new Avatar(this.config);
     this.row = 0;
-    this.dir = 0;          // index sa DIRS
-    this.walking = true;
+    this.dir = 0;          // 0 front, 1 right, 2 back, 3 left
+    this.dialDeg = 0;      // accumulated dial needle angle (so it always takes the short way round)
+    this.pose = 1;         // index into POSES (walk by default)
     this.tick = 0;
 
     this.bindDom();
     onLangChange(() => this.render());
   }
 
-  // Tinatawag tuwing papasok sa creator (bagong expedition)
+  // Called whenever the creator opens (new expedition)
   reset() {
     this.config = { ...DEFAULT_CONFIG };
     this.nameEl.value = "";
     this.row = 0;
     this.dir = 0;
+    this.dialDeg = 0;
     this.rebuild();
   }
 
@@ -60,14 +70,27 @@ export class CreatorScene {
       el.addEventListener("mousedown", (e) => e.preventDefault());
       el.addEventListener("click", () => { Sound.init(); fn(); });
     };
-    btn("#crRotL", () => this.rotate(-1));
-    btn("#crRotR", () => this.rotate(1));
-    btn("#crWalk", () => { this.walking = !this.walking; this.render(); });
+    btn("#crHome", () => this.back());
+    btn("#crFull", () => this.toggleFullscreen());
     btn("#crRandom", () => this.randomize());
-    btn("#crBack", () => this.back());
+    document.addEventListener("fullscreenchange", () => this.renderUtil());
+    this.bindDial();
     btn("#crBegin", () => this.begin());
 
-    // Enter/Esc sa name field: tapusin ang pag-type
+    // Tray: Idle / Walk / Dash as side-by-side buttons
+    const poses = this.root.querySelector("#crPoses");
+    POSES.forEach((pose, i) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.setAttribute("role", "radio");
+      b.dataset.pose = String(i);
+      b.innerHTML = `<b>${pose.icon}</b><span></span>`;
+      b.addEventListener("mousedown", (e) => e.preventDefault());
+      b.addEventListener("click", () => { Sound.init(); this.setPose(i); });
+      poses.appendChild(b);
+    });
+
+    // Enter/Esc in the name field: finish typing
     this.nameEl.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === "Escape") { e.preventDefault(); this.nameEl.blur(); }
       e.stopPropagation();
@@ -78,7 +101,7 @@ export class CreatorScene {
     this.root.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = t(el.dataset.i18n); });
     this.nameEl.placeholder = t("crNamePh");
     this.hintEl.innerHTML = t("crHint");
-    this.root.querySelector("#crWalk").classList.toggle("on", this.walking);
+    this.renderUtil();
     this.summonerEl.textContent = t("summonedBy", this.config.body === "female" ? t("prince") : t("princess"));
     this.renderRows();
     this.drawTrio();
@@ -168,12 +191,83 @@ export class CreatorScene {
   }
 
   rotate(d) {
-    this.dir = (this.dir + d + 4) % 4;   // down → side(kanan) → up → side(kaliwa)
+    this.setDir(this.dir + d);   // down → side (right) → up → side (left)
+  }
+
+  setDir(i) {
+    const next = ((i % 4) + 4) % 4;
+    if (next === this.dir) return;
+    // Shortest needle turn: -1, +1 or 2 steps
+    let step = next - this.dir;
+    if (step > 2) step -= 4;
+    if (step < -1) step += 4;
+    this.dir = next;
+    this.dialDeg -= step * 90;
     if (Sound.playSelectMove) Sound.playSelectMove();
+    this.renderUtil();
+  }
+
+  setPose(i) {
+    this.pose = i;
+    this.tick = 0;
+    if (Sound.playSelectMove) Sound.playSelectMove();
+    this.renderUtil();
+  }
+
+  cyclePose() {
+    this.setPose((this.pose + 1) % POSES.length);
+  }
+
+  toggleFullscreen() {
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    else document.documentElement.requestFullscreen().catch(() => {});
+  }
+
+  // Dial: click or drag; the angle from the centre picks the direction
+  // (down = front, right = right, up = back, left = left). Scrolling rotates too.
+  bindDial() {
+    const dial = this.root.querySelector("#crDial");
+    const pick = (e) => {
+      const r = dial.getBoundingClientRect();
+      const a = Math.atan2(e.clientY - (r.top + r.height / 2), e.clientX - (r.left + r.width / 2)) * 180 / Math.PI;
+      this.setDir(Math.round((90 - a) / 90));
+    };
+    dial.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      Sound.init();
+      dial.setPointerCapture(e.pointerId);
+      dial.classList.add("dragging");
+      pick(e);
+    });
+    dial.addEventListener("pointermove", (e) => { if (dial.classList.contains("dragging")) pick(e); });
+    ["pointerup", "pointercancel"].forEach((ev) => dial.addEventListener(ev, () => dial.classList.remove("dragging")));
+    dial.addEventListener("wheel", (e) => { e.preventDefault(); this.rotate(e.deltaY > 0 ? 1 : -1); }, { passive: false });
+  }
+
+  renderUtil() {
+    const $ = (id) => this.root.querySelector(id);
+    this.root.querySelectorAll("#crPoses [data-pose]").forEach((b) => {
+      const i = Number(b.dataset.pose);
+      b.querySelector("span").textContent = t(POSES[i].key);
+      b.classList.toggle("on", i === this.pose);
+      b.setAttribute("aria-checked", String(i === this.pose));
+    });
+    const full = Boolean(document.fullscreenElement);
+    $("#crFullIcon").textContent = full ? "🗗" : "⛶";
+    $("#crFullLabel").textContent = full ? t("crRestore") : t("crFull");
+    $("#crDialNeedle").style.setProperty("--a", `${this.dialDeg}deg`);
+    const dialLabel = t(DIR_LABELS[this.dir]);
+    $("#crDialLabel").textContent = dialLabel;
+    const dialEl = $("#crDial");
+    if (dialEl) {
+      dialEl.setAttribute("aria-valuenow", String(this.dir));
+      dialEl.setAttribute("aria-valuetext", dialLabel);
+    }
   }
 
   randomize() {
     this.config = randomConfig();
+    this.nameEl.value = randomName(this.config.body);
     if (Sound.playSelectConfirm) Sound.playSelectConfirm();
     this.rebuild();
   }
@@ -198,6 +292,8 @@ export class CreatorScene {
     else if (c === "ArrowRight" || c === "KeyD") this.change(1);
     else if (c === "KeyQ") this.rotate(-1);
     else if (c === "KeyE") this.rotate(1);
+    else if (c === "KeyV" && !e.repeat) this.cyclePose();
+    else if (c === "KeyF" && !e.repeat) this.toggleFullscreen();
     else if (c === "KeyR" && !e.repeat) this.randomize();
     else if (c === "Enter" && !e.repeat) this.begin();
     else if (c === "Escape") this.back();
@@ -205,7 +301,7 @@ export class CreatorScene {
 
   // ---------- PREVIEW ----------
   view() {
-    // 0: harap, 1: kanan, 2: likod, 3: kaliwa
+    // 0: front, 1: right, 2: back, 3: left
     return [["down", false], ["side", false], ["up", false], ["side", true]][this.dir];
   }
 
@@ -217,12 +313,13 @@ export class CreatorScene {
     });
   }
 
-  // Tinatawag bawat frame ng game loop habang nasa CREATE
+  // Called every frame of the game loop while in CREATE
   draw() {
     this.tick++;
     const [dir, flip] = this.view();
-    const anim = this.walking ? "walk" : "idle";
-    const frame = this.walking ? Math.floor(this.tick / 9) : Math.floor(this.tick / 32);
+    const pose = POSES[this.pose];
+    const anim = pose.anim;
+    const frame = Math.floor(this.tick / pose.ticks);
 
     const ctx = this.pctx;
     ctx.imageSmoothingEnabled = false;

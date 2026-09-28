@@ -1,136 +1,290 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" translate="no" class="notranslate">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="google" content="notranslate" />
+  <meta name="googlebot" content="notranslate" />
+  <meta name="description" content="Vanguard of Fate — An action RPG and isekai fantasy chronicle built with HTML5 Canvas." />
+  <meta name="theme-color" content="#0b0f19" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%E2%9A%94%EF%B8%8F%3C/text%3E%3C/svg%3E" />
   <title>Vanguard of Fate</title>
+
+  <!-- Google Fonts: Cinzel & Silkscreen -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Silkscreen:wght@400;700&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&amp;family=Silkscreen:wght@400;700&amp;display=swap" />
+
+  <!-- Game Stylesheets -->
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/title.css" />
   <link rel="stylesheet" href="css/creator.css" />
   <link rel="stylesheet" href="css/dialog.css" />
 </head>
-<body data-mode="title">
+<body data-mode="title" class="notranslate" translate="no">
 
-  <!-- Title screen: buong window, HTML/CSS (hindi canvas) para malinaw ang logo at menu -->
-  <section id="title" data-step="press">
-    <div class="t-bg"></div>
-    <canvas id="titleFx"></canvas>
-    <div class="t-fog t-fog-a"></div>
-    <div class="t-fog t-fog-b"></div>
-    <div class="t-shade"></div>
+  <!-- ================================================================= -->
+  <!-- 1. TITLE SCREEN                                                   -->
+  <!-- Full-window HTML/CSS interface with canvas particle overlay       -->
+  <!-- ================================================================= -->
+  <section id="title" data-step="press" aria-label="Title Screen">
+    <div class="t-bg" aria-hidden="true"></div>
+    <canvas id="titleFx" aria-hidden="true"></canvas>
+    <div class="t-fog t-fog-a" aria-hidden="true"></div>
+    <div class="t-fog t-fog-b" aria-hidden="true"></div>
+    <div class="t-shade" aria-hidden="true"></div>
 
-    <button type="button" class="t-lang" id="langToggle" tabindex="-1" title="Language / Wika (L)">
-      <span data-lang="en">EN</span><span data-lang="fil">FIL</span>
-    </button>
+    <!-- Language / Screen dropdown -->
+    <div class="t-lang" id="langToggle">
+      <button type="button" class="t-lang-btn" id="langBtn" tabindex="-1" title="Language / Wika (L)" aria-haspopup="menu" aria-expanded="false">
+        <span id="langCur">EN</span><i aria-hidden="true">▾</i>
+      </button>
+      <div class="t-lang-menu" id="langMenu" role="menu">
+        <button type="button" role="menuitemradio" aria-checked="true" tabindex="-1" data-lang="en"><b>EN</b> English</button>
+        <button type="button" role="menuitemradio" aria-checked="false" tabindex="-1" data-lang="fil"><b>TL</b> Tagalog</button>
+        <button type="button" role="menuitem" tabindex="-1" id="screenItem" class="t-lang-screen"></button>
+      </div>
+    </div>
 
+    <!-- Main Title Logo -->
     <header class="t-logo">
       <h1>Vanguard <em>of</em> Fate</h1>
       <p class="t-sub" data-i18n="subtitle"></p>
     </header>
 
+    <!-- Press Any Key Prompt -->
     <p class="t-press" data-i18n="pressAnyKey"></p>
-    <nav class="t-menu" id="titleMenu"></nav>
 
-    <div class="t-chron" id="chronicles">
+    <!-- Navigation Menu (Dynamically populated) -->
+    <nav class="t-menu" id="titleMenu" aria-label="Title Menu"></nav>
+
+    <!-- Chronicles Modal (Lore Chapters) -->
+    <div class="t-chron" id="chronicles" role="dialog" aria-modal="true" aria-labelledby="chronTitle">
       <div class="c-panel">
         <div class="c-head">
           <h2 id="chronTitle"></h2>
-          <button type="button" class="c-close" id="chronClose" aria-label="Close">✕</button>
+          <button type="button" class="c-close" id="chronClose" aria-label="Close Chronicles">✕</button>
         </div>
-        <div class="c-tabs" id="chronTabs"></div>
-        <div class="c-body" id="chronBody"></div>
+        <div class="c-tabs" id="chronTabs" role="tablist"></div>
+        <div class="c-body" id="chronBody" tabindex="0"></div>
         <p class="c-note" id="chronNote"></p>
       </div>
     </div>
 
+    <!-- Credits Modal -->
+    <div class="t-chron t-credits" id="credits" role="dialog" aria-modal="true" aria-labelledby="credTitle">
+      <div class="c-panel">
+        <div class="c-head">
+          <h2 id="credTitle"></h2>
+          <button type="button" class="c-close" id="credClose" aria-label="Close Credits">✕</button>
+        </div>
+        <div class="c-body cr-body" id="credBody" tabindex="0"></div>
+      </div>
+    </div>
+
+    <!-- Title Footer -->
     <footer class="t-foot">
       <span class="t-hint" id="titleHint"></span>
       <span class="t-tag" data-i18n="tagline"></span>
     </footer>
   </section>
 
-  <!-- Character Creator: likhain ang Novice (ang class ay sa Job Awakening na) -->
-  <section id="creator">
-    <div class="cr-bg"></div>
+  <!-- ================================================================= -->
+  <!-- 2. CHARACTER CREATOR                                              -->
+  <!-- Novice appearance customization and preview                       -->
+  <!-- ================================================================= -->
+  <section id="creator" aria-label="Character Creator">
+    <div class="cr-bg" aria-hidden="true"></div>
     <div class="cr-layout">
+      <!-- Left Stage: Hero Preview & Controls -->
       <div class="cr-stage">
         <h2 class="cr-title" data-i18n="crTitle"></h2>
         <p class="cr-sub" data-i18n="crSub"></p>
+        
         <div class="cr-pedestal">
-          <canvas id="crPreview"></canvas>
+          <canvas id="crPreview" aria-label="Character preview" role="img"></canvas>
         </div>
-        <div class="cr-controls">
-          <button type="button" id="crRotL" title="Q">⟲</button>
-          <button type="button" id="crWalk" data-i18n="crWalk"></button>
-          <button type="button" id="crRotR" title="E">⟳</button>
+
+        <!-- Rotate Dial (Q / E) -->
+        <div class="cr-util">
+          <div class="cr-dial-wrap">
+            <div class="cr-dial" id="crDial" title="Q / E" role="slider" tabindex="0" aria-label="Rotate Character" aria-valuenow="0" aria-valuemin="0" aria-valuemax="3" aria-valuetext="Facing Down">
+              <span class="cr-dial-mark m-down"></span><span class="cr-dial-mark m-right"></span>
+              <span class="cr-dial-mark m-up"></span><span class="cr-dial-mark m-left"></span>
+              <i class="cr-dial-needle" id="crDialNeedle"></i>
+            </div>
+            <span class="cr-dial-label" id="crDialLabel"></span>
+          </div>
         </div>
-        <div class="cr-trio"><canvas></canvas><canvas></canvas><canvas></canvas></div>
+
+        <div class="cr-trio" aria-hidden="true">
+          <canvas></canvas><canvas></canvas><canvas></canvas>
+        </div>
         <p class="cr-summoner" id="crSummoner"></p>
       </div>
 
+      <!-- Right Panel: Customization Options & Actions -->
       <div class="cr-panel">
-        <label class="cr-name">
+        <label class="cr-name" for="crName">
           <span data-i18n="crName"></span>
           <input id="crName" type="text" maxlength="12" autocomplete="off" spellcheck="false" />
         </label>
         <div class="cr-rows" id="crRows"></div>
         <div class="cr-actions">
-          <button type="button" id="crBack" data-i18n="back"></button>
-          <button type="button" id="crRandom" data-i18n="crRandom"></button>
+          <button type="button" id="crRandom" title="R"><b>🎲</b> <span data-i18n="crRandom"></span></button>
           <button type="button" id="crBegin" class="primary" data-i18n="crBegin"></button>
         </div>
       </div>
     </div>
+
+    <!-- Bottom Tray: Main Menu · Idle / Walk / Dash · Full Screen -->
+    <nav class="cr-tray" aria-label="Creator options">
+      <button type="button" id="crHome" title="Esc">
+        <b>⌂</b><span data-i18n="crHome"></span>
+      </button>
+      <div class="cr-poses" id="crPoses" role="radiogroup" title="V" aria-label="Preview pose"></div>
+      <button type="button" id="crFull" title="F">
+        <b id="crFullIcon"></b><span id="crFullLabel"></span>
+      </button>
+    </nav>
     <footer class="cr-foot" id="crHint"></footer>
   </section>
 
+  <!-- ================================================================= -->
+  <!-- 2.5 ACT I PROLOGUE CUTSCENE (animated, js/prologue.js)           -->
+  <!-- ================================================================= -->
+  <section id="prologue" class="prologue-modal" aria-label="Prologue: Act I" tabindex="-1">
+    <div class="pro-stage" id="proStage">
+      <canvas id="prologueCanvas" width="480" height="270"></canvas>
+      <div class="pro-card" id="proCard"></div>
+      <div class="pro-sub" id="proSub">
+        <b class="pro-speaker" id="proSpeaker"></b>
+        <span class="pro-line" id="proLine"></span>
+      </div>
+      <div class="pro-hint" id="proHint"></div>
+    </div>
+  </section>
+
+  <!-- ================================================================= -->
+  <!-- 3. GAME APPLICATION (STAGE & LORE SIDEBAR)                        -->
+  <!-- ================================================================= -->
   <div id="app">
+    <!-- Main Game Viewport -->
     <main id="stage">
-      <!-- Game screen + mga HTML overlay (dialogue, quest) -->
       <div id="viewport">
-        <canvas id="gameCanvas" width="480" height="270"></canvas>
+        <canvas id="gameCanvas" width="480" height="270" aria-label="Game World" role="img"></canvas>
 
-        <div id="questTracker">
-          <div id="qtAct"></div>
-          <div id="qtGoal"></div>
-        </div>
-        <div id="questToast"></div>
+        <!-- HTML Overlays: Toasts, Quest log, Inventory, Character sheet, Dialog -->
+        <div id="questToast" aria-live="polite"></div>
         <div id="questLog"></div>
+        <div id="inventory"></div>
+        <div id="character"></div>
+        <div id="serviceMenu" role="menu" aria-label="Services"></div>
+        <div id="codex" aria-label="Codex"></div>
 
-        <div id="dialog">
-          <canvas id="dlgPortrait"></canvas>
+        <div id="dialog" role="dialog" aria-label="Dialogue" aria-live="assertive">
+          <canvas id="dlgPortrait" aria-hidden="true"></canvas>
           <div class="dlg-body">
             <div id="dlgName"></div>
             <p id="dlgText"></p>
           </div>
-          <span id="dlgNext">▼</span>
+          <span id="dlgNext" aria-hidden="true">▼</span>
         </div>
       </div>
 
-      <!-- Ibaba: hero picker (select) / control hints -->
+      <!-- Bottom Tray (in-game): conversation log of NPC dialogue (js/chatlog.js) -->
+      <section id="chatLog" aria-label="Conversation log">
+        <header class="log-head"></header>
+        <div class="log-list" aria-live="polite"></div>
+      </section>
+
+      <!-- Bottom Bar: Hero selection picker & HUD control hints -->
       <div id="bar">
         <div id="picker"></div>
-        <div class="hud" id="hudText"></div>
+        <div class="hud" id="hudText" aria-live="polite"></div>
       </div>
     </main>
 
-    <!-- Kanan: lore auto-loop (laro) / dossier ng hero (select) -->
-    <aside id="lore">
+    <!-- Sidebar: Lore Tracker, Player Status HUD, Actions & Dossier -->
+    <aside id="lore" aria-label="Game Information and Controls">
       <div class="lore-head" id="sideHead"></div>
-      <div class="lore-view"><div class="lore-track"></div></div>
+
+      <!-- Side Lore Auto-scroll Section -->
+      <section class="side-lore" aria-label="Lore Overview">
+        <div class="lore-view"><div class="lore-track"></div></div>
+        <button type="button" class="lore-more" id="loreMore" tabindex="-1"></button>
+      </section>
+
+      <!-- Side HUD: Hero Portrait, Vitals, Quest Tracker & Field Info -->
+      <section class="side-ui" id="hudBar" aria-label="Hero Status and Field State">
+        <div class="hb-hero">
+          <div class="hb-portrait" id="hbInitial"></div>
+          <div class="hb-info">
+            <div class="hb-row">
+              <span class="hb-name" id="hbName"></span>
+              <span class="hb-level" id="hbLevel"></span>
+            </div>
+            <div class="hb-class" id="hbClass"></div>
+            <div class="hb-meter hp"><i id="hbHp"></i><span id="hbHpText"></span></div>
+            <div class="hb-meter st" id="hbStBox" title="Stamina"><i id="hbSt"></i></div>
+            <div class="hb-meter xp"><i id="hbXp"></i></div>
+            <div class="hb-status" id="hbStatus"></div>
+          </div>
+        </div>
+
+        <div class="hb-quest" id="questTracker">
+          <div id="qtAct"></div>
+          <div id="qtGoal"></div>
+        </div>
+
+        <div class="hb-field">
+          <div><span class="hb-k" id="hbFoesK"></span> <b class="c-foe" id="hbFoes"></b></div>
+          <div><span class="hb-k" id="hbLootK"></span> <b class="c-loot" id="hbLoot"></b></div>
+          <div><span id="hbGold" class="c-gold"></span></div>
+          <div><span id="hbWeather"></span></div>
+          <div class="hb-zone" id="hbZone"></div>
+        </div>
+      </section>
+
+      <!-- Side Actions: Skills, Belt Quick-items & Menu Buttons -->
+      <section class="side-actions" id="sideActions" aria-label="Actions and Skills">
+        <div class="sa-label" id="saSkillsLabel"></div>
+        <div class="sa-grid" id="saSkills"></div>
+        <div class="sa-label" id="saBeltLabel"></div>
+        <div class="sa-grid belt" id="saBelt"></div>
+        <div class="sa-label" id="saOptionsLabel"></div>
+        <div class="sa-grid" id="saOptions"></div>
+      </section>
+
+      <!-- Awakening Dossier View (when choosing class) -->
       <div class="dossier" id="dossier"></div>
     </aside>
   </div>
 
-  <!-- Puting flash kapag pumili sa title menu -->
-  <div id="flash"></div>
+  <!-- ================================================================= -->
+  <!-- 4. MODALS & AUXILIARY ELEMENTS                                    -->
+  <!-- ================================================================= -->
 
-  <!-- Nakatagong file input para sa .json import -->
-  <input type="file" id="saveFileInput" accept=".json" style="display: none;" />
+  <!-- Full Act Reader ("Read More" Story Modal) -->
+  <section id="actReader" role="dialog" aria-modal="true" aria-labelledby="arTitle">
+    <div class="ar-panel">
+      <div class="ar-head">
+        <h2 id="arTitle"></h2>
+        <button type="button" class="ar-close" id="arClose" aria-label="Close Act Reader" tabindex="-1">✕</button>
+      </div>
+      <div class="ar-tabs" id="arTabs" role="tablist"></div>
+      <div class="ar-body" id="arBody" tabindex="0"></div>
+      <p class="ar-hint" id="arHint"></p>
+    </div>
+  </section>
 
+  <!-- Screen Flash Transition Effect -->
+  <div id="flash" aria-hidden="true"></div>
+
+  <!-- Hidden File Input for Secure Save Import (.vof, .sav, .json) -->
+  <input type="file" id="saveFileInput" accept=".vof,.sav,.json" hidden />
+
+  <!-- Entry Script -->
   <script type="module" src="js/main.js"></script>
 </body>
 </html>

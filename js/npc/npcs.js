@@ -1,38 +1,438 @@
 import { Avatar } from "../avatar/avatar.js";
+import { around, attackPose, drawSwing } from "../juice.js";
 import { NPC_DEFS } from "./roster.js";
 import { npcName } from "../dialogue.js";
 import { qt } from "../quest.js";
+import { PLATFORMS, PLATFORM_ORDER } from "../world/platforms.js";
+import { Sound } from "../audio.js";
+import { getLang } from "../i18n.js";
 
-// ==================== MGA NPC SA MUNDO ====================
-// Ang posisyon (x, y) ng NPC ay ang gitna ng paa, katulad ng anchor ng Avatar.
-// Ang paa ng player ay nasa (player.x + 10, player.y + 21).
+// ==================== NPCs IN THE WORLD ====================
+// An NPC's position (x, y) is the middle of its feet, like the Avatar's anchor.
+// The player's feet are at (player.x + 10, player.y + 21).
 
 const TALK_RANGE = 26;
 const FACE_RANGE = 70;
 
+// Async loader for external rich lore conversation dataset (10+ dialogues per NPC)
+let NPC_CONVERSATIONS_DATA = null;
+fetch("data/npc_conversations.json")
+  .then((res) => (res.ok ? res.json() : null))
+  .then((data) => {
+    if (data) NPC_CONVERSATIONS_DATA = data;
+  })
+  .catch(() => {});
+
+const AMBIENT_CHATS = [
+  {
+    pair: ["arthur", "ronald"],
+    lines: [
+      { speaker: "arthur", en: "Lance balance feels solid today.", fil: "Matibay ang balanse ng sibat ngayon." },
+      { speaker: "ronald", en: "Keep your stance grounded, Ramirez!", fil: "Panatilihing matatag ang tindig mo!" }
+    ]
+  },
+  {
+    pair: ["edgar", "julian"],
+    lines: [
+      { speaker: "edgar", en: "Fresh herbs ready for the salves.", fil: "Sariwa ang mga halaman para sa gamot." },
+      { speaker: "julian", en: "The triage beds are prepared, Edgar.", fil: "Handa na ang mga higaan sa pagamutan." }
+    ]
+  },
+  {
+    pair: ["lyra", "sam"],
+    lines: [
+      { speaker: "lyra", en: "My falcon spotted strange shadows.", fil: "May kakaibang aninong nakita ang lawin." },
+      { speaker: "sam", en: "Mana density is spiking on my radar.", fil: "Tumataas ang kuryente ng mana sa radar." }
+    ]
+  },
+  {
+    pair: ["renzo", "arthur"],
+    lines: [
+      { speaker: "renzo", en: "Ready for another sparring round, Art?", fil: "Handa na sa isa pang round ng ensayo, Art?" },
+      { speaker: "arthur", en: "Don't break my shield this time!", fil: "Huwag mo namang basagin ang kalasag ko!" }
+    ]
+  },
+  {
+    pair: ["royalGuard", "royalGuard"],
+    lines: [
+      { speaker: "royalGuard", en: "All quiet at the perimeter.", fil: "Payapa ang paligid ng moog." },
+      { speaker: "royalGuard", en: "Eyes sharp. For the King!", fil: "Maging alerto. Para sa Hari!" }
+    ]
+  },
+  {
+    pair: ["king", "royalGuard"],
+    lines: [
+      { speaker: "king", en: "Stand firm, brave sentinels.", fil: "Manatiling matatag, mga bantay." },
+      { speaker: "royalGuard", en: "With our lives, Your Majesty.", fil: "Alang-alang sa inyong buhay, Mahal na Hari." }
+    ]
+  },
+  {
+    generic: true,
+    lines: [
+      { en: "Astraea protect our realm.", fil: "Nawa'y gabayan tayo ni Astraea." },
+      { en: "The wind carries a strange chill.", fil: "Malamig ang simoy ng hangin ngayon." },
+      { en: "Check your potion pouches!", fil: "Suriin ang inyong mga gamot!" },
+      { en: "The Grand Slaying Corps will prevail.", fil: "Magtatagumpay ang ating hukbo." },
+      { en: "Keep your weapons sharp.", fil: "Panatilihing matalim ang inyong sandata." },
+      { en: "The skies feel ominous today.", fil: "Kakaiba ang dilim ng ulap ngayon." }
+    ]
+  }
+];
+
+function drawSpeechBubble(ctx, x, y, text) {
+  ctx.save();
+  ctx.font = "bold 5.5px sans-serif";
+  const textW = ctx.measureText(text).width;
+  const padX = 6;
+  const bw = Math.max(30, textW + padX * 2);
+  const bh = 11;
+  const bx = x - bw / 2;
+  const by = y - bh;
+
+  // Subtle Shadow
+  ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
+  if (ctx.roundRect) {
+    ctx.beginPath();
+    ctx.roundRect(bx + 1, by + 1, bw, bh, 3);
+    ctx.fill();
+  } else {
+    ctx.fillRect(bx + 1, by + 1, bw, bh);
+  }
+
+  // Bubble Background & Border
+  ctx.fillStyle = "#ffffff";
+  ctx.strokeStyle = "#1e293b";
+  ctx.lineWidth = 1;
+  if (ctx.roundRect) {
+    ctx.beginPath();
+    ctx.roundRect(bx, by, bw, bh, 3);
+    ctx.fill();
+    ctx.stroke();
+  } else {
+    ctx.fillRect(bx, by, bw, bh);
+    ctx.strokeRect(bx, by, bw, bh);
+  }
+
+  // Downward Pointer Tail to Head
+  ctx.beginPath();
+  ctx.moveTo(x - 3, by + bh);
+  ctx.lineTo(x, by + bh + 3.5);
+  ctx.lineTo(x + 3, by + bh);
+  ctx.closePath();
+  ctx.fillStyle = "#ffffff";
+  ctx.fill();
+  ctx.stroke();
+
+  // Cover seam above tail
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(x - 2, by + bh - 1, 4, 1.5);
+
+  // Text
+  ctx.fillStyle = "#0f172a";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(text, x, by + bh / 2);
+  ctx.restore();
+}
+
 class NPC {
-  constructor(id, x, y, dir = "down") {
+  constructor(id, x, y, dir = "down", platform = "hub", opts = {}) {
     this.id = id;
+    this.platform = platform;     // "hub" (Aethelgard) or the id of an Act platform
     this.x = x;
     this.y = y;
+    this.homeX = x;
+    this.homeY = y;
     this.homeDir = dir;
     this.dir = dir;
     this.flip = false;
     this.visible = true;
     this.avatar = new Avatar(NPC_DEFS[id].look);
-    this.tick = Math.floor(Math.random() * 60);
+    this.squash = NPC_DEFS[id].dwarf ? 0.8 : 1;   // dwarves stand shorter
+    this.tick = Math.floor(Math.random() * 120);
+
+    // AI & Autonomous Movement parameters
+    this.guard = Boolean(opts.guard);
+    this.wanderRadius = opts.wanderRadius ?? (this.guard ? 14 : 38 + Math.floor(Math.random() * 22));
+    this.speed = opts.speed ?? (0.32 + Math.random() * 0.18);
+
+    this.state = "idle"; // "idle" | "walk" | "attack"
+    this.stateTimer = 40 + Math.floor(Math.random() * 120);
+    this.targetX = x;
+    this.targetY = y;
+    this.vx = 0;
+    this.vy = 0;
+    this.walkAnimTick = Math.floor(Math.random() * 60);
+
+    // Combat & Self-Defense attributes
+    this.attackAnimTimer = 0;
+    this.attackCooldown = 0;
+
+    // Combat profile based on character definition
+    const def = NPC_DEFS[id] || {};
+    const look = def.look || {};
+    const weapon = look.weapon || "none";
+
+    this.isRanged = ["bow", "staff", "scepter", "flask"].includes(weapon);
+    if (this.isRanged) {
+      this.detectRange = 115;
+      this.combatRange = weapon === "bow" ? 95 : weapon === "staff" ? 90 : weapon === "flask" ? 75 : 82;
+      this.combatSpeed = 0.65;
+    } else {
+      this.detectRange = (this.guard || id === "royalGuard" || id === "king") ? 130 : 90;
+      this.combatRange = weapon === "lance" ? 28 : weapon === "sword" ? 26 : 22;
+      this.combatSpeed = id === "renzo" ? 0.95 : 0.82;
+    }
+
+    // Ambient speech bubble
+    this.bubbleText = "";
+    this.bubbleTimer = 0;
   }
 
-  // Humarap sa player kapag malapit
-  update(px, py) {
+  say(text, duration = 120) {
+    this.bubbleText = text;
+    this.bubbleTimer = duration;
+  }
+
+  // Face the player when close; patrol, or attack any foe to keep everyone safe
+  update(px, py, enemyManager = null, fx = null, king = null) {
     this.tick++;
+    if (this.attackAnimTimer > 0) this.attackAnimTimer--;
+    if (this.attackCooldown > 0) this.attackCooldown--;
+    if (this.bubbleTimer > 0) {
+      this.bubbleTimer--;
+      if (this.bubbleTimer <= 0) this.bubbleText = "";
+    }
+
     const dx = px - this.x, dy = py - this.y;
-    if (Math.hypot(dx, dy) < FACE_RANGE) {
-      if (Math.abs(dx) > Math.abs(dy)) { this.dir = "side"; this.flip = dx < 0; }
-      else this.dir = dy < 0 ? "up" : "down";
-    } else {
-      this.dir = this.homeDir;
-      this.flip = false;
+    const distToPlayer = Math.hypot(dx, dy);
+
+    // ==========================================================
+    // AUTONOMOUS DEFENSIVE COMBAT AI (PROTECT SELF & ALLIES)
+    // Attacks any approaching foe without hesitation
+    // ==========================================================
+    let threatEnemy = null;
+    let minThreatDist = Infinity;
+
+    if (enemyManager && enemyManager.enemies && enemyManager.enemies.length > 0) {
+      const anchorX = (this.guard && king) ? king.x : this.x;
+      const anchorY = (this.guard && king) ? king.y : this.y;
+
+      for (const e of enemyManager.enemies) {
+        if (!e.isAlive) continue;
+        const dToNpc = Math.hypot(e.x - this.x, e.y - this.y);
+        const dToAnchor = Math.hypot(e.x - anchorX, e.y - anchorY);
+
+        if (dToNpc <= this.detectRange || (this.guard && dToAnchor <= 130)) {
+          if (dToNpc < minThreatDist) {
+            minThreatDist = dToNpc;
+            threatEnemy = e;
+          }
+        }
+      }
+    }
+
+    if (threatEnemy) {
+      this.bubbleText = ""; // Cancel ambient chat during a fight
+      const edx = threatEnemy.x - this.x;
+      const edy = threatEnemy.y - this.y;
+      const eDist = Math.hypot(edx, edy);
+      const ang = Math.atan2(edy, edx);
+
+      // Face the foe at once
+      if (Math.abs(edx) > Math.abs(edy)) {
+        this.dir = "side";
+        this.flip = edx < 0;
+      } else {
+        this.dir = edy < 0 ? "up" : "down";
+        this.flip = false;
+      }
+
+      // Close in on the foe when not yet in combat range
+      if (eDist > this.combatRange) {
+        this.x += (edx / eDist) * this.combatSpeed;
+        this.y += (edy / eDist) * this.combatSpeed;
+        this.state = "walk";
+        this.walkAnimTick++;
+      } else {
+        this.vx = 0;
+        this.vy = 0;
+      }
+
+      // Attack the foe without hesitation
+      if (eDist <= this.combatRange + 6 && this.attackCooldown <= 0) {
+        this.attackCooldown = 32 + Math.floor(Math.random() * 12);
+        this.attackAnimTimer = 14;
+        this.atkAngle = Math.atan2(threatEnemy.y + 10 - (this.y - 10), threatEnemy.x + 10 - this.x);
+        this.state = "attack";
+        this.vx = 0;
+        this.vy = 0;
+
+        if (Sound.playSlash) Sound.playSlash(this.x, this.y);
+
+        // Different element and spark effects per NPC
+        let element = "physical";
+        let sparkColor = "#ffffff";
+        // A share of the target's max HP: NPC allies help at any level but rarely take the last hit
+        let dmg = Math.max(3, Math.round(threatEnemy.maxHp * (0.1 + Math.random() * 0.06)));
+        let knockback = 14;
+
+        switch (this.id) {
+          case "lyra":
+            element = "wind";
+            sparkColor = "#4ade80";
+            knockback = 12;
+            break;
+          case "sam":
+            element = Math.random() < 0.5 ? "fire" : "lightning";
+            sparkColor = element === "fire" ? "#f97316" : "#38bdf8";
+            knockback = 11;
+            break;
+          case "julian":
+            element = "holy";
+            sparkColor = "#ffd166";
+            knockback = 10;
+            break;
+          case "aurelia":
+          case "kenneth":
+            element = "holy";
+            sparkColor = "#c084fc";
+            knockback = 13;
+            break;
+          case "king":
+            element = "holy";
+            sparkColor = "#ffd700";
+            knockback = 18;
+            dmg += 15;
+            break;
+          case "edgar":
+            element = "earth";
+            sparkColor = "#22c55e";
+            knockback = 10;
+            break;
+          case "arthur":
+          case "royalGuard":
+            element = "holy";
+            sparkColor = "#ffd166";
+            knockback = 16;
+            break;
+          case "ronald":
+            element = "physical";
+            sparkColor = "#cbd5e1";
+            knockback = 15;
+            break;
+          case "renzo":
+            element = "physical";
+            sparkColor = "#ef4444";
+            knockback = 16;
+            break;
+          default:
+            element = "physical";
+            sparkColor = "#ffd166";
+            break;
+        }
+        this.swingColor = sparkColor;
+
+        const isCrit = Math.random() < 0.28;
+        enemyManager.damage(threatEnemy, dmg, ang, isCrit, fx, null, knockback, false, null, element);
+
+        if (fx && fx.spawnHitSparks) {
+          fx.spawnHitSparks(threatEnemy.x + 10, threatEnemy.y + 10, sparkColor, 15);
+        }
+      }
+      return;
+    }
+
+    // When the player is close (talking or looking), stop and face them
+    if (distToPlayer < TALK_RANGE + 6) {
+      if (Math.abs(dx) > Math.abs(dy)) {
+        this.dir = "side";
+        this.flip = dx < 0;
+      } else {
+        this.dir = dy < 0 ? "up" : "down";
+        this.flip = false;
+      }
+      this.vx = 0;
+      this.vy = 0;
+      return;
+    }
+
+    // Autonomous wandering state machine
+    this.stateTimer--;
+    if (this.stateTimer <= 0) {
+      this.pickNextAction();
+    }
+
+    if (this.state === "walk") {
+      this.x += this.vx;
+      this.y += this.vy;
+      this.walkAnimTick++;
+
+      // Direction from the movement speed
+      if (Math.abs(this.vx) > Math.abs(this.vy)) {
+        this.dir = "side";
+        this.flip = this.vx < 0;
+      } else {
+        this.dir = this.vy < 0 ? "up" : "down";
+        this.flip = false;
+      }
+
+      // Check whether the target is reached or the radius exceeded
+      const dTarget = Math.hypot(this.targetX - this.x, this.targetY - this.y);
+      const dHome = Math.hypot(this.x - this.homeX, this.y - this.homeY);
+
+      if (dTarget < 3 || dHome > this.wanderRadius + 4) {
+        this.state = "idle";
+        this.vx = 0;
+        this.vy = 0;
+        this.stateTimer = 90 + Math.floor(Math.random() * 160);
+      }
+    }
+  }
+
+  // Pick the next natural action (walk, pause, look around)
+  pickNextAction() {
+    const dHome = Math.hypot(this.x - this.homeX, this.y - this.homeY);
+    const roll = Math.random();
+
+    // Walk toward a new point
+    if (roll < (this.guard ? 0.35 : 0.55)) {
+      let ang;
+      // When a bit far from home, drift back a little
+      if (dHome > this.wanderRadius * 0.7) {
+        ang = Math.atan2(this.homeY - this.y, this.homeX - this.x) + (Math.random() - 0.5) * 1.2;
+      } else {
+        ang = Math.random() * Math.PI * 2;
+      }
+
+      const dist = 12 + Math.random() * (this.wanderRadius * 0.85);
+      this.targetX = this.homeX + Math.cos(ang) * Math.min(dist, this.wanderRadius);
+      this.targetY = this.homeY + Math.sin(ang) * Math.min(dist, this.wanderRadius * 0.75);
+
+      const wdx = this.targetX - this.x;
+      const wdy = this.targetY - this.y;
+      const len = Math.hypot(wdx, wdy);
+
+      if (len > 4) {
+        this.state = "walk";
+        this.vx = (wdx / len) * this.speed;
+        this.vy = (wdy / len) * this.speed;
+        this.stateTimer = Math.floor(len / this.speed) + 20;
+        return;
+      }
+    }
+
+    // Idle / stop and look around
+    this.state = "idle";
+    this.vx = 0;
+    this.vy = 0;
+    this.stateTimer = 70 + Math.floor(Math.random() * 170);
+
+    // Sometimes turn to look elsewhere while standing (not robotic)
+    if (Math.random() < 0.45) {
+      const dirs = ["down", "side", "up"];
+      this.dir = dirs[Math.floor(Math.random() * dirs.length)];
+      if (this.dir === "side") this.flip = Math.random() < 0.5;
     }
   }
 
@@ -41,7 +441,21 @@ class NPC {
     ctx.beginPath();
     ctx.ellipse(this.x, this.y - 1, 8, 3, 0, 0, Math.PI * 2);
     ctx.fill();
-    this.avatar.draw(ctx, this.x, this.y, this.dir, "idle", Math.floor(this.tick / 40), this.flip);
+
+    if (this.attackAnimTimer > 0) {
+      const frame = this.attackAnimTimer > 7 ? 0 : 1;
+      const p = 1 - this.attackAnimTimer / 14;
+      const a = this.atkAngle || 0;
+      around(ctx, this.x, this.y, attackPose(p, Math.cos(a), Math.sin(a), 3), () =>
+        this.avatar.draw(ctx, this.x, this.y, this.dir, "attack", frame, this.flip, false, 1, this.squash));
+      drawSwing(ctx, this.x, this.y - 10, a, 13, (p - 0.3) / 0.7, this.swingColor || "#ffd166");
+    } else if (this.state === "walk" && (Math.abs(this.vx) > 0.01 || Math.abs(this.vy) > 0.01)) {
+      const frame = Math.floor(this.walkAnimTick / 8) % 4;
+      this.avatar.draw(ctx, this.x, this.y, this.dir, "walk", frame, this.flip, false, 1, this.squash);
+    } else {
+      const frame = Math.floor(this.tick / 35) % 2;
+      this.avatar.draw(ctx, this.x, this.y, this.dir, "idle", frame, this.flip, false, 1, this.squash);
+    }
   }
 }
 
@@ -50,10 +464,25 @@ export class NPCManager {
     this.stage = stage;
     this.npcs = [];
     this.nearest = null;
-    this.marked = null;     // layunin ng quest (may kumikislap na "!")
+    this.marked = null;     // quest objective (with a blinking "!")
+    this.platformId = "hub";
+    this.chatCooldown = 120;
+    this.activeChat = null;
   }
 
-  // Inilalagay ang lahat ng tauhan. summonerId = "aurelia" o "kenneth" (batay sa player)
+  // Change place: only that place's NPCs are visible
+  setPlatform(id) {
+    this.platformId = id;
+    this.nearest = null;
+    this.activeChat = null;
+  }
+
+  // Is the NPC visible in the current place?
+  shown(n) {
+    return n.visible && n.platform === this.platformId;
+  }
+
+  // Places every character. summonerId = "aurelia" or "kenneth" (from the player)
   build(summonerId) {
     const sz = this.stage.safeZone;
     const gate = this.stage.castle.gatePortal;
@@ -62,45 +491,199 @@ export class NPCManager {
 
     this.summonerId = summonerId;
     this.npcs = [
-      // Barracks Sanctuary
-      new NPC("ronald", bx + 58, by + 72),
-      new NPC("edgar", bx + 238, by + 72),
-      // Tagapagtawag: sa Barracks (Act II) at sa Citadel (Act IV) — isa lang ang nakikita
-      Object.assign(new NPC(summonerId, bx + 150, by + 52), { tag: "summonerBarracks" }),
-      Object.assign(new NPC(summonerId, gx - 22, gy + 42), { tag: "summonerCitadel" }),
-      // Imperial Citadel: audience dais sa harap ng gate
-      new NPC("king", gx + 22, gy + 40),
-      new NPC("royalGuard", gx - 62, gy + 36),
-      new NPC("royalGuard", gx + 62, gy + 36),
-      // Ang limang mentor (Act III)
-      new NPC("arthur", gx - 72, gy + 92),
-      new NPC("lyra", gx - 36, gy + 96),
-      new NPC("julian", gx, gy + 98),
-      new NPC("sam", gx + 36, gy + 96),
-      new NPC("renzo", gx + 72, gy + 92)
+      // Barracks Sanctuary (Act II): where the summoner welcomed the souls from Earth
+      new NPC("ronald", bx + 58, by + 72, "down", "hub", { wanderRadius: 42, speed: 0.38 }),
+      new NPC("edgar", bx + 238, by + 72, "down", "hub", { wanderRadius: 36, speed: 0.32 }),
+      // Summoner: Barracks (Acts II–III, VI) or Citadel (Acts IV–V) — only one is visible
+      Object.assign(new NPC(summonerId, bx + 150, by + 52, "down", "hub", { wanderRadius: 32, speed: 0.30 }), { tag: "summonerBarracks" }),
+      Object.assign(new NPC(summonerId, gx - 22, gy + 42, "down", "hub", { wanderRadius: 18, speed: 0.25 }), { tag: "summonerCitadel" }),
+      // The five earlier souls (Act III): each has a designated area and wanders the Barracks
+      new NPC("arthur", bx + 60, by + 164, "down", "hub", { wanderRadius: 44, speed: 0.36 }),
+      new NPC("lyra", bx + 105, by + 188, "down", "hub", { wanderRadius: 48, speed: 0.40 }),
+      new NPC("julian", bx + 150, by + 164, "down", "hub", { wanderRadius: 40, speed: 0.32 }),
+      new NPC("sam", bx + 195, by + 188, "down", "hub", { wanderRadius: 45, speed: 0.34 }),
+      new NPC("renzo", bx + 240, by + 164, "down", "hub", { wanderRadius: 50, speed: 0.42 }),
+      // Imperial Citadel: audience dais in front of the gate (Act IV: Royal Job Awakening)
+      new NPC("king", gx + 22, gy + 40, "down", "hub", { guard: true, wanderRadius: 14, speed: 0.22 }),
+      new NPC("royalGuard", gx - 62, gy + 36, "down", "hub", { guard: true, wanderRadius: 16, speed: 0.30 }),
+      new NPC("royalGuard", gx + 62, gy + 36, "down", "hub", { guard: true, wanderRadius: 16, speed: 0.30 })
     ];
+
+    // Acts VII–XII: the summoner accompanies the hero at each platform's camp
+    PLATFORM_ORDER.forEach((pid) => {
+      const c = PLATFORMS[pid].camp;
+      this.npcs.push(Object.assign(new NPC(summonerId, c.x + c.w / 2 + 18, c.y + c.h / 2 + 8, "down", pid, { wanderRadius: 30, speed: 0.32 }), { tag: "field" }));
+      // Village residents (Emberhold in the Ashfall Wastelands)
+      Object.entries(PLATFORMS[pid].villagers || {}).forEach(([id, [x, y]]) => {
+        this.npcs.push(new NPC(id, x, y, "down", pid, { guard: true, wanderRadius: 10, speed: 0.22 }));
+      });
+    });
+    // Act XI: Captain Ronald and the Royal Guard help hold the breach
+    const sc = PLATFORMS.siege.camp;
+    this.npcs.push(new NPC("ronald", sc.x + 36, sc.y + sc.h / 2 + 10, "up", "siege", { wanderRadius: 28, speed: 0.35 }));
+    this.npcs.push(new NPC("royalGuard", sc.x + sc.w - 30, sc.y + 30, "up", "siege", { guard: true, wanderRadius: 16, speed: 0.30 }));
+    this.npcs.push(new NPC("royalGuard", sc.x + 30, sc.y + 30, "up", "siege", { guard: true, wanderRadius: 16, speed: 0.30 }));
   }
 
-  // Aling NPC ang ipapakita batay sa quest
-  applyQuest(quest) {
+  // Which NPCs to show depending on the quest
+  applyQuest(quest, cls) {
     const atCitadel = quest.summonerAtCitadel();
     this.npcs.forEach((n) => {
       if (n.tag === "summonerBarracks") n.visible = !atCitadel;
       if (n.tag === "summonerCitadel") n.visible = atCitadel;
     });
-    this.marked = quest.targetNpc(this.summonerId);
+    this.marked = quest.targetNpc(this.summonerId, cls);
   }
 
-  update(player) {
+  // Autonomous ambient conversation between NPCs
+  updateAmbientChat() {
+    const lang = getLang() === "fil" ? "fil" : "en";
+
+    // Sequence progress
+    if (this.activeChat) {
+      this.activeChat.timer--;
+      if (this.activeChat.timer <= 0) {
+        if (this.activeChat.step === 0 && this.activeChat.line2) {
+          this.activeChat.step = 1;
+          this.activeChat.timer = 120;
+          this.activeChat.speaker2.say(this.activeChat.line2[lang] || this.activeChat.line2.en);
+        } else {
+          this.activeChat = null;
+          this.chatCooldown = 180 + Math.floor(Math.random() * 260);
+        }
+      }
+      return;
+    }
+
+    this.chatCooldown--;
+    if (this.chatCooldown > 0) return;
+
+    const visibleNpcs = this.npcs.filter((n) => this.shown(n));
+    if (visibleNpcs.length < 2) return;
+
+    // Find two NPCs close to each other (< 55px)
+    for (let i = 0; i < visibleNpcs.length; i++) {
+      for (let j = i + 1; j < visibleNpcs.length; j++) {
+        const n1 = visibleNpcs[i];
+        const n2 = visibleNpcs[j];
+        const d = Math.hypot(n1.x - n2.x, n1.y - n2.y);
+
+        if (d < 55 && n1.state !== "attack" && n2.state !== "attack") {
+          let line1 = null;
+          let line2 = null;
+
+          // Try the loaded external JSON first (npc_conversations.json)
+          if (NPC_CONVERSATIONS_DATA && Array.isArray(NPC_CONVERSATIONS_DATA.pairs)) {
+            const pairData = NPC_CONVERSATIONS_DATA.pairs.find((p) =>
+              p.pair && (
+                (p.pair[0] === n1.id && p.pair[1] === n2.id) ||
+                (p.pair[1] === n1.id && p.pair[0] === n2.id)
+              )
+            );
+            if (pairData && Array.isArray(pairData.conversations) && pairData.conversations.length > 0) {
+              const conv = pairData.conversations[Math.floor(Math.random() * pairData.conversations.length)];
+              if (conv && conv.length >= 2) {
+                line1 = conv[0];
+                line2 = conv[1];
+              }
+            }
+          }
+
+          // Fall back to the internal AMBIENT_CHATS while the fetch is pending
+          if (!line1) {
+            const match = AMBIENT_CHATS.find((c) =>
+              c.pair && (
+                (c.pair[0] === n1.id && c.pair[1] === n2.id) ||
+                (c.pair[1] === n1.id && c.pair[0] === n2.id)
+              )
+            );
+            if (match && match.lines) {
+              line1 = match.lines[0];
+              line2 = match.lines[1];
+            }
+          }
+
+          if (line1 && Math.random() < 0.6) {
+            // Face each other and stop
+            n1.state = "idle";
+            n2.state = "idle";
+            n1.stateTimer = 240;
+            n2.stateTimer = 240;
+            n1.dir = "side";
+            n1.flip = n2.x < n1.x;
+            n2.dir = "side";
+            n2.flip = n1.x < n2.x;
+
+            const s1 = line1.speaker === n1.id ? n1 : n2;
+            const s2 = s1 === n1 ? n2 : n1;
+
+            s1.say(line1[lang] || line1.en, 120);
+
+            this.activeChat = {
+              speaker1: s1,
+              speaker2: s2,
+              line1: line1,
+              line2: line2,
+              step: 0,
+              timer: 120
+            };
+            return;
+          }
+        }
+      }
+    }
+
+    // Single random ambient lore murmur (from the NPC's 10+ lore/environment lines in the JSON)
+    if (Math.random() < 0.40) {
+      const speaker = visibleNpcs[Math.floor(Math.random() * visibleNpcs.length)];
+      if (speaker && speaker.state !== "attack") {
+        let textToSay = null;
+
+        if (NPC_CONVERSATIONS_DATA && NPC_CONVERSATIONS_DATA.solo && Array.isArray(NPC_CONVERSATIONS_DATA.solo[speaker.id])) {
+          const lines = NPC_CONVERSATIONS_DATA.solo[speaker.id];
+          if (lines.length > 0) {
+            const pick = lines[Math.floor(Math.random() * lines.length)];
+            textToSay = pick[lang] || pick.en;
+          }
+        }
+
+        if (!textToSay) {
+          const gen = AMBIENT_CHATS.find((c) => c.generic);
+          if (gen && gen.lines) {
+            const line = gen.lines[Math.floor(Math.random() * gen.lines.length)];
+            textToSay = line[lang] || line.en;
+          }
+        }
+
+        if (textToSay) {
+          speaker.say(textToSay, 135);
+          this.chatCooldown = 200 + Math.floor(Math.random() * 220);
+        }
+      }
+    } else {
+      this.chatCooldown = 140;
+    }
+  }
+
+  update(player, enemyManager = null, fx = null) {
     const px = player.x + 10, py = player.y + 21;
     let best = null, bestD = TALK_RANGE;
+    const king = this.find("king");
+
     this.npcs.forEach((n) => {
-      if (!n.visible) return;
-      n.update(px, py);
+      if (!this.shown(n)) return;
+      n.update(px, py, enemyManager, fx, king);
       const d = Math.hypot(px - n.x, py - n.y);
       if (d < bestD) { best = n; bestD = d; }
     });
     this.nearest = best;
+
+    // When the player talks to or approaches an NPC, cancel its ambient chat
+    if (this.nearest) {
+      this.nearest.bubbleText = "";
+    }
+
+    this.updateAmbientChat();
   }
 
   isNear(id) {
@@ -108,25 +691,28 @@ export class NPCManager {
   }
 
   find(id) {
-    return this.npcs.find((n) => n.visible && n.id === id) || null;
+    return this.npcs.find((n) => this.shown(n) && n.id === id) || null;
   }
 
-  // Y-sort: ang mga NPC sa likod ng player (mas mataas ang y) ay iginuguhit muna
+  // Y-sort: NPCs behind the player (smaller y) are drawn first
   drawLayer(ctx, playerFootY, front) {
     this.npcs.forEach((n) => {
-      if (!n.visible) return;
+      if (!this.shown(n)) return;
       if ((n.y > playerFootY) === front) n.draw(ctx);
     });
   }
 
-  // Pangalan, "!" ng quest at "[E] Kausapin" (nasa ibabaw ng lahat)
+  // Names, speech bubbles, the quest "!" and "[E] Talk" (above everything)
   drawLabels(ctx, player) {
     const px = player.x + 10, py = player.y + 21;
     ctx.textAlign = "center";
+
     this.npcs.forEach((n) => {
-      if (!n.visible) return;
+      if (!this.shown(n)) return;
       const near = Math.hypot(px - n.x, py - n.y) < FACE_RANGE;
-      const top = n.y - 38;
+      const top = n.y - (n.squash < 1 ? 31 : 38);   // dwarves are shorter
+
+      // Quest exclamation mark
       if (n.id === this.marked) {
         const bob = Math.sin(n.tick / 8) * 1.5;
         ctx.font = "bold 10px monospace";
@@ -135,7 +721,12 @@ export class NPCManager {
         ctx.fillStyle = "#ffd166";
         ctx.fillText("!", n.x, top - 5 + bob);
       }
-      if (near) {
+
+      // Speech bubble while saying something
+      if (n.bubbleText && n.bubbleTimer > 0 && (!this.nearest || this.nearest !== n)) {
+        const floatY = n.y - 42 + Math.sin(n.tick / 10) * 1.2;
+        drawSpeechBubble(ctx, n.x, floatY, n.bubbleText);
+      } else if (near) {
         ctx.font = "bold 5px monospace";
         const name = npcName(n.id).toUpperCase();
         const w = ctx.measureText(name).width + 6;
@@ -145,6 +736,7 @@ export class NPCManager {
         ctx.fillText(name, n.x, top + 4);
       }
     });
+
     if (this.nearest) {
       const n = this.nearest;
       const label = `[E] ${qt("talk")}`;

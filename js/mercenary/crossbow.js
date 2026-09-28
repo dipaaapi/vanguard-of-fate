@@ -1,8 +1,4 @@
-const _ = 0;
-const K = "#14171d";
-const G1 = "#2d6a4f";
-const W1 = "#d4a373";
-
+// Look: modular Avatar (see js/avatar/avatar.js)
 export const CrossbowMercenary = {
   type: "crossbow",
   name: "Crossbowman",
@@ -12,19 +8,23 @@ export const CrossbowMercenary = {
   attackCooldownMax: 48,
   skillCooldownMax: 260,
   color: "#52b788",
-  sprites: {
-    idle: [
-      [
-        [_,_,_,K,K,K,_,_,_,_,_],
-        [_,_,K,"#f3c5a5","#f3c5a5",K,_,_,_,_,_],
-        [_,_,K,G1,G1,K,W1,W1,W1,_,_],
-        [_,K,G1,G1,G1,K,K,K,_,_,_],
-        [_,K,"#582f0e","#582f0e",K,_,_,_,_,_,_],
-        [_,_,K,"#333",K,_,_,_,_,_,_],
-        [_,_,K,K,K,K,_,_,_,_,_]
-      ]
-    ]
+  look: {
+    body: "male", skin: "#c68642", eyes: "#2b1d14", hairStyle: "short", hairColor: "#2b1d14",
+    outfit: "vest", outfitColor: "#2d6a4f", gloves: "leather", legs: "pants", legColor: "#4a3a28",
+    boots: "boots", bootColor: "#5e3b1a", headgear: "hood", quiver: true, weapon: "crossbow"
   },
+  // Snare Trap (roots the nearest foe) and Eagle Eye (passive: +15% damage)
+  skills: [
+    { id: "snare", name: { en: "Snare Trap", fil: "Bitag" }, cd: 600,
+      ready: (m, c) => c.foes.length > 0,
+      use: (m, c) => {
+        const t = c.foes.slice().sort((a, b) => Math.hypot(a.x - m.x, a.y - m.y) - Math.hypot(b.x - m.x, b.y - m.y))[0];
+        if (!t.boss) t.stunTimer = Math.max(t.stunTimer, 100);
+        if (c.fx.spawnDamagePopup) c.fx.spawnDamagePopup(t.x + 10, t.y - 10, "SNARED!", false, "#52b788");
+      } }
+  ],
+  passive: { en: "Eagle Eye: +15% damage", fil: "Eagle Eye: +15% pinsala" },
+  powerBonus: 1.15,
   onAttack(merc, target, enemyManager, fx, spawnProj) {
     const angle = Math.atan2(target.y - merc.y, target.x - merc.x);
     if (spawnProj) {
@@ -49,7 +49,7 @@ export const CrossbowMercenary = {
           y: merc.y + 6,
           vx: Math.cos(baseAngle + offset) * 6.8,
           vy: Math.sin(baseAngle + offset) * 6.8,
-          damage: 32
+          damage: 20
         });
       }
     });

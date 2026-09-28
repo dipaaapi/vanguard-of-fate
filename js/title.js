@@ -1,20 +1,20 @@
 import { Sound } from "./audio.js";
-import { t, getLang, toggleLang, onLangChange } from "./i18n.js";
-import { loadLore, parseChapters } from "./lore.js";
+import { t, getLang, setLang, toggleLang, onLangChange } from "./i18n.js";
+import { loadLore, parseChapters, actNumber, bannerSrc, BANNER_EXTS } from "./lore.js";
 
-// Title screen (buong window). HTML/CSS ang logo, menu at Chronicles;
-// ang canvas (#titleFx) ay para lang sa baga at liwanag ng espada.
+// Title screen (full window). The logo, menu and Chronicles are HTML/CSS;
+// the canvas (#titleFx) only draws the embers and the sword's glow.
 //
-// Mga hakbang (data-step sa #title):
-//   press      → "Press any key" (dito rin nagsisimula ang musika, dahil kailangan ng browser ng user input)
+// Steps (data-step on #title):
+//   press      → "Press any key" (music also starts here, since browsers need user input)
 //   menu       → Continue / New Expedition / Chronicles / Options
-//   options    → settings, wika, save data
-//   chronicles → lore, hinati bawat Act
+//   options    → settings, language, save data
+//   chronicles → lore, split by Act
 
 const SAVE_KEY = "vanguard_savegame";
-const BG_SRC = "assets/bg/title_bg.jpg";
-const SWORD = { x: 0.5, y: 0.42 };   // posisyon ng espada sa larawan (0–1)
-const FX_PIXEL = 3;                  // laki ng isang "pixel" ng baga sa screen
+const BG_SRC = "assets/bg/title_bg.gif";
+const SWORD = { x: 0.5, y: 0.42 };   // position of the sword in the picture (0–1)
+const FX_PIXEL = 3;                  // size of one ember "pixel" on screen
 
 export class TitleScene {
   constructor(onStartGame, onContinueGame, onExportSave, onImportSave, config, rootEl) {
@@ -45,7 +45,12 @@ export class TitleScene {
     this.tick = 0;
 
     this.bindDom();
-    onLangChange(() => this.render());
+    onLangChange(async (lang) => {
+      if (this.step === "chronicles") {
+        this.chapters = parseChapters(await loadLore(lang));
+      }
+      this.render();
+    });
     this.render();
   }
 
@@ -95,34 +100,58 @@ export class TitleScene {
       ];
     }
 
-    // Walang save → nakatago ang Continue (hindi naka-gray)
+    // No save → Continue is hidden (not greyed out)
     const items = [];
     if (save) items.push({ id: "continue", label: t("continue"), sub: this.saveSummary(save) });
     items.push(
       { id: "new",        label: t("newGame") },
       { id: "chronicles", label: t("chronicles") },
-      { id: "options",    label: t("options") }
+      { id: "options",    label: t("options") },
+      { id: "credits",    label: t("credits") }
     );
     return items;
   }
 
   // ---------- DOM ----------
   bindDom() {
-    // Pag-click kahit saan sa "press" step → tuloy sa menu
+    // Clicking anywhere on the "press" step → continue to the menu
     this.root.addEventListener("pointerdown", (e) => {
       Sound.init();
       if (this.step === "press" && !e.target.closest(".t-lang")) this.advance();
     });
 
+    // Dropdown: EN / TL at Full Screen ↔ Normal Screen
+    const btn = this.langBtn.querySelector("#langBtn");
+    const setMenu = (open) => {
+      this.langBtn.classList.toggle("open", open);
+      btn.setAttribute("aria-expanded", String(open));
+    };
     this.langBtn.addEventListener("mousedown", (e) => e.preventDefault());
-    this.langBtn.addEventListener("click", () => {
+    btn.addEventListener("click", () => {
       Sound.init();
-      toggleLang();
+      setMenu(!this.langBtn.classList.contains("open"));
       if (Sound.playSelectMove) Sound.playSelectMove();
     });
+    this.langBtn.querySelectorAll("[data-lang]").forEach((el) => {
+      el.addEventListener("click", () => {
+        setLang(el.dataset.lang);
+        setMenu(false);
+        if (Sound.playSelectMove) Sound.playSelectMove();
+      });
+    });
+    this.langBtn.querySelector("#screenItem").addEventListener("click", () => {
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      else document.documentElement.requestFullscreen().catch(() => {});
+      setMenu(false);
+      if (Sound.playSelectMove) Sound.playSelectMove();
+    });
+    document.addEventListener("pointerdown", (e) => { if (!e.target.closest(".t-lang")) setMenu(false); });
+    document.addEventListener("fullscreenchange", () => this.renderLang());
 
     const close = this.root.querySelector("#chronClose");
     close.addEventListener("click", () => this.closeChronicles());
+    const credClose = this.root.querySelector("#credClose");
+    if (credClose) credClose.addEventListener("click", () => this.closeCredits());
   }
 
   render() {
@@ -131,15 +160,28 @@ export class TitleScene {
     this.root.querySelectorAll("[data-i18n]").forEach((el) => {
       el.textContent = t(el.dataset.i18n);
     });
-    this.langBtn.querySelectorAll("[data-lang]").forEach((el) => {
-      el.classList.toggle("on", el.dataset.lang === getLang());
-    });
+    this.renderLang();
 
-    const hintKey = { press: "", menu: "titleHint", options: "optionsHint", chronicles: "chroniclesHint" }[this.step];
+    const hintKey = { press: "", menu: "titleHint", options: "optionsHint", chronicles: "chroniclesHint", credits: "creditsHint" }[this.step];
     this.hintEl.innerHTML = hintKey ? t(hintKey) : "";
 
     if (this.step === "menu" || this.step === "options") this.renderMenu();
     if (this.step === "chronicles") this.renderChronicles();
+    if (this.step === "credits") this.renderCredits();
+  }
+
+  // Dropdown label: current language (EN / TL) and Full Screen ↔ Normal Screen
+  renderLang() {
+    const cur = getLang();
+    this.langBtn.querySelector("#langCur").textContent = cur === "fil" ? "TL" : "EN";
+    this.langBtn.querySelectorAll("[data-lang]").forEach((el) => {
+      el.classList.toggle("on", el.dataset.lang === cur);
+      el.setAttribute("aria-checked", String(el.dataset.lang === cur));
+    });
+    const full = Boolean(document.fullscreenElement);
+    this.langBtn.querySelector("#screenItem").textContent = full
+      ? (cur === "fil" ? "⛶ Normal na Screen" : "⛶ Normal Screen")
+      : (cur === "fil" ? "⛶ Full Screen" : "⛶ Full Screen");
   }
 
   renderMenu() {
@@ -191,7 +233,7 @@ export class TitleScene {
         btn.appendChild(v);
       }
 
-      // Iwas focus para hindi mag-double trigger ang Space/Enter
+      // Avoid focus so Space/Enter don't double-trigger
       btn.addEventListener("mousedown", (e) => e.preventDefault());
       btn.addEventListener("mouseenter", () => { if (!item.disabled) this.setIndex(i, false); });
       btn.addEventListener("click", () => {
@@ -242,7 +284,7 @@ export class TitleScene {
     const el = document.getElementById("flash");
     if (!el) return;
     el.classList.remove("go");
-    void el.offsetWidth; // i-restart ang animation
+    void el.offsetWidth; // restart the animation
     el.classList.add("go");
   }
 
@@ -281,33 +323,107 @@ export class TitleScene {
       this.openChronicles();
     } else if (item.id === "options") {
       this.goTo("options", "music");
+    } else if (item.id === "credits") {
+      this.goTo("credits");
     }
   }
 
-  // Toggle ng setting o wika (Enter o ← →)
+  // Toggle a setting or the language (Enter or ← →)
   change(item) {
     if (Sound.playSelectMove) Sound.playSelectMove();
     if (item.lang) {
-      toggleLang(); // tinatawag ng onLangChange ang render()
+      toggleLang(); // onLangChange calls render()
       return;
     }
     const key = item.toggle;
     this.config[key] = !this.config[key];
+    try {
+      localStorage.setItem("vanguard_config", JSON.stringify(this.config));
+    } catch (_) {}
+
     if (key === "music") {
+      Sound.musicEnabled = Boolean(this.config.music);
       if (this.config.music) Sound.startTitleBGM();
       else Sound.stopTitleBGM();
+    } else if (key === "sfx") {
+      Sound.sfxEnabled = Boolean(this.config.sfx);
     }
     this.renderMenu();
+  }
+
+  // ---------- CREDITS ----------
+  // The game's author, the story, the technology and the inspirations
+  closeCredits() {
+    if (Sound.playSelectMove) Sound.playSelectMove();
+    this.goTo("menu", "credits");
+  }
+
+  renderCredits() {
+    this.root.querySelector("#credTitle").textContent = t("credits");
+    const body = this.root.querySelector("#credBody");
+    if (!body) return;
+    body.innerHTML = "";
+    const add = (tag, cls, text) => {
+      const n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (text !== undefined) n.textContent = text;
+      body.appendChild(n);
+      return n;
+    };
+    add("div", "cr-game", "Vanguard of Fate");
+    add("p", "cr-tag", t("subtitle"));
+
+    add("h4", "", t("credCreator"));
+    add("p", "cr-name", "EdMaster28");
+    add("p", "cr-role", t("credCreatorRole"));
+
+    add("h4", "", t("credStory"));
+    add("p", "cr-name", "EdMaster28");
+    add("p", "cr-role", t("credStoryRole"));
+
+    add("h4", "", t("credCode"));
+    add("p", "cr-name", "EdMaster28 × Claude (Anthropic)");
+    add("p", "cr-role", t("credCodeRole"));
+
+    add("h4", "", t("credTech"));
+    const tech = add("ul");
+    [
+      ["HTML5 Canvas 2D", t("credTechCanvas")],
+      ["JavaScript ES Modules", t("credTechJs")],
+      ["CSS3", t("credTechCss")],
+      ["Web Audio API", t("credTechAudio")],
+      ["localStorage + JSON", t("credTechSave")],
+      ["Google Fonts", "Cinzel · Silkscreen"],
+      [t("credTechPixel"), t("credTechPixelSub")],
+      ["Claude Code", t("credTechClaude")]
+    ].forEach(([name, sub]) => {
+      const li = document.createElement("li");
+      const b = document.createElement("b");
+      b.textContent = name;
+      li.append(b, ` · ${sub}`);
+      tech.appendChild(li);
+    });
+
+    add("h4", "", t("credInspired"));
+    const ins = add("ul");
+    ["Ragnarok Online", "Diablo II", t("credIsekai")].forEach((name) => {
+      const li = document.createElement("li");
+      li.textContent = name;
+      ins.appendChild(li);
+    });
+
+    add("h4", "", t("credLang"));
+    add("p", "cr-role", "English · Filipino");
+
+    add("p", "cr-thanks", t("credThanks"));
   }
 
   // ---------- CHRONICLES ----------
   async openChronicles() {
     this.step = "chronicles";
     this.render();
-    if (!this.chapters) {
-      this.chapters = parseChapters(await loadLore());
-      if (this.step === "chronicles") this.renderChronicles();
-    }
+    this.chapters = parseChapters(await loadLore(getLang()));
+    if (this.step === "chronicles") this.renderChronicles();
   }
 
   closeChronicles() {
@@ -345,6 +461,23 @@ export class TitleScene {
     const ch = this.chapters[this.chapter];
     this.chronBody.innerHTML = "";
     if (!ch) return;
+    // Act picture (assets/banner/act-N.*); tries other extensions, hidden when missing
+    const act = actNumber(ch.tab);
+    if (act) {
+      const fig = document.createElement("figure");
+      fig.className = "c-banner";
+      const img = document.createElement("img");
+      img.alt = ch.title;
+      let ext = 0;
+      img.addEventListener("error", () => {
+        ext++;
+        if (ext < BANNER_EXTS.length) img.src = bannerSrc(act, ext);
+        else fig.remove();
+      });
+      img.src = bannerSrc(act, 0);
+      fig.appendChild(img);
+      this.chronBody.appendChild(fig);
+    }
     const h = document.createElement("h3");
     h.textContent = ch.title;
     this.chronBody.appendChild(h);
@@ -378,6 +511,14 @@ export class TitleScene {
       return;
     }
 
+    if (this.step === "credits") {
+      const bodyEl = this.root.querySelector("#credBody");
+      if (up && bodyEl) bodyEl.scrollBy({ top: -80, behavior: "smooth" });
+      else if (down && bodyEl) bodyEl.scrollBy({ top: 80, behavior: "smooth" });
+      else if (back || ok) this.closeCredits();
+      return;
+    }
+
     if (this.step === "chronicles") {
       if (left) this.setChapter(this.chapter - 1);
       else if (right) this.setChapter(this.chapter + 1);
@@ -400,7 +541,7 @@ export class TitleScene {
   }
 
   // ---------- EMBERS (canvas) ----------
-  // Low-res canvas na naka-scale ng FX_PIXEL para chunky ang baga, bagay sa pixel art.
+  // Low-res canvas scaled by FX_PIXEL so the embers are chunky, matching the pixel art.
   draw() {
     this.tick++;
     const W = Math.ceil(window.innerWidth / FX_PIXEL);
@@ -412,15 +553,15 @@ export class TitleScene {
     const ctx = this.fxCtx;
     ctx.clearRect(0, 0, W, H);
 
-    // Parehong "cover" fit ng CSS background, para tumapat sa espada
+    // Same "cover" fit as the CSS background, so it lines up with the sword
     const iw = this.bg.naturalWidth || 1024;
     const ih = this.bg.naturalHeight || 571;
     const s = Math.max(W / iw, H / ih);
-    const k = (ih * s) / 270;   // sukat kumpara sa lumang 480x270 na title
+    const k = (ih * s) / 270;   // scale compared to the old 480x270 title
     const sx = (W - iw * s) / 2 + iw * s * SWORD.x;
     const sy = (H - ih * s) / 2 + ih * s * SWORD.y;
 
-    // Pumipintig na liwanag
+    // Pulsing glow
     const pulse = 1 + Math.sin(this.tick / 16) * 0.12;
     const r = 60 * k * pulse;
     ctx.save();
@@ -433,7 +574,7 @@ export class TitleScene {
     ctx.fillRect(sx - r, sy - r, r * 2, r * 2);
     ctx.restore();
 
-    // Lumilipad na baga
+    // Flying embers
     if (this.tick % 3 === 0) {
       const colors = ["#ffb347", "#ff8a3d", "#ffd166", "#38bdf8", "#a5f3fc"];
       this.particles.push({

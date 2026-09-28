@@ -1,91 +1,54 @@
 import { Sound } from "./audio.js";
-
-const _ = 0;
+import { facingFrom } from "./avatar/creature.js";
+import { MONSTERS, BOSSES, BLIGHTS, NIGHT_KINDS } from "./bestiary.js";
+import { TIERS, MODS, rollTier, applyTier, tierName, has, modName, damageTakenMult, damageDealtMult, windupFor, modBlight } from "./monsterTiers.js";
+import { ELEMENTS, elementMult, raceBonus, sizeMod, rollVariant, variantPrefix, elementName, raceName, sizeName } from "./elements.js";
+import { getLang } from "./i18n.js";
+import { STATUS, statusName } from "./status.js";
+import { around, mix, hitPose, attackPose, windupPose, breathPose, spawnPose, REST } from "./juice.js";
 
 // ========================================================
-// 64-BIT HIGH-FIDELITY ENEMY SPRITES (DETAILED MATRICES)
+// ENEMIES
 // ========================================================
+// (e.x, e.y) is the top-left of the old 20px box; the feet are at (e.x + 10, e.y + 17).
+//
+// LEVEL: every place has a FIXED level band (it does not follow the hero): Aethelgard 1–8
+// (+3 at night), Act VII 10–17, VIII 15–22 … XII 35–42. Out-level a place and it becomes easy
+// (and gives little EXP); walk in too early and it is deadly. The name colour tells how strong
+// it is compared to you and whether it is aggressive:
+//   grey   (≤ −3)  weak, won't attack unless provoked
+//   green  (−2..−1) weaker, won't attack unless provoked
+//   yellow (0..+1)  even — AGGRESSIVE
+//   orange (+2..+3) stronger — AGGRESSIVE
+//   red    (≥ +4)   dangerous — AGGRESSIVE
+//   purple BOSS
+// Passive monsters wander; aggressive ones chase you when you get close.
 
-// 1. ANCIENT SLIME (May inner glowing core at translucent jelly shading)
-const slimeFrames = [
-  [
-    [_,_,_,_,_,_,_,1,1,1,1,1,_,_,_,_,_,_],
-    [_,_,_,_,_,1,1,"#9ef01a","#9ef01a","#9ef01a","#9ef01a",1,1,_,_,_,_,_],
-    [_,_,_,1,1,"#70e000","#70e000","#ccff33","#ccff33","#70e000","#70e000",1,1,_,_,_],
-    [_,_,1,"#70e000","#70e000","#ffffff","#70e000","#70e000","#ffffff","#70e000","#70e000",1,_,_],
-    [_,_,1,"#70e000","#38b000",1,"#70e000","#70e000",1,"#38b000","#70e000",1,_,_],
-    [_,1,"#70e000","#38b000","#38b000","#007200","#007200","#38b000","#38b000","#70e000","#70e000",1,_],
-    [_,1,"#38b000","#38b000","#007200","#004b23","#004b23","#007200","#38b000","#38b000","#38b000",1,_],
-    [1,"#38b000","#38b000","#38b000","#007200","#007200","#38b000","#38b000","#38b000","#004b23",1,_],
-    [1,"#004b23","#004b23","#004b23","#004b23","#004b23","#004b23","#004b23","#004b23","#004b23",1,_],
-    [_,1,1,1,1,1,1,1,1,1,1,1,_,_,_,_]
-  ],
-  [
-    [_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_],
-    [_,_,_,_,_,1,1,1,1,1,1,_,_,_,_,_,_],
-    [_,_,_,1,1,"#9ef01a","#9ef01a","#9ef01a","#9ef01a","#9ef01a",1,1,_,_,_,_],
-    [_,_,1,"#70e000","#ccff33","#ffffff","#70e000","#ffffff","#ccff33","#70e000",1,_,_,_],
-    [_,1,"#70e000","#70e000",1,"#70e000","#70e000",1,"#70e000","#70e000",1,_,_],
-    [1,"#70e000","#38b000","#38b000","#007200","#007200","#38b000","#38b000","#70e000",1,_,_],
-    [1,"#38b000","#38b000","#007200","#004b23","#004b23","#007200","#38b000","#38b000",1,_,_],
-    [1,"#004b23","#004b23","#004b23","#004b23","#004b23","#004b23","#004b23","#004b23",1,_,_],
-    [_,1,1,1,1,1,1,1,1,1,1,_,_,_,_,_]
-  ]
+export const HUB_KINDS = [
+  "slime", "wolf", "skeleton", "goblinScout", "forestBear",
+  "windFalcon", "bloodBat", "skyGargoyle"
 ];
+const WALK_TICKS = 10;
+const IDLE_TICKS = 30;
+const SPAWN_POP = 14;     // frames a new monster takes to rise out of the ground
+const DEATH_T = 26;       // frames of the death dissolve
+const WINDUP_SHOW = 14;   // from here on the attack windup is shown
+const MAX_ADDS = 4;
+const REGEN_DELAY = 300;     // 5 seconds without being hit before HP regenerates
+const BOSS_ATTACK_RANGE = 260;
+const ORB_RANGE = 220;
 
-// 2. SHADOW DIRE WOLF (May muscular frame, crimson eyes, at pangil)
-const wolfFrames = [
-  [
-    [_,_,_,_,_,1,1,_,_,_,_,_,_,_,_,_,_,_,_],
-    [_,_,_,1,1,"#495057",1,_,_,_,_,_,_,_,_,_,_,_,_],
-    [_,_,1,"#adb5bd","#6c757d",1,_,_,_,_,_,_,_,_,_,_,_,_],
-    [_,1,"#6c757d","#ced4da","#adb5bd",1,1,1,1,1,1,_,_,_,_,_,_,_],
-    [1,"#ff0055","#adb5bd","#6c757d","#495057","#343a40","#495057","#495057","#343a40",1,_,_,_,_,_,_],
-    [1,"#ffffff","#495057","#343a40","#343a40","#212529","#212529","#343a40","#495057","#495057",1,_,_,_,_],
-    [_,1,1,"#343a40","#212529","#212529","#212529","#212529","#212529","#343a40","#495057",1,_,_,_],
-    [_,_,1,"#212529","#212529","#212529","#212529","#212529","#212529","#212529","#343a40","#212529",1,_],
-    [_,_,1,"#343a40",1,"#212529",1,_,_,1,"#343a40",1,"#212529",1,_],
-    [_,_,1,1,_,1,1,_,_,1,1,_,1,1,_,_]
-  ],
-  [
-    [_,_,_,_,_,1,1,_,_,_,_,_,_,_,_,_,_,_,_],
-    [_,_,_,1,1,"#495057",1,_,_,_,_,_,_,_,_,_,_,_,_],
-    [_,_,1,"#adb5bd","#6c757d",1,_,_,_,_,_,_,_,_,_,_,_,_],
-    [_,1,"#6c757d","#ced4da","#adb5bd",1,1,1,1,1,1,_,_,_,_,_,_,_],
-    [1,"#ff0055","#adb5bd","#6c757d","#495057","#343a40","#495057","#495057","#343a40",1,_,_,_,_,_,_],
-    [1,"#ffffff","#495057","#343a40","#343a40","#212529","#212529","#343a40","#495057","#495057",1,_,_,_,_],
-    [_,1,1,"#343a40","#212529","#212529","#212529","#212529","#212529","#343a40","#495057",1,_,_,_],
-    [_,_,1,"#212529","#212529","#212529","#212529","#212529","#212529","#212529","#343a40","#212529",1,_],
-    [_,_,_,1,"#343a40",1,"#212529",_,_,_,1,"#343a40",1,"#212529",_],
-    [_,_,_,1,1,_,1,1,_,_,_,1,1,_,1,1]
-  ]
-];
+const lang = () => (getLang() === "fil" ? "fil" : "en");
+const rint = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 
-// 3. UNDEAD SKELETON LANCER (May bone structure at bakal na sibat)
-const skeletonFrames = [
-  [
-    [_,_,_,_,_,_,1,1,1,1,_,_,_,_,_,_,_],
-    [_,_,_,_,_,1,"#f8f9fa","#e9ecef","#dee2e6",1,_,_,_,_,_,_,_],
-    [_,_,_,_,_,1,1,1,1,1,_,_,_,_,_,_,_],
-    [_,_,_,_,_,_,1,"#ced4da",1,_,_,_,_,_,_,_,_],
-    [_,_,_,_,_,1,"#e9ecef","#dee2e6",1,_,_,_,_,_,_,_],
-    [_,_,1,1,1,1,"#6c757d","#495057",1,1,1,1,1,1,1,1,_], // Iron Pike
-    [_,_,_,_,_,1,"#dee2e6","#ced4da",1,_,_,_,_,_,_,_],
-    [_,_,_,_,1,"#dee2e6",_,1,"#ced4da",1,_,_,_,_,_,_],
-    [_,_,_,_,1,1,_,_,1,1,_,_,_,_,_,_]
-  ],
-  [
-    [_,_,_,_,_,_,1,1,1,1,_,_,_,_,_,_,_],
-    [_,_,_,_,_,1,"#f8f9fa","#e9ecef","#dee2e6",1,_,_,_,_,_,_,_],
-    [_,_,_,_,_,1,1,1,1,1,_,_,_,_,_,_,_],
-    [_,_,_,_,_,_,1,"#ced4da",1,_,_,_,_,_,_,_,_],
-    [_,_,_,_,_,1,"#e9ecef","#dee2e6",1,_,_,_,_,_,_,_],
-    [_,_,1,1,1,1,"#adb5bd","#6c757d",1,1,1,1,1,1,1,1,_],
-    [_,_,_,_,_,1,"#dee2e6","#ced4da",1,_,_,_,_,_,_,_],
-    [_,_,_,_,_,1,"#dee2e6",1,"#ced4da",_,_,_,_,_,_,_],
-    [_,_,_,_,_,1,1,_,1,1,_,_,_,_,_,_]
-  ]
-];
+function levelColor(diff, boss = false) {
+  if (boss) return "#c084fc";
+  if (diff <= -3) return "#9ca3af";
+  if (diff < 0) return "#4ade80";
+  if (diff <= 1) return "#facc15";
+  if (diff <= 3) return "#fb923c";
+  return "#ef4444";
+}
 
 export class EnemyManager {
   constructor(worldW, worldH) {
@@ -93,174 +56,871 @@ export class EnemyManager {
     this.worldH = worldH;
     this.enemies = [];
     this.spawnTimer = 0;
+    this.kinds = HUB_KINDS;
+    this.tier = 0;
+    this.stage = null;
+    this.player = null;
+    this.loot = null;              // LootManager (set by main.js)
+    this.hazards = [];             // the boss's warning circles (explode afterwards)
+    this.orbs = [];                // orbs thrown by the boss
+    this.corpses = [];             // dying monsters still dissolving ({ e, t })
+    this.onBossDefeated = null;    // (enemy) => void
+    this.maxAlive = 16;
+    this.night = 0;                // 0 = day, 1 = night (set by main.js from DayNight)
+    this.targetId = null;          // the hero's current target (has an info tag)
+    this.allies = [];              // mercenaries (can be attacked and can provoke)
+    this.sparks = [];              // wind-element lightning (for drawing)
+    this.hitSource = null;         // overrides who a damage() call is credited to (chain lightning)
+    this.onKill = null;            // (enemy, byPlayer, exp) => void — for the bottom tray log
+    this.onHeroHit = null;         // () => void — the hero landed a hit (wears the weapon)
   }
 
+  // Is there water (sea/moat/liquid) in the current place?
+  hasWaterNearby() {
+    if (!this.stage) return false;
+    if (this.stage.tilemap && this.stage.tilemap.liquidTiles && this.stage.tilemap.liquidTiles.size > 0) return true;
+    if (["coast", "canopy", "frost", "ash", "maw"].includes(this.stage.theme)) return true;
+    return false;
+  }
+
+  // Change place (Aethelgard or an Act platform)
+  setArea(stage, kinds = HUB_KINDS, tier = 0) {
+    this.stage = stage;
+    this.kinds = kinds;
+    this.tier = tier;
+    // Act level floor: VII 10 · VIII 15 · IX 20 · X 25 · XI 30 · XII 35 (Aethelgard has none)
+    this.levelFloor = tier >= 2 ? tier * 5 : 1;
+    this.levelCap = this.levelFloor + 7;
+    this.enemies = [];
+    this.corpses = [];
+    this.hazards = [];
+    this.orbs = [];
+    this.spawnTimer = 0;
+    this.maxAlive = 16;
+  }
+
+  // Place start-up: 2 to 3 Elites scattered for Land, Sky and Sea (when there is water)
   init(playerLevel = 1) {
     this.enemies = [];
+    this.maxAlive = 16;
+
+    const pool = this.stage && this.stage.id === "hub" && this.night > 0.5 ? [...this.kinds, ...NIGHT_KINDS] : this.kinds;
+    
+    const landKinds = pool.filter((k) => {
+      const def = MONSTERS[k];
+      return def && !def.flying && !def.aquatic;
+    });
+    const skyKinds = pool.filter((k) => {
+      const def = MONSTERS[k];
+      return def && def.flying;
+    });
+    const seaKinds = pool.filter((k) => {
+      const def = MONSTERS[k];
+      return def && (def.aquatic || def.medium === "sea");
+    });
+
+    const hasWater = this.hasWaterNearby();
+
+    // 1. 2 or 3 scattered Elites for Land
+    const landEliteCount = rint(2, 3);
+    for (let i = 0; i < landEliteCount; i++) {
+      const kList = landKinds.length ? landKinds : pool;
+      const k = kList[Math.floor(Math.random() * kList.length)];
+      const spot = this.randomSpot(MONSTERS[k]);
+      this.spawn(k, playerLevel, spot.x, spot.y, rint(1, 4), "elite");
+    }
+
+    // 2. 2 or 3 scattered Elites for Sky
+    const skyEliteCount = rint(2, 3);
+    for (let i = 0; i < skyEliteCount; i++) {
+      const kList = skyKinds.length ? skyKinds : pool;
+      const k = kList[Math.floor(Math.random() * kList.length)];
+      const spot = this.randomSpot(MONSTERS[k]);
+      this.spawn(k, playerLevel, spot.x, spot.y, rint(1, 4), "elite");
+    }
+
+    // 3. 2 or 3 scattered Elites for Sea when there is water
+    if (hasWater && seaKinds.length > 0) {
+      const seaEliteCount = rint(2, 3);
+      for (let i = 0; i < seaEliteCount; i++) {
+        const k = seaKinds[Math.floor(Math.random() * seaKinds.length)];
+        const spot = this.randomSpot(MONSTERS[k]);
+        this.spawn(k, playerLevel, spot.x, spot.y, rint(1, 4), "elite");
+      }
+    }
+
+    // 4. Extra normal/champion monsters
     for (let i = 0; i < 6; i++) {
       this.spawnRandomEnemy(playerLevel);
     }
   }
 
+  // A spot that suits the monster (Land, Sky or Sea)
+  randomSpot(forKind = null) {
+    const st = this.stage;
+    const b = st ? st.bounds : { minX: 140, maxX: this.worldW - 140, minY: 140, maxY: this.worldH - 140 };
+
+    // Sea creatures: on the shore, sea or liquid tiles
+    if (forKind && (forKind.aquatic || forKind.medium === "sea")) {
+      if (st && st.tilemap) {
+        for (let k = 0; k < 40; k++) {
+          const x = b.minX + 30 + Math.random() * (b.maxX - b.minX - 60);
+          const y = b.minY + 30 + Math.random() * (b.maxY - b.minY - 60);
+          if (st.safeZoneAt && st.safeZoneAt(x + 10, y + 17)) continue;
+          if (this.player && Math.hypot(x - this.player.x, y - this.player.y) < 140) continue;
+          if (st.tilemap.isLiquidAt && st.tilemap.isLiquidAt(x + 10, y + 20)) return { x, y };
+        }
+      }
+    }
+
+    // Flyers (Sky): may hover anywhere, even over water or cliffs
+    if (forKind && (forKind.flying || forKind.medium === "sky")) {
+      for (let k = 0; k < 35; k++) {
+        const x = b.minX + 30 + Math.random() * (b.maxX - b.minX - 60);
+        const y = b.minY + 30 + Math.random() * (b.maxY - b.minY - 60);
+        if (st && st.safeZoneAt && st.safeZoneAt(x + 10, y + 17)) continue;
+        if (this.player && Math.hypot(x - this.player.x, y - this.player.y) < 140) continue;
+        return { x, y };
+      }
+    }
+
+    // Land creatures: solid, walkable ground
+    for (let k = 0; k < 45; k++) {
+      const x = b.minX + 40 + Math.random() * (b.maxX - b.minX - 80);
+      const y = b.minY + 40 + Math.random() * (b.maxY - b.minY - 80);
+      if (st && st.safeZoneAt && st.safeZoneAt(x + 10, y + 17)) continue;
+      if (st && st.tilemap && (st.tilemap.isSolidAt(x + 10, y + 20) || (st.tilemap.isLiquidAt && st.tilemap.isLiquidAt(x + 10, y + 20)) || (st.tilemap.isReachable && !st.tilemap.isReachable(x + 10, y + 20)))) continue;
+      if (this.player && Math.hypot(x - this.player.x, y - this.player.y) < 150) continue;
+      return { x, y };
+    }
+    return { x: 140 + Math.random() * (this.worldW - 280), y: 140 + Math.random() * (this.worldH - 280) };
+  }
+
+  // A level from the place's fixed band (night in Aethelgard is 3 levels harder)
+  rollLevel() {
+    const nightBonus = this.stage && this.stage.id === "hub" && this.night > 0.5 ? 3 : 0;
+    return rint(this.levelFloor || 1, this.levelCap || 8) + nightBonus;
+  }
+
   spawnRandomEnemy(playerLevel) {
-    // Normal, calibrated chase speeds (0.55 hanggang 0.78) para hindi mabilis
-    const kinds = [
-      { name: "Forest Slime", type: "slime", frames: slimeFrames, speed: 0.52, hpMult: 1.0, dmg: 8 },
-      { name: "Dire Wolf", type: "wolf", frames: wolfFrames, speed: 0.72, hpMult: 1.25, dmg: 14 },
-      { name: "Skeleton Lancer", type: "skeleton", frames: skeletonFrames, speed: 0.58, hpMult: 1.4, dmg: 16 }
-    ];
+    const pool = this.stage && this.stage.id === "hub" && this.night > 0.5 ? [...this.kinds, ...NIGHT_KINDS] : this.kinds;
+    const key = pool[Math.floor(Math.random() * pool.length)];
+    const def = MONSTERS[key];
+    const { x, y } = this.randomSpot(def);
+    return this.spawn(key, playerLevel, x, y);
+  }
 
-    const pick = kinds[Math.floor(Math.random() * kinds.length)];
-    const lvl = Math.max(1, playerLevel + Math.floor(Math.random() * 5) - 2);
+  // levelOffset: added to the rolled band level · fixedLevel: exact level (minions)
+  // forceTier: "normal" for minions (never champion/elite)
+  spawn(key, playerLevel, x, y, levelOffset = null, forceTier = null, fixedLevel = null) {
+    const kind = MONSTERS[key];
+    if (!kind) return null;
+    const lvl = Math.max(1, fixedLevel ?? this.rollLevel() + (levelOffset || 0));
+    const hp = Math.round((35 + lvl * 12) * kind.hpMult);
+    const e = {
+      id: Math.random(), key, type: key, kind, level: lvl,
+      maxHp: hp, hp, speed: kind.speed, damage: Math.round(kind.dmg + lvl * 1.6), reach: kind.reach || 16,
+      x, y, homeX: x, homeY: y, isAlive: true, facing: "left",
+      anim: "idle", dir: "down", flip: false, animTimer: 0, strikeTimer: 0,
+      hitTimer: 0, stunTimer: 0, windupTimer: 0, spawnT: 0,
+      provoked: false, engaged: false, wanderX: x, wanderY: y, wanderTimer: rint(20, 120),
+      element: kind.element || "neutral", variant: null, champion: false
+    };
+    // Elemental variant (Blazing, Frozen, …) and tier: Champion / Elite (Diablo II)
+    const v = rollVariant(this.stage ? this.stage.id : "hub");
+    if (v && v !== e.element) { e.variant = v; e.element = v; }
+    applyTier(e, forceTier || rollTier());
+    this.enemies.push(e);
+    // Elites bring minions
+    if (e.elite) {
+      for (let k = 0; k < TIERS.elite.minions; k++) {
+        const m = this.spawn(key, playerLevel, x + (k ? 18 : -18), y + 10, null, "normal", lvl - 1);
+        if (m) { m.minionOf = e.id; m.homeX = x; m.homeY = y; }
+      }
+    }
+    return e;
+  }
 
-    this.enemies.push({
-      id: Math.random(),
-      name: pick.name,
-      type: pick.type,
-      frames: pick.frames,
-      animFrame: 0,
-      animTimer: 0,
-      x: 140 + Math.random() * (this.worldW - 280),
-      y: 140 + Math.random() * (this.worldH - 280),
-      level: lvl,
-      maxHp: Math.round((35 + lvl * 12) * pick.hpMult),
-      hp: Math.round((35 + lvl * 12) * pick.hpMult),
-      speed: pick.speed,
-      damage: pick.dmg + lvl * 2,
-      isAlive: true,
-      facing: "left",
-      hitTimer: 0,
-      stunTimer: 0,
-      windupTimer: 0
-    });
+  // The platform boss: fixed, 2 levels above the top of the Act's band
+  spawnBoss(key, x, y, playerLevel) {
+    const def = BOSSES[key];
+    if (!def || this.boss()) return null;
+    const lvl = (this.levelCap || 8) + 2;
+    const hp = Math.round((35 + lvl * 12) * def.hpBase);
+    const e = {
+      id: Math.random(), key, type: key, kind: def, boss: true, level: lvl,
+      maxHp: hp, hp, speed: def.speed, damage: Math.round(def.dmg + lvl * 1.8), reach: def.reach, tier: "mvp",
+      hitR: def.hitR, hitUp: def.hitUp,
+      x, y, homeX: x, homeY: y, isAlive: true, facing: "left",
+      anim: "idle", dir: "down", flip: false, animTimer: 0, strikeTimer: 0,
+      hitTimer: 0, stunTimer: 0, windupTimer: 0, spawnT: 0, provoked: true, engaged: false,
+      bossTimer: 60, pattern: 0, castTimer: 0, enraged: false, element: def.element || "neutral"
+    };
+    this.enemies.push(e);
+    return e;
+  }
+
+  boss() {
+    return this.enemies.find((e) => e.boss && e.isAlive) || null;
+  }
+
+  displayName(e) {
+    const base = e.kind.name[lang()];
+    const pre = e.variant ? `${variantPrefix(e.variant)} ` : "";
+    if (e.elite) return `${tierName(e)} (${pre}${base})`;
+    return `${e.champion ? `${tierName(e)} ` : ""}${pre}${base}`;
   }
 
   update(player, fx, lootManager, stage) {
+    this.player = player;
+    this.corpses = this.corpses.filter((c) => ++c.t < DEATH_T);
+    if (stage) this.stage = stage;
     this.spawnTimer++;
-    if (this.spawnTimer > 200 && this.enemies.filter((e) => e.isAlive).length < 9) {
+    const alive = this.enemies.filter((e) => e.isAlive && !e.boss).length;
+    // More of them, spawning more often, at night
+    if (this.spawnTimer > 200 - 60 * this.night && alive < this.maxAlive + Math.round(3 * this.night)) {
       this.spawnTimer = 0;
       this.spawnRandomEnemy(player.level);
     }
 
     this.enemies.forEach((e) => {
       if (!e.isAlive) return;
-
       if (e.hitTimer > 0) e.hitTimer--;
+      if (e.spawnT < SPAWN_POP) e.spawnT++;
+      this.regen(e, fx);
+      this.tickElement(e, fx);
+      if (!e.isAlive) return;
       if (e.stunTimer > 0) {
         e.stunTimer--;
         return;
       }
 
-      // Safe Zone check
-      // Itinutulak palabas mula sa gitna ng sanctuary (Barracks o audience dais ng Citadel)
-      const zone = stage && stage.safeZoneAt ? stage.safeZoneAt(e.x, e.y) : null;
+      // Pushed out of sanctuaries (Barracks, the Citadel dais, platform camps)
+      const zone = this.stage && this.stage.safeZoneAt ? this.stage.safeZoneAt(e.x + 10, e.y + 17) : null;
       if (zone) {
-        e.x += e.x > zone.x + zone.w / 2 ? 1.5 : -1.5;
-        e.y += e.y > zone.y + zone.h / 2 ? 1.5 : -1.5;
+        const px = e.x + 10 > zone.x + zone.w / 2 ? 1.5 : -1.5;
+        const py = e.y + 17 > zone.y + zone.h / 2 ? 1.5 : -1.5;
+        e.x += px;
+        e.y += py;
+        e.engaged = false;
+        this.animate(e, px, py, true);
         return;
       }
 
-      // Animation tick
-      e.animTimer++;
-      if (e.animTimer >= 14) {
-        e.animTimer = 0;
-        e.animFrame = (e.animFrame + 1) % e.frames.length;
-      }
+      if (e.boss) this.updateBoss(e, player, fx);
+      else this.updateMonster(e, player, fx);
 
-      // Target finding: Unahin ang mga buhay na Angels ng Priest kung mayroon
-      let targetEntity = player;
-      if (player.angels && player.angels.length > 0) {
-        const liveAngel = player.angels.find((a) => a.isAlive);
-        if (liveAngel) targetEntity = liveAngel;
-      }
-
-      const dx = targetEntity.x - e.x;
-      const dy = targetEntity.y - e.y;
-      const dist = Math.hypot(dx, dy);
-
-      // Normal Chase
-      if (dist > 10 && dist < 280) {
-        e.x += (dx / dist) * e.speed;
-        e.y += (dy / dist) * e.speed;
-        e.facing = dx >= 0 ? "right" : "left";
-      }
-
-      // Attack Execution
-      if (dist <= 16) {
-        e.windupTimer++;
-        if (e.windupTimer > 36) {
-          e.windupTimer = 0;
-          if (targetEntity === player && player.takeDamage) {
-            player.takeDamage(e.damage, fx);
-          } else if (targetEntity !== player) {
-            targetEntity.hp -= e.damage;
-            targetEntity.hitTimer = 16;
-            if (fx && fx.spawnDamagePopup) {
-              fx.spawnDamagePopup(targetEntity.x + 8, targetEntity.y - 6, `-${e.damage}`, false, "#ffd166");
-            }
-          }
+      // Soft separation between enemies so they don't stack
+      for (let j = 0; j < this.enemies.length; j++) {
+        const other = this.enemies[j];
+        if (other === e || !other.isAlive) continue;
+        const sepDx = e.x - other.x;
+        const sepDy = e.y - other.y;
+        const sepDist = Math.hypot(sepDx, sepDy);
+        if (sepDist < 22 && sepDist > 0.01) {
+          const push = ((22 - sepDist) / 22) * 0.5;
+          e.x += (sepDx / sepDist) * push;
+          e.y += (sepDy / sepDist) * push;
         }
-      } else {
-        e.windupTimer = 0;
       }
     });
+
+    this.updateHazards(player, fx);
+    this.enemies = this.enemies.filter((e) => e.isAlive);
   }
 
-  damage(enemy, amount, angle, isCrit, fx, lootManager, pushDist = 8, isStun = false, player = null) {
+  // ---------- ELEMENT EFFECTS ON ENEMIES ----------
+  // fire → burn (DoT) · water → chill (−50% speed; a second chill = frozen) · wind → chain lightning
+  // earth → stagger · poison → poison (DoT) · shadow → curse (−20% damage)
+  applyElement(e, elem, dealt, fx) {
+    if (!elem || !e.isAlive) return;
+    e.st = e.st || {};
+    const r = Math.random();
+    if (elem === "fire" && r < 0.35) { e.st.burn = 180; e.st.burnDmg = Math.max(1, Math.round(dealt * 0.08)); }
+    else if (elem === "water" && r < 0.4) {
+      if (e.st.chill > 0 && !e.boss) { e.stunTimer = Math.max(e.stunTimer, 80); e.frozen = 80; }
+      e.st.chill = 150;
+    }
+    else if (elem === "wind" && r < 0.3) {
+      const next = this.enemies.find((o) => o !== e && o.isAlive && Math.hypot(o.x - e.x, o.y - e.y) < 70);
+      if (next) {
+        // chain lightning is credited to whoever landed the original hit
+        this.hitSource = e.lastHitBy || "player";
+        this.damage(next, Math.round(dealt * 0.35), 0, false, fx, null, 2);
+        this.hitSource = null;
+        this.sparks.push({ x0: e.x + 10, y0: e.y + 8, x1: next.x + 10, y1: next.y + 8, t: 10 });
+      }
+    }
+    else if (elem === "earth" && r < 0.18 && !e.boss) e.stunTimer = Math.max(e.stunTimer, 30);
+    else if (elem === "poison" && r < 0.35) { e.st.poison = 240; e.st.poisonDmg = Math.max(1, Math.round(e.maxHp * 0.01)); }
+    else if (elem === "shadow" && r < 0.3) e.st.curse = 240;
+  }
+
+  tickElement(e, fx) {
+    const s = e.st;
+    if (!s) return;
+    if (e.frozen > 0) e.frozen--;
+    ["burn", "chill", "poison", "curse"].forEach((k) => { if (s[k] > 0) s[k]--; });
+    if (s.burn > 0 && s.burn % 30 === 0) this.dot(e, s.burnDmg, "#f97316", fx);
+    if (s.poison > 0 && s.poison % 45 === 0) this.dot(e, s.poisonDmg, "#4ade80", fx);
+  }
+
+  dot(e, amt, color, fx) {
+    e.hp -= amt;
+    if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(e.x + 10, e.y - 4, amt, false, color);
+    if (e.hp <= 0) this.kill(e, fx);
+  }
+
+  // After 5 seconds without a hit, HP regenerates (1% every 0.5s; bosses 0.5%)
+  regen(e, fx) {
+    e.sinceHit = (e.sinceHit || 0) + 1;
+    if (e.sinceHit < REGEN_DELAY || e.hp >= e.maxHp) return;
+    if (e.sinceHit % 30 === 0) {
+      const amt = Math.max(1, Math.round(e.maxHp * (e.boss ? 0.005 : 0.01)));
+      e.hp = Math.min(e.maxHp, e.hp + amt);
+      if (e.sinceHit % 90 === 0 && fx && fx.spawnDamagePopup) fx.spawnDamagePopup(e.x + 10, e.y + (e.kind.barY || 0) - 4, `+${amt * 3}`, false, "#4ade80");
+      if (e.hp >= e.maxHp && !e.boss && !e.engaged) e.provoked = false;   // it has forgotten you
+    }
+  }
+
+  // Aggressive at the same or a higher level, or when provoked
+  isAggressive(e, player) {
+    return e.boss || e.provoked || e.level - player.level >= 0;
+  }
+
+  updateMonster(e, player, fx) {
+    const aggressive = this.isAggressive(e, player);
+
+    // Target: the Priest's Guardian Angels first, if any
+    let target = player;
+    const angels = player.angelCompanions || player.angels;
+    if (aggressive && angels && angels.length) {
+      const a = angels.find((x) => x.isAlive);
+      if (a) target = a;
+    }
+    // A mercenary blocking (closer than the hero) or provoking
+    const blocker = this.allies.find((m) => m.isAlive && Math.hypot(m.x - e.x, m.y - e.y) < 22);
+    if (aggressive && blocker && Math.hypot(blocker.x - e.x, blocker.y - e.y) < Math.hypot(target.x - e.x, target.y - e.y)) target = blocker;
+    if (e.taunt && e.taunt.t > 0 && e.taunt.merc.isAlive) { e.taunt.t--; target = e.taunt.merc; e.provoked = true; }
+    const dx = target.x - e.x, dy = target.y - e.y;
+    const dist = Math.hypot(dx, dy);
+    const diff = e.level - player.level;
+    const aggroR = 120 + Math.max(0, diff) * 12 + 60 * this.night;     // sees farther at night
+
+    let mx = 0, my = 0;
+    const spd = e.speed * (1 + 0.15 * this.night) * (e.st && e.st.chill > 0 ? 0.5 : 1);
+    if (aggressive && (e.engaged ? dist < 320 : dist < aggroR) && !(this.stage && this.stage.isInsideSafeZone(player.x + 10, player.y + 17))) {
+      e.engaged = true;
+      if (dist > e.reach * 0.6) { mx = (dx / dist) * spd; my = (dy / dist) * spd; }
+    } else {
+      e.engaged = false;
+      // Wanders around its home
+      e.wanderTimer--;
+      if (e.wanderTimer <= 0) {
+        if (Math.random() < 0.55) {
+          const a = Math.random() * Math.PI * 2, r = 20 + Math.random() * 60;
+          e.wanderX = e.homeX + Math.cos(a) * r;
+          e.wanderY = e.homeY + Math.sin(a) * r;
+        } else {
+          e.wanderX = e.x; e.wanderY = e.y;
+        }
+        e.wanderTimer = rint(90, 220);
+      }
+      const wx = e.wanderX - e.x, wy = e.wanderY - e.y, wd = Math.hypot(wx, wy);
+      if (wd > 2) { mx = (wx / wd) * e.speed * 0.5; my = (wy / wd) * e.speed * 0.5; }
+    }
+    e.x += mx;
+    e.y += my;
+    if (mx) e.facing = mx >= 0 ? "right" : "left";
+    // Teleporter: appears beside the hero every ~5 seconds
+    if (has(e, "teleporter") && e.engaged && dist > 60 && (e.tpTimer = (e.tpTimer || 0) + 1) > 300) {
+      e.tpTimer = 0;
+      if (fx && fx.spawnHitSparks) fx.spawnHitSparks(e.x + 10, e.y + 10, MODS.teleporter.color, 12);
+      e.x = player.x + (Math.random() < 0.5 ? -22 : 22);
+      e.y = player.y + 4;
+      if (fx && fx.spawnHitSparks) fx.spawnHitSparks(e.x + 10, e.y + 10, MODS.teleporter.color, 12);
+    }
+
+    // Atake
+    if (e.engaged && dist <= e.reach) {
+      e.windupTimer++;
+      if (e.windupTimer > windupFor(e, 36)) {
+        e.windupTimer = 0;
+        e.strikeTimer = e.strikeMax = 12;
+        this.hitTarget(e, target, player, fx, e.damage);
+      }
+    } else {
+      e.windupTimer = 0;
+    }
+
+    const moved = Math.hypot(mx, my) > 0.01;
+    this.animate(e, e.engaged ? dx : mx, e.engaged ? dy : my, moved);
+  }
+
+  hitTarget(e, target, player, fx, dmg) {
+    dmg = Math.round(dmg * (1 + 0.2 * this.night) * (e.st && e.st.curse > 0 ? 0.8 : 1) * damageDealtMult(e));   // night · curse · berserk
+    // Vampiric: heals for 30% of the damage
+    if (has(e, "vampiric")) e.hp = Math.min(e.maxHp, e.hp + Math.round(dmg * 0.3));
+    if (target === player) {
+      const before = player.hp;
+      player.takeDamage(dmg, fx, e);
+      const ELEM_BLIGHT = { fire: "burn", water: "freeze", poison: "poison", shadow: "curse", wind: "electrified", undead: "curse", ghost: "confusion" };
+      const d = modBlight(e) || e.kind.debuff || (ELEM_BLIGHT[e.element] ? { type: ELEM_BLIGHT[e.element], chance: e.variant ? 0.2 : 0.08, time: 180 } : null);
+      if (d && player.hp < before && Math.random() < d.chance) {
+        const type = d.type === "all" ? BLIGHTS[Math.floor(Math.random() * BLIGHTS.length)] : d.type;
+        const hit = player.inflictDebuff(type, d.time);
+        if (fx && fx.spawnDamagePopup) {
+          fx.spawnDamagePopup(player.x + 10, player.y - 14, hit ? statusName(type).toUpperCase() : "RESIST!", false, hit ? (STATUS[type] || {}).color || "#c084fc" : "#94a3b8");
+        }
+      }
+    } else {
+      target.hp -= dmg;
+      target.hitTimer = 16;
+      if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(target.x + 8, target.y - 6, `-${dmg}`, false, "#ffd166");
+    }
+  }
+
+  // ---------- BOSS ----------
+  updateBoss(e, player, fx) {
+    const def = e.kind;
+    const px = player.x + 10, py = player.y + 17;
+    const bx = e.x + 10, by = e.y + 17;
+    const dx = px - bx, dy = py - by;
+    const dist = Math.hypot(dx, dy);
+    const playerSafe = this.stage && this.stage.isInsideSafeZone(px, py);
+    e.engaged = !playerSafe && dist < 360;
+
+    if (!e.enraged && e.hp < e.maxHp * 0.5) {
+      e.enraged = true;
+      if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(bx, by - 60, lang() === "fil" ? "NAGNGINGITNGIT!" : "ENRAGED!", true, "#ef4444");
+      if (fx && fx.addScreenShake) fx.addScreenShake(6);
+    }
+    // MVP desperation (25%): summons minions at once and attacks faster
+    if (!e.desperate && e.hp < e.maxHp * 0.25) {
+      e.desperate = true;
+      e.speed *= 1.2;
+      e.bossTimer = 20;
+      e.pattern = Object.keys(def.attacks).indexOf("summon");
+      if (e.pattern < 0) e.pattern = 0;
+      if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(bx, by - 70, lang() === "fil" ? "HULING LAKAS!" : "DESPERATION!", true, "#f59e0b");
+      if (fx && fx.addScreenShake) fx.addScreenShake(8);
+    }
+
+    // Movement: approaches the player but never leaves the arena
+    let mx = 0, my = 0;
+    const home = Math.hypot(e.x - e.homeX, e.y - e.homeY);
+    if (e.castTimer > 0) {
+      e.castTimer--;
+    } else if (!def.static && e.engaged && dist > e.reach * 0.8 && home < 230) {
+      mx = (dx / dist) * e.speed * (e.enraged ? 1.3 : 1);
+      my = (dy / dist) * e.speed * (e.enraged ? 1.3 : 1);
+    } else if (!def.static && (!e.engaged || home >= 230) && home > 4) {
+      mx = ((e.homeX - e.x) / home) * e.speed;
+      my = ((e.homeY - e.y) / home) * e.speed;
+    }
+    e.x += mx;
+    e.y += my;
+
+    // Punch/slam when close
+    if (e.engaged && dist <= e.reach) {
+      e.windupTimer++;
+      if (e.windupTimer > 45) {
+        e.windupTimer = 0;
+        e.strikeTimer = e.strikeMax = 14;
+        this.hitTarget(e, player, player, fx, Math.round(e.damage * 0.85));
+      }
+    } else e.windupTimer = 0;
+
+    // Special attacks
+    if (e.engaged && dist < BOSS_ATTACK_RANGE) {
+      e.bossTimer--;
+      if (e.bossTimer <= 0) {
+        e.bossTimer = e.desperate ? 75 : e.enraged ? 95 : 150;
+        this.bossAttack(e, player, fx, dist);
+      }
+    }
+
+    this.animate(e, dx, dy, Math.hypot(mx, my) > 0.01);
+    if (e.castTimer > 0 && e.strikeTimer <= 0) e.anim = "attack";
+  }
+
+  bossAttack(e, player, fx, dist) {
+    const a = e.kind.attacks;
+    const list = Object.keys(a);
+    const pick = list[e.pattern++ % list.length];
+    const bx = e.x + 10, by = e.y + 17;
+    const px = player.x + 10, py = player.y + 17;
+    e.castTimer = 40;
+
+    if (pick === "slam") {
+      // Player far away: move to the next attack (a boss always has an attack besides its slam)
+      if (dist > a.slam.radius + 30) return this.bossAttack(e, player, fx, dist);
+      this.hazards.push({ x: bx, y: by, r: a.slam.radius, t: 50, max: 50, color: a.slam.color, dmg: Math.round(e.damage * 1.3), src: e });
+    } else if (pick === "hazard") {
+      const n = e.enraged ? 5 : 3;
+      for (let k = 0; k < n; k++) {
+        const ang = Math.random() * Math.PI * 2, r = k === 0 ? 0 : 30 + Math.random() * 50;
+        this.hazards.push({ x: px + Math.cos(ang) * r, y: py + Math.sin(ang) * r, r: a.hazard.radius, t: 55 + k * 8, max: 55 + k * 8, color: a.hazard.color, dmg: e.damage, src: e });
+      }
+    } else if (pick === "orb") {
+      const n = e.enraged ? 5 : 3;
+      const base = Math.atan2(py - (by - 20), px - bx);
+      for (let k = 0; k < n; k++) {
+        const ang = base + (k - (n - 1) / 2) * 0.28;
+        this.orbs.push({ x: bx, y: by - 20, vx: Math.cos(ang) * a.orb.speed, vy: Math.sin(ang) * a.orb.speed, life: Math.round(ORB_RANGE / a.orb.speed), color: a.orb.color, dmg: Math.round(e.damage * 0.7), src: e });
+      }
+      if (Sound && Sound.playSlash) Sound.playSlash();
+    } else if (pick === "summon") {
+      const adds = this.enemies.filter((x) => x.isAlive && x.summoned).length;
+      if (adds >= MAX_ADDS) return;
+      a.summon.forEach((key, k) => {
+        const m = this.spawn(key, player.level, bx - 40 + k * 60, by + 20, null, "normal", e.level - 4 + rint(-1, 1));
+        if (m) { m.summoned = true; m.provoked = true; }
+      });
+      if (fx && fx.spawnHitSparks) fx.spawnHitSparks(bx, by, "#c084fc", 20);
+    }
+  }
+
+  updateHazards(player, fx) {
+    const px = player.x + 10, py = player.y + 17;
+    this.hazards.forEach((h) => {
+      h.t--;
+      if (h.t === 0) {
+        if (Math.hypot(px - h.x, (py - h.y) * 1.6) <= h.r) this.hitTarget(h.src, player, player, fx, h.dmg);
+        if (fx && fx.spawnHitSparks) fx.spawnHitSparks(h.x, h.y, h.color, 12);
+        if (fx && fx.addScreenShake) fx.addScreenShake(3);
+      }
+    });
+    this.hazards = this.hazards.filter((h) => h.t > -10);
+
+    this.orbs.forEach((o) => {
+      o.x += o.vx;
+      o.y += o.vy;
+      o.life--;
+      if (Math.hypot(px - o.x, py - 8 - o.y) < 9) {
+        this.hitTarget(o.src, player, player, fx, o.dmg);
+        o.life = 0;
+      }
+      // Crosses water/lava/void but stops at walls and trees
+      const tm = this.stage && this.stage.tilemap;
+      if (tm) {
+        const tx = Math.floor(o.x / 16), ty = Math.floor(o.y / 16);
+        if (tm.inBounds(tx, ty) && tm.solid[tm.idx(tx, ty)] && !tm.liquid[tm.idx(tx, ty)]) o.life = 0;
+      }
+    });
+    this.orbs = this.orbs.filter((o) => o.life > 0);
+  }
+
+  // Direction and animation from the enemy's actual movement
+  animate(e, dx, dy, moved) {
+    const f = facingFrom(dx, dy, e);
+    e.dir = f.dir;
+    e.flip = f.flip;
+    const len = Math.hypot(dx, dy);
+    if (len > 0.001) { e.aimX = dx / len; e.aimY = dy / len; }   // for the lunge
+    if (e.strikeTimer > 0) e.strikeTimer--;
+
+    const anim = e.strikeTimer > 0 || e.windupTimer > WINDUP_SHOW ? "attack" : moved ? "walk" : "idle";
+    if (anim !== e.anim) {
+      e.anim = anim;
+      e.animTimer = 0;
+    }
+    e.animTimer++;
+  }
+
+  // Squash & stretch from the monster's timers: rising in, recoiling, winding up, lunging, breathing
+  poseOf(e) {
+    const scale = e.kind.scale || 1;
+    const spawn = e.spawnT < SPAWN_POP ? spawnPose(e.spawnT, SPAWN_POP) : REST;
+    const hit = hitPose(e.hitTimer, e.hitMax || 8, e.hitDir || 0);
+    if (e.frozen > 0 || e.stunTimer > 0) return mix(spawn, hit);
+    let act = REST;
+    if (e.strikeTimer > 0) {
+      const max = e.strikeMax || 12;
+      act = attackPose(0.35 + 0.65 * (1 - e.strikeTimer / max), e.aimX || 0, e.aimY || 0, 4 * scale);
+    } else if (e.windupTimer > WINDUP_SHOW) {
+      act = windupPose(e.windupTimer - WINDUP_SHOW, (e.boss ? 45 : windupFor(e, 36)) - WINDUP_SHOW, e.animTimer);
+    } else if (e.anim === "idle") {
+      act = breathPose(e.animTimer + ((e.id * 1000) | 0));
+    }
+    return mix(spawn, hit, act);
+  }
+
+  frameOf(e) {
+    if (e.anim === "attack") return e.strikeTimer > 0 ? 1 : 0;   // 0 = handa, 1 = tama
+    return Math.floor(e.animTimer / (e.anim === "walk" ? WALK_TICKS : IDLE_TICKS));
+  }
+
+  // player = the attacker (extra damage and crit from stats and equipment)
+  // elem = the attack's element (e.g. Meteor's "fire"). player = the attacker (stats, equipment, class)
+  damage(enemy, amount, angle, isCrit, fx, lootManager, pushDist = 8, isStun = false, player = null, elem = null) {
     if (!enemy || !enemy.isAlive) return;
 
-    enemy.hp -= amount;
-    enemy.hitTimer = 8;
-    enemy.x += Math.cos(angle) * pushDist;
-    enemy.y += Math.sin(angle) * pushDist;
+    // Element, race and size tables (Ragnarok)
+    const em = elementMult(elem || "neutral", enemy.element || "neutral");
+    let mod = em;
+    if (player && player.heroData) {
+      mod *= raceBonus(player.heroData.id, enemy.kind.race) * sizeMod(player.weaponIcon, enemy.kind.size);
+      mod *= (player.timeMods && player.timeMods.dmg) || 1;
+    }
+    amount *= mod * damageTakenMult(enemy);
+    // Lightning Enchanted: sparks at a nearby hero when hit
+    const pl = this.player;
+    if (has(enemy, "lightning") && pl && Math.random() < 0.2 && Math.hypot(pl.x - enemy.x, pl.y - enemy.y) < 70) {
+      pl.takeDamage(Math.round(enemy.damage * 0.3), fx, enemy);
+      this.sparks.push({ x0: enemy.x + 10, y0: enemy.y + 8, x1: pl.x + 10, y1: pl.y + 10, t: 10 });
+    }
+    if (fx && fx.spawnDamagePopup && em !== 1) {
+      fx.spawnDamagePopup(enemy.x + 10, enemy.y - 16 - (enemy.hitUp || 0), em > 1 ? "WEAK!" : "RESIST", false, em > 1 ? "#facc15" : "#94a3b8");
+    }
 
-    if (isStun) enemy.stunTimer = 65;
+    if (player && typeof player.attack === "number") {
+      const d = player.debuffs || {};
+      amount = (amount + player.attack) * (player.dmgMult || 1) * (player.buffs && player.buffs.damage > 0 ? 1.5 : 1) * (d.curse > 0 ? 0.75 : 1);
+      // No criticals while blind or cursed
+      const canCrit = !(d.blind > 0 || d.curse > 0);
+      if (!isCrit && canCrit && Math.random() < (player.crit || 0)) { isCrit = true; amount *= 1.8; }
+      amount = Math.round(amount);
+    }
+
+    enemy.hp -= amount;
+    // Last-hit rule: only a kill landed by the hero (or the hero's summons) earns EXP and loot.
+    // Hero attacks pass `player`; mercenaries and NPC allies do not.
+    enemy.lastHitBy = this.hitSource || (player ? "player" : "ally");
+    if (player && !this.hitSource && this.onHeroHit) this.onHeroHit();
+    enemy.hitTimer = enemy.hitMax = isCrit ? 12 : 8;
+    enemy.hitDir = -Math.cos(angle);   // recoil away from the blow
+    if (isCrit && player && fx && fx.hitStop) fx.hitStop(3);
+    enemy.sinceHit = 0;       // delays HP regeneration
+    enemy.provoked = true;
+    enemy.engaged = true;
+    const push = enemy.boss ? pushDist * 0.1 : pushDist;
+    enemy.x += Math.cos(angle) * push;
+    enemy.y += Math.sin(angle) * push;
+
+    if (isStun && !enemy.boss) enemy.stunTimer = 65;
 
     if (fx && fx.spawnDamagePopup) {
-      fx.spawnDamagePopup(enemy.x + 8, enemy.y - 6, amount, isCrit);
+      fx.spawnDamagePopup(enemy.x + 8, enemy.y - 6 - (enemy.hitUp || 0), amount, isCrit);
     }
 
     if (Sound && Sound.playSlash) Sound.playSlash();
 
-    if (enemy.hp <= 0) {
-      enemy.isAlive = false;
-      if (lootManager) {
-        if (typeof lootManager.spawnLoot === "function") lootManager.spawnLoot(enemy.x, enemy.y);
-        else if (typeof lootManager.dropLoot === "function") lootManager.dropLoot(enemy.x, enemy.y);
-      }
-      if (player && typeof player.addExp === "function") {
-        player.addExp(25 + enemy.level * 8);
-      }
+    if (enemy.hp <= 0) this.kill(enemy, fx);
+    else this.applyElement(enemy, elem, amount, fx);
+  }
+
+  kill(e, fx) {
+    e.isAlive = false;
+    const p = this.player;
+    const diff = p ? e.level - p.level : 0;
+    const tierExp = e.boss ? 12 : e.tier && TIERS[e.tier] ? TIERS[e.tier].exp : 1;
+    const mult = Math.max(0.25, Math.min(1.8, 1 + diff * 0.12)) * (1 + 0.3 * this.night) * tierExp;
+    const byPlayer = e.lastHitBy !== "ally";
+    const exp = byPlayer ? Math.round((25 + e.level * 8) * mult) : 0;
+    if (exp && p && typeof p.addExp === "function") p.addExp(exp);
+    if (this.onKill) this.onKill(e, byPlayer, exp);
+    // Death: the body dissolves (drawn from this.corpses), a burst in its colour, and a beat of hit-stop
+    this.corpses.push({ e, t: 0 });
+    if (fx && fx.spawnDeathBurst) {
+      const col = e.elite ? TIERS.elite.color : e.champion ? TIERS.champion.color : e.variant ? ELEMENTS[e.variant].color : "#e2e8f0";
+      fx.spawnDeathBurst(e.x + 10, e.y + 12, e.boss ? "#c084fc" : col, e.boss ? 2.4 : e.elite ? 1.5 : 1);
+    }
+    if (byPlayer && fx && fx.hitStop) fx.hitStop(e.boss ? 16 : e.elite ? 6 : e.champion ? 4 : 2);
+    // Fire Enchanted: explodes on death
+    if (has(e, "fire") && p && Math.hypot(p.x - e.x, p.y - e.y) < 42) {
+      p.takeDamage(Math.round(e.damage * 0.8), fx, e);
+      p.inflictDebuff("burn", 180);
+    }
+    if (has(e, "fire") && fx && fx.spawnHitSparks) fx.spawnHitSparks(e.x + 10, e.y + 10, "#f97316", 24);
+    if (this.loot && !byPlayer && e.boss && e.kind.drop) {
+      // an ally's last hit forfeits the rewards, but a boss still leaves its quest item
+      this.loot.drop({ x: e.x + 10, y: e.y + 12 }, { id: e.kind.drop, qty: 1 }, true);
+    } else if (this.loot && byPlayer) {
+      this.loot.spawnLoot(e.x + 10, e.y + 12, {
+        grade: this.tier, level: e.level, cls: p ? p.heroData.id : "novice", key: e.key,
+        boss: Boolean(e.boss), drop: e.boss ? e.kind.drop : null,
+        tier: e.boss ? "mvp" : e.tier || "normal", diff,
+        extra: Math.random() < 0.3 * this.night ? 1 : 0     // night: extra loot
+      });
+    }
+    if (e.boss) {
+      this.hazards = [];
+      this.orbs = [];
+      this.enemies.forEach((m) => { if (m.summoned) m.isAlive = false; });
+      if (fx && fx.addScreenShake) fx.addScreenShake(10);
+      if (fx && fx.spawnHitSparks) { fx.spawnHitSparks(e.x + 10, e.y - 10, "#ffd166", 40); fx.spawnHitSparks(e.x + 10, e.y - 30, "#ffffff", 30); }
+      if (this.onBossDefeated) this.onBossDefeated(e);
     }
   }
 
-  draw(ctx, drawMatrixFn) {
-    this.enemies.forEach((e) => {
-      if (!e.isAlive) return;
+  // ---------- DRAW ----------
+  draw(ctx) {
+    // Boss warnings (on the ground, before the characters)
+    this.hazards.forEach((h) => {
+      const k = 1 - Math.max(0, h.t) / h.max;
+      ctx.save();
+      ctx.globalAlpha = h.t > 0 ? 0.25 + k * 0.35 : 0.8;
+      ctx.fillStyle = h.color;
+      ctx.beginPath();
+      ctx.ellipse(h.x, h.y, h.r * (h.t > 0 ? k : 1), h.r * 0.6 * (h.t > 0 ? k : 1), 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 0.9;
+      ctx.strokeStyle = h.color;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.ellipse(h.x, h.y, h.r, h.r * 0.6, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    });
 
-      // Contact Shadow
+    // Dying: a white flash, then the body flattens and fades (flyers drop to the ground)
+    this.corpses.forEach(({ e, t }) => {
+      const k = t / DEATH_T;
+      const scale = e.kind.scale || 1;
+      const fy = e.y + 17;
+      const pose = { sx: 1 + 0.35 * k, sy: Math.max(0.1, 1 - 0.85 * k * k), ox: 0, oy: e.kind.flying ? k * 7 : 0 };
+      ctx.save();
+      ctx.globalAlpha = 1 - k * k;
+      around(ctx, e.x + 10, fy, pose, () => e.kind.sprite.draw(ctx, e.x + 10, fy, e.dir, e.anim, this.frameOf(e), e.flip, t < 4, scale));
+      ctx.restore();
+    });
+
+    const pl = this.player;
+    // Y-sort so they overlap correctly
+    [...this.enemies].filter((e) => e.isAlive).sort((a, b) => a.y - b.y).forEach((e) => {
+      const k = e.kind;
+      const scale = k.scale || 1;
+      const fy = e.y + 17;
+
+      // Shadow (small and far when flying)
       ctx.fillStyle = "rgba(0,0,0,0.28)";
       ctx.beginPath();
-      ctx.ellipse(e.x + 10, e.y + 16, 9, 3.5, 0, 0, Math.PI * 2);
+      ctx.ellipse(e.x + 10, fy - 1, (k.flying ? 6 : 9) * (e.boss ? 2.2 : 1), (k.flying ? 2 : 3.5) * (e.boss ? 1.6 : 1), 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // Matrix Renderer na may Flip Support
-      ctx.save();
-      if (e.facing === "left") {
-        ctx.translate(Math.floor(e.x) + 20, Math.floor(e.y));
-        ctx.scale(-1, 1);
-        drawMatrixFn(ctx, 0, 0, e.frames[e.animFrame], e.hitTimer > 0);
-      } else {
-        drawMatrixFn(ctx, e.x, e.y, e.frames[e.animFrame], e.hitTimer > 0);
+      // Aura of the elemental variant and the Champion ring
+      if (e.variant || e.champion || e.elite) {
+        const pulse = 0.5 + Math.sin(e.animTimer / 8) * 0.25;
+        ctx.save();
+        ctx.globalAlpha = pulse * 0.6;
+        ctx.strokeStyle = e.elite ? TIERS.elite.color : e.champion ? TIERS.champion.color : ELEMENTS[e.variant].color;
+        ctx.lineWidth = e.champion || e.elite ? 1.5 : 1;
+        ctx.beginPath();
+        ctx.ellipse(e.x + 10, fy - 1, 11 * (e.boss ? 2 : 1), 4 * (e.boss ? 1.6 : 1), 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
       }
-      ctx.restore();
 
-      // HP Bar na may Level Badge
-      const w = 18;
-      ctx.fillStyle = "#111";
-      ctx.fillRect(e.x + 1, e.y - 7, w, 2.5);
-      ctx.fillStyle = e.type === "wolf" ? "#ff4d6d" : e.type === "skeleton" ? "#00b4d8" : "#70e000";
-      ctx.fillRect(e.x + 1, e.y - 7, Math.max(0, (e.hp / e.maxHp) * w), 2.5);
+      around(ctx, e.x + 10, fy, this.poseOf(e), () => k.sprite.draw(ctx, e.x + 10, fy, e.dir, e.anim, this.frameOf(e), e.flip, e.hitTimer > 0, scale));
+      // Frozen: blue ice on top
+      if (e.frozen > 0) {
+        ctx.save();
+        ctx.globalAlpha = 0.45;
+        ctx.fillStyle = "#bfe9ff";
+        ctx.fillRect(e.x + 2, fy - 18 * scale, 16 * scale, 18 * scale);
+        ctx.restore();
+      }
+
+      // HP bar + "Lv N Name" coloured by level
+      const diff = pl ? e.level - pl.level : 0;
+      const color = levelColor(diff, e.boss);
+      const by = e.y + k.barY;
+      if (!e.boss) {
+        const w = 20;
+        ctx.fillStyle = "#111";
+        ctx.fillRect(e.x, by, w, 2.5);
+        ctx.fillStyle = color;
+        ctx.fillRect(e.x, by, Math.max(0, (e.hp / e.maxHp) * w), 2.5);
+      }
+      ctx.font = "bold 4px monospace";
+      ctx.textAlign = "center";
+      const mark = e.boss ? "☠ MVP " : e.elite ? `${TIERS.elite.mark} ` : e.champion ? `${TIERS.champion.mark} ` : "";
+      const label = `${mark}Lv${e.level} ${this.displayName(e)}`;
+      const tw = ctx.measureText(label).width;
+      ctx.fillStyle = "rgba(3, 6, 17, 0.6)";
+      ctx.fillRect(e.x + 10 - tw / 2 - 1, by - 6, tw + 2, 5);
+      ctx.fillStyle = e.elite ? TIERS.elite.color : e.champion ? TIERS.champion.color : color;
+      ctx.fillText(label, e.x + 10, by - 2);
+      // the level colour sits in a small bar underneath so the warning isn't lost
+      if (e.elite || e.champion) { ctx.fillStyle = color; ctx.fillRect(e.x + 10 - tw / 2, by - 0.5, tw, 0.8); }
+      // red dot = aggressive
+      if (pl && this.isAggressive(e, pl) && !e.boss) {
+        ctx.fillStyle = "#ef4444";
+        ctx.fillRect(e.x + 10 - tw / 2 - 3, by - 5, 1.5, 1.5);
+      }
+      // Dot for the element effect on the enemy
+      if (e.st) {
+        const dots = [["burn", "#f97316"], ["chill", "#7dd3fc"], ["poison", "#4ade80"], ["curse", "#a855f7"]].filter(([s]) => e.st[s] > 0);
+        dots.forEach(([, c], i) => { ctx.fillStyle = c; ctx.fillRect(e.x + 10 + tw / 2 + 2 + i * 3, by - 5, 2, 2); });
+      }
+      // Locked target (Shift): a red pointer above
+      if (e.id === this.lockedId) {
+        const ly = by - 14 + Math.sin(e.animTimer / 6);
+        ctx.fillStyle = "#ef4444";
+        ctx.beginPath(); ctx.moveTo(e.x + 10, ly + 4); ctx.lineTo(e.x + 7, ly); ctx.lineTo(e.x + 13, ly); ctx.closePath(); ctx.fill();
+      }
+      // The hero's target: race · size · element (like Ragnarok's monster info)
+      if (e.id === this.targetId) {
+        const el = ELEMENTS[e.element] || ELEMENTS.neutral;
+        const info = `${raceName(e.kind.race)} · ${sizeName(e.kind.size)} · ${elementName(e.element)}${e.mods ? ` · ${e.mods.map(modName).join(", ")}` : ""}`;
+        ctx.font = "3.6px monospace";
+        const iw = ctx.measureText(info).width;
+        ctx.fillStyle = "rgba(3, 6, 17, 0.7)";
+        ctx.fillRect(e.x + 10 - iw / 2 - 1, by - 11, iw + 2, 4.5);
+        ctx.fillStyle = el.color;
+        ctx.fillText(info, e.x + 10, by - 7.6);
+        ctx.strokeStyle = e.id === this.lockedId ? "rgba(239, 68, 68, 0.95)" : "rgba(255, 209, 102, 0.8)";
+        ctx.lineWidth = e.id === this.lockedId ? 1 : 0.6;
+        ctx.beginPath();
+        ctx.ellipse(e.x + 10, fy - 1, 12 * (e.boss ? 2 : 1), 4.5 * (e.boss ? 1.6 : 1), 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
     });
+
+    // Wind lightning jumping to a nearby enemy
+    this.sparks.forEach((s) => {
+      s.t--;
+      ctx.strokeStyle = `rgba(190, 242, 100, ${s.t / 10})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(s.x0, s.y0);
+      ctx.lineTo((s.x0 + s.x1) / 2 + (Math.random() - 0.5) * 8, (s.y0 + s.y1) / 2 + (Math.random() - 0.5) * 8);
+      ctx.lineTo(s.x1, s.y1);
+      ctx.stroke();
+    });
+    this.sparks = this.sparks.filter((s) => s.t > 0);
+
+    // Boss orbs
+    this.orbs.forEach((o) => {
+      ctx.fillStyle = o.color;
+      ctx.beginPath();
+      ctx.arc(o.x, o.y, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(Math.round(o.x - 1), Math.round(o.y - 1), 2, 2);
+    });
+  }
+
+  // The boss's big HP bar at the top of the screen (screen space)
+  drawBossBar(ctx, W) {
+    const e = this.boss();
+    if (!e || !e.engaged) return;
+    const w = 220, x = Math.round(W / 2 - w / 2), y = 16;
+    ctx.save();
+    ctx.fillStyle = "rgba(3, 6, 17, 0.85)";
+    ctx.fillRect(x - 3, y - 9, w + 6, 16);
+    ctx.fillStyle = "#1f1026";
+    ctx.fillRect(x, y, w, 4);
+    ctx.fillStyle = e.enraged ? "#ef4444" : "#c084fc";
+    ctx.fillRect(x, y, Math.max(0, (e.hp / e.maxHp) * w), 4);
+    ctx.strokeStyle = "#ffd166";
+    ctx.lineWidth = 0.6;
+    ctx.strokeRect(x - 0.5, y - 0.5, w + 1, 5);
+    ctx.font = "bold 5px monospace";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#ffd166";
+    ctx.fillText(`☠ ${this.displayName(e)} · Lv${e.level}${e.enraged ? "  ⚠" : ""}`, W / 2, y - 3);
+    ctx.restore();
   }
 }

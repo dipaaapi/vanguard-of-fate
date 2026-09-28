@@ -18,9 +18,9 @@ const ISEKAI_LORE = {
     realName: "Lyra Vance",
     earthRole: "Wildlife Biologist & Olympic Archer",
     origin: "Vancouver, Canada",
-    summonEvent: "Froze in a blizzard while saving an injured mountain hawk.",
+    summonEvent: "Froze in a blizzard while sheltering an injured alpine falcon.",
     trait: "Predator's Eye & Empathy",
-    loreDesc: "Tahimik na tagapagtanggol ng kakahuyan. Muling nabuhay sa katawan ng Elf kasama ang kaluluwa ng agilang kanyang iniligtas bilang Falcon."
+    loreDesc: "Tahimik na tagapagtanggol ng kakahuyan. Muling nabuhay sa katawan ng Elf kasama ang kaluluwa ng alpine falcon na kanyang kinanlong."
   },
   priest: {
     realName: "Dr. Julian Alcantara",
@@ -36,7 +36,7 @@ const ISEKAI_LORE = {
     origin: "Atacama Observatory",
     summonEvent: "Enveloped by anomalous cosmic gamma pulse during a sky scan.",
     trait: "Orbital Mechanics Mastery",
-    loreDesc: "Kabisado ang celestial mechanics at orbital trajectories. Ang dating equations ng mga bulalakaw ay naging nagliliyab na Meteor Swarm."
+    loreDesc: "Kabisado ang celestial mechanics at orbital trajectories. Ang dating equations ng mga bulalakaw ay naging nagliliyab na Meteor Fall."
   },
   fighter: {
     realName: "Renzo 'Striker' Cruz",
@@ -49,18 +49,18 @@ const ISEKAI_LORE = {
 };
 
 export class SelectScene {
-  // dom = { picker, dossier }: ang hero picker (ibaba) at dossier (kanan) ay HTML na
-  constructor(roster, onHeroSelected, drawMatrixFn, dom = {}) {
+  // dom = { picker, dossier }: the hero picker (bottom) and dossier (right) are HTML
+  constructor(roster, onHeroSelected, dom = {}) {
     this.roster = roster;
     this.onHeroSelected = onHeroSelected;
-    this.drawMatrixFn = drawMatrixFn;
+    this.jobAvatars = null;     // set by main.js before the Job Awakening
     this.selectedIndex = 0;
     this.animTick = 0;
     this.bg = loadImage("assets/bg/portal_bg.jpg");
 
     this.pickerEl = dom.picker || null;
     this.dossierEl = dom.dossier || null;
-    this.mode = "select";   // "select" | "awakening" (Job Awakening ng Novice sa Lv 10)
+    this.mode = "select";   // "select" | "awakening" (the Novice's Job Awakening at Lv 10)
     this.renderDom();
     onLangChange(() => this.renderDom());
   }
@@ -81,7 +81,7 @@ export class SelectScene {
     };
   }
 
-  // ---------- HTML (ibaba at kanan) ----------
+  // ---------- HTML (bottom and right) ----------
   renderDom() {
     if (this.pickerEl) {
       this.pickerEl.innerHTML = "";
@@ -140,7 +140,7 @@ export class SelectScene {
       };
 
       add("div", "dz-name", hero.name.toUpperCase());
-      // Sa awakening, ang Earth profile ay ng mentor ng class (isa sa limang naunang tinawag, Act III)
+      // At the awakening, the Earth profile is the class mentor's (one of the five earlier souls, Act III)
       const awakening = this.mode === "awakening";
       if (awakening) add("div", "dz-label dz-mentor", t("mentorLabel"));
       add("div", "dz-real", `"${lore.realName}"`);
@@ -192,7 +192,7 @@ export class SelectScene {
     ctx.fillText(text, x, y);
   }
 
-  // ---------- CANVAS: background + hero sa harap ng portal ----------
+  // ---------- CANVAS: background + hero in front of the portal ----------
   draw(ctx, width, height) {
     this.animTick++;
 
@@ -203,7 +203,7 @@ export class SelectScene {
     ctx.fillStyle = "rgba(3, 6, 17, 0.15)";
     ctx.fillRect(0, 0, width, height);
 
-    // Pulsing glow ng portal
+    // Pulsing portal glow
     const px = width * 0.605;
     const py = height * 0.46;
     const pulse = 1 + Math.sin(this.animTick / 20) * 0.10;
@@ -230,7 +230,7 @@ export class SelectScene {
     ctx.font = "6.5px monospace";
     this.shadowText(ctx, awakening ? t("awakenSub") : "CHOOSE A REINCARNATED SOUL TO EMBARK ON AETHELGARD", width / 2, 27, "#94a3b8");
 
-    // Hero (3x laki) nakatayo sa harap ng portal
+    // Hero (3x size) standing in front of the portal
     const hero = this.roster[this.selectedIndex];
     const lore = this.getLore(hero);
     const heroX = Math.round(width * 0.605);
@@ -247,25 +247,34 @@ export class SelectScene {
     ctx.ellipse(heroX, heroY + 1, 26, 7, 0, 0, Math.PI * 2);
     ctx.fill();
 
+    // The class mentor (behind, smaller) and the player wearing the class gear.
+    // Now and then the attack pose shows, so the weapon can be seen.
     const mentor = awakening && this.mentorAvatars && this.mentorAvatars[hero.id];
+    const self = this.jobAvatars && this.jobAvatars[hero.id];
     if (mentor) {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
+      ctx.beginPath();
+      ctx.ellipse(heroX - 62, heroY - 13, 16, 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+      mentor.draw(ctx, heroX - 62, heroY - 12, "down", "idle", Math.floor(this.animTick / 40), false, false, 2);
+    }
+    if (self) {
+      const phase = this.animTick % 240;
+      const attacking = phase >= 200;
+      self.draw(ctx, heroX, heroY, "down", attacking ? "attack" : "idle",
+        attacking ? (phase >= 216 ? 1 : 0) : Math.floor(this.animTick / 40), false, false, 3);
+    } else if (mentor) {
       mentor.draw(ctx, heroX, heroY, "down", "idle", Math.floor(this.animTick / 40), false, false, 3);
-    } else if (hero.sprites && hero.sprites.idle) {
-      const frames = hero.sprites.idle;
-      const idx = Math.floor(this.animTick / 26) % frames.length;
-      ctx.save();
-      ctx.translate(heroX, heroY);
-      ctx.scale(3, 3);
-      this.drawMatrixFn(ctx, -12, -24, frames[idx]);
-      ctx.restore();
     }
 
     ctx.textAlign = "center";
     ctx.font = "bold 9px monospace";
     this.shadowText(ctx, hero.name.toUpperCase(), heroX, heroY + 16, "#ffd166");
-    ctx.font = "bold 6.8px monospace";
-    this.shadowText(ctx, `"${lore.realName}"`, heroX, heroY + 25, "#38bdf8");
     ctx.font = "6.2px monospace";
-    this.shadowText(ctx, hero.title || "", heroX, heroY + 34, "#cbd5e1");
+    this.shadowText(ctx, hero.title || "", heroX, heroY + 25, "#cbd5e1");
+    // Mentor's name under the mentor (or under the hero when there is no mentor)
+    ctx.font = "bold 6.8px monospace";
+    if (mentor && self) this.shadowText(ctx, `"${lore.realName}"`, heroX - 62, heroY - 2, "#38bdf8");
+    else this.shadowText(ctx, `"${lore.realName}"`, heroX, heroY + 34, "#38bdf8");
   }
 }

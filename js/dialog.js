@@ -3,7 +3,7 @@ import { npcName } from "./dialogue.js";
 import { qt } from "./quest.js";
 
 // ==================== DIALOGUE BOX + QUEST TRACKER + QUEST LOG ====================
-// HTML overlay sa ibabaw ng game canvas (#viewport), para malinaw ang teksto sa kahit anong scale.
+// HTML overlay above the game canvas (#viewport), so the text stays crisp at any scale.
 
 const CHARS_PER_FRAME = 1.6;
 
@@ -22,11 +22,12 @@ export class DialogBox {
     this.index = 0;
     this.shown = 0;
     this.onEnd = null;
+    this.onLine = null;      // (id, line): called for each new line (for the log in the bottom tray)
 
     this.box.addEventListener("pointerdown", (e) => { e.preventDefault(); this.next(); });
   }
 
-  // avatar: Avatar ng nagsasalita (para sa portrait); id: para sa pangalan
+  // avatar: the speaker's Avatar (for the portrait); id: for the name
   start(id, avatar, lines, onEnd) {
     this.id = id;
     this.lines = lines && lines.length ? lines : ["…"];
@@ -40,6 +41,7 @@ export class DialogBox {
     if (avatar) avatar.drawPortrait(ctx, this.portrait.width, this.portrait.height);
     else ctx.clearRect(0, 0, this.portrait.width, this.portrait.height);
     this.render();
+    if (this.onLine) this.onLine(id, this.current());
     if (Sound.playSelectMove) Sound.playSelectMove();
   }
 
@@ -53,7 +55,7 @@ export class DialogBox {
     this.nextEl.classList.toggle("ready", this.shown >= line.length);
   }
 
-  // Tinatawag bawat frame (typewriter)
+  // Called every frame (typewriter)
   update() {
     if (!this.open) return;
     const len = this.current().length;
@@ -67,7 +69,7 @@ export class DialogBox {
     if (!this.open) return;
     const len = this.current().length;
     if (this.shown < len) {
-      this.shown = len;             // tapusin agad ang linya
+      this.shown = len;             // finish the line at once
       this.render();
       return;
     }
@@ -79,6 +81,7 @@ export class DialogBox {
     }
     if (Sound.playSelectMove) Sound.playSelectMove();
     this.render();
+    if (this.onLine) this.onLine(this.id, this.current());
   }
 
   close() {
@@ -96,7 +99,7 @@ export class DialogBox {
       e.preventDefault();
       this.next();
     } else if (c === "Escape") {
-      // Laktawan ang natitirang linya (pero gawin pa rin ang action)
+      // Skip the remaining lines (but still run the action)
       this.index = this.lines.length - 1;
       this.shown = this.current().length;
       this.next();
@@ -106,9 +109,10 @@ export class DialogBox {
 
 export class QuestHud {
   constructor(root) {
-    this.tracker = root.querySelector("#questTracker");
-    this.actEl = root.querySelector("#qtAct");
-    this.goalEl = root.querySelector("#qtGoal");
+    // The quest tracker lives in the side panel (outside the game screen)
+    this.tracker = document.getElementById("questTracker");
+    this.actEl = document.getElementById("qtAct");
+    this.goalEl = document.getElementById("qtGoal");
     this.toastEl = root.querySelector("#questToast");
     this.logEl = root.querySelector("#questLog");
     this.logOpen = false;
@@ -121,14 +125,14 @@ export class QuestHud {
     if (!v) this.closeLog();
   }
 
-  update(quest, player, summonerName) {
-    const { act, goal } = quest.text(player, summonerName);
+  update(quest, player, summonerName, mentorName) {
+    const { act, goal } = quest.text(player, summonerName, mentorName);
     const key = act + "|" + goal;
     if (key === this.last) return;
     this.last = key;
     this.actEl.textContent = act;
     this.goalEl.textContent = goal;
-    if (this.logOpen) this.renderLog(quest, player, summonerName);
+    if (this.logOpen) this.renderLog(quest, player, summonerName, mentorName);
   }
 
   toast(text) {
@@ -138,11 +142,11 @@ export class QuestHud {
     this.toastEl.classList.add("show");
   }
 
-  toggleLog(quest, player, summonerName) {
+  toggleLog(quest, player, summonerName, mentorName) {
     if (this.logOpen) this.closeLog();
     else {
       this.logOpen = true;
-      this.renderLog(quest, player, summonerName);
+      this.renderLog(quest, player, summonerName, mentorName);
       this.logEl.classList.add("open");
     }
   }
@@ -152,7 +156,7 @@ export class QuestHud {
     this.logEl.classList.remove("open");
   }
 
-  renderLog(quest, player, summonerName) {
+  renderLog(quest, player, summonerName, mentorName) {
     this.logEl.innerHTML = "";
     const h = document.createElement("h3");
     h.textContent = qt("log");
@@ -162,7 +166,7 @@ export class QuestHud {
     sub.textContent = qt("title");
     this.logEl.appendChild(sub);
 
-    quest.entries(player, summonerName).forEach((e) => {
+    quest.entries(player, summonerName, mentorName).forEach((e) => {
       const row = document.createElement("div");
       row.className = "ql-row " + e.state;
       const mark = document.createElement("span");

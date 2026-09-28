@@ -1,5 +1,5 @@
 import {
-  TILE, ATLAS_COLS, T,
+  TILE, ATLAS_COLS, T, THEMES,
   buildTileset, drawTreeSplit, drawRock, drawBush, mulberry32
 } from "./tileset.js";
 
@@ -19,12 +19,15 @@ function vnoise(x, y, seed) {
   return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
 }
 
-// Hitbox ng paa (24x24 ang sprite ng player/kalaban)
+// Foot hitbox (player/enemy sprites are 24x24)
 const FOOT = { ox: 7, oy: 16, w: 10, h: 7 };
 
 export class TileMap {
-  // stage: kailangan ng width, height, safeZone; opsyonal: ocean, castle, barracks, portals
+  // stage: needs width, height, safeZone; optional: castle, barracks, portals
+  // For platforms: stage.theme (key in THEMES), stage.terrain(tx, ty, cols, rows, noise)
+  // → "liquid" | "wall" | null, stage.pathTargets ([x, y] in pixels), stage.coverageSystems.
   constructor(stage, seed = 20260928) {
+    this.theme = THEMES[stage.theme] || THEMES.aethelgard;
     this.tile = TILE;
     this.pxW = stage.width;
     this.pxH = stage.height;
@@ -32,26 +35,55 @@ export class TileMap {
     this.rows = Math.ceil(stage.height / TILE);
 
     this.ids = new Uint8Array(this.cols * this.rows);     // ground tile ids
-    this.solid = new Uint8Array(this.cols * this.rows);   // 1 = hindi madaanan
-    this.keepOut = new Uint8Array(this.cols * this.rows); // debug: saklaw ng ocean/castle/etc.
-    this.objects = [];                                    // puno, bato, bush
+    this.solid = new Uint8Array(this.cols * this.rows);   // 1 = impassable
+    this.keepOut = new Uint8Array(this.cols * this.rows); // debug: area covered by the castle/barracks/etc.
+    this.objects = [];                                    // trees, rocks, bushes
     this.debug = false;
 
-    this.atlas = buildTileset();
+    this.liquid = new Uint8Array(this.cols * this.rows);  // sea / lava / void (impassable)
+    this.atlas = buildTileset(this.theme);
     this.generate(stage, seed);
+    this.computeReach(stage);
     this.render();
+  }
+
+  // Tiles reachable from the sanctuary (so monsters never spawn in a closed pocket)
+  computeReach(stage) {
+    this.reach = new Uint8Array(this.cols * this.rows);
+    const s = stage.safeZone;
+    if (!s) return;
+    const sx = Math.floor((s.x + s.w / 2) / TILE), sy = Math.floor((s.y + s.h / 2) / TILE);
+    if (!this.inBounds(sx, sy)) return;
+    const q = [[sx, sy]];
+    this.reach[this.idx(sx, sy)] = 1;
+    for (let h = 0; h < q.length; h++) {
+      const [x, y] = q[h];
+      [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(([dx, dy]) => {
+        const nx = x + dx, ny = y + dy;
+        if (!this.inBounds(nx, ny)) return;
+        const i = this.idx(nx, ny);
+        if (this.solid[i] || this.reach[i]) return;
+        this.reach[i] = 1;
+        q.push([nx, ny]);
+      });
+    }
+  }
+
+  isReachable(px, py) {
+    const tx = Math.floor(px / TILE), ty = Math.floor(py / TILE);
+    return this.inBounds(tx, ty) && this.reach[this.idx(tx, ty)] === 1;
   }
 
   idx(tx, ty) { return ty * this.cols + tx; }
   inBounds(tx, ty) { return tx >= 0 && ty >= 0 && tx < this.cols && ty < this.rows; }
 
-  // Palitan ang atlas ng sarili mong tileset (Image o Canvas, parehong layout)
+  // Swap the atlas for your own tileset (Image or Canvas, same layout)
   setAtlas(imageOrCanvas) {
     this.atlas = imageOrCanvas;
     this.render();
   }
 
-  // ---------- ALIN ANG NAKAGUHIT NA NG IBANG SYSTEM (ocean, castle, ...) ----------
+  // ---------- WHAT OTHER SYSTEMS HAVE ALREADY DRAWN (castle, barracks, ...) ----------
   computeCoverage(stage) {
     const mask = new Uint8Array(this.cols * this.rows);
     try {
@@ -59,7 +91,7 @@ export class TileMap {
       cv.width = this.pxW;
       cv.height = this.pxH;
       const c = cv.getContext("2d");
-      [stage.ocean, stage.castle, stage.barracks, stage.portals].forEach((sys) => {
+      (stage.coverageSystems || [stage.castle, stage.barracks, stage.portals]).forEach((sys) => {
         try { if (sys && sys.draw) sys.draw(c); } catch (_) { /* skip */ }
       });
       const data = c.getImageData(0, 0, this.pxW, this.pxH).data;
@@ -77,9 +109,9 @@ export class TileMap {
           if (hits >= 3) mask[this.idx(tx, ty)] = 1;
         }
       }
-    } catch (_) { /* walang coverage info: gagamitin lang ang safeZone */ }
+    } catch (_) { /* no coverage info: only the safeZone is used */ }
 
-    // Safe zone + palibot
+    // Safe zone + surroundings
     const s = stage.safeZone;
     if (s) {
       const pad = 4;
@@ -89,7 +121,7 @@ export class TileMap {
         for (let tx = x0; tx <= x1; tx++)
           if (this.inBounds(tx, ty)) mask[this.idx(tx, ty)] = 1;
     }
-    // Mga lugar na dapat walang harang (hal. audience dais ng Citadel)
+    // Areas that must stay clear (e.g. the Citadel's audience dais)
     this.eachClearTile(stage, (tx, ty) => { mask[this.idx(tx, ty)] = 1; });
     return mask;
   }
@@ -117,7 +149,7 @@ export class TileMap {
     return out;
   }
 
-  // ---------- PAGGAWA NG MAPA ----------
+  // ---------- MAP GENERATION ----------
   carvePath(path, rnd, tx0, ty0, tx1, ty1) {
     let x = tx0, y = ty0;
     const brush = (bx, by) => {
@@ -146,27 +178,54 @@ export class TileMap {
     this.keepOut = coverage;
     const keep = this.dilate(coverage, 1);
 
-    // ----- Landas (dirt path) -----
+    // ----- Path (dirt path) -----
     const path = new Uint8Array(cols * rows);
     const sz = stage.safeZone;
     const hubX = sz ? Math.floor((sz.x + sz.w / 2) / TILE) : Math.floor(cols / 2);
     const hubY = sz ? Math.floor((sz.y + sz.h / 2) / TILE) : Math.floor(rows / 2);
 
-    const targets = [
+    let targets = [
       [Math.floor(cols / 2), 2], [Math.floor(cols / 2), rows - 4],
       [2, Math.floor(rows / 2)], [cols - 4, Math.floor(rows / 2)]
     ];
+    if (stage.pathTargets) targets = stage.pathTargets.map(([x, y]) => [Math.floor(x / TILE), Math.floor(y / TILE)]);
     const gate = stage.castle && stage.castle.gatePortal;
     if (gate) targets.push([Math.floor(gate.x / TILE), Math.floor(gate.y / TILE)]);
     targets.forEach(([tx, ty]) => this.carvePath(path, rnd, hubX, hubY, tx, ty));
     this.eachClearTile(stage, (tx, ty) => { path[this.idx(tx, ty)] = 1; });   // plaza
     const pathNear = this.dilate(path, 1);
 
+    // ----- Platform terrain: sea / lava / void and cliffs (paths become bridges) -----
+    const wall = new Uint8Array(cols * rows);
+    if (stage.terrain) {
+      const noise = (x, y, s = 0) => vnoise(x, y, seed + 31 + s);
+      for (let ty = 0; ty < rows; ty++) {
+        for (let tx = 0; tx < cols; tx++) {
+          const i = this.idx(tx, ty);
+          if (path[i] || coverage[i]) continue;
+          const kind = stage.terrain(tx, ty, cols, rows, noise);
+          if (kind === "liquid") { this.liquid[i] = 1; this.solid[i] = 1; }
+          else if (kind === "wall") { wall[i] = 1; this.solid[i] = 1; }
+        }
+      }
+    }
+
     // ----- Ground tiles -----
     const hasPath = (tx, ty) => this.inBounds(tx, ty) && path[this.idx(tx, ty)] === 1;
+    const hasLiquid = (tx, ty) => !this.inBounds(tx, ty) || this.liquid[this.idx(tx, ty)] === 1;
     for (let ty = 0; ty < rows; ty++) {
       for (let tx = 0; tx < cols; tx++) {
         const i = this.idx(tx, ty);
+        if (this.liquid[i]) {
+          const mask = (hasLiquid(tx, ty - 1) ? 1 : 0) | (hasLiquid(tx + 1, ty) ? 2 : 0) |
+                       (hasLiquid(tx, ty + 1) ? 4 : 0) | (hasLiquid(tx - 1, ty) ? 8 : 0);
+          this.ids[i] = T.LIQUID_BASE + mask;
+          continue;
+        }
+        if (wall[i]) {
+          this.ids[i] = (tx + ty) % 3 ? T.WALL_A : T.WALL_B;
+          continue;
+        }
         if (path[i]) {
           const mask = (hasPath(tx, ty - 1) ? 1 : 0) | (hasPath(tx + 1, ty) ? 2 : 0) |
                        (hasPath(tx, ty + 1) ? 4 : 0) | (hasPath(tx - 1, ty) ? 8 : 0);
@@ -187,19 +246,20 @@ export class TileMap {
       }
     }
 
-    // ----- Mga bagay (puno, bato, bush) -----
+    // ----- Objects (trees, rocks, bushes) -----
     const occ = new Uint8Array(cols * rows);
-    const M = 3; // palugit sa gilid ng mundo
+    const M = 3; // margin at the edge of the world
     const free = (tx, ty) => {
       if (tx < M || ty < M + 1 || tx >= cols - M || ty >= rows - M) return false;
       const i = this.idx(tx, ty);
-      return !keep[i] && !occ[i] && !pathNear[i];
+      return !keep[i] && !occ[i] && !pathNear[i] && !this.solid[i];
     };
+    const density = this.theme.treeDensity || 0.6;
 
     for (let ty = M + 1; ty < rows - M; ty++) {
       for (let tx = M; tx < cols - M - 1; tx++) {
         const forest = vnoise(tx * 0.09, ty * 0.09, seed + 11) * 0.7 + vnoise(tx * 0.21, ty * 0.21, seed + 23) * 0.3;
-        const wantTree = (forest > 0.6 && rnd() < 0.5) || rnd() < 0.004;
+        const wantTree = (forest > density && rnd() < 0.5) || rnd() < 0.004;
 
         if (wantTree &&
             free(tx, ty) && free(tx + 1, ty) && free(tx, ty - 1) && free(tx + 1, ty - 1)) {
@@ -225,7 +285,7 @@ export class TileMap {
     }
   }
 
-  // ---------- PAG-RENDER (isang beses lang) ----------
+  // ---------- RENDER (once) ----------
   render() {
     const mk = () => {
       const c = document.createElement("canvas");
@@ -251,16 +311,17 @@ export class TileMap {
       }
     }
 
-    // Pataas-pababa para tama ang patong ng mga puno
+    // Top to bottom so trees overlap correctly
     const sorted = [...this.objects].sort((a, b) => a.ty - b.ty);
     sorted.forEach((ob) => {
-      if (ob.type === "tree") drawTreeSplit(g.ctx, o.ctx, ob.tx * TILE, (ob.ty - 1) * TILE, ob.seed);
-      else if (ob.type === "rock") drawRock(g.ctx, ob.tx * TILE, ob.ty * TILE, ob.seed);
-      else if (ob.type === "bush") drawBush(g.ctx, ob.tx * TILE, ob.ty * TILE, ob.seed);
+      const th = this.theme;
+      if (ob.type === "tree") drawTreeSplit(g.ctx, o.ctx, ob.tx * TILE, (ob.ty - 1) * TILE, ob.seed, th.tree);
+      else if (ob.type === "rock") drawRock(g.ctx, ob.tx * TILE, ob.ty * TILE, ob.seed, th.rock);
+      else if (ob.type === "bush") drawBush(g.ctx, ob.tx * TILE, ob.ty * TILE, ob.seed, th.bush);
     });
   }
 
-  // ---------- DRAW: ang nakikitang bahagi lang ang ipinapakita ----------
+  // ---------- DRAW: only the visible part is shown ----------
   blit(ctx, canvas) {
     const t = ctx.getTransform();
     const x0 = Math.max(0, Math.floor(-t.e / t.a));
@@ -281,7 +342,7 @@ export class TileMap {
     this.blit(ctx, this.groundCanvas);
   }
 
-  // Canopy ng mga puno: iginuguhit SA IBABAW ng mga karakter
+  // Tree canopy: drawn ABOVE the characters
   drawOverlay(ctx) {
     this.blit(ctx, this.overlayCanvas);
     if (this.debug) this.drawDebug(ctx);
@@ -316,7 +377,7 @@ export class TileMap {
     return this.inBounds(tx, ty) && this.solid[this.idx(tx, ty)] === 1;
   }
 
-  // Itinutulak palabas ang entity (player/kalaban) kapag nasa loob ng solid tile
+  // Pushes an entity (player/enemy) out when it is inside a solid tile
   resolveCollision(e) {
     if (!e || typeof e.x !== "number") return;
 

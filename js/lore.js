@@ -1,4 +1,6 @@
-// Auto-scrolling lore panel (loop). Binabasa ang LORE.md sa project root.
+import { getLang, onLangChange } from "./i18n.js";
+
+// Auto-scrolling lore panel (loop). Reads LORE.md / LORE_FIL.md from the project root.
 const FALLBACK = `# Vanguard of Fate
 
 ## The Sundered Dominion of Aethelgard
@@ -13,23 +15,31 @@ function cleanInline(s) {
   return s.replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1").replace(/`(.+?)`/g, "$1");
 }
 
-// Tinatanggal ang emoji sa unahan ng heading (iba-iba ang itsura bawat OS)
+// Strips the emoji at the start of a heading (it looks different on every OS)
 function cleanHeading(s) {
   return cleanInline(s).replace(/^[^\p{L}\p{N}]+/u, "");
 }
 
-// Isang beses lang kinukuha ang LORE.md (ginagamit ng side panel at ng Chronicles)
-let lorePromise = null;
-export function loadLore() {
-  if (!lorePromise) {
-    lorePromise = fetch("LORE.md", { cache: "no-cache" })
-      .then((res) => (res.ok ? res.text() : FALLBACK))
-      .catch(() => FALLBACK);
+// Caches LORE.md (English) and LORE_FIL.md (Filipino)
+const loreCache = {};
+export function loadLore(lang = getLang()) {
+  const l = lang === "fil" ? "fil" : "en";
+  if (!loreCache[l]) {
+    const file = l === "fil" ? "LORE_FIL.md" : "LORE.md";
+    loreCache[l] = fetch(file, { cache: "no-cache" })
+      .then((res) => {
+        if (!res.ok) throw new Error("Lore file not found");
+        return res.text();
+      })
+      .catch(() => {
+        if (l === "fil") return loadLore("en");
+        return FALLBACK;
+      });
   }
-  return lorePromise;
+  return loreCache[l];
 }
 
-// Hinahati ang lore sa mga kabanata (bawat "## " heading) para sa Chronicles screen.
+// Splits the lore into chapters (each "## " heading) for the Chronicles screen.
 // "Act I: The Sundered Dominion" → { tab: "Act I", title: "The Sundered Dominion" }
 export function parseChapters(md) {
   const chapters = [];
@@ -79,17 +89,113 @@ function buildCopy(md) {
   return copy;
 }
 
-export async function startLore(panelEl, speed = 0.45) {
+// "Act II" → 2 (to match a chapter with the quest's Act number and the act-N.jpeg banner)
+const ROMAN = { I: 1, V: 5, X: 10, L: 50 };
+export function actNumber(tab) {
+  const m = /Act\s+([IVXL]+)/i.exec(tab || "");
+  if (!m) return 0;
+  const r = m[1].toUpperCase();
+  let n = 0;
+  for (let i = 0; i < r.length; i++) {
+    const v = ROMAN[r[i]], next = ROMAN[r[i + 1]] || 0;
+    n += v < next ? -v : v;
+  }
+  return n;
+}
+
+// Accepts .jpeg, .jpg, .png and .webp (tried in this order)
+export const BANNER_EXTS = ["jpeg", "jpg", "png", "webp"];
+export function bannerSrc(act, i = 0) {
+  return `assets/banner/act-${act}.${BANNER_EXTS[i]}`;
+}
+
+// A single chapter (the quest's current Act)
+function buildChapterCopy(ch) {
+  const copy = document.createElement("div");
+  copy.className = "lore-copy";
+  // The title is already in the banner caption, so only the text here
+  ch.paragraphs.forEach((text) => {
+    const p = document.createElement("p");
+    p.textContent = text;
+    copy.appendChild(p);
+  });
+  return copy;
+}
+
+// Lore panel on the right. setAct(n): shows the banner and text of Act n from LORE.md
+// (follows the quest). setAct(0): the whole LORE.md (no game in progress).
+// When an Act has no banner yet (e.g. act-10.jpeg), only the text and title show.
+export function createLorePanel(panelEl, speed = 0.45) {
   const view = panelEl.querySelector(".lore-view");
   const track = panelEl.querySelector(".lore-track");
-  if (!view || !track) return;
+  if (!view || !track) return { setAct() {} };
 
-  const md = await loadLore();
-  const first = buildCopy(md);
-  track.append(first, first.cloneNode(true)); // dalawang kopya para seamless ang loop
+  const banner = document.createElement("figure");
+  banner.className = "lore-banner";
+  const img = document.createElement("img");
+  img.alt = "";
+  img.decoding = "async";
+  const cap = document.createElement("figcaption");
+  const capAct = document.createElement("div");
+  capAct.className = "lb-act";
+  const capTitle = document.createElement("div");
+  capTitle.className = "lb-title";
+  cap.append(capAct, capTitle);
+  banner.append(img, cap);
+  view.parentNode.insertBefore(banner, view);   // above the text, inside the lore section
 
+  let extIndex = 0;   // which extension is being tried now
+  img.addEventListener("load", () => banner.classList.remove("no-img"));
+  img.addEventListener("error", () => {
+    // Try the next extension before giving up (e.g. act-2.jpg instead of act-2.jpeg)
+    if (act > 0 && extIndex < BANNER_EXTS.length - 1) {
+      extIndex++;
+      img.src = bannerSrc(act, extIndex);
+    } else {
+      banner.classList.add("no-img");
+    }
+  });
+
+  let md = null;
+  let chapters = [];
+  let act = 0;
+  let first = null;
   let y = 0;
   let paused = false;
+
+  function render() {
+    if (md === null) return;
+    const ch = act > 0 ? chapters.find((c) => actNumber(c.tab) === act) : null;
+    track.innerHTML = "";
+    y = 0;
+
+    if (ch) {
+      banner.classList.add("show");
+      capAct.textContent = ch.tab;
+      capTitle.textContent = ch.title;
+      if (!(img.getAttribute("src") || "").startsWith(`assets/banner/act-${act}.`)) {
+        extIndex = 0;
+        banner.classList.remove("no-img");
+        img.src = bannerSrc(act, 0);
+      }
+      first = buildChapterCopy(ch);
+    } else {
+      banner.classList.remove("show");
+      first = buildCopy(md);
+    }
+    track.append(first, first.cloneNode(true)); // two copies so the loop is seamless
+  }
+
+  function reloadLore() {
+    loadLore(getLang()).then((text) => {
+      md = text;
+      chapters = parseChapters(text);
+      render();
+    });
+  }
+
+  onLangChange(() => reloadLore());
+  reloadLore();
 
   view.addEventListener("mouseenter", () => { paused = true; });
   view.addEventListener("mouseleave", () => { paused = false; });
@@ -99,7 +205,7 @@ export async function startLore(panelEl, speed = 0.45) {
   }, { passive: false });
 
   function step() {
-    const h = first.offsetHeight;
+    const h = first ? first.offsetHeight : 0;
     if (h > 0 && view.offsetParent !== null) {
       if (!paused) y += speed;
       y = ((y % h) + h) % h;
@@ -108,4 +214,13 @@ export async function startLore(panelEl, speed = 0.45) {
     requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
+
+  return {
+    setAct(n) {
+      const next = Number(n) || 0;
+      if (next === act) return;
+      act = next;
+      render();
+    }
+  };
 }

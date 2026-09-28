@@ -3,7 +3,7 @@ export class CastleSystem {
     this.worldWidth = worldWidth;
     this.worldHeight = worldHeight;
 
-    // Matatagpuan sa Hilagang-Silangan (North-East)
+    // Located in the north-east
     this.x = this.worldWidth - 360;
     this.y = 20;
     this.width = 320;
@@ -11,21 +11,21 @@ export class CastleSystem {
 
     this.animTick = 0;
 
-    // SOLID PHYSICAL HITBOXES (Bawal tapakan o lagusan ng kahit sino)
+    // SOLID PHYSICAL HITBOXES (nobody may walk on or through them)
     this.solidColliders = [
-      // Gitnang Citadel Keep at Likod
+      // Central Citadel keep and back
       { x: this.x + 80, y: this.y + 20, w: 160, h: 110 },
-      // Kaliwang Tore (West Tower)
+      // Left tower (West Tower)
       { x: this.x + 16, y: this.y + 20, w: 64, h: 165 },
-      // Kanang Tore (East Tower)
+      // Right tower (East Tower)
       { x: this.x + 240, y: this.y + 20, w: 64, h: 165 },
-      // Harapang Pader (Kaliwa ng Gate)
+      // Front wall (left of the gate)
       { x: this.x + 80, y: this.y + 115, w: 56, h: 70 },
-      // Harapang Pader (Kanan ng Gate)
+      // Front wall (right of the gate)
       { x: this.x + 184, y: this.y + 115, w: 56, h: 70 }
     ];
 
-    // Animated Grand Portal sa harapan ng Gate
+    // Animated grand portal in front of the gate
     this.gatePortal = {
       x: this.x + 160,
       y: this.y + 195,
@@ -36,11 +36,11 @@ export class CastleSystem {
     };
   }
 
-  // Pinipigilan ang paglagos ng kahit anong entity (Player, Mercenary, o Enemy)
+  // Stops any entity (player, mercenary or enemy) from passing through
   resolveCollision(entity) {
     if (!entity) return;
     const footX = entity.x + 10;
-    const footY = entity.y + 18; // Paanan ng sprite
+    const footY = entity.y + 18; // the sprite's feet
     const radius = 8;
 
     for (const box of this.solidColliders) {
@@ -50,7 +50,7 @@ export class CastleSystem {
         footY + radius > box.y &&
         footY - radius < box.y + box.h
       ) {
-        // Alamin kung saang gilid pinakamalapit para itulak palabas
+        // Find the nearest side and push the entity out
         const dLeft = footX + radius - box.x;
         const dRight = box.x + box.w - (footX - radius);
         const dTop = footY + radius - box.y;
@@ -82,7 +82,7 @@ export class CastleSystem {
     ctx.ellipse(bx + 160, by + 185, 152, 34, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // 1. REAR CITADEL KEEP (Pader sa likod)
+    // 1. REAR CITADEL KEEP (back wall)
     ctx.fillStyle = "#0f172a";
     ctx.fillRect(bx + 80, by + 25, 160, 100);
 
@@ -135,7 +135,7 @@ export class CastleSystem {
     ctx.closePath();
     ctx.fill();
 
-    // 2. TWIN DEFENSE TOWERS (KALIWA AT KANAN)
+    // 2. TWIN DEFENSE TOWERS (LEFT AND RIGHT)
     const towers = [
       { x: bx + 16, y: by + 35, color: "#3b82f6" },
       { x: bx + 240, y: by + 35, color: "#e63946" }

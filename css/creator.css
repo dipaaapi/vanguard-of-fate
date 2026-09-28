@@ -1,5 +1,5 @@
 /* ==================== CHARACTER CREATOR ==================== */
-/* Gumagamit ng mga variable mula sa title.css (--gold, --sky, --ink, --muted, fonts) */
+/* Uses variables from title.css (--gold, --sky, --ink, --muted, fonts) */
 
 body[data-mode="create"] #app { display: none; }
 #creator { display: none; }
@@ -69,7 +69,7 @@ body[data-mode="create"] #creator {
   align-items: flex-end;
   justify-content: center;
 }
-/* Kumikinang na pentagram na bilog sa ilalim ng paa */
+/* Glowing pentagram circle under the feet */
 .cr-pedestal::before {
   content: "";
   position: absolute;
@@ -93,12 +93,18 @@ body[data-mode="create"] #creator {
   background: transparent;
 }
 
-.cr-controls {
+/* ---------- UTILITY BAR (Main Menu · dial · pose · fullscreen) ---------- */
+.cr-util {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 10px;
   margin-top: 12px;
+  padding: 6px 10px;
+  background: rgba(7, 12, 22, 0.85);
+  border: 1px solid #3b4661;
+  box-shadow: 0 0 0 3px rgba(3, 6, 17, 0.8);
 }
-.cr-controls button,
+.cr-util button,
 .cr-actions button,
 .cr-cycle button {
   font: inherit;
@@ -107,9 +113,71 @@ body[data-mode="create"] #creator {
   background: rgba(7, 12, 22, 0.85);
   border: 1px solid #3b4661;
 }
-.cr-controls button { font-size: 13px; padding: 6px 12px; min-width: 40px; }
-.cr-controls button:hover { color: #fff; border-color: var(--gold); }
-#crWalk.on { color: var(--ink); background: var(--gold); border-color: var(--gold); }
+.cr-util button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 64px;
+  padding: 6px 8px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.cr-util button b { font-size: 16px; line-height: 1; font-weight: 400; }
+.cr-util button:hover { color: #fff; border-color: var(--gold); }
+
+/* Dial: drag or click to rotate the preview (front ↓, right →, back ↑, left ←) */
+.cr-dial-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.cr-dial {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  cursor: grab;
+  touch-action: none;
+  background: radial-gradient(circle at 40% 35%, #22304d, #0b1120 70%);
+  border: 2px solid #3b4661;
+  box-shadow: inset 0 0 8px rgba(56, 189, 248, 0.35);
+}
+.cr-dial:hover, .cr-dial.dragging { border-color: var(--gold); }
+.cr-dial.dragging { cursor: grabbing; }
+.cr-dial-mark {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  background: #64748b;
+}
+.cr-dial-mark.m-down { left: 50%; top: 88%; }
+.cr-dial-mark.m-right { left: 88%; top: 50%; }
+.cr-dial-mark.m-up { left: 50%; top: 12%; }
+.cr-dial-mark.m-left { left: 12%; top: 50%; }
+.cr-dial-needle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 18px;
+  margin-left: -2px;
+  background: var(--gold);
+  box-shadow: 0 0 6px rgba(255, 209, 102, 0.8);
+  transform-origin: 50% 0;
+  transform: rotate(var(--a, 0deg));
+  transition: transform 0.15s ease-out;
+}
+.cr-dial-needle::after {
+  content: "";
+  position: absolute;
+  left: -3px;
+  top: -5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #0b1120;
+  border: 2px solid var(--gold);
+}
+.cr-dial-label { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 
 .cr-trio {
   display: flex;
@@ -133,7 +201,7 @@ body[data-mode="create"] #creator {
   text-shadow: 0 1px 0 #000;
 }
 
-/* ---------- PANEL NG MGA PAGPIPILIAN ---------- */
+/* ---------- OPTIONS PANEL ---------- */
 .cr-panel {
   display: flex;
   flex-direction: column;
@@ -230,7 +298,7 @@ body[data-mode="create"] #creator {
 
 .cr-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr 1.4fr;
+  grid-template-columns: 1fr 1.4fr;
   gap: 8px;
   margin-top: 14px;
 }
@@ -239,9 +307,44 @@ body[data-mode="create"] #creator {
 .cr-actions .primary { color: var(--ink); background: var(--gold); border-color: var(--gold); font-weight: 700; }
 .cr-actions .primary:hover { color: var(--ink); background: #ffe08f; }
 
+/* ---------- BOTTOM TRAY (Main Menu · Idle/Walk/Dash · Full Screen) ---------- */
+.cr-tray {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 14px;
+  margin: 14px 28px 0;
+  padding: 8px 14px;
+  background: rgba(7, 12, 22, 0.9);
+  border: 1px solid #3b4661;
+  box-shadow: 0 0 0 3px rgba(3, 6, 17, 0.8);
+}
+.cr-tray button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font: inherit;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: #cbd5e1;
+  background: rgba(7, 12, 22, 0.85);
+  border: 1px solid #3b4661;
+}
+.cr-tray button b { font-size: 15px; line-height: 1; font-weight: 400; }
+.cr-tray button:hover { color: #fff; border-color: var(--gold); }
+.cr-poses { display: flex; }
+.cr-poses button + button { border-left: 0; }
+.cr-poses button.on { color: var(--ink); background: var(--gold); border-color: var(--gold); }
+#crHome { margin-right: auto; }
+#crFull { margin-left: auto; }
+
 .cr-foot {
   position: relative;
-  padding: 10px 20px 12px;
+  padding: 8px 20px 12px;
   font-size: clamp(9px, 0.85vw, 12px);
   letter-spacing: 0.06em;
   color: var(--muted);
@@ -250,12 +353,14 @@ body[data-mode="create"] #creator {
 }
 .cr-foot span { color: var(--gold); }
 
-/* ---------- MALIIT / MABABANG SCREEN ---------- */
+/* ---------- SMALL / SHORT SCREEN ---------- */
 @media (max-width: 760px) {
   body[data-mode="create"] #creator { overflow-y: auto; }
   .cr-layout { grid-template-columns: 1fr; padding: 12px 16px 0; }
   .cr-pedestal { height: 34vh; }
   .cr-panel { min-height: 60vh; }
+  .cr-tray { margin: 12px 16px 0; flex-wrap: wrap; gap: 8px; }
+  .cr-tray button { padding: 8px 10px; }
 }
 @media (max-height: 560px) {
   .cr-trio, .cr-sub { display: none; }
