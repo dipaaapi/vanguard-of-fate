@@ -16,6 +16,8 @@ import { Sound } from "./audio.js";
 import { Stage } from "./stage.js";
 import { TitleScene } from "./title.js";
 import { SelectScene } from "./select.js";
+import { CreatorScene } from "./creator.js";
+import { getNovice } from "./classes/novice.js";
 import { startLore } from "./lore.js";
 import { t, onLangChange } from "./i18n.js";
 
@@ -68,7 +70,8 @@ function setLayoutMode(mode) {
 function refreshLabels() {
   const head = document.getElementById("sideHead");
   if (head) head.textContent = layoutMode === "select" ? t("sideDossier") : t("sideLore");
-  hudText.innerHTML = layoutMode === "select" ? t("selectHint") : (layoutMode === "play" ? t("playHint") : "");
+  const selectHint = selectScene && selectScene.mode === "awakening" ? t("awakenHint") : t("selectHint");
+  hudText.innerHTML = layoutMode === "select" ? selectHint : (layoutMode === "play" ? t("playHint") : "");
 }
 onLangChange(refreshLabels);
 
@@ -126,6 +129,8 @@ function getSavePayload() {
     version: "1.0.0",
     savedAt: new Date().toISOString(),
     heroId: player.heroData.id,
+    name: player.heroName || "",
+    avatar: player.avatarConfig || null,   // itsura mula sa Character Creator
     level: player.level,
     exp: player.exp,
     expNext: player.expNext,
@@ -209,8 +214,12 @@ function loadGame() {
     if (!raw) return false;
     const data = JSON.parse(raw);
 
-    const foundHero = ROSTER.find((h) => h.id === data.heroId) || ROSTER[0];
+    const foundHero = data.heroId === "novice"
+      ? getNovice(data.avatar, data.name)
+      : ROSTER.find((h) => h.id === data.heroId) || ROSTER[0];
     player = new Player(data.x || stage.width / 2, data.y || stage.height / 2, foundHero);
+    player.heroName = data.name || "";
+    player.avatarConfig = data.avatar || null;
 
     player.level = data.level || 1;
     player.exp = data.exp || 0;
@@ -224,57 +233,30 @@ function loadGame() {
     player.bonusCrit = data.bonusCrit || 0;
     player.bonusCooldown = data.bonusCooldown || 0;
 
-    player.maxHp = player.baseMaxHp + player.bonusHp;
+    applyDerivedStats(player);
     player.hp = Math.min(player.maxHp, data.hp || player.maxHp);
-    player.defense = player.bonusDefense;
-    player.speed = player.baseSpeed + player.bonusSpeed;
 
     if (foundHero.id === "archer") {
       player.falconCompanion = new FalconCompanion(player.x, player.y);
     }
 
-    gameState = "PLAYING";
-    showShopModal = false;
-    showMercModal = false;
-    fx.reset();
-    enemyManager.init(player.level);
-    projectileManager.clear();
-    lootManager.clear();
-
-    Sound.stopTitleBGM();
-    if (gameConfig.music) Sound.startGameplayBGM();
+    beginPlaying();
     return true;
   } catch (e) {
     return false;
   }
 }
 
-const titleScene = new TitleScene(
-  () => {
-    controller.clearAll();
-    gameState = "SELECT";
-  },
-  () => {
-    controller.clearAll();
-    if (!loadGame()) gameState = "SELECT";
-  },
-  exportSaveFile,
-  importSaveFile,
-  gameConfig,
-  document.getElementById("title")
-);
+// Max HP = base ng class + bonus mula sa stat points + 12 bawat level (katulad ng addExp)
+function applyDerivedStats(p) {
+  p.maxHp = p.baseMaxHp + p.bonusHp + (p.level - 1) * 12;
+  p.defense = p.bonusDefense;
+  p.speed = p.baseSpeed + p.bonusSpeed;
+}
 
-setLayoutMode("title");
-startLore(document.getElementById("lore"));
-
-const selectScene = new SelectScene(ROSTER, (chosenHero) => {
+// Karaniwang reset kapag papasok sa laro (bagong laro o load)
+function beginPlaying() {
   controller.clearAll();
-  player = new Player(stage.width / 2, stage.height / 2, chosenHero);
-
-  if (chosenHero.id === "archer") {
-    player.falconCompanion = new FalconCompanion(player.x, player.y);
-  }
-
   gameState = "PLAYING";
   showShopModal = false;
   showMercModal = false;
@@ -282,12 +264,91 @@ const selectScene = new SelectScene(ROSTER, (chosenHero) => {
   enemyManager.init(player.level);
   projectileManager.clear();
   lootManager.clear();
+  Sound.stopTitleBGM();
+  if (gameConfig.music) Sound.startGameplayBGM();
+}
 
+function backToTitle() {
+  controller.clearAll();
+  gameState = "TITLE";
+  player = null;
+  Sound.stopGameplayBGM();
+  if (gameConfig.music) Sound.startTitleBGM();
+  titleScene.refreshSaveStatus();
+}
+
+// ==================== JOB AWAKENING (Lv 10 na Novice, sa loob ng Barracks) ====================
+const AWAKEN_LEVEL = 10;
+
+function canAwaken(p) {
+  return p && p.heroData.id === "novice" && p.level >= AWAKEN_LEVEL;
+}
+
+// Pinapalitan ang Novice ng napiling class; dala ang level, exp, gold, stats at pangalan
+function awaken(chosenHero) {
+  const old = player;
+  const p = new Player(old.x, old.y, chosenHero);
+  ["level", "exp", "expNext", "gold", "statPoints", "bonusHp", "bonusDamage",
+    "bonusDefense", "bonusSpeed", "bonusCrit", "bonusCooldown", "heroName"].forEach((k) => { p[k] = old[k]; });
+  applyDerivedStats(p);
+  p.hp = p.maxHp;
+  if (chosenHero.id === "archer") p.falconCompanion = new FalconCompanion(p.x, p.y);
+  player = p;
+
+  controller.clearAll();
+  gameState = "PLAYING";
+  if (fx.spawnHitSparks) fx.spawnHitSparks(p.x + 10, p.y + 10, "#ffd166", 28);
+  if (Sound.playHolyBurst) Sound.playHolyBurst();
+  if (gameConfig.music) Sound.startGameplayBGM();
   saveGame();
+}
+
+const titleScene = new TitleScene(
+  () => {
+    controller.clearAll();
+    creatorScene.reset();
+    gameState = "CREATE";
+  },
+  () => {
+    controller.clearAll();
+    if (!loadGame()) {
+      creatorScene.reset();
+      gameState = "CREATE";
+    }
+  },
+  exportSaveFile,
+  importSaveFile,
+  gameConfig,
+  document.getElementById("title")
+);
+
+// Bagong expedition: Character Creator → Novice sa Barracks
+const creatorScene = new CreatorScene(
+  document.getElementById("creator"),
+  (config, name) => {
+    player = new Player(stage.width / 2, stage.height / 2, getNovice(config, name));
+    player.heroName = name;
+    player.avatarConfig = player.heroData.avatarConfig;
+    titleScene.flash();
+    beginPlaying();
+    saveGame();
+  },
+  () => {
+    controller.clearAll();
+    gameState = "TITLE";
+  }
+);
+
+// Ang hero select ay para na lang sa Job Awakening
+const selectScene = new SelectScene(ROSTER, (chosenHero) => {
+  if (canAwaken(player)) awaken(chosenHero);
 }, drawSpriteMatrix, {
   picker: document.getElementById("picker"),
   dossier: document.getElementById("dossier")
 });
+
+setLayoutMode("title");
+startLore(document.getElementById("lore"));
 
 canvas.addEventListener("pointerdown", (e) => {
   Sound.init();
@@ -319,12 +380,13 @@ window.addEventListener("keydown", (e) => {
 
   if (gameState === "TITLE") {
     titleScene.handleInput(e);
+  } else if (gameState === "CREATE") {
+    creatorScene.handleInput(e);
   } else if (gameState === "SELECT") {
     selectScene.handleInput(e);
   } else if (gameState === "GAMEOVER" && e.code === "Enter") {
     Sound.playSelectConfirm();
-    controller.clearAll();
-    gameState = "SELECT";
+    backToTitle();
   } else if (gameState === "PLAYING" || gameState === "PAUSED") {
     // Export save shortcut (Key X habang paused)
     if (e.code === "KeyX" && gameState === "PAUSED") {
@@ -431,6 +493,16 @@ function updateGame() {
 
   const isInBarracks = stage.isInsideSafeZone(player.x, player.y);
 
+  // Lv 10 na Novice na pumasok sa Barracks → Job Awakening
+  if (canAwaken(player) && isInBarracks) {
+    controller.clearAll();
+    selectScene.setMode("awakening");
+    gameState = "SELECT";
+    Sound.stopGameplayBGM();
+    if (Sound.playHolyBurst) Sound.playHolyBurst();
+    return;
+  }
+
   stage.update(player, (portal) => {
     if (Sound && Sound.playHolyBurst) Sound.playHolyBurst();
     if (fx && fx.spawnHitSparks) fx.spawnHitSparks(player.x + 10, player.y + 10, portal.color, 16);
@@ -520,6 +592,17 @@ function renderGameWorld() {
     fx.timeOfDay, fx.weatherType, isInBarracks
   );
 
+  // Paalala: handa na ang Job Awakening
+  if (canAwaken(player) && gameState === "PLAYING") {
+    const pulse = 0.75 + Math.sin(performance.now() / 260) * 0.25;
+    ctx.fillStyle = "rgba(3, 6, 17, 0.75)";
+    ctx.fillRect(VIEW_W / 2 - 150, 40, 300, 14);
+    ctx.fillStyle = `rgba(255, 209, 102, ${pulse})`;
+    ctx.font = "bold 7px monospace";
+    ctx.textAlign = "center";
+    ctx.fillText(t("awakenReady"), VIEW_W / 2, 50);
+  }
+
   if (showShopModal && player) {
     ui.drawShopModal(ctx, player, VIEW_W, VIEW_H);
   }
@@ -561,9 +644,12 @@ function renderGameWorld() {
 
 function gameLoop() {
   updateGame();
-  setLayoutMode(gameState === "TITLE" ? "title" : (gameState === "SELECT" ? "select" : "play"));
+  const MODES = { TITLE: "title", SELECT: "select", CREATE: "create" };
+  setLayoutMode(MODES[gameState] || "play");
   if (gameState === "TITLE") {
     titleScene.draw();
+  } else if (gameState === "CREATE") {
+    creatorScene.draw();
   } else if (gameState === "SELECT") {
     selectScene.draw(ctx, VIEW_W, VIEW_H);
   } else {

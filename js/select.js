@@ -1,5 +1,6 @@
 import { Sound } from "./audio.js";
 import { loadImage, drawCover } from "./background.js";
+import { t, onLangChange } from "./i18n.js";
 
 // ========================================================
 // EARTHBOUND SOULS: ISEKAI LORE DATABASE
@@ -59,6 +60,13 @@ export class SelectScene {
 
     this.pickerEl = dom.picker || null;
     this.dossierEl = dom.dossier || null;
+    this.mode = "select";   // "select" | "awakening" (Job Awakening ng Novice sa Lv 10)
+    this.renderDom();
+    onLangChange(() => this.renderDom());
+  }
+
+  setMode(mode) {
+    this.mode = mode;
     this.renderDom();
   }
 
@@ -102,7 +110,7 @@ export class SelectScene {
       const go = document.createElement("button");
       go.type = "button";
       go.className = "menu-btn embark";
-      go.textContent = "EMBARK ▶";
+      go.textContent = this.mode === "awakening" ? t("awakenBtn") : t("embarkBtn");
       go.addEventListener("mousedown", (e) => e.preventDefault());
       go.addEventListener("click", () => { Sound.init(); this.confirm(); });
       this.pickerEl.appendChild(go);
@@ -132,10 +140,12 @@ export class SelectScene {
       };
 
       add("div", "dz-name", hero.name.toUpperCase());
-      add("div", "dz-real", `"${lore.realName}"`);
+      // Sa awakening, ang bayani ay ang sariling Novice ng player, kaya walang ibang pangalan/Earth profile
+      const awakening = this.mode === "awakening";
+      if (!awakening) add("div", "dz-real", `"${lore.realName}"`);
       if (hero.title) add("div", "dz-title", hero.title);
 
-      const rows = [
+      const rows = awakening ? [] : [
         ["PAST OCCUPATION", lore.earthRole, "c-white"],
         ["EARTH ORIGIN", lore.origin, "c-gold"],
         ["ISEKAI CATALYST", lore.summonEvent, "c-red"]
@@ -145,7 +155,7 @@ export class SelectScene {
         add("div", "dz-value " + cls, value);
       });
 
-      el.appendChild(document.createElement("hr"));
+      if (!awakening) el.appendChild(document.createElement("hr"));
       add("div", "dz-label", "TRANSMUTED ABILITY");
       add("div", "dz-ability", lore.trait.toUpperCase());
       add("p", "dz-desc", lore.loreDesc);
@@ -214,9 +224,10 @@ export class SelectScene {
 
     ctx.textAlign = "center";
     ctx.font = "bold 10px monospace";
-    this.shadowText(ctx, "SELECT YOUR EARTHBOUND VANGUARD", width / 2, 18, "#ffd166");
+    const awakening = this.mode === "awakening";
+    this.shadowText(ctx, awakening ? t("awakenTitle") : "SELECT YOUR EARTHBOUND VANGUARD", width / 2, 18, "#ffd166");
     ctx.font = "6.5px monospace";
-    this.shadowText(ctx, "CHOOSE A REINCARNATED SOUL TO EMBARK ON AETHELGARD", width / 2, 27, "#94a3b8");
+    this.shadowText(ctx, awakening ? t("awakenSub") : "CHOOSE A REINCARNATED SOUL TO EMBARK ON AETHELGARD", width / 2, 27, "#94a3b8");
 
     // Hero (3x laki) nakatayo sa harap ng portal
     const hero = this.roster[this.selectedIndex];
@@ -249,7 +260,7 @@ export class SelectScene {
     ctx.font = "bold 9px monospace";
     this.shadowText(ctx, hero.name.toUpperCase(), heroX, heroY + 16, "#ffd166");
     ctx.font = "bold 6.8px monospace";
-    this.shadowText(ctx, `"${lore.realName}"`, heroX, heroY + 25, "#38bdf8");
+    if (!awakening) this.shadowText(ctx, `"${lore.realName}"`, heroX, heroY + 25, "#38bdf8");
     ctx.font = "6.2px monospace";
     this.shadowText(ctx, hero.title || "", heroX, heroY + 34, "#cbd5e1");
   }

@@ -102,6 +102,20 @@ export class ProjectileManager {
           continue;
         }
       }
+      // 5. Dagger Slash (Novice J): maikling arko, isang beses tatamaan bawat kalaban
+      else if (p.type === "dagger_slash") {
+        for (let e of enemies) {
+          if (e.isAlive && !p.hit.has(e) && Math.hypot(e.x + 12 - p.x, e.y + 12 - p.y) <= p.radius + 8) {
+            p.hit.add(e);
+            enemyManager.damage(e, p.damage, p.angle, false, fx, lootManager, 6, false, player);
+          }
+        }
+        p.life--;
+        if (p.life <= 0) {
+          this.projectiles.splice(i, 1);
+          continue;
+        }
+      }
       // 4. Force Sphere (Fighter J) & Arrows (Archer J)
       else if (p.type === "force_sphere" || p.type === "arrow") {
         p.x += p.vx;
@@ -192,6 +206,13 @@ export class ProjectileManager {
         ctx.beginPath();
         ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
         ctx.fill();
+      } else if (p.type === "dagger_slash") {
+        ctx.globalAlpha = Math.max(0, p.life / 8);
+        ctx.strokeStyle = "#e2e8f0";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(p.x - Math.cos(p.angle) * 6, p.y - Math.sin(p.angle) * 6, p.radius, p.angle - 0.9, p.angle + 0.9);
+        ctx.stroke();
       } else if (p.type === "arrow") {
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(p.x, p.y, 6, 2);
