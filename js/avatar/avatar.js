@@ -1,23 +1,23 @@
 import { normalizeConfig } from "./options.js";
 
 // ==================== MODULAR AVATAR RENDERER ====================
-// Ang karakter ay binubuo mula sa magkakahiwalay na bahagi (layer):
-//   kapa → buhok sa likod → binti → paa → katawan/kasuotan → braso/kamay → hawak
-//   → ulo → mukha → balbas/salamin → buhok sa harap → headgear
-// Bawat bahagi ay may sariling estilo at kulay; ang anino/liwanag ay kinukuha sa base color,
-// at ang outline ay awtomatikong idinadagdag (selective outline). Isang beses lang nire-render
-// bawat frame at naka-cache bilang canvas — mabilis i-drawImage sa laro.
+// A character is built from separate parts (layers):
+//   cape → back hair → legs → feet → body/outfit → arms/hands → held item
+//   → head → face → beard/glasses → front hair → headgear
+// Each part has its own style and colour; shade/highlight come from the base colour,
+// and the outline is added automatically (selective outline). Each frame is rendered once
+// and cached as a canvas — cheap to drawImage in the game.
 //
-// Frame: 32x36 (mga 2 tile ang taas sa 16px na tile). Anchor = gitna ng paa (16, 34).
-// Direksyon: down (harap), up (likod), side (nakaharap pakanan; i-flip para pakaliwa).
+// Frame: 32x36 (about 2 tiles tall at 16px). Anchor = middle of the feet (16, 34).
+// Directions: down (front), up (back), side (facing right; flip for left).
 //
-// Dagdag na piyesa para sa mga NPC, job, mercenary at summon (hindi nasa Character Creator):
+// Extra parts for NPCs, jobs, mercenaries and summons (not in the Character Creator):
 //   outfit: gown | armor | coat      headgear: crown | tiara | helmet | headband | hat | hood | halo
-//   cape: kulay ng kapa              beard / glasses / quiver: true      ears: "elf"
-//   shield: tower | buckler          wings: kulay ng pakpak             face: "skull"   hairStyle: "none"
+//   cape: cape colour                beard / glasses / quiver: true      ears: "elf"
+//   shield: tower | buckler          wings: wing colour                 face: "skull"   hairStyle: "none"
 //   weapon: novice | staff | lance | scepter | bow | sword | flask | book | axe | greatsword
 //           | crossbow | wand | none
-// Ang "attack" na animation ay batay sa hawak: frame 0 = hinahanda (windup), frame 1 = tama (strike).
+// The "attack" animation depends on what is held: frame 0 = windup, frame 1 = strike.
 
 export const FRAME_W = 32;
 export const FRAME_H = 36;
@@ -26,7 +26,7 @@ const ANCHOR_Y = 34;
 export const DIRS = ["down", "side", "up"];
 const FRAMES = { idle: 2, walk: 4, run: 4, attack: 2 };
 
-// ---------- KULAY ----------
+// ---------- COLOURS ----------
 function hexToRgb(hex) {
   const n = parseInt(hex.slice(1), 16);
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
@@ -38,7 +38,7 @@ function mix(a, b, t) {
   const A = hexToRgb(a), B = hexToRgb(b);
   return rgbToHex(A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t, A[2] + (B[2] - A[2]) * t);
 }
-// Anino: papunta sa malamig na lila; liwanag: papunta sa mainit na krema (hue shift, mas buhay)
+// Shade: toward a cool violet; highlight: toward a warm cream (hue shift, livelier)
 export function shade(hex, amt) {
   return amt < 0 ? mix(hex, "#1a1030", -amt) : mix(hex, "#fff4d6", amt);
 }
@@ -85,7 +85,7 @@ function palette(cfg) {
     wing: cfg.wings || "#ffffff", wingD: shade(cfg.wings || "#ffffff", -0.2), wingDD: shade(cfg.wings || "#ffffff", -0.38),
     tabard: cfg.outfitColor
   };
-  // Baluti: bakal ang katawan at manggas; ang outfitColor ay nagiging tabard sa gitna
+  // Armor: steel body and sleeves; outfitColor becomes a tabard down the middle
   if (cfg.outfit === "armor") {
     c.cloth = FIXED.steel;
     c.clothD = FIXED.steelD;
@@ -95,7 +95,7 @@ function palette(cfg) {
 }
 
 // ---------- PIXEL BUFFER ----------
-// Ginagamit din ng js/avatar/creature.js (slime, lobo, falcon) para pareho ang estilo.
+// Also used by js/avatar/creature.js (slime, wolf, falcon) so the style matches.
 export class Pix {
   constructor(w, h) {
     this.w = w;
@@ -111,11 +111,11 @@ export class Pix {
   rect(x, y, w, h, c) {
     for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) this.set(x + i, y + j, c);
   }
-  // Hilera: [y, x0, x1] (kasama ang x1)
+  // Row: [y, x0, x1] (x1 included)
   rows(list, c, dy = 0) {
     list.forEach(([y, x0, x1]) => { for (let x = x0; x <= x1; x++) this.set(x, y + dy, c); });
   }
-  // Selective outline: bawat bakanteng pixel na katabi ng kulay ay nagiging mas madilim na bersyon nito
+  // Selective outline: every empty pixel next to a colour becomes a darker version of it
   outline() {
     const src = this.d.slice();
     const at = (x, y) => (x >= 0 && y >= 0 && x < this.w && y < this.h ? src[y * this.w + x] : null);
@@ -153,7 +153,7 @@ function gait(anim, i) {
       { bob: 1, lLift: 0, rLift: 0, lArm: 0, rArm: 0, stride: 0 }
     ][i % 4];
   }
-  // Takbo: mas mataas ang angat ng paa at mas malaki ang ugoy ng braso
+  // Running: feet lift higher and the arms swing wider
   if (anim === "run") {
     return [
       { bob: 0, lLift: 0, rLift: 2, lArm: 2, rArm: -2, stride: 1 },
@@ -168,7 +168,7 @@ function gait(anim, i) {
   return base;
 }
 
-// ==================== MGA BAHAGI ====================
+// ==================== PARTS ====================
 
 // ---- PAA at BINTI ----
 function footHeight(style) {
@@ -185,12 +185,12 @@ function drawFoot(p, c, cfg, x, bottom, w, dark) {
     return top;
   }
   p.rect(x, top, w, h, dark ? c.bootD : c.boot);
-  if (h > 2) p.rect(x, top, w, 1, dark ? c.boot : c.bootL); // tupi ng bota
+  if (h > 2) p.rect(x, top, w, 1, dark ? c.boot : c.bootL); // boot cuff
   p.rect(x, bottom, w, 1, dark ? shade(c.boot, -0.5) : c.bootD);
   return top;
 }
 
-// Kulay ng binti sa isang hilera (pantalon / shorts / balat)
+// Leg colour for one row (trousers / shorts / skin)
 function legColorAt(c, cfg, y, dark) {
   if (cfg.legs === "pants") return dark ? c.legsD : c.legs;
   if (cfg.legs === "shorts" && y <= 27) return dark ? c.legsD : c.legs;
@@ -216,17 +216,17 @@ function drawLegSide(p, c, cfg, x0, lift, dark) {
     p.set(x0 + 1, y, legColorAt(c, cfg, y, dark));
     p.set(x0 + 2, y, legColorAt(c, cfg, y, dark));
   }
-  drawFoot(p, c, cfg, x0, bottom, 5, dark);  // mas mahaba pasulong ang paa
+  drawFoot(p, c, cfg, x0, bottom, 5, dark);  // the foot reaches further forward
 }
 
-// ---- PALDA / ROBE / GOWN / COAT (ibabang bahagi ng kasuotan) ----
+// ---- SKIRT / ROBE / GOWN / COAT (lower part of the outfit) ----
 function drawSkirt(p, c, cfg, dy, side) {
   const col = c.legs, colD = c.legsD;
   const rows = side
     ? [[24, 11, 20], [25, 11, 20], [26, 10, 21], [27, 10, 21], [28, 10, 21]]
     : [[24, 11, 20], [25, 10, 21], [26, 10, 21], [27, 9, 22], [28, 9, 22]];
   rows.forEach(([y, x0, x1]) => {
-    for (let x = x0; x <= x1; x++) p.set(x, y + dy, (x - x0) % 3 === 2 ? colD : col); // mga tupi
+    for (let x = x0; x <= x1; x++) p.set(x, y + dy, (x - x0) % 3 === 2 ? colD : col); // folds
   });
 }
 
@@ -241,14 +241,14 @@ function drawRobeSkirt(p, c, dy, side, trim) {
   rows.forEach(([y, x0, x1]) => { if (y === 29) for (let x = x0; x <= x1; x++) p.set(x, y + dy, c.clothD); });
 }
 
-// Mahabang gown hanggang paa, may gintong laylayan
+// A long gown down to the feet, with a golden hem
 function drawGownSkirt(p, c, dy, side) {
   const rows = side
     ? [[24, 11, 20], [25, 11, 20], [26, 10, 21], [27, 10, 21], [28, 10, 22], [29, 9, 22], [30, 9, 22], [31, 9, 23], [32, 9, 23], [33, 9, 23]]
     : [[24, 11, 20], [25, 10, 21], [26, 10, 21], [27, 9, 22], [28, 9, 22], [29, 8, 23], [30, 8, 23], [31, 8, 23], [32, 7, 24], [33, 7, 24]];
   rows.forEach(([y, x0, x1]) => {
     for (let x = x0; x <= x1; x++) {
-      let col = (x - x0) % 4 === 3 ? c.clothD : c.cloth;          // mga tupi
+      let col = (x - x0) % 4 === 3 ? c.clothD : c.cloth;          // folds
       if (x >= x1 - 1) col = c.clothD;
       if (x === x0 + 1 && y > 25) col = c.clothL;
       p.set(x, y + (y >= 33 ? 0 : dy), col);
@@ -258,7 +258,7 @@ function drawGownSkirt(p, c, dy, side) {
   for (let x = hem[1]; x <= hem[2]; x++) p.set(x, hem[0], x % 2 ? c.gold : c.goldD);
 }
 
-// Mga buntot ng coat (hati sa gitna, kita ang binti)
+// Coat tails (split in the middle, the legs show)
 function drawCoatTails(p, c, dy, side) {
   if (side) {
     for (let y = 24; y <= 29; y++) for (let x = 10; x <= 14 - (y > 27 ? 1 : 0); x++) p.set(x, y + dy, x <= 11 ? c.clothD : c.cloth);
@@ -272,7 +272,7 @@ function drawCoatTails(p, c, dy, side) {
   for (let x = 10; x <= 21; x++) if (x < 14 || x > 17) p.set(x, 29 + dy, c.gold);
 }
 
-// ---- KAPA (sa likod ng katawan sa harap/gilid; sa ibabaw ng likod kapag nakatalikod) ----
+// ---- CAPE (behind the body in front/side views; over the back when facing away) ----
 function drawCape(p, c, dy, view) {
   if (view === "down") {
     for (let y = 15; y <= 30; y++) {
@@ -289,7 +289,7 @@ function drawCape(p, c, dy, view) {
       const spread = y > 24 ? 1 : 0;
       for (let x = 9 - spread; x <= 22 + spread; x++) {
         let col = x >= 20 ? c.capeD : c.cape;
-        if ((x === 12 || x === 18) && y > 18) col = c.capeD;  // mga tupi
+        if ((x === 12 || x === 18) && y > 18) col = c.capeD;  // folds
         if (x === 10 && y < 26) col = c.capeL;
         p.set(x, y + dy, col);
       }
@@ -320,17 +320,17 @@ function drawTorso(p, c, cfg, dy, view) {
     for (let x = x0; x <= x1; x++) {
       let col = c.cloth;
       if (cfg.outfit === "vest" && !back) {
-        // Bukas na tsaleko: kamiseta sa gitna (harap) o sa harapang bahagi (gilid)
+        // Open vest: a shirt in the middle (front) or on the front side (side view)
         const open = side ? x >= x1 - 2 : x >= 14 && x <= 17;
         if (open) col = x === (side ? x1 : 17) ? c.shirtD : c.shirt;
       }
-      if (x >= x1 - 1 && col === c.cloth) col = c.clothD;       // anino sa kanan
+      if (x >= x1 - 1 && col === c.cloth) col = c.clothD;       // shade on the right
       if (x === x0 && col === c.cloth && y >= 16 && y <= 19) col = c.clothL;
       p.set(x, y + dy, col);
     }
   });
 
-  // Baluti: pauldron sa balikat at tabard sa gitna
+  // Armor: pauldrons on the shoulders and a tabard in the middle
   if (cfg.outfit === "armor") {
     if (!side) {
       p.rows([[15, rows[0][1] - 1, rows[0][1] + 2], [16, rows[0][1] - 1, rows[0][1] + 2]], c.steelL, dy);
@@ -342,7 +342,7 @@ function drawTorso(p, c, cfg, dy, view) {
     }
   }
 
-  // Leeg + neckline (harap lang)
+  // Neck + neckline (front only)
   if (view === "down") {
     if (cfg.outfit === "tunic") {
       p.rows([[15, 14, 17], [16, 15, 16]], c.skin, dy);
@@ -368,14 +368,14 @@ function drawTorso(p, c, cfg, dy, view) {
     if (side && !plainBelt) p.set(x1 - 1, beltY, c.buckle);
   });
 
-  // Laylayan ng tunic/baluti (natatakpan ang itaas ng binti)
+  // Hem of the tunic/armor (covers the top of the legs)
   if (cfg.outfit === "tunic" || cfg.outfit === "armor") {
     const hem = side ? [[24, 12, 19]] : [[24, 11, 20]];
     hem.forEach(([y, x0, x1]) => { for (let x = x0; x <= x1; x++) p.set(x, y + dy, x >= x1 - 1 ? c.clothD : c.cloth); });
   }
 }
 
-// Balakang (nagdudugtong sa dalawang binti)
+// Hips (joining the two legs)
 function drawPelvis(p, c, cfg, side) {
   if (cfg.legs === "skirt") return;
   const [x0, x1] = side ? [13, 18] : [12, 19];
@@ -389,18 +389,18 @@ function sleeveColor(c, cfg, rowFromShoulder, dark) {
     return dark ? c.clothD : c.cloth;
   }
   if (cfg.outfit === "vest") return dark ? c.shirtD : c.shirt;
-  if (rowFromShoulder <= 2) return dark ? c.clothD : c.cloth;   // maikling manggas ng tunic
+  if (rowFromShoulder <= 2) return dark ? c.clothD : c.cloth;   // short tunic sleeves
   return dark ? c.skinD : c.skin;
 }
 
-// Braso sa harap/likod na view: patayong 2px na kolum
+// Arm in front/back view: a vertical 2px column
 function drawArmFront(p, c, cfg, x, dy, swing, outerDark) {
   const top = 16 + dy;
   for (let r = 0; r < 7; r++) {
     const y = top + r + (r >= 4 ? swing : 0);
     p.set(x, y, sleeveColor(c, cfg, r, outerDark === 0));
     p.set(x + 1, y, sleeveColor(c, cfg, r, outerDark === 1));
-    if ((cfg.outfit === "robe" || cfg.outfit === "gown") && r >= 5) p.set(outerDark === 0 ? x - 1 : x + 2, y, c.clothD); // maluwang na manggas
+    if ((cfg.outfit === "robe" || cfg.outfit === "gown") && r >= 5) p.set(outerDark === 0 ? x - 1 : x + 2, y, c.clothD); // wide sleeves
   }
   const hy = top + 7 + swing;
   p.rect(x, hy, 2, 2, c.glove);
@@ -408,7 +408,7 @@ function drawArmFront(p, c, cfg, x, dy, swing, outerDark) {
   return { hx: x, hy };
 }
 
-// Braso sa gilid na view: umuugoy pasulong/paatras
+// Arm in side view: swings forward/back
 function drawArmSide(p, c, cfg, dy, swing, dark) {
   const top = 16 + dy;
   const x = 15;
@@ -423,7 +423,7 @@ function drawArmSide(p, c, cfg, dy, swing, dark) {
   return { hx, hy };
 }
 
-// ---- MGA HAWAK ----
+// ---- HELD ITEMS ----
 function drawBuckler(p, c, cx, cy) {
   const mask = [
     "..###..",
@@ -456,7 +456,7 @@ function drawBlade(p, c, x, y, dir, len = 4) {
   for (let i = 0; i < len; i++) p.set(x, y + s * (2 + i), i === len - 1 ? c.white : c.metal);
 }
 
-// Patayong hawakan (staff / lance / scepter) na dumadaan sa kamay; hindi tinatakpan ang kamay
+// Vertical shaft (staff / lance / scepter) through the hand; never covers the hand
 function drawPole(p, c, x, top, bottom, hand, col, colD) {
   for (let y = top; y <= bottom; y++) {
     if (hand && y >= hand.hy && y <= hand.hy + 1) continue;
@@ -464,7 +464,7 @@ function drawPole(p, c, x, top, bottom, hand, col, colD) {
   }
 }
 
-// Palakol: hawakan + talim sa dulo. dir = "up" | "down" | "right"
+// Axe: shaft + blade at the end. dir = "up" | "down" | "right"
 function drawAxe(p, c, x, y, dir) {
   if (dir === "right") {
     for (let i = 0; i < 7; i++) p.set(x + i, y, i % 3 === 2 ? c.woodD : c.wood);
@@ -475,31 +475,31 @@ function drawAxe(p, c, x, y, dir) {
   }
   const s = dir === "down" ? 1 : -1;
   for (let i = -1; i < 7; i++) p.set(x, y + s * i, i % 3 === 2 ? c.woodD : c.wood);
-  const hy = y + s * 5;                     // gitna ng talim
+  const hy = y + s * 5;                     // middle of the blade
   for (let j = -2; j <= 1; j++) { p.set(x + 1, hy + j, c.metal); p.set(x + 2, hy + j, c.metal); }
   p.set(x + 3, hy - 1, c.white); p.set(x + 3, hy, c.white);
   p.set(x - 1, hy, c.metalD);
 }
 
-// Ilaw ng mahika sa dulo ng tungkod/setro habang nagka-cast
+// Magic light at the tip of a staff/scepter while casting
 function drawSparkle(p, c, x, y) {
   p.set(x, y - 2, c.white); p.set(x, y + 2, c.white);
   p.set(x - 2, y, c.white); p.set(x + 2, y, c.white);
   p.set(x - 1, y - 1, c.crystal); p.set(x + 1, y + 1, c.crystal);
 }
 
-// Busog na patayo; bend = +1 (kurba pakanan) o -1. pull = hila ng tali (0 = relaks)
+// Upright bow; bend = +1 (curves right) or -1. pull = string draw (0 = relaxed)
 function drawBowV(p, c, x, top, bend, pull) {
   const curve = [0, 0, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 0, 0];
   const mid = (curve.length - 1) / 2;
   curve.forEach((o, j) => {
     p.set(x + bend * o, top + j, j % 6 === 0 ? c.woodD : c.wood);
-    const k = 1 - Math.abs(j - mid) / mid;              // hugis-V ng tali kapag hinila
+    const k = 1 - Math.abs(j - mid) / mid;              // V shape of the string when drawn
     p.set(x - bend * Math.round(pull * k), top + j, j === 0 || j === curve.length - 1 ? c.wood : c.shirt);
   });
 }
 
-// Pana (crossbow): stock na pahalang + prod na patayo sa harap
+// Crossbow: a horizontal stock + an upright prod in front
 function drawCrossbow(p, c, x, y, dir) {
   if (dir === "right") {
     for (let i = 0; i < 8; i++) p.set(x + i, y, i < 3 ? c.woodD : c.wood);
@@ -511,7 +511,7 @@ function drawCrossbow(p, c, x, y, dir) {
   for (let i = -3; i <= 3; i++) p.set(x + i, y + 3, Math.abs(i) === 3 ? c.metalD : c.metal);
 }
 
-// Malaking kalasag (tower shield): kulay ng tabard, gintong gilid, krus sa gitna
+// Tower shield: tabard colour, golden rim, a cross in the middle
 function drawTowerShield(p, c, x, y, w, h) {
   for (let j = 0; j < h; j++) {
     for (let i = 0; i < w; i++) {
@@ -531,9 +531,9 @@ function drawShield(p, c, cfg, view, shield) {
     if (view === "side") drawBuckler(p, c, shield.hx - 2, shield.hy - 4);
     else drawBuckler(p, c, shield.hx + (shield.hx < 16 ? -1 : 2), shield.hy - 3);
   } else if (cfg.shield === "tower") {
-    if (view === "side") drawTowerShield(p, c, 19, 14, 4, 13);          // hawak sa harap ng katawan
+    if (view === "side") drawTowerShield(p, c, 19, 14, 4, 13);          // held in front of the body
     else if (view === "down") drawTowerShield(p, c, shield.hx - (shield.hx < 16 ? 4 : 1), shield.hy - 7, 7, 12);
-    else for (let y = 16; y <= 27; y++) p.set(shield.hx + (shield.hx < 16 ? -2 : 3), y, c.goldD); // gilid lang mula sa likod
+    else for (let y = 16; y <= 27; y++) p.set(shield.hx + (shield.hx < 16 ? -2 : 3), y, c.goldD); // only the rim shows from behind
   }
 }
 
@@ -575,7 +575,7 @@ function drawHeld(p, c, cfg, view, weapon, shield, g) {
     return;
   }
 
-  // ---- Tungkod: sumusunod sa kamay; may kislap habang nagka-cast ----
+  // ---- Staff: follows the hand; sparkles while casting ----
   if (held === "staff") {
     const sx = side && atk === 2 ? 24 : x;
     const top = Math.max(3, hy - 14);
@@ -601,13 +601,13 @@ function drawHeld(p, c, cfg, view, weapon, shield, g) {
   if (held === "lance") {
     if (atk && (side || view === "down")) {
       if (side) {
-        // Nakatutok pasulong; sa windup ay hinihila pabalik
+        // Pointing forward; pulled back in the windup
         const back = atk === 1 ? 4 : 0;
         const y = atk === 2 ? hy : hy - 1;
         for (let i = weapon.hx - 7 - back; i <= 27 - back; i++) if (i < weapon.hx || i > weapon.hx + 1) p.set(i, y, i % 5 === 0 ? c.belt : c.woodD);
         p.rows([[y - 1, 28 - back, 29 - back], [y, 28 - back, 31 - back], [y + 1, 28 - back, 29 - back]], c.metal);
       } else {
-        // Paharap sa tumitingin: maikli ang hawakan, ang talim ay nasa ibaba ng kamay
+        // Facing the viewer: short shaft, the blade below the hand
         drawPole(p, c, x, hy - 6, hy + 7, weapon, c.woodD, c.belt);
         p.rows([[hy + 8, x - 1, x + 1], [hy + 9, x - 1, x + 1], [hy + 10, x, x]], c.metal);
       }
@@ -632,7 +632,7 @@ function drawHeld(p, c, cfg, view, weapon, shield, g) {
   // ---- Busog at pana ----
   if (held === "bow") {
     if (side) {
-      // Hawak sa harap; sa strike ay nakataas ang braso, hinihila ang tali, may palaso
+      // Held in front; on the strike the arm is raised, string drawn, arrow nocked
       if (atk === 2) {
         drawBowV(p, c, 24, 10, 1, 3);
         for (let i = 18; i <= 27; i++) p.set(i, 18, i === 27 ? c.white : c.woodD);
@@ -693,7 +693,7 @@ function drawHead(p, c, cfg, dy, view) {
     p.set(23, 8 + dy, c.skinD); p.set(23, 9 + dy, c.skinDD);
     // kilay
     p.rows([[7, 12, 13], [7, 18, 19]], c.hairD, dy);
-    // mata: pilik, iris na may kislap, ibabang anino
+    // eyes: lashes, iris with a glint, lower shade
     [[12, 13], [18, 19]].forEach(([a, b]) => {
       p.set(a, 8 + dy, c.lash); p.set(b, 8 + dy, c.lash);
       p.set(a, 9 + dy, c.eye); p.set(b, 9 + dy, c.white);
@@ -712,7 +712,7 @@ function drawHead(p, c, cfg, dy, view) {
     p.set(8, 8 + dy, c.skin); p.set(8, 9 + dy, c.skinD);
     p.set(23, 8 + dy, c.skinD); p.set(23, 9 + dy, c.skinDD);
   } else {
-    // gilid: isang mata, ilong, bibig, tainga
+    // side: one eye, nose, mouth, ear
     p.rows([[7, 18, 19]], c.hairD, dy);
     p.set(18, 8 + dy, c.lash); p.set(19, 8 + dy, c.lash);
     p.set(18, 9 + dy, c.white); p.set(19, 9 + dy, c.eye);
@@ -725,7 +725,7 @@ function drawHead(p, c, cfg, dy, view) {
   }
 }
 
-// Bungo (kalansay): butas na mata na may pulang liwanag, ilong at ngipin
+// Skull (skeleton): hollow eyes with a red glow, nose and teeth
 function drawSkullFace(p, c, dy, view) {
   const hole = "#1b1b2f", glow = "#ff3b3b";
   if (view === "down") {
@@ -743,7 +743,7 @@ function drawSkullFace(p, c, dy, view) {
   }
 }
 
-// Balbas (kulay ng buhok) at salamin
+// Beard (hair colour) and glasses
 function drawFaceExtras(p, c, cfg, dy, view) {
   if (cfg.beard && view !== "up") {
     const B = c.hair, D = c.hairD;
@@ -773,7 +773,7 @@ function drawFaceExtras(p, c, cfg, dy, view) {
   }
 }
 
-// Matulis na tainga ng elf (nakausli sa buhok)
+// Pointed elf ears (poking out of the hair)
 function drawElfEars(p, c, dy, view) {
   if (view === "down" || view === "up") {
     p.set(7, 6 + dy, c.skin); p.set(7, 7 + dy, c.skin); p.set(8, 7 + dy, c.skin); p.set(8, 8 + dy, c.skin); p.set(8, 9 + dy, c.skinD);
@@ -784,7 +784,7 @@ function drawElfEars(p, c, dy, view) {
 }
 
 // ---- BUHOK ----
-// Likod na layer (nasa likod ng katawan sa harap/gilid na view)
+// Back layer (behind the body in front/side views)
 function drawHairBack(p, c, cfg, dy, view) {
   const H = c.hair, D = c.hairD;
   const st = cfg.hairStyle;
@@ -829,14 +829,14 @@ function drawTail(p, c, cx, top, dy, right) {
   p.set(cx + (right ? -1 : 1), top - 1 + dy, c.tie);
 }
 
-// Harapang layer (nasa ibabaw ng ulo)
+// Front layer (over the head)
 function drawHairFront(p, c, cfg, dy, view) {
   const H = c.hair, D = c.hairD, L = c.hairL;
   const st = cfg.hairStyle;
   if (st === "none") return;
 
   if (view === "up") {
-    // Likod ng ulo: buong buhok
+    // Back of the head: all hair
     if (st === "buzz") {
       HEAD_FRONT.forEach(([y, x0, x1]) => { if (y <= 10) for (let x = x0; x <= x1; x++) p.set(x, y + dy, D); });
     } else {
@@ -870,7 +870,7 @@ function drawHairFront(p, c, cfg, dy, view) {
     p.rows([[2, 13, 16], [3, 12, 14]], L, dy);
     for (let y = 6; y <= 10; y++) for (let x = 9; x <= 13; x++) p.set(x, y + dy, x <= 10 ? D : H);
     p.rows([[6, 16, 16], [7, 16, 16], [8, 16, 16]], H, dy);                 // patilya
-    p.rows([[6, 19, 21], [7, 21, 21]], H, dy);                              // bangs sa harap
+    p.rows([[6, 19, 21], [7, 21, 21]], H, dy);                              // front bangs
     p.set(21, 6 + dy, D);
     if (st === "spiky") {
       [11, 14, 17].forEach((x) => p.set(x, 0 + dy, H));
@@ -889,7 +889,7 @@ function drawHairFront(p, c, cfg, dy, view) {
   p.rows([[1, 12, 19], [2, 10, 21], [3, 9, 22], [4, 9, 22], [5, 9, 22]], H, dy);
   p.rows([[2, 12, 15], [3, 11, 13]], L, dy);
   for (let y = 3; y <= 5; y++) { p.set(21, y + dy, D); p.set(22, y + dy, D); }
-  // bangs na may hugis
+  // shaped bangs
   [9, 10, 12, 13, 16, 19, 21, 22].forEach((x) => p.set(x, 6 + dy, x >= 21 ? D : H));
   [9, 10, 13, 21, 22].forEach((x) => p.set(x, 7 + dy, D));
   // gilid
@@ -949,7 +949,7 @@ function drawHeadgear(p, c, cfg, dy, view) {
     if (side) p.rows([[0, 10, 15], [1, 8, 10], [2, 7, 9]], c.plume, dy);
     else p.rows([[0, 13, 18]], c.plume, dy);
   } else if (hg === "hat") {
-    // Sombrero ng salamangkero: malapad na labi, gintong laso, dulong nakabaluktot paatras
+    // Wizard hat: wide brim, golden band, tip bent backwards
     const H = c.cloth, D = c.clothD, L = c.clothL;
     if (side) {
       p.rows([[5, 6, 24]], D, dy);
@@ -965,7 +965,7 @@ function drawHeadgear(p, c, cfg, dy, view) {
       if (view === "down") { p.set(15, 4 + dy, c.crystal); p.set(16, 4 + dy, c.crystal); }
     }
   } else if (hg === "hood") {
-    // Talukbong: tinatakpan ang buhok, kita ang mukha
+    // Hood: covers the hair, the face shows
     const H = c.cloth, D = c.clothD, L = c.clothL;
     if (view === "up") {
       HEAD_FRONT.forEach(([y, x0, x1]) => { for (let x = x0; x <= x1; x++) p.set(x, y + dy, x >= x1 - 1 ? D : H); });
@@ -983,7 +983,7 @@ function drawHeadgear(p, c, cfg, dy, view) {
       p.rows([[2, 12, 15]], L, dy);
     }
   } else if (hg === "horns") {
-    // Sungay ng demonyo (pakurba palabas at pataas)
+    // Demon horns (curving out and up)
     const H = "#2b2b33", L = "#d8d0c0";
     if (side) {
       p.rows([[3, 11, 12], [2, 10, 11], [1, 9, 10], [0, 9, 9]], H, dy);
@@ -994,7 +994,7 @@ function drawHeadgear(p, c, cfg, dy, view) {
       p.set(7, 0 + dy, L); p.set(24, 0 + dy, L);
     }
   } else if (hg === "halo") {
-    // Lumulutang na gintong singsing sa itaas ng ulo
+    // Floating golden ring above the head
     p.rows([[0, 12, 19]], c.gold, dy);
     p.set(11, 1 + dy, c.gold); p.set(20, 1 + dy, c.goldD);
     p.rows([[0, 14, 16]], "#fff4b0", dy);
@@ -1019,7 +1019,7 @@ function drawWings(p, c, dy, view, flap) {
   const wing = (mirror, dark, shift) => shape.forEach(([y, x0, x1]) => {
     for (let x = x0; x <= x1; x++) {
       let col = dark ? c.wingD : c.wing;
-      if (x === x0 || (y % 3 === 0 && x < x1 - 1)) col = dark ? c.wingDD : c.wingD;   // mga balahibo
+      if (x === x0 || (y % 3 === 0 && x < x1 - 1)) col = dark ? c.wingDD : c.wingD;   // feathers
       p.set(mirror ? FRAME_W - 1 - x : x + shift, y + dy, col);
     }
   });
@@ -1032,7 +1032,7 @@ function drawWings(p, c, dy, view, flap) {
   }
 }
 
-// ---- LALAGYAN NG PALASO (quiver) sa likod ----
+// ---- QUIVER on the back ----
 function drawQuiver(p, c, dy, view) {
   const Q = c.belt, QL = c.wood;
   if (view === "side") {
@@ -1052,7 +1052,7 @@ function renderFrame(cfg, dir, anim, i) {
   const c = palette(cfg);
   const g = gait(anim, i);
   const dy = g.bob;
-  const helmet = cfg.headgear === "helmet" || cfg.headgear === "hood";   // tinatakpan ang buhok
+  const helmet = cfg.headgear === "helmet" || cfg.headgear === "hood";   // covers the hair
   const flap = i % 2;
   if (cfg.wings && dir !== "up") drawWings(p, c, dy, dir, flap);
   const drawLowerOutfit = (side, trim) => {
@@ -1080,7 +1080,7 @@ function renderFrame(cfg, dir, anim, i) {
 
     drawTorso(p, c, cfg, dy, dir);
 
-    // Braso: sa likod na view, magkabaligtad ang kamay (kanang kamay nasa kanan ng screen)
+    // Arms: in the back view the hands swap sides (right hand on the screen's right)
     let weaponArm, shieldArm;
     if (g.attack) {
       const wx = back ? lx : rx;
@@ -1113,12 +1113,12 @@ function renderFrame(cfg, dir, anim, i) {
     if (cfg.quiver) drawQuiver(p, c, dy, "side");
     if (!helmet) drawHairBack(p, c, cfg, dy, "side");
 
-    // likod na braso (madilim) sa likod ng katawan
+    // back arm (dark) behind the body
     const farArm = drawArmSide(p, c, cfg, dy, g.attack ? 0 : -s, true);
     if (cfg.weapon === "novice") drawBuckler(p, c, farArm.hx - 2, farArm.hy - 4);
     if (cfg.shield === "buckler") drawShield(p, c, cfg, "side", farArm);
 
-    // binti: malayong binti muna (madilim), tapos malapit
+    // legs: far leg first (dark), then the near one
     drawLegSide(p, c, cfg, 14 - 2 * s, s < 0 ? 1 : 0, true);
     drawLegSide(p, c, cfg, 14 + 2 * s, 0, false);
     drawPelvis(p, c, cfg, true);
@@ -1127,13 +1127,13 @@ function renderFrame(cfg, dir, anim, i) {
     if (cfg.outfit === "gown") drawGownSkirt(p, c, dy, true);
 
     drawTorso(p, c, cfg, dy, "side");
-    if (cfg.shield === "tower") drawShield(p, c, cfg, "side", farArm);   // sa harap ng katawan
+    if (cfg.shield === "tower") drawShield(p, c, cfg, "side", farArm);   // in front of the body
 
     let arm;
     if (g.attack === 1) {
       arm = drawArmSide(p, c, cfg, dy, -3, false);
     } else if (g.attack === 2) {
-      // tulak pasulong nang pahalang
+      // horizontal forward thrust
       const y = 18 + dy;
       for (let x = 15; x <= 21; x++) {
         p.set(x, y, sleeveColor(c, cfg, x - 15, false));
@@ -1157,7 +1157,7 @@ function renderFrame(cfg, dir, anim, i) {
   return p.toCanvas();
 }
 
-// Puting silhouette (para sa hit flash)
+// White silhouette (for the hit flash)
 export function whiteOf(canvas) {
   const c = document.createElement("canvas");
   c.width = canvas.width;
@@ -1191,7 +1191,7 @@ export class Avatar {
     return this.cache.get(key);
   }
 
-  // (x, y) = posisyon ng paa sa mundo. flip = nakaharap pakaliwa (side lang)
+  // (x, y) = feet position in the world. flip = facing left (side only)
   // squash < 1 shortens the figure while keeping its width (dwarves)
   draw(ctx, x, y, dir, anim, i, flip = false, flash = false, scale = 1, squash = 1) {
     const img = flash ? this.flashFrame(dir, anim, i) : this.frame(dir, anim, i);
@@ -1202,7 +1202,7 @@ export class Avatar {
     ctx.restore();
   }
 
-  // Close-up ng ulo at balikat (para sa dialogue portrait)
+  // Close-up of head and shoulders (for the dialogue portrait)
   drawPortrait(ctx, w, h) {
     const img = this.frame("down", "idle", 0);
     ctx.clearRect(0, 0, w, h);
