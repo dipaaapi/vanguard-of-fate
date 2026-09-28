@@ -4,8 +4,6 @@ import { OceanSystem } from "./world/ocean.js";
 import { CastleSystem } from "./world/castle.js";
 import { PortalSystem } from "./world/portal.js";
 import { WeatherSystem } from "./world/weather.js";
-import { ShopkeeperNPC } from "./npc/shopkeeper.js";
-import { RecruiterNPC } from "./npc/recruiter.js";
 import { TileMap } from "./world/tilemap.js";
 
 export class Stage {
@@ -31,9 +29,13 @@ export class Stage {
     // Shortcut para sa gameplay safe zone checks
     this.safeZone = this.barracks.bounds;
 
-    // NPCs sa loob ng Barracks
-    this.shopkeeper = new ShopkeeperNPC(this.width / 2 - 30, this.height / 2 - 20);
-    this.mercCaptain = new RecruiterNPC(this.safeZone.x + 50, this.safeZone.y + 55);
+    // Audience dais sa harap ng Citadel gate: walang puno o bato (dito ang Hari, tagapagtawag at mga mentor)
+    const gate = this.castle.gatePortal;
+    this.dais = { x: gate.x - 110, y: gate.y - 4, w: 220, h: 128 };
+    this.clearAreas = [this.dais];
+
+    // Mga sagradong lugar na hindi mapapasok ng halimaw: Barracks at ang audience dais ng Citadel
+    this.safeZones = [this.safeZone, this.dais];
 
     // Tile-based na lupa (damo, landas, puno, bato). Huling ginagawa dahil binabasa nito
     // kung saan nakaguhit ang ocean, castle, barracks at portals.
@@ -50,17 +52,13 @@ export class Stage {
     if (this.tilemap) this.tilemap.drawOverlay(ctx);
   }
 
+  // Aling sanctuary ang kinaroroonan ng punto (o null)
+  safeZoneAt(px, py) {
+    return this.safeZones.find((s) => px >= s.x && px <= s.x + s.w && py >= s.y && py <= s.y + s.h) || null;
+  }
+
   isInsideSafeZone(px, py) {
-    const s = this.safeZone;
-    return px >= s.x && px <= s.x + s.w && py >= s.y && py <= s.y + s.h;
-  }
-
-  isNearNPC(px, py) {
-    return Math.hypot(px - this.shopkeeper.x, py - this.shopkeeper.y) < 38;
-  }
-
-  isNearMercenaryNPC(px, py) {
-    return Math.hypot(px - this.mercCaptain.x, py - this.mercCaptain.y) < 38;
+    return Boolean(this.safeZoneAt(px, py));
   }
 
   update(player, onWarp) {
@@ -86,13 +84,9 @@ export class Stage {
         if (onWarp) onWarp({ id: "CITADEL_GATE", color: "#38bdf8" });
       }
     }
-
-    // 3. NPCs
-    this.shopkeeper.update(this.safeZone);
-    this.mercCaptain.update();
   }
 
-  draw(ctx, drawMatrixFn) {
+  draw(ctx) {
     // 1. Base Natural Ground (tile-based)
     this.tilemap.drawGround(ctx);
 
@@ -103,16 +97,10 @@ export class Stage {
     // 3. Central Sanctuary Platform
     this.barracks.draw(ctx);
 
-    // 4. Inhabitant NPCs
-    if (drawMatrixFn) {
-      this.shopkeeper.draw(ctx, drawMatrixFn);
-      this.mercCaptain.draw(ctx, drawMatrixFn);
-    }
-
-    // 5. 4-Way Warp Portals
+    // 4. 4-Way Warp Portals
     this.portals.draw(ctx);
 
-    // 6. Sky Layers, Weather Shifts, & Mist Borders
+    // 5. Sky Layers, Weather Shifts, & Mist Borders
     this.weather.drawSkyClouds(ctx);
     this.weather.drawWeatherOverlay(ctx);
     this.weather.drawCloudBorders(ctx);

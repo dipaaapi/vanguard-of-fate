@@ -140,12 +140,13 @@ export class SelectScene {
       };
 
       add("div", "dz-name", hero.name.toUpperCase());
-      // Sa awakening, ang bayani ay ang sariling Novice ng player, kaya walang ibang pangalan/Earth profile
+      // Sa awakening, ang Earth profile ay ng mentor ng class (isa sa limang naunang tinawag, Act III)
       const awakening = this.mode === "awakening";
-      if (!awakening) add("div", "dz-real", `"${lore.realName}"`);
+      if (awakening) add("div", "dz-label dz-mentor", t("mentorLabel"));
+      add("div", "dz-real", `"${lore.realName}"`);
       if (hero.title) add("div", "dz-title", hero.title);
 
-      const rows = awakening ? [] : [
+      const rows = [
         ["PAST OCCUPATION", lore.earthRole, "c-white"],
         ["EARTH ORIGIN", lore.origin, "c-gold"],
         ["ISEKAI CATALYST", lore.summonEvent, "c-red"]
@@ -155,7 +156,7 @@ export class SelectScene {
         add("div", "dz-value " + cls, value);
       });
 
-      if (!awakening) el.appendChild(document.createElement("hr"));
+      el.appendChild(document.createElement("hr"));
       add("div", "dz-label", "TRANSMUTED ABILITY");
       add("div", "dz-ability", lore.trait.toUpperCase());
       add("p", "dz-desc", lore.loreDesc);
@@ -246,7 +247,10 @@ export class SelectScene {
     ctx.ellipse(heroX, heroY + 1, 26, 7, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    if (hero.sprites && hero.sprites.idle) {
+    const mentor = awakening && this.mentorAvatars && this.mentorAvatars[hero.id];
+    if (mentor) {
+      mentor.draw(ctx, heroX, heroY, "down", "idle", Math.floor(this.animTick / 40), false, false, 3);
+    } else if (hero.sprites && hero.sprites.idle) {
       const frames = hero.sprites.idle;
       const idx = Math.floor(this.animTick / 26) % frames.length;
       ctx.save();
@@ -260,7 +264,7 @@ export class SelectScene {
     ctx.font = "bold 9px monospace";
     this.shadowText(ctx, hero.name.toUpperCase(), heroX, heroY + 16, "#ffd166");
     ctx.font = "bold 6.8px monospace";
-    if (!awakening) this.shadowText(ctx, `"${lore.realName}"`, heroX, heroY + 25, "#38bdf8");
+    this.shadowText(ctx, `"${lore.realName}"`, heroX, heroY + 25, "#38bdf8");
     ctx.font = "6.2px monospace";
     this.shadowText(ctx, hero.title || "", heroX, heroY + 34, "#cbd5e1");
   }

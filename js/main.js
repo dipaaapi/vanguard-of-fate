@@ -18,6 +18,12 @@ import { TitleScene } from "./title.js";
 import { SelectScene } from "./select.js";
 import { CreatorScene } from "./creator.js";
 import { getNovice } from "./classes/novice.js";
+import { QuestManager } from "./quest.js";
+import { NPCManager } from "./npc/npcs.js";
+import { NPC_DEFS, MENTOR_OF, summonerIdFor } from "./npc/roster.js";
+import { getDialogue, npcName } from "./dialogue.js";
+import { DialogBox, QuestHud } from "./dialog.js";
+import { Avatar } from "./avatar/avatar.js";
 import { startLore } from "./lore.js";
 import { t, onLangChange } from "./i18n.js";
 
@@ -35,6 +41,7 @@ const VIEW_H = 270;
 // Kinukuha ang natitirang espasyo (ekstrang lore panel sa kanan at bar sa ibaba)
 // tapos pinipili ang pinakamalaking INTEGER scale na kasya.
 const stageEl = document.getElementById("stage");
+const viewportEl = document.getElementById("viewport");
 const barEl = document.getElementById("bar");
 
 function fitCanvas() {
@@ -48,6 +55,7 @@ function fitCanvas() {
   canvas.style.width = canvas.width + "px";
   canvas.style.height = canvas.height + "px";
   barEl.style.width = canvas.width + "px";   // kapantay ng canvas ang menu
+  viewportEl.style.setProperty("--s", scale);  // laki ng HTML overlay (dialogue, quest)
 
   // Nare-reset kapag binago ang canvas.width, kaya i-set ulit dito
   ctx.setTransform(scale, 0, 0, scale, 0, 0);
@@ -98,6 +106,18 @@ const lootManager = new LootManager();
 const mercManager = new MercenaryManager();
 const controller = new InputController();
 
+// Kuwento: quest, mga NPC ng lore, dialogue box
+const quest = new QuestManager();
+const npcManager = new NPCManager(stage);
+const dialog = new DialogBox(viewportEl);
+const questHud = new QuestHud(viewportEl);
+const summonerName = () => (npcManager.summonerId ? npcName(npcManager.summonerId) : "");
+quest.onChange = () => {
+  npcManager.applyQuest(quest);
+  if (player) questHud.toast(quest.text(player, summonerName()).goal);
+  saveGame();
+};
+
 function drawSpriteMatrix(targetCtx, x, y, spriteGrid, flashWhite = false) {
   if (!spriteGrid) return;
   const numRows = spriteGrid.length;
@@ -131,6 +151,7 @@ function getSavePayload() {
     heroId: player.heroData.id,
     name: player.heroName || "",
     avatar: player.avatarConfig || null,   // itsura mula sa Character Creator
+    quest: quest.serialize(),
     level: player.level,
     exp: player.exp,
     expNext: player.expNext,
@@ -235,6 +256,7 @@ function loadGame() {
 
     applyDerivedStats(player);
     player.hp = Math.min(player.maxHp, data.hp || player.maxHp);
+    quest.load(data.quest, player);
 
     if (foundHero.id === "archer") {
       player.falconCompanion = new FalconCompanion(player.x, player.y);
@@ -257,6 +279,8 @@ function applyDerivedStats(p) {
 // Karaniwang reset kapag papasok sa laro (bagong laro o load)
 function beginPlaying() {
   controller.clearAll();
+  npcManager.build(summonerIdFor(player.avatarConfig));
+  npcManager.applyQuest(quest);
   gameState = "PLAYING";
   showShopModal = false;
   showMercModal = false;
@@ -277,11 +301,18 @@ function backToTitle() {
   titleScene.refreshSaveStatus();
 }
 
-// ==================== JOB AWAKENING (Lv 10 na Novice, sa loob ng Barracks) ====================
-const AWAKEN_LEVEL = 10;
-
+// ==================== JOB AWAKENING (Act IV: audience dais ng Imperial Citadel) ====================
+// Nagsisimula pagkatapos kausapin ang tagapagtawag sa Citadel (quest step 3).
 function canAwaken(p) {
-  return p && p.heroData.id === "novice" && p.level >= AWAKEN_LEVEL;
+  return p && p.heroData.id === "novice" && quest.step === 3;
+}
+
+function startAwakening() {
+  controller.clearAll();
+  selectScene.setMode("awakening");
+  gameState = "SELECT";
+  Sound.stopGameplayBGM();
+  if (Sound.playHolyBurst) Sound.playHolyBurst();
 }
 
 // Pinapalitan ang Novice ng napiling class; dala ang level, exp, gold, stats at pangalan
@@ -289,7 +320,7 @@ function awaken(chosenHero) {
   const old = player;
   const p = new Player(old.x, old.y, chosenHero);
   ["level", "exp", "expNext", "gold", "statPoints", "bonusHp", "bonusDamage",
-    "bonusDefense", "bonusSpeed", "bonusCrit", "bonusCooldown", "heroName"].forEach((k) => { p[k] = old[k]; });
+    "bonusDefense", "bonusSpeed", "bonusCrit", "bonusCooldown", "heroName", "avatarConfig"].forEach((k) => { p[k] = old[k]; });
   applyDerivedStats(p);
   p.hp = p.maxHp;
   if (chosenHero.id === "archer") p.falconCompanion = new FalconCompanion(p.x, p.y);
@@ -300,7 +331,25 @@ function awaken(chosenHero) {
   if (fx.spawnHitSparks) fx.spawnHitSparks(p.x + 10, p.y + 10, "#ffd166", 28);
   if (Sound.playHolyBurst) Sound.playHolyBurst();
   if (gameConfig.music) Sound.startGameplayBGM();
-  saveGame();
+  quest.advance(4);
+
+  // Ibinibigay ng tagapagtawag ang sandata at ang titulong Field Commander
+  const summoner = npcManager.find(npcManager.summonerId);
+  const d = getDialogue(npcManager.summonerId, { step: quest.step, cls: p.heroData.id, met: quest.met, justAwakened: true });
+  dialog.start(npcManager.summonerId, summoner && summoner.avatar, d.lines);
+}
+
+// Pakikipag-usap sa NPC (E). Pagkatapos ng huling linya: quest + shop/merc/awakening
+function talkTo(npc) {
+  const d = getDialogue(npc.id, { step: quest.step, cls: player.heroData.id, met: quest.met });
+  dialog.start(npc.id, npc.avatar, d.lines, () => {
+    quest.onTalk(npc.id, npcManager.summonerId);
+    npcManager.applyQuest(quest);
+    saveGame();   // naitala kung sino na ang nakausap
+    if (d.action === "shop") { showShopModal = true; showMercModal = false; }
+    else if (d.action === "merc") { showMercModal = true; showShopModal = false; }
+    else if (d.action === "awaken" && canAwaken(player)) startAwakening();
+  });
 }
 
 const titleScene = new TitleScene(
@@ -329,6 +378,7 @@ const creatorScene = new CreatorScene(
     player = new Player(stage.width / 2, stage.height / 2, getNovice(config, name));
     player.heroName = name;
     player.avatarConfig = player.heroData.avatarConfig;
+    quest.reset();
     titleScene.flash();
     beginPlaying();
     saveGame();
@@ -346,6 +396,11 @@ const selectScene = new SelectScene(ROSTER, (chosenHero) => {
   picker: document.getElementById("picker"),
   dossier: document.getElementById("dossier")
 });
+
+// Sa Job Awakening, ang bawat class ay ipinapakita kasama ang mentor nito (Act III)
+selectScene.mentorAvatars = Object.fromEntries(
+  Object.entries(MENTOR_OF).map(([cls, id]) => [cls, new Avatar(NPC_DEFS[id].look)])
+);
 
 setLayoutMode("title");
 startLore(document.getElementById("lore"));
@@ -387,7 +442,16 @@ window.addEventListener("keydown", (e) => {
   } else if (gameState === "GAMEOVER" && e.code === "Enter") {
     Sound.playSelectConfirm();
     backToTitle();
+  } else if (gameState === "PLAYING" && dialog.open) {
+    dialog.handleInput(e);
+  } else if (gameState === "PLAYING" && questHud.logOpen) {
+    if (e.code === "KeyQ" || e.code === "Escape") questHud.closeLog();
   } else if (gameState === "PLAYING" || gameState === "PAUSED") {
+    if (e.code === "KeyQ" && gameState === "PLAYING" && !showShopModal && !showMercModal) {
+      questHud.toggleLog(quest, player, summonerName());
+      return;
+    }
+
     // Export save shortcut (Key X habang paused)
     if (e.code === "KeyX" && gameState === "PAUSED") {
       saveGame();
@@ -398,15 +462,16 @@ window.addEventListener("keydown", (e) => {
     if (e.code === "KeyE") {
       if (showShopModal) {
         showShopModal = false;
-      } else if (stage.isNearNPC(player.x, player.y)) {
-        showShopModal = true;
+      } else if (showMercModal) {
         showMercModal = false;
+      } else if (gameState === "PLAYING" && npcManager.nearest) {
+        talkTo(npcManager.nearest);
       }
       return;
     }
 
     if (e.code === "KeyM" && gameState === "PLAYING") {
-      if (stage.isNearMercenaryNPC(player.x, player.y)) {
+      if (npcManager.isNear("ronald")) {
         showMercModal = !showMercModal;
         showShopModal = false;
         return;
@@ -483,7 +548,7 @@ window.addEventListener("keydown", (e) => {
 });
 
 function updateGame() {
-  if (gameState !== "PLAYING" || !player || showShopModal || showMercModal) return;
+  if (gameState !== "PLAYING" || !player || showShopModal || showMercModal || dialog.open || questHud.logOpen) return;
 
   if (player.hp <= 0) {
     gameState = "GAMEOVER";
@@ -492,16 +557,6 @@ function updateGame() {
   }
 
   const isInBarracks = stage.isInsideSafeZone(player.x, player.y);
-
-  // Lv 10 na Novice na pumasok sa Barracks → Job Awakening
-  if (canAwaken(player) && isInBarracks) {
-    controller.clearAll();
-    selectScene.setMode("awakening");
-    gameState = "SELECT";
-    Sound.stopGameplayBGM();
-    if (Sound.playHolyBurst) Sound.playHolyBurst();
-    return;
-  }
 
   stage.update(player, (portal) => {
     if (Sound && Sound.playHolyBurst) Sound.playHolyBurst();
@@ -549,9 +604,35 @@ function updateGame() {
     if (enemy.isAlive) stage.resolveTileCollision(enemy);
   });
 
+  quest.update(player);
+  npcManager.update(player);
+
   mercManager.update(player, enemyManager, lootManager, fx, (proj) => projectileManager.add(proj), stage);
   projectileManager.update(enemyManager.enemies, enemyManager, fx, lootManager, player);
   lootManager.update(player, fx);
+}
+
+// Gintong palaso sa gilid ng screen na nakaturo sa layunin ng quest (kapag wala sa screen)
+function drawObjectiveArrow() {
+  const target = npcManager.find(quest.targetNpc(npcManager.summonerId));
+  if (!target) return;
+  const sx = target.x - camera.x, sy = target.y - 18 - camera.y;
+  const m = 14;
+  if (sx > m && sx < VIEW_W - m && sy > m && sy < VIEW_H - m) return;
+  const cx = VIEW_W / 2, cy = VIEW_H / 2;
+  const a = Math.atan2(sy - cy, sx - cx);
+  const k = Math.min((VIEW_W / 2 - m) / Math.abs(Math.cos(a) || 1e-6), (VIEW_H / 2 - m) / Math.abs(Math.sin(a) || 1e-6));
+  const ax = cx + Math.cos(a) * k, ay = cy + Math.sin(a) * k;
+  const pulse = 0.7 + Math.sin(performance.now() / 220) * 0.3;
+  ctx.save();
+  ctx.translate(ax, ay);
+  ctx.rotate(a);
+  ctx.globalAlpha = pulse;
+  ctx.fillStyle = "#030611";
+  ctx.beginPath(); ctx.moveTo(8, 0); ctx.lineTo(-5, -6); ctx.lineTo(-5, 6); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = "#ffd166";
+  ctx.beginPath(); ctx.moveTo(6, 0); ctx.lineTo(-4, -4.5); ctx.lineTo(-4, 4.5); ctx.closePath(); ctx.fill();
+  ctx.restore();
 }
 
 function renderGameWorld() {
@@ -559,7 +640,9 @@ function renderGameWorld() {
   ctx.save();
   ctx.translate(Math.round(-camera.x + offsetX), Math.round(-camera.y + offsetY));
 
-  stage.draw(ctx, drawSpriteMatrix);
+  stage.draw(ctx);
+  const footY = player ? player.y + 21 : 0;
+  npcManager.drawLayer(ctx, footY, false);   // mga NPC sa likod ng player
   lootManager.draw(ctx);
   mercManager.draw(ctx, drawSpriteMatrix);
   enemyManager.draw(ctx, drawSpriteMatrix);
@@ -580,8 +663,10 @@ function renderGameWorld() {
 
     ui.drawInWorldUI(ctx, player);
   }
+  npcManager.drawLayer(ctx, footY, true);    // mga NPC sa harap ng player
 
   stage.drawOverlay(ctx);   // canopy ng mga puno, nasa ibabaw ng mga karakter
+  if (player && gameState !== "GAMEOVER") npcManager.drawLabels(ctx, player);
   fx.updateAndDraw(ctx, gameConfig);
   ctx.restore();
 
@@ -592,16 +677,7 @@ function renderGameWorld() {
     fx.timeOfDay, fx.weatherType, isInBarracks
   );
 
-  // Paalala: handa na ang Job Awakening
-  if (canAwaken(player) && gameState === "PLAYING") {
-    const pulse = 0.75 + Math.sin(performance.now() / 260) * 0.25;
-    ctx.fillStyle = "rgba(3, 6, 17, 0.75)";
-    ctx.fillRect(VIEW_W / 2 - 150, 40, 300, 14);
-    ctx.fillStyle = `rgba(255, 209, 102, ${pulse})`;
-    ctx.font = "bold 7px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText(t("awakenReady"), VIEW_W / 2, 50);
-  }
+  if (gameState === "PLAYING") drawObjectiveArrow();
 
   if (showShopModal && player) {
     ui.drawShopModal(ctx, player, VIEW_W, VIEW_H);
@@ -646,6 +722,9 @@ function gameLoop() {
   updateGame();
   const MODES = { TITLE: "title", SELECT: "select", CREATE: "create" };
   setLayoutMode(MODES[gameState] || "play");
+  dialog.update();
+  questHud.setVisible(layoutMode === "play" && Boolean(player) && gameState !== "GAMEOVER");
+  if (player && layoutMode === "play") questHud.update(quest, player, summonerName());
   if (gameState === "TITLE") {
     titleScene.draw();
   } else if (gameState === "CREATE") {

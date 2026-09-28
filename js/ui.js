@@ -110,16 +110,11 @@ export class UIManager {
       const scaleX = mapW / stage.width;
       const scaleY = mapH / stage.height;
 
-      // Safe Zone Outline
-      if (stage.safeZone) {
-        ctx.fillStyle = "rgba(255, 209, 102, 0.22)";
-        ctx.fillRect(
-          mapX + stage.safeZone.x * scaleX,
-          mapY + stage.safeZone.y * scaleY,
-          stage.safeZone.w * scaleX,
-          stage.safeZone.h * scaleY
-        );
-      }
+      // Safe Zone Outline (Barracks + audience dais ng Citadel)
+      ctx.fillStyle = "rgba(255, 209, 102, 0.22)";
+      (stage.safeZones || (stage.safeZone ? [stage.safeZone] : [])).forEach((z) => {
+        ctx.fillRect(mapX + z.x * scaleX, mapY + z.y * scaleY, z.w * scaleX, z.h * scaleY);
+      });
 
       // Enemies (Red Dots)
       if (enemyManager) {

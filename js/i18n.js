@@ -32,7 +32,8 @@ const STRINGS = {
     optionsHint: "<span>↑ ↓</span> Select &nbsp;·&nbsp; <span>Enter / ← →</span> Change &nbsp;·&nbsp; <span>Esc</span> Back",
     chroniclesHint: "<span>← →</span> Chapter &nbsp;·&nbsp; <span>↑ ↓</span> Scroll &nbsp;·&nbsp; <span>Esc</span> Close",
     selectHint: "<span>A / D</span> Choose hero &nbsp;|&nbsp; <span>Enter / Space</span> Embark &nbsp;|&nbsp; or click a hero below",
-    playHint: "<span>WASD</span> Move &nbsp;|&nbsp; <span>Space</span> Sprint &nbsp;|&nbsp; <span>J</span> Attack &nbsp;|&nbsp; <span>K</span> Skill &nbsp;|&nbsp; <span>E</span> Shop &nbsp;|&nbsp; <span>M</span> Hire Merc (10G) &nbsp;|&nbsp; <span>P</span> Pause",
+    playHint: "<span>WASD</span> Move &nbsp;|&nbsp; <span>Space</span> Sprint &nbsp;|&nbsp; <span>J</span> Attack &nbsp;|&nbsp; <span>K</span> Skill &nbsp;|&nbsp; <span>E</span> Talk &nbsp;|&nbsp; <span>Q</span> Quests &nbsp;|&nbsp; <span>P</span> Pause",
+    mentorLabel: "YOUR MENTOR",
 
     sideLore: "CHRONICLES OF AETHELGARD",
     sideDossier: "EARTHBOUND DOSSIER",
@@ -155,7 +156,8 @@ const STRINGS = {
     optionsHint: "<span>↑ ↓</span> Pumili &nbsp;·&nbsp; <span>Enter / ← →</span> Baguhin &nbsp;·&nbsp; <span>Esc</span> Bumalik",
     chroniclesHint: "<span>← →</span> Kabanata &nbsp;·&nbsp; <span>↑ ↓</span> Mag-scroll &nbsp;·&nbsp; <span>Esc</span> Isara",
     selectHint: "<span>A / D</span> Pumili ng Hero &nbsp;|&nbsp; <span>Enter / Space</span> Sumabak &nbsp;|&nbsp; o i-click ang hero sa ibaba",
-    playHint: "<span>WASD</span> Lakad &nbsp;|&nbsp; <span>Space</span> Sprint &nbsp;|&nbsp; <span>J</span> Atake &nbsp;|&nbsp; <span>K</span> Skill &nbsp;|&nbsp; <span>E</span> Shop &nbsp;|&nbsp; <span>M</span> Umupa ng Merc (10G) &nbsp;|&nbsp; <span>P</span> Pause",
+    playHint: "<span>WASD</span> Lakad &nbsp;|&nbsp; <span>Space</span> Sprint &nbsp;|&nbsp; <span>J</span> Atake &nbsp;|&nbsp; <span>K</span> Skill &nbsp;|&nbsp; <span>E</span> Kausapin &nbsp;|&nbsp; <span>Q</span> Quest &nbsp;|&nbsp; <span>P</span> Pause",
+    mentorLabel: "IYONG MENTOR",
 
     sideLore: "MGA SALAYSAY NG AETHELGARD",
     sideDossier: "TALAAN NG MGA BAYANI",

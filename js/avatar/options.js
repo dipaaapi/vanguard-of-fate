@@ -61,13 +61,30 @@ export const DEFAULT_CONFIG = {
   weapon: "novice"
 };
 
+// Mga piyesa na pang-NPC lang (wala sa Character Creator)
+const NPC_OUTFITS = ["gown", "armor", "coat"];
+const EXTRA = {
+  headgear: ["crown", "tiara", "helmet", "headband"],
+  ears: ["elf"],
+  weapon: ["novice", "staff", "lance", "scepter", "bow", "sword", "flask", "book", "none"]
+};
+const HEX = /^#[0-9a-f]{6}$/i;
+
 // Tinitiyak na tama ang bawat value (hal. galing sa lumang save o .json import)
 export function normalizeConfig(cfg = {}) {
   const out = { ...DEFAULT_CONFIG };
-  FIELDS.forEach(({ key, options }) => {
-    if (options.includes(cfg[key])) out[key] = cfg[key];
+  FIELDS.forEach(({ key, type, options }) => {
+    const v = cfg[key];
+    if (options.includes(v)) out[key] = v;
+    else if (type === "swatch" && HEX.test(v || "")) out[key] = v;     // NPC: kahit anong kulay
+    else if (key === "outfit" && NPC_OUTFITS.includes(v)) out[key] = v;
   });
-  if (typeof cfg.weapon === "string") out.weapon = cfg.weapon;
+  Object.entries(EXTRA).forEach(([key, allowed]) => {
+    if (allowed.includes(cfg[key])) out[key] = cfg[key];
+  });
+  if (HEX.test(cfg.cape || "")) out.cape = cfg.cape;
+  if (cfg.beard) out.beard = true;
+  if (cfg.glasses) out.glasses = true;
   return out;
 }
 
