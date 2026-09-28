@@ -21,7 +21,7 @@ import { PrologueScene } from "./prologue.js";
 import { getNovice } from "./classes/novice.js";
 import { equipJob, refreshLook } from "./classes/job.js";
 import { Platform } from "./world/platform.js";
-import { PLATFORMS } from "./world/platforms.js";
+import { PLATFORMS, PLATFORM_ORDER, SEAL_STONES } from "./world/platforms.js";
 import { QuestManager, MENTOR_BY_CLASS, FINAL_STEP } from "./quest.js";
 import { NPCManager } from "./npc/npcs.js";
 import { NPC_DEFS, MENTOR_OF, summonerIdFor } from "./npc/roster.js";
@@ -732,6 +732,9 @@ lootManager.onCollect = (it) => {
     });
     return;
   }
+  if (SEAL_STONES.includes(it.id) && !quest.monolith && SEAL_STONES.every((id) => player.bag.has(id))) {
+    questHud.toast(fil ? "Kumpleto ang apat na Seal Stone! Dalhin sa Celestial Monolith sa Cerulean Abyss." : "All four Seal Stones! Take them to the Celestial Monolith in the Cerulean Abyss.");
+  }
   chatLog.event("loot", "", dayNight.label(), {
     key: `loot:${it.name}`, value: it.qty,
     format: (n, total) => (fil ? `Napulot ang ${it.name}${total > 1 ? ` ×${total}` : ""}` : `Picked up ${it.name}${total > 1 ? ` ×${total}` : ""}`)
@@ -1410,6 +1413,17 @@ function objectivePoint() {
     return drop ? { x: drop.x, y: drop.y } : null;
   }
   // Kailangang pumunta sa susunod na platform
+  // Act XI: first fetch any missing Seal Stone (it waits in its boss arena), then the monolith
+  const missingSeal = next === "siege" && !quest.monolith
+    ? PLATFORM_ORDER.find((pid) => PLATFORMS[pid].seal && !player.bag.has(PLATFORMS[pid].seal)) : null;
+  if (missingSeal) {
+    if (stage === hub) {
+      const g = hub.portals.portals.find((p) => p.dest === missingSeal);
+      return g ? { x: g.x, y: g.y } : null;
+    }
+    if (stage.id === missingSeal) return { x: stage.def.arena.x + stage.def.arena.w / 2, y: stage.def.arena.y + stage.def.arena.h / 2 };
+    return { x: stage.gate.x, y: stage.gate.y };
+  }
   if (stage === hub) {
     // Act XI is reached through the Cerulean Abyss (WEST gateway), where the monolith stands
     const gate = hub.portals.portals.find((p) => p.dest === (next === "siege" ? "coast" : next));

@@ -1,5 +1,5 @@
 import { getLang } from "./i18n.js";
-import { PLATFORMS, PLATFORM_ORDER } from "./world/platforms.js";
+import { PLATFORMS, PLATFORM_ORDER, SEAL_STONES } from "./world/platforms.js";
 import { BOSSES } from "./bestiary.js";
 import { getItem } from "./items/itemdb.js";
 
@@ -44,6 +44,7 @@ function campaignText(L) {
     const head = `Act ${ROMAN[p.act]} · ${name}`;
     act.push(head, head, head);
     goal.push(
+      p.hubGate === "MONOLITH" ? (q) => monolithGoal(L, q, name) :
       () => (L === "fil" ? `Pumasok sa ${name} sa pamamagitan ng ${ENTRY[L][p.hubGate]}` : `Enter the ${name} through ${ENTRY[L][p.hubGate]}`),
       () => (L === "fil" ? `Talunin si ${boss} sa ${p.arenaName[L]} at kunin ang ${getItem(p.item).name}` : `Defeat ${boss} at the ${p.arenaName[L]} and claim the ${getItem(p.item).name}`),
       (q) => (L === "fil" ? `Dalhin ang ${getItem(p.item).name} kay ${q.summonerName} sa kampo` : `Bring the ${getItem(p.item).name} to ${q.summonerName} at the camp`)
@@ -52,6 +53,17 @@ function campaignText(L) {
   act.push(L === "fil" ? "Tapos ang Act XII · Ang Sovereign Dawn" : "Act XII complete · The Sovereign Dawn");
   goal.push(() => (L === "fil" ? "Malaya na ang Aethelgard. Salamat, Kampeon." : "Aethelgard is free. Thank you, Champion."));
   return { act, goal };
+}
+
+// Reaching the Dark Continent: gather the four Seal Stones → awaken the Celestial Monolith → cross
+function monolithGoal(L, q, name) {
+  const fil = L === "fil";
+  if (q.monolith) return fil ? `Tumawid sa Dark Continent sa lagusan ng Celestial Monolith (Cerulean Abyss) at pumasok sa ${name}` : `Cross to the Dark Continent through the Celestial Monolith's portal (Cerulean Abyss) and enter the ${name}`;
+  if (!q.sealsMissing.length) return fil ? "Ilagay ang apat na Seal Stone sa Celestial Monolith sa Cerulean Abyss" : "Place the four Seal Stones on the Celestial Monolith in the Cerulean Abyss";
+  const who = q.sealsMissing.join(", ");
+  return fil
+    ? `Tipunin ang mga Seal Stone (${SEAL_STONES.length - q.sealsMissing.length}/${SEAL_STONES.length}) — hawak pa ni: ${who} — at gisingin ang Celestial Monolith sa Cerulean Abyss`
+    : `Gather the Seal Stones (${SEAL_STONES.length - q.sealsMissing.length}/${SEAL_STONES.length}) — still held by: ${who} — then awaken the Celestial Monolith in the Cerulean Abyss`;
 }
 
 const SOULS = ["arthur", "lyra", "julian", "sam", "renzo"];
@@ -279,7 +291,11 @@ export class QuestManager {
       mentorName: mentorName || T.yourMentor,
       met: this.met,
       souls: this.soulsMet(),
-      level: player ? player.level : 1
+      level: player ? player.level : 1,
+      monolith: this.monolith,
+      // bosses whose Seal Stone the player does not carry yet
+      sealsMissing: PLATFORM_ORDER.filter((id) => PLATFORMS[id].seal && !(player && player.bag.has(PLATFORMS[id].seal)))
+        .map((id) => BOSSES[PLATFORMS[id].boss].name[getLang() === "fil" ? "fil" : "en"])
     };
   }
 

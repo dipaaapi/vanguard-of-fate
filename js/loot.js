@@ -210,7 +210,7 @@ export class LootManager {
     const it = describe(item.inst);
     const qty = item.inst.qty || 1;
     if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(pX, pY, `${it.name}${qty > 1 ? ` x${qty}` : ""}`, item.quest || it.rarity === "unique" || it.type === "card", it.color);
-    if (this.onCollect) this.onCollect({ name: it.name, qty, color: it.color });
+    if (this.onCollect) this.onCollect({ id: it.base || item.id, name: it.name, qty, color: it.color });
     if (item.quest && this.onQuestItem) this.onQuestItem(item.id);
     return true;
   }

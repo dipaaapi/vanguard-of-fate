@@ -2,7 +2,7 @@ import { getLang } from "../i18n.js";
 import { getItem } from "../items/itemdb.js";
 
 // ==================== ORE VEINS (mining) ====================
-// Only the Ashfall Wastelands and the Siege of the Imperial Citadel have ore (def.ore on the platform).
+// Only the Ashfall Wastelands and the Siege of the Obsidian Citadel (Dark Continent) have ore (def.ore on the platform).
 // Mining is unlocked by Thane Durgrim's quest; each vein takes a few pickaxe strikes (E), yields
 // minerals, then regrows after a while. Vein positions come from the platform seed, so they are stable.
 

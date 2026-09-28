@@ -4,7 +4,7 @@
 //   coast   VIII Cerulean Abyss            (WEST gateway)   boss: Leviathan    → Abyssal Helm Shard
 //   frost   IX   Frostfang Precipice       (NORTH gateway)  boss: Cryonix      → Cryonix Core
 //   ash     X    Ashfall Wastelands        (SOUTH gateway)  boss: Ignis        → Hellforge Reactor Core
-//   siege   XI   Siege of the Citadel      (Celestial Monolith) boss: Commander   → Imperial Crest
+//   siege   XI   Siege of the Obsidian Citadel (Dark Continent, via the Celestial Monolith) boss: Commander   → Imperial Crest
 //   maw     XII  Maw of Damnation          (lamat sa trono ng kinubkob na Citadel) boss: Satan → Astral Ash
 // Ang mapa ay 1280x960 (80x60 tiles). Ang (x, y) ng camp, arena at gate ay pixel.
 // Sa dialogue: {s} = pangalan ng tagapagtawag, {h} = pangalan ng bayani.
@@ -37,7 +37,7 @@ function glow(ctx, x, y, r, color, alpha = 0.35) {
 const inEllipse = (x, y, cx, cy, rx, ry) => ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1;
 
 // Seal Stones needed by the Celestial Monolith (dropped by the bosses of Acts VII–X)
-const SEAL_STONES = ["sylvanSeal", "tideSeal", "frostSeal", "emberSeal"];
+export const SEAL_STONES = ["sylvanSeal", "tideSeal", "frostSeal", "emberSeal"];
 
 export const PLATFORMS = {
   // ==================== ACT VII ====================
@@ -342,10 +342,10 @@ export const PLATFORMS = {
   siege: {
     ore: { count: 8, kinds: [["mythril", 0.7], ["obsidianOre", 0.15], ["starsteel", 0.15]] },
     id: "siege", act: 11, tier: 6, theme: "siege", ambient: "siege", seed: 11111, hubGate: "MONOLITH", color: "#ef4444",
-    name: { en: "Siege of the Imperial Citadel", fil: "Pagkubkob sa Imperial Citadel" },
+    name: { en: "Siege of the Obsidian Citadel", fil: "Pagkubkob sa Obsidian Citadel" },
     camp: { x: 560, y: 790, w: 160, h: 110 }, gate: { x: 640, y: 878 },
     arena: { x: 470, y: 90, w: 340, h: 210 }, bossSpawn: { x: 630, y: 170 }, boss: "commander", item: "imperialCrest",
-    arenaName: { en: "Throne Hall", fil: "Bulwagan ng Trono" },
+    arenaName: { en: "Obsidian Throne Hall", fil: "Bulwagan ng Obsidian na Trono" },
     monsters: ["shockTrooper", "voidSpider", "demonKnight", "abyssalJuggernaut", "shadowDrake", "chaosGargoyle", "specter", "voidSerpent", "corruptedCrab"],
     pathTargets: [[640, 200], [170, 500], [1110, 500]],
     // Lamat patungo sa Maw of Damnation (bumubukas pagkatapos matalo ang Commander)
@@ -384,18 +384,18 @@ export const PLATFORMS = {
     },
     text: {
       en: {
-        arrive: ["The capital burns... siege engines hurl miasmic boulders at the ramparts. We hold the breach here, {h}!",
-          "Captain Ronald and the Royal Guard stand with us. A demon commander has breached the Throne Hall — my father is in there!"],
-        hint: ["The Demon Commander is in the Throne Hall, north past the broken gates. Hurry, {h}!"],
-        deliver: ["Father... his last words passed the Imperial Crest to me.",
+        arrive: ["The Dark Continent... and there it stands, the Obsidian Citadel. Every siege engine that burned our lands was forged behind those walls.",
+          "My father crossed ahead of us with Captain Ronald and the Royal Guard. The Demon Commander holds the Obsidian Throne Hall — and my father is still fighting in there!"],
+        hint: ["The Demon Commander is in the Obsidian Throne Hall, north past the breached gates. Hurry, {h}!"],
+        deliver: ["Father... he held the Throne Hall until we came. His last words passed the Imperial Crest to me.",
           "Then let it be done. Before the nobles, the generals and every survivor of the Corps, I name you Supreme Sovereign Champion — and true partner of the throne.",
           "A rift has torn open behind the throne. It leads to the Maw of Damnation. Satan awaits us there."]
       },
       fil: {
-        arrive: ["Nasusunog ang kabisera... bumabato ang mga siege engine ng mga batong may miasma sa mga pader. Dito natin ipagtanggol ang lamat, {h}!",
-          "Kasama natin si Kapitan Ronald at ang Royal Guard. May heneral ng mga demonyo na nakapasok sa Bulwagan ng Trono — naroon ang aking ama!"],
-        hint: ["Nasa Bulwagan ng Trono ang Heneral ng mga Demonyo, sa hilaga lampas sa sirang gate. Bilisan mo, {h}!"],
-        deliver: ["Ama... sa kanyang huling salita, ipinasa niya sa akin ang Imperial Crest.",
+        arrive: ["Ang Dark Continent... at naroon ang Obsidian Citadel. Bawat siege engine na sumunog sa ating lupain ay hinubog sa likod ng mga pader na iyan.",
+          "Nauna nang tumawid ang aking ama kasama si Kapitan Ronald at ang Royal Guard. Hawak ng Heneral ng mga Demonyo ang Bulwagan ng Obsidian na Trono — at lumalaban pa roon ang aking ama!"],
+        hint: ["Nasa Bulwagan ng Obsidian na Trono ang Heneral ng mga Demonyo, sa hilaga lampas sa nabutas na gate. Bilisan mo, {h}!"],
+        deliver: ["Ama... hinawakan niya ang Bulwagan ng Trono hanggang sa dumating tayo. Sa kanyang huling salita, ipinasa niya sa akin ang Imperial Crest.",
           "Kung gayon, gawin na natin. Sa harap ng mga maharlika, heneral at lahat ng nakaligtas sa Corps, itinatalaga kitang Supreme Sovereign Champion — at tunay na katuwang ng trono.",
           "May lamat na bumukas sa likod ng trono. Patungo ito sa Maw of Damnation. Naghihintay doon si Satan."]
       }
