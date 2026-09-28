@@ -229,6 +229,7 @@ export class Player {
       this.recalc();
       this.hp = this.maxHp;
       if (Sound && Sound.playSelectConfirm) Sound.playSelectConfirm();
+      if (this.onLevelUp) this.onLevelUp(this.level);
     }
   }
 

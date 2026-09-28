@@ -231,6 +231,9 @@ function attachBag(p) {
     const verb = on ? (fil ? "Isinuot ang" : "Equipped") : (fil ? "Hinubad ang" : "Unequipped");
     chatLog.event("equip", `${verb} ${item.name}`, dayNight.label());
   };
+  p.onLevelUp = (level) => {
+    chatLog.event("level", lang() === "fil" ? `Umakyat ka sa Level ${level}! +stat at +skill point` : `Level up! You are now Lv ${level} (+stat & skill points)`, dayNight.label());
+  };
   p.onHurt = (dmg, src) => {
     const fil = lang() === "fil";
     const name = src ? enemyManager.displayName(src) : "";
@@ -509,6 +512,26 @@ enemyManager.onBossDefeated = (e) => {
   if (seal && !quest.monolith && !player.bag.has(seal)) lootManager.drop({ x: e.x + 22, y: e.y + 12 }, { id: seal, qty: 1 }, true);
 };
 lootManager.onQuestItem = (id) => quest.onQuestItem(id);
+// Bottom tray: EXP from the hero's kills (merged while chaining kills), or a note when an ally took the last hit
+enemyManager.onKill = (e, byPlayer, exp) => {
+  const fil = lang() === "fil";
+  const name = enemyManager.displayName(e);
+  if (!byPlayer) {
+    chatLog.event("info", "", dayNight.label(), {
+      key: "allykill", value: 1,
+      format: (n) => (n > 1
+        ? (fil ? `Kakampi ang huling tumama sa ${n} halimaw — walang EXP o samsam` : `Allies landed the last hit on ${n} foes — no EXP or loot`)
+        : (fil ? `Kakampi ang huling tumama kay ${name} — walang EXP o samsam` : `An ally landed the last hit on ${name} — no EXP or loot`))
+    });
+    return;
+  }
+  chatLog.event("exp", "", dayNight.label(), {
+    key: "exp", value: exp,
+    format: (n, total) => (n > 1
+      ? (fil ? `+${total} EXP mula sa ${n} halimaw` : `+${total} EXP from ${n} kills`)
+      : (fil ? `+${total} EXP — natalo si ${name}` : `+${total} EXP — defeated ${name}`))
+  });
+};
 // Bottom tray: napulot na ginto at item (pinagsasama ang magkakasunod na kapareho)
 lootManager.onCollect = (it) => {
   const fil = lang() === "fil";

@@ -64,6 +64,8 @@ export class EnemyManager {
     this.targetId = null;          // kasalukuyang target ng bayani (may info tag)
     this.allies = [];              // mga mercenary (puwedeng atakihin at mang-provoke)
     this.sparks = [];              // kidlat ng elementong hangin (para sa guhit)
+    this.hitSource = null;         // overrides who a damage() call is credited to (chain lightning)
+    this.onKill = null;            // (enemy, byPlayer, exp) => void — for the bottom tray log
   }
 
   // May anyong-tubig ba o dagat/moat/liquid sa kasalukuyang lugar
@@ -322,7 +324,10 @@ export class EnemyManager {
     else if (elem === "wind" && r < 0.3) {
       const next = this.enemies.find((o) => o !== e && o.isAlive && Math.hypot(o.x - e.x, o.y - e.y) < 70);
       if (next) {
+        // chain lightning is credited to whoever landed the original hit
+        this.hitSource = e.lastHitBy || "player";
         this.damage(next, Math.round(dealt * 0.35), 0, false, fx, null, 2);
+        this.hitSource = null;
         this.sparks.push({ x0: e.x + 10, y0: e.y + 8, x1: next.x + 10, y1: next.y + 8, t: 10 });
       }
     }
@@ -639,6 +644,9 @@ export class EnemyManager {
     }
 
     enemy.hp -= amount;
+    // Last-hit rule: only a kill landed by the hero (or the hero's summons) earns EXP and loot.
+    // Hero attacks pass `player`; mercenaries and NPC allies do not.
+    enemy.lastHitBy = this.hitSource || (player ? "player" : "ally");
     enemy.hitTimer = 8;
     enemy.sinceHit = 0;       // naantala ang pagbalik ng HP
     enemy.provoked = true;
@@ -665,14 +673,20 @@ export class EnemyManager {
     const diff = p ? e.level - p.level : 0;
     const tierExp = e.boss ? 12 : e.tier && TIERS[e.tier] ? TIERS[e.tier].exp : 1;
     const mult = Math.max(0.25, Math.min(1.8, 1 + diff * 0.12)) * (1 + 0.3 * this.night) * tierExp;
-    if (p && typeof p.addExp === "function") p.addExp(Math.round((25 + e.level * 8) * mult));
+    const byPlayer = e.lastHitBy !== "ally";
+    const exp = byPlayer ? Math.round((25 + e.level * 8) * mult) : 0;
+    if (exp && p && typeof p.addExp === "function") p.addExp(exp);
+    if (this.onKill) this.onKill(e, byPlayer, exp);
     // Fire Enchanted: sumasabog kapag namatay
     if (has(e, "fire") && p && Math.hypot(p.x - e.x, p.y - e.y) < 42) {
       p.takeDamage(Math.round(e.damage * 0.8), fx, e);
       p.inflictDebuff("burn", 180);
     }
     if (has(e, "fire") && fx && fx.spawnHitSparks) fx.spawnHitSparks(e.x + 10, e.y + 10, "#f97316", 24);
-    if (this.loot) {
+    if (this.loot && !byPlayer && e.boss && e.kind.drop) {
+      // an ally's last hit forfeits the rewards, but a boss still leaves its quest item
+      this.loot.drop({ x: e.x + 10, y: e.y + 12 }, { id: e.kind.drop, qty: 1 }, true);
+    } else if (this.loot && byPlayer) {
       this.loot.spawnLoot(e.x + 10, e.y + 12, {
         grade: this.tier, level: e.level, cls: p ? p.heroData.id : "novice", key: e.key,
         boss: Boolean(e.boss), drop: e.boss ? e.kind.drop : null,

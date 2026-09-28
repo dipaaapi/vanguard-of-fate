@@ -11,7 +11,7 @@ const MAX = 150;
 const MERGE_MS = 2500;   // gaano katagal pinagsasama ang magkaparehong pangyayari
 
 // Tatak sa kaliwa ng bawat uri ng pangyayari
-const TAGS = { hit: "⚔", loot: "✦", equip: "⛨" };
+const TAGS = { hit: "⚔", loot: "✦", equip: "⛨", exp: "★", level: "▲", info: "·" };
 
 export class ChatLog {
   constructor(root) {

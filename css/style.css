@@ -275,6 +275,11 @@ body[data-mode="play"] #chatLog {
 .log-loot span { color: #cbd5e1; }
 .log-equip b { color: #38bdf8; }
 .log-equip span { color: #bae6fd; }
+.log-exp span, .log-level span, .log-info span { font-family: "Consolas", "Courier New", monospace; font-size: 12px; }
+.log-exp b { color: #a78bfa; }
+.log-exp span { color: #ddd6fe; }
+.log-level b, .log-level span { color: #4ade80; }
+.log-info b, .log-info span { color: #64748b; }
 
 /* ---------- KANANG PANEL: 3 bahagi ---------- */
 /* (1) lore ng kasalukuyang act  (2) UI ng player  (3) skills at options */
