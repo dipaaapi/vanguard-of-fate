@@ -188,6 +188,8 @@ export class CharacterPanel {
     // Learned path actives can be dragged onto a skill slot (or a hotbar that accepts SKILL_DRAG_TYPE)
     if (s.kind === "active" && lv) {
       node.draggable = true;
+      node.dataset.skill = s.id;        // the hotbar's pointer drag (controls PR) reads these
+      node.dataset.group = "path";
       node.addEventListener("dragstart", (e) => { e.dataTransfer.setData(SKILL_DRAG_TYPE, s.id); e.dataTransfer.setData("text/plain", s.id); });
     }
     return node;
