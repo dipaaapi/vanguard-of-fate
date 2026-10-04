@@ -1,6 +1,6 @@
 import { Sound } from "./audio.js";
 import { npcName } from "./dialogue.js";
-import { qt } from "./quest.js";
+import { qt, bookText } from "./quest.js";
 
 // ==================== DIALOGUE BOX + QUEST TRACKER + QUEST LOG ====================
 // HTML overlay above the game canvas (#viewport), so the text stays crisp at any scale.
@@ -156,6 +156,35 @@ export class QuestHud {
     this.logEl.classList.remove("open");
   }
 
+  renderSide(side) {
+    const box = document.createElement("div");
+    box.className = "ql-side";
+    const p = side.progress();
+    const h = document.createElement("div");
+    h.className = "ql-side-h";
+    h.textContent = `${side.logTitle()} · ${p.done}/${p.total}`;
+    box.appendChild(h);
+    side.list.forEach((q) => {
+      const done = q.have >= q.n;
+      const row = document.createElement("div");
+      row.className = "ql-row side " + (done ? "done" : "current");
+      const mark = document.createElement("span");
+      mark.className = "ql-mark";
+      mark.textContent = done ? "✔" : "○";
+      const body = document.createElement("div");
+      const a = document.createElement("div");
+      a.className = "ql-act";
+      a.textContent = side.title(q);
+      const g = document.createElement("div");
+      g.className = "ql-goal";
+      g.textContent = side.text(q);
+      body.append(a, g);
+      row.append(mark, body);
+      box.appendChild(row);
+    });
+    this.logEl.appendChild(box);
+  }
+
   renderLog(quest, player, summonerName, mentorName) {
     this.logEl.innerHTML = "";
     const h = document.createElement("h3");
@@ -163,9 +192,10 @@ export class QuestHud {
     this.logEl.appendChild(h);
     const sub = document.createElement("div");
     sub.className = "ql-sub";
-    sub.textContent = qt("title");
+    sub.textContent = `${bookText("one")} · ${qt("title")}`;
     this.logEl.appendChild(sub);
 
+    const side = quest.side;
     quest.entries(player, summonerName, mentorName).forEach((e) => {
       const row = document.createElement("div");
       row.className = "ql-row " + e.state;
@@ -182,7 +212,13 @@ export class QuestHud {
       body.append(a, g);
       row.append(mark, body);
       this.logEl.appendChild(row);
+      // The current Act's side quests, under the current step (the main quest waits for them)
+      if (e.state === "current" && side && side.list.length) this.renderSide(side);
     });
+    const next = document.createElement("div");
+    next.className = "ql-book";
+    next.textContent = bookText("two");
+    this.logEl.appendChild(next);
     const foot = document.createElement("div");
     foot.className = "ql-foot";
     foot.textContent = qt("close");

@@ -6,6 +6,10 @@
 //   embers   — Ashfall: rising embers, falling ash, red heat
 //   siege    — Obsidian Citadel: burning sky, falling fireballs
 //   void     — Maw of Damnation: swirling violet dust, dark edges
+//   dust      — Greyhorn Badlands: drifting dust motes, warm haze
+//   fenmist   — Gloomwater Fens: green will-o'-wisps, murky haze
+//   gale      — Stormcrown Highlands: fast wind streaks, the odd lightning flash
+//   sandstorm — Sunscorch Dunes: blowing sand, golden heat haze
 // The particles live in screen space (they follow the camera), so they stay cheap on a big map.
 
 const VIEW_W = 480, VIEW_H = 270;
@@ -16,7 +20,11 @@ const KINDS = {
   blizzard: { n: 120, tint: "rgba(210, 225, 240, 0.2)", colors: ["#ffffff", "#e6f0fa"], vy: [0.8, 1.8], vx: [-2.4, -1.2], size: [1, 2] },
   embers:   { n: 60, tint: "rgba(90, 20, 5, 0.22)", colors: ["#ff7a1a", "#ffd166", "#ff3b3b", "#6b5a55"], vy: [-0.9, -0.3], vx: [-0.3, 0.3], size: [1, 2] },
   siege:    { n: 50, tint: "rgba(90, 10, 15, 0.2)", colors: ["#ff7a1a", "#ffd166", "#8a8a8a"], vy: [-0.6, -0.2], vx: [-0.4, 0.2], size: [1, 2], meteors: true },
-  void:     { n: 70, tint: "rgba(25, 5, 45, 0.3)", colors: ["#c77dff", "#9d4edd", "#ff7a1a"], vy: [-0.3, 0.3], vx: [-0.3, 0.3], size: [1, 2], swirl: true, vignette: true }
+  void:     { n: 70, tint: "rgba(25, 5, 45, 0.3)", colors: ["#c77dff", "#9d4edd", "#ff7a1a"], vy: [-0.3, 0.3], vx: [-0.3, 0.3], size: [1, 2], swirl: true, vignette: true },
+  dust:     { n: 40, tint: "rgba(90, 60, 30, 0.12)", colors: ["#d6b88a", "#a8a29e", "#e7d7b0"], vy: [-0.1, 0.15], vx: [0.3, 0.8], size: [1, 1] },
+  fenmist:  { n: 36, tint: "rgba(20, 40, 25, 0.24)", colors: ["#bef264", "#ecfccb", "#86efac"], vy: [-0.2, 0.1], vx: [-0.12, 0.12], size: [1, 2], swirl: true },
+  gale:     { n: 70, tint: "rgba(40, 60, 80, 0.12)", colors: ["rgba(241, 245, 249, 0.7)"], vy: [0.2, 0.6], vx: [3, 4.5], size: [1, 1], streak: 5, flash: 0.002 },
+  sandstorm: { n: 110, tint: "rgba(160, 110, 40, 0.2)", colors: ["#e7c98a", "#d4a556", "#f5deb3"], vy: [0.1, 0.5], vx: [2.2, 3.6], size: [1, 2] }
 };
 
 const rand = ([a, b]) => a + Math.random() * (b - a);

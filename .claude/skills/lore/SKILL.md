@@ -57,6 +57,19 @@ node $L check                    # EN/FIL gaps: LORE section/paragraph mismatche
 
 The bosses of Acts VII–X drop the Seal Stones that open the Celestial Monolith. Ore veins exist only on Ashfall and the Obsidian Citadel.
 
+**Book I and side quests:** Acts I–XII are **Book I · The Fated Vanguard** (FIL *Aklat I*); **Book II** is "coming soon". From Act II on, each Act's main quest waits at a gate step until the Act's 5–10 side quests (seeded per save; `js/sidequest.js`) are done: hunts, trophies, scouting named sites, purges, flyers, and (Act V on) elite and champion bounties posted by the war camps.
+
+**Frontier maps (`js/world/frontiers.js`, no boss, each with a war camp, a named arena and three scouting sites):**
+
+| Acts | Place (FIL) | Reached by | Arena | Elites |
+|---|---|---|---|---|
+| IV–VI | Greyhorn Badlands (rocky) | hub south-west trail | Shattered Quarry / Basag na Tibagan | Quarry Colossus, Brigand Warlord, Bone Marshal, Cliff Wyvern |
+| VII–VIII | Gloomwater Fens (swamp; old elven rice terraces) | Canopy east trail | Drowned Shrine / Lubog na Dambana | Gloomwater Hag, Mire Hydra, Bog Titan, Plague Moth Matriarch |
+| IX | Stormcrown Highlands (mountain) | Frostfang east trail | Thunder Aerie / Pugad ng Kulog | Stormcrown Griffin, Avalanche Golem, Peak Shaman, Elder Troll |
+| X | Sunscorch Dunes (desert, south of the Hellforge) | Ashfall south trail | Buried Sun Temple / Nakabaong Templo ng Araw | Scarab Monarch, Tomb King, Sandstorm Wraith, Dune Colossus |
+
+Every map (hub, platforms, frontiers) has 5 regular kinds and 4 elite kinds (`elite: true`, always Elite tier, one of each on the map, respawning).
+
 **Systems with lore names:** monster tiers Normal / Champion / Elite / MVP; Ragnarok-style race, element and size; stats STR/AGI/VIT/INT/DEX/LUK; mercenaries (axe, crossbow, greatsword, wand) hired from Captain Ronald; day/night cycle where night monsters prowl with crimson and violet eyes.
 
 **Tone & style**

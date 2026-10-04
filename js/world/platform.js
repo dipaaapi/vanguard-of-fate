@@ -5,17 +5,19 @@ import { BoatSystem } from "./boat.js";
 import { OreVeins } from "./mining.js";
 import { veinsFor } from "../items/craftsets.js";
 import { PLATFORMS, PLATFORM_SIZE } from "./platforms.js";
+import { FRONTIERS } from "./frontiers.js";
 import { getLang } from "../i18n.js";
 
 // ==================== PLATFORM (one Act of the campaign) ====================
 // Same interface as Stage (js/stage.js), so the camera, enemies, NPCs and world map can use it:
 //   width/height, bounds, safeZone(s), safeZoneAt(), isInsideSafeZone(), resolveTileCollision(),
 //   update(player, onPortal), draw(ctx), drawOverlay(ctx), tilemap.
-// The camp is a sanctuary with a Return Gateway back to Aethelgard.
+// The camp is a sanctuary with a Return Gateway back to Aethelgard (from a frontier map: back to the
+// platform it was reached from). A platform with a `trail` has a second gateway to its frontier map.
 
 export class Platform {
   constructor(id) {
-    const def = PLATFORMS[id];
+    const def = PLATFORMS[id] || FRONTIERS[id];
     this.def = def;
     this.id = id;
     this.theme = def.theme;
@@ -28,8 +30,14 @@ export class Platform {
     this.safeZone = def.camp;
     this.safeZones = [def.camp];
     this.clearAreas = [def.camp, def.arena];
-    this.pathTargets = def.pathTargets;
-    this.gate = { id: "RETURN", dir: def.gate.dir || "horizontal", x: def.gate.x, y: def.gate.y, w: def.gate.dir === "vertical" ? 22 : 58, h: def.gate.dir === "vertical" ? 58 : 22, color: "#ffd166", dest: "hub" };
+    const gateOf = (g, id, dest, color) => ({ id, dir: g.dir || "horizontal", x: g.x, y: g.y, w: g.dir === "vertical" ? 22 : 58, h: g.dir === "vertical" ? 58 : 22, color, dest });
+    this.gate = gateOf(def.gate, "RETURN", def.from || "hub", "#ffd166");
+    // Trail to the frontier map beside this platform (sealed until its Act; set by main.js)
+    this.trail = def.trail ? gateOf(def.trail, "TRAIL", def.trail.dest, (FRONTIERS[def.trail.dest] || {}).color || "#ffd166") : null;
+    this.trailSealed = false;
+    if (this.trail) this.clearAreas.push({ x: this.trail.x - 34, y: this.trail.y - 34, w: 68, h: 68 });
+    // Paths reach the arena, the edges, every site to scout and the trail gate
+    this.pathTargets = [...(def.pathTargets || []), ...(def.sites || []).map((s) => [s.x, s.y]), ...(this.trail ? [[this.trail.x, this.trail.y]] : [])];
     this.castle = null;
     this.tick = 0;
     this.cleared = false;     // the boss has been defeated (set by main.js from the quest)
@@ -66,10 +74,19 @@ export class Platform {
     return Boolean(this.safeZoneAt(px, py));
   }
 
-  // Point beside the Return Gateway (arrival on the platform)
+  // Point beside the Return Gateway (arrival on the platform), on the inland side of the gate
   arrival() {
-    const g = this.gate;
-    return g.dir === "vertical" ? { x: g.x - 60, y: g.y - 12 } : { x: g.x - 10, y: g.y - 58 };
+    return this.besideGate(this.gate);
+  }
+
+  // Coming back from the frontier map: beside the trail gate
+  arrivalFrom(fromId) {
+    return this.trail && this.trail.dest === fromId ? this.besideGate(this.trail) : this.arrival();
+  }
+
+  besideGate(g) {
+    if (g.dir === "vertical") return { x: g.x < this.width / 2 ? g.x + 40 : g.x - 60, y: g.y - 12 };
+    return { x: g.x - 10, y: g.y < this.height / 2 ? g.y + 30 : g.y - 58 };
   }
 
   update(player, onPortal) {
@@ -82,7 +99,13 @@ export class Platform {
     const g = this.gate;
     if (Math.abs(fx - g.x) < g.w / 2 + 4 && Math.abs(fy - g.y) < g.h / 2 + 6) {
       player.portalCooldown = 75;
-      if (onPortal) onPortal({ id: "RETURN", dest: "hub", from: this.id });
+      if (onPortal) onPortal({ id: "RETURN", dest: g.dest, from: this.id });
+      return;
+    }
+    const tr = this.trail;
+    if (tr && Math.abs(fx - tr.x) < tr.w / 2 + 4 && Math.abs(fy - tr.y) < tr.h / 2 + 6) {
+      player.portalCooldown = 75;
+      if (onPortal) onPortal({ id: "TRAIL", dest: tr.dest, from: this.id });
       return;
     }
     const rift = this.def.rift;
@@ -250,7 +273,12 @@ export class Platform {
     if (this.boatSystem) this.boatSystem.draw(ctx, player);
     if (this.ore) this.ore.draw(ctx, player, this.miningUnlocked);
     const L = getLang() === "fil" ? "fil" : "en";
-    drawGateway(ctx, this.gate, this.tick * 0.08, false, L === "fil" ? "PABALIK SA AETHELGARD" : "RETURN TO AETHELGARD");
+    const back = this.gate.dest === "hub" ? "AETHELGARD" : (PLATFORMS[this.gate.dest] ? PLATFORMS[this.gate.dest].name[L].toUpperCase() : "");
+    drawGateway(ctx, this.gate, this.tick * 0.08, false, L === "fil" ? `PABALIK SA ${back}` : `RETURN TO ${back}`);
+    if (this.trail) {
+      const f = FRONTIERS[this.trail.dest];
+      drawGateway(ctx, this.trail, this.tick * 0.08, this.trailSealed, f ? `${this.trailSealed ? "" : "→ "}${f.name[L].toUpperCase()}` : "");
+    }
   }
 
   drawOverlay(ctx, player = null) {

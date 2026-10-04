@@ -47,10 +47,11 @@ const UNITS = args.includes("--units");
 
 seedRandom(2026);
 const { Player, expFor } = await load("js/player.js");
-const { EnemyManager, HUB_KINDS } = await load("js/enemy.js");
+const { EnemyManager, HUB_KINDS, HUB_ELITES } = await load("js/enemy.js");
 const { ProjectileManager } = await load("js/projectiles.js");
 const { MONSTERS, BOSSES } = await load("js/bestiary.js");
 const { PLATFORMS, PLATFORM_ORDER } = await load("js/world/platforms.js");
+const { FRONTIERS, FRONTIER_ORDER } = await load("js/world/frontiers.js");
 const { PRIMARY, autoAllocate } = await load("js/skills.js");
 const { FAMILIARS, familiarDamage } = await load("js/summons/familiar.js");
 const { elementMult } = await load("js/elements.js");
@@ -82,16 +83,23 @@ const noop = new Proxy({}, { get: (t, p) => (p === "consumeHitStop" ? () => fals
 
 // ── Areas ────────────────────────────────────────────────────────────────────
 // Aethelgard hub (tier 0, Lv 1–8): Novice at Lv 5, classes from the Lv 10 Job Awakening.
-// Platforms: hero at the Act's level floor + 3 (middle of the band).
-const areas = [{ id: "hub", name: "Aethelgard plains", tier: 0, kinds: HUB_KINDS, boss: null }];
+// Platforms and frontier maps: hero at the map's level floor + 3 (middle of the band).
+// Each frontier is listed right after the map its trail starts from. Elites always spawn at Elite tier.
+const areas = [{ id: "hub", name: "Aethelgard plains", tier: 0, kinds: HUB_KINDS, elites: HUB_ELITES, boss: null }];
+const addFrontiers = (from) => FRONTIER_ORDER.filter((id) => FRONTIERS[id].from === from).forEach((id) => {
+  const f = FRONTIERS[id];
+  areas.push({ id, name: `Frontier (Acts ${f.acts.join(", ")}) ${f.name.en}`, tier: f.tier, kinds: f.monsters, elites: f.elites, levels: f.levels, boss: null });
+});
+addFrontiers("hub");
 for (const id of PLATFORM_ORDER || Object.keys(PLATFORMS)) {
   const p = PLATFORMS[id];
-  if (p) areas.push({ id, name: `Act ${p.act} ${p.name.en}`, tier: p.tier, kinds: p.monsters, boss: p.boss });
+  if (p) areas.push({ id, name: `Act ${p.act} ${p.name.en}`, tier: p.tier, kinds: p.monsters, elites: p.elites || [], boss: p.boss });
+  addFrontiers(id);
 }
 
 function band(area) {
   const em = new EnemyManager(1280, 960);
-  em.setArea({ id: area.id }, area.kinds, area.tier);
+  em.setArea({ id: area.id }, area.kinds, area.tier, area.elites, area.levels || null);
   return { em, floor: em.levelFloor, cap: em.levelCap };
 }
 
@@ -282,8 +290,8 @@ for (const area of areas.filter((a) => !AREA || a.id === AREA)) {
   say(`## ${area.name} — monsters Lv ${floor}–${cap}${area.boss ? `, boss ${BOSSES[area.boss].name.en} Lv ${cap + 2}` : ""}`);
   say("");
   if (!AREA) {
-    say("| Class | Lv | HP | DEF | J dmg | DPS | Mon HP | TTK s | Hit taken | Hits to die | Fights/life | Kills/Lv | Boss TTK s | Boss hits to die |");
-    say("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
+    say("| Class | Lv | HP | DEF | J dmg | DPS | Mon HP | TTK s | Hit taken | Hits to die | Fights/life | Kills/Lv | Elite TTK s | Elite hits to die | Boss TTK s | Boss hits to die |");
+    say("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
   }
   const ratios = [];
   const samples = [];
@@ -296,6 +304,9 @@ for (const area of areas.filter((a) => !AREA || a.id === AREA)) {
     ratios.push([cls, ratio]);
     const e = 25 + level * 8;   // EnemyManager.kill at diff 0, normal tier
     const kills = expFor(level) / e;
+    // Elites: average over the map's elite kinds at the top of the band
+    const eRows = (area.elites || []).filter((k) => MONSTERS[k]).map((k) => fight(hero, area, em, k, cap));
+    const eAvg = (f) => (eRows.length ? eRows.reduce((s, r) => s + r[f], 0) / eRows.length : NaN);
     let boss = null;
     if (area.boss) boss = fight(hero, area, em, area.boss, cap + 2, true);
     if (cls !== "novice") samples.push({ cls, hero, ttk: avg("ttk"), intake: (avg("taken") * 60) / MONSTER_CYCLE, priest: cls === "priest", frJ: frames(hero).J });
@@ -304,12 +315,12 @@ for (const area of areas.filter((a) => !AREA || a.id === AREA)) {
       say("");
       say("| Monster | Elem | Lv | HP | J dmg | DPS | TTK s | Mon dmg | Hit taken | Hits to die | Fights/life |");
       say("|---|---|---|---|---|---|---|---|---|---|---|");
-      for (const r of boss ? [...rows, { ...boss, key: `${boss.key} (boss)` }] : rows) {
+      for (const r of [...rows, ...eRows.map((r) => ({ ...r, key: `${r.key} (elite)` })), ...(boss ? [{ ...boss, key: `${boss.key} (boss)` }] : [])]) {
         say(`| ${r.key} | ${r.element} | ${r.level ?? cap + 2} | ${r.hp} | ${f0(r.dmgJ)} | ${f1(r.dps)} | ${f1(r.ttk)} | ${r.monDmg} | ${f1(r.taken)} | ${r.hitsToDie} | ${f1(r.ratio)} |`);
       }
       say("");
     } else {
-      say(`| ${cls} | ${level} | ${hero.maxHp} | ${hero.defense} | ${f0(avg("dmgJ"))} | ${f1(avg("dps"))} | ${f0(avg("hp"))} | ${f1(avg("ttk"))} | ${f1(avg("taken"))} | ${f0(avg("hitsToDie"))} | ${f1(ratio)} | ${f1(kills)} | ${boss ? f1(boss.ttk) : "—"} | ${boss ? boss.hitsToDie : "—"} |`);
+      say(`| ${cls} | ${level} | ${hero.maxHp} | ${hero.defense} | ${f0(avg("dmgJ"))} | ${f1(avg("dps"))} | ${f0(avg("hp"))} | ${f1(avg("ttk"))} | ${f1(avg("taken"))} | ${f0(avg("hitsToDie"))} | ${f1(ratio)} | ${f1(kills)} | ${eRows.length ? f1(eAvg("ttk")) : "—"} | ${eRows.length ? f0(eAvg("hitsToDie")) : "—"} | ${boss ? f1(boss.ttk) : "—"} | ${boss ? boss.hitsToDie : "—"} |`);
     }
   }
   if (area.id !== "hub" || !AREA) studies.push({ area, em, floor, cap, samples });

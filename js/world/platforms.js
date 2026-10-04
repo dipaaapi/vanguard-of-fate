@@ -1,7 +1,7 @@
 import { GFX } from "../settings.js";
 
 // ==================== CAMPAIGN PLATFORMS (LORE Acts VII–XII) ====================
-// Each Act has its own place, monsters, boss and quest item:
+// Each Act has its own place, monsters (5 regular + 4 elite kinds), sites to scout, boss and quest item:
 //   canopy  VII  Whispering Canopy        (EAST gateway)   boss: Malakor      → Blighted Heartstone
 //   coast   VIII Cerulean Abyss            (WEST gateway)   boss: Leviathan    → Abyssal Helm Shard
 //   frost   IX   Frostfang Precipice       (NORTH gateway)  boss: Cryonix      → Cryonix Core
@@ -50,7 +50,10 @@ export const PLATFORMS = {
     camp: { x: 560, y: 780, w: 160, h: 110 }, gate: { x: 640, y: 878 },
     arena: { x: 470, y: 100, w: 340, h: 230 }, bossSpawn: { x: 630, y: 190 }, boss: "malakor", item: "heartstone",
     arenaName: { en: "Heartwood Grove", fil: "Heartwood Grove" },
-    monsters: ["sporeling", "beastman", "mossTreant", "shadowDrake", "blightHarpy", "sporeHornet", "bogSerpent", "swampCrab"],
+    monsters: ["sporeling", "beastman", "mossTreant", "blightHarpy", "sporeHornet"],
+    elites: ["rotheartDryad", "beastmanChieftain", "thornbackBehemoth", "miasmaHiveQueen"],
+    sites: [{ x: 180, y: 300, name: { en: "Hollow Ironwood", fil: "Hungkag na Ironwood" } }, { x: 1080, y: 280, name: { en: "Dryad Ring", fil: "Bilog ng mga Dryad" } }, { x: 1000, y: 700, name: { en: "Spore Hollow", fil: "Lungga ng mga Spore" } }],
+    trail: { x: 1196, y: 470, dir: "vertical", dest: "swamp" },   // gate to the frontier map (js/world/frontiers.js)
     pathTargets: [[640, 215], [70, 470], [1210, 470]],
     terrain(tx, ty, cols, rows, noise) {
       return noise(tx * 0.12, ty * 0.12) > 0.72 ? "liquid" : null;      // black pools of sap
@@ -98,7 +101,9 @@ export const PLATFORMS = {
     camp: { x: 990, y: 410, w: 170, h: 120 }, gate: { x: 1196, y: 470, dir: "vertical" },
     arena: { x: 290, y: 370, w: 270, h: 220 }, bossSpawn: { x: 300, y: 470 }, boss: "leviathan", item: "abyssHelm",
     arenaName: { en: "Sunken Altar", fil: "Lubog na Altar" },
-    monsters: ["reefCrab", "mariner", "coralGolem", "stormPetrel", "drownedSpecter", "tideSlime", "tideSerpent", "siren", "deepKraken"],
+    monsters: ["reefCrab", "mariner", "coralGolem", "stormPetrel", "tideSlime"],
+    elites: ["siren", "drownedSpecter", "drownedCaptain", "abyssalKraken"],
+    sites: [{ x: 820, y: 200, name: { en: "Wrecked Galleon", fil: "Nawasak na Galyon" } }, { x: 1100, y: 120, name: { en: "Lighthouse Ruin", fil: "Guho ng Parola" } }, { x: 760, y: 720, name: { en: "Pearl Shoals", fil: "Bahura ng Perlas" } }],
     pathTargets: [[425, 480], [700, 60], [700, 900]],
     // The boat waits at the end of the stone causeway heading south (path to [700, 900]).
     // The boat's monolith is the landmark's Celestial Monolith itself (x 120, y 210) in the western sea.
@@ -241,7 +246,10 @@ export const PLATFORMS = {
     camp: { x: 100, y: 760, w: 180, h: 110 }, gate: { x: 190, y: 878 },
     arena: { x: 880, y: 90, w: 300, h: 210 }, bossSpawn: { x: 1020, y: 170 }, boss: "cryonix", item: "cryoCore",
     arenaName: { en: "Glacial Crest", fil: "Glacial Crest" },
-    monsters: ["yeti", "iceGolem", "frostStalker", "wyvern", "blizzardHawk", "frostGargoyle", "frostSerpent", "frozenCrab"],
+    monsters: ["yeti", "iceGolem", "frostStalker", "wyvern", "frozenCrab"],
+    elites: ["frostGargoyle", "frostSerpent", "rimeJotun", "glacierWitch"],
+    sites: [{ x: 300, y: 240, name: { en: "Frozen Shrine", fil: "Nagyelong Dambana" } }, { x: 640, y: 640, name: { en: "Mammoth Graveyard", fil: "Libingan ng mga Mammoth" } }, { x: 900, y: 520, name: { en: "Icefall Bridge", fil: "Tulay ng Talong-Yelo" } }],
+    trail: { x: 1196, y: 820, dir: "vertical", dest: "mountain" },   // gate to the frontier map (js/world/frontiers.js)
     pathTargets: [[1030, 200], [640, 470], [1210, 820], [640, 60]],
     terrain(tx, ty, cols, rows, noise) {
       if (noise(tx * 0.09, ty * 0.09) > 0.7) return "wall";                     // cliffs
@@ -297,7 +305,10 @@ export const PLATFORMS = {
     ore: { count: 10, kinds: [["emberite", 0.6], ["obsidianOre", 0.4]] },   // mining (js/world/mining.js)
     arena: { x: 110, y: 110, w: 330, h: 220 }, bossSpawn: { x: 260, y: 200 }, boss: "ignis", item: "forgeCore",
     arenaName: { en: "Hellforge", fil: "Hellforge" },
-    monsters: ["obsidianGolem", "demonKnight", "hellHound", "imp", "magmaDrake", "fireGargoyle", "lavaSerpent", "lavaCrab"],
+    monsters: ["obsidianGolem", "hellHound", "imp", "magmaDrake", "lavaCrab"],
+    elites: ["fireGargoyle", "lavaSerpent", "hellforgeOverseer", "cinderBehemoth"],
+    sites: [{ x: 700, y: 220, name: { en: "Slag Heaps", fil: "Bunton ng Slag" } }, { x: 520, y: 600, name: { en: "Brimstone Vent", fil: "Butas ng Asupre" } }, { x: 1150, y: 300, name: { en: "Charred Watchpost", fil: "Sunog na Bantayan" } }],
+    trail: { x: 300, y: 878, dest: "desert" },   // gate to the frontier map (js/world/frontiers.js)
     pathTargets: [[275, 220], [640, 90], [1210, 420], [300, 860]],
     terrain(tx, ty, cols, rows, noise) {
       const center = rows * 0.5 + Math.sin(tx * 0.11) * 6 - (tx - cols / 2) * 0.25;
@@ -349,7 +360,9 @@ export const PLATFORMS = {
     camp: { x: 560, y: 790, w: 160, h: 110 }, gate: { x: 640, y: 878 },
     arena: { x: 470, y: 90, w: 340, h: 210 }, bossSpawn: { x: 630, y: 170 }, boss: "commander", item: "imperialCrest",
     arenaName: { en: "Obsidian Throne Hall", fil: "Bulwagan ng Obsidian na Trono" },
-    monsters: ["shockTrooper", "voidSpider", "demonKnight", "abyssalJuggernaut", "shadowDrake", "chaosGargoyle", "specter", "voidSerpent", "corruptedCrab"],
+    monsters: ["shockTrooper", "voidSpider", "demonKnight", "chaosGargoyle", "corruptedCrab"],
+    elites: ["abyssalJuggernaut", "hellfireWarlock", "obsidianSentinel", "infernalWyvern"],
+    sites: [{ x: 300, y: 600, name: { en: "Broken Ballista", fil: "Sirang Ballista" } }, { x: 980, y: 600, name: { en: "Fallen Banner", fil: "Bumagsak na Bandila" } }, { x: 640, y: 420, name: { en: "Gatehouse Rubble", fil: "Guho ng Bantayang-Pinto" } }],
     pathTargets: [[640, 200], [170, 500], [1110, 500]],
     // Rift to the Maw of Damnation (opens once the Commander is defeated)
     rift: { x: 640, y: 150, dest: "maw" },
@@ -412,7 +425,9 @@ export const PLATFORMS = {
     camp: { x: 560, y: 790, w: 160, h: 100 }, gate: { x: 640, y: 874 },
     arena: { x: 460, y: 170, w: 360, h: 230 }, bossSpawn: { x: 630, y: 270 }, boss: "satan", item: "astralAsh",
     arenaName: { en: "Obsidian Dais", fil: "Obsidian Dais" },
-    monsters: ["demonKnight", "obsidianGolem", "abyssalJuggernaut", "specter", "magmaDrake", "chaosGargoyle", "voidSerpent", "deepKraken", "bogSerpent"],
+    monsters: ["voidHusk", "specter", "magmaDrake", "voidSerpent", "deepKraken"],
+    elites: ["fallenSeraph", "abyssBehemoth", "abyssWyrm", "wraithLord"],
+    sites: [{ x: 240, y: 560, name: { en: "Shattered Altar", fil: "Basag na Altar" } }, { x: 1040, y: 560, name: { en: "Ember Isle", fil: "Pulo ng Baga" } }, { x: 640, y: 600, name: { en: "Weeping Spire", fil: "Umiiyak na Tore" } }],
     pathTargets: [[640, 290], [240, 560], [1040, 560], [640, 600]],
     islands: [[640, 840, 150, 90], [640, 290, 280, 190], [240, 560, 150, 110], [1040, 560, 150, 110], [640, 600, 110, 70]],
     terrain(tx, ty, cols, rows, noise) {

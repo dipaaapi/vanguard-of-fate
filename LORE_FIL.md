@@ -62,6 +62,8 @@ Sa pagtatapos ng seremonya, pipili ang bayani sa limang maalamat na class—Knig
 
 Dito rin nabubuksan ang Dual Equipment Matrix, isang sistema ng sandata na nagbabalanse sa atake at depensa. Ang mga bagong class ay maaaring pumili sa pagitan ng Two-Handed (2H) na sandata para sa sukdulang pinsala, o One-Handed at Offhand (1H + OH) na kombinasyon kasama ang mga kalasag, grimoire, o mahiwagang agimat upang harapin ang iba't ibang banta ng kadiliman.
 
+Bago pa man ang Awakening, nagsisimula nang magpaskil ng sariling mga pabuya ang mga kampo ng digmaan sa kapatagan. Lampas sa katimugang daan, numinipis ang damo at nagiging Greyhorn Badlands, lupain ng mapupulang mesa at bangin ng mga fossil kung saan pinatibay ng mga tulisan ang Basag na Tibagan at naglalakad pa ang mga patay ng isang lumang kompanya ng minahan. Pare-pareho ang turing ng mga quartermaster ng Imperyo sa bawat Act ng kampanya: naghihintay ang pangunahing daan hanggang matapos ang mga side quest, lima hanggang sampung gawain ng pangangaso, pagmamanman at pangongolekta ng tropeo na nagpapakain sa mga nayon at nagpapatibay sa Vanguard. Kapag malinis na ang paskilan, saka lamang tatawagin ng Prinsesa (o Prinsipe) ang bayani pasulong.
+
 ---
 
 ## 🛡️ Act V: Ang Dual Equipment Matrix at Estratehikong Pakikidigma
@@ -98,6 +100,8 @@ Sa kaibuturan ng gubat, hinarap ng hukbo ang pinagmumulan ng lason: si Malakor t
 
 Nang muling huminga ang kalikasan, opisyal na sumumpa ng katapatan ang mga pinuno ng mga duwende sa Fated Vanguard, binuksan ang kanilang mga lihim na daan at sinaunang taguan ng sandata. Nang gabing iyon, sa ilalim ng kumikinang na mga puno na matagal nang hindi nagliwanag, nagpahinga ang bayani at ang tagapagtawag. Sa payapang glade sa ilalim ng mga bituin, banayad na hinawakan ng maharlika ang kamay ng bayani, buong pusong ipinagtapat na ang kanyang kaligtasan ay naging higit na mahalaga sa kaharian—at sa kanyang sariling puso—kaysa sa korona mismo.
 
+Sa silangan ng kagubatan, lumulubog ang mga ugat sa itim na tubig. Dating mga palayang hagdan-hagdan ng mga elf ang Gloomwater Fens; ngayon ay lumulutang ang mga witchlight sa ibabaw ng bulok na daanang-kahoy, at isang mire hydra ang nakapulupot sa Lubog na Dambana sa gitna ng latian. Hindi bubuksan ng mga matriarka ang kanilang mga taguan ng sandata hangga't hindi nalilinis ng Vanguard ang mga daanan sa latian, kaya madalas ding dinadala ng mga pabuya ng Act VII at Act VIII ang bayani sa mga tambo nito gaya ng sa gubat.
+
 ---
 
 ## 🌊 Act VIII: Ang Cerulean Abyss at ang mga Lumubog na Monolith
@@ -122,6 +126,8 @@ Sa kuta sa tuktok ng Glacial Crest, hinarap ng bayani si Cryonix the Frost Empre
 
 Nang sumilong sila sa isang lumang batong kubo ng mga dwarf habang nagpapatong ang niyebe sa labas, ginamot ng bayani ang nanlalamig na mga kamay ng tagapagtawag sa tabi ng apoy. Sa init ng lumang bulwagan, malayo sa mga heneral at maharlika, isinandal ng tagapagtawag ang kanyang ulo sa dibdib ng bayani. Masaya ngunit may lungkot silang nagkwentuhan tungkol sa modernong mundo—mga lungsod, sasakyan, at matatayog na gusali—batid na sa yakap ng isa't isa, natagpuan nila ang tunay na tahanan sa gitna ng pagkawasak ng mundo.
 
+Lampas sa silangang balikat ng glacier tumataas ang Stormcrown Highlands, mga taluktok na granite sa itaas ng niyebe kung saan pumupugad ang kulog at nangangaso ang mga griffin. Hawak ng mga mandarambong ng kabundukan at matatandang troll ang mga lagusan, at iniingatan ng mga shaman ng angkan ang kanilang mga bagyo sa Pugad ng Kulog. Hindi ipadadala ng kampo sa paanan ng bulubundukin ang bayani sa Glacial Crest hangga't hindi natutugunan ang mga pabuya ng kabundukan.
+
 ---
 
 ## 🌋 Act X: Ang Kaparangan ng Ashfall at ang Pandayan ng Impiyerno
@@ -133,6 +139,8 @@ Ang mismong kapaligiran ang pinakamatinding sandata ni Satan, nagdudulot ng naka
 Nagbabantay sa sentro ng pandayan si Ignis the Iron Lord, isang dambuhalang demonyong panday na nababalot ng makapal na basalt at nagbabagang asupre. Nagwasiwas si Ignis ng dambuhalang martilyo na nagpapadala ng alon ng apoy sa mga plataporma. Gamit ang mabilis na reflexes at walang-humpay na ganting atake, binalatan ng bayani ang nagniningas na baluti ni Ignis bago isinaksak ang espada sa exposed na magma reactor, na nagpasabog sa buong pandayan at pumutol sa suplay ng sandata ni Satan. Mula sa lumalamig na latak ng bakal, hinugot ng bayani ang Ember Seal Stone, ang huli sa apat, mainit pa mula sa pandayang nagtangkang tunawin ito.
 
 Nang makatakas sila mula sa gumuguhong kuweba, lumabas ang bayani at ang tagapagtawag sa ibabaw ng tagaytay na nakatanaw sa dagat ng abo. Nababalutan ng uling, pawis, at dugo ng demonyo, nagkatinginan sila nang may malalim na damdamin, batid na apat sa pinakamatitibay na kuta ni Satan ang kanilang naibagsak. Sa pagyakap ng maharlika sa pagod na bayani sa ilalim ng lumilipad na baga, sumaludo ang buong hukbo, batid na isang huling martsa na lamang ang natitira bago magpasya ang kapalaran ng Aethelgard.
+
+Sa timog ng Hellforge, napapalitan ng buhangin ang abo. Itinatago ng Sunscorch Dunes ang isang templong mas matanda pa sa korona, ang Nakabaong Templo ng Araw, kung saan naghahari pa rin ang isang scarab monarch at isang tomb king sa pinaputing kalansay ng isang nakalimutang kaharian. Buong caravan ang nilalamon ng mga bagyong buhangin doon, at hinihiling ng kampo sa hilagang tagaytay na linisin ng Vanguard ang mga buhanginan bago ang pagsalakay sa puso ng Hellforge.
 
 ---
 
@@ -159,6 +167,8 @@ Sa kanyang huling galit, tinipon ni Satan ang buong lakas ng Void Miasma upang l
 Habang nagkakawatak-watak ang anyo ng Demon Lord, isang maliit at matatag na liwanag ang umakyat mula sa ipu-ipo kung saan dating naroon ang kanyang puso: ang lampara ng unang tinawag na kaluluwa, tatlong daang taong bilanggo ng selyong siya mismo ang gumawa. Matagal itong nanatili sa tabi ng bayani, ang unang Vanguard na bumabati sa huli, habang nagliliyab sa kalangitan sa ibabaw ng malayong Citadel ang limang dulo ng Pentagram Seal. Buo na ang bituin. Umuwi na ang Lampara.
 
 Sa pagkamatay ni Satan, napawi ang Void Miasma sa kalangitan ng Aethelgard, pinalitan ng maningning na gintong sinag ng tunay na bukang-liwayway sa ibabaw ng sariwang berdeng kapatagan, kumikinang na karagatan, at payapang kabundukan. Tumunog nang may kapayapaan ang mga Celestial Portal, nagbukas ng lagusan pabalik sa modernong Daigdig: ang daang unang nilakaran ng Lantern Knight, at ngayon ay malayang tahakin ng bawat tinawag na kaluluwa. Nakatayo sa hangganan ng dalawang mundo, lumingon ang bayani sa kanyang nakaraan, saka tumingin sa Pinuno na umiiyak habang nakaunat ang kamay nang may pagmamahal. Tinalikuran ang kanyang lumang buhay, hinawakan ng bayani ang kamay ng kanyang minamahal, piniling manatili sa Aethelgard bilang walang-hanggang tagapagtanggol ng kaharian, namumuno sa isang panahon ng walang-katapusang kapayapaan at kasaganaan sa muling isinilang na daigdig.
+
+Dito nagtatapos ang Aklat I, ang salaysay ng Fated Vanguard. Totoo ang bukang-liwayway sa Aethelgard, ngunit bumubukas sa magkabilang direksyon ang mga portal, at ang naghihintay sa kabilang panig ng mga ito ay kuwento para sa Aklat II.
 
 ---
 

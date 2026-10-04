@@ -22,6 +22,9 @@ import { getNovice } from "./classes/novice.js";
 import { equipJob, refreshLook } from "./classes/job.js";
 import { Platform } from "./world/platform.js";
 import { PLATFORMS, PLATFORM_ORDER, SEAL_STONES } from "./world/platforms.js";
+import { FRONTIERS } from "./world/frontiers.js";
+import { areaDef, areaName } from "./world/areas.js";
+import { drawSites } from "./sidequest.js";
 import { QuestManager, MENTOR_BY_CLASS, FINAL_STEP } from "./quest.js";
 import { NPCManager } from "./npc/npcs.js";
 import { NPC_DEFS, MENTOR_OF, summonerIdFor } from "./npc/roster.js";
@@ -170,7 +173,7 @@ const hub = new Stage(1280, 960);
 let stage = hub;
 const platformCache = {};
 function platformById(id) {
-  if (id === "hub" || !PLATFORMS[id]) return hub;
+  if (id === "hub" || !(PLATFORMS[id] || FRONTIERS[id])) return hub;
   if (!platformCache[id]) platformCache[id] = new Platform(id);
   return platformCache[id];
 }
@@ -597,6 +600,8 @@ function autoPotion() {
   if (a.stamina && p.exhausted) use("tonic");
 }
 document.getElementById("loreMore").addEventListener("mousedown", (e) => e.preventDefault());
+// Mouse wheel zooms the world map while it is open
+canvas.addEventListener("wheel", (e) => { if (worldMap.open) { e.preventDefault(); worldMap.wheel(e.deltaY); } }, { passive: false });
 document.getElementById("loreMore").addEventListener("click", () => { Sound.init(); openActReader(); });
 
 // Pause / resume (Esc or the side-panel button)
@@ -720,6 +725,7 @@ function syncPlatformFlags() {
     p.cleared = quest.cleared(p.id);
     if (p.def.rift) p.riftOpen = quest.unlocked(p.def.rift.dest);
     p.miningUnlocked = quest.mining === 2;
+    if (p.trail) p.trailSealed = !quest.unlocked(p.trail.dest);
     // Celestial Monolith: chained until the Leviathan Regent falls; awakened once the Seal Stones are placed
     if (p.boatSystem) {
       p.boatSystem.chained = !p.cleared;
@@ -760,7 +766,7 @@ function travelTo(id, at = null) {
   lockedTarget = null;
   stage = platformById(id);
   syncPlatformFlags();
-  const spot = at || (stage === hub ? hub.arrivalFrom(from) : stage.arrival());
+  const spot = at || (stage === hub ? hub.arrivalFrom(from) : stage.arrivalFrom(from));
   // Arriving on foot: the ship stays behind in the Cerulean Abyss
   player.inBoat = false;
   crewOf().forEach((c) => { c.aboard = false; });
@@ -775,7 +781,7 @@ function travelTo(id, at = null) {
   worldMap.stage = stage;
   worldMap.close();
   const def = stage === hub ? null : stage.def;
-  enemyManager.setArea(stage, def ? def.monsters : undefined, def ? def.tier : 0);
+  enemyManager.setArea(stage, def ? def.monsters : undefined, def ? def.tier : 0, def ? def.elites : undefined, def ? def.levels : null);
   enemyManager.init(player.level);
   projectileManager.clear();
   lootManager.clear();
@@ -788,8 +794,13 @@ function travelTo(id, at = null) {
   if (fx.spawnHitSparks) fx.spawnHitSparks(player.x + 10, player.y + 10, def ? def.color : "#ffd166", 22);
   if (Sound.playPortal) Sound.playPortal();
 
+  // A frontier map: its name and level band in the log
+  if (def && def.frontier) {
+    fx.spawnDamagePopup(player.x + 10, player.y - 14, def.name[lang()].toUpperCase(), true, def.color);
+    chatLog.event("info", def.text[lang()].arrive, dayNight.label());
+  }
   // First arrival on the current Act's platform: the summoner greets the hero
-  if (def && quest.step === quest.baseStep(id)) {
+  if (def && !def.frontier && quest.step === quest.baseStep(id)) {
     quest.onArrive(id);
     const s = npcManager.find(npcManager.summonerId);
     dialog.start(npcManager.summonerId, s && s.avatar, fillNames(def.text[lang()].arrive));
@@ -804,7 +815,7 @@ function travelTo(id, at = null) {
 function handlePortal(portal) {
   if (!player) return;
   const dest = portal.dest;
-  if (portal.id === "RETURN") return travelTo("hub");
+  if (portal.id === "RETURN") return travelTo(portal.dest || "hub");
   if (portal.id === "DARK_CONTINENT_PORTAL" || dest === "dark_continent") {
     // The Celestial Monolith portal is the only way to the Dark Continent (Acts XI–XII)
     if (!quest.unlocked("siege")) {
@@ -825,9 +836,9 @@ function handlePortal(portal) {
     if (Sound.playPortal) Sound.playPortal();
     return;
   }
-  if (dest && PLATFORMS[dest]) {
+  if (dest && dest !== "hub" && areaDef(dest)) {
     if (!quest.unlocked(dest)) {
-      const act = PLATFORMS[dest].act;
+      const act = FRONTIERS[dest] ? FRONTIERS[dest].unlockAct : PLATFORMS[dest].act;
       fx.spawnDamagePopup(player.x + 10, player.y - 10, lang() === "fil" ? `SELYADO · ACT ${act}` : `SEALED · ACT ${act}`, false, "#94a3b8");
       return;
     }
@@ -835,11 +846,56 @@ function handlePortal(portal) {
   }
 }
 
-// Labels of the hub's 4 Warp Gateways: the platform name, sealed until its Act
+// Labels of the hub's Warp Gateways (and the Wayfarer's Gate): the place's name, sealed until its Act
 hub.portals.stateOf = (p) => ({
   sealed: !quest.unlocked(p.dest),
-  label: PLATFORMS[p.dest] ? PLATFORMS[p.dest].name[lang()].toUpperCase() : ""
+  label: areaDef(p.dest) ? areaName(p.dest, lang()).toUpperCase() : ""
 });
+
+// ==================== SIDE QUESTS (Book I, js/sidequest.js) ====================
+// Progress messages, rewards, and the main quest resuming once the Act's side quests are all done
+function sideProgress(results) {
+  if (!results.length || !player) return;
+  const side = quest.side;
+  let finished = false;
+  results.forEach(({ q, trophy, finished: done }) => {
+    if (trophy && !done) {
+      chatLog.event("loot", side.message("trophyGot", { monster: side.monsterName(q), have: q.have, n: q.n }), dayNight.label());
+    }
+    if (!done) return;
+    finished = true;
+    const r = side.reward(q);
+    player.addExp(r.exp);
+    player.gold += r.gold;
+    questHud.toast(`${side.message("done")}: ${side.text(q, false)}`);
+    chatLog.event("exp", `${side.message("done")} · ${side.message("reward", r)}`, dayNight.label());
+    if (Sound.playJingle) Sound.playJingle("quest");
+  });
+  if (!finished) return;
+  if (side.complete()) {
+    questHud.toast(side.message("all"));
+    npcManager.applyQuest(quest, playerClass());
+    syncBoss();
+  }
+  saveGame();
+}
+
+// Where the arrow points while the main quest waits: the site to scout, or the gate toward the side quest's map
+function sideQuestPoint() {
+  const q = quest.side.current();
+  if (!q) return null;
+  if (q.area === stage.id) {
+    const s = quest.side.site(q);
+    return s ? { x: s.x, y: s.y } : null;
+  }
+  if (stage === hub) {
+    const f = FRONTIERS[q.area];
+    const g = hub.portals.portals.find((p) => p.dest === q.area) || (f && hub.portals.portals.find((p) => p.dest === f.from));
+    return g ? { x: g.x, y: g.y } : null;
+  }
+  if (stage.trail && stage.trail.dest === q.area) return { x: stage.trail.x, y: stage.trail.y };
+  return { x: stage.gate.x, y: stage.gate.y };
+}
 
 // Boss defeated: pick up the quest item
 enemyManager.onBossDefeated = (e) => {
@@ -854,6 +910,7 @@ lootManager.onQuestItem = (id) => quest.onQuestItem(id);
 // Bottom tray: EXP from the hero's kills (merged while chaining kills), or a note when an ally took the last hit
 enemyManager.onKill = (e, byPlayer, exp) => {
   codex.recordKill(e.key);
+  sideProgress(quest.side.onKill(e, stage.id));
   const fil = lang() === "fil";
   const name = enemyManager.displayName(e);
   if (!byPlayer) {
@@ -1108,7 +1165,7 @@ function loadGame() {
 
     beginPlaying();
     // Return to the platform where the game was saved (if the quest still allows it)
-    const saved = data.platform && PLATFORMS[data.platform] && quest.unlocked(data.platform) ? data.platform : null;
+    const saved = data.platform && data.platform !== "hub" && areaDef(data.platform) && quest.unlocked(data.platform) ? data.platform : null;
     if (saved) travelTo(saved, { x: player.x, y: player.y });
     return true;
   } catch (e) {
@@ -1165,7 +1222,7 @@ function backToTitle() {
 // ==================== JOB AWAKENING (Act IV: the Imperial Citadel's audience dais) ====================
 // Starts after talking to the summoner at the Citadel (quest step 4).
 function canAwaken(p) {
-  return p && p.heroData.id === "novice" && quest.step === 4;
+  return p && p.heroData.id === "novice" && quest.step === 4 && quest.gateOpen();
 }
 
 function startAwakening() {
@@ -1339,7 +1396,7 @@ window.addEventListener("keydown", (e) => {
     if (!market.open) panelSound(false);
   } else if (worldMap.open) {
     if (e.code === "KeyM" || e.code === "Escape") worldMap.close();
-    else if (e.code === "Tab") worldMap.toggleView();         // Kontinente / Rehiyon
+    else worldMap.handleKey(e);                              // Tab: Kontinente / Rehiyon · zoom, pan, panel
     e.preventDefault();
   } else if (gameState === "PLAYING" && dialog.open) {
     dialog.handleInput(e);
@@ -1630,6 +1687,7 @@ function updateGame() {
   });
 
   quest.update(player);
+  sideProgress(quest.side.onMove(stage.id, player.x + 10, player.y + 18));
   npcManager.update(player, enemyManager, fx);
 
   mercManager.update(player, enemyManager, lootManager, fx, (proj) => projectileManager.add(proj), stage);
@@ -1687,6 +1745,7 @@ function drawHealBeam() {
 // Golden arrow at the screen edge pointing to the quest objective (when off screen)
 // Where the objective is in the current place: an NPC, a boss, or the way to the next platform
 function objectivePoint() {
+  if (quest.gated()) return sideQuestPoint();
   const npc = npcManager.find(quest.targetNpc(npcManager.summonerId, playerClass()));
   if (npc) return { x: npc.x, y: npc.y - 18 };
   const boss = enemyManager.boss();
@@ -1758,6 +1817,10 @@ function renderGameWorld() {
   ctx.translate(Math.round(-camera.x + offsetX), Math.round(-camera.y + offsetY));
 
   stage.draw(ctx, player);
+  if (player) {
+    const cur = quest.side.current();
+    drawSites(ctx, quest.side.pendingSites(stage.id), performance.now() / 16, cur && cur.area === stage.id ? quest.side.site(cur) : null);
+  }
   const footY = player ? player.y + 21 : 0;
   npcManager.drawLayer(ctx, footY, false);   // NPCs behind the player
   lootManager.draw(ctx);
@@ -1821,7 +1884,9 @@ function renderGameWorld() {
       act: tq.act,
       goal: tq.goal,
       quest,
-      stageId: stage.id
+      stageId: stage.id,
+      objective: objectivePoint(),
+      sites: quest.side.pendingSites(stage.id)
     });
   }
 

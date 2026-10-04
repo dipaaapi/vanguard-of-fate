@@ -2,7 +2,7 @@ import { getLang } from "./i18n.js";
 import { npcName } from "./dialogue.js";
 import { NPC_DEFS } from "./npc/roster.js";
 import { MONSTERS, BOSSES, NIGHT_KINDS } from "./bestiary.js";
-import { HUB_KINDS } from "./enemy.js";
+import { BOOK_ONE_AREAS, areaDef } from "./world/areas.js";
 import { PLATFORMS, PLATFORM_ORDER } from "./world/platforms.js";
 import { codexItems, getItem, statText, skillText, slotName, SETS, setThresholds, RARITY } from "./items/itemdb.js";
 import { iconURL } from "./items/icons.js";
@@ -243,9 +243,10 @@ export class Codex {
         if (plat) row(T.arena, `Act ${plat.act} · ${plat.arenaName[Lg]}`);
         if (k.drop) row(T.drop, getItem(k.drop).name);
       } else {
-        const where = PLATFORM_ORDER.filter((id) => PLATFORMS[id].monsters.includes(e.id)).map((id) => PLATFORMS[id].name[Lg]);
-        if (HUB_KINDS.includes(e.id)) where.unshift("Aethelgard");
-        if (NIGHT_KINDS.includes(e.id)) where.push(`Aethelgard (${T.night})`);
+        // Every map that has it as a regular or an elite kind ("Elite" is the tier name in both languages)
+        const where = BOOK_ONE_AREAS.map(areaDef).filter((d) => d.monsters.includes(e.id) || (d.elites || []).includes(e.id))
+          .map((d) => `${d.name[Lg]}${(d.elites || []).includes(e.id) ? " (Elite)" : ""}`);
+        if (NIGHT_KINDS.includes(e.id)) where.push(`${areaDef("hub").name[Lg]} (${T.night})`);
         row(T.habitat, where.join(" · ") || "—");
       }
       row(T.kills, String(this.kills[e.id] || 0));

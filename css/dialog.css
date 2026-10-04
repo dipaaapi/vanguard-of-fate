@@ -63,6 +63,13 @@
 .ql-row.done .ql-goal { color: #64748b; text-decoration: line-through; }
 .ql-row.current .ql-mark, .ql-row.current .ql-act { color: #ffd166; }
 .ql-row.locked { opacity: 0.45; }
+/* Book I side quests under the current step, and the Book II teaser */
+.ql-side { margin: calc(1px * var(--s)) 0 calc(3px * var(--s)) calc(9px * var(--s)); padding: calc(2px * var(--s)) calc(4px * var(--s)); border-left: 1px solid #ffd16655; background: rgba(255, 209, 102, 0.04); }
+.ql-side-h { font-size: calc(4.5px * var(--s)); color: #ffd166; letter-spacing: 0.1em; text-transform: uppercase; padding-bottom: calc(1px * var(--s)); }
+.ql-row.side { border-top-color: #1c2740; padding: calc(2px * var(--s)) 0; }
+.ql-row.side .ql-goal { font-size: calc(5px * var(--s)); }
+.ql-row.side.current .ql-mark, .ql-row.side.current .ql-act { color: #fbbf24; }
+.ql-book { margin-top: calc(6px * var(--s)); padding: calc(3px * var(--s)); border: 1px dashed #334155; text-align: center; font-size: calc(4.8px * var(--s)); color: #64748b; letter-spacing: 0.12em; text-transform: uppercase; }
 .ql-foot { margin-top: calc(6px * var(--s)); text-align: center; font-size: calc(4.5px * var(--s)); color: #64748b; }
 
 /* ---------- INVENTORY (I) ---------- */

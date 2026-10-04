@@ -21,8 +21,8 @@ export const T = {
 };
 
 // ---------- THEMES ----------
-// deco: flowers | mushrooms | shells | ice | embers | rubble | void
-// tree: oak | weeping | pine | seastack | spire | ruin | pillar
+// deco: flowers | mushrooms | shells | ice | embers | rubble | void | pebbles | reeds | sand
+// tree: oak | weeping | pine | seastack | spire | ruin | pillar | hoodoo | cypress | crag | cactus
 export const THEMES = {
   aethelgard: {
     grass: ["#1d4a34", "#1f4f37", "#1a4531"], grassLight: "#2b6647", grassDark: "#153a29",
@@ -79,6 +79,39 @@ export const THEMES = {
     liquid: { base: "#2b0f4a", light: "#6a2c9e", dark: "#150726", rim: "#c77dff" },
     wall: { base: "#1f1a26", light: "#322a3d", dark: "#110e16" },
     tree: "pillar", rock: ["#2a2433", "#3f3650", "#5f5270"], bush: "bones", treeDensity: 0.72
+  },
+  // ---- Frontier maps (js/world/frontiers.js) ----
+  rocky: {
+    grass: ["#8a7357", "#846d52", "#90795c"], grassLight: "#a88f6e", grassDark: "#6b5a41",
+    dirt: ["#6b5a41", "#66563d"], dirtLight: "#7b6a4e", dirtDark: "#544631",
+    deco: "pebbles", decoColors: ["#a8a29e", "#d6d3d1", "#e7e5e4"],
+    liquid: { base: "#4a5a52", light: "#6b7d72", dark: "#2f3a34", rim: "#a8a29e" },
+    wall: { base: "#9a6a3a", light: "#c08a52", dark: "#6b4426" },
+    tree: "hoodoo", rock: ["#57534e", "#78716c", "#a8a29e"], bush: "boulder", treeDensity: 0.5
+  },
+  swamp: {
+    grass: ["#2f3a26", "#2b3523", "#33402a"], grassLight: "#4d5c3a", grassDark: "#1f2819",
+    dirt: ["#3b3322", "#372f1f"], dirtLight: "#4d4330", dirtDark: "#2a2418",
+    deco: "reeds", decoColors: ["#bef264", "#a3a35a", "#f0abfc"],
+    liquid: { base: "#1f2e26", light: "#3a5a3f", dark: "#121c17", rim: "#84cc16" },
+    wall: { base: "#3b3322", light: "#4d4330", dark: "#241f14" },
+    tree: "cypress", rock: ["#3f4a3a", "#57634f", "#7b8a6e"], bush: "reeds", treeDensity: 0.68
+  },
+  highland: {
+    grass: ["#4d6b3a", "#486536", "#53723e"], grassLight: "#6f8f52", grassDark: "#36502a",
+    dirt: ["#6b6255", "#665d50"], dirtLight: "#827868", dirtDark: "#4f483e",
+    deco: "flowers", decoColors: ["#c4b5fd", "#fde047", "#f9fafb"],
+    liquid: { base: "#2c5f7a", light: "#4a8db0", dark: "#1c4257", rim: "#e0f2fe" },
+    wall: { base: "#5b6370", light: "#7d8694", dark: "#3b414b" },
+    tree: "crag", rock: ["#4b5563", "#6b7280", "#9ca3af"], bush: "heather", treeDensity: 0.55
+  },
+  desert: {
+    grass: ["#d9b87a", "#d4b273", "#dfc084"], grassLight: "#ecd5a4", grassDark: "#b8955a",
+    dirt: ["#b08a52", "#a8834c"], dirtLight: "#c49e66", dirtDark: "#8a6a3a",
+    deco: "sand", decoColors: ["#e7e5e4", "#a16207", "#fef3c7"],
+    liquid: { base: "#a88a5a", light: "#c4a676", dark: "#7a6240", rim: "#ecd5a4" },
+    wall: { base: "#c08a52", light: "#dca86e", dark: "#8a5a32" },
+    tree: "cactus", rock: ["#8a6a3a", "#b08a52", "#d4b273"], bush: "tumbleweed", treeDensity: 0.45
   }
 };
 
@@ -153,6 +186,17 @@ function drawDeco(ctx, x, y, color, rnd, th) {
     case "void":
       px(ctx, cx - 3, cy, "#110e16", 6, 1); px(ctx, cx - 1, cy - 1, "#110e16", 2, 1);
       px(ctx, cx - 2, cy, color, 4, 1);
+      break;
+    case "pebbles":
+      px(ctx, cx - 2, cy, color, 2, 1); px(ctx, cx + 1, cy + 1, color, 2, 2); px(ctx, cx - 1, cy + 3, th.grassDark, 3, 1);
+      break;
+    case "reeds":
+      px(ctx, cx - 1, cy - 2, th.grassLight, 1, 5); px(ctx, cx + 1, cy - 3, th.grassLight, 1, 6); px(ctx, cx + 3, cy - 1, th.grassDark, 1, 4);
+      px(ctx, cx + 1, cy - 4, color, 1, 2);
+      break;
+    case "sand":
+      px(ctx, cx - 3, cy + 1, th.grassLight, 6, 1); px(ctx, cx - 1, cy, th.grassLight, 3, 1);
+      if (color === "#e7e5e4") { px(ctx, cx - 2, cy - 2, color, 4, 1); px(ctx, cx - 2, cy - 3, color); px(ctx, cx + 1, cy - 1, color); } // a bleached bone
       break;
     default: // flowers
       px(ctx, cx, cy + 1, th.grassDark, 1, 3);
@@ -385,7 +429,62 @@ function drawPillar(ctx, x, y, rnd) {
   px(ctx, x + 15, y + 18, "#ff7a1a", 1, 3);
 }
 
-const TREES = { oak: drawOak, weeping: drawWeeping, pine: drawPine, seastack: drawSeastack, spire: drawSpire, ruin: drawRuin, pillar: drawPillar };
+// Sandstone hoodoo (Greyhorn Badlands): stacked, striped rock with a cap stone
+function drawHoodoo(ctx, x, y, rnd) {
+  const h = 18 + Math.floor(rnd() * 10);
+  for (let r = 30 - h; r < 30; r++) {
+    const w = 4 + Math.round(Math.sin(r * 0.5) * 1.5) + (r > 24 ? 2 : 0);
+    px(ctx, x + 16 - w, y + r, r % 6 < 3 ? "#b0743e" : "#c88a52", w * 2, 1);
+    px(ctx, x + 16 - w, y + r, "#d9a46a", 1, 1);
+    px(ctx, x + 15 + w, y + r, "#7a4a26", 1, 1);
+  }
+  px(ctx, x + 10, y + 30 - h - 3, "#78716c", 12, 3);
+  px(ctx, x + 10, y + 30 - h - 3, "#a8a29e", 12, 1);
+}
+
+// Bald cypress with hanging moss (Gloomwater Fens)
+function drawCypress(ctx, x, y, rnd) {
+  px(ctx, x + 13, y + 18, "#3b2f22", 6, 12);
+  px(ctx, x + 11, y + 27, "#3b2f22", 2, 3); px(ctx, x + 19, y + 27, "#3b2f22", 2, 3);   // knees
+  fillCircle(ctx, x + 16, y + 10, 11, "#1f2e1c");
+  fillCircle(ctx, x + 14, y + 8, 7, "#2f4426");
+  fillCircle(ctx, x + 20, y + 11, 5, "#2f4426");
+  for (let k = 0; k < 5; k++) {
+    const mx = x + 7 + k * 4 + Math.floor(rnd() * 2);
+    px(ctx, mx, y + 14, "#8a9a6a", 1, 4 + Math.floor(rnd() * 6));                  // hanging moss
+  }
+  if (rnd() < 0.4) px(ctx, x + 18, y + 6, "#bef264");
+}
+
+// Wind-bent pine on a crag (Stormcrown Highlands)
+function drawCrag(ctx, x, y, rnd) {
+  fillCircle(ctx, x + 16, y + 27, 6, "#5b6370");
+  px(ctx, x + 11, y + 22, "#7d8694", 6, 2);
+  px(ctx, x + 15, y + 12, "#4a3222", 3, 12);
+  const lean = rnd() < 0.5 ? -1 : 1;
+  [[6, 7], [10, 9], [14, 11]].forEach(([ty, hw], k) => {
+    for (let r = 0; r < 4; r++) {
+      const w = Math.round((hw * (r + 1)) / 4);
+      px(ctx, x + 16 - w + lean * (3 - k), y + ty + r, r % 2 ? "#2d4a2a" : "#3a5f36", w * 2, 1);
+    }
+  });
+  px(ctx, x + 15 + lean * 3, y + 3, "#3a5f36", 2, 3);
+}
+
+// Saguaro-style cactus (Sunscorch Dunes)
+function drawCactus(ctx, x, y, rnd) {
+  const G = "#4d7c3a", D = "#365a28", L = "#6b9a52";
+  px(ctx, x + 14, y + 6, G, 5, 24); px(ctx, x + 14, y + 6, L, 1, 24); px(ctx, x + 18, y + 6, D, 1, 24);
+  px(ctx, x + 15, y + 4, G, 3, 2);
+  const armL = 12 + Math.floor(rnd() * 6), armR = 9 + Math.floor(rnd() * 6);
+  px(ctx, x + 9, y + armL, G, 5, 3); px(ctx, x + 9, y + armL - 7, G, 3, 8); px(ctx, x + 9, y + armL - 7, L, 1, 8);
+  px(ctx, x + 19, y + armR, G, 5, 3); px(ctx, x + 21, y + armR - 6, G, 3, 7); px(ctx, x + 23, y + armR - 6, D, 1, 7);
+  for (let i = 0; i < 6; i++) px(ctx, x + 14 + Math.floor(rnd() * 5), y + 8 + Math.floor(rnd() * 20), "#d9f99d");
+  if (rnd() < 0.35) { px(ctx, x + 15, y + 3, "#f472b6", 2, 1); px(ctx, x + 16, y + 2, "#fbcfe8"); }   // flower
+}
+
+const TREES = { oak: drawOak, weeping: drawWeeping, pine: drawPine, seastack: drawSeastack, spire: drawSpire, ruin: drawRuin, pillar: drawPillar,
+  hoodoo: drawHoodoo, cypress: drawCypress, crag: drawCrag, cactus: drawCactus };
 
 function drawTree(ctx, x, y, seed, kind = "oak") {
   const rnd = mulberry32(seed);
@@ -449,6 +548,22 @@ export function drawBush(ctx, x, y, seed, kind = "berry") {
     case "crate":
       px(ctx, x + 3, y + 5, "#7a5230", 10, 8); px(ctx, x + 3, y + 5, "#9a6a40", 10, 1);
       px(ctx, x + 3, y + 8, "#5e3b1a", 10, 1); px(ctx, x + 7, y + 5, "#5e3b1a", 1, 8);
+      break;
+    case "boulder":
+      fillCircle(ctx, x + 8, y + 9, 5, "#78716c"); fillCircle(ctx, x + 7, y + 8, 3, "#a8a29e"); px(ctx, x + 10, y + 10, "#57534e", 2, 1);
+      break;
+    case "reeds":
+      for (let k = 0; k < 5; k++) px(ctx, x + 4 + k * 2, y + 4 + (k % 2) * 2, k % 2 ? "#5b6b3f" : "#7a8a52", 1, 9 - (k % 2) * 2);
+      px(ctx, x + 6, y + 3, "#5e3b1a", 1, 3); px(ctx, x + 10, y + 4, "#5e3b1a", 1, 3);   // cattails
+      break;
+    case "heather":
+      fillCircle(ctx, x + 8, y + 10, 4, "#4d6b3a");
+      for (let k = 0; k < 5; k++) px(ctx, x + 5 + Math.floor(rnd() * 7), y + 7 + Math.floor(rnd() * 4), "#c4b5fd");
+      break;
+    case "tumbleweed":
+      ctx.strokeStyle = "#a8834c"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(x + 8, y + 9, 4, 0, Math.PI * 2); ctx.stroke();
+      px(ctx, x + 6, y + 8, "#8a6a3a", 4, 1); px(ctx, x + 8, y + 6, "#8a6a3a", 1, 5);
       break;
     case "bones":
       px(ctx, x + 3, y + 10, "#e9e4d4", 9, 1); px(ctx, x + 3, y + 9, "#e9e4d4"); px(ctx, x + 11, y + 11, "#e9e4d4");
