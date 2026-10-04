@@ -227,7 +227,7 @@ export class ProjectileManager {
               }
 
               if (p.merc) enemyManager.damage(e, Math.round((p.damage || 22) * p.power), hitAngle, false, fx, lootManager, pushDist, isStun, null);
-              else enemyManager.damage(e, 22, hitAngle, false, fx, lootManager, pushDist, isStun, player);
+              else enemyManager.damage(e, p.damage || 22, hitAngle, false, fx, lootManager, pushDist, isStun, player);   // the kit's arrow damage (was a fixed 22)
             }
             break;
           }
