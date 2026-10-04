@@ -122,7 +122,7 @@
   "tools/audio/render-audio.mjs": "Offline renders of the music, jingles and SFX to WAV/MP3 with peak/RMS checks: node tools/audio/render-audio.mjs [music|jingles|sfx|<name>…] [--mp3] [--out dir]; exits 1 on clipping or silence",
   "js/settings.js": "Settings shared by the title Options and the in-game Settings panel (O): SETTINGS list (volumes, FPS limit, brightness, shadows, glow, quality…), load/normalize/save vanguard_config, stepSetting, GFX drawing flags, glowAt cached additive halo, toggleFullscreen, SettingsPanel overlay",
   "js/market.js": "Safe-zone Market (B): buy the stock in data/market.json and sell bag items for half price from anywhere inside a sanctuary; HTML overlay with Buy/Sell tabs, bulk buy and Sell all Normal gear",
-  "js/skillslots.js": "Hotbar skill slots J/K/L: which ability sits in each slot (drag and drop), logical() maps a pressed key to its slot's ability for the controller and main.js, saved as skillSlots",
+  "js/skillslots.js": "Hotbar skill slots J/K/L: which ability sits in each slot (drag and drop), logical() maps a pressed key to its slot's ability for the controller and main.js, saved as skillKeys; ActionPanel.addSlotGroup adds more slot groups (e.g. path actives)",
   "css/controls.css": "Hotbar and skill book in the bottom tray, side-panel world map, Market and Settings overlays (sized by --s)",
   "data/market.json": "Market (B) stock, buy quantities and EN/FIL wording",
   "scripts/test-loot-drop.mjs": "Headless test: drops thrown into walls, water, cliffs and unreachable pockets on the hub and every platform land on walkable ground (loot.js findNearestWalkableSpot)"

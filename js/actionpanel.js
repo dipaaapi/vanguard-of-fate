@@ -42,6 +42,7 @@ const TEXT = {
   }
 };
 const tx = (k) => (TEXT[getLang()] || TEXT.en)[k];
+const classOf = (p) => (p && SKILLS[p.heroData.id] ? p.heroData.id : "novice");
 
 function keyLabel(code) {
   if (code === "Space") return "SPACE";
@@ -64,14 +65,30 @@ export class ActionPanel {
     this.bookEl = document.getElementById("skillBook");
     this.editing = false;
     this.drag = null;
+    // Slot group: { id, keys: [key codes], list(player) → [{ id, icon, name }], current(player) → [id | null]
+    //   per key, assign(player, slot, id) → true when changed, cooldown(player, id) → 0..1 }
+    this.groups = [{
+      id: "class",
+      keys: SLOT_KEYS,
+      list: (p) => ABILITIES.map((a) => { const [icon, name] = SKILLS[classOf(p)][a]; return { id: a, icon, name }; }),
+      current: () => SkillSlots.slots,
+      assign: (p, i, id) => SkillSlots.assign(i, id),
+      cooldown: (p, id) => {
+        const hd = p.heroData;
+        if (id === "J") return hd.attackCooldown ? p.attackCooldownTimer / hd.attackCooldown : 0;
+        if (id === "K") return hd.cooldown ? p.skillCooldownTimer / hd.cooldown : 0;
+        return hd.cooldown2 ? p.skill2CooldownTimer / hd.cooldown2 : 0;
+      }
+    }];
     this.cls = null;
     this.cache = {};
     this.buttons = {};
     this.build();
     onLangChange(() => { this.cls = null; this.build(); });
     SkillSlots.onChange(() => { this.cls = null; this.cache = {}; if (this.editing) this.renderBook(); });
-    // Any element with data-skill="J|K|L" can be dragged onto a hotbar slot (the skill book's cards,
-    // the slots themselves while arranging, and skill entries elsewhere that opt in)
+    // Any element with data-skill="<id>" (and data-group="<group id>", default "class") can be dragged
+    // onto a slot of its group: the skill book's cards, the slots themselves while arranging, and skill
+    // entries elsewhere (e.g. the Character panel) that opt in
     document.addEventListener("pointerdown", (e) => this.dragStart(e));
     window.addEventListener("pointermove", (e) => this.dragMove(e));
     window.addEventListener("pointerup", (e) => this.dragEnd(e));
@@ -123,13 +140,18 @@ export class ActionPanel {
     this.skillsEl.innerHTML = "";
     this.optionsEl.innerHTML = "";
 
-    // J/K/L are slots: each shows (and casts) the ability placed in it
-    this.slotButtons = SLOT_KEYS.map((code, i) => {
-      const b = this.holdButton(code);
-      b.dataset.slot = String(i);
-      return b;
+    // Skill slots, group by group: J/K/L (the class abilities) first, then any group added with
+    // addSlotGroup. Each slot shows (and casts) the skill placed in it.
+    this.groups.forEach((g) => {
+      g.buttons = g.keys.map((code, i) => {
+        const b = this.holdButton(code);
+        b.dataset.slot = String(i);
+        b.dataset.group = g.id;
+        return b;
+      });
     });
-    [this.buttons.J, this.buttons.K, this.buttons.L] = this.slotButtons;
+    [this.buttons.J, this.buttons.K, this.buttons.L] = this.groups[0].buttons;
+    this.groups.slice(1).forEach((g) => g.buttons.forEach((b, i) => { this.buttons[`${g.id}${i}`] = b; }));
     this.buttons.Space = this.holdButton("Space");
     this.buttons.E = this.holdButton("KeyE");
     this.set(this.buttons.Space, "💨", tx("sprint"));
@@ -199,6 +221,18 @@ export class ActionPanel {
     this.cache = {};
   }
 
+  // ---------- SLOT GROUPS ----------
+  // More skills on the hotbar (e.g. the skill-path actives): their slots appear after J/K/L and their
+  // skills in the skill book; drag and drop works within a group.
+  addSlotGroup(group) {
+    this.groups = this.groups.filter((g) => g.id !== group.id).concat(group);
+    this.cls = null;
+    this.build();
+  }
+
+  allSlots() { return this.groups.flatMap((g) => g.buttons || []); }
+  groupOf(el) { return this.groups.find((g) => g.id === el.dataset.group); }
+
   // ---------- ARRANGING SKILLS (drag and drop) ----------
   setEditing(on) {
     this.editing = Boolean(on);
@@ -206,45 +240,61 @@ export class ActionPanel {
     this.skillsEl.classList.toggle("editing", this.editing);
     this.editBtn.classList.toggle("on", this.editing);
     if (this.bookEl) this.bookEl.classList.toggle("open", this.editing);
-    this.slotButtons.forEach((b, i) => {
-      if (this.editing) b.dataset.skill = SkillSlots.slots[i];
-      else delete b.dataset.skill;
-    });
+    this.markSlots();
     if (this.editing) this.renderBook();
   }
 
-  // The skill book: every ability of the class as a draggable card
+  // While arranging, a slot can be dragged as the skill it holds
+  markSlots() {
+    this.groups.forEach((g) => (g.buttons || []).forEach((b, i) => {
+      const id = this.editing && this.player ? (g.current(this.player) || [])[i] : null;
+      if (id) b.dataset.skill = id;
+      else delete b.dataset.skill;
+    }));
+  }
+
+  // The skill book: every skill of every group as a draggable card, with the key it sits on
   renderBook() {
-    if (!this.bookEl) return;
-    this.slotButtons.forEach((b, i) => { if (this.editing) b.dataset.skill = SkillSlots.slots[i]; });
-    const cls = this.player && SKILLS[this.player.heroData.id] ? this.player.heroData.id : "novice";
+    if (!this.bookEl || !this.player) return;
+    this.markSlots();
+    const p = this.player;
     this.bookEl.textContent = "";
+    this.groups.forEach((g) => {
+      const cur = g.current(p) || [];
+      g.list(p).forEach((sk) => {
+        const card = document.createElement("span");
+        card.className = "sb-card";
+        card.dataset.skill = sk.id;
+        card.dataset.group = g.id;
+        const ic = document.createElement("i");
+        ic.textContent = sk.icon;
+        const nm = document.createElement("span");
+        nm.textContent = sk.name;
+        card.append(ic, nm);
+        const at = cur.indexOf(sk.id);
+        if (at >= 0) {
+          const k = document.createElement("kbd");
+          k.textContent = keyLabel(g.keys[at]);
+          card.appendChild(k);
+        }
+        this.bookEl.appendChild(card);
+      });
+    });
     const hint = document.createElement("span");
     hint.className = "sb-hint";
     hint.textContent = tx("book");
-    ABILITIES.forEach((a) => {
-      const [icon, name] = SKILLS[cls][a];
-      const card = document.createElement("span");
-      card.className = "sb-card";
-      card.dataset.skill = a;
-      const ic = document.createElement("i");
-      ic.textContent = icon;
-      const nm = document.createElement("span");
-      nm.textContent = name;
-      const k = document.createElement("kbd");
-      k.textContent = SLOT_KEYS[SkillSlots.slotOf(a)].replace("Key", "");
-      card.append(ic, nm, k);
-      this.bookEl.appendChild(card);
-    });
     this.bookEl.appendChild(hint);
   }
 
   dragStart(e) {
     const src = e.target.closest && e.target.closest("[data-skill]");
-    if (!src || !ABILITIES.includes(src.dataset.skill)) return;
+    if (!src || !this.player) return;
     if (src.dataset.slot !== undefined && !this.editing) return;
+    const g = this.groups.find((x) => x.id === (src.dataset.group || "class"));
+    const sk = g && g.list(this.player).find((x) => x.id === src.dataset.skill);
+    if (!sk) return;
     e.preventDefault();
-    this.drag = { ability: src.dataset.skill, x: e.clientX, y: e.clientY, ghost: null, src };
+    this.drag = { group: g, skill: sk, x: e.clientX, y: e.clientY, ghost: null, src };
   }
 
   dragMove(e) {
@@ -252,26 +302,26 @@ export class ActionPanel {
     if (!d) return;
     if (!d.ghost) {
       if (Math.hypot(e.clientX - d.x, e.clientY - d.y) < 4) return;
-      const cls = this.player && SKILLS[this.player.heroData.id] ? this.player.heroData.id : "novice";
       d.ghost = document.createElement("div");
       d.ghost.className = "sb-ghost";
-      d.ghost.textContent = `${SKILLS[cls][d.ability][0]} ${SKILLS[cls][d.ability][1]}`;
+      d.ghost.textContent = `${d.skill.icon} ${d.skill.name}`;
       document.body.appendChild(d.ghost);
       d.src.classList.add("dragging");
     }
     d.ghost.style.left = `${e.clientX + 8}px`;
     d.ghost.style.top = `${e.clientY + 8}px`;
-    const over = this.slotAt(e.clientX, e.clientY);
-    this.slotButtons.forEach((b) => b.classList.toggle("drop", b === over));
+    const over = this.slotAt(e.clientX, e.clientY, d.group);
+    this.allSlots().forEach((b) => b.classList.toggle("drop", b === over));
   }
 
   dragEnd(e) {
     const d = this.drag;
     if (!d) return;
-    const target = d.ghost ? this.slotAt(e.clientX, e.clientY) : null;
+    const target = d.ghost ? this.slotAt(e.clientX, e.clientY, d.group) : null;
     this.dragCancel();
-    if (target) {
-      SkillSlots.assign(Number(target.dataset.slot), d.ability);
+    if (target && this.player && d.group.assign(this.player, Number(target.dataset.slot), d.skill.id)) {
+      this.cls = null;
+      if (this.editing) this.renderBook();
       if (this.handlers.slotsChanged) this.handlers.slotsChanged();
     }
   }
@@ -281,13 +331,14 @@ export class ActionPanel {
     this.drag = null;
     if (d && d.ghost) d.ghost.remove();
     if (d && d.src) d.src.classList.remove("dragging");
-    (this.slotButtons || []).forEach((b) => b.classList.remove("drop"));
+    this.allSlots().forEach((b) => b.classList.remove("drop"));
   }
 
-  slotAt(x, y) {
+  // The slot under the pointer, only in the dragged skill's group
+  slotAt(x, y, group) {
     const el = document.elementFromPoint(x, y);
     const b = el && el.closest && el.closest("[data-slot]");
-    return b && this.slotButtons.includes(b) ? b : null;
+    return b && group.buttons && group.buttons.includes(b) ? b : null;
   }
 
   set(btn, icon, name) {
@@ -317,23 +368,24 @@ export class ActionPanel {
     const p = s.player;
     if (!p) return;
     this.player = p;
-    const cls = SKILLS[p.heroData.id] ? p.heroData.id : "novice";
-    if (cls !== this.cls) {
-      this.cls = cls;
-      this.slotButtons.forEach((b, i) => {
-        const [icon, name] = SKILLS[cls][SkillSlots.slots[i]];
-        this.set(b, icon, name);
+    // Slot labels follow the class and what each slot holds; an empty slot is dimmed
+    const sig = classOf(p) + "|" + this.groups.map((g) => (g.current(p) || []).join(",")).join("|");
+    if (sig !== this.cls) {
+      this.cls = sig;
+      this.groups.forEach((g) => {
+        const list = g.list(p), cur = g.current(p) || [];
+        g.buttons.forEach((b, i) => {
+          const sk = list.find((x) => x.id === cur[i]);
+          this.set(b, sk ? sk.icon : "·", sk ? sk.name : "—");
+          b.classList.toggle("empty", !sk);
+        });
       });
       if (this.editing) this.renderBook();
     }
-
-    const hd = p.heroData;
-    const cd = {
-      J: hd.attackCooldown ? p.attackCooldownTimer / hd.attackCooldown : 0,
-      K: hd.cooldown ? p.skillCooldownTimer / hd.cooldown : 0,
-      L: hd.cooldown2 ? p.skill2CooldownTimer / hd.cooldown2 : 0
-    };
-    this.slotButtons.forEach((b, i) => this.setCooldown(b, `cd${i}`, cd[SkillSlots.slots[i]]));
+    this.groups.forEach((g) => {
+      const cur = g.current(p) || [];
+      g.buttons.forEach((b, i) => this.setCooldown(b, `cd${g.id}${i}`, cur[i] ? g.cooldown(p, cur[i]) : 0));
+    });
     if (this.util) {
       this.toggle(this.util.market, "marketOff", "off", !s.inSanctuary);
       this.util.market.title = s.inSanctuary ? tx("market") : tx("marketShut");

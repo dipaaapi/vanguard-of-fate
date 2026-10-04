@@ -2,7 +2,7 @@
 // The hotbar has one slot per skill key (J, K, L). Each slot holds an ability; the class code reads
 // abilities as the keys they were written for ("KeyJ" = first ability, …), so a key press is
 // translated to the ability in that slot before it reaches the controller (logical()).
-// The arrangement is saved with the hero (save payload: skillSlots).
+// The arrangement is saved with the hero (save payload: skillKeys).
 
 export const SLOT_KEYS = ["KeyJ", "KeyK", "KeyL"];
 export const ABILITIES = ["J", "K", "L"];

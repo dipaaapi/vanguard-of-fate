@@ -906,7 +906,7 @@ function getSavePayload() {
     skills: { ...player.skillLevels },
     skillPoints: player.skillPoints,
     belt: [...player.belt],
-    skillSlots: SkillSlots.serialize(),     // J/K/L arrangement on the hotbar
+    skillKeys: SkillSlots.serialize(),      // J/K/L arrangement on the hotbar (skill book, P)
     autoPot: { ...player.autoPot },
     codex: codex.serialize(),
     dayTick: dayNight.serialize(),
@@ -1035,7 +1035,7 @@ function loadGame() {
     dayNight.load(data.dayTick);
     codex.load(data.codex);
     if (Array.isArray(data.belt)) player.belt = data.belt.slice(0, 4).map((x) => x || null);
-    SkillSlots.load(data.skillSlots);
+    SkillSlots.load(data.skillKeys);
     if (data.autoPot) player.autoPot = { hp: data.autoPot.hp | 0, cure: Boolean(data.autoPot.cure), stamina: Boolean(data.autoPot.stamina) };
     // Bag: an old save without a bag → the class's default gear
     if (data.bag) player.bag.load(data.bag);
