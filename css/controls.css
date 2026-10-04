@@ -11,7 +11,7 @@
   container-type: inline-size;
 }
 .tb-group { display: flex; flex-direction: column; min-width: 0; }
-.tb-group.skills { flex: 5 1 0; }
+.tb-group.skills { flex: 7 1 0; }
 .tb-group.belt { flex: 2.4 1 0; }
 .tb-group.util { flex: 1.6 1 0; }
 .tb-label {

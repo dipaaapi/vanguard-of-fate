@@ -55,7 +55,7 @@ The full story lives in [LORE.md](LORE.md) (Filipino: [LORE_FIL.md](LORE_FIL.md)
 | **Q / I / C / N** | Quest log / Inventory / Character / Codex |
 | **M** | World map (also the live map in the right panel; click it) |
 | **B** | Market: buy and sell from anywhere inside a safe zone |
-| **P** | Arrange skills: drag a skill from the skill book onto J, K or L, or drag one slot onto another |
+| **P** | Arrange skills: drag a skill from the skill book onto J, K, L (class skills) or T, Y, U (path skills), or drag one slot onto another |
 | **O** | Settings: music and sound volume, FPS limit, FPS counter, brightness, shadows, glow, quality, blood, weather, language |
 | **F** | Full screen on/off |
 | **Esc** | Pause / Resume (close any open panel) |

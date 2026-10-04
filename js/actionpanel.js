@@ -2,6 +2,8 @@ import { getLang, onLangChange } from "./i18n.js";
 import { getItem } from "./items/itemdb.js";
 import { iconURL } from "./items/icons.js";
 import { SkillSlots, SLOT_KEYS, ABILITIES } from "./skillslots.js";
+import { SLOT_KEYS as PATH_KEYS, SKILL_DRAG_TYPE, activeSkill, activeSkillsOf, assignSlot, activeCooldown } from "./skillpaths.js";
+import { skillText } from "./skills.js";
 
 // ==================== HOTBAR (bottom tray) & OPTIONS (right panel) ====================
 // Each button: icon + name + shortcut key.
@@ -9,6 +11,8 @@ import { SkillSlots, SLOT_KEYS, ABILITIES } from "./skillslots.js";
 //     Skills  (J, K, L, Space, E): press and hold = like holding the key (hold works).
 //             Cooldown overlay, and "SAFE" inside a sanctuary. ✎ (P) opens the skill book:
 //             drag a skill onto a slot (or one slot onto another) to rearrange J/K/L.
+//     Path slots (T, Y, U): the learned path actives (js/skillpaths.js), same drag and drop; the
+//             Character panel's path nodes can be dragged onto them too. Empty slots are dimmed.
 //     Quick slots 1–4, then Market (B, safe zones only) and Full Screen (F).
 //   Options (Q, I, C, M, N, O, Esc, H) in the right panel: call the handler from main.js.
 //   (Act lore is read through the lore panel's "Read more", so it has no button here.)
@@ -29,7 +33,7 @@ const TEXT = {
     sprint: "Sprint", talk: "Talk", quests: "Quests", inventory: "Inventory", character: "Character",
     pause: "Pause", resume: "Resume", menu: "Main Menu", map: "World Map", codex: "Codex", safe: "Safe zone", nobody: "No one nearby",
     settings: "Settings", market: "Market", full: "Full Screen", window: "Window", tools: "Shortcuts",
-    edit: "Arrange skills", book: "Drag a skill onto J, K or L · drag slot to slot to swap · P to finish",
+    edit: "Arrange skills", book: "Drag a skill onto its slot (J K L or T Y U) · drag slot to slot to swap · P to finish",
     marketShut: "Markets open in a safe zone"
   },
   fil: {
@@ -37,7 +41,7 @@ const TEXT = {
     sprint: "Takbo", talk: "Kausapin", quests: "Quest", inventory: "Imbentaryo", character: "Karakter",
     pause: "Pause", resume: "Ituloy", menu: "Main Menu", map: "Mapa ng Mundo", codex: "Codex", safe: "Ligtas na lugar", nobody: "Walang malapit",
     settings: "Settings", market: "Palengke", full: "Full Screen", window: "Window", tools: "Shortcut",
-    edit: "Ayusin ang skill", book: "I-drag ang skill sa J, K o L · i-drag ang slot sa slot para magpalit · P para matapos",
+    edit: "Ayusin ang skill", book: "I-drag ang skill sa slot nito (J K L o T Y U) · i-drag ang slot sa slot para magpalit · P para matapos",
     marketShut: "Bukas ang palengke sa ligtas na lugar"
   }
 };
@@ -78,6 +82,17 @@ export class ActionPanel {
         if (id === "J") return hd.attackCooldown ? p.attackCooldownTimer / hd.attackCooldown : 0;
         if (id === "K") return hd.cooldown ? p.skillCooldownTimer / hd.cooldown : 0;
         return hd.cooldown2 ? p.skill2CooldownTimer / hd.cooldown2 : 0;
+      }
+    }, {
+      id: "path",
+      keys: PATH_KEYS,
+      dropType: SKILL_DRAG_TYPE,           // native drags from the Character panel's path nodes
+      list: (p) => activeSkillsOf(p).map((sk) => ({ id: sk.id, icon: sk.icon, name: skillText(sk).name })),
+      current: (p) => p.pathSlots || [],
+      assign: (p, i, id) => assignSlot(p, i, id),
+      cooldown: (p, id) => {
+        const sk = activeSkill(id);
+        return sk && p.activeCd ? (p.activeCd[id] || 0) / activeCooldown(p, sk) : 0;
       }
     }];
     this.cls = null;
@@ -147,6 +162,17 @@ export class ActionPanel {
         const b = this.holdButton(code);
         b.dataset.slot = String(i);
         b.dataset.group = g.id;
+        if (g.dropType) {
+          b.addEventListener("dragover", (e) => { if (e.dataTransfer.types.includes(g.dropType)) e.preventDefault(); });
+          b.addEventListener("drop", (e) => {
+            e.preventDefault();
+            if (this.player && g.assign(this.player, i, e.dataTransfer.getData(g.dropType))) {
+              this.cls = null;
+              if (this.editing) this.renderBook();
+              if (this.handlers.slotsChanged) this.handlers.slotsChanged();
+            }
+          });
+        }
         return b;
       });
     });
