@@ -864,7 +864,7 @@ function getSavePayload() {
     stats: { ...player.stats },             // STR/AGI/VIT/INT/DEX/LUK
     skills: { ...player.skillLevels },
     skillPoints: player.skillPoints,
-    skillSlots: [...(player.skillSlots || [])],   // path actives on U / O / P
+    pathSlots: [...(player.pathSlots || [])],   // path actives on T / Y / U
     style: { ...player.style },                    // play-style affinity (js/skillpaths.js)
     autoStat: player.autoStat || "off",
     belt: [...player.belt],
@@ -880,7 +880,7 @@ function getSavePayload() {
 // Skill paths from a save: slots only take learned actives, style values must be finite numbers
 function loadPaths(p, data) {
   if (data.style) PATH_IDS.forEach((k) => { const v = Number(data.style[k]); p.style[k] = Number.isFinite(v) && v > 0 ? Math.min(v, 1e4) : 0; });
-  if (Array.isArray(data.skillSlots)) SLOT_KEYS.forEach((_, i) => assignSlot(p, i, typeof data.skillSlots[i] === "string" ? data.skillSlots[i] : null));
+  if (Array.isArray(data.pathSlots)) SLOT_KEYS.forEach((_, i) => assignSlot(p, i, typeof data.pathSlots[i] === "string" ? data.pathSlots[i] : null));
   p.autoStat = AUTO_MODES.includes(data.autoStat) ? data.autoStat : "off";
 }
 
@@ -1095,7 +1095,7 @@ function awaken(chosenHero) {
   const p = new Player(old.x, old.y, equipJob(chosenHero, old.avatarConfig));
   ["level", "exp", "expNext", "gold", "statPoints", "bonusHp", "bonusDamage",
     "bonusDefense", "bonusSpeed", "bonusCrit", "bonusCooldown", "heroName", "avatarConfig",
-    "stats", "skillLevels", "skillPoints", "belt", "autoPot", "style", "skillSlots", "autoStat"].forEach((k) => { p[k] = old[k]; });
+    "stats", "skillLevels", "skillPoints", "belt", "autoPot", "style", "pathSlots", "autoStat"].forEach((k) => { p[k] = old[k]; });
   // Keeps the bag; the summoner hands over the class's custom-forged weapon (LORE Act IV)
   p.bag = old.bag;
   p.bag.giveKit(chosenHero.id, 1);

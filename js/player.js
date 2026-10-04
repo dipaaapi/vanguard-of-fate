@@ -37,9 +37,9 @@ export class Player {
     this.dmgMult = 1;         // extra % damage from skills
     this.dmgReduce = 0;       // reduction of damage taken (0..0.5)
     this.regenTimer = 0;
-    // Skill paths (js/skillpaths.js): play-style affinity, active skill slots (U/O/P) and their cooldowns
+    // Skill paths (js/skillpaths.js): play-style affinity, active skill slots (T/Y/U) and their cooldowns
     this.style = { str: 0, dex: 0, int: 0 };
-    this.skillSlots = SLOT_KEYS.map(() => null);
+    this.pathSlots = SLOT_KEYS.map(() => null);
     this.activeCd = {};
     this.wardT = 0;           // Unbreakable / Mana Shield: frames left
     this.wardPct = 0;         // share of damage they stop
@@ -177,7 +177,7 @@ export class Player {
     });
     this.skillPoints += Object.values(this.skillLevels).reduce((n, lv) => n + lv, 0);
     this.skillLevels = {};
-    this.skillSlots = SLOT_KEYS.map(() => null);
+    this.pathSlots = SLOT_KEYS.map(() => null);
     this.recalc();
     this.hp = Math.min(this.hp, this.maxHp);
   }
@@ -491,7 +491,7 @@ export class Player {
       }
     }
 
-    // Path actives on the skill slots (U / O / P), plus their cooldowns, ward and dash
+    // Path actives on the skill slots (T / Y / U), plus their cooldowns, ward and dash
     tickActives(this, isPressed, { target: closestEnemy, spawn: spawnProjectile, fx, safe: isInSafeZone });
 
     this.animTimer++;

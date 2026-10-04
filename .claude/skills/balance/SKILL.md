@@ -29,7 +29,7 @@ Areas: `hub`, `canopy`, `coast`, `frost`, `ash`, `siege`, `maw`.
 - **Kills/Lv**: same-level normal kills for the next level (`expFor` vs `EnemyManager.kill`).
 - **Boss TTK / hits to die**: the Act boss 1 v 1 (patterns, hazards and summons not simulated).
 
-Not modelled (say so when you quote numbers): Priest angels and heals, Archer quiver reload, the falcon, mercenaries, potions, skill-tree points (only the familiar, with `--familiar`), path actives on U/O/P, night (+20% monster damage), Champion/Elite tiers (×2 / ×3.5 HP), monster movement and patterns. The baseline today: Priest has by far the lowest solo kill speed because its J is a heal and its angels aren't counted. Read Priest rows with that in mind.
+Not modelled (say so when you quote numbers): Priest angels and heals, Archer quiver reload, the falcon, mercenaries, potions, skill-tree points (only the familiar, with `--familiar`), path actives on T/Y/U, night (+20% monster damage), Champion/Elite tiers (×2 / ×3.5 HP), monster movement and patterns. The baseline today: Priest has by far the lowest solo kill speed because its J is a heal and its angels aren't counted. Read Priest rows with that in mind.
 
 ## Workflow
 

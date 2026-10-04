@@ -6,7 +6,7 @@ import { PATHS, PATH_IDS, SLOT_KEYS, SKILL_DRAG_TYPE, RESONANCE, styleOf, styleS
 // Parang Ragnarok Online: dalawang tab.
 //   Stats  — STR/AGI/VIT/INT/DEX/LUK with [+] (costs rise), and the resulting attributes.
 //   Skills — the Novice and job trees; each node has a level, a required skill and [+].
-//   Paths  — Might (STR) / Finesse (DEX) / Arcana (INT) trees, the play-style meter and the U/O/P slots.
+//   Paths  — Might (STR) / Finesse (DEX) / Arcana (INT) trees, the play-style meter and the T/Y/U slots.
 // Stats also has the auto stat path (spends points on level-up). The game is paused while it is open.
 
 const TEXT = {
@@ -221,11 +221,11 @@ export class CharacterPanel {
       TREES[P.tree].forEach((s) => this.node(grid, add, button, s, !learnBlock(p, s)));
     });
 
-    // Skill slots (U / O / P): drop a learned active here, or pick one in the details below
+    // Skill slots (T / Y / U): drop a learned active here, or pick one in the details below
     add(el, "div", "inv-head", T.slots);
     const slots = add(el, "div", "ch-slots");
     SLOT_KEYS.forEach((code, i) => {
-      const id = (p.skillSlots || [])[i];
+      const id = (p.pathSlots || [])[i];
       const s = id && findSkill(id);
       const slot = button(slots, "ch-slot" + (s ? " full" : ""), "", () => { if (s) { this.sel = id; this.render(); } });
       add(slot, "kbd", "", code.replace("Key", ""));
@@ -268,7 +268,7 @@ export class CharacterPanel {
     button(acts, "inv-act", T.learn, () => { p.learnSkill(s.id); this.render(); }, !canLearn(p, s));
     if (s.kind === "active" && p.skillLevels[s.id] > 0) {
       SLOT_KEYS.forEach((code, i) => {
-        const on = (p.skillSlots || [])[i] === s.id;
+        const on = (p.pathSlots || [])[i] === s.id;
         button(acts, "inv-act" + (on ? " on" : ""), on ? `${T.clear} ${code.replace("Key", "")}` : `${T.slot} ${code.replace("Key", "")}`, () => { assignSlot(p, i, on ? null : s.id); this.render(); });
       });
     }

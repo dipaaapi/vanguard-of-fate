@@ -3,7 +3,7 @@ import { Sound } from "./audio.js";
 // ==================== SKILL PATHS: MIGHT (STR) · FINESSE (DEX) · ARCANA (INT) ====================
 // Three trees every hero can learn from with the same skill points as the class trees (js/skills.js
 // merges them into TREES). Each path mixes passives (always on) and actives (cast from the skill
-// slots U / O / P).
+// slots T / Y / U).
 //
 // Play style: how you fight feeds a running affinity per path (player.style):
 //   Might   — hits landed up close, blows taken while standing your ground, Might actives
@@ -13,7 +13,7 @@ import { Sound } from "./audio.js";
 // The leading path (≥ 40% share) "resonates": its passives are 20% stronger, its capstone can be
 // learned, and the "My style" stat auto-path follows it.
 //
-// For the hotbar: activeSkillsOf(player) lists the learned actives, player.skillSlots holds the ids in
+// For the hotbar: activeSkillsOf(player) lists the learned actives, player.pathSlots holds the ids in
 // SLOT_KEYS order, assignSlot(player, i, id) changes one, and a drag carries the id as SKILL_DRAG_TYPE.
 
 const N = (en, fil) => ({ en, fil: fil || en });
@@ -25,7 +25,7 @@ export const PATHS = {
   int: { tree: "arcana", icon: "🔮", color: "#a78bfa", name: N("Arcana", "Hiwaga"), stat: "int" }
 };
 export const RESONANCE = 0.2;             // +20% to the resonant path's passives
-export const SLOT_KEYS = ["KeyU", "KeyO", "KeyP"];
+export const SLOT_KEYS = ["KeyT", "KeyY", "KeyU"];   // O, P, B, F, M belong to settings, skill book, market, full screen, map
 export const SKILL_DRAG_TYPE = "text/vof-skill";
 const DECAY = 0.998;
 const MIN_STYLE = 25;                      // affinity needed before a style shows
@@ -196,21 +196,21 @@ export function activeSkillsOf(p) {
 }
 
 export function assignSlot(p, i, id) {
-  if (!p.skillSlots) p.skillSlots = SLOT_KEYS.map(() => null);
+  if (!p.pathSlots) p.pathSlots = SLOT_KEYS.map(() => null);
   if (i < 0 || i >= SLOT_KEYS.length) return false;
   if (id && (!ACTIVES[id] || !(p.skillLevels[id] > 0))) return false;
-  if (id) p.skillSlots = p.skillSlots.map((x) => (x === id ? null : x));
-  p.skillSlots[i] = id || null;
+  if (id) p.pathSlots = p.pathSlots.map((x) => (x === id ? null : x));
+  p.pathSlots[i] = id || null;
   return true;
 }
 
 // A newly learned active goes into the first free slot
 export function slotNewActive(p, id) {
   if (!ACTIVES[id]) return;
-  if (!p.skillSlots) p.skillSlots = SLOT_KEYS.map(() => null);
-  if (p.skillSlots.includes(id)) return;
-  const free = p.skillSlots.indexOf(null);
-  if (free >= 0) p.skillSlots[free] = id;
+  if (!p.pathSlots) p.pathSlots = SLOT_KEYS.map(() => null);
+  if (p.pathSlots.includes(id)) return;
+  const free = p.pathSlots.indexOf(null);
+  if (free >= 0) p.pathSlots[free] = id;
 }
 
 export const activeCooldown = (p, s) => Math.round(s.cd * Math.max(0.3, 1 - (p.cdr || 0)));
@@ -234,9 +234,9 @@ export function tickActives(p, isPressed, ctx) {
   if (p.activeCd) for (const k in p.activeCd) if (p.activeCd[k] > 0) p.activeCd[k]--;
   if (p.wardT > 0 && --p.wardT === 0) p.wardPct = 0;
   if (p.dashT > 0) { p.dashT--; p.x += p.dashVx; p.y += p.dashVy; }
-  if (!p.skillSlots) return;
+  if (!p.pathSlots) return;
   SLOT_KEYS.forEach((code, i) => {
-    const id = p.skillSlots[i];
+    const id = p.pathSlots[i];
     if (id && isPressed(code)) castActive(p, id, ctx);
   });
 }

@@ -29,7 +29,7 @@ then `outline <file>` and read only the line range you need.
 - `background.js` (0.9 KB, 25) — Background image helpers for assets/bg/: loadImage and cover-fit drawCover · loadImage, drawCover
 - `bestiary.js` (25 KB, 279) — Monster and boss definitions per Act (stats, sprite, medium, debuffs, en/fil names), night kinds and blights · MONSTERS, BOSSES, NIGHT_KINDS, BLIGHTS
 - `camera.js` (0.6 KB, 18) — Camera following the player, clamped to world bounds · Camera
-- `charpanel.js` (14 KB, 277) — Character panel (C): Ragnarok-style stat builder (STR/AGI/VIT/INT/DEX/LUK) with the auto stat path, class skill trees, and the Paths tab (style meter, three path trees, U/O/P slots) · CharacterPanel
+- `charpanel.js` (14 KB, 277) — Character panel (C): Ragnarok-style stat builder (STR/AGI/VIT/INT/DEX/LUK) with the auto stat path, class skill trees, and the Paths tab (style meter, three path trees, T/Y/U slots) · CharacterPanel
 - `chatlog.js` (3.2 KB, 83) — Bottom adventure log tray: NPC lines, hits taken, loot, gear changes (newest first) · ChatLog
 - `codex.js` (16 KB, 274) — Codex (N): in-game encyclopedia of NPCs, monsters & MVPs, weapons, equipment, accessories and other items; entries unlock when met/seen · Codex
 - `continent.js` (12 KB, 261) — Dual-continent world map art and data: Aethelgard and the Dark Continent with their platforms · ContinentMap
@@ -58,7 +58,7 @@ then `outline <file>` and read only the line range you need.
 - `saveSecurity.js` (10 KB, 261) — Save format .vof: checksum/HMAC-style signing, XOR obfuscation, sanity audit of gold/stats/items/level, legacy .json migration; exposed as window.SaveSecurity
 - `select.js` (10 KB, 280) — Hero select scene with the Earthbound Souls isekai profiles · SelectScene
 - `services.js` (3.1 KB, 95) — NPC service menu: short choice list (mouse, 1–9, arrows + Enter) shown after talking to a service NPC · ServiceMenu
-- `skillpaths.js` (15 KB, 243) — Might (STR) / Finesse (DEX) / Arcana (INT) skill paths: passive and active nodes, play-style affinity (noteStyle/styleOf), resonance, U/O/P skill slots (assignSlot, castActive, tickActives) for the hotbar · PATH_IDS, PATHS, RESONANCE, SLOT_KEYS, SKILL_DRAG_TYPE, PATH_TREES, PATH_TREE_IDS, activeSkill +9
+- `skillpaths.js` (15 KB, 243) — Might (STR) / Finesse (DEX) / Arcana (INT) skill paths: passive and active nodes, play-style affinity (noteStyle/styleOf), resonance, T/Y/U skill slots (assignSlot, castActive, tickActives) for the hotbar · PATH_IDS, PATHS, RESONANCE, SLOT_KEYS, SKILL_DRAG_TYPE, PATH_TREES, PATH_TREE_IDS, activeSkill +9
 - `skills.js` (18 KB, 231) — Stat builder rules and skill trees per class (Ragnarok style): stat costs/caps, skill definitions and bonuses, learn rules (level, style, own summon), resonance, auto stat path (autoAllocate), en/fil text · STATS, PRIMARY, STAT_INFO, statCost, STAT_MAX, TREES, skillText, treesFor +10
 - `stage.js` (4.1 KB, 116) — Hub map of the Aethelgard plains (Acts I–VI): grassland, Barracks, Citadel, 4 Warp Gateways, safe zones; same interface as world/platform.js · Stage
 - `status.js` (3.4 KB, 68) — Abnormal statuses (Seven Anomaly Blights: bleed, silence, poison, shock, burn, freeze, blind): effects, resist chance, ticking · STATUS, STATUS_KEYS, statusName, resistChance, tickStatuses, blocksRegen
@@ -108,7 +108,7 @@ then `outline <file>` and read only the line range you need.
 
 - `angel.js` (6.3 KB, 169) — Priest's Guardian Angel companion: lifespan, hover/attack/taunt AI, drawing · GuardianAngelCompanion
 - `falcon.js` (5.4 KB, 158) — Archer's falcon companion: dive attacks, taunts, afterimages · FalconCompanion
-- `familiar.js` (7.3 KB, 164) — Familiars for heroes with no summon (Novice slime, Knight hound, Mage owl, Fighter fox): learned in the skill tree, follow and fight on their own; syncFamiliar, familiarDamage · FAMILIARS, familiarFor, familiarDamage, syncFamiliar, Familiar
+- `familiar.js` (7.9 KB, 173) — Familiars for heroes with no summon (Novice slime, Knight hound, Mage owl, Fighter fox): learned in the skill tree, follow and fight on their own; syncFamiliar, familiarDamage · FAMILIARS, familiarFor, familiarDamage, syncFamiliar, Familiar
 
 ## js/world/
 
