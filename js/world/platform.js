@@ -3,6 +3,7 @@ import { Ambient } from "./ambient.js";
 import { drawGateway } from "./portal.js";
 import { BoatSystem } from "./boat.js";
 import { OreVeins } from "./mining.js";
+import { veinsFor } from "../items/craftsets.js";
 import { PLATFORMS, PLATFORM_SIZE } from "./platforms.js";
 import { getLang } from "../i18n.js";
 
@@ -41,8 +42,9 @@ export class Platform {
     this.tilemap = new TileMap(this, def.seed);
     // Boat and the Celestial Monolith (Cerulean Abyss only)
     this.boatSystem = def.boat ? new BoatSystem(this, def.boat) : null;
-    // Ore veins (Ashfall and the Siege only); miningUnlocked is synced from the quest by main.js
-    this.ore = def.ore ? new OreVeins(this, def.ore) : null;
+    // Ore veins on every platform (crafting ore; the Ashfall and the Siege add the dwarven minerals,
+    // which need the pickaxe: miningUnlocked is synced from the quest by main.js)
+    this.ore = new OreVeins(this, veinsFor(def));
     this.miningUnlocked = false;
   }
 

@@ -228,9 +228,10 @@ export class UIManager {
     // Archer Arrow Dots
     if (player.heroData.id === "archer" && player.arrowCount !== undefined) {
       const dotY = player.y - 11;
-      for (let i = 0; i < 5; i++) {
+      const n = player.maxArrows || 6;
+      for (let i = 0; i < n; i++) {
         ctx.fillStyle = i < player.arrowCount ? "#52b788" : "#444";
-        ctx.fillRect(player.x + 3 + i * 3, dotY, 2, 2.5);
+        ctx.fillRect(player.x + 10 - (n * 3 - 1) / 2 + i * 3, dotY, 2, 2.5);
       }
     }
   }

@@ -1,15 +1,18 @@
 import { getLang } from "../i18n.js";
 import { getItem } from "../items/itemdb.js";
+import { FREE_ORES, SALT_CHANCE } from "../items/craftsets.js";
 
 // ==================== ORE VEINS (mining) ====================
-// Only the Ashfall Wastelands and the Siege of the Obsidian Citadel (Dark Continent) have ore (def.ore on the platform).
-// Mining is unlocked by Thane Durgrim's quest; each vein takes a few pickaxe strikes (E), yields
-// minerals, then regrows after a while. Vein positions come from the platform seed, so they are stable.
+// Every Act platform has veins of its tier's crafting ore (js/items/craftsets.js veinsFor), mined by anyone.
+// The Ashfall Wastelands and the Siege also have dwarven minerals (def.ore), unlocked by Thane Durgrim's
+// quest. Each vein takes a few strikes (E), yields its ore (and sometimes Rock Salt), then regrows after a
+// while. Vein positions come from the platform seed, so they are stable.
 
 const TILE = 16;
 const STRIKES = 3;              // pickaxe strikes to break a vein
 const REGROW = 60 * 90;         // frames until a broken vein regrows (90 s)
 export const MINE_RANGE = 26;
+export const needsPick = (kind) => !FREE_ORES.includes(kind);
 
 function rng(seed) {
   let s = seed % 2147483647 || 1;
@@ -62,14 +65,14 @@ export class OreVeins {
     return this.veins.find((v) => !v.regrow && Math.hypot(v.x - px, v.y - py) < MINE_RANGE) || null;
   }
 
-  // One pickaxe strike. Returns { broke, id, qty } (qty only when the vein breaks).
+  // One pickaxe strike. Returns { broke, id, qty, salt } (qty and salt only when the vein breaks).
   strike(v) {
     v.hits++;
     v.shake = 8;
-    if (v.hits < STRIKES) return { broke: false, id: v.kind, qty: 0 };
+    if (v.hits < STRIKES) return { broke: false, id: v.kind, qty: 0, salt: 0 };
     v.regrow = REGROW;
-    const qty = v.kind === "starsteel" ? 1 : 1 + (Math.random() < 0.5 ? 1 : 0);
-    return { broke: true, id: v.kind, qty };
+    const qty = v.kind === "starsteel" ? 1 : FREE_ORES.includes(v.kind) ? 2 + Math.floor(Math.random() * 3) : 1 + (Math.random() < 0.5 ? 1 : 0);
+    return { broke: true, id: v.kind, qty, salt: Math.random() < SALT_CHANCE ? 1 : 0 };
   }
 
   draw(ctx, player, unlocked) {
@@ -101,7 +104,7 @@ export class OreVeins {
       ctx.globalAlpha = 1;
       // prompt
       if (player && Math.hypot(v.x - (player.x + 10), v.y - (player.y + 18)) < MINE_RANGE + 10) {
-        const label = unlocked
+        const label = unlocked || !needsPick(v.kind)
           ? `[E] ${fil ? "Magmina" : "Mine"} ${getItem(v.kind).name} (${v.hits}/${STRIKES})`
           : (fil ? "⛏ Kailangan ang piko ni Thane Durgrim" : "⛏ Needs Thane Durgrim's pickaxe");
         ctx.font = "bold 5px monospace";
@@ -109,7 +112,7 @@ export class OreVeins {
         const tw = ctx.measureText(label).width + 6;
         ctx.fillStyle = "rgba(3, 6, 17, 0.85)";
         ctx.fillRect(x - tw / 2, y - 25, tw, 7);
-        ctx.fillStyle = unlocked ? tint : "#94a3b8";
+        ctx.fillStyle = unlocked || !needsPick(v.kind) ? tint : "#94a3b8";
         ctx.fillText(label, x, y - 20);
       }
     });

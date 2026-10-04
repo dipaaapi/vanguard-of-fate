@@ -1,5 +1,6 @@
 import { isBroken } from "./durability.js";
-import { SETS, SET_THRESHOLDS } from "./itemdb.js";
+import { SETS, setThresholds } from "./itemdb.js";
+import { startMeal } from "./cooking.js";
 import { describe, canEquip, upgradeCost, refineChance, slotsFor, SLOTS, MAX_PLUS, CLASS_KIT } from "./itemdb.js";
 
 // ==================== BAG + EQUIPMENT ====================
@@ -153,12 +154,13 @@ export class Bag {
     return Boolean(w && w.hands === 2);
   }
 
-  // Equip from the bag. Returns "" (ok) or the reason it failed
-  equipFrom(i, cls) {
+  // Equip from the bag. Returns "" (ok) or the reason it failed. level = the hero's level (crafted sets)
+  equipFrom(i, cls, level = Infinity) {
     const s = this.slots[i];
     const item = describe(s);
     if (!item || item.type !== "equip") return "type";
     if (!canEquip(item, cls)) return "class";
+    if (level < (item.reqLevel || 0)) return "level";
     if (item.slot === "offhand" && this.offhandLocked()) return "locked";
     const options = slotsFor(item);
     const slot = options.find((o) => !this.equip[o]) || options[0];
@@ -196,16 +198,27 @@ export class Bag {
       if (!it || isBroken(this.equip[slot])) return;
       Object.entries(it.stats).forEach(([k, v]) => { out[k] = +((out[k] || 0) + v).toFixed(2); });
     });
-    // set bonuses (2 / 4 / 5 pieces; broken pieces don't count)
+    // set bonuses (2 / 4 / 5 or 2 / 4 / 6 pieces; broken pieces don't count)
     Object.entries(this.setCounts()).forEach(([id, n]) => {
-      SET_THRESHOLDS.filter((k) => n >= k).forEach((k) => {
+      setThresholds(SETS[id]).filter((k) => n >= k).forEach((k) => {
         Object.entries(SETS[id].bonus[k]).forEach(([s, v]) => { out[s] = +((out[s] || 0) + v).toFixed(2); });
       });
     });
     return out;
   }
 
-  // How many working pieces of each mineral set are worn: { ember: 3, ... }
+  // Skill boosts of worn crafted sets (4 and 6 pieces): { dmg, kcd, lcd, heal, ... } (see js/items/craftsets.js)
+  skillBoost() {
+    const out = {};
+    Object.entries(this.setCounts()).forEach(([id, n]) => {
+      Object.entries(SETS[id].skill || {}).forEach(([k, boost]) => {
+        if (n >= +k) Object.entries(boost).forEach(([s, v]) => { out[s] = (out[s] || 0) + v; });
+      });
+    });
+    return out;
+  }
+
+  // How many working pieces of each set are worn: { ember: 3, str10: 4, ... }
   setCounts() {
     const n = {};
     SLOTS.forEach((slot) => {
@@ -257,13 +270,14 @@ export class Bag {
     // The Yggdrasil Leaf cannot refresh a skill while a boss is engaged
     if (e.resetSkill && player.bossFight && player.hp >= player.maxHp) { pop("STIFLED", "#a855f7"); return ""; }
 
-    if (e.heal) { player.hp = Math.min(player.maxHp, player.hp + e.heal); player.potionCd = POTION_CD; }
+    if (e.heal) { player.hp = Math.min(player.maxHp, player.hp + Math.max(e.heal, Math.round(player.maxHp * (e.healPct || 0)))); player.potionCd = POTION_CD; }
     if (e.resetSkill && !player.bossFight) player.skillCooldownTimer = 0;
     if (e.cure && player.cureAllDebuffs) player.cureAllDebuffs();
     if (e.stamina) { player.stamina = player.maxStamina; player.exhausted = false; }
     if (e.fresh) player.freshTimer = e.fresh;
     if (e.buff && player.buffs) player.buffs[e.buff] = Math.max(player.buffs[e.buff] || 0, e.time);
     if (e.respec && player.respec) player.respec();
+    if (e.meal) startMeal(player, e.meal);
     this.removeAt(i, 1);
     pop(item.name.toUpperCase(), item.color);
     return item.name;
