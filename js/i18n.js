@@ -200,7 +200,13 @@ const STRINGS = {
     opt_skirt: "Skirt",
     opt_boots: "Boots",
     opt_shoes: "Shoes",
-    opt_sandals: "Sandals"
+    opt_sandals: "Sandals",
+
+    boatBoard: "Board the ship ⛵",
+    boatGoAshore: "Go ashore",
+    boatSetSail: "⛵ Setting sail!",
+    boatAshore: "Ashore",
+    falconAboard: "The falcon stays aboard while you sail"
   },
 
   fil: {
@@ -403,7 +409,13 @@ const STRINGS = {
     opt_skirt: "Palda",
     opt_boots: "Bota",
     opt_shoes: "Sapatos",
-    opt_sandals: "Sandalyas"
+    opt_sandals: "Sandalyas",
+
+    boatBoard: "Sumakay sa barko ⛵",
+    boatGoAshore: "Bumaba sa pampang",
+    boatSetSail: "⛵ Maglayag na!",
+    boatAshore: "Nasa pampang na",
+    falconAboard: "Nananatili sa barko ang lawin habang naglalayag"
   }
 };
 

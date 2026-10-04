@@ -716,6 +716,13 @@ function syncBoss() {
   enemyManager.spawnBoss(def.boss, def.bossSpawn.x, def.bossSpawn.y, player.level);
 }
 
+// Everyone travelling with the hero, who boards the ship with them: mercenaries, summons, and any
+// pet or familiar listed in player.companions (entities with x / y; flying: true perches in the rigging)
+function crewOf() {
+  if (!player) return [];
+  return [...mercManager.mercenaries, player.falconCompanion, ...(player.angelCompanions || []), ...(player.companions || [])].filter(Boolean);
+}
+
 // Move to another place. at = { x, y } (player pixels) or nothing for the default arrival.
 function travelTo(id, at = null) {
   const from = stage.id;
@@ -723,6 +730,9 @@ function travelTo(id, at = null) {
   stage = platformById(id);
   syncPlatformFlags();
   const spot = at || (stage === hub ? hub.arrivalFrom(from) : stage.arrival());
+  // Arriving on foot: the ship stays behind in the Cerulean Abyss
+  player.inBoat = false;
+  crewOf().forEach((c) => { c.aboard = false; });
   player.x = spot.x;
   player.y = spot.y;
   player.portalCooldown = 75;
@@ -1367,12 +1377,8 @@ window.addEventListener("keydown", (e) => {
         showShopModal = false;
       } else if (showMercModal) {
         showMercModal = false;
-      } else if (stage.boatSystem && (
-        (player.inBoat && Math.hypot(player.x + 10 - stage.boatSystem.pier.x, player.y + 18 - stage.boatSystem.pier.y) < 55) ||
-        (!player.inBoat && Math.hypot(player.x + 10 - stage.boatSystem.pier.x, player.y + 18 - stage.boatSystem.pier.y) < 45) ||
-        (!player.inBoat && Math.hypot(player.x - stage.boatSystem.dockedBoat.x, player.y - stage.boatSystem.dockedBoat.y) < 45)
-      )) {
-        stage.boatSystem.toggleBoard(player, fx);
+      } else if (stage.boatSystem && stage.boatSystem.canToggle(player)) {
+        stage.boatSystem.toggleBoard(player, fx, crewOf());
       } else if (stage.boatSystem && Math.hypot(player.x - stage.boatSystem.monolith.x, player.y - stage.boatSystem.monolith.y) < 65) {
         stage.boatSystem.activateMonolith(player, fx, () => {
           quest.monolith = true;
@@ -1447,7 +1453,10 @@ window.addEventListener("keydown", (e) => {
       }
     }
 
-    if (skillCode === "KeyK" && player.heroData.id === "archer" && player.falconCompanion && player.skillCooldownTimer <= 0 && !stage.isInsideSafeZone(player.x, player.y)) {
+    if (e.code === "KeyK" && player.heroData.id === "archer" && player.falconCompanion && player.falconCompanion.aboard) {
+      // Flyers can't leave the ship while the crew is aboard
+      if (fx.spawnDamagePopup) fx.spawnDamagePopup(player.x + 10, player.y - 14, t("falconAboard"), false, "#38bdf8");
+    } else if (e.code === "KeyK" && player.heroData.id === "archer" && player.falconCompanion && player.skillCooldownTimer <= 0 && !stage.isInsideSafeZone(player.x, player.y)) {
       // Falcon reach: 240px
       const closestEnemy = enemyManager.enemies
         .filter((en) => en.isAlive && Math.hypot(en.x - player.x, en.y - player.y) <= 240)
@@ -1581,6 +1590,8 @@ function updateGame() {
   npcManager.update(player, enemyManager, fx);
 
   mercManager.update(player, enemyManager, lootManager, fx, (proj) => projectileManager.add(proj), stage);
+  // At sea the crew keep their posts on the ship
+  if (stage.boatSystem) stage.boatSystem.carry(player, crewOf());
   projectileManager.update(enemyManager.enemies, enemyManager, fx, lootManager, player);
   lootManager.update(player, fx, stage);
 }
