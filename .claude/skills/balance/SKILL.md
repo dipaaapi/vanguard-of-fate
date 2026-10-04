@@ -13,6 +13,9 @@ node $B                          # every class × every area (hub + Acts VII–X
 node $B --area frost             # one area, one row per monster + the boss, with each hero's full stat line
 node $B --level +3               # heroes over-levelled (or -3 under-levelled)
 node $B --gear kit               # only the class kit + starter clothes (worst case gear)
+node $B --gear best              # old best-normal dropped gear (default --gear craft: the crafted set of the hero's tier in the class path)
+node $B --economy                # gold, sold loot, ore/core/essence per kill, upkeep, net gold, kills to craft a full set, merc hire
+node $B --units                  # each mercenary hired at the hero's level vs the band: DPS, TTK, fights per life
 node $B --build class            # stats spent by the in-game auto stat path (str | dex | int | class)
 node $B --familiar 5             # Novice/Knight/Mage/Fighter add their familiar at skill Lv 5 (js/summons/familiar.js)
 node $B --out reports/balance-report.md
@@ -29,7 +32,11 @@ Areas: `hub`, `canopy`, `coast`, `frost`, `ash`, `siege`, `maw`.
 - **Kills/Lv**: same-level normal kills for the next level (`expFor` vs `EnemyManager.kill`).
 - **Boss TTK / hits to die**: the Act boss 1 v 1 (patterns, hazards and summons not simulated).
 
-Not modelled (say so when you quote numbers): Priest angels and heals, Archer quiver reload, the falcon, mercenaries, potions, skill-tree points (only the familiar, with `--familiar`), path actives on T/Y/U, night (+20% monster damage), Champion/Elite tiers (×2 / ×3.5 HP), monster movement and patterns. The baseline today: Priest has by far the lowest solo kill speed because its J is a heal and its angels aren't counted. Read Priest rows with that in mind.
+Modelled: Priest guardian angels (DPS) and J heal (survival; TTD ∞ when heals outpace damage), Archer quiver reload and the falcon dive, crafted sets with their skill boosts, familiars with `--familiar`.
+
+Not modelled (say so when you quote numbers): pets, meals, skill-tree points (only the familiar, with `--familiar`), path actives on T/Y/U, night (+20% monster damage), Champion/Elite tiers (×2 / ×3.5 HP) in the combat table (the economy report does roll them), monster movement and patterns, mercenaries fighting beside the hero.
+
+**Economy columns** (`--economy`): Upkeep = HP lost per kill bought back in Red Potions (minus the potions that dropped) + repairs. Net G/kill must stay positive in every area, or the player loses money by fighting. "Kills for the set" is the slowest material of a full crafted set of the highest tier that drops there; aim for roughly the kills between the set's level and the next tier.
 
 ## Workflow
 

@@ -1,5 +1,7 @@
 import { Sound } from "./audio.js";
 import { Bag } from "./items/bag.js";
+import { mealBonus } from "./items/cooking.js";
+import { Market } from "./items/economy.js";
 import { STATS, PRIMARY, statCost, STAT_MAX, skillBonus, canLearn, findSkill, autoAllocate } from "./skills.js";
 import { SLOT_KEYS, noteStyle, slotNewActive, tickActives, styleOf } from "./skillpaths.js";
 import { STATUS_KEYS, tickStatuses, resistChance, blocksRegen } from "./status.js";
