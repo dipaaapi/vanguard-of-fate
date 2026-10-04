@@ -33,6 +33,8 @@ The full story lives in [LORE.md](LORE.md) (Filipino: [LORE_FIL.md](LORE_FIL.md)
 - **Dedicated Modular UI & Audio:**
   - Dynamic gilded retro HUD with class portraits, health bars, and cooldown trackers.
   - 100% synthesized Web Audio API sound effects and music (no audio files): eleven tracks that change with the place, the night and boss fights, five fanfares and 30+ effects, all mixed through one compressor and reverb.
+- **Cinematic presentation:** each new Act opens with a short intro over its banner; a terrain minimap with the quest objective, a framed world map with a route line, and matching pause, shop, mercenary and game over panels.
+- **Performance options:** Options → Quality (Sharp / Balanced / Fast) caps the drawing scale on big screens, and Options → FPS Counter shows the frame rate.
 - **Original Procedural Art:**
   - Every banner, background, vista, portrait and relic image is painted by code in `tools/art/` (no third-party assets). `node tools/art/render.mjs --list` lists them, `node tools/art/render.mjs <key>` re-renders one, and `data/art_manifest.json` holds the EN/FIL caption for each file.
   - `node tools/audio/render-audio.mjs --mp3` renders the music and sound effects offline for a listen and a level check.

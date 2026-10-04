@@ -604,6 +604,7 @@ function panelSound(open) {
 // Act intro cinematic: plays when the story moves on to a new Act during play (not on loading a save)
 const actIntro = new ActIntro();
 let actIntroShown = null;
+let pendingToast = null;
 function maybeActIntro() {
   if (!player) return;
   const a = quest.act();
@@ -621,7 +622,12 @@ quest.onChange = () => {
   syncLoreAct();
   syncPlatformFlags();
   syncBoss();
-  if (player) { questHud.toast(quest.text(player, summonerName(), mentorName()).goal); if (Sound.playQuest) Sound.playQuest(); }
+  if (player) {
+    const goal = quest.text(player, summonerName(), mentorName()).goal;
+    if (actIntro.open) pendingToast = goal;   // shown when the Act intro ends
+    else questHud.toast(goal);
+    if (Sound.playQuest) Sound.playQuest();
+  }
   saveGame();
 };
 
@@ -1736,7 +1742,7 @@ function gameLoop(now = performance.now()) {
   const MODES = { TITLE: "title", SELECT: "select", CREATE: "create" };
   setLayoutMode(MODES[gameState] || "play");
   dialog.update();
-  questHud.setVisible(layoutMode === "play" && Boolean(player) && gameState !== "GAMEOVER");
+  questHud.setVisible(layoutMode === "play" && Boolean(player) && gameState !== "GAMEOVER" && !actIntro.open);
   if (player && layoutMode === "play") {
     questHud.update(quest, player, summonerName(), mentorName());
     hudBar.update({
@@ -1777,6 +1783,7 @@ function gameLoop(now = performance.now()) {
     renderGameWorld();
   }
   if (actIntro.open && gameState === "PLAYING") actIntro.draw(ctx, VIEW_W, VIEW_H);
+  if (pendingToast && !actIntro.open) { questHud.toast(pendingToast); pendingToast = null; }
   drawFpsMeter(now);
   requestAnimationFrame(gameLoop);
 }
