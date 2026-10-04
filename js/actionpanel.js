@@ -1,10 +1,13 @@
 import { getLang, onLangChange } from "./i18n.js";
 import { getItem } from "./items/itemdb.js";
 import { iconURL } from "./items/icons.js";
+import { SLOT_KEYS, activeSkill, activeCooldown } from "./skillpaths.js";
+import { skillText } from "./skills.js";
 
 // ==================== SKILLS & OPTIONS (lower part of the right panel) ====================
 // Each button: icon + name + shortcut key.
 //   Skills  (J, K, L, Space, E): press and hold = like holding the key (hold works).
+//   Path slots (T, Y, U): the path actives set in Character → Paths (js/skillpaths.js); empty slots are dimmed.
 //                             Cooldown overlay, and "SAFE" inside a sanctuary.
 //   Options (Q, I, C, M, N, Esc, H): call the handler from main.js.
 //   (Act lore is read through the lore panel's "Read more", so it has no button here.)
@@ -104,11 +107,12 @@ export class ActionPanel {
     this.buttons.J = this.holdButton("KeyJ");
     this.buttons.K = this.holdButton("KeyK");
     this.buttons.L = this.holdButton("KeyL");
+    this.slots = SLOT_KEYS.map((code) => this.holdButton(code));
     this.buttons.Space = this.holdButton("Space");
     this.buttons.E = this.holdButton("KeyE");
     this.set(this.buttons.Space, "💨", tx("sprint"));
     this.set(this.buttons.E, "💬", tx("talk"));
-    Object.values(this.buttons).forEach((b) => this.skillsEl.appendChild(b));
+    [this.buttons.J, this.buttons.K, this.buttons.L, ...this.slots, this.buttons.Space, this.buttons.E].forEach((b) => this.skillsEl.appendChild(b));
 
     const h = this.handlers;
     this.options = {
@@ -188,6 +192,21 @@ export class ActionPanel {
     this.setCooldown(this.buttons.J, "cdJ", hd.attackCooldown ? p.attackCooldownTimer / hd.attackCooldown : 0);
     this.setCooldown(this.buttons.K, "cdK", hd.cooldown ? p.skillCooldownTimer / hd.cooldown : 0);
     this.setCooldown(this.buttons.L, "cdL", hd.cooldown2 ? p.skill2CooldownTimer / hd.cooldown2 : 0);
+
+    // Path slots: icon and name of the assigned active, its cooldown
+    const slotSig = (p.pathSlots || []).join("|");
+    if (this.cache.slots !== slotSig) {
+      this.cache.slots = slotSig;
+      this.slots.forEach((b, i) => {
+        const sk = activeSkill((p.pathSlots || [])[i]);
+        this.set(b, sk ? sk.icon : "·", sk ? skillText(sk).name : "—");
+        b.classList.toggle("empty", !sk);
+      });
+    }
+    this.slots.forEach((b, i) => {
+      const sk = activeSkill((p.pathSlots || [])[i]);
+      this.setCooldown(b, `cdS${i}`, sk && p.activeCd ? (p.activeCd[sk.id] || 0) / activeCooldown(p, sk) : 0);
+    });
 
     // J/K cannot be used inside a sanctuary
     const safe = Boolean(s.inSanctuary);

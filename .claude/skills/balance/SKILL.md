@@ -13,6 +13,8 @@ node $B                          # every class × every area (hub + Acts VII–X
 node $B --area frost             # one area, one row per monster + the boss, with each hero's full stat line
 node $B --level +3               # heroes over-levelled (or -3 under-levelled)
 node $B --gear kit               # only the class kit + starter clothes (worst case gear)
+node $B --build class            # stats spent by the in-game auto stat path (str | dex | int | class)
+node $B --familiar 5             # Novice/Knight/Mage/Fighter add their familiar at skill Lv 5 (js/summons/familiar.js)
 node $B --out reports/balance-report.md
 ```
 
@@ -27,7 +29,7 @@ Areas: `hub`, `canopy`, `coast`, `frost`, `ash`, `siege`, `maw`.
 - **Kills/Lv**: same-level normal kills for the next level (`expFor` vs `EnemyManager.kill`).
 - **Boss TTK / hits to die**: the Act boss 1 v 1 (patterns, hazards and summons not simulated).
 
-Not modelled (say so when you quote numbers): Priest angels and heals, Archer quiver reload, the falcon, mercenaries, potions, skill-tree points, night (+20% monster damage), Champion/Elite tiers (×2 / ×3.5 HP), monster movement and patterns. The baseline today: Priest has by far the lowest solo kill speed because its J is a heal and its angels aren't counted. Read Priest rows with that in mind.
+Not modelled (say so when you quote numbers): Priest angels and heals, Archer quiver reload, the falcon, mercenaries, potions, skill-tree points (only the familiar, with `--familiar`), path actives on T/Y/U, night (+20% monster damage), Champion/Elite tiers (×2 / ×3.5 HP), monster movement and patterns. The baseline today: Priest has by far the lowest solo kill speed because its J is a heal and its angels aren't counted. Read Priest rows with that in mind.
 
 ## Workflow
 

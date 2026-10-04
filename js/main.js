@@ -47,6 +47,9 @@ import { t, onLangChange, getLang } from "./i18n.js";
 
 import { FalconCompanion } from "./summons/falcon.js";
 import { GuardianAngelCompanion } from "./summons/angel.js";
+import { syncFamiliar } from "./summons/familiar.js";
+import { PATH_IDS, SLOT_KEYS, assignSlot } from "./skillpaths.js";
+import { AUTO_MODES } from "./skills.js";
 import "./saveSecurity.js";
 
 const canvas = document.getElementById("gameCanvas");
@@ -693,6 +696,7 @@ function travelTo(id, at = null) {
   // Mercenaries and summons follow
   mercManager.mercenaries.forEach((m, k) => { m.x = player.x - 16 + k * 10; m.y = player.y + 14; });
   if (player.falconCompanion) { player.falconCompanion.x = player.x - 22; player.falconCompanion.y = player.y - 18; }
+  if (player.familiar) player.familiar.place(player);
   (player.angelCompanions || []).forEach((a, k) => { a.x = player.x + (k ? 30 : -30); a.y = player.y - 16; });
 
   if (fx.spawnHitSparks) fx.spawnHitSparks(player.x + 10, player.y + 10, def ? def.color : "#ffd166", 22);
@@ -860,6 +864,9 @@ function getSavePayload() {
     stats: { ...player.stats },             // STR/AGI/VIT/INT/DEX/LUK
     skills: { ...player.skillLevels },
     skillPoints: player.skillPoints,
+    pathSlots: [...(player.pathSlots || [])],   // path actives on T / Y / U
+    style: { ...player.style },                    // play-style affinity (js/skillpaths.js)
+    autoStat: player.autoStat || "off",
     belt: [...player.belt],
     autoPot: { ...player.autoPot },
     codex: codex.serialize(),
@@ -868,6 +875,13 @@ function getSavePayload() {
     x: player.x,
     y: player.y
   };
+}
+
+// Skill paths from a save: slots only take learned actives, style values must be finite numbers
+function loadPaths(p, data) {
+  if (data.style) PATH_IDS.forEach((k) => { const v = Number(data.style[k]); p.style[k] = Number.isFinite(v) && v > 0 ? Math.min(v, 1e4) : 0; });
+  if (Array.isArray(data.pathSlots)) SLOT_KEYS.forEach((_, i) => assignSlot(p, i, typeof data.pathSlots[i] === "string" ? data.pathSlots[i] : null));
+  p.autoStat = AUTO_MODES.includes(data.autoStat) ? data.autoStat : "off";
 }
 
 function saveGame() {
@@ -982,6 +996,7 @@ function loadGame() {
       Object.keys(player.stats).forEach((k) => { player.stats[k] = Math.max(1, Math.min(99, data.stats[k] | 0 || 1)); });
       player.skillLevels = { ...(data.skills || {}) };
       player.skillPoints = data.skillPoints || 0;
+      loadPaths(player, data);
     } else {
       player.statPoints = (data.statPoints || 0) + 10 + (player.level - 1) * 3;
       player.skillPoints = player.level - 1;
@@ -1080,7 +1095,7 @@ function awaken(chosenHero) {
   const p = new Player(old.x, old.y, equipJob(chosenHero, old.avatarConfig));
   ["level", "exp", "expNext", "gold", "statPoints", "bonusHp", "bonusDamage",
     "bonusDefense", "bonusSpeed", "bonusCrit", "bonusCooldown", "heroName", "avatarConfig",
-    "stats", "skillLevels", "skillPoints", "belt", "autoPot"].forEach((k) => { p[k] = old[k]; });
+    "stats", "skillLevels", "skillPoints", "belt", "autoPot", "style", "pathSlots", "autoStat"].forEach((k) => { p[k] = old[k]; });
   // Keeps the bag; the summoner hands over the class's custom-forged weapon (LORE Act IV)
   p.bag = old.bag;
   p.bag.giveKit(chosenHero.id, 1);
@@ -1464,6 +1479,9 @@ function updateGame() {
     player.falconCompanion.update(player, enemyManager, fx, lootManager);
   }
 
+  const familiar = syncFamiliar(player);   // pet / familiar from the skill tree
+  if (familiar) familiar.update(player, enemyManager, fx, lootManager, isInBarracks);
+
   if (player.angelCompanions && player.angelCompanions.length > 0) {
     player.angelCompanions.forEach((angel, idx) => {
       angel.update(player, enemyManager, fx, lootManager, idx, isInBarracks);
@@ -1623,6 +1641,7 @@ function renderGameWorld() {
     if (player.falconCompanion) {
       player.falconCompanion.draw(ctx, player.facing === "right");
     }
+    if (player.familiar) player.familiar.draw(ctx);
 
     if (player.angelCompanions) {
       player.angelCompanions.forEach((angel) => {
