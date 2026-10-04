@@ -115,15 +115,35 @@ export class Pix {
   rows(list, c, dy = 0) {
     list.forEach(([y, x0, x1]) => { for (let x = x0; x <= x1; x++) this.set(x, y + dy, c); });
   }
+  // Light from the upper left: edge pixels facing the sky catch a highlight, edge pixels facing the
+  // ground fall into shade, so every figure reads as round on any terrain (runs before the outline)
+  light() {
+    const src = this.d.slice();
+    const at = (x, y) => (x >= 0 && y >= 0 && x < this.w && y < this.h ? src[y * this.w + x] : null);
+    for (let y = 0; y < this.h; y++) {
+      for (let x = 0; x < this.w; x++) {
+        const c = src[y * this.w + x];
+        if (!c) continue;
+        const up = !at(x, y - 1), left = !at(x - 1, y), down = !at(x, y + 1), right = !at(x + 1, y);
+        if (up && !down) this.d[y * this.w + x] = shade(c, left ? 0.2 : 0.12);
+        else if (left && !right && !up) this.d[y * this.w + x] = shade(c, 0.07);
+        else if (down && !up) this.d[y * this.w + x] = shade(c, -0.12);
+        else if (right && !left) this.d[y * this.w + x] = shade(c, -0.07);
+      }
+    }
+  }
   // Selective outline: every empty pixel next to a colour becomes a darker version of it
+  // (darker under the figure so it sits on the ground)
   outline() {
+    this.light();
     const src = this.d.slice();
     const at = (x, y) => (x >= 0 && y >= 0 && x < this.w && y < this.h ? src[y * this.w + x] : null);
     for (let y = 0; y < this.h; y++) {
       for (let x = 0; x < this.w; x++) {
         if (src[y * this.w + x]) continue;
-        const n = at(x, y - 1) || at(x, y + 1) || at(x - 1, y) || at(x + 1, y);
-        if (n) this.d[y * this.w + x] = shade(n, -0.62);
+        const above = at(x, y - 1);
+        const n = above || at(x, y + 1) || at(x - 1, y) || at(x + 1, y);
+        if (n) this.d[y * this.w + x] = shade(n, above && !at(x, y + 1) ? -0.72 : -0.62);
       }
     }
   }

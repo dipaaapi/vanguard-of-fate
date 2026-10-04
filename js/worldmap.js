@@ -1,5 +1,6 @@
 import { getLang } from "./i18n.js";
 import { ContinentMap } from "./continent.js";
+import { drawBackdrop, drawBorder, drawFrame, openEase } from "./uiframe.js";
 
 // ==================== WORLD MAP (M) ====================
 // The whole world at a glance: land, Barracks, Citadel, coast, the 4 Warp Gateways,
@@ -81,6 +82,7 @@ export class WorldMap {
   show() {
     this.buildBase();
     this.open = true;
+    this.openT = 0;
   }
 
   close() {
@@ -98,10 +100,11 @@ export class WorldMap {
     this.tick++;
     if (this.view === "continent" && s.quest) return this.drawContinent(ctx, W, H, s);
     const st = this.stage;
+    const ease = openEase(this.openT = (this.openT || 0) + 1);
 
     ctx.save();
-    ctx.fillStyle = "rgba(3, 6, 17, 0.92)";
-    ctx.fillRect(0, 0, W, H);
+    drawBackdrop(ctx, W, H, ease, "3, 6, 17", 0.92);
+    ctx.globalAlpha = ease;
 
     // ---- Map (left) ----
     const pad = 10, top = 20;
@@ -116,12 +119,38 @@ export class WorldMap {
     ctx.textAlign = "left";
     ctx.fillText(tx("title"), mx, 13);
 
+    // right column panel first, so the map's border studs sit on top of it
+    const rx0 = mx + mw + 8;
+    drawFrame(ctx, rx0, my, W - rx0 - pad + 2, mh, { fill: "rgba(13, 20, 36, 0.92)" });
     ctx.imageSmoothingEnabled = true;
     ctx.drawImage(this.base, mx, my, mw, mh);
     ctx.imageSmoothingEnabled = false;
-    ctx.strokeStyle = "#ffd166";
-    ctx.lineWidth = 1;
-    ctx.strokeRect(mx - 0.5, my - 0.5, mw + 1, mh + 1);
+    // soft vignette and a faint survey grid over the terrain
+    const vg = ctx.createRadialGradient(mx + mw / 2, my + mh / 2, Math.min(mw, mh) * 0.35, mx + mw / 2, my + mh / 2, Math.max(mw, mh) * 0.72);
+    vg.addColorStop(0, "rgba(3, 6, 17, 0)");
+    vg.addColorStop(1, "rgba(3, 6, 17, 0.55)");
+    ctx.fillStyle = vg;
+    ctx.fillRect(mx, my, mw, mh);
+    ctx.fillStyle = "rgba(255, 209, 102, 0.07)";
+    for (let gx = 1; gx < 8; gx++) ctx.fillRect(Math.round(mx + (mw * gx) / 8), my, 1, mh);
+    for (let gy = 1; gy < 6; gy++) ctx.fillRect(mx, Math.round(my + (mh * gy) / 6), mw, 1);
+    drawBorder(ctx, mx, my, mw, mh);
+    // compass rose in the lower left corner of the map
+    {
+      const cx = mx + mw - 14, cy = my + mh - 14;
+      ctx.fillStyle = "rgba(3, 6, 17, 0.7)";
+      ctx.beginPath(); ctx.arc(cx, cy, 9, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = "rgba(255, 209, 102, 0.6)";
+      ctx.beginPath(); ctx.arc(cx, cy, 9, 0, Math.PI * 2); ctx.stroke();
+      [[0, -1, "#ffd166"], [0, 1, "#94a3b8"], [1, 0, "#94a3b8"], [-1, 0, "#94a3b8"]].forEach(([dx, dy, c]) => {
+        ctx.fillStyle = c;
+        ctx.beginPath(); ctx.moveTo(cx + dx * 7, cy + dy * 7); ctx.lineTo(cx + dy * 2, cy - dx * 2); ctx.lineTo(cx - dy * 2, cy + dx * 2); ctx.closePath(); ctx.fill();
+      });
+      ctx.fillStyle = "#ffd166";
+      ctx.font = "bold 5px monospace";
+      ctx.textAlign = "center";
+      ctx.fillText("N", cx, cy - 10);
+    }
 
     // Place names
     const label = (text, wx, wy, color = "#f8fafc") => {
@@ -190,6 +219,19 @@ export class WorldMap {
       ctx.fillRect(x - 1, y - 1, 2.5, 2.5);
     });
 
+    // Route: a marching dotted line from the hero to the quest target
+    const target = (s.npcs || []).find((n) => n.id === s.targetId && n.visible);
+    if (s.player && target) {
+      const [ax, ay] = P(s.player.x + 10, s.player.y + 16), [bx, by] = P(target.x, target.y - 6);
+      ctx.save();
+      ctx.strokeStyle = "rgba(255, 209, 102, 0.75)";
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2, 2]);
+      ctx.lineDashOffset = -this.tick / 4;
+      ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+      ctx.restore();
+    }
+
     // Player
     if (s.player) {
       const [x, y] = P(s.player.x + 10, s.player.y + 16);
@@ -202,8 +244,8 @@ export class WorldMap {
     }
 
     // ---- Right column: objective + legend ----
-    const rx = mx + mw + 12, rw = W - rx - pad;
-    let y = my + 4;
+    const rx = mx + mw + 15, rw = W - rx - pad - 4;
+    let y = my + 11;
     ctx.textAlign = "left";
     ctx.fillStyle = "#38bdf8";
     ctx.font = "bold 5px monospace";
@@ -238,28 +280,31 @@ export class WorldMap {
 
     ctx.fillStyle = "#64748b";
     ctx.font = "5px monospace";
-    ctx.fillText(tx("tab"), rx, H - pad - 8);
-    ctx.fillText(tx("close"), rx, H - pad);
+    ctx.fillText(tx("tab"), rx, H - pad - 12);
+    ctx.fillText(tx("close"), rx, H - pad - 5);
     ctx.restore();
   }
 
   // Whole continent: every land, its state (sealed / open / freed) and where you are
   drawContinent(ctx, W, H, s) {
+    const ease = openEase(this.openT = (this.openT || 0) + 1);
     ctx.save();
-    ctx.fillStyle = "rgba(3, 6, 17, 0.94)";
-    ctx.fillRect(0, 0, W, H);
+    drawBackdrop(ctx, W, H, ease, "3, 6, 17", 0.94);
+    ctx.globalAlpha = ease;
     const pad = 10, top = 20;
     const mw = Math.round(W * 0.64), mh = H - top - pad;
+    drawFrame(ctx, pad + mw + 8, top, W - pad - mw - 8 - pad + 2, mh, { fill: "rgba(13, 20, 36, 0.92)" });
     ctx.fillStyle = "#ffd166";
     ctx.font = "bold 9px monospace";
     ctx.textAlign = "left";
     ctx.fillText(tx("continent"), pad, 13);
     const lands = this.continent.draw(ctx, pad, top, mw, mh, s, this.tick);
+    drawBorder(ctx, pad, top, mw, mh);
     ctx.textAlign = "left";
 
     // Right column: objective and the list of lands
-    const rx = pad + mw + 12, rw = W - rx - pad;
-    let y = top + 4;
+    const rx = pad + mw + 15, rw = W - rx - pad - 4;
+    let y = top + 11;
     ctx.fillStyle = "#38bdf8";
     ctx.font = "bold 5px monospace";
     ctx.fillText(tx("goal"), rx, y);
@@ -282,14 +327,14 @@ export class WorldMap {
       ctx.fillText(`${l.name}`, rx + 7, y);
       ctx.fillStyle = !l.open ? "#64748b" : l.cleared ? "#4ade80" : "#facc15";
       ctx.textAlign = "right";
-      ctx.fillText(l.here ? tx("here") : !l.open ? tx("sealed") : l.cleared ? tx("freed") : tx("open"), W - pad, y);
+      ctx.fillText(l.here ? tx("here") : !l.open ? tx("sealed") : l.cleared ? tx("freed") : tx("open"), W - pad - 4, y);
       ctx.textAlign = "left";
       y += 8;
     });
     ctx.fillStyle = "#64748b";
     ctx.font = "5px monospace";
-    ctx.fillText(tx("tab"), rx, H - pad - 8);
-    ctx.fillText(tx("close"), rx, H - pad);
+    ctx.fillText(tx("tab"), rx, H - pad - 12);
+    ctx.fillText(tx("close"), rx, H - pad - 5);
     ctx.restore();
   }
 }

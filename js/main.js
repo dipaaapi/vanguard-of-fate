@@ -11,7 +11,7 @@ import { EnemyManager } from "./enemy.js";
 import { ProjectileManager } from "./projectiles.js";
 import { UIManager } from "./ui.js";
 import { LootManager } from "./loot.js";
-import { MercenaryManager } from "./mercenaryManager.js";
+import { MercenaryManager, MERC_CLASSES } from "./mercenaryManager.js";
 import { Sound } from "./audio.js";
 import { Stage } from "./stage.js";
 import { TitleScene } from "./title.js";
@@ -34,6 +34,7 @@ import { getItem, SETS } from "./items/itemdb.js";
 import { SET_SLOTS, recipeCost, forgePiece } from "./items/forge.js";
 import { wear, WEAR_WEAPON, WEAR_ARMOR, ARMOR_SLOTS } from "./items/durability.js";
 import { Avatar } from "./avatar/avatar.js";
+import { ActIntro } from "./actintro.js";
 import { createLorePanel } from "./lore.js";
 import { HudBar } from "./hudbar.js";
 import { ActionPanel } from "./actionpanel.js";
@@ -50,6 +51,20 @@ import "./saveSecurity.js";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+// Labels (names, prompts, gateways) measure the same text every frame: remember the widths per font
+{
+  const measure = ctx.measureText.bind(ctx), widths = new Map();
+  ctx.measureText = (text) => {
+    const key = `${ctx.font}|${text}`;
+    let m = widths.get(key);
+    if (!m) {
+      if (widths.size > 4000) widths.clear();
+      m = measure(text);
+      widths.set(key, m);
+    }
+    return m;
+  };
+}
 
 // ==================== DISPLAY / RESOLUTION ====================
 // Logical game size (16:9). All game code works in these units.
@@ -71,17 +86,20 @@ function fitCanvas() {
   const availH = window.innerHeight - barEl.offsetHeight - (layoutMode === "play" ? TRAY_RESERVE : 0);
   const raw = Math.min(availW / VIEW_W, availH / VIEW_H);
   const scale = Math.max(1, Math.floor(raw));
+  // Drawing resolution: on big screens the canvas draws at up to 2× (Balanced) and the browser
+  // enlarges it pixel-perfect; drawing every pixel at 3–4× cost up to half the frame rate (perf.mjs)
+  const render = Math.min(scale, RENDER_CAP[gameConfig.quality] || scale);
 
-  canvas.width = VIEW_W * scale;
-  canvas.height = VIEW_H * scale;
-  canvas.style.width = canvas.width + "px";
-  canvas.style.height = canvas.height + "px";
-  barEl.style.width = canvas.width + "px";   // the menu is as wide as the canvas
-  chatLogEl.style.width = canvas.width + "px";
+  canvas.width = VIEW_W * render;
+  canvas.height = VIEW_H * render;
+  canvas.style.width = VIEW_W * scale + "px";
+  canvas.style.height = VIEW_H * scale + "px";
+  barEl.style.width = VIEW_W * scale + "px";   // the menu is as wide as the canvas
+  chatLogEl.style.width = VIEW_W * scale + "px";
   viewportEl.style.setProperty("--s", scale);  // size of the HTML overlays (dialogue, quest)
 
   // Reset whenever canvas.width changes, so set it again here
-  ctx.setTransform(scale, 0, 0, scale, 0, 0);
+  ctx.setTransform(render, 0, 0, render, 0, 0);
   ctx.imageSmoothingEnabled = false;
 }
 
@@ -115,6 +133,8 @@ const fileInput = document.getElementById("saveFileInput");
 const ROSTER = [KnightClass, MageClass, PriestClass, ArcherClass, FighterClass];
 
 const CONFIG_KEY = "vanguard_config";
+// Options → Quality: the largest drawing scale (0 = always the full screen scale)
+const RENDER_CAP = { sharp: 0, balanced: 2, fast: 1 };
 function loadGameConfig() {
   try {
     const raw = localStorage.getItem(CONFIG_KEY);
@@ -124,11 +144,13 @@ function loadGameConfig() {
         music: parsed.music !== undefined ? Boolean(parsed.music) : true,
         sfx: parsed.sfx !== undefined ? Boolean(parsed.sfx) : true,
         blood: parsed.blood !== undefined ? Boolean(parsed.blood) : true,
-        weather: parsed.weather !== undefined ? Boolean(parsed.weather) : true
+        weather: parsed.weather !== undefined ? Boolean(parsed.weather) : true,
+        quality: RENDER_CAP[parsed.quality] !== undefined ? parsed.quality : "balanced",
+        fps: Boolean(parsed.fps)
       };
     }
   } catch (_) {}
-  return { music: true, sfx: true, blood: true, weather: true };
+  return { music: true, sfx: true, blood: true, weather: true, quality: "balanced", fps: false };
 }
 
 const gameConfig = loadGameConfig();
@@ -535,6 +557,8 @@ function exitToTitle() {
   charPanel.close();
   showShopModal = false;
   showMercModal = false;
+  actIntro.close();
+  actIntroShown = null;
   gameState = "TITLE";
   player = null;
   syncLoreAct();
@@ -552,8 +576,8 @@ const actionPanel = new ActionPanel({
       questHud.toggleLog(quest, player, summonerName(), mentorName());
     }
   },
-  inventory: () => { Sound.init(); toggleInventory(); },
-  character: () => { Sound.init(); toggleCharacter(); },
+  inventory: () => { Sound.init(); toggleInventory(); panelSound(inventory.open); },
+  character: () => { Sound.init(); toggleCharacter(); panelSound(charPanel.open); },
   quick: (i) => { Sound.init(); if (gameState === "PLAYING" && !dialog.open) quickUse(i); },
   pause: () => {
     Sound.init();
@@ -568,16 +592,42 @@ const actionPanel = new ActionPanel({
     worldMap.close();
     exitToTitle();
   },
-  map: () => { Sound.init(); toggleMap(); },
-  codex: () => { Sound.init(); toggleCodex(); }
+  map: () => { Sound.init(); toggleMap(); panelSound(worldMap.open); },
+  codex: () => { Sound.init(); toggleCodex(); panelSound(codex.open); }
 });
 
+// Soft page-turn when a side panel opens or closes
+function panelSound(open) {
+  if (open) { if (Sound.playUiOpen) Sound.playUiOpen(); } else if (Sound.playUiClose) Sound.playUiClose();
+}
+
+// Act intro cinematic: plays when the story moves on to a new Act during play (not on loading a save)
+const actIntro = new ActIntro();
+let actIntroShown = null;
+let pendingToast = null;
+function maybeActIntro() {
+  if (!player) return;
+  const a = quest.act();
+  if (actIntroShown !== null && a > actIntroShown) {
+    const label = quest.text(player, summonerName(), mentorName()).act || "";
+    actIntro.start(a, label.includes("·") ? label.split("·").slice(1).join("·").trim() : label);
+    controller.clearAll();
+  }
+  actIntroShown = a;
+}
+
 quest.onChange = () => {
+  maybeActIntro();
   npcManager.applyQuest(quest, playerClass());
   syncLoreAct();
   syncPlatformFlags();
   syncBoss();
-  if (player) questHud.toast(quest.text(player, summonerName(), mentorName()).goal);
+  if (player) {
+    const goal = quest.text(player, summonerName(), mentorName()).goal;
+    if (actIntro.open) pendingToast = goal;   // shown when the Act intro ends
+    else questHud.toast(goal);
+    if (Sound.playQuest) Sound.playQuest();
+  }
   saveGame();
 };
 
@@ -646,7 +696,7 @@ function travelTo(id, at = null) {
   (player.angelCompanions || []).forEach((a, k) => { a.x = player.x + (k ? 30 : -30); a.y = player.y - 16; });
 
   if (fx.spawnHitSparks) fx.spawnHitSparks(player.x + 10, player.y + 10, def ? def.color : "#ffd166", 22);
-  if (Sound.playHolyBurst) Sound.playHolyBurst();
+  if (Sound.playPortal) Sound.playPortal();
 
   // First arrival on the current Act's platform: the summoner greets the hero
   if (def && quest.step === quest.baseStep(id)) {
@@ -682,7 +732,7 @@ function handlePortal(portal) {
     player.x = hub.safeZone.x + hub.safeZone.w / 2 - 10;
     player.y = hub.safeZone.y + hub.safeZone.h - 30;
     if (fx.spawnHitSparks) fx.spawnHitSparks(player.x + 10, player.y + 10, "#38bdf8", 16);
-    if (Sound.playHolyBurst) Sound.playHolyBurst();
+    if (Sound.playPortal) Sound.playPortal();
     return;
   }
   if (dest && PLATFORMS[dest]) {
@@ -997,6 +1047,8 @@ function beginPlaying() {
 
 function backToTitle() {
   controller.clearAll();
+  actIntro.close();
+  actIntroShown = null;
   gameState = "TITLE";
   player = null;
   syncLoreAct();
@@ -1040,7 +1092,7 @@ function awaken(chosenHero) {
   controller.clearAll();
   gameState = "PLAYING";
   if (fx.spawnHitSparks) fx.spawnHitSparks(p.x + 10, p.y + 10, "#ffd166", 28);
-  if (Sound.playHolyBurst) Sound.playHolyBurst();
+  if (Sound.playAwakening) Sound.playAwakening();
   if (gameConfig.music) Sound.startGameplayBGM();
   quest.advance(5);   // Act V: Dual Equipment Matrix
 
@@ -1089,6 +1141,8 @@ const titleScene = new TitleScene(
   gameConfig,
   document.getElementById("title")
 );
+// Options → Quality changes the drawing scale right away
+titleScene.onConfigChange = (key) => { if (key === "quality") fitCanvas(); };
 
 // New expedition: Character Creator → Act I Prologue → Novice in the Barracks
 const prologueScene = new PrologueScene(
@@ -1156,7 +1210,9 @@ window.addEventListener("keydown", (e) => {
   Sound.init();
   if (e.code === "F2") { stage.tilemap.debug = !stage.tilemap.debug; e.preventDefault(); }
 
-  if (prologueScene.open) {
+  if (actIntro.open && gameState === "PLAYING") {
+    actIntro.handleInput(e);
+  } else if (prologueScene.open) {
     prologueScene.handleInput(e);
   } else if (gameState === "TITLE") {
     titleScene.handleInput(e);
@@ -1336,11 +1392,13 @@ window.addEventListener("keyup", (e) => {
 });
 
 function updateGame() {
-  if (gameState !== "PLAYING" || !player || showShopModal || showMercModal || dialog.open || serviceMenu.open || codex.open || questHud.logOpen || inventory.open || charPanel.open || actReader.open || worldMap.open) return;
+  if (player && actIntroShown === null) actIntroShown = quest.act();
+  if (gameState !== "PLAYING" || !player || actIntro.open || showShopModal || showMercModal || dialog.open || serviceMenu.open || codex.open || questHud.logOpen || inventory.open || charPanel.open || actReader.open || worldMap.open) return;
 
   if (player.hp <= 0) {
     gameState = "GAMEOVER";
     Sound.stopGameplayBGM();
+    if (Sound.playGameOver) Sound.playGameOver();
     return;
   }
 
@@ -1366,6 +1424,8 @@ function updateGame() {
   if (player && Sound && Sound.setListener) {
     Sound.setListener(player.x + 10, player.y + 21);
   }
+  // Music follows the place, the night and an engaged boss (switches only when one of them changes)
+  if (Sound.setScene) Sound.setScene(stage.id, dayNight.night() > 0.5, player.bossFight ? activeBoss.key : null);
 
   // Warp Gateway, Citadel gate, Return Gateway, rift or sea portal (may change platform)
   const before = stage;
@@ -1536,6 +1596,13 @@ function drawObjectiveArrow() {
   ctx.restore();
 }
 
+// Mercenary Guild cards: each class's data and a portrait Avatar (built once)
+let mercCardList = null;
+function mercCards() {
+  if (!mercCardList) mercCardList = ["axe", "wand", "crossbow", "greatsword"].map((key) => ({ key, data: MERC_CLASSES[key], sprite: new Avatar(MERC_CLASSES[key].look) }));
+  return mercCardList;
+}
+
 function renderGameWorld() {
   const { offsetX, offsetY } = fx.getShakeOffsets();
   ctx.save();
@@ -1593,7 +1660,13 @@ function renderGameWorld() {
   ui.drawHUD(
     ctx, player, enemyManager, lootManager, stage,
     VIEW_W, gameState === "PAUSED",
-    fx.timeOfDay, fx.weatherType, isInBarracks
+    fx.timeOfDay, fx.weatherType, isInBarracks,
+    {
+      objective: player ? objectivePoint() : null,
+      npcs: npcManager.npcs.filter((n) => npcManager.shown(n)),
+      placeName: stage === hub ? t("placeHub") : stage.def.name[lang()],
+      night: dayNight.night()
+    }
   );
 
   if (gameState === "PLAYING" && !worldMap.open) drawObjectiveArrow();
@@ -1618,41 +1691,38 @@ function renderGameWorld() {
   }
 
   if (showMercModal && player) {
-    ctx.fillStyle = "rgba(10, 14, 20, 0.85)";
-    ctx.fillRect(40, 40, VIEW_W - 80, VIEW_H - 80);
-    ctx.strokeStyle = "#ffd166";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(40, 40, VIEW_W - 80, VIEW_H - 80);
-
-    ctx.fillStyle = "#ffd166";
-    ctx.font = "bold 9px monospace";
-    ctx.textAlign = "center";
-    const mercCost = MercenaryManager.cost(player.level);
-    ctx.fillText(`⚔️ BARRACKS MERCENARY GUILD (${mercCost}G EACH - 10 MINS) ⚔️`, VIEW_W / 2, 60);
-
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "7px monospace";
-    ctx.fillText(`[1] AXEMAN - Whirlwind · War Cry · Bloodlust`, VIEW_W / 2, 85);
-    ctx.fillText(`[2] MAGE APPRENTICE - Arcane Surge · Heal Ally · Frost Nova`, VIEW_W / 2, 105);
-    ctx.fillText(`[3] CROSSBOWMAN - 3-Way Volley · Snare Trap · Eagle Eye`, VIEW_W / 2, 125);
-    ctx.fillText(`[4] VANGUARD KNIGHT - Earthshatter · Provoke · Guardian Aura`, VIEW_W / 2, 145);
-    ctx.fillStyle = "#94a3b8";
-    ctx.fillText(`${mercCost}G each · power scales with your level (Lv ${player.level})`, VIEW_W / 2, 160);
-    ctx.fillText("Press 1-4 to Hire | ESC to Close", VIEW_W / 2, 175);
+    ui.drawMercModal(ctx, player, VIEW_W, VIEW_H, mercCards(), MercenaryManager.cost(player.level));
   }
 
   if (gameState === "PAUSED" && !showShopModal && !showMercModal) {
-    ui.drawPause(ctx, VIEW_W, VIEW_H);
-    // Shortcut hint for Export
-    ctx.fillStyle = "#ffd166";
-    ctx.font = "bold 6px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText("[ X ]   EXPORT SECURE SAVE (.VOF)", VIEW_W / 2, VIEW_H / 2 + 32);
+    ui.drawPause(ctx, VIEW_W, VIEW_H, { act: quest.act(), actTitle: player ? quest.text(player, summonerName(), mentorName()).act : "" });
   }
 
   if (gameState === "GAMEOVER") {
-    ui.drawGameOver(ctx, VIEW_W, VIEW_H);
+    ui.drawGameOver(ctx, VIEW_W, VIEW_H, { act: quest.act(), level: player ? player.level : 0 });
   }
+}
+
+// Options → FPS Counter: frames the screen received in the last second (top left of the canvas)
+const fpsMeter = { frames: 0, since: 0, fps: 0 };
+function drawFpsMeter(now) {
+  fpsMeter.frames++;
+  if (now - fpsMeter.since >= 1000) {
+    fpsMeter.fps = Math.round((fpsMeter.frames * 1000) / (now - fpsMeter.since));
+    fpsMeter.frames = 0;
+    fpsMeter.since = now;
+  }
+  if (!gameConfig.fps) return;
+  const f = fpsMeter.fps;
+  ctx.save();
+  ctx.fillStyle = "rgba(3, 6, 17, 0.75)";
+  ctx.fillRect(3, 3, 30, 9);
+  ctx.font = "bold 6px monospace";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = f >= 55 ? "#4ade80" : f >= 40 ? "#facc15" : "#ef4444";
+  ctx.fillText(`${f} FPS`, 5, 8);
+  ctx.restore();
 }
 
 // Fixed timestep: always 60 updates per second even on 120/144 Hz monitors
@@ -1672,7 +1742,7 @@ function gameLoop(now = performance.now()) {
   const MODES = { TITLE: "title", SELECT: "select", CREATE: "create" };
   setLayoutMode(MODES[gameState] || "play");
   dialog.update();
-  questHud.setVisible(layoutMode === "play" && Boolean(player) && gameState !== "GAMEOVER");
+  questHud.setVisible(layoutMode === "play" && Boolean(player) && gameState !== "GAMEOVER" && !actIntro.open);
   if (player && layoutMode === "play") {
     questHud.update(quest, player, summonerName(), mentorName());
     hudBar.update({
@@ -1712,6 +1782,9 @@ function gameLoop(now = performance.now()) {
   } else {
     renderGameWorld();
   }
+  if (actIntro.open && gameState === "PLAYING") actIntro.draw(ctx, VIEW_W, VIEW_H);
+  if (pendingToast && !actIntro.open) { questHud.toast(pendingToast); pendingToast = null; }
+  drawFpsMeter(now);
   requestAnimationFrame(gameLoop);
 }
 
@@ -1720,6 +1793,7 @@ requestAnimationFrame(gameLoop);
 if (new URLSearchParams(location.search).has("debug")) {
   window.__vof = {
     get player() { return player; }, get stage() { return stage; }, get state() { return gameState; },
-    quest, enemyManager, lootManager, projectileManager, mercManager, npcManager, inventory, charPanel, travelTo, saveGame, awaken, ROSTER
+    quest, enemyManager, lootManager, projectileManager, mercManager, npcManager, inventory, charPanel, travelTo, saveGame, awaken, ROSTER, dayNight, dialog,
+    openShop() { showShopModal = true; }, openMerc() { showMercModal = true; }, actIntro
   };
 }

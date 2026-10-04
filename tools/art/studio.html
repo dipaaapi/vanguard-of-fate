@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Art Studio</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; padding: 16px; background: #0b0d14; color: #e2e8f0; font: 13px/1.4 system-ui, sans-serif; }
+  h1 { font-size: 16px; margin: 0 0 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 14px; }
+  figure { margin: 0; background: #131722; border: 1px solid #232a3a; padding: 8px; }
+  figure canvas { width: 100%; image-rendering: pixelated; display: block; }
+  figcaption { margin-top: 6px; color: #94a3b8; }
+</style>
+</head>
+<body>
+<h1>Vanguard of Fate · Art Studio (procedural scenes, rendered live)</h1>
+<p>Serve the repo root (<code>npx -y http-server -p 5173 -c-1</code>) and open <code>/tools/art/studio.html</code>. Add <code>?only=act-7</code> to paint one piece. <code>node tools/art/render.mjs</code> writes the files into <code>assets/</code>.</p>
+<div class="grid" id="grid"></div>
+<script type="module">
+  import { SCENES, paintScene } from "./scenes/index.js";
+  // Used by render.mjs: paints one scene and returns a PNG data URL at its output scale
+  window.renderScene = async (key) => {
+    const { canvas } = await paintScene(key);
+    return canvas.toDataURL("image/png");
+  };
+  window.sceneList = () => Object.entries(SCENES).map(([key, s]) => ({ key, out: s.out, w: s.w, h: s.h, scale: s.scale }));
+  window.studioReady = true;
+  if (!navigator.webdriver) {
+    const only = new URLSearchParams(location.search).get("only");
+    const grid = document.getElementById("grid");
+    for (const key of Object.keys(SCENES)) {
+      if (only && !key.startsWith(only)) continue;
+      const fig = document.createElement("figure");
+      const { px } = await paintScene(key);
+      const c = px.toCanvas(1);
+      fig.append(c);
+      const cap = document.createElement("figcaption");
+      cap.textContent = `${key} → ${SCENES[key].out}`;
+      fig.append(cap);
+      grid.append(fig);
+    }
+  }
+</script>
+</body>
+</html>

@@ -39,7 +39,7 @@ export const PriestClass = {
       chosen.entity.lifespan = Math.min(chosen.entity.maxLifespan, chosen.entity.lifespan + 180);
     }
 
-    if (Sound && Sound.playHolyBurst) Sound.playHolyBurst();
+    if (Sound && Sound.playHeal) Sound.playHeal();
 
     if (spawnSpell) {
       spawnSpell({

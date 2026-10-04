@@ -257,6 +257,7 @@ export class EnemyManager {
       bossTimer: 60, pattern: 0, castTimer: 0, enraged: false, element: def.element || "neutral"
     };
     this.enemies.push(e);
+    if (Sound && Sound.playBossRoar) Sound.playBossRoar();
     return e;
   }
 
@@ -569,7 +570,7 @@ export class EnemyManager {
         const ang = base + (k - (n - 1) / 2) * 0.28;
         this.orbs.push({ x: bx, y: by - 20, vx: Math.cos(ang) * a.orb.speed, vy: Math.sin(ang) * a.orb.speed, life: Math.round(ORB_RANGE / a.orb.speed), color: a.orb.color, dmg: Math.round(e.damage * 0.7), src: e });
       }
-      if (Sound && Sound.playSlash) Sound.playSlash();
+      if (Sound && Sound.playBossCast) Sound.playBossCast(bx, by);
     } else if (pick === "summon") {
       const adds = this.enemies.filter((x) => x.isAlive && x.summoned).length;
       if (adds >= MAX_ADDS) return;
@@ -704,7 +705,7 @@ export class EnemyManager {
       fx.spawnDamagePopup(enemy.x + 8, enemy.y - 6 - (enemy.hitUp || 0), amount, isCrit);
     }
 
-    if (Sound && Sound.playSlash) Sound.playSlash();
+    if (Sound && Sound.playHitEnemy) Sound.playHitEnemy(isCrit, enemy.x, enemy.y);
 
     if (enemy.hp <= 0) this.kill(enemy, fx);
     else this.applyElement(enemy, elem, amount, fx);
@@ -722,6 +723,10 @@ export class EnemyManager {
     if (this.onKill) this.onKill(e, byPlayer, exp);
     // Death: the body dissolves (drawn from this.corpses), a burst in its colour, and a beat of hit-stop
     this.corpses.push({ e, t: 0 });
+    if (Sound) {
+      if (e.boss) { if (Sound.playBossDeath) Sound.playBossDeath(); if (Sound.playVictory) Sound.playVictory(); }
+      else if (Sound.playEnemyDeath) Sound.playEnemyDeath(e.x, e.y);
+    }
     if (fx && fx.spawnDeathBurst) {
       const col = e.elite ? TIERS.elite.color : e.champion ? TIERS.champion.color : e.variant ? ELEMENTS[e.variant].color : "#e2e8f0";
       fx.spawnDeathBurst(e.x + 10, e.y + 12, e.boss ? "#c084fc" : col, e.boss ? 2.4 : e.elite ? 1.5 : 1);

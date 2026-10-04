@@ -18,6 +18,15 @@ Key script steps (comma-separated): `Enter` / `KeyJ` / `ArrowDown` tap a key (`K
 
 The run exits 1 on any console error, uncaught exception or failed same-origin request. It ignores Google Fonts failures (offline/proxy) and the Act banner extension probes in `js/lore.js`.
 
+## Frame rate
+
+```
+node .claude/skills/playtest/perf.mjs                       # every scene at 1920×1080 with a 4× slower CPU
+node .claude/skills/playtest/perf.mjs --areas hub-night,ash --viewport 2560x1440 --profile
+```
+
+`fps` is frames delivered per second (headless is not locked to vsync, so above 60 is headroom); the `js` columns are the game's own work per frame, and `--profile` lists the functions with the most self time. Compare before/after a change with `--json`; runs vary about ±10%.
+
 ## Notes
 
 - Needs Playwright with a Chromium it can launch (`npm i -D playwright && npx playwright install chromium` on a new machine). Cloud sessions already have it. The page is served by Node's own `http` module on a free port.
