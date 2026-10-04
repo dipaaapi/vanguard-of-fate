@@ -1,3 +1,5 @@
+import { Sound } from "../audio.js";
+
 // ==================== MAGE (Arcane Sage) ====================
 // The look is the player's Avatar with a robe, hat and staff (js/classes/job.js).
 
@@ -28,6 +30,7 @@ export const MageClass = {
       maxExplosionRadius: 42,
       damageDealt: false
     });
+    if (Sound.playMeteorCast) Sound.playMeteorCast();
     return true;
   },
 
@@ -36,6 +39,7 @@ export const MageClass = {
   onSkill2(player, target, spawnSpell) {
     const a = player.aimAngle;
     spawnSpell({ type: "bolt", x: player.x + 10, y: player.y + 8, vx: Math.cos(a) * 4.2, vy: Math.sin(a) * 4.2, damage: 30, elem: "water", color: "#7dd3fc", size: 3, range: 200, freeze: 150 });
+    if (Sound.playDarkCast) Sound.playDarkCast();
     return true;
   },
 
@@ -53,6 +57,7 @@ export const MageClass = {
       strikeTimer: 0,
       activeBolts: []
     });
+    if (Sound.playThunder) Sound.playThunder();
     return true;
   }
 };

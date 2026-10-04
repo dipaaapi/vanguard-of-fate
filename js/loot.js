@@ -187,7 +187,7 @@ export class LootManager {
           item.y -= (dy / (dist || 1)) * 14;
           continue;
         }
-        if (Sound && Sound.playLootPickup) Sound.playLootPickup();
+        if (Sound) { if (item.type === "gold") { if (Sound.playCoin) Sound.playCoin(); } else if (Sound.playLootPickup) Sound.playLootPickup(); }
         if (fx && fx.spawnHitSparks) fx.spawnHitSparks(item.x, item.y, item.color, item.quest ? 24 : 10);
         this.items.splice(i, 1);
       }

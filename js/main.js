@@ -552,8 +552,8 @@ const actionPanel = new ActionPanel({
       questHud.toggleLog(quest, player, summonerName(), mentorName());
     }
   },
-  inventory: () => { Sound.init(); toggleInventory(); },
-  character: () => { Sound.init(); toggleCharacter(); },
+  inventory: () => { Sound.init(); toggleInventory(); panelSound(inventory.open); },
+  character: () => { Sound.init(); toggleCharacter(); panelSound(charPanel.open); },
   quick: (i) => { Sound.init(); if (gameState === "PLAYING" && !dialog.open) quickUse(i); },
   pause: () => {
     Sound.init();
@@ -568,16 +568,21 @@ const actionPanel = new ActionPanel({
     worldMap.close();
     exitToTitle();
   },
-  map: () => { Sound.init(); toggleMap(); },
-  codex: () => { Sound.init(); toggleCodex(); }
+  map: () => { Sound.init(); toggleMap(); panelSound(worldMap.open); },
+  codex: () => { Sound.init(); toggleCodex(); panelSound(codex.open); }
 });
+
+// Soft page-turn when a side panel opens or closes
+function panelSound(open) {
+  if (open) { if (Sound.playUiOpen) Sound.playUiOpen(); } else if (Sound.playUiClose) Sound.playUiClose();
+}
 
 quest.onChange = () => {
   npcManager.applyQuest(quest, playerClass());
   syncLoreAct();
   syncPlatformFlags();
   syncBoss();
-  if (player) questHud.toast(quest.text(player, summonerName(), mentorName()).goal);
+  if (player) { questHud.toast(quest.text(player, summonerName(), mentorName()).goal); if (Sound.playQuest) Sound.playQuest(); }
   saveGame();
 };
 
@@ -646,7 +651,7 @@ function travelTo(id, at = null) {
   (player.angelCompanions || []).forEach((a, k) => { a.x = player.x + (k ? 30 : -30); a.y = player.y - 16; });
 
   if (fx.spawnHitSparks) fx.spawnHitSparks(player.x + 10, player.y + 10, def ? def.color : "#ffd166", 22);
-  if (Sound.playHolyBurst) Sound.playHolyBurst();
+  if (Sound.playPortal) Sound.playPortal();
 
   // First arrival on the current Act's platform: the summoner greets the hero
   if (def && quest.step === quest.baseStep(id)) {
@@ -682,7 +687,7 @@ function handlePortal(portal) {
     player.x = hub.safeZone.x + hub.safeZone.w / 2 - 10;
     player.y = hub.safeZone.y + hub.safeZone.h - 30;
     if (fx.spawnHitSparks) fx.spawnHitSparks(player.x + 10, player.y + 10, "#38bdf8", 16);
-    if (Sound.playHolyBurst) Sound.playHolyBurst();
+    if (Sound.playPortal) Sound.playPortal();
     return;
   }
   if (dest && PLATFORMS[dest]) {
@@ -1040,7 +1045,7 @@ function awaken(chosenHero) {
   controller.clearAll();
   gameState = "PLAYING";
   if (fx.spawnHitSparks) fx.spawnHitSparks(p.x + 10, p.y + 10, "#ffd166", 28);
-  if (Sound.playHolyBurst) Sound.playHolyBurst();
+  if (Sound.playAwakening) Sound.playAwakening();
   if (gameConfig.music) Sound.startGameplayBGM();
   quest.advance(5);   // Act V: Dual Equipment Matrix
 
@@ -1341,6 +1346,7 @@ function updateGame() {
   if (player.hp <= 0) {
     gameState = "GAMEOVER";
     Sound.stopGameplayBGM();
+    if (Sound.playGameOver) Sound.playGameOver();
     return;
   }
 
@@ -1366,6 +1372,8 @@ function updateGame() {
   if (player && Sound && Sound.setListener) {
     Sound.setListener(player.x + 10, player.y + 21);
   }
+  // Music follows the place, the night and an engaged boss (switches only when one of them changes)
+  if (Sound.setScene) Sound.setScene(stage.id, dayNight.night() > 0.5, player.bossFight ? activeBoss.key : null);
 
   // Warp Gateway, Citadel gate, Return Gateway, rift or sea portal (may change platform)
   const before = stage;

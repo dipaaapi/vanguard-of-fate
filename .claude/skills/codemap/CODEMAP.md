@@ -13,7 +13,8 @@ then `outline <file>` and read only the line range you need.
 
 ## data/
 
-- `npc_conversations.json` (27 KB, 536) — NPC ambient chatter: solo lines per NPC and two-NPC exchanges, each line with en/fil text (fetched by npc/npcs.js)
+- `art_manifest.json` (13 KB, 488) — Every generated image (banners, title/portal backgrounds, vistas, portraits, relics): kind, EN/FIL caption and where the game uses it; paired with tools/art/scenes/index.js
+- `npc_conversations.json` (29 KB, 560) — NPC ambient chatter: solo lines per NPC and two-NPC exchanges, each line with en/fil text (fetched by npc/npcs.js)
 
 ## (root)
 
@@ -23,7 +24,7 @@ then `outline <file>` and read only the line range you need.
 
 - `actionpanel.js` (10 KB, 241) — Right panel skills and options: icon buttons for J/K/L/Space/E skills (hold supported) and option toggles · ActionPanel
 - `actreader.js` (5.0 KB, 146) — "Read more" Act reader: full text of finished Acts from LORE.md with their banners · ActReader
-- `audio.js` (8.8 KB, 307) — Procedural Web Audio chiptune music and SFX; volume falls off by distance and is muted off screen (exported Sound) · Sound
+- `audio.js` (30 KB, 643) — Procedural Web Audio engine (exported Sound): master/music/SFX buses with compressor and reverb, synth instruments, a lookahead sequencer that crossfades the tracks in js/music.js by place/night/boss (setScene), fanfares (playJingle) and 30+ play* SFX that fade by distance and mute off screen · Sound
 - `background.js` (0.9 KB, 25) — Background image helpers for assets/bg/: loadImage and cover-fit drawCover · loadImage, drawCover
 - `bestiary.js` (25 KB, 279) — Monster and boss definitions per Act (stats, sprite, medium, debuffs, en/fil names), night kinds and blights · MONSTERS, BOSSES, NIGHT_KINDS, BLIGHTS
 - `camera.js` (0.6 KB, 18) — Camera following the player, clamped to world bounds · Camera
@@ -35,22 +36,23 @@ then `outline <file>` and read only the line range you need.
 - `creator.js` (12 KB, 330) — Character Creator scene: builds the Novice's modular Avatar part by part before the summoning · CreatorScene
 - `daynight.js` (3.6 KB, 111) — Day/night cycle (6-minute day): phases, night tint and night monster behaviour · DayNight
 - `dialog.js` (5.8 KB, 192) — HTML dialogue box with speaker portrait, quest tracker HUD and quest log overlays · DialogBox, QuestHud
-- `dialogue.js` (22 KB, 392) — Story dialogue for Acts II–VI per NPC and quest step (en/fil); getDialogue(id, ctx), npcName · npcName, getDialogue
+- `dialogue.js` (23 KB, 400) — Story dialogue for Acts II–VI per NPC and quest step (en/fil); getDialogue(id, ctx), npcName · npcName, getDialogue
 - `elements.js` (4.9 KB, 104) — Race, element, size and type tables with damage multipliers and variant prefixes (Ragnarok style), en/fil names · ELEMENTS, elementMult, raceBonus, sizeMod, rollVariant, variantPrefix, elementName, raceName +1
-- `enemy.js` (40 KB, 927) — Enemy manager: monster spawning (hub, platforms, night, ambushes, bosses), AI state machines, telegraphed attacks, tiers/elements, death and drops · HUB_KINDS, EnemyManager
+- `enemy.js` (40 KB, 932) — Enemy manager: monster spawning (hub, platforms, night, ambushes, bosses), AI state machines, telegraphed attacks, tiers/elements, death and drops · HUB_KINDS, EnemyManager
 - `fx.js` (14 KB, 455) — Game feel: screen shake, hit-stop, shockwave rings, sparks, blood, damage numbers, flashes, vignette · FXManager
 - `hudbar.js` (4.5 KB, 105) — Bottom bar HUD outside the canvas: name, level, HP/EXP/gold, status icons, quest objective, field state, Quest/Pause buttons · HudBar
 - `i18n.js` (15 KB, 358) — UI strings in English and Filipino (STRINGS.en / STRINGS.fil), language stored in localStorage; t(key), getLang/setLang/toggleLang/onLangChange · getLang, setLang, toggleLang, onLangChange, t
 - `inventory.js` (31 KB, 622) — Inventory panel (I): hero look, worn equipment, stats, tabbed bag, item details and actions (equip, upgrade, refine, sockets) · InventoryPanel
 - `juice.js` (4.0 KB, 99) — Shared combat animation helpers for every fighter: rest/hit/attack/windup/breath/spawn poses, swing arcs · REST, hitPose, attackPose, windupPose, breathPose, spawnPose, mix, around +1
-- `loot.js` (8.7 KB, 250) — Loot drops: gold and items from slain monsters, ground items, magnetic pickup into the bag · LootManager
-- `lore.js` (7.0 KB, 227) — Loads LORE.md / LORE_FIL.md, parses ## Acts into chapters, act banners, auto-scrolling lore panel · loadLore, parseChapters, actNumber, BANNER_EXTS, bannerSrc, createLorePanel
-- `main.js` (69 KB, 1726) — Entry module and coordinator: canvas fit, scene routing (title → prologue → creator → game), managers, menus/shops, platform travel, save/load/export/import, Job Awakening, update + render game loop
+- `loot.js` (8.8 KB, 250) — Loot drops: gold and items from slain monsters, ground items, magnetic pickup into the bag · LootManager
+- `lore.js` (7.6 KB, 239) — Loads LORE.md / LORE_FIL.md, parses ## Acts into chapters, act banners, auto-scrolling lore panel · loadLore, parseChapters, actNumber, chapterKey, BANNER_EXTS, bannerSrc, createLorePanel
+- `main.js` (70 KB, 1734) — Entry module and coordinator: canvas fit, scene routing (title → prologue → creator → game), managers, menus/shops, platform travel, save/load/export/import, Job Awakening, update + render game loop
 - `mercenaryManager.js` (13 KB, 360) — Hireable mercenaries: contracts and fees, following, AI combat, daze and recovery, drawing · MercenaryManager
 - `monsterTiers.js` (4.7 KB, 105) — Monster tiers (Normal, Champion, Elite, MVP) and modifiers: rolling, applying, damage multipliers, names · MODS, modName, TIERS, rollTier, applyTier, tierName, has, damageTakenMult +3
+- `music.js` (15 KB, 313) — Music score as data: note/chord helpers, bass/arp/pad pattern styles, compileTrack, TRACKS (title, hub, night, canopy, coast, frost, ash, siege, maw, boss, finale), AREA_TRACK (platform id → track) and JINGLES · midi, freq, chord, compileTrack, TRACKS, AREA_TRACK, JINGLES
 - `player.js` (23 KB, 586) — Player entity: stats, stamina/sprint/dodge roll, damage and debuffs, EXP/levels, skill learning, movement, attack pose, drawing · expFor, Player
 - `projectiles.js` (13 KB, 352) — Player/mercenary projectiles and skill effects (meteor, thunder, arrows, ki spheres, dropkick) and their hit detection · ProjectileManager
-- `prologue.js` (35 KB, 793) — Act I animated pixel-art cutscene (480×270) explaining how the hero reached Aethelgard · PrologueScene
+- `prologue.js` (36 KB, 799) — Act I animated pixel-art cutscene (480×270) explaining how the hero reached Aethelgard · PrologueScene
 - `quest.js` (13 KB, 319) — Main quest Acts II–VI: steps with act, place, characters, objectives; QuestManager progress; mentor per class · FINAL_STEP, MENTOR_BY_CLASS, qt, QuestManager
 - `saveSecurity.js` (10 KB, 261) — Save format .vof: checksum/HMAC-style signing, XOR obfuscation, sanity audit of gold/stats/items/level, legacy .json migration; exposed as window.SaveSecurity
 - `select.js` (10 KB, 280) — Hero select scene with the Earthbound Souls isekai profiles · SelectScene
@@ -72,10 +74,10 @@ then `outline <file>` and read only the line range you need.
 ## js/classes/
 
 - `archer.js` (3.3 KB, 118) — Elven Archer class: quiver capacity, timed reload, falcon strike · ArcherClass
-- `fighter.js` (1.9 KB, 53) — Fighter (Brawler) class: ki spheres, lock-on, homing flying dropkick · FighterClass
+- `fighter.js` (2.1 KB, 58) — Fighter (Brawler) class: ki spheres, lock-on, homing flying dropkick · FighterClass
 - `job.js` (2.4 KB, 55) — Job look after the Job Awakening: keeps the creator body, swaps outfit and weapon per class · FRAME_COUNTS, refreshLook, equipJob
 - `knight.js` (2.2 KB, 57) — Knight (Aegis Lancer) class: stats and attack/skill handlers · KnightClass
-- `mage.js` (1.8 KB, 59) — Mage (Arcane Sage) class: meteor and thunderstorm skills · MageClass
+- `mage.js` (1.9 KB, 64) — Mage (Arcane Sage) class: meteor and thunderstorm skills · MageClass
 - `novice.js` (2.7 KB, 85) — Novice starting class (dagger + buckler) before the Lv 10 Job Awakening · getNovice
 - `priest.js` (3.2 KB, 110) — Priest class: smart heal and Guardian Angel summons · PriestClass
 
@@ -122,3 +124,49 @@ then `outline <file>` and read only the line range you need.
 ## scripts/
 
 - `headless.mjs` (4.8 KB, 100) — Headless loader: stubs document/window/localStorage/canvas so Node can import the game's modules (used by the balance, content and sprite tools); seedRandom for repeatable runs · ROOT, installStubs, load, seedRandom
+
+## tools/art/lib/
+
+- `kit.js` (31 KB, 649) — Painting kit for scenes: skies, eclipse/moon/sun, clouds, ridges, water/lava, castles, trees, rocks, crystals, rune circles, beams, rays, sparks, character staging (stand, rimLight) and discipline colours · Px, hex, mixC, shadeC, clamp, lerp, smooth, dith +46
+- `px.js` (13 KB, 298) — Px pixel buffer (shapes, gradients, glow, blit, silhouette, vignette, quantize, toCanvas) plus colour, noise, fbm, Bayer dither and banded ramp helpers · hex, mixC, shadeC, clamp, lerp, smooth, bayer, dith +7
+- `sprites.js` (3.4 KB, 66) — Game sprites for the art tools: NPC, hero, monster, boss and item-icon frames from the real Avatar/creature/icon code, plus the Lantern Knight look · npc, look, hero, monster, boss, DEFAULT_LOOK, icon, LANTERN_KNIGHT_LOOK +1
+
+## tools/art/
+
+- `render.mjs` (5.0 KB, 93) — Renders the procedural art to PNG in headless Chromium: node tools/art/render.mjs [keys…] [--list] [--preview]; PNG8 when ≤256 colours
+- `studio.html` (2.0 KB, 48) — Art studio page: paints every scene (or ?only=key) for review; exposes renderScene/sceneList to render.mjs
+
+## tools/art/scenes/
+
+- `act01.js` (5.0 KB, 83) — Art painter — Act I — The Sundered Dominion of Aethelgard · paint
+- `act02.js` (3.7 KB, 72) — Art painter — Act II — The Celestial Rift & The Earthbound Summoning · paint
+- `act03.js` (2.9 KB, 53) — Art painter — Act III — The Five Disciplines & Earthbound Profiles · paint
+- `act04.js` (4.6 KB, 74) — Art painter — Act IV — The Novice's Path & The Royal Job Awakening · paint
+- `act05.js` (3.7 KB, 63) — Art painter — Act V — The Dual Equipment Matrix & Strategic Warfare · paint
+- `act06.js` (3.2 KB, 46) — Art painter — Act VI — The Royal Covenant & The Vanguard Campaign · paint
+- `act07.js` (3.4 KB, 50) — Art painter — Act VII — The Corrupted Sylvan Frontier & The Elven Sanctuary · paint
+- `act08.js` (3.4 KB, 46) — Art painter — Act VIII — The Cerulean Abyss & The Sunken Monoliths · paint
+- `act09.js` (3.2 KB, 44) — Art painter — Act IX — The Frostfang Precipice & The Shivering Siege · paint
+- `act10.js` (4.2 KB, 65) — Art painter — Act X — The Ashfall Wastelands & The Hellforge · paint
+- `act11.js` (3.4 KB, 49) — Art painter — Act XI — The Siege of the Obsidian Citadel & The Broken Gates · paint
+- `act12.js` (2.7 KB, 39) — Art painter — Act XII — The Heart of the Abyss & The Sovereign Dawn · paint
+- `heralds.js` (2.0 KB, 35) — Art painter — Heralds — The Inverted Star · paint
+- `index.js` (3.6 KB, 65) — Scene registry: key → output path, native size, upscale and painter module; paintScene(key) · SCENES, paintScene
+- `ledger.js` (3.1 KB, 53) — Art painter — Ledger — The Rules of the Summoned · paint
+- `portal.js` (2.5 KB, 31) — Art painter — Portal — The Pentagram Gate · paint
+- `portraits.js` (2.7 KB, 33) — Art painter — Portrait cards — one per lore character, drawn with the character's in-game sprite on a backdrop · BOSSES, paint
+- `prophecy.js` (3.1 KB, 52) — Art painter — Prophecy — The Pentagram Seal · paint
+- `relics.js` (5.4 KB, 54) — Art painter — Relics and sigils — 32×32 item art for story objects that have no in-game icon yet: the four · paint
+- `title.js` (3.6 KB, 48) — Art painter — Title — The Lantern Knight's Sword · paint
+- `vistaBarracks.js` (2.1 KB, 32) — Art painter — Vista — The Barracks Sanctuary by day · paint
+- `vistaDawn.js` (2.6 KB, 33) — Art painter — Vista — The Sovereign Dawn · paint
+- `vistaEarth.js` (2.6 KB, 43) — Art painter — Vista — Earth, 2026: the day of the eclipse · paint
+- `vistaElven.js` (2.0 KB, 28) — Art painter — Vista — The Elven Sanctuary restored · paint
+- `vistaEmberhold.js` (2.3 KB, 33) — Art painter — Vista — The Emberhold Forge · paint
+- `vistaHarbor.js` (2.5 KB, 32) — Art painter — Vista — Crossing to the Dark Continent · paint
+- `vistaLantern.js` (1.7 KB, 27) — Art painter — Vista — The Lantern Knight, three centuries ago · paint
+- `worldMap.js` (4.1 KB, 37) — Art painter — Vista — Map of the two continents · paint
+
+## tools/audio/
+
+- `render-audio.mjs` (7.0 KB, 116) — Offline renders of the music, jingles and SFX to WAV/MP3 with peak/RMS checks: node tools/audio/render-audio.mjs [music|jingles|sfx|<name>…] [--mp3] [--out dir]; exits 1 on clipping or silence

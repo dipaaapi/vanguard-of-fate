@@ -256,7 +256,7 @@ export class Player {
       this.recalc();
       // A level-up restores a quarter of max HP (no longer a free full heal mid-fight)
       this.hp = Math.min(this.maxHp, this.hp + Math.round(this.maxHp * 0.25));
-      if (Sound && Sound.playSelectConfirm) Sound.playSelectConfirm();
+      if (Sound && Sound.playLevelUp) Sound.playLevelUp();
       if (this.onLevelUp) this.onLevelUp(this.level);
     }
   }

@@ -22,7 +22,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '../../..');
 const PURPOSES = path.join(HERE, 'purposes.json');
 const OUT = path.join(HERE, 'CODEMAP.md');
-const SCAN = ['index.html', 'js', 'css', 'data', 'scripts'];
+const SCAN = ['index.html', 'js', 'css', 'data', 'scripts', 'tools'];
 const EXT = /\.(js|mjs|cjs|json|css|html)$/;
 const CODE = /\.(js|mjs)$/;
 

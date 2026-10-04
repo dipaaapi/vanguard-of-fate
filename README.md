@@ -32,7 +32,10 @@ The full story lives in [LORE.md](LORE.md) (Filipino: [LORE_FIL.md](LORE_FIL.md)
   - Floating items are magnetically pulled toward the player when within proximity.
 - **Dedicated Modular UI & Audio:**
   - Dynamic gilded retro HUD with class portraits, health bars, and cooldown trackers.
-  - 100% synthesized Web Audio API sound effects and chiptune background music (zero external asset loading issues).
+  - 100% synthesized Web Audio API sound effects and music (no audio files): eleven tracks that change with the place, the night and boss fights, five fanfares and 30+ effects, all mixed through one compressor and reverb.
+- **Original Procedural Art:**
+  - Every banner, background, vista, portrait and relic image is painted by code in `tools/art/` (no third-party assets). `node tools/art/render.mjs --list` lists them, `node tools/art/render.mjs <key>` re-renders one, and `data/art_manifest.json` holds the EN/FIL caption for each file.
+  - `node tools/audio/render-audio.mjs --mp3` renders the music and sound effects offline for a listen and a level check.
 
 ---
 
@@ -63,7 +66,8 @@ vanguard-of-fate/
 │   ├── camera.js           # World coordinate tracking and viewport clamping
 │   ├── ui.js               # Portraits, health bars, HUD, and game over overlays
 │   ├── fx.js               # Screen shake, damage popups, sparks, and vignette
-│   ├── audio.js            # Web Audio API retro chiptune synthesizer and SFX
+│   ├── audio.js            # Web Audio engine: sequencer, instruments, SFX
+│   ├── music.js            # Music score (tracks, jingles) as data
 │   ├── loot.js             # Magnetic floating item drops and temporary buff logic
 │   ├── sprite.js           # Pixel matrix parser and shared environment sprites
 │   └── classes/
