@@ -1,3 +1,5 @@
+import { GFX } from "../settings.js";
+
 // ==================== CAMPAIGN PLATFORMS (LORE Acts VII–XII) ====================
 // Each Act has its own place, monsters (5 regular + 4 elite kinds), sites to scout, boss and quest item:
 //   canopy  VII  Whispering Canopy        (EAST gateway)   boss: Malakor      → Blighted Heartstone
@@ -28,6 +30,7 @@ function ring(ctx, x, y, rx, ry, color, w = 1, dash = null) {
   ctx.setLineDash([]);
 }
 function glow(ctx, x, y, r, color, alpha = 0.35) {
+  if (!GFX.glow) return;     // Options → Glow & Light
   const g = ctx.createRadialGradient(x, y, 1, x, y, r);
   g.addColorStop(0, color.replace(")", `, ${alpha})`).replace("rgb(", "rgba("));
   g.addColorStop(1, "rgba(0,0,0,0)");

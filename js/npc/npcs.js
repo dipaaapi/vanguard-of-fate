@@ -6,6 +6,7 @@ import { qt } from "../quest.js";
 import { PLATFORMS, PLATFORM_ORDER } from "../world/platforms.js";
 import { Sound } from "../audio.js";
 import { getLang } from "../i18n.js";
+import { GFX } from "../settings.js";
 
 // ==================== NPCs IN THE WORLD ====================
 // An NPC's position (x, y) is the middle of its feet, like the Avatar's anchor.
@@ -437,10 +438,7 @@ class NPC {
   }
 
   draw(ctx) {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
-    ctx.beginPath();
-    ctx.ellipse(this.x, this.y - 1, 8, 3, 0, 0, Math.PI * 2);
-    ctx.fill();
+    if (GFX.shadows) { ctx.fillStyle = "rgba(0, 0, 0, 0.28)"; ctx.beginPath(); ctx.ellipse(this.x, this.y - 1, 8, 3, 0, 0, Math.PI * 2); ctx.fill(); }
 
     if (this.attackAnimTimer > 0) {
       const frame = this.attackAnimTimer > 7 ? 0 : 1;

@@ -1,4 +1,5 @@
 import { FalconSprite } from "../avatar/creature.js";
+import { GFX } from "../settings.js";
 
 // One sprite for every falcon (frames are cached)
 const SPRITE = new FalconSprite();

@@ -1,3 +1,5 @@
+import { SkillSlots } from "./skillslots.js";
+
 export class InputController {
   constructor() {
     this.keys = {};
@@ -5,13 +7,15 @@ export class InputController {
   }
 
   setupListeners() {
+    SkillSlots.onChange(() => this.clearAll());   // no skill stays held across a rearrangement
+    // J/K/L follow the skill slots on the bottom tray (drag and drop), so a key reads as its slot's ability
     window.addEventListener("keydown", (e) => {
-      this.keys[e.code] = true;
+      this.keys[SkillSlots.logical(e.code)] = true;
       if (e.code === "Space") e.preventDefault();
     });
 
     window.addEventListener("keyup", (e) => {
-      this.keys[e.code] = false;
+      this.keys[SkillSlots.logical(e.code)] = false;
     });
 
     window.addEventListener("blur", () => {

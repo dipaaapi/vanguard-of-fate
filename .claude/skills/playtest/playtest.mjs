@@ -99,6 +99,17 @@ for (const raw of script.split(",").map((s) => s.trim()).filter(Boolean)) {
     await page.screenshot({ path: f });
     shots.push(f);
   } else if (step === "eval") console.log(`eval ${arg} → ${JSON.stringify(await page.evaluate(arg))}`);
+  else if (step === "click") { await page.click(arg); await page.waitForTimeout(80); }
+  else if (step === "drag") {
+    // drag:<from selector>>><to selector> — a real mouse drag (press, move in steps, release)
+    const [from, to] = arg.split(">>").map((x) => x.trim());
+    const a = await page.locator(from).first().boundingBox(), b = await page.locator(to).first().boundingBox();
+    await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 8 });
+    await page.mouse.up();
+    await page.waitForTimeout(80);
+  }
   else {
     const [key, hold] = step.split("*");
     if (hold) { await page.keyboard.down(key); await page.waitForTimeout(Math.round((parseInt(hold, 10) * 1000) / 60)); await page.keyboard.up(key); }
