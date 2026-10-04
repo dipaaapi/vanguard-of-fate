@@ -89,7 +89,7 @@ then `outline <file>` and read only the line range you need.
 ## js/items/
 
 - `bag.js` (15 KB, 371) — Bag and equipment: stacking, equip/unequip, set bonuses, upgrades and refines, serialisation · BAG_SIZE, signature, Bag
-- `cooking.js` (9.5 KB, 129) — Fishing and cooking data: fish per place, food items, 15 dishes (5 per STR/DEX/INT) with stat and skill buffs, cook/eat · FISH_POOLS, FOOD_ITEMS, DISHES, DISH_ORDER, cookCheck, cook, mealBonus, startMeal
+- `cooking.js` (9.9 KB, 131) — Fishing and cooking data: fish per place, food items, 15 dishes (5 per STR/DEX/INT) with stat and skill buffs, cook/eat · FISH_POOLS, FOOD_ITEMS, DISHES, DISH_ORDER, cookCheck, cook, mealBonus, startMeal
 - `crafting.js` (6.4 KB, 130) — Safe-zone crafting: base item per class/path/slot, craft checks, crafting pieces, auto-craft, recommended path, material transmutes · baseFor, craftSlots, pieceFor, craftCheck, craftPiece, ownedPieces, nextPiece, autoCraft +5
 - `craftsets.js` (13 KB, 206) — Crafted gear data: STR/DEX/INT paths, Lv 10/25/50/75/100 tiers, ores/cores/essences, crafted sets with stat and skill boosts, monster material drops, recipes, ore veins per platform · PATHS, PATH_ORDER, CRAFT_TIERS, tierOfLevel, CRAFT_ITEMS, CRAFT_SETS, rollMaterials, CRAFT_SLOTS +5
 - `durability.js` (1.8 KB, 39) — Equipment durability: wear on use, broken state, repair cost · DUR_MAX, WEAR_WEAPON, WEAR_ARMOR, LOW_DUR, ARMOR_SLOTS, durOf, isBroken, wear +2
