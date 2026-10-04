@@ -38,12 +38,18 @@ export function familiarFor(player) {
 export const familiarDamage = (kind, heroLevel, lv) => Math.round((4 + 1.1 * heroLevel) * FAMILIARS[kind].mult * (0.7 + 0.06 * lv));
 
 // Keeps player.familiar in step with the skill tree; call every frame (cheap)
+// When the ship's crew list (player.companions) exists, the familiar is kept in it so it can board.
 export function syncFamiliar(player) {
   const want = familiarFor(player);
   const f = player.familiar;
-  if (!want) { player.familiar = null; return null; }
-  if (!f || f.kind !== want.kind) player.familiar = new Familiar(want.kind, player.x - 20, player.y + 6);
-  player.familiar.lv = want.lv;
+  if (!want) player.familiar = null;
+  else if (!f || f.kind !== want.kind) player.familiar = new Familiar(want.kind, player.x - 20, player.y + 6);
+  if (player.familiar) player.familiar.lv = want.lv;
+  const crew = player.companions;
+  if (Array.isArray(crew) && player.familiar !== f) {
+    if (f) { const i = crew.indexOf(f); if (i >= 0) crew.splice(i, 1); }
+    if (player.familiar) crew.push(player.familiar);
+  }
   return player.familiar;
 }
 
@@ -62,6 +68,8 @@ export class Familiar {
     this.t = 0;
     this.atkT = 0;
     this.beam = null;          // owl: { x1, y1, t } line to the foe it hit
+    this.flying = Boolean(this.k.fly);   // ship crew: a flyer perches in the rigging
+    this.aboard = false;                 // seated on the ship (the ship moves it)
   }
 
   // Put next to the hero (travel, load)
@@ -77,6 +85,7 @@ export class Familiar {
     if (this.cd > 0) this.cd--;
     if (this.atkT > 0) this.atkT--;
     if (this.beam && --this.beam.t <= 0) this.beam = null;
+    if (this.aboard) { this.anim = "idle"; this.target = null; return; }
     if (Math.hypot(player.x - this.x, player.y - this.y) > TELEPORT) this.place(player);
 
     // Pick the closest foe near the hero
