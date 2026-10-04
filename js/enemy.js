@@ -7,6 +7,7 @@ import { getLang } from "./i18n.js";
 import { STATUS, statusName } from "./status.js";
 import { around, mix, hitPose, attackPose, windupPose, breathPose, spawnPose, REST } from "./juice.js";
 import { GFX } from "./settings.js";
+import { HUB_KINDS, HUB_ELITES } from "./world/areas.js";
 
 // ========================================================
 // ENEMIES

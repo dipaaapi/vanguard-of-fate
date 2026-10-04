@@ -179,12 +179,26 @@ export class Player {
     this.hp = Math.min(this.hp, this.maxHp);
   }
 
-  // Oblivion Mushroom: every stat back to 1 and every skill forgotten; all points are refunded
+  // Full reset (job awakening, Oblivion Mushroom): every stat back to 1 and every skill forgotten
   respec() {
+    this.resetStats();
+    this.resetSkills();
+  }
+
+  // Stat reset (free, any time from the Character panel): every stat back to 1, all points refunded.
+  // The auto stat path is switched off so the refunded points are not spent again at once.
+  resetStats() {
     Object.keys(this.stats).forEach((k) => {
       for (let v = 1; v < this.stats[k]; v++) this.statPoints += statCost(v);
       this.stats[k] = 1;
     });
+    this.autoStat = "off";
+    this.recalc();
+    this.hp = Math.min(this.hp, this.maxHp);
+  }
+
+  // Skill reset (free, any time): every skill forgotten, all skill points refunded, T/Y/U slots cleared
+  resetSkills() {
     this.skillPoints += Object.values(this.skillLevels).reduce((n, lv) => n + lv, 0);
     this.skillLevels = {};
     this.pathSlots = SLOT_KEYS.map(() => null);

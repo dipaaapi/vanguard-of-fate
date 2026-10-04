@@ -5,6 +5,7 @@ import { PortalSystem } from "./world/portal.js";
 import { WeatherSystem } from "./world/weather.js";
 import { TileMap } from "./world/tilemap.js";
 import { GFX } from "./settings.js";
+import { HUB_AREA } from "./world/areas.js";
 
 // The plains of Aethelgard (Acts I–VI): Barracks, Citadel and the 4 Warp Gateways.
 // The boat and the sea are in the Cerulean Abyss (the "coast" platform).

@@ -21,7 +21,8 @@ const TEXT = {
     autoHint: "Spends stat points on every level-up.", spend: "Spend now", style: "Your style", undecided: "Undecided — keep fighting",
     styleHint: "Up close builds Might, range and crits build Finesse, skills and spells build Arcana. The leading path gets +20% passives and unlocks its capstone.",
     active: "Active", passive: "Passive", summon: "Summon", cd: "Cooldown", slots: "Skill slots", slot: "Set to", clear: "Clear",
-    needLv: "Needs Lv", needStyle: "Needs this path as your style", ownSummon: "Your class has its own summon", resonant: "Resonant +20%"
+    needLv: "Needs Lv", needStyle: "Needs this path as your style", ownSummon: "Your class has its own summon", resonant: "Resonant +20%",
+    resetStats: "Reset stats", resetSkills: "Reset skills", confirm: "Click again to confirm"
   },
   fil: {
     title: "Covenant Ledger", stats: "Katangian", skills: "Skill", points: "Stat point", spoints: "Skill point",
@@ -34,7 +35,8 @@ const TEXT = {
     autoHint: "Ginagastos ang stat point sa bawat level-up.", spend: "Gastusin na", style: "Iyong istilo", undecided: "Hindi pa tiyak — lumaban pa",
     styleHint: "Ang malapitang laban ay para sa Lakas, ang malayuan at crit ay sa Liksi, ang skill at spell ay sa Hiwaga. Ang nangungunang landas ay may +20% sa passive at nabubuksan ang capstone.",
     active: "Active", passive: "Passive", summon: "Summon", cd: "Cooldown", slots: "Mga skill slot", slot: "Ilagay sa", clear: "Alisin",
-    needLv: "Kailangan ang Lv", needStyle: "Kailangang ito ang iyong istilo", ownSummon: "May sariling summon ang iyong klase", resonant: "Umaalingawngaw +20%"
+    needLv: "Kailangan ang Lv", needStyle: "Kailangang ito ang iyong istilo", ownSummon: "May sariling summon ang iyong klase", resonant: "Umaalingawngaw +20%",
+    resetStats: "I-reset ang stat", resetSkills: "I-reset ang skill", confirm: "I-click ulit para kumpirmahin"
   }
 };
 const tx = () => TEXT[getLang()] || TEXT.en;
@@ -64,6 +66,7 @@ export class CharacterPanel {
 
   close() {
     this.open = false;
+    this.confirmReset = null;
     this.el.classList.remove("open");
   }
 
@@ -93,7 +96,7 @@ export class CharacterPanel {
     add(el, "div", "ql-sub", `${p.heroName || ""} · ${p.heroData.id === "novice" ? "Novice" : p.heroData.name} · Lv ${p.level}`);
     const tabs = add(el, "div", "ch-tabs");
     [["stats", `${T.stats} (${p.statPoints})`], ["skills", `${T.skills} (${p.skillPoints})`], ["paths", T.paths]].forEach(([id, label]) => {
-      button(tabs, "ch-tab" + (this.tab === id ? " on" : ""), label, () => { this.tab = id; this.render(); });
+      button(tabs, "ch-tab" + (this.tab === id ? " on" : ""), label, () => { this.tab = id; this.confirmReset = null; this.render(); });
     });
 
     if (this.tab === "stats") this.renderStats(el, add, button);
@@ -102,11 +105,25 @@ export class CharacterPanel {
     add(el, "div", "ql-foot", T.close);
   }
 
+  // Free reset, any time: the first click arms it, the second refunds every point
+  resetButton(parent, button, kind) {
+    const p = this.player, T = tx();
+    const armed = this.confirmReset === kind;
+    const spent = kind === "stats" ? Object.values(p.stats).some((v) => v > 1) : Object.keys(p.skillLevels).length > 0;
+    button(parent, "ch-chip ch-reset" + (armed ? " on" : ""), armed ? T.confirm : (kind === "stats" ? T.resetStats : T.resetSkills), () => {
+      if (!armed) { this.confirmReset = kind; this.render(); return; }
+      this.confirmReset = null;
+      if (kind === "stats") p.resetStats(); else p.resetSkills();
+      this.render();
+    }, !spent);
+  }
+
   renderStats(el, add, button) {
     const p = this.player, T = tx();
     const grid = add(el, "div", "ch-grid");
     const left = add(grid, "div", "ch-col");
     add(left, "div", "inv-head", `${T.points}: ${p.statPoints}`);
+    this.resetButton(left, button, "stats");
     const primary = PRIMARY[p.heroData.id] || "str";
     STATS.forEach((k) => {
       const base = p.stats[k];
@@ -156,6 +173,7 @@ export class CharacterPanel {
   renderSkills(el, add, button) {
     const p = this.player, T = tx();
     add(el, "div", "inv-head", `${T.spoints}: ${p.skillPoints}`);
+    this.resetButton(el, button, "skills");
     const wrap = add(el, "div", "ch-trees");
     const cls = p.heroData.id;
     const trees = cls === "novice" ? ["novice", null] : treesFor(cls);
@@ -198,6 +216,7 @@ export class CharacterPanel {
   renderPaths(el, add, button) {
     const p = this.player, T = tx();
     add(el, "div", "inv-head", `${T.spoints}: ${p.skillPoints}`);
+    this.resetButton(el, button, "skills");
 
     // Play-style meter
     const style = styleOf(p), shares = styleShares(p);

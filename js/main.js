@@ -677,7 +677,11 @@ const actionPanel = new ActionPanel({
   },
   map: () => { Sound.init(); toggleMap(); panelSound(worldMap.open); },
   codex: () => { Sound.init(); toggleCodex(); panelSound(codex.open); },
-  workshop: () => { Sound.init(); openWorkshop(); }
+  workshop: () => { Sound.init(); openWorkshop(); },
+  settings: () => { Sound.init(); toggleSettings(); },
+  market: () => { Sound.init(); toggleMarket(); },
+  fullscreen: () => { Sound.init(); toggleFullscreen(); },
+  slotsChanged: () => { if (Sound.playSelectMove) Sound.playSelectMove(); saveGame(); }
 });
 
 // Soft page-turn when a side panel opens or closes
@@ -1235,7 +1239,8 @@ function startAwakening() {
   if (Sound.playHolyBurst) Sound.playHolyBurst();
 }
 
-// Replaces the Novice with the chosen class; keeps level, exp, gold, stats and name
+// Replaces the Novice with the chosen class; keeps level, exp, gold and name.
+// Stats and skills are reset with every point refunded, so the new job is built from scratch.
 function awaken(chosenHero) {
   const old = player;
   // Same look from the Character Creator; the class provides the new gear
@@ -1247,6 +1252,7 @@ function awaken(chosenHero) {
   p.bag = old.bag;
   p.bag.giveKit(chosenHero.id, 1);
   attachBag(p);
+  p.respec();
   p.hp = p.maxHp;
   if (chosenHero.id === "archer") p.falconCompanion = new FalconCompanion(p.x, p.y);
   player = p;
