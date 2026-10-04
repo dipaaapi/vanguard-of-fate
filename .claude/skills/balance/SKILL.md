@@ -13,6 +13,8 @@ node $B                          # every class × every area (hub + Acts VII–X
 node $B --area frost             # one area, one row per monster + the boss, with each hero's full stat line
 node $B --level +3               # heroes over-levelled (or -3 under-levelled)
 node $B --gear kit               # only the class kit + starter clothes (worst case gear)
+node $B --build class            # stats spent by the in-game auto stat path (str | dex | int | class)
+node $B --familiar 5             # Novice/Knight/Mage/Fighter add their familiar at skill Lv 5 (js/summons/familiar.js)
 node $B --out reports/balance-report.md
 ```
 
@@ -27,14 +29,14 @@ Areas: `hub`, `canopy`, `coast`, `frost`, `ash`, `siege`, `maw`.
 - **Kills/Lv**: same-level normal kills for the next level (`expFor` vs `EnemyManager.kill`).
 - **Boss TTK / hits to die**: the Act boss 1 v 1 (patterns, hazards and summons not simulated).
 
-Not modelled (say so when you quote numbers): Priest angels and heals, Archer quiver reload, the falcon, mercenaries, potions, skill-tree points, night (+20% monster damage), Champion/Elite tiers (×2 / ×3.5 HP), monster movement and patterns. The baseline today: Priest has by far the lowest solo kill speed because its J is a heal and its angels aren't counted. Read Priest rows with that in mind.
+Not modelled (say so when you quote numbers): Priest angels and heals, Archer quiver reload, the falcon, mercenaries, potions, skill-tree points (only the familiar, with `--familiar`), path actives on T/Y/U, night (+20% monster damage), Champion/Elite tiers (×2 / ×3.5 HP), monster movement and patterns. The baseline today: Priest has by far the lowest solo kill speed because its J is a heal and its angels aren't counted. Read Priest rows with that in mind.
 
 ## Workflow
 
 1. **Baseline:** run `node $B` (or `--area <id>`) before touching anything and keep the output.
-2. **Find the lever** with `/codemap` (`where <symbol>`), not by reading files: monster numbers in `bestiary.js` (`hpMult`, `dmg`) and `EnemyManager.spawn` (`35 + lvl*12` HP, `dmg + lvl*1.6`); bands in `EnemyManager.setArea`; hero curves in `Player.recalc` / `takeDamage` / `expFor`; skill damage in each kit's `onAttack/onSkill/onSkill2` and `projectiles.js`; gear in `itemdb.js` (`EQUIP`, grade scaling).
+2. **Find the lever** with `/codemap` (`where <symbol>`), not by reading files: monster numbers in `bestiary.js` (`hpMult`, `dmg`) and `EnemyManager.spawn` (`35 + lvl*12` HP, `dmg + lvl*1.6`); bands in `EnemyManager.setArea`; hero curves in `Player.recalc` / `takeDamage` / `expFor`; skill damage in each kit's `onAttack/onSkill/onSkill2` and `projectiles.js`; gear in `itemdb.js` (`EQUIP`, grade scaling); crafted sets, recipes and material drops in `items/craftsets.js` (`CRAFT_TIERS`, `CRAFT_SETS`, `recipeFor`, `DROPS`); buy/sell rates in `items/economy.js`; monster gold in `loot.js`; mercenaries in `mercenary/*` and `MercenaryManager.hire`.
 3. **Change one lever**, rerun the same command, compare. Prefer changing a table value over a formula.
 4. **Fairness:** aim to narrow the class spread without flattening class identity (Knight tanky, Mage glass cannon). Report before → after numbers for the affected areas.
 5. Run `node .claude/skills/codemap/codemap.mjs verify` and `node .claude/skills/content/content-check.mjs`. For feel, run `/playtest`.
 
-If a mechanic the simulator ignores becomes the subject (angels, quiver, night), extend `balance-sim.mjs` with the real module rather than estimating by hand, and update the "Not modelled" list above.
+If a mechanic the simulator ignores becomes the subject (angels, quiver, night), extend `balance-sim.mjs` with the real module rather than estimating by hand (pets and familiars next), and update the "Not modelled" list above.

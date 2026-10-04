@@ -1,4 +1,6 @@
 import { getLang } from "../i18n.js";
+import { CRAFT_ITEMS, CRAFT_SETS, rollMaterials } from "./craftsets.js";
+import { FOOD_ITEMS } from "./cooking.js";
 
 // ==================== ITEM DATABASE ====================
 // Inspired by Ragnarok Online and Diablo II, with an isekai twist (LORE Acts IV–V: Dual Equipment Matrix).
@@ -10,7 +12,9 @@ import { getLang } from "../i18n.js";
 // SOCKETS and CARDS (Ragnarok): equipment has 0–3 sockets; monster cards are inserted into them.
 // REFINE (Ragnarok): +1 to +10. Safe up to +4; from +5 it may fail
 //   (the materials are lost but not the item — an isekai mercy).
-// GRADE (tier 0–7): where it dropped; stats grow with every grade.
+// GRADE (tier 0–12): how strong the base is; stats grow with every grade. Crafted sets use grades 3–12.
+// DROPS: monsters no longer drop equipment. They drop crafting materials, and gear is crafted at a
+//   safe zone (js/items/craftsets.js, js/items/crafting.js).
 //
 // An item in the bag or worn is an "instance": { id, qty, plus, rarity, affixes: [{k, v}], sockets, cards: [] }
 // Equipment ids are "base@grade" (e.g. "lance@3"); uniques are "u:key".
@@ -29,28 +33,33 @@ export const RARITY = {
 // ---------- MINERAL SETS (forged by Brakka in Emberhold from mined minerals) ----------
 // Every piece is a class-appropriate base item at a high grade plus a per-piece bonus; wearing several
 // pieces of the same set adds the bonuses at 2, 4 and 5 pieces (5 = the set's named passive).
+// The crafted sets (Lv 10–100, js/items/craftsets.js) are merged in below; they count 2 / 4 / 6 pieces.
 export const SETS = {
   ember: {
-    grade: 5, color: "#f97316", name: { en: "Emberforged", fil: "Emberforged" },
+    mineral: true, grade: 5, color: "#f97316", name: { en: "Emberforged", fil: "Emberforged" },
     piece: { def: 3, hp: 12 },
     bonus: { 2: { def: 12 }, 4: { hp: 120, atk: 10 }, 5: { crit: 8, aspd: 8 } },
     passive: { en: "Forge Heart", fil: "Puso ng Pandayan" }
   },
   mythril: {
-    grade: 6, color: "#93c5fd", name: { en: "Mythril Vanguard", fil: "Mythril Vanguard" },
+    mineral: true, grade: 6, color: "#93c5fd", name: { en: "Mythril Vanguard", fil: "Mythril Vanguard" },
     piece: { def: 4, cdr: 1 },
     bonus: { 2: { cdr: 6 }, 4: { def: 20, hp: 150 }, 5: { atk: 25, spd: 0.1 } },
     passive: { en: "Unbroken Line", fil: "Hindi Nasisirang Hanay" }
   },
   star: {
-    grade: 7, color: "#fde68a", name: { en: "Starforged", fil: "Starforged" },
+    mineral: true, grade: 7, color: "#fde68a", name: { en: "Starforged", fil: "Starforged" },
     piece: { atk: 4, crit: 1 },
     bonus: { 2: { crit: 6, luk: 6 }, 4: { atk: 30, aspd: 10 }, 5: { str: 8, agi: 8, vit: 8, int: 8, dex: 8, luk: 8, cdr: 10 } },
     passive: { en: "Sovereign Star", fil: "Soberanong Bituin" }
   }
 };
-export const SET_THRESHOLDS = [2, 4, 5];
-export const GRADE_NAMES = ["Aethelgard", "Iron", "Sylvan", "Tidal", "Frostforged", "Hellforged", "Imperial", "Sovereign"];
+Object.assign(SETS, CRAFT_SETS);
+export const SET_THRESHOLDS = [2, 4, 5];   // mineral sets; use setThresholds(set) for any set
+export const setThresholds = (set) => Object.keys((set && set.bonus) || {}).map(Number).sort((a, b) => a - b);
+export const GRADE_NAMES = ["Aethelgard", "Iron", "Sylvan", "Tidal", "Frostforged", "Hellforged", "Imperial", "Sovereign",
+  "Runic", "Abyssal", "Demonforged", "Celestial", "Divine"];
+const MAX_GRADE = GRADE_NAMES.length - 1;
 
 const lang = () => (getLang() === "fil" ? "fil" : "en");
 const N = (en, fil = en) => ({ en, fil });
@@ -131,26 +140,8 @@ const UNIQUES = {
 };
 
 // ---------- AFFIX (Diablo II) ----------
-// base = value at grade 0 (grows ×(1 + grade × 0.5))
-const PREFIXES = [
-  { k: "atk", base: 4, name: N("Mighty", "Makapangyarihang") },
-  { k: "def", base: 3, name: N("Sturdy", "Matibay na") },
-  { k: "hp", base: 15, name: N("Vital", "Masiglang") },
-  { k: "crit", base: 3, name: N("Keen", "Matalas na") },
-  { k: "cdr", base: 3, name: N("Arcane", "Arkanong") },
-  { k: "aspd", base: 4, name: N("Swift", "Mabilis na") }
-];
-const SUFFIXES = [
-  { k: "str", base: 2, name: N("of Strength", "ng Lakas") },
-  { k: "agi", base: 2, name: N("of Agility", "ng Liksi") },
-  { k: "vit", base: 2, name: N("of Vitality", "ng Sigla") },
-  { k: "int", base: 2, name: N("of the Mind", "ng Isip") },
-  { k: "dex", base: 2, name: N("of Precision", "ng Katumpakan") },
-  { k: "luk", base: 2, name: N("of Fortune", "ng Suwerte") },
-  { k: "spd", base: 0.04, name: N("of the Wind", "ng Hangin") }
-];
-const RARE_A = ["Doom", "Storm", "Eclipse", "Grave", "Dawn", "Void", "Ember", "Frost", "Blood", "Star", "Rune", "Ashen"];
-const RARE_B = ["Bite", "Song", "Ward", "Fang", "Veil", "Spire", "Mark", "Wreath", "Coil", "Shroud", "Edge", "Heart"];
+// Magic and rare pieces from older saves keep their affixes (with their names) on the instance;
+// new gear is crafted, so no affixes are rolled any more.
 
 // ---------- CONSUMABLES, MATERIALS, QUEST ITEMS ----------
 const OTHER = {
@@ -160,8 +151,9 @@ const OTHER = {
   mythril:     { type: "material", icon: "ore", tint: "#93c5fd", price: 80, name: N("Mythril", "Mythril"), desc: N("Light, unbreakable silver from the Obsidian Citadel's buried veins. Forges Mythril Vanguard and tempers accessories.", "Magaan at matibay na pilak mula sa ilalim ng Obsidian Citadel. Pang-forge ng Mythril Vanguard at pampatibay ng aksesorya.") },
   starsteel:   { type: "material", icon: "crystal", tint: "#fde68a", price: 200, name: N("Starsteel", "Starsteel"), desc: N("A rare fallen-star alloy. Needed for Starforged gear.", "Bihirang haluang metal mula sa bumagsak na bituin. Kailangan sa Starforged.") },
   dwarvenPickaxe: { type: "quest", icon: "ore", tint: "#a8a29e", name: N("Dwarven Pickaxe", "Piko ng Dwarf"), desc: N("Thane Durgrim's gift. Lets you mine ore veins in the Ashfall Wastelands and the Siege.", "Regalo ni Thane Durgrim. Nagbibigay-daan sa pagmimina sa Ashfall Wastelands at sa Siege.") },
-  salve:    { type: "consume", icon: "potion", tint: "#ef4444", price: 10, effect: { heal: 40 }, name: N("Red Potion", "Pulang Potion"), desc: N("Restores 40 HP.", "Nagbabalik ng 40 HP.") },
-  elixir:   { type: "consume", icon: "potion", tint: "#f8fafc", price: 30, effect: { heal: 150 }, name: N("White Potion", "Puting Potion"), desc: N("Restores 150 HP.", "Nagbabalik ng 150 HP.") },
+  // healPct: potions keep up with the hero — they restore the HP or that share of max HP, whichever is more
+  salve:    { type: "consume", icon: "potion", tint: "#ef4444", price: 10, effect: { heal: 40, healPct: 0.06 }, name: N("Red Potion", "Pulang Potion"), desc: N("Restores 40 HP or 6% of max HP, whichever is more.", "Nagbabalik ng 40 HP o 6% ng max HP, alinman ang mas marami.") },
+  elixir:   { type: "consume", icon: "potion", tint: "#f8fafc", price: 30, effect: { heal: 150, healPct: 0.2 }, name: N("White Potion", "Puting Potion"), desc: N("Restores 150 HP or 20% of max HP, whichever is more.", "Nagbabalik ng 150 HP o 20% ng max HP, alinman ang mas marami.") },
   tonic:    { type: "consume", icon: "potion", tint: "#facc15", price: 12, effect: { stamina: 100, fresh: 600 }, name: N("Stamina Tonic", "Tonic ng Lakas"), desc: N("Refills stamina; no fatigue for 10s.", "Puno ang stamina; walang pagod sa 10s.") },
   panacea:  { type: "consume", icon: "potion", tint: "#4ade80", price: 15, effect: { cure: true }, name: N("Edgar's Panacea", "Panacea ni Edgar"), desc: N("Purges all seven miasmic blights.", "Inaalis ang pitong sumpa ng miasma.") },
   // Rare respec item: drops very seldom, sometimes sold by Pip in Emberhold at a steep price
@@ -185,6 +177,8 @@ const OTHER = {
   imperialCrest:{ type: "quest", icon: "crest", tint: "#ffd166", name: N("Imperial Crest", "Imperial Crest"), desc: N("The King's last gift, for the new Sovereign.", "Huling handog ng Hari para sa bagong Sovereign.") },
   astralAsh:    { type: "quest", icon: "ash", tint: "#fde68a", name: N("Astral Ash of Satan", "Astral na Abo ni Satan"), desc: N("All that remains of the Demon Lord.", "Ang natira sa Demon Lord.") }
 };
+// Crafting materials (ores, cores, essences) and cooking (fish, ingredients, the 15 dishes)
+Object.assign(OTHER, CRAFT_ITEMS, FOOD_ITEMS);
 
 // ---------- CARDS (Ragnarok) — one per monster and boss ----------
 const CARDS = {
@@ -233,10 +227,21 @@ export function statText(k, v) {
   return `${STAT_LABEL[k] || k.toUpperCase()} ${sign}${k === "spd" ? v.toFixed(2) : v}`;
 }
 
+// Skill boosts from crafted sets and meals (same keys as the skill-tree bonuses in js/skills.js)
+const SKILL_LABEL = {
+  en: { dmg: "Skill DMG +{v}%", kcd: "K cooldown −{v}%", lcd: "L cooldown −{v}%", heal: "Healing +{v}%", dmgReduce: "Damage taken −{v}%",
+    aspd: "Attack speed +{v}%", crit: "Crit +{v}%", move: "Move speed +{v}%", regen: "Regen +{v} HP / 3s", cdr: "Cooldowns −{v}%" },
+  fil: { dmg: "Pinsala ng skill +{v}%", kcd: "Cooldown ng K −{v}%", lcd: "Cooldown ng L −{v}%", heal: "Paggaling +{v}%", dmgReduce: "Natatanggap na pinsala −{v}%",
+    aspd: "Bilis ng atake +{v}%", crit: "Crit +{v}%", move: "Bilis ng lakad +{v}%", regen: "Regen +{v} HP / 3s", cdr: "Cooldown −{v}%" }
+};
+export function skillText(k, v) {
+  return (SKILL_LABEL[lang()][k] || `${k} +{v}`).replace("{v}", v);
+}
+
 // "lance@3" → { base: "lance", grade: 3 }
 function parseId(id) {
   const [base, g] = String(id).split("@");
-  return { base, grade: g === undefined ? 0 : Math.max(0, Math.min(7, parseInt(g, 10) || 0)) };
+  return { base, grade: g === undefined ? 0 : Math.max(0, Math.min(MAX_GRADE, parseInt(g, 10) || 0)) };
 }
 
 const scaleStats = (stats, mult, spdMult) => {
@@ -272,7 +277,7 @@ export function describe(inst) {
     unique = UNIQUES[key];
     if (!unique) return null;
     base = unique.base;
-    grade = g === undefined ? 0 : Math.max(0, Math.min(7, parseInt(g, 10) || 0));
+    grade = g === undefined ? 0 : Math.max(0, Math.min(MAX_GRADE, parseInt(g, 10) || 0));
   } else ({ base, grade } = parseId(id));
 
   const e = EQUIP[base];
@@ -301,6 +306,8 @@ export function describe(inst) {
       id, base, grade, plus, type: "equip", slot: e.slot, hands: e.hands || 1, cls: e.cls || null,
       icon: e.icon, look: e.look || null, stats, rarity, color: RARITY[rarity].color,
       baseName: e.name[L], sockets: slots, cards: inst.cards || [], set: set ? inst.set : null, temper: inst.temper || 0,
+      reqLevel: set && set.level ? set.level : 0,
+      // value by grade and rarity (shops pay a share of it, js/items/economy.js; repairs cost a share too)
       price: Math.round(12 * (1 + grade) * (1 + plus * 0.3) * (rarity === "set" ? 8 : rarity === "unique" ? 6 : rarity === "rare" ? 3 : rarity === "magic" ? 1.6 : 1)),
       name: `${plus ? `+${plus} ` : ""}${name}${slots ? ` [${slots}]` : ""}`,
       desc: e.hands === 2 ? (L === "fil" ? "Dalawang kamay: ila-lock ang offhand." : "Two-handed: locks the off-hand slot.") : ""
@@ -337,8 +344,9 @@ export function slotsFor(item) {
   return item.slot === "ring" ? ["ring1", "ring2"] : [item.slot];
 }
 
-export function canEquip(item, cls) {
-  return Boolean(item && item.type === "equip" && (!item.cls || item.cls.includes(cls)));
+// level: the hero's level (crafted sets need their tier's level); omitted = not checked
+export function canEquip(item, cls, level = Infinity) {
+  return Boolean(item && item.type === "equip" && (!item.cls || item.cls.includes(cls)) && level >= (item.reqLevel || 0));
 }
 
 // ---------- REFINE ----------
@@ -361,59 +369,15 @@ export function refineChance(plus) {
 // ---------- DROP ----------
 const pick = (arr, rnd) => arr[Math.floor(rnd() * arr.length)];
 
-// Builds equipment with rarity, affixes and sockets
-const RARITY_ORDER = ["normal", "magic", "rare"];
-
-// minRarity: the lowest quality (e.g. Elites always drop magic or better)
-function makeEquip(grade, cls, rnd = Math.random, forceBase = null, minRarity = "normal") {
-  const pool = Object.entries(EQUIP).filter(([, e]) => !e.cls || e.cls.includes(cls)).map(([k]) => k);
-  const base = forceBase || pick(pool, rnd);
-  const e = EQUIP[base];
-  // Rarity (Diablo II): 60% karaniwan · 30% magic · 10% rare
-  const r = rnd();
-  let rarity = r < 0.6 ? "normal" : r < 0.9 ? "magic" : "rare";
-  if (RARITY_ORDER.indexOf(rarity) < RARITY_ORDER.indexOf(minRarity)) rarity = minRarity;
-  const affixes = [];
-  const roll = (list, pre) => {
-    const a = pick(list, rnd);
-    if (affixes.some((x) => x.k === a.k)) return;
-    const v = a.k === "spd" ? +(a.base * (1 + grade * 0.25) * (0.6 + rnd() * 0.4)).toFixed(2) : Math.max(1, Math.round(a.base * (1 + grade * 0.5) * (0.6 + rnd() * 0.4)));
-    affixes.push({ k: a.k, v, pre, name: a.name });
-  };
-  if (rarity === "magic") {
-    if (rnd() < 0.7) roll(PREFIXES, true);
-    if (rnd() < 0.7 || !affixes.length) roll(SUFFIXES, false);
-  } else if (rarity === "rare") {
-    const n = 3 + (rnd() < 0.4 ? 1 : 0);
-    for (let k = 0; k < n * 2 && affixes.length < n; k++) roll(rnd() < 0.5 ? PREFIXES : SUFFIXES, false);
-  }
-  const maxS = e.sockets || 0;
-  const sockets = maxS ? Math.floor(rnd() * (maxS + 1) * (rarity === "normal" ? 1 : 0.7)) : 0;
-  const inst = { id: `${base}@${grade}`, qty: 1, plus: 0, rarity, affixes, sockets: Math.min(maxS, sockets), cards: [] };
-  if (rarity === "rare") inst.rareName = `${pick(RARE_A, rnd)} ${pick(RARE_B, rnd)}`;
-  return inst;
-}
-
-function makeUnique(grade, cls, rnd = Math.random) {
-  const keys = Object.keys(UNIQUES).filter((k) => { const e = EQUIP[UNIQUES[k].base]; return !e.cls || e.cls.includes(cls); });
-  if (!keys.length) return null;
-  const key = pick(keys, rnd);
-  return { id: `u:${key}@${grade}`, qty: 1, plus: 0, rarity: "unique", affixes: [], sockets: EQUIP[UNIQUES[key].base].sockets || 0, cards: [] };
-}
-
-// Drop after a monster dies. info: { key (monster kind), boss }
-// Returns a list of instances
 // ---------- LOOT BY MONSTER TIER ----------
-// rolls      = how many draws from the potion/material table
-// equip      = equipment chance · minRarity = the lowest quality · rareBoost = chance to upgrade to rare
-// unique/card = chance of a unique item and of the monster's card
-// Checked with a simulator (per 100 normal kills at grade 2): ~5 equipment (60/30/10),
-// ~0.25 unique, ~0.8 cards, ~36 Phracon, ~8 Oridecon, ~30 potions/shards.
+// rolls = how many draws from the potion/material table · unique/card = chance of the monster's card
+// Equipment is no longer dropped (it is crafted at a safe zone): the equipment roll became crafting
+// materials (js/items/craftsets.js rollMaterials: ores, cores, path essences, cooking ingredients).
 const LOOT_TIERS = {
-  normal:   { rolls: 1, equip: 0.05, minRarity: "normal", rareBoost: 0,    unique: 0.0025, card: 0.008, crystals: 0, shards: 0 },
-  champion: { rolls: 2, equip: 0.25, minRarity: "normal", rareBoost: 0.15, unique: 0.01,   card: 0.03,  crystals: 0, shards: 1 },
-  elite:    { rolls: 3, equip: 1,    minRarity: "magic",  rareBoost: 0.3,  unique: 0.04,   card: 0.08,  crystals: 1, shards: 2 },
-  mvp:      { rolls: 4, equip: 1,    minRarity: "rare",   rareBoost: 1,    unique: 0.25,   card: 0.35,  crystals: 3, shards: 4, bonusEquip: 1 }
+  normal:   { rolls: 1, card: 0.008, crystals: 0, shards: 0 },
+  champion: { rolls: 2, card: 0.03,  crystals: 0, shards: 1 },
+  elite:    { rolls: 3, card: 0.08,  crystals: 1, shards: 2 },
+  mvp:      { rolls: 4, card: 0.35,  crystals: 3, shards: 4 }
 };
 
 // Level difference: less from weak monsters (grey), more from strong ones (red)
@@ -433,7 +397,9 @@ function rollConsumable(grade, rnd) {
   return null;
 }
 
-// info: { key (monster kind), tier ("normal" | "champion" | "elite" | "mvp"), diff (monster level − player level) }
+// Drop after a monster dies; returns a list of instances.
+// info: { key (monster kind), tier ("normal" | "champion" | "elite" | "mvp"), boss, diff (monster level − hero level),
+//         level (monster level), element, race, extra (night bonus draws) }
 export function rollDrop(grade, cls, info = {}, rnd = Math.random) {
   const T = LOOT_TIERS[info.tier] || (info.boss ? LOOT_TIERS.mvp : LOOT_TIERS.normal);
   const dm = info.tier === "mvp" ? 1 : diffMult(info.diff);
@@ -443,14 +409,7 @@ export function rollDrop(grade, cls, info = {}, rnd = Math.random) {
   }
   if (T.shards) out.push({ id: "monsterShard", qty: T.shards });
   if (T.crystals) out.push({ id: "voidCrystal", qty: T.crystals });
-
-  const equipCount = (rnd() < T.equip * dm ? 1 : 0) + (T.bonusEquip || 0);
-  for (let k = 0; k < equipCount; k++) {
-    const g = Math.min(7, grade + (rnd() < 0.2 ? 1 : 0));
-    const min = rnd() < T.rareBoost ? "rare" : T.minRarity;
-    out.push(makeEquip(g, cls, rnd, null, k === 0 ? min : T.minRarity === "rare" ? "magic" : T.minRarity));
-  }
-  if (rnd() < T.unique * dm) { const u = makeUnique(grade, cls, rnd); if (u) out.push(u); }
+  out.push(...rollMaterials({ ...info, tier: info.tier || (info.boss ? "mvp" : "normal") }, dm, rnd));
   // Oblivion Mushroom: a very rare drop (tougher monsters drop it more often)
   const MUSHROOM = { normal: 0.003, champion: 0.008, elite: 0.02, mvp: 0.05 };
   if (rnd() < (MUSHROOM[info.tier] || (info.boss ? MUSHROOM.mvp : MUSHROOM.normal))) out.push({ id: "mushroom", qty: 1 });

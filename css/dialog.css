@@ -315,6 +315,30 @@
 .ch-icon { font-size: calc(7px * var(--s)); }
 .ch-name { font-size: calc(3.6px * var(--s)); text-align: center; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .ch-lv { font-size: calc(3.8px * var(--s)); color: #ffd166; }
+/* Node kinds: a coloured corner mark (active = gold, passive = slate, summon = green) */
+.ch-node { position: relative; }
+.ch-node::after { content: ""; position: absolute; top: 1px; right: 1px; width: calc(2.5px * var(--s)); height: calc(2.5px * var(--s)); border-radius: 50%; background: #475569; }
+.ch-node.k-active::after { background: #ffd166; }
+.ch-node.k-summon::after { background: #4ade80; }
+.ch-node[draggable="true"] { cursor: grab; }
+/* Paths tab: three trees, compact nodes */
+.ch-trees.three { grid-template-columns: 1fr 1fr 1fr; gap: calc(4px * var(--s)); }
+.ch-trees.three .ch-nodes { grid-auto-rows: calc(21px * var(--s)); gap: calc(2px * var(--s)); }
+.ch-trees.three .ch-icon { font-size: calc(6px * var(--s)); }
+.ch-res { font-style: normal; color: #ffd166; font-size: 0.8em; letter-spacing: 0; }
+.ch-style { display: flex; align-items: center; gap: calc(4px * var(--s)); margin: calc(2px * var(--s)) 0 calc(4px * var(--s)); font-size: calc(4.6px * var(--s)); color: #cbd5e1; }
+.ch-style-bar { flex: 1; display: flex; height: calc(4px * var(--s)); background: #1e293b; border: 1px solid #22304d; overflow: hidden; }
+.ch-style-bar span { display: block; height: 100%; }
+.ch-slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: calc(3px * var(--s)); }
+.ch-slot { display: flex; align-items: center; gap: calc(2px * var(--s)); padding: calc(1.5px * var(--s)); font: inherit; color: #94a3b8; background: rgba(15, 23, 42, 0.9); border: 1px dashed #22304d; cursor: pointer; min-width: 0; }
+.ch-slot.full { border-style: solid; border-color: #ffd166; color: #e2e8f0; }
+.ch-slot kbd { font-size: calc(4px * var(--s)); color: #ffd166; }
+.ch-slot .ch-name { font-size: calc(4px * var(--s)); }
+/* Auto stat path chips */
+.ch-auto { display: flex; flex-wrap: wrap; gap: calc(2px * var(--s)); margin-top: calc(2px * var(--s)); }
+.ch-chip { font: inherit; font-size: calc(4.4px * var(--s)); padding: calc(1px * var(--s)) calc(3px * var(--s)); cursor: pointer; color: #cbd5e1; background: rgba(15, 23, 42, 0.9); border: 1px solid #22304d; }
+.ch-chip.on { color: #030611; background: #ffd166; border-color: #ffd166; }
+.ch-chip:disabled { opacity: 0.35; cursor: default; }
 
 /* ---------- DIALOGUE BOX ---------- */
 #dialog {

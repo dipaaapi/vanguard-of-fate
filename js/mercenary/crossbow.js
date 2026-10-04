@@ -2,7 +2,7 @@
 export const CrossbowMercenary = {
   type: "crossbow",
   name: "Crossbowman",
-  maxHp: 135,
+  maxHp: 160,
   speed: 1.45,
   attackRange: 150,
   attackCooldownMax: 48,

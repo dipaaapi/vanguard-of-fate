@@ -36,6 +36,9 @@ import { Codex } from "./codex.js";
 import { getItem, SETS } from "./items/itemdb.js";
 import { SET_SLOTS, recipeCost, forgePiece } from "./items/forge.js";
 import { wear, WEAR_WEAPON, WEAR_ARMOR, ARMOR_SLOTS } from "./items/durability.js";
+import { needsPick } from "./world/mining.js";
+import { Fishing } from "./world/fishing.js";
+import { Workshop } from "./workshop.js";
 import { Avatar } from "./avatar/avatar.js";
 import { ActIntro } from "./actintro.js";
 import { createLorePanel } from "./lore.js";
@@ -50,6 +53,9 @@ import { t, onLangChange, getLang } from "./i18n.js";
 
 import { FalconCompanion } from "./summons/falcon.js";
 import { GuardianAngelCompanion } from "./summons/angel.js";
+import { syncFamiliar } from "./summons/familiar.js";
+import { PATH_IDS, SLOT_KEYS, assignSlot } from "./skillpaths.js";
+import { AUTO_MODES } from "./skills.js";
 import "./saveSecurity.js";
 
 const canvas = document.getElementById("gameCanvas");
@@ -238,6 +244,36 @@ function openService(service, opts) {
 // NPC service menus. Ronald: mercenaries, safe refines up to +4, and field repairs at double the dwarves' price.
 const serviceMenu = new ServiceMenu(document.getElementById("serviceMenu"));
 
+// Workshop (G, safe zones only): craft gear from materials, auto-craft, cook, transmute (js/workshop.js)
+const workshop = new Workshop({
+  menu: serviceMenu, fx, sound: Sound,
+  log: (kind, text, color) => chatLog.event(kind, text, dayNight.label(), null, color),
+  onChange: () => { inventory.dirty = true; }
+});
+function openWorkshop() {
+  if (!player || gameState !== "PLAYING" || dialog.open || serviceMenu.open || showShopModal || showMercModal) return;
+  if (!stage.isInsideSafeZone(player.x + 10, player.y + 17)) {
+    fx.spawnDamagePopup(player.x + 10, player.y - 10, lang() === "fil" ? "Sa ligtas na lugar lang ang talyer" : "Workshop: safe zones only", false, "#94a3b8");
+    return;
+  }
+  controller.clearAll();
+  inventory.close();
+  charPanel.close();
+  worldMap.close();
+  workshop.open(player);
+}
+
+// Fishing (E at the water's edge): what bites depends on the place (js/world/fishing.js)
+const fishing = new Fishing();
+fishing.onCatch = (id) => {
+  const it = getItem(id), fil = lang() === "fil";
+  if (!player.bag.add(id, 1)) lootManager.drop({ x: player.x + 10, y: player.y + 22 }, { id, qty: 1 });
+  fx.spawnDamagePopup(player.x + 10, player.y - 18, `+1 ${it.name}`, true, it.tint);
+  if (Sound.playLootPickup) Sound.playLootPickup();
+  chatLog.event("loot", "", dayNight.label(), { key: `fish:${id}`, value: 1, format: (n, total) => (fil ? `Nakahuli ng ${it.name} ×${total}` : `Caught ${it.name} ×${total}`) }, it.tint);
+};
+fishing.onMiss = () => fx.spawnDamagePopup(player.x + 10, player.y - 18, lang() === "fil" ? "Nakatakas!" : "It got away!", false, "#94a3b8");
+
 // Codex (N): encyclopedia of NPCs, monsters, MVPs and items; progress is saved with the game
 const codex = new Codex(document.getElementById("codex"));
 function toggleCodex() {
@@ -276,7 +312,7 @@ function openSmithMenu() {
 const costText = (cost) => Object.entries(cost).map(([id, n]) => (id === "gold" ? `${n}G` : `${getItem(id).name} ${player.bag.count(id)}/${n}`)).join(" · ");
 function openForgeSets() {
   const fil = lang() === "fil";
-  serviceMenu.show(fil ? "Pumili ng set" : "Choose a set", Object.entries(SETS).map(([id, set]) => ({
+  serviceMenu.show(fil ? "Pumili ng set" : "Choose a set", Object.entries(SETS).filter(([, set]) => set.mineral).map(([id, set]) => ({
     label: `${set.name[lang()]} · ${fil ? "Grado" : "Grade"} ${set.grade}`,
     hint: `5: ${set.passive[lang()]}`,
     onPick: () => openForgeSlots(id)
@@ -348,7 +384,7 @@ function openNobleMenu() {
 // Mining: one pickaxe strike on the vein beside the hero
 function mineVein(v) {
   const fil = lang() === "fil";
-  if (quest.mining !== 2) {
+  if (quest.mining !== 2 && needsPick(v.kind)) {
     fx.spawnDamagePopup(player.x + 10, player.y - 10, fil ? "Kailangan ang piko ni Thane Durgrim" : "Needs Thane Durgrim's pickaxe", false, "#94a3b8");
     return;
   }
@@ -356,6 +392,7 @@ function mineVein(v) {
   fx.spawnHitSparks(v.x, v.y - 8, getItem(v.kind).tint, r.broke ? 20 : 8);
   if (Sound.playSlash) Sound.playSlash();
   if (!r.broke) return;
+  if (r.salt && !player.bag.add("rockSalt", r.salt)) lootManager.drop({ x: v.x + 8, y: v.y + 6 }, { id: "rockSalt", qty: r.salt });
   if (!player.bag.add(r.id, r.qty)) {
     lootManager.drop({ x: v.x, y: v.y + 6 }, { id: r.id, qty: r.qty });   // bag full: leave it on the ground
   } else {
@@ -598,7 +635,8 @@ const actionPanel = new ActionPanel({
     exitToTitle();
   },
   map: () => { Sound.init(); toggleMap(); panelSound(worldMap.open); },
-  codex: () => { Sound.init(); toggleCodex(); panelSound(codex.open); }
+  codex: () => { Sound.init(); toggleCodex(); panelSound(codex.open); },
+  workshop: () => { Sound.init(); openWorkshop(); }
 });
 
 // Soft page-turn when a side panel opens or closes
@@ -674,6 +712,13 @@ function syncBoss() {
   enemyManager.spawnBoss(def.boss, def.bossSpawn.x, def.bossSpawn.y, player.level);
 }
 
+// Everyone travelling with the hero, who boards the ship with them: mercenaries, summons, and any
+// pet or familiar listed in player.companions (entities with x / y; flying: true perches in the rigging)
+function crewOf() {
+  if (!player) return [];
+  return [...mercManager.mercenaries, player.falconCompanion, ...(player.angelCompanions || []), ...(player.companions || [])].filter(Boolean);
+}
+
 // Move to another place. at = { x, y } (player pixels) or nothing for the default arrival.
 function travelTo(id, at = null) {
   const from = stage.id;
@@ -681,6 +726,9 @@ function travelTo(id, at = null) {
   stage = platformById(id);
   syncPlatformFlags();
   const spot = at || (stage === hub ? hub.arrivalFrom(from) : stage.arrivalFrom(from));
+  // Arriving on foot: the ship stays behind in the Cerulean Abyss
+  player.inBoat = false;
+  crewOf().forEach((c) => { c.aboard = false; });
   player.x = spot.x;
   player.y = spot.y;
   player.portalCooldown = 75;
@@ -699,6 +747,7 @@ function travelTo(id, at = null) {
   // Mercenaries and summons follow
   mercManager.mercenaries.forEach((m, k) => { m.x = player.x - 16 + k * 10; m.y = player.y + 14; });
   if (player.falconCompanion) { player.falconCompanion.x = player.x - 22; player.falconCompanion.y = player.y - 18; }
+  if (player.familiar) player.familiar.place(player);
   (player.angelCompanions || []).forEach((a, k) => { a.x = player.x + (k ? 30 : -30); a.y = player.y - 16; });
 
   if (fx.spawnHitSparks) fx.spawnHitSparks(player.x + 10, player.y + 10, def ? def.color : "#ffd166", 22);
@@ -917,14 +966,25 @@ function getSavePayload() {
     stats: { ...player.stats },             // STR/AGI/VIT/INT/DEX/LUK
     skills: { ...player.skillLevels },
     skillPoints: player.skillPoints,
+    pathSlots: [...(player.pathSlots || [])],   // path actives on T / Y / U
+    style: { ...player.style },                    // play-style affinity (js/skillpaths.js)
+    autoStat: player.autoStat || "off",
     belt: [...player.belt],
     autoPot: { ...player.autoPot },
+    life: Workshop.serialize(player),       // craft target, active meal, market saturation
     codex: codex.serialize(),
     dayTick: dayNight.serialize(),
     platform: stage.id,                     // "hub" or an Act platform
     x: player.x,
     y: player.y
   };
+}
+
+// Skill paths from a save: slots only take learned actives, style values must be finite numbers
+function loadPaths(p, data) {
+  if (data.style) PATH_IDS.forEach((k) => { const v = Number(data.style[k]); p.style[k] = Number.isFinite(v) && v > 0 ? Math.min(v, 1e4) : 0; });
+  if (Array.isArray(data.pathSlots)) SLOT_KEYS.forEach((_, i) => assignSlot(p, i, typeof data.pathSlots[i] === "string" ? data.pathSlots[i] : null));
+  p.autoStat = AUTO_MODES.includes(data.autoStat) ? data.autoStat : "off";
 }
 
 function saveGame() {
@@ -1039,6 +1099,7 @@ function loadGame() {
       Object.keys(player.stats).forEach((k) => { player.stats[k] = Math.max(1, Math.min(99, data.stats[k] | 0 || 1)); });
       player.skillLevels = { ...(data.skills || {}) };
       player.skillPoints = data.skillPoints || 0;
+      loadPaths(player, data);
     } else {
       player.statPoints = (data.statPoints || 0) + 10 + (player.level - 1) * 3;
       player.skillPoints = player.level - 1;
@@ -1051,6 +1112,7 @@ function loadGame() {
     if (data.bag) player.bag.load(data.bag);
     else starterKit(player);
     attachBag(player);
+    Workshop.load(player, data.life);
     player.hp = Math.min(player.maxHp, data.hp || player.maxHp);
     quest.load(data.quest, player);
 
@@ -1137,7 +1199,7 @@ function awaken(chosenHero) {
   const p = new Player(old.x, old.y, equipJob(chosenHero, old.avatarConfig));
   ["level", "exp", "expNext", "gold", "statPoints", "bonusHp", "bonusDamage",
     "bonusDefense", "bonusSpeed", "bonusCrit", "bonusCooldown", "heroName", "avatarConfig",
-    "stats", "skillLevels", "skillPoints", "belt", "autoPot"].forEach((k) => { p[k] = old[k]; });
+    "stats", "skillLevels", "skillPoints", "belt", "autoPot", "style", "pathSlots", "autoStat"].forEach((k) => { p[k] = old[k]; });
   // Keeps the bag; the summoner hands over the class's custom-forged weapon (LORE Act IV)
   p.bag = old.bag;
   p.bag.giveKit(chosenHero.id, 1);
@@ -1337,23 +1399,29 @@ window.addEventListener("keydown", (e) => {
         showShopModal = false;
       } else if (showMercModal) {
         showMercModal = false;
-      } else if (stage.boatSystem && (
-        (player.inBoat && Math.hypot(player.x + 10 - stage.boatSystem.pier.x, player.y + 18 - stage.boatSystem.pier.y) < 55) ||
-        (!player.inBoat && Math.hypot(player.x + 10 - stage.boatSystem.pier.x, player.y + 18 - stage.boatSystem.pier.y) < 45) ||
-        (!player.inBoat && Math.hypot(player.x - stage.boatSystem.dockedBoat.x, player.y - stage.boatSystem.dockedBoat.y) < 45)
-      )) {
-        stage.boatSystem.toggleBoard(player, fx);
+      } else if (stage.boatSystem && stage.boatSystem.canToggle(player)) {
+        stage.boatSystem.toggleBoard(player, fx, crewOf());
       } else if (stage.boatSystem && Math.hypot(player.x - stage.boatSystem.monolith.x, player.y - stage.boatSystem.monolith.y) < 65) {
         stage.boatSystem.activateMonolith(player, fx, () => {
           quest.monolith = true;
           saveGame();
           questHud.toast(lang() === "fil" ? "Bukas na ang lagusan patungo sa Dark Continent!" : "Celestial Portal to the Dark Continent is open!");
         });
+      } else if (gameState === "PLAYING" && fishing.active) {
+        fishing.press(player, stage);
       } else if (gameState === "PLAYING" && stage.ore && stage.ore.nearest(player)) {
         mineVein(stage.ore.nearest(player));
       } else if (gameState === "PLAYING" && npcManager.nearest) {
         talkTo(npcManager.nearest);
+      } else if (gameState === "PLAYING") {
+        fishing.press(player, stage);
       }
+      return;
+    }
+
+    // G = the safe-zone Workshop (B is the Market) (craft, cook, transmute)
+    if (e.code === "KeyG" && gameState === "PLAYING") {
+      openWorkshop();
       return;
     }
 
@@ -1414,7 +1482,10 @@ window.addEventListener("keydown", (e) => {
       }
     }
 
-    if (e.code === "KeyK" && player.heroData.id === "archer" && player.falconCompanion && player.skillCooldownTimer <= 0 && !stage.isInsideSafeZone(player.x, player.y)) {
+    if (e.code === "KeyK" && player.heroData.id === "archer" && player.falconCompanion && player.falconCompanion.aboard) {
+      // Flyers can't leave the ship while the crew is aboard
+      if (fx.spawnDamagePopup) fx.spawnDamagePopup(player.x + 10, player.y - 14, t("falconAboard"), false, "#38bdf8");
+    } else if (e.code === "KeyK" && player.heroData.id === "archer" && player.falconCompanion && player.skillCooldownTimer <= 0 && !stage.isInsideSafeZone(player.x, player.y)) {
       // Falcon reach: 240px
       const closestEnemy = enemyManager.enemies
         .filter((en) => en.isAlive && Math.hypot(en.x - player.x, en.y - player.y) <= 240)
@@ -1521,6 +1592,9 @@ function updateGame() {
     player.falconCompanion.update(player, enemyManager, fx, lootManager);
   }
 
+  const familiar = syncFamiliar(player);   // pet / familiar from the skill tree
+  if (familiar) familiar.update(player, enemyManager, fx, lootManager, isInBarracks);
+
   if (player.angelCompanions && player.angelCompanions.length > 0) {
     player.angelCompanions.forEach((angel, idx) => {
       angel.update(player, enemyManager, fx, lootManager, idx, isInBarracks);
@@ -1546,8 +1620,12 @@ function updateGame() {
   npcManager.update(player, enemyManager, fx);
 
   mercManager.update(player, enemyManager, lootManager, fx, (proj) => projectileManager.add(proj), stage);
+  // At sea the crew keep their posts on the ship
+  if (stage.boatSystem) stage.boatSystem.carry(player, crewOf());
   projectileManager.update(enemyManager.enemies, enemyManager, fx, lootManager, player);
   lootManager.update(player, fx);
+  workshop.update(player, stage.isInsideSafeZone(player.x + 10, player.y + 17));
+  fishing.update(player);
 }
 
 // The summoner (Prince/Princess) heals the hero, but only inside a sanctuary and only when they are
@@ -1686,6 +1764,7 @@ function renderGameWorld() {
     if (player.falconCompanion) {
       player.falconCompanion.draw(ctx, player.facing === "right");
     }
+    if (player.familiar) player.familiar.draw(ctx);
 
     if (player.angelCompanions) {
       player.angelCompanions.forEach((angel) => {
@@ -1695,6 +1774,7 @@ function renderGameWorld() {
 
     ui.drawInWorldUI(ctx, player);
     drawHealBeam();
+    fishing.draw(ctx, player, stage, gameState === "PLAYING" && !npcManager.nearest && !(stage.ore && stage.ore.nearest(player)));
   }
   npcManager.drawLayer(ctx, footY, true);    // NPCs in front of the player
 

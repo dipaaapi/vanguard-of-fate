@@ -1,12 +1,15 @@
 import { getLang, onLangChange } from "./i18n.js";
 import { getItem } from "./items/itemdb.js";
 import { iconURL } from "./items/icons.js";
+import { SLOT_KEYS, activeSkill, activeCooldown } from "./skillpaths.js";
+import { skillText } from "./skills.js";
 
 // ==================== SKILLS & OPTIONS (lower part of the right panel) ====================
 // Each button: icon + name + shortcut key.
 //   Skills  (J, K, L, Space, E): press and hold = like holding the key (hold works).
+//   Path slots (T, Y, U): the path actives set in Character → Paths (js/skillpaths.js); empty slots are dimmed.
 //                             Cooldown overlay, and "SAFE" inside a sanctuary.
-//   Options (Q, I, C, M, N, Esc, H): call the handler from main.js.
+//   Options (Q, I, C, M, N, G, Esc, H): call the handler from main.js (G = Workshop, safe zones only).
 //   (Act lore is read through the lore panel's "Read more", so it has no button here.)
 // The J/K/L names follow the player's class (LORE.md, Acts III–IV).
 
@@ -23,12 +26,12 @@ const TEXT = {
   en: {
     skills: "Skills", options: "Options", attack: "Attack", skill: "Skill", belt: "Quick slots", auto: "AUTO",
     sprint: "Sprint", talk: "Talk", quests: "Quests", inventory: "Inventory", character: "Character",
-    pause: "Pause", resume: "Resume", menu: "Main Menu", map: "World Map", codex: "Codex", safe: "Safe zone", nobody: "No one nearby"
+    pause: "Pause", resume: "Resume", menu: "Main Menu", map: "World Map", codex: "Codex", workshop: "Workshop", safe: "Safe zone", nobody: "No one nearby"
   },
   fil: {
     skills: "Mga Skill", options: "Mga Opsyon", attack: "Atake", skill: "Skill", belt: "Mabilisang gamit", auto: "AUTO",
     sprint: "Takbo", talk: "Kausapin", quests: "Quest", inventory: "Imbentaryo", character: "Karakter",
-    pause: "Pause", resume: "Ituloy", menu: "Main Menu", map: "Mapa ng Mundo", codex: "Codex", safe: "Ligtas na lugar", nobody: "Walang malapit"
+    pause: "Pause", resume: "Ituloy", menu: "Main Menu", map: "Mapa ng Mundo", codex: "Codex", workshop: "Talyer", safe: "Ligtas na lugar", nobody: "Walang malapit"
   }
 };
 const tx = (k) => (TEXT[getLang()] || TEXT.en)[k];
@@ -104,11 +107,12 @@ export class ActionPanel {
     this.buttons.J = this.holdButton("KeyJ");
     this.buttons.K = this.holdButton("KeyK");
     this.buttons.L = this.holdButton("KeyL");
+    this.slots = SLOT_KEYS.map((code) => this.holdButton(code));
     this.buttons.Space = this.holdButton("Space");
     this.buttons.E = this.holdButton("KeyE");
     this.set(this.buttons.Space, "💨", tx("sprint"));
     this.set(this.buttons.E, "💬", tx("talk"));
-    Object.values(this.buttons).forEach((b) => this.skillsEl.appendChild(b));
+    [this.buttons.J, this.buttons.K, this.buttons.L, ...this.slots, this.buttons.Space, this.buttons.E].forEach((b) => this.skillsEl.appendChild(b));
 
     const h = this.handlers;
     this.options = {
@@ -117,6 +121,7 @@ export class ActionPanel {
       character: this.clickButton("character", "KeyC", h.character),
       map: this.clickButton("map", "KeyM", h.map),
       codex: this.clickButton("codex", "KeyN", h.codex),
+      workshop: this.clickButton("workshop", "KeyG", h.workshop),
       pause: this.clickButton("pause", "Escape", h.pause),
       menu: this.clickButton("menu", "KeyH", h.menu)
     };
@@ -126,6 +131,7 @@ export class ActionPanel {
     this.set(this.options.character, "📜", tx("character"));
     this.set(this.options.map, "🗺️", tx("map"));
     this.set(this.options.codex, "📖", tx("codex"));
+    this.set(this.options.workshop, "⚒️", tx("workshop"));
     this.set(this.options.pause, "❚❚", tx("pause"));
     this.set(this.options.menu, "🏠", tx("menu"));
     Object.values(this.options).forEach((b) => this.optionsEl.appendChild(b));
@@ -189,6 +195,21 @@ export class ActionPanel {
     this.setCooldown(this.buttons.K, "cdK", hd.cooldown ? p.skillCooldownTimer / hd.cooldown : 0);
     this.setCooldown(this.buttons.L, "cdL", hd.cooldown2 ? p.skill2CooldownTimer / hd.cooldown2 : 0);
 
+    // Path slots: icon and name of the assigned active, its cooldown
+    const slotSig = (p.pathSlots || []).join("|");
+    if (this.cache.slots !== slotSig) {
+      this.cache.slots = slotSig;
+      this.slots.forEach((b, i) => {
+        const sk = activeSkill((p.pathSlots || [])[i]);
+        this.set(b, sk ? sk.icon : "·", sk ? skillText(sk).name : "—");
+        b.classList.toggle("empty", !sk);
+      });
+    }
+    this.slots.forEach((b, i) => {
+      const sk = activeSkill((p.pathSlots || [])[i]);
+      this.setCooldown(b, `cdS${i}`, sk && p.activeCd ? (p.activeCd[sk.id] || 0) / activeCooldown(p, sk) : 0);
+    });
+
     // J/K cannot be used inside a sanctuary
     const safe = Boolean(s.inSanctuary);
     this.toggle(this.buttons.J, "safeJ", "safe", safe);
@@ -203,6 +224,7 @@ export class ActionPanel {
     this.toggle(this.buttons.E, "talk", "ready", Boolean(s.canTalk));
     this.toggle(this.buttons.Space, "sprint", "ready", Boolean(s.sprinting));
     this.toggle(this.options.map, "map", "on", Boolean(s.mapOpen));
+    this.toggle(this.options.workshop, "workshop", "on", safe);     // the Workshop opens only in a safe zone
     this.toggle(this.options.inventory, "inv", "on", Boolean(s.inventoryOpen));
     this.toggle(this.options.character, "char", "on", Boolean(s.charOpen));
     // Unspent stat/skill points
