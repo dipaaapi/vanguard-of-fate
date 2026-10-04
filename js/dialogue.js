@@ -37,6 +37,7 @@ const LINES = {
     ],
     summonerSouls: [
       "You are not the first soul to cross the veil. Five answered the seal before you.",
+      "One for each point of the Pentagram Seal. The prophecy says a sixth would stand at its heart, with no path of its own.",
       "An engineer, an archer, a surgeon, an astrophysicist and a street fighter. Each carries a discipline from Earth.",
       "They wait here in the Barracks. Speak with all five; at your Awakening, one of their paths will become yours."
     ],
@@ -51,27 +52,29 @@ const LINES = {
       "Your true calling will awaken. Choose the path that is truly yours."
     ],
     summonerAwakened: [
-      "It is done. Rise, Field Commander of the Grand Slaying Corps.",
+      "It is done. Rise, Field Commander of the Fated Vanguard.",
+      "Look at your Ledger. The line marked Job is no longer empty.",
       "Take this weapon, forged for you by the Royal Armory.",
       "Your calling has unsealed the Dual Equipment Matrix. Return to the Barracks: {mentor} will help you choose your armaments."
     ],
     summonerArmory: [
       "Two hands on one great weapon, or a blade with an offhand beside it. Every loadout has its price.",
-      "{mentor} is waiting in the Barracks. Inspect your gear before the Corps departs."
+      "{mentor} is waiting in the Barracks. Inspect your gear before the Vanguard departs."
     ],
     summonerCovenant: [
       "Commander. I came down from the observatory… the casualty reports can wait a little longer.",
-      "The miasma thins wherever the Corps has marched. Your shard yields alone have fed the Research Corps for a month.",
+      "The miasma thins wherever the Vanguard has marched. Your shard yields alone have fed the Research Corps for a month.",
       "…I tore you from your world and placed ours on your shoulders. I have not forgiven myself for that.",
       "Tell me about Earth sometime. I want to know what I took from you. And I promise: we will see an uncorrupted dawn together."
     ],
     summonerLater: [
-      "The scouts report black sap weeping from the Whispering Canopy. The Corps marches on the forest next.",
+      "The scouts report black sap weeping from the Whispering Canopy. The Vanguard marches on the forest next.",
       "Rest while you can, Commander. …I am glad it was you who answered my seal."
     ],
 
     kingEarly: [
       "So you are the soul my heir called across the stars.",
+      "The last soul this crown called never went home. I will not let that happen twice.",
       "Aethelgard has little left to offer you but its gratitude… and its hope.",
       "When you are ready, my heir will await you here at the audience dais."
     ],
@@ -136,6 +139,7 @@ const LINES = {
     ],
     sam: [
       "Sam Chen, astrophysicist. Magic here is orbital mechanics with better branding.",
+      "And that golden panel only we can see? A status screen. I'm still reverse-engineering its formulas.",
       "Meteor Fall is a trajectory. A Thunderstorm is just ionization with attitude.",
       "Choose the Mage's path and I'll teach you the mathematics of the sky."
     ],
@@ -183,6 +187,7 @@ const LINES = {
     ],
     summonerSouls: [
       "Hindi ka ang unang kaluluwang tumawid sa tabing. Lima ang naunang tumugon sa selyo.",
+      "Isa sa bawat dulo ng Pentagram Seal. Sabi ng propesiya, may ikaanim na tatayo sa puso nito, walang sariling landas.",
       "Isang inhinyero, isang mamamana, isang siruhano, isang astrophysicist at isang mandirigma ng lansangan. Bawat isa'y may dalang disiplina mula sa Daigdig.",
       "Naghihintay sila rito sa Barracks. Kausapin mo silang lima; sa iyong Awakening, magiging iyo ang isa sa kanilang landas."
     ],
@@ -197,27 +202,29 @@ const LINES = {
       "Magigising ang iyong tunay na tungkulin. Piliin mo ang landas na tunay na sa iyo."
     ],
     summonerAwakened: [
-      "Tapos na. Tumayo ka, Field Commander ng Grand Slaying Corps.",
+      "Tapos na. Tumayo ka, Field Commander ng Fated Vanguard.",
+      "Tingnan mo ang iyong Ledger. Hindi na bakante ang linyang may markang Job.",
       "Tanggapin mo ang sandatang ito, hinulma para sa iyo ng Royal Armory.",
       "Nabuksan ng iyong tungkulin ang Dual Equipment Matrix. Bumalik ka sa Barracks: tutulungan ka ni {mentor} na pumili ng sandata."
     ],
     summonerArmory: [
       "Dalawang kamay sa isang malaking sandata, o talim na may offhand sa tabi. May kapalit ang bawat loadout.",
-      "Naghihintay si {mentor} sa Barracks. Suriin mo ang iyong gamit bago umalis ang Corps."
+      "Naghihintay si {mentor} sa Barracks. Suriin mo ang iyong gamit bago umalis ang Vanguard."
     ],
     summonerCovenant: [
       "Commander. Bumaba ako mula sa obserbatoryo… makapaghihintay muna ang mga ulat ng nasawi.",
-      "Numinipis ang miasma saanman dumaan ang Corps. Ang mga shard na nakuha mo ay nagpakain sa Research Corps nang isang buwan.",
+      "Numinipis ang miasma saanman dumaan ang Vanguard. Ang mga shard na nakuha mo ay nagpakain sa Research Corps nang isang buwan.",
       "…Hinila kita mula sa iyong mundo at ipinasan sa iyo ang amin. Hindi ko pa napapatawad ang sarili ko.",
       "Ikuwento mo sa akin ang Daigdig balang araw. Gusto kong malaman kung ano ang kinuha ko sa iyo. At pangako: sabay nating makikita ang malinis na bukang-liwayway."
     ],
     summonerLater: [
-      "Ayon sa mga scout, lumuluha ng itim na dagta ang Whispering Canopy. Ang kagubatan ang susunod na sasalakayin ng Corps.",
+      "Ayon sa mga scout, lumuluha ng itim na dagta ang Whispering Canopy. Ang kagubatan ang susunod na sasalakayin ng Vanguard.",
       "Magpahinga ka habang may pagkakataon, Commander. …Masaya akong ikaw ang tumugon sa aking selyo."
     ],
 
     kingEarly: [
       "Kung gayon, ikaw ang kaluluwang tinawag ng aking tagapagmana mula sa kabila ng mga bituin.",
+      "Hindi na nakauwi ang huling kaluluwang tinawag ng koronang ito. Hindi ko hahayaang mangyari iyon muli.",
       "Kaunti na lang ang maibibigay ng Aethelgard sa iyo kundi ang pasasalamat nito… at pag-asa.",
       "Kapag handa ka na, hihintayin ka ng aking tagapagmana dito sa audience dais."
     ],
@@ -282,6 +289,7 @@ const LINES = {
     ],
     sam: [
       "Sam Chen, astrophysicist. Ang mahika rito ay orbital mechanics lang na mas maganda ang pangalan.",
+      "At ang gintong panel na tayo lang ang nakakakita? Isang status screen. Inaalam ko pa ang mga pormula nito.",
       "Trajectory lang ang Meteor Fall. Ang Thunderstorm ay ionization na may ugali.",
       "Piliin mo ang landas ng Mage at ituturo ko sa iyo ang matematika ng langit."
     ],

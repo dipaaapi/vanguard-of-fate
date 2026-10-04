@@ -9,7 +9,7 @@ Long before the skies bled amethyst and obsidian, the continent of Aethelgard fl
 
 Then the Eclipse of the Abyss came, and Demon Lord Satan woke from his slumber.
 
-The Crown Heir and the King ratified an ancient, forbidden doctrine: to draw forth resilient souls from Earth and form the Grand Slaying Corps.`;
+The Crown Heir and the King ratified an ancient, forbidden doctrine: to draw forth resilient souls from Earth and form the Fated Vanguard.`;
 
 function cleanInline(s) {
   return s.replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1").replace(/`(.+?)`/g, "$1");

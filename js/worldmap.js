@@ -11,7 +11,7 @@ const TEXT = {
     title: "WORLD MAP", you: "You", objective: "Quest target", npc: "Ally", foe: "Foe", loot: "Loot",
     barracks: "Barracks Sanctuary", citadel: "Imperial Citadel", coast: "Cerulean Coast",
     gate: "Warp Gateway", grass: "Grassland", close: "[M / ESC] Close", legend: "LEGEND", places: "PLACES",
-    goal: "OBJECTIVE", camp: "Slaying Corps Camp", back: "Return Gateway",
+    goal: "OBJECTIVE", camp: "Vanguard Camp", back: "Return Gateway",
     continent: "CONTINENT OF AETHELGARD", region: "REGION", lands: "LANDS", tab: "[TAB] Continent / Region",
     sealed: "Sealed", open: "Open", freed: "Freed", here: "You are here"
   },
@@ -19,7 +19,7 @@ const TEXT = {
     title: "MAPA NG MUNDO", you: "Ikaw", objective: "Layunin", npc: "Kakampi", foe: "Kalaban", loot: "Samsam",
     barracks: "Barracks Sanctuary", citadel: "Imperial Citadel", coast: "Baybayin ng Cerulean",
     gate: "Warp Gateway", grass: "Kaparangan", close: "[M / ESC] Isara", legend: "PALATANDAAN", places: "MGA LUGAR",
-    goal: "LAYUNIN", camp: "Kampo ng Slaying Corps", back: "Pabalik na Gateway",
+    goal: "LAYUNIN", camp: "Kampo ng Fated Vanguard", back: "Pabalik na Gateway",
     continent: "KONTINENTE NG AETHELGARD", region: "REHIYON", lands: "MGA LUPAIN", tab: "[TAB] Kontinente / Rehiyon",
     sealed: "Selyado", open: "Bukas", freed: "Napalaya", here: "Narito ka"
   }

@@ -72,7 +72,7 @@ const AMBIENT_CHATS = [
       { en: "Astraea protect our realm.", fil: "Nawa'y gabayan tayo ni Astraea." },
       { en: "The wind carries a strange chill.", fil: "Malamig ang simoy ng hangin ngayon." },
       { en: "Check your potion pouches!", fil: "Suriin ang inyong mga gamot!" },
-      { en: "The Grand Slaying Corps will prevail.", fil: "Magtatagumpay ang ating hukbo." },
+      { en: "The Fated Vanguard will prevail.", fil: "Magtatagumpay ang ating hukbo." },
       { en: "Keep your weapons sharp.", fil: "Panatilihing matalim ang inyong sandata." },
       { en: "The skies feel ominous today.", fil: "Kakaiba ang dilim ng ulap ngayon." }
     ]

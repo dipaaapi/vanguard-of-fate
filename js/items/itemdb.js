@@ -123,7 +123,7 @@ const UNIQUES = {
   scalpel:    { base: "mace", name: N("Scalpel of Triage", "Scalpel ng Triage"), stats: { int: 6, cdr: 10, hp: 20 } },
   atacama:    { base: "greatstaff", name: N("Atacama Array Rod", "Tungkod ng Atacama Array"), stats: { atk: 14, int: 8 } },
   streetking: { base: "knuckle", name: N("Street King's Wraps", "Balot ng Hari ng Lansangan"), stats: { atk: 10, str: 6, crit: 6 } },
-  headlight:  { base: "circlet", name: N("Truck-kun's Headlight", "Headlight ni Truck-kun"), stats: { luk: 10, spd: 0.1 } },
+  headlight:  { base: "circlet", name: N("Night-Shift Headlamp", "Headlamp ng Night Shift"), stats: { luk: 10, spd: 0.1 } },
   necktie:    { base: "clip", name: N("Salaryman's Last Necktie", "Huling Kurbata ng Salaryman"), stats: { vit: 6, hp: 40 } },
   eclipse:    { base: "ring", name: N("Eclipse Band", "Singsing ng Eklipse"), stats: { str: 2, agi: 2, vit: 2, int: 2, dex: 2, luk: 2 } },
   pentagram:  { base: "manteau", name: N("Pentagram Seal Manteau", "Manteau ng Pentagram Seal"), stats: { def: 6, agi: 5 } },

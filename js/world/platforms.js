@@ -74,7 +74,7 @@ export const PLATFORMS = {
           "Malakor the Blight Herald roots himself in the Heartwood Grove to the north. Break his heartstone and the forest will breathe again."],
         hint: ["Malakor waits in the Heartwood Grove, north of our camp. Beware his sporelings, and carry Edgar's panaceas."],
         deliver: ["You shattered it... the heartstone of Malakor. Look, {h}: the canopy glows for the first time in decades.",
-          "The elven matriarchs have pledged their trails and armories to the Corps.",
+          "The elven matriarchs have pledged their trails and armories to the Vanguard.",
           "...{h}. Your survival has become more vital to this kingdom — and to my own heart — than the crown itself."]
       },
       fil: {
@@ -82,7 +82,7 @@ export const PLATFORMS = {
           "Nag-ugat si Malakor, ang Tagapagbalita ng Salot, sa Heartwood Grove sa hilaga. Basagin mo ang kanyang heartstone at muling hihinga ang gubat."],
         hint: ["Naghihintay si Malakor sa Heartwood Grove, hilaga ng ating kampo. Mag-ingat sa kanyang mga sporeling at magdala ng panacea ni Edgar."],
         deliver: ["Nabasag mo... ang heartstone ni Malakor. Tingnan mo, {h}: kumikinang na ang canopy sa unang pagkakataon sa loob ng maraming dekada.",
-          "Nangako na ang mga elven matriarch ng kanilang mga daanan at armory sa Corps.",
+          "Nangako na ang mga elven matriarch ng kanilang mga daanan at armory sa Vanguard.",
           "...{h}. Mas mahalaga na sa kaharian — at sa aking puso — ang iyong kaligtasan kaysa sa korona mismo."]
       }
     }
@@ -388,7 +388,7 @@ export const PLATFORMS = {
           "My father crossed ahead of us with Captain Ronald and the Royal Guard. The Demon Commander holds the Obsidian Throne Hall — and my father is still fighting in there!"],
         hint: ["The Demon Commander is in the Obsidian Throne Hall, north past the breached gates. Hurry, {h}!"],
         deliver: ["Father... he held the Throne Hall until we came. His last words passed the Imperial Crest to me.",
-          "Then let it be done. Before the nobles, the generals and every survivor of the Corps, I name you Supreme Sovereign Champion — and true partner of the throne.",
+          "Then let it be done. Before the nobles, the generals and every survivor of the Vanguard, I name you Supreme Sovereign Champion — and true partner of the throne.",
           "A rift has torn open behind the throne. It leads to the Maw of Damnation. Satan awaits us there."]
       },
       fil: {
@@ -396,7 +396,7 @@ export const PLATFORMS = {
           "Nauna nang tumawid ang aking ama kasama si Kapitan Ronald at ang Royal Guard. Hawak ng Heneral ng mga Demonyo ang Bulwagan ng Obsidian na Trono — at lumalaban pa roon ang aking ama!"],
         hint: ["Nasa Bulwagan ng Obsidian na Trono ang Heneral ng mga Demonyo, sa hilaga lampas sa nabutas na gate. Bilisan mo, {h}!"],
         deliver: ["Ama... hinawakan niya ang Bulwagan ng Trono hanggang sa dumating tayo. Sa kanyang huling salita, ipinasa niya sa akin ang Imperial Crest.",
-          "Kung gayon, gawin na natin. Sa harap ng mga maharlika, heneral at lahat ng nakaligtas sa Corps, itinatalaga kitang Supreme Sovereign Champion — at tunay na katuwang ng trono.",
+          "Kung gayon, gawin na natin. Sa harap ng mga maharlika, heneral at lahat ng nakaligtas sa Vanguard, itinatalaga kitang Supreme Sovereign Champion — at tunay na katuwang ng trono.",
           "May lamat na bumukas sa likod ng trono. Patungo ito sa Maw of Damnation. Naghihintay doon si Satan."]
       }
     }

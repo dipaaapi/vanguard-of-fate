@@ -9,7 +9,7 @@ import { STATS, PRIMARY, STAT_INFO, statCost, STAT_MAX, TREES, treesFor, canLear
 
 const TEXT = {
   en: {
-    title: "Character", stats: "Stats", skills: "Skills", points: "Stat points", spoints: "Skill points",
+    title: "Covenant Ledger", stats: "Stats", skills: "Skills", points: "Stat points", spoints: "Skill points",
     cost: "cost", derived: "Battle stats", atk: "ATK", def: "DEF", hp: "Max HP", aspd: "Attack speed", crit: "Crit",
     cdr: "Cooldown −", move: "Move", stamina: "Stamina", dmg: "Skill damage", reduce: "Damage taken −",
     primary: "main stat", gear: "from gear & skills", req: "Requires", max: "MAX", learn: "Learn", locked: "Locked",
@@ -17,7 +17,7 @@ const TEXT = {
     close: "C / Esc — close", pick: "Select a skill."
   },
   fil: {
-    title: "Karakter", stats: "Katangian", skills: "Skill", points: "Stat point", spoints: "Skill point",
+    title: "Covenant Ledger", stats: "Katangian", skills: "Skill", points: "Stat point", spoints: "Skill point",
     cost: "halaga", derived: "Katangian sa laban", atk: "ATK", def: "DEF", hp: "Max HP", aspd: "Bilis ng atake", crit: "Crit",
     cdr: "Cooldown −", move: "Lakad", stamina: "Stamina", dmg: "Pinsala ng skill", reduce: "Natatanggap na pinsala −",
     primary: "pangunahing stat", gear: "mula sa kagamitan at skill", req: "Kailangan", max: "MAX", learn: "Matuto", locked: "Nakakandado",
