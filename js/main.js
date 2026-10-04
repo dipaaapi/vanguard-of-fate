@@ -11,7 +11,7 @@ import { EnemyManager } from "./enemy.js";
 import { ProjectileManager } from "./projectiles.js";
 import { UIManager } from "./ui.js";
 import { LootManager } from "./loot.js";
-import { MercenaryManager } from "./mercenaryManager.js";
+import { MercenaryManager, MERC_CLASSES } from "./mercenaryManager.js";
 import { Sound } from "./audio.js";
 import { Stage } from "./stage.js";
 import { TitleScene } from "./title.js";
@@ -1567,6 +1567,13 @@ function drawObjectiveArrow() {
   ctx.restore();
 }
 
+// Mercenary Guild cards: each class's data and a portrait Avatar (built once)
+let mercCardList = null;
+function mercCards() {
+  if (!mercCardList) mercCardList = ["axe", "wand", "crossbow", "greatsword"].map((key) => ({ key, data: MERC_CLASSES[key], sprite: new Avatar(MERC_CLASSES[key].look) }));
+  return mercCardList;
+}
+
 function renderGameWorld() {
   const { offsetX, offsetY } = fx.getShakeOffsets();
   ctx.save();
@@ -1624,7 +1631,13 @@ function renderGameWorld() {
   ui.drawHUD(
     ctx, player, enemyManager, lootManager, stage,
     VIEW_W, gameState === "PAUSED",
-    fx.timeOfDay, fx.weatherType, isInBarracks
+    fx.timeOfDay, fx.weatherType, isInBarracks,
+    {
+      objective: player ? objectivePoint() : null,
+      npcs: npcManager.npcs.filter((n) => npcManager.shown(n)),
+      placeName: stage === hub ? t("placeHub") : stage.def.name[lang()],
+      night: dayNight.night()
+    }
   );
 
   if (gameState === "PLAYING" && !worldMap.open) drawObjectiveArrow();
@@ -1649,40 +1662,15 @@ function renderGameWorld() {
   }
 
   if (showMercModal && player) {
-    ctx.fillStyle = "rgba(10, 14, 20, 0.85)";
-    ctx.fillRect(40, 40, VIEW_W - 80, VIEW_H - 80);
-    ctx.strokeStyle = "#ffd166";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(40, 40, VIEW_W - 80, VIEW_H - 80);
-
-    ctx.fillStyle = "#ffd166";
-    ctx.font = "bold 9px monospace";
-    ctx.textAlign = "center";
-    const mercCost = MercenaryManager.cost(player.level);
-    ctx.fillText(`⚔️ BARRACKS MERCENARY GUILD (${mercCost}G EACH - 10 MINS) ⚔️`, VIEW_W / 2, 60);
-
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "7px monospace";
-    ctx.fillText(`[1] AXEMAN - Whirlwind · War Cry · Bloodlust`, VIEW_W / 2, 85);
-    ctx.fillText(`[2] MAGE APPRENTICE - Arcane Surge · Heal Ally · Frost Nova`, VIEW_W / 2, 105);
-    ctx.fillText(`[3] CROSSBOWMAN - 3-Way Volley · Snare Trap · Eagle Eye`, VIEW_W / 2, 125);
-    ctx.fillText(`[4] VANGUARD KNIGHT - Earthshatter · Provoke · Guardian Aura`, VIEW_W / 2, 145);
-    ctx.fillStyle = "#94a3b8";
-    ctx.fillText(`${mercCost}G each · power scales with your level (Lv ${player.level})`, VIEW_W / 2, 160);
-    ctx.fillText("Press 1-4 to Hire | ESC to Close", VIEW_W / 2, 175);
+    ui.drawMercModal(ctx, player, VIEW_W, VIEW_H, mercCards(), MercenaryManager.cost(player.level));
   }
 
   if (gameState === "PAUSED" && !showShopModal && !showMercModal) {
-    ui.drawPause(ctx, VIEW_W, VIEW_H);
-    // Shortcut hint for Export
-    ctx.fillStyle = "#ffd166";
-    ctx.font = "bold 6px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText("[ X ]   EXPORT SECURE SAVE (.VOF)", VIEW_W / 2, VIEW_H / 2 + 32);
+    ui.drawPause(ctx, VIEW_W, VIEW_H, { act: quest.act(), actTitle: player ? quest.text(player, summonerName(), mentorName()).act : "" });
   }
 
   if (gameState === "GAMEOVER") {
-    ui.drawGameOver(ctx, VIEW_W, VIEW_H);
+    ui.drawGameOver(ctx, VIEW_W, VIEW_H, { act: quest.act(), level: player ? player.level : 0 });
   }
 }
 
@@ -1774,6 +1762,7 @@ requestAnimationFrame(gameLoop);
 if (new URLSearchParams(location.search).has("debug")) {
   window.__vof = {
     get player() { return player; }, get stage() { return stage; }, get state() { return gameState; },
-    quest, enemyManager, lootManager, projectileManager, mercManager, npcManager, inventory, charPanel, travelTo, saveGame, awaken, ROSTER, dayNight, dialog
+    quest, enemyManager, lootManager, projectileManager, mercManager, npcManager, inventory, charPanel, travelTo, saveGame, awaken, ROSTER, dayNight, dialog,
+    openShop() { showShopModal = true; }, openMerc() { showMercModal = true; }
   };
 }

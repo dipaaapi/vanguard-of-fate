@@ -14,7 +14,7 @@ const avatarOf = (data) => AVATARS[data.type] || (AVATARS[data.type] = new Avata
 // How long a mercenary stays dazed before getting back up (15 seconds at 60 fps)
 const KO_TIME = 900;
 
-const MERC_CLASSES = {
+export const MERC_CLASSES = {
   axe: AxeMercenary,
   wand: WandMercenary,
   crossbow: CrossbowMercenary,
