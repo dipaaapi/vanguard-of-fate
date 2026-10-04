@@ -85,18 +85,16 @@ export class DayNight {
     if (n <= 0.01) return;
     ctx.save();
     const dark = 0.62 * n * sight;
+    // one full-screen fill (each extra full-screen layer costs frame rate on big screens):
+    // the light around the hero is faint moonlight blue, the edges the night tint
     const tint = siege ? "40, 5, 10" : "5, 8, 26";
+    const moon = siege || n <= 0.3 ? tint : "60, 82, 150";
     const g = ctx.createRadialGradient(px, py, 34, px, py, 150);
-    g.addColorStop(0, `rgba(${tint}, ${dark * 0.15})`);
+    g.addColorStop(0, `rgba(${moon}, ${dark * 0.15 + (moon === tint ? 0 : 0.05 * n)})`);
     g.addColorStop(0.55, `rgba(${tint}, ${dark * 0.6})`);
     g.addColorStop(1, `rgba(${tint}, ${dark})`);
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
-    if (n > 0.3 && !siege) {
-      // faint blue moonlight
-      ctx.fillStyle = `rgba(90, 120, 200, ${0.05 * n})`;
-      ctx.fillRect(0, 0, W, H);
-    }
     ctx.restore();
   }
 

@@ -93,6 +93,8 @@ export class TitleScene {
         { id: "sfx",     label: t("sfx"),     toggle: "sfx" },
         { id: "blood",   label: t("blood"),   toggle: "blood" },
         { id: "weather", label: t("weather"), toggle: "weather" },
+        { id: "quality", label: t("quality"), choice: "quality", values: ["sharp", "balanced", "fast"] },
+        { id: "fps",     label: t("fpsCounter"), toggle: "fps" },
         { id: "lang",    label: t("language"), lang: true },
         { id: "export",  label: t("exportSave"), disabled: !save, section: t("saveData") },
         { id: "import",  label: t("importSave") },
@@ -226,6 +228,15 @@ export class TitleScene {
         btn.appendChild(v);
       }
 
+      if (item.choice) {
+        // a setting with several values (Quality: SHARP / BALANCED / FAST)
+        const v = document.createElement("span");
+        v.className = "t-value on";
+        const cur = this.config[item.choice];
+        v.textContent = t(`${item.choice}${cur[0].toUpperCase()}${cur.slice(1)}`);
+        btn.appendChild(v);
+      }
+
       if (item.lang) {
         const v = document.createElement("span");
         v.className = "t-value";
@@ -301,7 +312,7 @@ export class TitleScene {
     if (!item || item.disabled) return;
 
     if (this.step === "options") {
-      if (item.toggle || item.lang) {
+      if (item.toggle || item.lang || item.choice) {
         this.change(item);
         return;
       }
@@ -329,14 +340,17 @@ export class TitleScene {
   }
 
   // Toggle a setting or the language (Enter or ← →)
-  change(item) {
+  change(item, dir = 1) {
     if (Sound.playSelectMove) Sound.playSelectMove();
     if (item.lang) {
       toggleLang(); // onLangChange calls render()
       return;
     }
-    const key = item.toggle;
-    this.config[key] = !this.config[key];
+    const key = item.toggle || item.choice;
+    if (item.choice) {
+      const vals = item.values;
+      this.config[key] = vals[(vals.indexOf(this.config[key]) + (dir || 1) + vals.length) % vals.length];
+    } else this.config[key] = !this.config[key];
     try {
       localStorage.setItem("vanguard_config", JSON.stringify(this.config));
     } catch (_) {}
@@ -348,6 +362,7 @@ export class TitleScene {
     } else if (key === "sfx") {
       Sound.sfxEnabled = Boolean(this.config.sfx);
     }
+    if (this.onConfigChange) this.onConfigChange(key);
     this.renderMenu();
   }
 
@@ -533,7 +548,7 @@ export class TitleScene {
     else if (ok && !e.repeat) this.confirm();
     else if ((left || right) && this.step === "options") {
       const item = this.items[this.index];
-      if (item.toggle || item.lang) this.change(item);
+      if (item.toggle || item.lang || item.choice) this.change(item, left ? -1 : 1);
     } else if (back && this.step === "options") {
       if (Sound.playSelectMove) Sound.playSelectMove();
       this.goTo("menu", "options");

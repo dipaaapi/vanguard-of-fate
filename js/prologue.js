@@ -636,12 +636,14 @@ export class PrologueScene {
   // Largest integer scale that fits the screen (pixel-perfect)
   fit() {
     const s = Math.max(1, Math.floor(Math.min(window.innerWidth / W, window.innerHeight / H)));
-    this.canvas.width = W * s;
-    this.canvas.height = H * s;
+    // draw at up to 2× and let the browser enlarge it pixel-perfect (full-screen 4× drawing cost frame rate)
+    const r = Math.min(s, 2);
+    this.canvas.width = W * r;
+    this.canvas.height = H * r;
     this.canvas.style.width = `${W * s}px`;
     this.canvas.style.height = `${H * s}px`;
     this.stageEl.style.setProperty("--s", s);
-    this.scale = s;
+    this.scale = r;      // drawing scale (--s above stays the screen scale for the HTML text)
   }
 
   goTo(i) {

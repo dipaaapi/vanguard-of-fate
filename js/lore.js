@@ -216,9 +216,15 @@ export function createLorePanel(panelEl, speed = 0.45) {
     y += e.deltaY;
   }, { passive: false });
 
+  // Height of one copy and whether the panel is shown, re-read only when they change: reading
+  // offsetHeight every frame forced a page layout per frame next to the HUD updates
+  let h = 0, shown = false;
+  const measure = () => { h = first ? first.offsetHeight : 0; shown = view.offsetParent !== null; };
+  if (window.ResizeObserver) new ResizeObserver(measure).observe(track);
+  let lastFirst = null, frames = 0;
   function step() {
-    const h = first ? first.offsetHeight : 0;
-    if (h > 0 && view.offsetParent !== null) {
+    if (first !== lastFirst || !window.ResizeObserver || ++frames % 30 === 0) { lastFirst = first; measure(); }
+    if (h > 0 && shown) {
       if (!paused) y += speed;
       y = ((y % h) + h) % h;
       track.style.transform = `translateY(${-y}px)`;

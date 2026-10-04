@@ -34,25 +34,25 @@ then `outline <file>` and read only the line range you need.
 - `continent.js` (12 KB, 261) — Dual-continent world map art and data: Aethelgard and the Dark Continent with their platforms · ContinentMap
 - `controller.js` (1.1 KB, 54) — Keyboard input state (held keys, just-pressed) · InputController
 - `creator.js` (12 KB, 330) — Character Creator scene: builds the Novice's modular Avatar part by part before the summoning · CreatorScene
-- `daynight.js` (3.6 KB, 111) — Day/night cycle (6-minute day): phases, night tint and night monster behaviour · DayNight
+- `daynight.js` (3.8 KB, 109) — Day/night cycle (6-minute day): phases, night tint and night monster behaviour · DayNight
 - `dialog.js` (5.8 KB, 192) — HTML dialogue box with speaker portrait, quest tracker HUD and quest log overlays · DialogBox, QuestHud
 - `dialogue.js` (23 KB, 400) — Story dialogue for Acts II–VI per NPC and quest step (en/fil); getDialogue(id, ctx), npcName · npcName, getDialogue
 - `elements.js` (4.9 KB, 104) — Race, element, size and type tables with damage multipliers and variant prefixes (Ragnarok style), en/fil names · ELEMENTS, elementMult, raceBonus, sizeMod, rollVariant, variantPrefix, elementName, raceName +1
 - `enemy.js` (40 KB, 932) — Enemy manager: monster spawning (hub, platforms, night, ambushes, bosses), AI state machines, telegraphed attacks, tiers/elements, death and drops · HUB_KINDS, EnemyManager
 - `fx.js` (14 KB, 455) — Game feel: screen shake, hit-stop, shockwave rings, sparks, blood, damage numbers, flashes, vignette · FXManager
 - `hudbar.js` (4.5 KB, 105) — Bottom bar HUD outside the canvas: name, level, HP/EXP/gold, status icons, quest objective, field state, Quest/Pause buttons · HudBar
-- `i18n.js` (15 KB, 358) — UI strings in English and Filipino (STRINGS.en / STRINGS.fil), language stored in localStorage; t(key), getLang/setLang/toggleLang/onLangChange · getLang, setLang, toggleLang, onLangChange, t
+- `i18n.js` (15 KB, 368) — UI strings in English and Filipino (STRINGS.en / STRINGS.fil), language stored in localStorage; t(key), getLang/setLang/toggleLang/onLangChange · getLang, setLang, toggleLang, onLangChange, t
 - `inventory.js` (31 KB, 622) — Inventory panel (I): hero look, worn equipment, stats, tabbed bag, item details and actions (equip, upgrade, refine, sockets) · InventoryPanel
 - `juice.js` (4.0 KB, 99) — Shared combat animation helpers for every fighter: rest/hit/attack/windup/breath/spawn poses, swing arcs · REST, hitPose, attackPose, windupPose, breathPose, spawnPose, mix, around +1
 - `loot.js` (8.8 KB, 250) — Loot drops: gold and items from slain monsters, ground items, magnetic pickup into the bag · LootManager
-- `lore.js` (7.6 KB, 239) — Loads LORE.md / LORE_FIL.md, parses ## Acts into chapters, act banners, auto-scrolling lore panel · loadLore, parseChapters, actNumber, chapterKey, BANNER_EXTS, bannerSrc, createLorePanel
-- `main.js` (70 KB, 1734) — Entry module and coordinator: canvas fit, scene routing (title → prologue → creator → game), managers, menus/shops, platform travel, save/load/export/import, Job Awakening, update + render game loop
+- `lore.js` (8.0 KB, 245) — Loads LORE.md / LORE_FIL.md, parses ## Acts into chapters, act banners, auto-scrolling lore panel · loadLore, parseChapters, actNumber, chapterKey, BANNER_EXTS, bannerSrc, createLorePanel
+- `main.js` (72 KB, 1780) — Entry module and coordinator: canvas fit, scene routing (title → prologue → creator → game), managers, menus/shops, platform travel, save/load/export/import, Job Awakening, update + render game loop
 - `mercenaryManager.js` (13 KB, 360) — Hireable mercenaries: contracts and fees, following, AI combat, daze and recovery, drawing · MercenaryManager
 - `monsterTiers.js` (4.7 KB, 105) — Monster tiers (Normal, Champion, Elite, MVP) and modifiers: rolling, applying, damage multipliers, names · MODS, modName, TIERS, rollTier, applyTier, tierName, has, damageTakenMult +3
 - `music.js` (15 KB, 313) — Music score as data: note/chord helpers, bass/arp/pad pattern styles, compileTrack, TRACKS (title, hub, night, canopy, coast, frost, ash, siege, maw, boss, finale), AREA_TRACK (platform id → track) and JINGLES · midi, freq, chord, compileTrack, TRACKS, AREA_TRACK, JINGLES
 - `player.js` (23 KB, 586) — Player entity: stats, stamina/sprint/dodge roll, damage and debuffs, EXP/levels, skill learning, movement, attack pose, drawing · expFor, Player
 - `projectiles.js` (13 KB, 352) — Player/mercenary projectiles and skill effects (meteor, thunder, arrows, ki spheres, dropkick) and their hit detection · ProjectileManager
-- `prologue.js` (36 KB, 799) — Act I animated pixel-art cutscene (480×270) explaining how the hero reached Aethelgard · PrologueScene
+- `prologue.js` (37 KB, 801) — Act I animated pixel-art cutscene (480×270) explaining how the hero reached Aethelgard · PrologueScene
 - `quest.js` (13 KB, 319) — Main quest Acts II–VI: steps with act, place, characters, objectives; QuestManager progress; mentor per class · FINAL_STEP, MENTOR_BY_CLASS, qt, QuestManager
 - `saveSecurity.js` (10 KB, 261) — Save format .vof: checksum/HMAC-style signing, XOR obfuscation, sanity audit of gold/stats/items/level, legacy .json migration; exposed as window.SaveSecurity
 - `select.js` (10 KB, 280) — Hero select scene with the Earthbound Souls isekai profiles · SelectScene
@@ -60,13 +60,13 @@ then `outline <file>` and read only the line range you need.
 - `skills.js` (13 KB, 167) — Stat builder rules and skill trees per class (Ragnarok style): stat costs/caps, skill definitions and bonuses, en/fil text · STATS, PRIMARY, STAT_INFO, statCost, STAT_MAX, TREES, skillText, treesFor +3
 - `stage.js` (4.1 KB, 116) — Hub map of the Aethelgard plains (Acts I–VI): grassland, Barracks, Citadel, 4 Warp Gateways, safe zones; same interface as world/platform.js · Stage
 - `status.js` (3.4 KB, 68) — Abnormal statuses (Seven Anomaly Blights: bleed, silence, poison, shock, burn, freeze, blind): effects, resist chance, ticking · STATUS, STATUS_KEYS, statusName, resistChance, tickStatuses, blocksRegen
-- `title.js` (20 KB, 603) — Title screen scene: menu, options (music/sfx/blood/weather/language), Chronicles, credits, save slot info; canvas draws embers and sword glow · TitleScene
+- `title.js` (21 KB, 618) — Title screen scene: menu, options (music/sfx/blood/weather/language), Chronicles, credits, save slot info; canvas draws embers and sword glow · TitleScene
 - `ui.js` (7.3 KB, 206) — In-canvas UI: live minimap, overhead cooldown bar; Edgar the Apothecary's wares list · UIManager
 - `worldmap.js` (11 KB, 296) — World map (M): land, Barracks, Citadel, coast, gateways, player, NPCs, foes, loot and quest objective · WorldMap
 
 ## js/avatar/
 
-- `avatar.js` (49 KB, 1214) — Modular pixel-art Avatar renderer: layered parts (cape, hair, body, arms, held item), 8 directions, cached frames; Pix buffer and shade helpers · FRAME_W, FRAME_H, DIRS, shade, Pix, whiteOf, Avatar
+- `avatar.js` (50 KB, 1234) — Modular pixel-art Avatar renderer: layered parts (cape, hair, body, arms, held item), 8 directions, cached frames; Pix buffer and shade helpers · FRAME_W, FRAME_H, DIRS, shade, Pix, whiteOf, Avatar
 - `beasts.js` (25 KB, 518) — Act monster sprites (sporeling, drake, crab, serpent, brute, imp, specter, treant, …) with idle/walk/attack frames · SporelingSprite, DrakeSprite, CrabSprite, SerpentSprite, BruteSprite, ImpSprite, SpecterSprite, TreantSprite +1
 - `creature.js` (13 KB, 304) — Non-human sprite base (CreatureSprite) plus slime, wolf and falcon sprites; facingFrom direction helper · CreatureSprite, ellipse, SlimeSprite, WolfSprite, FalconSprite, facingFrom
 - `options.js` (4.6 KB, 119) — Character Creator choices and colours, NPC-only parts, config normalisation and random look/name · FIELDS, DEFAULT_CONFIG, normalizeConfig, randomConfig, randomName

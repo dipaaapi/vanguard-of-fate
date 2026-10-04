@@ -26,7 +26,8 @@ No backend and no build step: the game is static files. State persists in `local
 - `/balance` — `node .claude/skills/balance/balance-sim.mjs [--area <id>] [--level ±n] [--gear kit]`: class × Act DPS, survivability, fights per life, boss fights, EXP pace, class spread.
 - `/content` — `node .claude/skills/content/content-check.mjs`: cross-checks monsters, bosses, platforms, items, NPCs, chatter and quest text; SKILL.md has the add-a-monster/item/NPC/platform recipes.
 - `/sprite-preview` — `node .claude/skills/sprite-preview/sprite-tool.mjs render <class:|npc:|merc:|monster:|boss:|icon:><key> [--before HEAD]`: PNG sheet of the real sprite.
-- `/playtest` — `node .claude/skills/playtest/playtest.mjs [--flow newgame] [--keys …]`: headless Chromium run with console errors and screenshots.
+- `/playtest` — `node .claude/skills/playtest/playtest.mjs [--flow newgame] [--keys …] [--debug --keys-after …]`: headless Chromium run with console errors and screenshots.
+- `node .claude/skills/playtest/perf.mjs [--areas hub,ash] [--viewport 2560x1440] [--profile]` — frame rate and per-frame JS time in each scene with a 4× slower CPU; run it before and after anything that draws more.
 - `/security-audit` — audit save import, localStorage loading, innerHTML use, page config and the dev server.
 - `node tools/art/render.mjs [keys…] [--list] [--preview]` — re-render the procedural art (headless Chromium; exact key or prefix, e.g. `act-3`, `portrait-`).
 - `node tools/audio/render-audio.mjs [music|jingles|sfx|<name>…] [--mp3]` — offline render of music/SFX with peak/RMS checks; run it after changing `audio.js` or `music.js`.
@@ -47,7 +48,7 @@ No backend and no build step: the game is static files. State persists in `local
 
 ## Conventions
 
-- The canvas renders at 480×270 game pixels and is scaled by an integer factor (`fitCanvas` in `main.js`; CSS `--s` is that scale). Don't draw HTML overlays in canvas pixels without `--s`.
+- The canvas renders at 480×270 game pixels and is scaled by an integer factor (`fitCanvas` in `main.js`; CSS `--s` is that scale). Don't draw HTML overlays in canvas pixels without `--s`. The drawing scale is capped by Options → Quality (`RENDER_CAP`: Balanced = 2×) and CSS enlarges the rest pixel-perfect, so avoid extra full-screen fills: on big screens fill area, not JS, sets the frame rate.
 - The simulation runs at a fixed 60 steps per second (`STEP` in `main.js`); durations and cooldowns are in frames (60 = 1 s).
 - Language: `getLang()` returns `"en"` or `"fil"`. Every player-visible string needs both: UI strings in `js/i18n.js` (`t(key)`), data tables as `{ en, fil }` or `N(en, fil)`, chatter in `data/npc_conversations.json`. Run `lore-tool.mjs check` after adding text.
 - Put text into the DOM with `textContent`; use `innerHTML` only for static templates or `t()` strings that carry markup, never for names or other values that can come from a save.

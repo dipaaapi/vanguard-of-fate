@@ -50,6 +50,20 @@ import "./saveSecurity.js";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+// Labels (names, prompts, gateways) measure the same text every frame: remember the widths per font
+{
+  const measure = ctx.measureText.bind(ctx), widths = new Map();
+  ctx.measureText = (text) => {
+    const key = `${ctx.font}|${text}`;
+    let m = widths.get(key);
+    if (!m) {
+      if (widths.size > 4000) widths.clear();
+      m = measure(text);
+      widths.set(key, m);
+    }
+    return m;
+  };
+}
 
 // ==================== DISPLAY / RESOLUTION ====================
 // Logical game size (16:9). All game code works in these units.
@@ -71,17 +85,20 @@ function fitCanvas() {
   const availH = window.innerHeight - barEl.offsetHeight - (layoutMode === "play" ? TRAY_RESERVE : 0);
   const raw = Math.min(availW / VIEW_W, availH / VIEW_H);
   const scale = Math.max(1, Math.floor(raw));
+  // Drawing resolution: on big screens the canvas draws at up to 2× (Balanced) and the browser
+  // enlarges it pixel-perfect; drawing every pixel at 3–4× cost up to half the frame rate (perf.mjs)
+  const render = Math.min(scale, RENDER_CAP[gameConfig.quality] || scale);
 
-  canvas.width = VIEW_W * scale;
-  canvas.height = VIEW_H * scale;
-  canvas.style.width = canvas.width + "px";
-  canvas.style.height = canvas.height + "px";
-  barEl.style.width = canvas.width + "px";   // the menu is as wide as the canvas
-  chatLogEl.style.width = canvas.width + "px";
+  canvas.width = VIEW_W * render;
+  canvas.height = VIEW_H * render;
+  canvas.style.width = VIEW_W * scale + "px";
+  canvas.style.height = VIEW_H * scale + "px";
+  barEl.style.width = VIEW_W * scale + "px";   // the menu is as wide as the canvas
+  chatLogEl.style.width = VIEW_W * scale + "px";
   viewportEl.style.setProperty("--s", scale);  // size of the HTML overlays (dialogue, quest)
 
   // Reset whenever canvas.width changes, so set it again here
-  ctx.setTransform(scale, 0, 0, scale, 0, 0);
+  ctx.setTransform(render, 0, 0, render, 0, 0);
   ctx.imageSmoothingEnabled = false;
 }
 
@@ -115,6 +132,8 @@ const fileInput = document.getElementById("saveFileInput");
 const ROSTER = [KnightClass, MageClass, PriestClass, ArcherClass, FighterClass];
 
 const CONFIG_KEY = "vanguard_config";
+// Options → Quality: the largest drawing scale (0 = always the full screen scale)
+const RENDER_CAP = { sharp: 0, balanced: 2, fast: 1 };
 function loadGameConfig() {
   try {
     const raw = localStorage.getItem(CONFIG_KEY);
@@ -124,11 +143,13 @@ function loadGameConfig() {
         music: parsed.music !== undefined ? Boolean(parsed.music) : true,
         sfx: parsed.sfx !== undefined ? Boolean(parsed.sfx) : true,
         blood: parsed.blood !== undefined ? Boolean(parsed.blood) : true,
-        weather: parsed.weather !== undefined ? Boolean(parsed.weather) : true
+        weather: parsed.weather !== undefined ? Boolean(parsed.weather) : true,
+        quality: RENDER_CAP[parsed.quality] !== undefined ? parsed.quality : "balanced",
+        fps: Boolean(parsed.fps)
       };
     }
   } catch (_) {}
-  return { music: true, sfx: true, blood: true, weather: true };
+  return { music: true, sfx: true, blood: true, weather: true, quality: "balanced", fps: false };
 }
 
 const gameConfig = loadGameConfig();
@@ -1094,6 +1115,8 @@ const titleScene = new TitleScene(
   gameConfig,
   document.getElementById("title")
 );
+// Options → Quality changes the drawing scale right away
+titleScene.onConfigChange = (key) => { if (key === "quality") fitCanvas(); };
 
 // New expedition: Character Creator → Act I Prologue → Novice in the Barracks
 const prologueScene = new PrologueScene(
@@ -1663,6 +1686,28 @@ function renderGameWorld() {
   }
 }
 
+// Options → FPS Counter: frames the screen received in the last second (top left of the canvas)
+const fpsMeter = { frames: 0, since: 0, fps: 0 };
+function drawFpsMeter(now) {
+  fpsMeter.frames++;
+  if (now - fpsMeter.since >= 1000) {
+    fpsMeter.fps = Math.round((fpsMeter.frames * 1000) / (now - fpsMeter.since));
+    fpsMeter.frames = 0;
+    fpsMeter.since = now;
+  }
+  if (!gameConfig.fps) return;
+  const f = fpsMeter.fps;
+  ctx.save();
+  ctx.fillStyle = "rgba(3, 6, 17, 0.75)";
+  ctx.fillRect(3, 3, 30, 9);
+  ctx.font = "bold 6px monospace";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = f >= 55 ? "#4ade80" : f >= 40 ? "#facc15" : "#ef4444";
+  ctx.fillText(`${f} FPS`, 5, 8);
+  ctx.restore();
+}
+
 // Fixed timestep: always 60 updates per second even on 120/144 Hz monitors
 // (everything used to run twice as fast on fast screens). Drawing follows the screen.
 const STEP = 1000 / 60;
@@ -1720,6 +1765,7 @@ function gameLoop(now = performance.now()) {
   } else {
     renderGameWorld();
   }
+  drawFpsMeter(now);
   requestAnimationFrame(gameLoop);
 }
 
@@ -1728,6 +1774,6 @@ requestAnimationFrame(gameLoop);
 if (new URLSearchParams(location.search).has("debug")) {
   window.__vof = {
     get player() { return player; }, get stage() { return stage; }, get state() { return gameState; },
-    quest, enemyManager, lootManager, projectileManager, mercManager, npcManager, inventory, charPanel, travelTo, saveGame, awaken, ROSTER
+    quest, enemyManager, lootManager, projectileManager, mercManager, npcManager, inventory, charPanel, travelTo, saveGame, awaken, ROSTER, dayNight, dialog
   };
 }

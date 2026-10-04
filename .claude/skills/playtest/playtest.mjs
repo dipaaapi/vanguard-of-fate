@@ -8,6 +8,7 @@
  *   node .claude/skills/playtest/playtest.mjs --keys "Enter,wait:500,KeyD*30,shot"   # your own key script
  *   node .claude/skills/playtest/playtest.mjs --save my.json        # put a save in localStorage first, then Continue
  *   node .claude/skills/playtest/playtest.mjs --lang fil            # Filipino UI
+ *   node .claude/skills/playtest/playtest.mjs --flow newgame --debug --keys-after "eval:__vof.travelTo('ash'),wait:800,shot"
  *
  * Key script: comma-separated steps. "Enter" taps a key (KeyboardEvent.code or key name), "KeyD*30" holds it
  * for 30 frames (~0.5 s), "wait:800" waits ms, "shot" or "shot:name" saves a screenshot, "eval:<js>" runs JS in
@@ -57,7 +58,7 @@ const FLOWS = {
   newgame: "wait:1200,Enter,wait:400,Enter,wait:1500,shot:creator,Enter,wait:1500,shot:prologue,Escape,wait:2500,shot:arrival,Enter,wait:400,Enter,wait:400,Enter,wait:400,Enter,wait:400,Enter,wait:400,KeyD*45,wait:300,shot:world",
   continue: "wait:1200,Enter,wait:600,Enter,wait:2000,shot:continue,KeyD*40,shot:world"
 };
-const script = opt("--keys", null) || FLOWS[opt("--flow", opt("--save", null) ? "continue" : "boot")];
+const script = [opt("--keys", null) || FLOWS[opt("--flow", opt("--save", null) ? "continue" : "boot")], opt("--keys-after", null)].filter(Boolean).join(",");
 if (!script) { console.error(`unknown flow; flows: ${Object.keys(FLOWS).join(", ")}`); process.exit(1); }
 
 const outDir = opt("--out", path.join(os.tmpdir(), "vof-playtest"));
@@ -87,7 +88,7 @@ await page.addInitScript(([s, l]) => {
   if (l) localStorage.setItem("vanguard_lang", l);
 }, [save ? fs.readFileSync(path.resolve(save), "utf8") : null, lang]);
 
-await page.goto(base, { waitUntil: "load" });
+await page.goto(argv.includes("--debug") ? `${base}?debug` : base, { waitUntil: "load" });   // --debug exposes window.__vof (js/main.js)
 const shots = [];
 for (const raw of script.split(",").map((s) => s.trim()).filter(Boolean)) {
   const [step, arg] = raw.split(/:(.*)/);
