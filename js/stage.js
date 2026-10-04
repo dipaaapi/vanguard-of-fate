@@ -4,6 +4,7 @@ import { CastleSystem } from "./world/castle.js";
 import { PortalSystem } from "./world/portal.js";
 import { WeatherSystem } from "./world/weather.js";
 import { TileMap } from "./world/tilemap.js";
+import { GFX } from "./settings.js";
 
 // The plains of Aethelgard (Acts I–VI): Barracks, Citadel and the 4 Warp Gateways.
 // The boat and the sea are in the Cerulean Abyss (the "coast" platform).
@@ -111,6 +112,6 @@ export class Stage {
     this.portals.draw(ctx);
 
     // 5. Cloud shadows on the ground (the clouds themselves are drawn above the characters)
-    this.weather.drawCloudShadows(ctx);
+    if (GFX.shadows) this.weather.drawCloudShadows(ctx);
   }
 }

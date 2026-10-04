@@ -1,6 +1,7 @@
 import { Sound } from "./audio.js";
 import { t, getLang, setLang, toggleLang, onLangChange } from "./i18n.js";
 import { loadLore, parseChapters, chapterKey, bannerSrc, BANNER_EXTS } from "./lore.js";
+import { SETTINGS, settingLabel, settingValue, stepSetting, toggleFullscreen } from "./settings.js";
 
 // Title screen (full window). The logo, menu and Chronicles are HTML/CSS;
 // the canvas (#titleFx) animates the painting: stars, eclipse, sea, a passing ship, the sword and embers.
@@ -88,13 +89,9 @@ export class TitleScene {
     const save = this.readSave();
 
     if (this.step === "options") {
+      // Settings come from js/settings.js (shared with the in-game Settings panel, O)
       return [
-        { id: "music",   label: t("music"),   toggle: "music" },
-        { id: "sfx",     label: t("sfx"),     toggle: "sfx" },
-        { id: "blood",   label: t("blood"),   toggle: "blood" },
-        { id: "weather", label: t("weather"), toggle: "weather" },
-        { id: "quality", label: t("quality"), choice: "quality", values: ["sharp", "balanced", "fast"] },
-        { id: "fps",     label: t("fpsCounter"), toggle: "fps" },
+        ...SETTINGS.map((s) => ({ id: s.id, label: settingLabel(s.id), [s.toggle ? "toggle" : "choice"]: s.id })),
         { id: "lang",    label: t("language"), lang: true },
         { id: "export",  label: t("exportSave"), disabled: !save, section: t("saveData") },
         { id: "import",  label: t("importSave") },
@@ -142,8 +139,7 @@ export class TitleScene {
       });
     });
     this.langBtn.querySelector("#screenItem").addEventListener("click", () => {
-      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-      else document.documentElement.requestFullscreen().catch(() => {});
+      toggleFullscreen();
       setMenu(false);
       if (Sound.playSelectMove) Sound.playSelectMove();
     });
@@ -229,11 +225,10 @@ export class TitleScene {
       }
 
       if (item.choice) {
-        // a setting with several values (Quality: SHARP / BALANCED / FAST)
+        // a setting with several values (Quality, volume, FPS limit, brightness): ← → steps it
         const v = document.createElement("span");
         v.className = "t-value on";
-        const cur = this.config[item.choice];
-        v.textContent = t(`${item.choice}${cur[0].toUpperCase()}${cur.slice(1)}`);
+        v.textContent = `◀ ${settingValue(item.choice, this.config)} ▶`;
         btn.appendChild(v);
       }
 
@@ -263,6 +258,7 @@ export class TitleScene {
   syncSelection() {
     this.menuEl.querySelectorAll(".t-item").forEach((el, i) => {
       el.classList.toggle("selected", i === this.index);
+      if (i === this.index && this.step === "options" && el.scrollIntoView) el.scrollIntoView({ block: "nearest" });
     });
   }
 
@@ -313,7 +309,7 @@ export class TitleScene {
 
     if (this.step === "options") {
       if (item.toggle || item.lang || item.choice) {
-        this.change(item);
+        this.change(item, 0);
         return;
       }
       if (Sound.playSelectConfirm) Sound.playSelectConfirm();
@@ -347,13 +343,7 @@ export class TitleScene {
       return;
     }
     const key = item.toggle || item.choice;
-    if (item.choice) {
-      const vals = item.values;
-      this.config[key] = vals[(vals.indexOf(this.config[key]) + (dir || 1) + vals.length) % vals.length];
-    } else this.config[key] = !this.config[key];
-    try {
-      localStorage.setItem("vanguard_config", JSON.stringify(this.config));
-    } catch (_) {}
+    stepSetting(this.config, key, dir || 1, !dir);   // Enter / click cycles round; ← → stops at the ends
 
     if (key === "music") {
       Sound.musicEnabled = Boolean(this.config.music);

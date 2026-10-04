@@ -1,0 +1,23 @@
+{
+  "_doc": "Safe-zone Market (B): what it sells and the buy quantities. Prices come from js/items/itemdb.js; selling pays half the item's price (same as the inventory's Sell). Quest items are never sold.",
+  "stock": ["salve", "elixir", "tonic", "panacea"],
+  "bulk": [1, 5, 10],
+  "text": {
+    "title":     { "en": "MARKET", "fil": "PALENGKE" },
+    "buy":       { "en": "Buy", "fil": "Bumili" },
+    "sell":      { "en": "Sell", "fil": "Magbenta" },
+    "owned":     { "en": "Have", "fil": "Mayroon" },
+    "each":      { "en": "each", "fil": "bawat isa" },
+    "sellOne":   { "en": "Sell 1", "fil": "Ibenta 1" },
+    "sellAll":   { "en": "Sell all", "fil": "Ibenta lahat" },
+    "junk":      { "en": "Sell all Normal gear", "fil": "Ibenta lahat ng Karaniwang gamit" },
+    "empty":     { "en": "Nothing to sell.", "fil": "Walang maibebenta." },
+    "poor":      { "en": "Not enough gold", "fil": "Kulang ang ginto" },
+    "full":      { "en": "Bag full", "fil": "Puno ang bag" },
+    "bought":    { "en": "Bought {name} ×{n} (−{g}G)", "fil": "Binili ang {name} ×{n} (−{g}G)" },
+    "sold":      { "en": "Sold {name} ×{n} (+{g}G)", "fil": "Naibenta ang {name} ×{n} (+{g}G)" },
+    "soldJunk":  { "en": "Sold {n} Normal gear (+{g}G)", "fil": "Naibenta ang {n} Karaniwang gamit (+{g}G)" },
+    "closed":    { "en": "Markets open in a safe zone (Barracks, Citadel or a camp)", "fil": "Bukas ang palengke sa ligtas na lugar (Barracks, Citadel o kampo)" },
+    "hint":      { "en": "Tab switch · ↑ ↓ choose · Enter 1 · Shift+Enter all · B / Esc close", "fil": "Tab lipat · ↑ ↓ pumili · Enter 1 · Shift+Enter lahat · B / Esc isara" }
+  }
+}

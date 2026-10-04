@@ -51,14 +51,17 @@ export class UIManager {
     return this.terrain.get(key) || null;
   }
 
-  // Live minimap (top right): a window of the terrain around the hero with foes, loot, allies,
-  // gateways, the quest objective (pinned to the edge when it is out of view) and the hero's heading.
-  // extra: { objective: {x, y}, npcs: [...], placeName, night }
+  // Live minimap: a window of the terrain around the hero with foes, loot, allies, gateways, the
+  // quest objective (pinned to the edge when it is out of view) and the hero's heading.
+  // Drawn in the right panel's World Map box (main.js drawSideMap passes extra.rect); without a
+  // rect it draws at the top right of the game screen.
+  // extra: { objective: {x, y}, npcs: [...], placeName, night, rect: { X, Y, W, H, view } }
   drawHUD(ctx, player, enemyManager, lootManager, stage, screenWidth, isPaused, timeOfDay, weatherType, isInBarracks, extra = {}) {
     if (!player || !stage) return;
-    const W = 76, H = 56;
-    const X = screenWidth - W - 6, Y = 7;
-    const VIEW = 640;                                  // world pixels across the window
+    const R = extra.rect;
+    const W = R ? R.W : 76, H = R ? R.H : 56;
+    const X = R ? R.X : screenWidth - W - 6, Y = R ? R.Y : 7;
+    const VIEW = Math.min(stage.width, R && R.view ? R.view : 640);   // world pixels across the window
     const k = W / VIEW;
     const cx = player.x + 10, cy = player.y + 12;
     // window origin in world space, kept inside the map
