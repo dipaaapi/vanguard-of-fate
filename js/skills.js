@@ -44,8 +44,8 @@ export const TREES = {
       desc: N("Regenerate 1 HP every 3s per level.", "Nagbabalik ng 1 HP bawat 3s bawat level."), fx: (l) => ({ regen: l }) },
     { id: "grit", icon: "🧱", max: 5, row: 3, col: 0, req: { firstaid: 1 }, name: N("Earthly Grit", "Tibay mula sa Daigdig"),
       desc: N("Memories of a hard life on Earth: +3% max HP per level.", "Alaala ng mahirap na buhay sa Daigdig: +3% max HP bawat level."), fx: (l) => ({ hpPct: 3 * l }) },
-    { id: "truck", icon: "🚚", max: 1, row: 3, col: 2, req: { grit: 3, jab: 3 }, name: N("Truck-kun's Blessing", "Basbas ni Truck-kun"),
-      desc: N("The truck that sent you here still watches over you: +5% crit and +5% move speed.", "Ang trak na nagpadala sa iyo rito ay nagbabantay pa rin: +5% crit at +5% bilis."),
+    { id: "truck", icon: "🍀", max: 1, row: 3, col: 2, req: { grit: 3, jab: 3 }, name: N("Second-Life Luck", "Suwerte ng Ikalawang Buhay"),
+      desc: N("The luck that carried you across the veil still follows you: +5% crit and +5% move speed.", "Ang suwerteng nagdala sa iyo patawid sa tabing ay sumusunod pa rin sa iyo: +5% crit at +5% bilis."),
       fx: (l) => ({ crit: 5 * l, move: 5 * l }) },
     { id: "stone", icon: "🪨", max: 5, row: 4, col: 1, req: { jab: 1 }, name: N("Throw Stone", "Paghagis ng Bato"),
       desc: N("L: −8% cooldown per level.", "L: −8% cooldown bawat level."), fx: (l) => ({ lcd: 8 * l }) }

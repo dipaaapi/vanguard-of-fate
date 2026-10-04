@@ -36,7 +36,7 @@ const STRINGS = {
     credCreator: "Created & Directed by",
     credCreatorRole: "Game design, world building and art direction",
     credStory: "Story & Lore",
-    credStoryRole: "The Chronicles of Aethelgard — twelve acts of the Grand Slaying Corps",
+    credStoryRole: "The Chronicles of Aethelgard — twelve acts of the Fated Vanguard",
     credCode: "Programming",
     credCodeRole: "Built together with Claude, an AI coding assistant, in Claude Code",
     credTech: "Technology",
@@ -88,9 +88,9 @@ const STRINGS = {
       `I am ${name}, ${rank} of Aethelgard and Supreme Commander of the Imperial Magic & Research Corps.`,
       "Forgive me for tearing you from your world. Demon Lord Satan has awakened, and our steel alone cannot hold back his miasma.",
       "You arrive as a Novice — no calling yet, only a dagger, a buckler, and the courage that drew the seal to you.",
-      "Beyond the Barracks lie twelve platforms, each more corrupted than the last. Grow stronger, reach level 10, and the next gateway will open.",
-      "Prove yourself on the first platform, then come to me at the audience dais of the Imperial Citadel. At the altar of Astraea, your true calling will awaken.",
-      "On the last platform waits Satan himself. …I will be with you until then."
+      "Focus your will and a golden panel only you can read will open: the Covenant Ledger. Every soul I have called sees one.",
+      "The grassland beyond the Barracks is overrun. Grow stronger there, reach level 10, then come to me at the audience dais of the Imperial Citadel. At the altar of Astraea, your true calling will awaken.",
+      "Past the Warp Gateways the corruption only deepens, and at its heart waits Satan himself. …I will be with you until then."
     ],
     rankPrincess: "Crown Princess",
     rankPrince: "Crown Prince",
@@ -195,7 +195,7 @@ const STRINGS = {
     credCreator: "Nilikha at Idinirehe ni",
     credCreatorRole: "Disenyo ng laro, paglikha ng mundo at direksyon ng sining",
     credStory: "Kuwento at Lore",
-    credStoryRole: "Ang mga Salaysay ng Aethelgard — labindalawang act ng Grand Slaying Corps",
+    credStoryRole: "Ang mga Salaysay ng Aethelgard — labindalawang act ng Fated Vanguard",
     credCode: "Programming",
     credCodeRole: "Binuo kasama si Claude, isang AI coding assistant, sa Claude Code",
     credTech: "Teknolohiya",
@@ -247,9 +247,9 @@ const STRINGS = {
       `Ako si ${name}, ${rank} ng Aethelgard at Pinakamataas na Komandante ng Imperial Magic & Research Corps.`,
       "Patawarin mo ako sa paghila sa iyo mula sa iyong mundo. Nagising na ang Demon Lord na si Satan, at hindi sapat ang aming bakal laban sa kanyang miasma.",
       "Dumating ka bilang isang Novice — wala pang tungkulin, punyal at kalasag lamang, at ang tapang na humila sa selyo patungo sa iyo.",
-      "Sa labas ng Barracks ay may labindalawang plataporma, bawat isa'y mas nilamon ng kadiliman. Magpalakas ka, umabot sa level 10, at bubukas ang susunod na lagusan.",
-      "Patunayan mo ang sarili sa unang plataporma, saka puntahan mo ako sa audience dais ng Imperial Citadel. Sa altar ni Astraea, magigising ang iyong tunay na tungkulin.",
-      "Sa huling plataporma naghihintay si Satan mismo. …Kasama mo ako hanggang doon."
+      "Ituon mo ang iyong loob at bubukas ang isang gintong panel na ikaw lamang ang makababasa: ang Covenant Ledger. Nakikita ito ng bawat kaluluwang tinawag ko.",
+      "Pinamumugaran ng halimaw ang kaparangan sa labas ng Barracks. Magpalakas ka roon, umabot sa level 10, saka puntahan mo ako sa audience dais ng Imperial Citadel. Sa altar ni Astraea, magigising ang iyong tunay na tungkulin.",
+      "Sa kabila ng mga Warp Gateway ay lalong lumalalim ang kadiliman, at sa puso nito naghihintay si Satan mismo. …Kasama mo ako hanggang doon."
     ],
     rankPrincess: "Prinsesa",
     rankPrince: "Prinsipe",

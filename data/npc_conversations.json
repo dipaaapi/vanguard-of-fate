@@ -40,6 +40,10 @@
       {
         "en": "Earth feels so far away... but protecting this world gives my second life meaning.",
         "fil": "Napakalayo na ng Daigdig... ngunit ang pagtatanggol dito ang nagbibigay-buhay sa akin."
+      },
+      {
+        "en": "Five points on the Barracks floor, one for each of us. The middle one stayed dark until you arrived.",
+        "fil": "Limang dulo sa sahig ng Barracks, isa sa bawat isa sa amin. Nanatiling madilim ang gitna hanggang dumating ka."
       }
     ],
 
@@ -83,6 +87,10 @@
       {
         "en": "Breathe with the bowstring, release on the heartbeat. Precision over panic.",
         "fil": "Sumabay sa hininga ng pisi, bitawan sa tibok ng puso. Asinta bago takot."
+      },
+      {
+        "en": "Natives can't see the Ledger. To them we just get stronger overnight. It unsettles them a little.",
+        "fil": "Hindi nakikita ng mga katutubo ang Ledger. Para sa kanila, bigla na lang tayong lumalakas. Medyo nakakakaba iyon sa kanila."
       }
     ],
 
@@ -126,6 +134,10 @@
       {
         "en": "I prayed for the power to heal without limits... and Astraea answered my final breath.",
         "fil": "Nanalangin akong magpagaling nang walang hangganan... at dininig ni Astraea ang aking huling hininga."
+      },
+      {
+        "en": "The anchor brings us back when we fall. The soldiers beside us have no such mercy. Remember that out there.",
+        "fil": "Ibinabalik tayo ng angkla kapag bumagsak tayo. Walang ganoong awa ang mga sundalong katabi natin. Tandaan mo iyan sa labas."
       }
     ],
 
@@ -169,6 +181,10 @@
       {
         "en": "With proper telemetry, even an immortal demon lord obeys the laws of thermal destruction.",
         "fil": "Sa tamang kalkulasyon, maging ang demon lord ay sakop pa rin ng batas ng thermodynamics."
+      },
+      {
+        "en": "The Lantern Knight's prophecy is carved in a script only we can read. That's not magic. That's a message.",
+        "fil": "Nakaukit ang propesiya ng Lantern Knight sa sulat na tayo lang ang nakababasa. Hindi iyon mahika. Mensahe iyon."
       }
     ],
 
@@ -212,6 +228,10 @@
       {
         "en": "Adrenaline is your ally, but discipline keeps you alive when stamina runs low.",
         "fil": "Kaibigan mo ang adrenaline, ngunit disiplina ang bubuhay sa iyo kapag kapos ka sa hangin."
+      },
+      {
+        "en": "The Ledger only counts the last hit. Same as the ring: nobody remembers who threw the setup punch.",
+        "fil": "Huling tama lang ang binibilang ng Ledger. Parang sa ring: walang nakakaalala kung sino ang nagbigay ng setup na suntok."
       }
     ],
 
@@ -237,8 +257,8 @@
         "fil": "Ang pagpapanday at pagbebenta ay sa loob lamang ng banal na santuwaryo pinapayagan."
       },
       {
-        "en": "The King placed his trust in the Grand Slaying Corps. We will not let Aethelgard fall.",
-        "fil": "Ipinagkatiwala ng Hari ang kaharian sa Slaying Corps. Hindi natin hahayaang bumagsak ito."
+        "en": "The King placed his trust in the Fated Vanguard. We will not let Aethelgard fall.",
+        "fil": "Ipinagkatiwala ng Hari ang kaharian sa Fated Vanguard. Hindi natin hahayaang bumagsak ito."
       },
       {
         "en": "Rest at the braziers when wounded. Astraea's flame restores vitality in seconds.",
@@ -298,6 +318,10 @@
       {
         "en": "Don't let your stamina bar deplete completely—exhaustion leaves you wide open to critical hits.",
         "fil": "Huwag hayaang maubos ang stamina—ang labis na pagod ay nagdudulot ng garantisadong kritikal."
+      },
+      {
+        "en": "They say the Lantern Knight's seal still hums under the Citadel. I keep my best flasks away from that wall.",
+        "fil": "Sabi nila, umuugong pa rin ang selyo ng Lantern Knight sa ilalim ng Citadel. Inilalayo ko ang pinakamahusay kong prasko sa pader na iyon."
       }
     ],
 
@@ -319,8 +343,8 @@
         "fil": "Ipagkakaloob ng Altar ni Astraea ang mga sandatang sadyang pinanday para sa iyong tungkulin."
       },
       {
-        "en": "Twelve corrupted platforms surround the realm. Defeat each boss to unseal the path.",
-        "fil": "Labindalawang plataporma ang bumabalot sa kaharian. Talunin ang bawat boss para sumulong."
+        "en": "Five Heralds hold the corners of the realm. Defeat each one to unseal the path.",
+        "fil": "Limang Herald ang may hawak sa mga sulok ng kaharian. Talunin ang bawat isa upang mabuksan ang daan."
       },
       {
         "en": "My Magic & Research Corps will provide telemetry and arcane support throughout your campaign.",
@@ -397,8 +421,8 @@
         "fil": "Banta ni Demon Lord Satan na lamunin ang ating daigdig at maging ang mundo ng Daigdig."
       },
       {
-        "en": "The Altar of Astraea on our dais awaits you once you prove your mettle on the first platform.",
-        "fil": "Naghihintay ang Altar ni Astraea sa aming dais kapag napatunayan mo ang sarili sa unang laban."
+        "en": "The Altar of Astraea on our dais awaits you once you have grown strong in the grassland.",
+        "fil": "Naghihintay ang Altar ni Astraea sa aming dais kapag lumakas ka na sa kaparangan."
       },
       {
         "en": "My Royal Guards defend this citadel with their lives, but you spearhead our counter-offensive.",
@@ -417,7 +441,7 @@
         "fil": "Nawa'y gabayan ng liwanag ni Astraea ang iyong sandata sa madidilim na kuweba ng Kalaliman."
       },
       {
-        "en": "Even in my advancing years, my spirit burns with hope when I look upon our Grand Slaying Corps.",
+        "en": "Even in my advancing years, my spirit burns with hope when I look upon our Fated Vanguard.",
         "fil": "Kahit matanda na ako, nag-aalab ang aking pag-asa tuwing pinagmamasdan ang ating hukbo."
       },
       {

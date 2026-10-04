@@ -206,7 +206,7 @@ export class Platform {
     ctx.restore();
   }
 
-  // Slaying Corps camp: runic circle, four braziers, a tent and a banner
+  // Fated Vanguard camp: runic circle, four braziers, a tent and a banner
   drawCamp(ctx) {
     if (this.def.village) return this.drawVillage(ctx);
     const c = this.camp, cx = c.x + c.w / 2, cy = c.y + c.h / 2;
@@ -228,7 +228,7 @@ export class Platform {
     ctx.beginPath(); ctx.moveTo(cx - 44, cy - 4); ctx.lineTo(cx - 28, cy - 30); ctx.lineTo(cx - 12, cy - 4); ctx.closePath(); ctx.fill();
     ctx.fillStyle = "#5a1a1a"; ctx.fillRect(cx - 31, cy - 14, 6, 10);
     ctx.fillStyle = "#ffd166"; ctx.fillRect(cx - 29, cy - 32, 2, 4);
-    // Slaying Corps banner
+    // Fated Vanguard banner
     ctx.fillStyle = "#5e3b1a"; ctx.fillRect(cx + 30, cy - 34, 2, 30);
     ctx.fillStyle = "#8a2c2c"; ctx.fillRect(cx + 32, cy - 34, 12, 8);
     ctx.fillStyle = "#ffd166"; ctx.fillRect(cx + 36, cy - 32, 3, 3);
