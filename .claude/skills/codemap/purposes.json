@@ -6,6 +6,7 @@
   "data/art_manifest.json": "Every generated image (banners, title/portal backgrounds, vistas, portraits, relics): kind, EN/FIL caption and where the game uses it; paired with tools/art/scenes/index.js",
   "data/npc_conversations.json": "NPC ambient chatter: solo lines per NPC and two-NPC exchanges, each line with en/fil text (fetched by npc/npcs.js)",
   "index.html": "Page shell: canvas #gameCanvas inside #stage/#viewport, title/creator/dialog overlays, bottom bar, save file input, Google Fonts; loads js/main.js as a module",
+  "js/actintro.js": "Act intro cinematic (ActIntro): when the story reaches a new Act, the Act banner pushes in behind letterbox bars with motes and a light sweep, then the Act number, title and the banner's EN/FIL caption from data/art_manifest.json; skippable",
   "js/actionpanel.js": "Right panel skills and options: icon buttons for J/K/L/Space/E skills (hold supported) and option toggles",
   "js/actreader.js": "\"Read more\" Act reader: full text of finished Acts from LORE.md with their banners",
   "js/audio.js": "Procedural Web Audio engine (exported Sound): master/music/SFX buses with compressor and reverb, synth instruments, a lookahead sequencer that crossfades the tracks in js/music.js by place/night/boss (setScene), fanfares (playJingle) and 30+ play* SFX that fade by distance and mute off screen",

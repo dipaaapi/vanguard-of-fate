@@ -13,7 +13,7 @@ then `outline <file>` and read only the line range you need.
 
 ## data/
 
-- `art_manifest.json` (13 KB, 488) — Every generated image (banners, title/portal backgrounds, vistas, portraits, relics): kind, EN/FIL caption and where the game uses it; paired with tools/art/scenes/index.js
+- `art_manifest.json` (15 KB, 513) — Every generated image (banners, title/portal backgrounds, vistas, portraits, relics): kind, EN/FIL caption and where the game uses it; paired with tools/art/scenes/index.js
 - `npc_conversations.json` (29 KB, 560) — NPC ambient chatter: solo lines per NPC and two-NPC exchanges, each line with en/fil text (fetched by npc/npcs.js)
 
 ## (root)
@@ -22,6 +22,7 @@ then `outline <file>` and read only the line range you need.
 
 ## js/
 
+- `actintro.js` (6.6 KB, 177) — Act intro cinematic (ActIntro): when the story reaches a new Act, the Act banner pushes in behind letterbox bars with motes and a light sweep, then the Act number, title and the banner's EN/FIL caption from data/art_manifest.json; skippable · ActIntro
 - `actionpanel.js` (10 KB, 241) — Right panel skills and options: icon buttons for J/K/L/Space/E skills (hold supported) and option toggles · ActionPanel
 - `actreader.js` (5.0 KB, 146) — "Read more" Act reader: full text of finished Acts from LORE.md with their banners · ActReader
 - `audio.js` (30 KB, 643) — Procedural Web Audio engine (exported Sound): master/music/SFX buses with compressor and reverb, synth instruments, a lookahead sequencer that crossfades the tracks in js/music.js by place/night/boss (setScene), fanfares (playJingle) and 30+ play* SFX that fade by distance and mute off screen · Sound
@@ -46,7 +47,7 @@ then `outline <file>` and read only the line range you need.
 - `juice.js` (4.0 KB, 99) — Shared combat animation helpers for every fighter: rest/hit/attack/windup/breath/spawn poses, swing arcs · REST, hitPose, attackPose, windupPose, breathPose, spawnPose, mix, around +1
 - `loot.js` (8.8 KB, 250) — Loot drops: gold and items from slain monsters, ground items, magnetic pickup into the bag · LootManager
 - `lore.js` (8.0 KB, 245) — Loads LORE.md / LORE_FIL.md, parses ## Acts into chapters, act banners, auto-scrolling lore panel · loadLore, parseChapters, actNumber, chapterKey, BANNER_EXTS, bannerSrc, createLorePanel
-- `main.js` (71 KB, 1769) — Entry module and coordinator: canvas fit, scene routing (title → prologue → creator → game), managers, menus/shops, platform travel, save/load/export/import, Job Awakening, update + render game loop
+- `main.js` (72 KB, 1793) — Entry module and coordinator: canvas fit, scene routing (title → prologue → creator → game), managers, menus/shops, platform travel, save/load/export/import, Job Awakening, update + render game loop
 - `mercenaryManager.js` (13 KB, 360) — Hireable mercenaries: contracts and fees, following, AI combat, daze and recovery, drawing · MERC_CLASSES, MercenaryManager
 - `monsterTiers.js` (4.7 KB, 105) — Monster tiers (Normal, Champion, Elite, MVP) and modifiers: rolling, applying, damage multipliers, names · MODS, modName, TIERS, rollTier, applyTier, tierName, has, damageTakenMult +3
 - `music.js` (15 KB, 313) — Music score as data: note/chord helpers, bass/arp/pad pattern styles, compileTrack, TRACKS (title, hub, night, canopy, coast, frost, ash, siege, maw, boss, finale), AREA_TRACK (platform id → track) and JINGLES · midi, freq, chord, compileTrack, TRACKS, AREA_TRACK, JINGLES

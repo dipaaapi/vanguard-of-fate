@@ -34,6 +34,7 @@ import { getItem, SETS } from "./items/itemdb.js";
 import { SET_SLOTS, recipeCost, forgePiece } from "./items/forge.js";
 import { wear, WEAR_WEAPON, WEAR_ARMOR, ARMOR_SLOTS } from "./items/durability.js";
 import { Avatar } from "./avatar/avatar.js";
+import { ActIntro } from "./actintro.js";
 import { createLorePanel } from "./lore.js";
 import { HudBar } from "./hudbar.js";
 import { ActionPanel } from "./actionpanel.js";
@@ -556,6 +557,8 @@ function exitToTitle() {
   charPanel.close();
   showShopModal = false;
   showMercModal = false;
+  actIntro.close();
+  actIntroShown = null;
   gameState = "TITLE";
   player = null;
   syncLoreAct();
@@ -598,7 +601,22 @@ function panelSound(open) {
   if (open) { if (Sound.playUiOpen) Sound.playUiOpen(); } else if (Sound.playUiClose) Sound.playUiClose();
 }
 
+// Act intro cinematic: plays when the story moves on to a new Act during play (not on loading a save)
+const actIntro = new ActIntro();
+let actIntroShown = null;
+function maybeActIntro() {
+  if (!player) return;
+  const a = quest.act();
+  if (actIntroShown !== null && a > actIntroShown) {
+    const label = quest.text(player, summonerName(), mentorName()).act || "";
+    actIntro.start(a, label.includes("·") ? label.split("·").slice(1).join("·").trim() : label);
+    controller.clearAll();
+  }
+  actIntroShown = a;
+}
+
 quest.onChange = () => {
+  maybeActIntro();
   npcManager.applyQuest(quest, playerClass());
   syncLoreAct();
   syncPlatformFlags();
@@ -1023,6 +1041,8 @@ function beginPlaying() {
 
 function backToTitle() {
   controller.clearAll();
+  actIntro.close();
+  actIntroShown = null;
   gameState = "TITLE";
   player = null;
   syncLoreAct();
@@ -1184,7 +1204,9 @@ window.addEventListener("keydown", (e) => {
   Sound.init();
   if (e.code === "F2") { stage.tilemap.debug = !stage.tilemap.debug; e.preventDefault(); }
 
-  if (prologueScene.open) {
+  if (actIntro.open && gameState === "PLAYING") {
+    actIntro.handleInput(e);
+  } else if (prologueScene.open) {
     prologueScene.handleInput(e);
   } else if (gameState === "TITLE") {
     titleScene.handleInput(e);
@@ -1364,7 +1386,8 @@ window.addEventListener("keyup", (e) => {
 });
 
 function updateGame() {
-  if (gameState !== "PLAYING" || !player || showShopModal || showMercModal || dialog.open || serviceMenu.open || codex.open || questHud.logOpen || inventory.open || charPanel.open || actReader.open || worldMap.open) return;
+  if (player && actIntroShown === null) actIntroShown = quest.act();
+  if (gameState !== "PLAYING" || !player || actIntro.open || showShopModal || showMercModal || dialog.open || serviceMenu.open || codex.open || questHud.logOpen || inventory.open || charPanel.open || actReader.open || worldMap.open) return;
 
   if (player.hp <= 0) {
     gameState = "GAMEOVER";
@@ -1753,6 +1776,7 @@ function gameLoop(now = performance.now()) {
   } else {
     renderGameWorld();
   }
+  if (actIntro.open && gameState === "PLAYING") actIntro.draw(ctx, VIEW_W, VIEW_H);
   drawFpsMeter(now);
   requestAnimationFrame(gameLoop);
 }
@@ -1763,6 +1787,6 @@ if (new URLSearchParams(location.search).has("debug")) {
   window.__vof = {
     get player() { return player; }, get stage() { return stage; }, get state() { return gameState; },
     quest, enemyManager, lootManager, projectileManager, mercManager, npcManager, inventory, charPanel, travelTo, saveGame, awaken, ROSTER, dayNight, dialog,
-    openShop() { showShopModal = true; }, openMerc() { showMercModal = true; }
+    openShop() { showShopModal = true; }, openMerc() { showMercModal = true; }, actIntro
   };
 }

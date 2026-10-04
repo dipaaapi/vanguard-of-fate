@@ -70,7 +70,8 @@ const expected = (url) => EXPECTED_404.some((re) => re.test(url));
 
 const exe = ["/opt/pw-browsers/chromium", process.env.CHROMIUM_PATH].find((p) => p && fs.existsSync(p) && fs.statSync(p).isFile());
 const browser = await pw.chromium.launch(exe ? { executablePath: exe } : {});
-const page = await browser.newPage({ viewport: { width: 960, height: 600 } });
+const [VW, VH] = (opt("--viewport", "960x600")).split("x").map(Number);
+const page = await browser.newPage({ viewport: { width: VW, height: VH } });
 page.on("console", (m) => {
   // External resources (Google Fonts) can fail offline or behind a proxy; that is not a game error
   const src = (m.location() && m.location().url) || "";
