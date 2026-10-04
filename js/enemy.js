@@ -6,6 +6,7 @@ import { ELEMENTS, elementMult, raceBonus, sizeMod, rollVariant, variantPrefix, 
 import { getLang } from "./i18n.js";
 import { STATUS, statusName } from "./status.js";
 import { around, mix, hitPose, attackPose, windupPose, breathPose, spawnPose, REST } from "./juice.js";
+import { GFX } from "./settings.js";
 
 // ========================================================
 // ENEMIES
@@ -799,10 +800,7 @@ export class EnemyManager {
       const fy = e.y + 17;
 
       // Shadow (small and far when flying)
-      ctx.fillStyle = "rgba(0,0,0,0.28)";
-      ctx.beginPath();
-      ctx.ellipse(e.x + 10, fy - 1, (k.flying ? 6 : 9) * (e.boss ? 2.2 : 1), (k.flying ? 2 : 3.5) * (e.boss ? 1.6 : 1), 0, 0, Math.PI * 2);
-      ctx.fill();
+      if (GFX.shadows) { ctx.fillStyle = "rgba(0,0,0,0.28)"; ctx.beginPath(); ctx.ellipse(e.x + 10, fy - 1, (k.flying ? 6 : 9) * (e.boss ? 2.2 : 1), (k.flying ? 2 : 3.5) * (e.boss ? 1.6 : 1), 0, 0, Math.PI * 2); ctx.fill(); }
 
       // Aura of the elemental variant and the Champion ring
       if (e.variant || e.champion || e.elite) {

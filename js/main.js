@@ -44,6 +44,9 @@ import { InventoryPanel } from "./inventory.js";
 import { DayNight } from "./daynight.js";
 import { CharacterPanel } from "./charpanel.js";
 import { t, onLangChange, getLang } from "./i18n.js";
+import { loadConfig, GFX, SettingsPanel, toggleFullscreen } from "./settings.js";
+import { Market, marketText } from "./market.js";
+import { SkillSlots } from "./skillslots.js";
 
 import { FalconCompanion } from "./summons/falcon.js";
 import { GuardianAngelCompanion } from "./summons/angel.js";
@@ -77,8 +80,8 @@ const stageEl = document.getElementById("stage");
 const viewportEl = document.getElementById("viewport");
 const barEl = document.getElementById("bar");
 
-// While playing: room below for the bottom tray (adventure log)
-const TRAY_RESERVE = 104;
+// While playing: room below for the bottom tray (hotbar + adventure log)
+const TRAY_RESERVE = 150;
 const chatLogEl = document.getElementById("chatLog");
 
 function fitCanvas() {
@@ -132,30 +135,28 @@ const hudText = document.getElementById("hudText");
 const fileInput = document.getElementById("saveFileInput");
 const ROSTER = [KnightClass, MageClass, PriestClass, ArcherClass, FighterClass];
 
-const CONFIG_KEY = "vanguard_config";
 // Options → Quality: the largest drawing scale (0 = always the full screen scale)
 const RENDER_CAP = { sharp: 0, balanced: 2, fast: 1 };
-function loadGameConfig() {
-  try {
-    const raw = localStorage.getItem(CONFIG_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      return {
-        music: parsed.music !== undefined ? Boolean(parsed.music) : true,
-        sfx: parsed.sfx !== undefined ? Boolean(parsed.sfx) : true,
-        blood: parsed.blood !== undefined ? Boolean(parsed.blood) : true,
-        weather: parsed.weather !== undefined ? Boolean(parsed.weather) : true,
-        quality: RENDER_CAP[parsed.quality] !== undefined ? parsed.quality : "balanced",
-        fps: Boolean(parsed.fps)
-      };
-    }
-  } catch (_) {}
-  return { music: true, sfx: true, blood: true, weather: true, quality: "balanced", fps: false };
-}
 
-const gameConfig = loadGameConfig();
+// Settings (js/settings.js): title Options and the in-game Settings panel (O) share this object
+const gameConfig = loadConfig();
 Sound.musicEnabled = gameConfig.music;
 Sound.sfxEnabled = gameConfig.sfx;
+
+// Applies a changed setting (key) or all of them (no key)
+function applyConfig(key) {
+  const all = !key;
+  if (all || key === "quality") fitCanvas();
+  if (all || key === "musicVol" || key === "sfxVol") Sound.setVolumes(gameConfig.musicVol, gameConfig.sfxVol);
+  if (all || key === "brightness") canvas.style.filter = gameConfig.brightness === 100 ? "" : `brightness(${gameConfig.brightness / 100})`;
+  GFX.shadows = gameConfig.shadows;
+  GFX.glow = gameConfig.glow;
+  if (key === "music" && layoutMode === "play") {
+    Sound.musicEnabled = gameConfig.music;
+    if (gameConfig.music && gameState === "PLAYING") Sound.startGameplayBGM();
+  }
+  if (key === "sfx") Sound.sfxEnabled = gameConfig.sfx;
+}
 
 // The plains of Aethelgard (hub) and the Act VII–XII platforms (built on first entry).
 // Same size (1280x960), so one camera, enemy and projectile manager serve all of them.
@@ -236,6 +237,46 @@ function openService(service, opts) {
 const serviceMenu = new ServiceMenu(document.getElementById("serviceMenu"));
 
 // Codex (N): encyclopedia of NPCs, monsters, MVPs and items; progress is saved with the game
+// Safe-zone Market (B) and Settings (O): HTML overlays; the game waits while one is open
+const market = new Market(document.getElementById("market"), {
+  onTrade: (text) => {
+    chatLog.event("loot", text, dayNight.label());
+    if (Sound.playCoin) Sound.playCoin();
+  },
+  onFail: () => { if (Sound.playUiClose) Sound.playUiClose(); }
+});
+function toggleMarket() {
+  if (!player || gameState !== "PLAYING" || dialog.open || actReader.open) return;
+  if (market.open) { market.close(); panelSound(false); return; }
+  if (!stage.isInsideSafeZone(player.x + 10, player.y + 17)) {
+    fx.spawnDamagePopup(player.x + 10, player.y - 8, "⚖ ✖", false, "#f87171");
+    chatLog.event("info", marketText("closed"), dayNight.label());
+    return;
+  }
+  closeOverlays();
+  market.show(player);
+  panelSound(true);
+}
+const settingsPanel = new SettingsPanel(document.getElementById("settings"), gameConfig, (key) => applyConfig(key));
+function toggleSettings() {
+  if (!player || (gameState !== "PLAYING" && gameState !== "PAUSED") || dialog.open || actReader.open) return;
+  if (!settingsPanel.open) closeOverlays();
+  settingsPanel.toggle();
+  panelSound(settingsPanel.open);
+}
+// Closes the side panels (inventory, character, quest log, map, shops) before another opens
+function closeOverlays() {
+  controller.clearAll();
+  if (questHud.logOpen) questHud.closeLog();
+  inventory.close();
+  charPanel.close();
+  if (codex.open) codex.close();
+  worldMap.close();
+  market.close();
+  settingsPanel.close();
+  showShopModal = false;
+  showMercModal = false;
+}
 const codex = new Codex(document.getElementById("codex"));
 function toggleCodex() {
   if (!player || gameState !== "PLAYING" || dialog.open || serviceMenu.open) return;
@@ -593,7 +634,11 @@ const actionPanel = new ActionPanel({
     exitToTitle();
   },
   map: () => { Sound.init(); toggleMap(); panelSound(worldMap.open); },
-  codex: () => { Sound.init(); toggleCodex(); panelSound(codex.open); }
+  codex: () => { Sound.init(); toggleCodex(); panelSound(codex.open); },
+  settings: () => { Sound.init(); toggleSettings(); },
+  market: () => { Sound.init(); toggleMarket(); },
+  fullscreen: () => { Sound.init(); toggleFullscreen(); },
+  slotsChanged: () => { if (Sound.playSelectMove) Sound.playSelectMove(); saveGame(); }
 });
 
 // Soft page-turn when a side panel opens or closes
@@ -861,6 +906,7 @@ function getSavePayload() {
     skills: { ...player.skillLevels },
     skillPoints: player.skillPoints,
     belt: [...player.belt],
+    skillSlots: SkillSlots.serialize(),     // J/K/L arrangement on the hotbar
     autoPot: { ...player.autoPot },
     codex: codex.serialize(),
     dayTick: dayNight.serialize(),
@@ -989,6 +1035,7 @@ function loadGame() {
     dayNight.load(data.dayTick);
     codex.load(data.codex);
     if (Array.isArray(data.belt)) player.belt = data.belt.slice(0, 4).map((x) => x || null);
+    SkillSlots.load(data.skillSlots);
     if (data.autoPot) player.autoPot = { hp: data.autoPot.hp | 0, cure: Boolean(data.autoPot.cure), stamina: Boolean(data.autoPot.stamina) };
     // Bag: an old save without a bag → the class's default gear
     if (data.bag) player.bag.load(data.bag);
@@ -1142,7 +1189,7 @@ const titleScene = new TitleScene(
   document.getElementById("title")
 );
 // Options → Quality changes the drawing scale right away
-titleScene.onConfigChange = (key) => { if (key === "quality") fitCanvas(); };
+titleScene.onConfigChange = (key) => applyConfig(key);
 
 // New expedition: Character Creator → Act I Prologue → Novice in the Barracks
 const prologueScene = new PrologueScene(
@@ -1161,6 +1208,7 @@ const creatorScene = new CreatorScene(
     player.heroName = name;
     player.avatarConfig = player.heroData.avatarConfig;
     starterKit(player);
+    SkillSlots.reset();
     attachBag(player);
     quest.reset();
     codex.reset();
@@ -1225,6 +1273,12 @@ window.addEventListener("keydown", (e) => {
     backToTitle();
   } else if (actReader.open) {
     actReader.handleInput(e);
+  } else if (settingsPanel.open) {
+    settingsPanel.handleInput(e);
+    if (!settingsPanel.open) panelSound(false);
+  } else if (gameState === "PLAYING" && market.open) {
+    market.handleInput(e);
+    if (!market.open) panelSound(false);
   } else if (worldMap.open) {
     if (e.code === "KeyM" || e.code === "Escape") worldMap.close();
     else if (e.code === "Tab") worldMap.toggleView();         // Kontinente / Rehiyon
@@ -1260,6 +1314,24 @@ window.addEventListener("keydown", (e) => {
 
     if (e.code === "KeyN" && gameState === "PLAYING") {
       toggleCodex();
+      return;
+    }
+
+    // B = Market (inside a safe zone), O = Settings, F = full screen, P = arrange the skill slots
+    if (e.code === "KeyB" && gameState === "PLAYING" && !showShopModal && !showMercModal && !e.repeat) {
+      toggleMarket();
+      return;
+    }
+    if (e.code === "KeyO" && !e.repeat) {
+      toggleSettings();
+      return;
+    }
+    if (e.code === "KeyF" && !e.repeat) {
+      toggleFullscreen();
+      return;
+    }
+    if (e.code === "KeyP" && gameState === "PLAYING" && !e.repeat) {
+      actionPanel.setEditing(!actionPanel.editing);
       return;
     }
 
@@ -1312,6 +1384,9 @@ window.addEventListener("keydown", (e) => {
       return;
     }
 
+    // J/K/L read as the ability placed in that hotbar slot
+    const skillCode = SkillSlots.logical(e.code);
+
     // Space: hold = sprint; tap = lock/unlock the sprint (see the keyup below)
     if (e.code === "Space" && !e.repeat && gameState === "PLAYING") {
       spaceDownAt = performance.now();
@@ -1346,7 +1421,7 @@ window.addEventListener("keydown", (e) => {
       }
     }
 
-    if (e.code === "KeyK" && player.heroData.id === "priest" && !stage.isInsideSafeZone(player.x, player.y)) {
+    if (skillCode === "KeyK" && player.heroData.id === "priest" && !stage.isInsideSafeZone(player.x, player.y)) {
       if (!player.angelCompanions) player.angelCompanions = [];
       player.angelCompanions = player.angelCompanions.filter(a => a.isAlive);
       if (player.angelCompanions.length < 2 && player.skillCooldownTimer <= 0) {
@@ -1357,7 +1432,7 @@ window.addEventListener("keydown", (e) => {
       }
     }
 
-    if (e.code === "KeyK" && player.heroData.id === "archer" && player.falconCompanion && player.skillCooldownTimer <= 0 && !stage.isInsideSafeZone(player.x, player.y)) {
+    if (skillCode === "KeyK" && player.heroData.id === "archer" && player.falconCompanion && player.skillCooldownTimer <= 0 && !stage.isInsideSafeZone(player.x, player.y)) {
       // Falcon reach: 240px
       const closestEnemy = enemyManager.enemies
         .filter((en) => en.isAlive && Math.hypot(en.x - player.x, en.y - player.y) <= 240)
@@ -1393,7 +1468,7 @@ window.addEventListener("keyup", (e) => {
 
 function updateGame() {
   if (player && actIntroShown === null) actIntroShown = quest.act();
-  if (gameState !== "PLAYING" || !player || actIntro.open || showShopModal || showMercModal || dialog.open || serviceMenu.open || codex.open || questHud.logOpen || inventory.open || charPanel.open || actReader.open || worldMap.open) return;
+  if (gameState !== "PLAYING" || !player || actIntro.open || showShopModal || showMercModal || dialog.open || serviceMenu.open || codex.open || questHud.logOpen || inventory.open || charPanel.open || actReader.open || worldMap.open || market.open || settingsPanel.open) return;
 
   if (player.hp <= 0) {
     gameState = "GAMEOVER";
@@ -1489,7 +1564,7 @@ function updateGame() {
 
   mercManager.update(player, enemyManager, lootManager, fx, (proj) => projectileManager.add(proj), stage);
   projectileManager.update(enemyManager.enemies, enemyManager, fx, lootManager, player);
-  lootManager.update(player, fx);
+  lootManager.update(player, fx, stage);
 }
 
 // The summoner (Prince/Princess) heals the hero, but only inside a sanctuary and only when they are
@@ -1656,18 +1731,6 @@ function renderGameWorld() {
   }
   enemyManager.drawBossBar(ctx, VIEW_W);
 
-  const isInBarracks = player ? stage.isInsideSafeZone(player.x, player.y) : false;
-  ui.drawHUD(
-    ctx, player, enemyManager, lootManager, stage,
-    VIEW_W, gameState === "PAUSED",
-    fx.timeOfDay, fx.weatherType, isInBarracks,
-    {
-      objective: player ? objectivePoint() : null,
-      npcs: npcManager.npcs.filter((n) => npcManager.shown(n)),
-      placeName: stage === hub ? t("placeHub") : stage.def.name[lang()],
-      night: dayNight.night()
-    }
-  );
 
   if (gameState === "PLAYING" && !worldMap.open) drawObjectiveArrow();
 
@@ -1703,6 +1766,38 @@ function renderGameWorld() {
   }
 }
 
+// Right panel World Map: the live minimap, drawn in the side panel instead of over the game screen.
+// 180×100 map pixels on a 360×200 canvas; redrawn every other frame. Click (or M) opens the full map.
+const sideMapEl = document.getElementById("sideMap");
+const sideMapCtx = sideMapEl.getContext("2d");
+const SIDE_MAP = { X: 4, Y: 5, W: 172, H: 84, view: 900 };
+let sideMapTick = 0;
+document.getElementById("sideMapBox").addEventListener("click", () => { Sound.init(); toggleMap(); panelSound(worldMap.open); });
+function drawSideMap() {
+  if (!player || (sideMapTick++ & 1)) return;
+  const c = sideMapCtx;
+  c.setTransform(2, 0, 0, 2, 0, 0);
+  c.imageSmoothingEnabled = false;
+  c.fillStyle = "#070c16";
+  c.fillRect(0, 0, 180, 100);
+  ui.drawHUD(
+    c, player, enemyManager, lootManager, stage,
+    180, gameState === "PAUSED",
+    fx.timeOfDay, fx.weatherType, stage.isInsideSafeZone(player.x, player.y),
+    {
+      objective: objectivePoint(),
+      npcs: npcManager.npcs.filter((n) => npcManager.shown(n)),
+      placeName: stage === hub ? t("placeHub") : stage.def.name[lang()],
+      night: dayNight.night(),
+      rect: SIDE_MAP
+    }
+  );
+}
+const sideMapLabel = document.getElementById("sideMapLabel");
+const syncSideMapLabel = () => { sideMapLabel.textContent = t("set_worldMap"); };
+syncSideMapLabel();
+onLangChange(syncSideMapLabel);
+
 // Options → FPS Counter: frames the screen received in the last second (top left of the canvas)
 const fpsMeter = { frames: 0, since: 0, fps: 0 };
 function drawFpsMeter(now) {
@@ -1731,9 +1826,13 @@ const STEP = 1000 / 60;
 let lastTime = performance.now();
 let acc = 0;
 
+let lastDraw = 0;
 function gameLoop(now = performance.now()) {
   acc += Math.min(250, now - lastTime);      // don't catch up too much after a tab switch
   lastTime = now;
+  // Options → FPS Limit: the simulation keeps its 60 steps; only drawing skips frames
+  const cap = gameConfig.fpsCap;
+  const drawNow = !cap || now - lastDraw >= 1000 / cap - 1;
   while (acc >= STEP) {
     // Hit-stop: a heavy blow freezes the fight for a few steps (drawing carries on)
     if (!(gameState === "PLAYING" && fx.consumeHitStop())) updateGame();
@@ -1763,6 +1862,8 @@ function gameLoop(now = performance.now()) {
       mapOpen: worldMap.open,
       inventoryOpen: inventory.open,
       charOpen: charPanel.open,
+      marketOpen: market.open,
+      settingsOpen: settingsPanel.open,
       pointsAvailable: player.statPoints > 0 || player.skillPoints > 0
     });
   }
@@ -1773,6 +1874,11 @@ function gameLoop(now = performance.now()) {
   if (worldMap.open && (gameState !== "PLAYING" || !player)) worldMap.close();
   if (serviceMenu.open && (gameState !== "PLAYING" || !player)) serviceMenu.close();
   if (codex.open && (gameState !== "PLAYING" || !player)) codex.close();
+  if (market.open && (gameState !== "PLAYING" || !player || !stage.isInsideSafeZone(player.x + 10, player.y + 17))) market.close();
+  if (settingsPanel.open && (layoutMode !== "play" || !player || gameState === "GAMEOVER")) settingsPanel.close();
+  if (actionPanel.editing && (layoutMode !== "play" || !player)) actionPanel.setEditing(false);
+  if (!drawNow) { requestAnimationFrame(gameLoop); return; }
+  lastDraw = now;
   if (gameState === "TITLE") {
     titleScene.draw();
   } else if (gameState === "CREATE") {
@@ -1784,16 +1890,18 @@ function gameLoop(now = performance.now()) {
   }
   if (actIntro.open && gameState === "PLAYING") actIntro.draw(ctx, VIEW_W, VIEW_H);
   if (pendingToast && !actIntro.open) { questHud.toast(pendingToast); pendingToast = null; }
+  if (layoutMode === "play") drawSideMap();
   drawFpsMeter(now);
   requestAnimationFrame(gameLoop);
 }
 
+applyConfig();
 requestAnimationFrame(gameLoop);
 // Debug handle for automated testing: only active with ?debug in the URL
 if (new URLSearchParams(location.search).has("debug")) {
   window.__vof = {
     get player() { return player; }, get stage() { return stage; }, get state() { return gameState; },
     quest, enemyManager, lootManager, projectileManager, mercManager, npcManager, inventory, charPanel, travelTo, saveGame, awaken, ROSTER, dayNight, dialog,
-    openShop() { showShopModal = true; }, openMerc() { showMercModal = true; }, actIntro
+    openShop() { showShopModal = true; }, openMerc() { showMercModal = true; }, actIntro, market, settingsPanel, actionPanel, gameConfig, SkillSlots
   };
 }

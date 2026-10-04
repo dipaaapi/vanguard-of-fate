@@ -250,6 +250,19 @@ body[data-mode="title"] #title {
   text-shadow: 0 1px 0 #000;
 }
 .t-menu.options .t-item { font-size: clamp(13px, 1.4vw, 19px); padding-top: 6px; padding-bottom: 6px; }
+/* Options is a long list (js/settings.js): keep it between the logo and the footer and let it scroll */
+#title[data-step="options"] .t-menu {
+  top: calc(50% + 34px);
+  max-height: calc(100vh - 190px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #3b4661 transparent;
+}
+@media (max-height: 820px) {
+  .t-menu.options .t-item { padding-top: 3px; padding-bottom: 3px; font-size: clamp(12px, 1.3vw, 17px); }
+  .t-menu.options .t-section { margin-top: 8px; }
+  .t-menu.options .t-item.gap { margin-top: 8px; }
+}
 
 /* ---------- LANGUAGE TOGGLE ---------- */
 .t-lang {

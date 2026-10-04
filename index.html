@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="css/title.css" />
   <link rel="stylesheet" href="css/creator.css" />
   <link rel="stylesheet" href="css/dialog.css" />
+  <link rel="stylesheet" href="css/controls.css" />
 </head>
 <body data-mode="title" class="notranslate" translate="no">
 
@@ -181,6 +182,8 @@
         <div id="character"></div>
         <div id="serviceMenu" role="menu" aria-label="Services"></div>
         <div id="codex" aria-label="Codex"></div>
+        <div id="market" role="dialog" aria-label="Market"></div>
+        <div id="settings" role="dialog" aria-label="Settings"></div>
 
         <div id="dialog" role="dialog" aria-label="Dialogue" aria-live="assertive">
           <canvas id="dlgPortrait" aria-hidden="true"></canvas>
@@ -194,6 +197,13 @@
 
       <!-- Bottom Tray (in-game): conversation log of NPC dialogue (js/chatlog.js) -->
       <section id="chatLog" aria-label="Conversation log">
+        <!-- Hotbar: skills (drag and drop to rearrange), quick slots and shortcuts (js/actionpanel.js) -->
+        <div class="skill-book" id="skillBook" aria-label="Skill book"></div>
+        <div class="tray-bar" id="trayBar" aria-label="Hotbar">
+          <div class="tb-group skills"><div class="tb-label" id="saSkillsLabel"></div><div class="tb-row" id="saSkills"></div></div>
+          <div class="tb-group belt"><div class="tb-label" id="saBeltLabel"></div><div class="tb-row belt" id="saBelt"></div></div>
+          <div class="tb-group util"><div class="tb-label" id="trayUtilLabel"></div><div class="tb-row" id="trayUtil"></div></div>
+        </div>
         <header class="log-head"></header>
         <div class="log-list" aria-live="polite"></div>
       </section>
@@ -246,12 +256,13 @@
         </div>
       </section>
 
-      <!-- Side Actions: Skills, Belt Quick-items & Menu Buttons -->
-      <section class="side-actions" id="sideActions" aria-label="Actions and Skills">
-        <div class="sa-label" id="saSkillsLabel"></div>
-        <div class="sa-grid" id="saSkills"></div>
-        <div class="sa-label" id="saBeltLabel"></div>
-        <div class="sa-grid belt" id="saBelt"></div>
+      <!-- Side World Map: live map of the current place (click or M for the full map) -->
+      <section class="side-map" id="sideMapBox" aria-label="World map">
+        <div class="sm-head"><span id="sideMapLabel"></span><kbd>M</kbd></div>
+        <canvas id="sideMap" width="360" height="200" aria-hidden="true"></canvas>
+      </section>
+      <!-- Side Options: menu buttons (skills and quick slots live on the bottom tray) -->
+      <section class="side-actions" id="sideActions" aria-label="Options">
         <div class="sa-label" id="saOptionsLabel"></div>
         <div class="sa-grid" id="saOptions"></div>
       </section>

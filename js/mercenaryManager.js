@@ -6,6 +6,7 @@ import { GreatswordMercenary } from "./mercenary/greatsword.js";
 import { Sound } from "./audio.js";
 import { Avatar } from "./avatar/avatar.js";
 import { facingFrom } from "./avatar/creature.js";
+import { GFX } from "./settings.js";
 
 // One Avatar per mercenary type (frames are cached)
 const AVATARS = {};
@@ -280,10 +281,7 @@ export class MercenaryManager {
   drawDowned(ctx, m) {
     const t = m.animTimer;
     const fx = m.x + 8, fy = m.y + 15;
-    ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
-    ctx.beginPath();
-    ctx.ellipse(fx, m.y + 14, 7, 2.5, 0, 0, Math.PI * 2);
-    ctx.fill();
+    if (GFX.shadows) { ctx.fillStyle = "rgba(0, 0, 0, 0.28)"; ctx.beginPath(); ctx.ellipse(fx, m.y + 14, 7, 2.5, 0, 0, Math.PI * 2); ctx.fill(); }
     ctx.save();
     ctx.translate(fx, fy);
     ctx.rotate(Math.sin(t / 14) * 0.18);
@@ -326,10 +324,7 @@ export class MercenaryManager {
       if (!m.isAlive) return;
 
       // Contact Shadow
-      ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
-      ctx.beginPath();
-      ctx.ellipse(m.x + 8, m.y + 14, 7, 2.5, 0, 0, Math.PI * 2);
-      ctx.fill();
+      if (GFX.shadows) { ctx.fillStyle = "rgba(0, 0, 0, 0.28)"; ctx.beginPath(); ctx.ellipse(m.x + 8, m.y + 14, 7, 2.5, 0, 0, Math.PI * 2); ctx.fill(); }
 
       // Modular Avatar: the feet are at (x + 8, y + 15)
       // Squash & stretch: lean into each swing, recoil when struck, breathe when idle

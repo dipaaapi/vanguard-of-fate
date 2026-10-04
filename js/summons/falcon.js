@@ -1,4 +1,5 @@
 import { FalconSprite } from "../avatar/creature.js";
+import { GFX } from "../settings.js";
 
 // One sprite for every falcon (frames are cached)
 const SPRITE = new FalconSprite();
@@ -119,10 +120,7 @@ export class FalconCompanion {
     const cy = Math.floor(this.y) + 14;
 
     // Shadow on the ground
-    ctx.fillStyle = "rgba(0, 0, 0, 0.32)";
-    ctx.beginPath();
-    ctx.ellipse(cx, Math.floor(this.y) + 36, 10, 3.5, 0, 0, Math.PI * 2);
-    ctx.fill();
+    if (GFX.shadows) { ctx.fillStyle = "rgba(0, 0, 0, 0.32)"; ctx.beginPath(); ctx.ellipse(cx, Math.floor(this.y) + 36, 10, 3.5, 0, 0, Math.PI * 2); ctx.fill(); }
 
     // Face the direction of flight; when hovering, the player's direction
     const flying = Math.abs(this.vx) > 0.35;

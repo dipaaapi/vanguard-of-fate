@@ -34,7 +34,8 @@ The full story lives in [LORE.md](LORE.md) (Filipino: [LORE_FIL.md](LORE_FIL.md)
   - Dynamic gilded retro HUD with class portraits, health bars, and cooldown trackers.
   - 100% synthesized Web Audio API sound effects and music (no audio files): eleven tracks that change with the place, the night and boss fights, five fanfares and 30+ effects, all mixed through one compressor and reverb.
 - **Cinematic presentation:** each new Act opens with a short intro over its banner; a terrain minimap with the quest objective, a framed world map with a route line, and matching pause, shop, mercenary and game over panels.
-- **Performance options:** Options → Quality (Sharp / Balanced / Fast) caps the drawing scale on big screens, and Options → FPS Counter shows the frame rate.
+- **Settings (title Options or O in game):** music and sound volume, FPS limit (30 / 60 / 120 / max), FPS counter, brightness, shadows, glow and light, Quality (Sharp / Balanced / Fast caps the drawing scale on big screens), blood, weather and language.
+- **Hotbar and Market:** the bottom tray holds the skills, quick slots and shortcuts above the adventure log; skills can be rearranged by drag and drop (P), and the Market (B) buys and sells anywhere inside a safe zone. The live map sits in the right panel.
 - **Original Procedural Art:**
   - Every banner, background, vista, portrait and relic image is painted by code in `tools/art/` (no third-party assets). `node tools/art/render.mjs --list` lists them, `node tools/art/render.mjs <key>` re-renders one, and `data/art_manifest.json` holds the EN/FIL caption for each file.
   - `node tools/audio/render-audio.mjs --mp3` renders the music and sound effects offline for a listen and a level check.
@@ -45,6 +46,22 @@ The full story lives in [LORE.md](LORE.md) (Filipino: [LORE_FIL.md](LORE_FIL.md)
 
 | Key | Action |
 | :--- | :--- |
+| **W, A, S, D** / **Arrow Keys** | Move |
+| **J, K, L** | The skills in the hotbar's three slots (attack and two class skills; rearrange them with **P**) |
+| **Space** | Hold to sprint, tap to lock the sprint |
+| **Shift** | Switch the locked target |
+| **E** | Talk / board the boat / mine an ore vein |
+| **1–4** | Quick slots (potions) |
+| **Q / I / C / N** | Quest log / Inventory / Character / Codex |
+| **M** | World map (also the live map in the right panel; click it) |
+| **B** | Market: buy and sell from anywhere inside a safe zone |
+| **P** | Arrange skills: drag a skill from the skill book onto J, K or L, or drag one slot onto another |
+| **O** | Settings: music and sound volume, FPS limit, FPS counter, brightness, shadows, glow, quality, blood, weather, language |
+| **F** | Full screen on/off |
+| **Esc** | Pause / Resume (close any open panel) |
+| **H** / **X** | Main menu / export a secure save (while paused) |
+
+--- | :--- |
 | **W, A, S, D** / **Arrow Keys** | Move / Navigate Character Select |
 | **J** | Primary Attack / Timed Arrow Reload (Archer) / Smart Heal (Priest) |
 | **Space** | Special Skill / Falcon Strike / Summon Angel / Embark (Menu) |

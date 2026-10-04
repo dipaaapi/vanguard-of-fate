@@ -3,6 +3,7 @@ import { Bag } from "./items/bag.js";
 import { STATS, PRIMARY, statCost, STAT_MAX, skillBonus, canLearn, findSkill } from "./skills.js";
 import { STATUS_KEYS, tickStatuses, resistChance, blocksRegen } from "./status.js";
 import { around, mix, hitPose, attackPose, breathPose, drawSwing } from "./juice.js";
+import { GFX } from "./settings.js";
 
 // Stamina (Diablo style): drains while sprinting, refills when walking or standing.
 // When empty, "tired" until it climbs back to EXHAUST_RECOVER.
@@ -544,10 +545,7 @@ export class Player {
     ctx.save();
     this.drawDust(ctx);
     const rolling = this.rollTimer > 0;
-    ctx.fillStyle = "rgba(0,0,0,0.28)";
-    ctx.beginPath();
-    ctx.ellipse(this.x + 10, this.y + 20, rolling ? 6 : 8, rolling ? 2 : 3, 0, 0, Math.PI * 2);
-    ctx.fill();
+    if (GFX.shadows) { ctx.fillStyle = "rgba(0,0,0,0.28)"; ctx.beginPath(); ctx.ellipse(this.x + 10, this.y + 20, rolling ? 6 : 8, rolling ? 2 : 3, 0, 0, Math.PI * 2); ctx.fill(); }
 
     if (this.buffs.invis > 0) ctx.globalAlpha = 0.35;
 

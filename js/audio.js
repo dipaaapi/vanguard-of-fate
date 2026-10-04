@@ -22,6 +22,8 @@ class SoundEngine {
     this._musicEnabled = true;
     this.sfxEnabled = true;
     this.isMuted = false;
+    this.musicVol = 1;        // Options → Music / Sound Volume (0–1), applied to the buses
+    this.sfxVol = 1;
     this.listenerX = null;
     this.listenerY = null;
     this.camX = null;
@@ -77,15 +79,15 @@ class SoundEngine {
     this.comp.attack.value = 0.004; this.comp.release.value = 0.2;
     this.master = c.createGain(); this.master.gain.value = 0.85;
     this.master.connect(this.comp); this.comp.connect(c.destination);
-    this.musicBus = c.createGain(); this.musicBus.gain.value = 0.5; this.musicBus.connect(this.master);
-    this.sfxBus = c.createGain(); this.sfxBus.gain.value = 0.9; this.sfxBus.connect(this.master);
+    this.musicBus = c.createGain(); this.musicBus.gain.value = this.musicLevel(); this.musicBus.connect(this.master);
+    this.sfxBus = c.createGain(); this.sfxBus.gain.value = 0.9 * this.sfxVol; this.sfxBus.connect(this.master);
     // reverb
     this.reverb = c.createConvolver();
     this.reverb.buffer = this.impulse(2.4, 2.6);
     this.reverbOut = c.createGain(); this.reverbOut.gain.value = 0.32;
     this.reverb.connect(this.reverbOut); this.reverbOut.connect(this.master);
-    this.musicSend = c.createGain(); this.musicSend.gain.value = 0.35; this.musicSend.connect(this.reverb);
-    this.sfxSend = c.createGain(); this.sfxSend.gain.value = 0.5; this.sfxSend.connect(this.reverb);
+    this.musicSend = c.createGain(); this.musicSend.gain.value = 0.35 * this.musicVol; this.musicSend.connect(this.reverb);
+    this.sfxSend = c.createGain(); this.sfxSend.gain.value = 0.5 * this.sfxVol; this.sfxSend.connect(this.reverb);
     // shared noise
     const len = c.sampleRate * 2;
     this.noise = c.createBuffer(1, len, c.sampleRate);
@@ -101,6 +103,22 @@ class SoundEngine {
       for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
     }
     return buf;
+  }
+
+  // Music bus level for the chosen volume
+  musicLevel() { return 0.5 * this.musicVol; }
+
+  // Options: volumes in percent (0–100); a squared curve so each step sounds even
+  setVolumes(musicPct, sfxPct) {
+    this.musicVol = Math.max(0, Math.min(1, musicPct / 100)) ** 2;
+    this.sfxVol = Math.max(0, Math.min(1, sfxPct / 100)) ** 2;
+    if (!this.ctx || !this.musicBus) return;
+    const n = this.ctx.currentTime;
+    const ramp = (param, v) => { param.cancelScheduledValues(n); param.setValueAtTime(param.value, n); param.linearRampToValueAtTime(v, n + 0.08); };
+    ramp(this.musicBus.gain, this.musicLevel());
+    ramp(this.musicSend.gain, 0.35 * this.musicVol);
+    ramp(this.sfxBus.gain, 0.9 * this.sfxVol);
+    ramp(this.sfxSend.gain, 0.5 * this.sfxVol);
   }
 
   get musicEnabled() { return this._musicEnabled; }
@@ -382,7 +400,7 @@ class SoundEngine {
     const step = 60 / j.bpm / 4, t0 = this.ctx.currentTime + 0.02;
     this.jingleUntil = t0 + Math.max(...j.notes.map(([s, , len]) => s + len)) * step;
     // duck the music under the jingle
-    if (this.musicBus) { const g = this.musicBus.gain, n = this.ctx.currentTime; g.cancelScheduledValues(n); g.setValueAtTime(g.value, n); g.linearRampToValueAtTime(0.18, n + 0.05); g.setTargetAtTime(0.5, n + 1.6, 0.4); }
+    if (this.musicBus) { const g = this.musicBus.gain, n = this.ctx.currentTime; g.cancelScheduledValues(n); g.setValueAtTime(g.value, n); g.linearRampToValueAtTime(0.36 * this.musicLevel(), n + 0.05); g.setTargetAtTime(this.musicLevel(), n + 1.6, 0.4); }
     j.notes.forEach(([s, note, len]) => this.voice(j.inst, t0 + s * step, freq(midi(note)), len * step, 1.6, this.sfxBus, this.sfxSend));
   }
 

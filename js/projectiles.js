@@ -1,4 +1,5 @@
 import { Sound } from "./audio.js";
+import { glowAt } from "./settings.js";
 
 // Centre and extra hitbox size of an enemy (a boss's body is bigger and taller)
 const cx = (e) => e.x + 12;
@@ -247,6 +248,7 @@ export class ProjectileManager {
       ctx.save();
       if (p.type === "meteor") {
         if (!p.exploded) {
+          glowAt(ctx, p.x, p.y, 22, "#ff7700", 0.6);
           ctx.fillStyle = "#ff7700";
           ctx.beginPath();
           ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
@@ -266,6 +268,7 @@ export class ProjectileManager {
         ctx.stroke();
 
         p.activeBolts.forEach((b) => {
+          glowAt(ctx, b.x, b.y - 12, 16, "#7dd3fc", 0.5);
           ctx.strokeStyle = "#ffffff";
           ctx.lineWidth = 2;
           ctx.beginPath();
@@ -282,6 +285,7 @@ export class ProjectileManager {
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.stroke();
       } else if (p.type === "force_sphere") {
+        glowAt(ctx, p.x, p.y, 13, "#00f0ff", 0.55);
         ctx.fillStyle = "#00f0ff";
         ctx.beginPath();
         ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
@@ -305,6 +309,7 @@ export class ProjectileManager {
         ctx.ellipse(p.x, p.y, p.r, p.r * 0.7, 0, 0, Math.PI * 2);
         ctx.stroke();
       } else if (p.type === "bolt") {
+        if (p.elem !== "earth") glowAt(ctx, p.x, p.y, (p.size || 3) * 3.5, p.color, 0.5);
         ctx.fillStyle = p.color;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size || 3, 0, Math.PI * 2);

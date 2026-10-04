@@ -14,7 +14,7 @@ node $P --lang fil                    # Filipino UI
 node $P --keys "wait:1200,Enter,wait:400,Enter,wait:1500,shot:creator,KeyR,shot:random"
 ```
 
-Key script steps (comma-separated): `Enter` / `KeyJ` / `ArrowDown` tap a key (`KeyboardEvent.code`), `KeyD*45` holds it for 45 frames, `wait:800` waits ms, `shot` or `shot:name` saves a screenshot, `eval:<js>` prints a value from the page. Screenshots go to `<tmp>/vof-playtest/` (960×600). Look at them with the Read tool, one at a time, only the ones you need.
+Key script steps (comma-separated): `Enter` / `KeyJ` / `ArrowDown` tap a key (`KeyboardEvent.code`), `KeyD*45` holds it for 45 frames, `wait:800` waits ms, `shot` or `shot:name` saves a screenshot, `eval:<js>` prints a value from the page, `click:<selector>` clicks an element, `drag:<from>>><to>` drags one element onto another with the mouse (selectors without commas). Screenshots go to `<tmp>/vof-playtest/` (960×600). Look at them with the Read tool, one at a time, only the ones you need.
 
 The run exits 1 on any console error, uncaught exception or failed same-origin request. It ignores Google Fonts failures (offline/proxy) and the Act banner extension probes in `js/lore.js`.
 
