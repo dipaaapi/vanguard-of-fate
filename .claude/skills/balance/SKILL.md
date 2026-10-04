@@ -34,9 +34,9 @@ Not modelled (say so when you quote numbers): Priest angels and heals, Archer qu
 ## Workflow
 
 1. **Baseline:** run `node $B` (or `--area <id>`) before touching anything and keep the output.
-2. **Find the lever** with `/codemap` (`where <symbol>`), not by reading files: monster numbers in `bestiary.js` (`hpMult`, `dmg`) and `EnemyManager.spawn` (`35 + lvl*12` HP, `dmg + lvl*1.6`); bands in `EnemyManager.setArea`; hero curves in `Player.recalc` / `takeDamage` / `expFor`; skill damage in each kit's `onAttack/onSkill/onSkill2` and `projectiles.js`; gear in `itemdb.js` (`EQUIP`, grade scaling).
+2. **Find the lever** with `/codemap` (`where <symbol>`), not by reading files: monster numbers in `bestiary.js` (`hpMult`, `dmg`) and `EnemyManager.spawn` (`35 + lvl*12` HP, `dmg + lvl*1.6`); bands in `EnemyManager.setArea`; hero curves in `Player.recalc` / `takeDamage` / `expFor`; skill damage in each kit's `onAttack/onSkill/onSkill2` and `projectiles.js`; gear in `itemdb.js` (`EQUIP`, grade scaling); crafted sets, recipes and material drops in `items/craftsets.js` (`CRAFT_TIERS`, `CRAFT_SETS`, `recipeFor`, `DROPS`); buy/sell rates in `items/economy.js`; monster gold in `loot.js`; mercenaries in `mercenary/*` and `MercenaryManager.hire`.
 3. **Change one lever**, rerun the same command, compare. Prefer changing a table value over a formula.
 4. **Fairness:** aim to narrow the class spread without flattening class identity (Knight tanky, Mage glass cannon). Report before → after numbers for the affected areas.
 5. Run `node .claude/skills/codemap/codemap.mjs verify` and `node .claude/skills/content/content-check.mjs`. For feel, run `/playtest`.
 
-If a mechanic the simulator ignores becomes the subject (angels, quiver, night), extend `balance-sim.mjs` with the real module rather than estimating by hand, and update the "Not modelled" list above.
+If a mechanic the simulator ignores becomes the subject (angels, quiver, night), extend `balance-sim.mjs` with the real module rather than estimating by hand (pets and familiars next), and update the "Not modelled" list above.

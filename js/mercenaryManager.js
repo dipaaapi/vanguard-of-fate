@@ -46,7 +46,8 @@ export class MercenaryManager {
     // Scales with same-level monster HP (35 + 12 × level): a basic hit stays ~17% of a foe at every level,
     // so mercenaries neither steal every kill early nor fade out late.
     const power = ((35 + 12 * player.level) / 47) * 0.35 * (mercData.powerBonus || 1);
-    const maxHp = Math.round(mercData.maxHp * (1 + (player.level - 1) * 0.1));
+    // fairness pass: was +10%/Lv, which fell behind monster damage in the late Acts (balance-sim --units)
+    const maxHp = Math.round(mercData.maxHp * (1 + (player.level - 1) * 0.13));
     if (Sound && Sound.playSelectConfirm) Sound.playSelectConfirm();
 
     const merc = {

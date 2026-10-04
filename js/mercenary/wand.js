@@ -2,7 +2,7 @@
 export const WandMercenary = {
   type: "wand",
   name: "Mage Apprentice",
-  maxHp: 120,
+  maxHp: 160,
   speed: 1.25,
   attackRange: 130,
   attackCooldownMax: 55,

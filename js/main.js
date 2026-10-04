@@ -33,6 +33,9 @@ import { Codex } from "./codex.js";
 import { getItem, SETS } from "./items/itemdb.js";
 import { SET_SLOTS, recipeCost, forgePiece } from "./items/forge.js";
 import { wear, WEAR_WEAPON, WEAR_ARMOR, ARMOR_SLOTS } from "./items/durability.js";
+import { needsPick } from "./world/mining.js";
+import { Fishing } from "./world/fishing.js";
+import { Workshop } from "./workshop.js";
 import { Avatar } from "./avatar/avatar.js";
 import { ActIntro } from "./actintro.js";
 import { createLorePanel } from "./lore.js";
@@ -238,6 +241,36 @@ function openService(service, opts) {
 // NPC service menus. Ronald: mercenaries, safe refines up to +4, and field repairs at double the dwarves' price.
 const serviceMenu = new ServiceMenu(document.getElementById("serviceMenu"));
 
+// Workshop (G, safe zones only): craft gear from materials, auto-craft, cook, transmute (js/workshop.js)
+const workshop = new Workshop({
+  menu: serviceMenu, fx, sound: Sound,
+  log: (kind, text, color) => chatLog.event(kind, text, dayNight.label(), null, color),
+  onChange: () => { inventory.dirty = true; }
+});
+function openWorkshop() {
+  if (!player || gameState !== "PLAYING" || dialog.open || serviceMenu.open || showShopModal || showMercModal) return;
+  if (!stage.isInsideSafeZone(player.x + 10, player.y + 17)) {
+    fx.spawnDamagePopup(player.x + 10, player.y - 10, lang() === "fil" ? "Sa ligtas na lugar lang ang talyer" : "Workshop: safe zones only", false, "#94a3b8");
+    return;
+  }
+  controller.clearAll();
+  inventory.close();
+  charPanel.close();
+  worldMap.close();
+  workshop.open(player);
+}
+
+// Fishing (E at the water's edge): what bites depends on the place (js/world/fishing.js)
+const fishing = new Fishing();
+fishing.onCatch = (id) => {
+  const it = getItem(id), fil = lang() === "fil";
+  if (!player.bag.add(id, 1)) lootManager.drop({ x: player.x + 10, y: player.y + 22 }, { id, qty: 1 });
+  fx.spawnDamagePopup(player.x + 10, player.y - 18, `+1 ${it.name}`, true, it.tint);
+  if (Sound.playLootPickup) Sound.playLootPickup();
+  chatLog.event("loot", "", dayNight.label(), { key: `fish:${id}`, value: 1, format: (n, total) => (fil ? `Nakahuli ng ${it.name} ×${total}` : `Caught ${it.name} ×${total}`) }, it.tint);
+};
+fishing.onMiss = () => fx.spawnDamagePopup(player.x + 10, player.y - 18, lang() === "fil" ? "Nakatakas!" : "It got away!", false, "#94a3b8");
+
 // Codex (N): encyclopedia of NPCs, monsters, MVPs and items; progress is saved with the game
 const codex = new Codex(document.getElementById("codex"));
 function toggleCodex() {
@@ -276,7 +309,7 @@ function openSmithMenu() {
 const costText = (cost) => Object.entries(cost).map(([id, n]) => (id === "gold" ? `${n}G` : `${getItem(id).name} ${player.bag.count(id)}/${n}`)).join(" · ");
 function openForgeSets() {
   const fil = lang() === "fil";
-  serviceMenu.show(fil ? "Pumili ng set" : "Choose a set", Object.entries(SETS).map(([id, set]) => ({
+  serviceMenu.show(fil ? "Pumili ng set" : "Choose a set", Object.entries(SETS).filter(([, set]) => set.mineral).map(([id, set]) => ({
     label: `${set.name[lang()]} · ${fil ? "Grado" : "Grade"} ${set.grade}`,
     hint: `5: ${set.passive[lang()]}`,
     onPick: () => openForgeSlots(id)
@@ -348,7 +381,7 @@ function openNobleMenu() {
 // Mining: one pickaxe strike on the vein beside the hero
 function mineVein(v) {
   const fil = lang() === "fil";
-  if (quest.mining !== 2) {
+  if (quest.mining !== 2 && needsPick(v.kind)) {
     fx.spawnDamagePopup(player.x + 10, player.y - 10, fil ? "Kailangan ang piko ni Thane Durgrim" : "Needs Thane Durgrim's pickaxe", false, "#94a3b8");
     return;
   }
@@ -356,6 +389,7 @@ function mineVein(v) {
   fx.spawnHitSparks(v.x, v.y - 8, getItem(v.kind).tint, r.broke ? 20 : 8);
   if (Sound.playSlash) Sound.playSlash();
   if (!r.broke) return;
+  if (r.salt && !player.bag.add("rockSalt", r.salt)) lootManager.drop({ x: v.x + 8, y: v.y + 6 }, { id: "rockSalt", qty: r.salt });
   if (!player.bag.add(r.id, r.qty)) {
     lootManager.drop({ x: v.x, y: v.y + 6 }, { id: r.id, qty: r.qty });   // bag full: leave it on the ground
   } else {
@@ -596,7 +630,8 @@ const actionPanel = new ActionPanel({
     exitToTitle();
   },
   map: () => { Sound.init(); toggleMap(); panelSound(worldMap.open); },
-  codex: () => { Sound.init(); toggleCodex(); panelSound(codex.open); }
+  codex: () => { Sound.init(); toggleCodex(); panelSound(codex.open); },
+  workshop: () => { Sound.init(); openWorkshop(); }
 });
 
 // Soft page-turn when a side panel opens or closes
@@ -879,6 +914,7 @@ function getSavePayload() {
     autoStat: player.autoStat || "off",
     belt: [...player.belt],
     autoPot: { ...player.autoPot },
+    life: Workshop.serialize(player),       // craft target, active meal, market saturation
     codex: codex.serialize(),
     dayTick: dayNight.serialize(),
     platform: stage.id,                     // "hub" or an Act platform
@@ -1019,6 +1055,7 @@ function loadGame() {
     if (data.bag) player.bag.load(data.bag);
     else starterKit(player);
     attachBag(player);
+    Workshop.load(player, data.life);
     player.hp = Math.min(player.maxHp, data.hp || player.maxHp);
     quest.load(data.quest, player);
 
@@ -1313,11 +1350,21 @@ window.addEventListener("keydown", (e) => {
           saveGame();
           questHud.toast(lang() === "fil" ? "Bukas na ang lagusan patungo sa Dark Continent!" : "Celestial Portal to the Dark Continent is open!");
         });
+      } else if (gameState === "PLAYING" && fishing.active) {
+        fishing.press(player, stage);
       } else if (gameState === "PLAYING" && stage.ore && stage.ore.nearest(player)) {
         mineVein(stage.ore.nearest(player));
       } else if (gameState === "PLAYING" && npcManager.nearest) {
         talkTo(npcManager.nearest);
+      } else if (gameState === "PLAYING") {
+        fishing.press(player, stage);
       }
+      return;
+    }
+
+    // G = the safe-zone Workshop (B is the Market) (craft, cook, transmute)
+    if (e.code === "KeyG" && gameState === "PLAYING") {
+      openWorkshop();
       return;
     }
 
@@ -1519,6 +1566,8 @@ function updateGame() {
   if (stage.boatSystem) stage.boatSystem.carry(player, crewOf());
   projectileManager.update(enemyManager.enemies, enemyManager, fx, lootManager, player);
   lootManager.update(player, fx);
+  workshop.update(player, stage.isInsideSafeZone(player.x + 10, player.y + 17));
+  fishing.update(player);
 }
 
 // The summoner (Prince/Princess) heals the hero, but only inside a sanctuary and only when they are
@@ -1662,6 +1711,7 @@ function renderGameWorld() {
 
     ui.drawInWorldUI(ctx, player);
     drawHealBeam();
+    fishing.draw(ctx, player, stage, gameState === "PLAYING" && !npcManager.nearest && !(stage.ore && stage.ore.nearest(player)));
   }
   npcManager.drawLayer(ctx, footY, true);    // NPCs in front of the player
 

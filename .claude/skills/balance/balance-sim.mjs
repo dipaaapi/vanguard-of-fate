@@ -32,11 +32,13 @@ const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : d; };
 const AREA = opt("--area", null);
 const LEVEL_SHIFT = parseInt(opt("--level", "0"), 10) || 0;
-const GEAR = opt("--gear", "best");
+const GEAR = opt("--gear", "craft");
 const OUT = opt("--out", null);
 const BUILD = opt("--build", null);
 const FAMILIAR_LV = parseInt(opt("--familiar", "0"), 10) || 0;
 const TRIALS = 12;
+const ECON = args.includes("--economy");
+const UNITS = args.includes("--units");
 
 seedRandom(2026);
 const { Player, expFor } = await load("js/player.js");
@@ -51,6 +53,15 @@ const { damageTakenMult } = await load("js/monsterTiers.js");
 const FAMILIAR_OF = { novice: "slime", knight: "hound", mage: "owl", fighter: "fox" };
 const { codexItems, describe, canEquip } = await load("js/items/itemdb.js");
 const { getNovice } = await load("js/classes/novice.js");
+const { craftSlots, pieceFor, tierForLevel, setIdFor } = await load("js/items/crafting.js");
+const { GuardianAngelCompanion } = await load("js/summons/angel.js");
+const { LootManager } = await load("js/loot.js");
+const { rollTier } = await load("js/monsterTiers.js");
+const { CRAFT_TIERS, recipeFor, PATHS } = await load("js/items/craftsets.js");
+const { buyPrice, baseSellPrice } = await load("js/items/economy.js");
+const { WEAR_WEAPON, WEAR_ARMOR, ARMOR_SLOTS } = await load("js/items/durability.js");
+const { MercenaryManager, MERC_CLASSES } = await load("js/mercenaryManager.js");
+const { FalconCompanion } = await load("js/summons/falcon.js");
 const { DEFAULT_CONFIG } = await load("js/avatar/options.js");
 const KITS = {
   novice: getNovice(DEFAULT_CONFIG),
@@ -82,6 +93,7 @@ function band(area) {
 // ── Heroes ───────────────────────────────────────────────────────────────────
 
 const ALL_EQUIP = codexItems().equip;
+const CLASS_PATH = { novice: "str", knight: "str", fighter: "str", archer: "dex", mage: "int", priest: "int" };
 const SLOTS_FILL = ["head", "armor", "garment", "gloves", "boots", "amulet", "ring1", "ring2"];
 const score = (it) => { const s = it.stats || {}; return (s.def || 0) * 3 + (s.hp || 0) * 0.5 + (s.atk || 0) * 2 + (s.vit || 0) + (s.str || 0) + (s.int || 0) + (s.dex || 0) + (s.crit || 0); };
 
@@ -112,6 +124,15 @@ function makeHero(cls, level, grade) {
         .sort((a, b) => score(b) - score(a))[0];
       if (best) p.bag.equip[slot] = { id: best.id, qty: 1, plus: 0, rarity: "normal", affixes: [], sockets: 0, cards: [] };
     }
+  }
+  if (GEAR === "craft" && tierForLevel(level)) {
+    // The crafted set of the hero's tier in the class's own path (Lv 10 / 25 / 50 …), every piece worn
+    const setId = setIdFor(CLASS_PATH[cls], tierForLevel(level));
+    for (const slot of craftSlots(cls)) {
+      const inst = pieceFor(cls, setId, slot);
+      if (slot === "ring") { p.bag.equip.ring1 = { ...inst }; p.bag.equip.ring2 = { ...inst }; } else p.bag.equip[slot] = inst;
+    }
+    if (describe(p.bag.equip.weapon).hands === 2) p.bag.equip.offhand = null;
   }
   p.bag.changed && p.bag.changed(true);
   p.recalc();
@@ -144,8 +165,10 @@ function actionDamage(hero, fn, em, makeTarget) {
   return total / TRIALS;
 }
 
+// Archer: every maxArrows shots the quiver reloads (reloadDuration frames), spread over the shots
+const quiver = (hero) => (hero.maxArrows ? (hero.heroData.reloadDuration || 0) / hero.maxArrows : 0);
 const frames = (hero) => ({
-  J: Math.round((hero.heroData.attackCooldown || 22) * (1 - hero.aspd) * (1 - hero.cdr * 0.5)),
+  J: Math.round((hero.heroData.attackCooldown || 22) * (1 - hero.aspd) * (1 - hero.cdr * 0.5) + quiver(hero)),
   K: Math.round((hero.heroData.cooldown || 180) * Math.max(0.3, 1 - hero.cdr)),
   L: Math.round((hero.heroData.cooldown2 || 120) * Math.max(0.3, 1 - hero.cdr))
 });
@@ -162,6 +185,42 @@ function hitOnHero(em, e, hero) {
   return sum / TRIALS;
 }
 const MONSTER_CYCLE = 37;   // frames between monster hits (windupFor(e, 36) + 1)
+
+/** Archer K: main.js sends the FalconCompanion to dive the nearest foe. Damage of one dive. */
+function falconDive(hero, em, makeTarget) {
+  let total = 0;
+  for (let t = 0; t < TRIALS; t++) {
+    const target = makeTarget();
+    target.hp = target.maxHp = 1e9;
+    em.enemies = [target];
+    em.player = hero;
+    const f = new FalconCompanion(hero.x, hero.y);
+    f.triggerStrike(target, target.x, target.y);
+    for (let k = 0; k < 120 && !f.damageDealt; k++) { f.update(hero, em, noop, noop); target.x = 30; target.y = 0; }
+    total += 1e9 - target.hp;
+  }
+  return total / TRIALS;
+}
+
+/** Priest K: main.js keeps up to two Guardian Angels (K every 3 s, 12 s life); both fight the target. DPS of the pair. */
+function angelDps(hero, em, makeTarget) {
+  const FR = 600, N = 4;
+  let total = 0;
+  for (let t = 0; t < N; t++) {
+    const target = makeTarget();
+    target.hp = target.maxHp = 1e9;
+    em.enemies = [target];
+    em.player = hero;
+    const hp = Math.round(hero.maxHp * 0.5);
+    const angels = [new GuardianAngelCompanion(hero.x - 30, hero.y - 16, hp), new GuardianAngelCompanion(hero.x + 30, hero.y - 16, hp)];
+    for (let f = 0; f < FR; f++) {
+      angels.forEach((a, i) => a.update(hero, em, noop, noop, i, false));
+      target.x = 30; target.y = 0; target.hitTimer = 0; target.stunTimer = 0;
+    }
+    total += 1e9 - target.hp;
+  }
+  return total / N / (FR / 60);
+}
 
 function fight(hero, area, em, key, level, boss = false) {
   em.night = 0;
@@ -186,7 +245,10 @@ function fight(hero, area, em, key, level, boss = false) {
   const taken = hitOnHero(em, sample, hero);
   const ttk = dps > 0 ? hp / dps : Infinity;
   const hitsToDie = Math.ceil(hero.maxHp / Math.max(1, taken));
-  const ttd = (hitsToDie * MONSTER_CYCLE) / 60;
+  // Priest J = Priority Heal (10% max HP): survival is the HP pool over intake minus healing
+  const healPerSec = priest ? (0.1 * hero.maxHp * (hero.healMult || 1) * 60) / fr.J : 0;
+  const intakePerSec = (taken * 60) / MONSTER_CYCLE;
+  const ttd = priest ? (intakePerSec > healPerSec ? hero.maxHp / (intakePerSec - healPerSec) : Infinity) : (hitsToDie * MONSTER_CYCLE) / 60;
   return { key, level, hp, dmgJ: dmg.J, dps, ttk, monDmg: sample.damage, taken, hitsToDie, ttd, ratio: ttd / ttk, element: sample.element };
 }
 
@@ -203,6 +265,7 @@ say(`Generated by \`node .claude/skills/balance/balance-sim.mjs${args.length ? "
 say("**Fights per life** = seconds the hero survives one same-band normal monster ÷ seconds to kill it. Above ~3 feels safe; below 1 the hero loses a straight 1 v 1. **Kills/Lv** = same-level normal kills for the next level.");
 say("");
 
+const studies = [];
 const classesFor = (area) => (area.id === "hub" ? ["novice", "knight", "mage", "priest", "archer", "fighter"] : ["knight", "mage", "priest", "archer", "fighter"]);
 
 for (const area of areas.filter((a) => !AREA || a.id === AREA)) {
@@ -215,6 +278,7 @@ for (const area of areas.filter((a) => !AREA || a.id === AREA)) {
     say("|---|---|---|---|---|---|---|---|---|---|---|---|---|---|");
   }
   const ratios = [];
+  const samples = [];
   for (const cls of classesFor(area)) {
     const level = Math.max(1, (area.id === "hub" ? (cls === "novice" ? 5 : 10) : floor + 3) + LEVEL_SHIFT);
     const hero = makeHero(cls, level, area.tier);
@@ -226,6 +290,7 @@ for (const area of areas.filter((a) => !AREA || a.id === AREA)) {
     const kills = expFor(level) / e;
     let boss = null;
     if (area.boss) boss = fight(hero, area, em, area.boss, cap + 2, true);
+    if (cls !== "novice") samples.push({ cls, hero, ttk: avg("ttk"), intake: (avg("taken") * 60) / MONSTER_CYCLE, priest: cls === "priest", frJ: frames(hero).J });
     if (AREA) {
       say(`### ${cls} Lv ${level}: HP ${hero.maxHp}, DEF ${hero.defense}, ATK ${hero.attack}, crit ${(hero.crit * 100).toFixed(0)}%, CDR ${(hero.cdr * 100).toFixed(0)}%, ASPD ${(hero.aspd * 100).toFixed(0)}%`);
       say("");
@@ -239,6 +304,7 @@ for (const area of areas.filter((a) => !AREA || a.id === AREA)) {
       say(`| ${cls} | ${level} | ${hero.maxHp} | ${hero.defense} | ${f0(avg("dmgJ"))} | ${f1(avg("dps"))} | ${f0(avg("hp"))} | ${f1(avg("ttk"))} | ${f1(avg("taken"))} | ${f0(avg("hitsToDie"))} | ${f1(ratio)} | ${f1(kills)} | ${boss ? f1(boss.ttk) : "—"} | ${boss ? boss.hitsToDie : "—"} |`);
     }
   }
+  if (area.id !== "hub" || !AREA) studies.push({ area, em, floor, cap, samples });
   const valid = ratios.filter(([, r]) => Number.isFinite(r) && r > 0);
   if (valid.length > 1) {
     const hi = valid.reduce((a, b) => (b[1] > a[1] ? b : a)), lo = valid.reduce((a, b) => (b[1] < a[1] ? b : a));
@@ -248,6 +314,122 @@ for (const area of areas.filter((a) => !AREA || a.id === AREA)) {
   say("");
 }
 
+if (ECON) economyReport();
+if (UNITS) unitsReport();
+
 const text = out.join("\n");
 console.log(text);
 if (OUT) { fs.mkdirSync(path.dirname(path.join(ROOT, OUT)), { recursive: true }); fs.writeFileSync(path.join(ROOT, OUT), text + "\n"); console.error(`wrote ${OUT}`); }
+
+// ── Economy (--economy) ──────────────────────────────────────────────────────
+// Kills drawn like the game: a random monster of the area at a random band level, its tier from rollTier,
+// loot from the real LootManager.spawnLoot (gold + rollDrop). Upkeep per kill from the combat rows above:
+// HP lost (TTK × damage taken per second, priests heal themselves) paid in Red Potions, and repairs
+// (weapon wear per hit landed, armor wear per hit taken) at the worn set's repair cost.
+function economyReport() {
+  const KILLS = 3000;
+  const salve = describe({ id: "salve" });
+  // gold per HP for a hero of that max HP (potions heal heal or healPct × max HP, whichever is more)
+  const potionGFor = (maxHp) => buyPrice("apothecary", "salve", salve) / Math.max(salve.effect.heal, Math.round(maxHp * (salve.effect.healPct || 0)));
+  const potionG = potionGFor(0);
+  say("## Economy — gold and materials per kill");
+  say("");
+  say(`Generated with \`--economy\`: ${KILLS} kills per area (random kind, band level and tier), loot from the real LootManager; upkeep = HP lost per kill paid in Red Potions (${potionG.toFixed(2)} G/HP at base, less once 6% of max HP beats 40) minus the potions that dropped + repairs of the worn crafted set. Priests heal themselves and are left out of upkeep.`);
+  say("");
+  say("| Area | Hero Lv | Gold/kill | Loot sold/kill | Ore/kill | Cores/kill | Path essence/kill | Upkeep G/kill | Net G/kill | Set (tier) | Set cost | Kills for the set | Merc hire (kills) |");
+  say("|---|---|---|---|---|---|---|---|---|---|---|---|---|");
+  for (const { area, em, floor, cap, samples } of studies) {
+    const level = area.id === "hub" ? 10 : floor + 3;
+    const lm = new LootManager();
+    const tot = { gold: 0, sold: 0 }, mats = {};
+    const kinds = area.kinds.filter((k) => MONSTERS[k]);
+    for (let k = 0; k < KILLS; k++) {
+      const key = kinds[k % kinds.length], kind = MONSTERS[key];
+      const lvl = floor + Math.floor(Math.random() * (cap - floor + 1));
+      lm.items = [];
+      lm.spawnLoot(0, 0, { grade: area.tier, level: lvl, cls: "knight", key, boss: false, tier: rollTier(), diff: lvl - level, element: kind.element, race: kind.race });
+      for (const it of lm.items) {
+        if (it.type === "gold") { tot.gold += it.amount; continue; }
+        const d = describe(it.inst);
+        if (!d) continue;
+        mats[d.base] = (mats[d.base] || 0) + (it.inst.qty || 1);
+        if (!["ore", "core", "essence", "fish", "meat", "spice", "salt"].includes(d.icon)) tot.sold += baseSellPrice(d) * (it.inst.qty || 1);
+      }
+    }
+    const per = (id) => (mats[id] || 0) / KILLS;
+    // the set the area's drops build: the highest tier whose ore actually drops here
+    const dropped = CRAFT_TIERS.filter((t) => per(t.ore) > 0);
+    const c = dropped.length ? dropped[dropped.length - 1] : CRAFT_TIERS[0];
+    const fighters = samples.filter((x) => !x.priest);
+    // upkeep: HP lost per kill (TTK × intake) and wear on the worn gear
+    const hpCost = fighters.reduce((n, x) => n + x.ttk * x.intake * potionGFor(x.hero.maxHp), 0) / fighters.length;
+    const repairs = fighters.reduce((n, x) => {
+      const hero = x.hero;
+      const price = (slot) => { const it = hero.bag.equippedItem(slot); return it ? it.price * 0.6 / 100 : 0; };
+      const hitsLanded = (x.ttk * 60) / x.frJ, hitsTaken = (x.ttk * 60) / MONSTER_CYCLE;
+      return n + hitsLanded * WEAR_WEAPON * price("weapon") + hitsTaken * WEAR_ARMOR * ARMOR_SLOTS.reduce((m, sl) => m + price(sl), 0);
+    }, 0) / fighters.length;
+    const upkeep = Math.max(0, hpCost + repairs - per("salve") * buyPrice("apothecary", "salve", salve));
+    // A full set of the tier in one path (knight's pieces: 8 slots + a second ring)
+    const setId = `str${c.level}`;
+    const slots = craftSlots("knight");
+    const need = {};
+    slots.forEach((slot) => Object.entries(recipeFor(setId, slot)).forEach(([id, n]) => { need[id] = (need[id] || 0) + n * (slot === "ring" ? 2 : 1); }));
+    const essId = PATHS.str.essence;
+    const essPer = per(essId);
+    const killsFor = Math.max(...Object.entries(need).map(([id, n]) => (id === "gold" ? n / Math.max(0.01, tot.gold / KILLS - upkeep) : n / Math.max(1e-6, per(id)))));
+    const merc = MercenaryManager.cost(level);
+    say(`| ${area.name} | ${level} | ${f1(tot.gold / KILLS)} | ${f1(tot.sold / KILLS)} | ${per(c.ore).toFixed(2)} | ${per(c.core).toFixed(3)} | ${essPer.toFixed(2)} | ${f1(upkeep)} | ${f1(tot.gold / KILLS - upkeep)} | Lv ${c.level} | ${need[c.ore]} ore · ${need[c.core]} cores · ${need[essId]} essence · ${need.gold}G | ${f0(killsFor)} | ${merc}G (${f1(merc / Math.max(0.01, tot.gold / KILLS - upkeep))}) |`);
+  }
+  say("");
+}
+
+// ── Companions (--units) ─────────────────────────────────────────────────────
+// Each mercenary hired at the hero's level (MercenaryManager.hire), its attack and skill fired through the
+// real kit on cooldown against a same-band normal monster; survival = its HP over that monster's hits.
+// Also the Priest's angel pair and one Archer falcon dive, as a share of a same-level monster's HP.
+function unitsReport() {
+  say("## Companions — mercenaries and summons against the band");
+  say("");
+  say("| Area | Lv | Unit | HP | DPS | TTK s | Hits to die | Fights/life |");
+  say("|---|---|---|---|---|---|---|---|");
+  for (const { area, em, floor, cap, samples } of studies) {
+    const level = area.id === "hub" ? 10 : floor + 3;
+    const kinds = area.kinds.filter((k) => MONSTERS[k]);
+    const spawn = (key) => () => { em.enemies = []; const e = em.spawn(key, level, 30, 0, null, "normal", Math.min(cap, Math.max(floor, level))); e.variant = null; e.element = e.kind.element || "neutral"; e.mods = []; return e; };
+    for (const type of Object.keys(MERC_CLASSES)) {
+      const host = samples[0].hero;
+      const mm = new MercenaryManager();
+      host.gold = 1e9;
+      mm.hire(type, host, noop);
+      const m = mm.mercenaries[0], data = m.data;
+      let dps = 0, ttk = 0, hits = 0;
+      for (const key of kinds) {
+        const mk = spawn(key);
+        const once = (fn) => {
+          let total = 0;
+          for (let t = 0; t < 4; t++) {
+            const pm = new ProjectileManager(1280, 960);
+            const target = mk();
+            target.hp = target.maxHp = 1e9;
+            em.enemies = [target]; em.player = host;
+            m.x = 0; m.y = 0;
+            fn(target, (q) => pm.add(q));
+            for (let f = 0; f < 240 && pm.projectiles.length; f++) { pm.update(em.enemies, em, noop, noop, host); target.x = 30; target.y = 0; target.hitTimer = 0; target.stunTimer = 0; }
+            total += 1e9 - target.hp;
+          }
+          return total / 4;
+        };
+        const atk = once((target, sp) => data.onAttack(m, target, mm.scaled(m, em), noop, mm.ownShots(m, sp)));
+        const skl = data.onSkill ? once((target, sp) => data.onSkill(m, [target], mm.scaled(m, em), noop, mm.ownShots(m, sp))) : 0;
+        const d = 60 * (atk / data.attackCooldownMax + skl / (data.skillCooldownMax || 1e9));
+        const sample = mk();
+        dps += d; ttk += sample.maxHp / Math.max(1, d); hits += Math.ceil(m.maxHp / Math.max(1, sample.damage));
+      }
+      const n = kinds.length;
+      const ttd = ((hits / n) * MONSTER_CYCLE) / 60;
+      say(`| ${area.name} | ${level} | ${data.name} | ${m.maxHp} | ${f1(dps / n)} | ${f1(ttk / n)} | ${f0(hits / n)} | ${f1(ttd / (ttk / n))} |`);
+    }
+  }
+  say("");
+}
