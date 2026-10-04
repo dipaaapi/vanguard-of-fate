@@ -1,4 +1,5 @@
 import { Pix, shade, whiteOf } from "./avatar.js";
+import { sheetFrame, sheetsVersion } from "./sheets.js";
 
 // ==================== CREATURES (non-human) ====================
 // Same style as the modular Avatar: pixel buffer, selective outline, shade/highlight from the base
@@ -22,6 +23,15 @@ export class CreatureSprite {
   frame(dir, anim, i) {
     const n = this.frames[anim] || 1;
     const idx = ((i % n) + n) % n;
+    // Aseprite sheet (js/avatar/sheets.js) first; the code-drawn frame below is the fallback
+    if (this.sheetKey) {
+      const img = sheetFrame(this.sheetKey, dir, anim, idx);
+      if (img && img.width === this.w && img.height === this.h) return img;
+      if (img && !this.sizeWarned) {
+        this.sizeWarned = true;
+        console.warn(`sprite sheet ${this.sheetKey}: frames are ${img.width}×${img.height}, expected ${this.w}×${this.h}; using the code-drawn sprite`);
+      }
+    }
     const key = `${dir}|${anim}|${idx}`;
     if (!this.cache.has(key)) {
       const p = new Pix(this.w, this.h);
@@ -33,7 +43,7 @@ export class CreatureSprite {
   }
 
   flashFrame(dir, anim, i) {
-    const key = `w|${dir}|${anim}|${i}`;
+    const key = `w${sheetsVersion()}|${dir}|${anim}|${i}`;
     if (!this.cache.has(key)) this.cache.set(key, whiteOf(this.frame(dir, anim, i)));
     return this.cache.get(key);
   }

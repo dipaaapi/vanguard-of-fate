@@ -40,6 +40,7 @@ import { needsPick } from "./world/mining.js";
 import { Fishing } from "./world/fishing.js";
 import { Workshop } from "./workshop.js";
 import { Avatar } from "./avatar/avatar.js";
+import { loadSpriteSheets } from "./avatar/sheets.js";
 import { ActIntro } from "./actintro.js";
 import { createLorePanel } from "./lore.js";
 import { HudBar } from "./hudbar.js";
@@ -1355,6 +1356,7 @@ selectScene.mentorAvatars = Object.fromEntries(
 );
 
 setLayoutMode("title");
+loadSpriteSheets();   // Aseprite art over the code-drawn sprites, when exported
 lorePanel = createLorePanel(document.getElementById("lore"));
 
 // Play the title BGM right away, before any key press, if enabled in the settings

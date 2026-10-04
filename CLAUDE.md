@@ -30,6 +30,7 @@ No backend and no build step: the game is static files. State persists in `local
 - `node .claude/skills/playtest/perf.mjs [--areas hub,ash] [--viewport 2560x1440] [--profile]` — frame rate and per-frame JS time in each scene with a 4× slower CPU; run it before and after anything that draws more.
 - `/security-audit` — audit save import, localStorage loading, innerHTML use, page config and the dev server.
 - `node tools/art/render.mjs [keys…] [--list] [--preview]` — re-render the procedural art (headless Chromium; exact key or prefix, e.g. `act-3`, `portrait-`).
+- `node tools/aseprite/export.mjs [kind/key…]` — export `aseprite/**/*.aseprite` with `aseprite -b` to `assets/sprites/` (sheet + JSON + manifest); `node tools/aseprite/seed.mjs monster/<key>` starts a file from the code art. See `aseprite/README.md`.
 - `node tools/audio/render-audio.mjs [music|jingles|sfx|<name>…] [--mp3]` — offline render of music/SFX with peak/RMS checks; run it after changing `audio.js` or `music.js`.
 - `scripts/headless.mjs` — lets any Node script `load("js/<module>.js")` with browser stubs; build new tools and tests on it instead of copying formulas.
 
@@ -53,5 +54,6 @@ No backend and no build step: the game is static files. State persists in `local
 - Language: `getLang()` returns `"en"` or `"fil"`. Every player-visible string needs both: UI strings in `js/i18n.js` (`t(key)`), data tables as `{ en, fil }` or `N(en, fil)`, chatter in `data/npc_conversations.json`. Run `lore-tool.mjs check` after adding text.
 - Put text into the DOM with `textContent`; use `innerHTML` only for static templates or `t()` strings that carry markup, never for names or other values that can come from a save.
 - Characters are drawn with the modular Avatar (or a `CreatureSprite`) and cached frames; new humanoids reuse Avatar parts rather than new sprite code.
+- Creature art can come from Aseprite: `aseprite/<monster|boss>/<key>.aseprite`, exported to `assets/sprites/` and loaded by `js/avatar/sheets.js`; the code-drawn sprite stays as the fallback for anything without a sheet (or a missing tag). Edit the `.aseprite` and re-export instead of editing the exported PNG.
 - Commit messages use Conventional Commit prefixes (`feat:`, `fix:`, `docs:`).
 - Some code comments are in Filipino/Taglish; keep them as-is.

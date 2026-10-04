@@ -494,6 +494,12 @@ const TRAITS = {
 };
 Object.entries(TRAITS).forEach(([k, [race, element, size]]) => Object.assign(MONSTERS[k] || BOSSES[k], { race, element, size }));
 
+// Aseprite sheets: aseprite/monster/<key>.aseprite and aseprite/boss/<key>.aseprite replace the
+// code-drawn frames of that creature when exported (js/avatar/sheets.js, tools/aseprite/export.mjs)
+for (const [kind, table] of [["monster", MONSTERS], ["boss", BOSSES]]) {
+  for (const [key, def] of Object.entries(table)) def.sprite.sheetKey = `${kind}/${key}`;
+}
+
 // Night creatures of the plains (LORE Act I: "nocturnal abominations")
 export const NIGHT_KINDS = ["voidSlime", "shadowDrake", "specter", "bloodBat", "chaosGargoyle"];
 

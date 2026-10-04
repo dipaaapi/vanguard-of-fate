@@ -77,8 +77,9 @@ then `outline <file>` and read only the line range you need.
 
 - `avatar.js` (50 KB, 1234) — Modular pixel-art Avatar renderer: layered parts (cape, hair, body, arms, held item), 8 directions, cached frames; Pix buffer and shade helpers · FRAME_W, FRAME_H, DIRS, shade, Pix, whiteOf, Avatar
 - `beasts.js` (25 KB, 518) — Act monster sprites (sporeling, drake, crab, serpent, brute, imp, specter, treant, …) with idle/walk/attack frames · SporelingSprite, DrakeSprite, CrabSprite, SerpentSprite, BruteSprite, ImpSprite, SpecterSprite, TreantSprite +1
-- `creature.js` (13 KB, 304) — Non-human sprite base (CreatureSprite) plus slime, wolf and falcon sprites; facingFrom direction helper · CreatureSprite, ellipse, SlimeSprite, WolfSprite, FalconSprite, facingFrom
+- `creature.js` (13 KB, 304) — Non-human sprite base (CreatureSprite; uses an Aseprite sheet frame when one is loaded) plus slime, wolf and falcon sprites; facingFrom direction helper · CreatureSprite, ellipse, SlimeSprite, WolfSprite, FalconSprite, facingFrom
 - `options.js` (4.6 KB, 119) — Character Creator choices and colours, NPC-only parts, config normalisation and random look/name · FIELDS, DEFAULT_CONFIG, normalizeConfig, randomConfig, randomName
+- `sheets.js` (2.8 KB, 75) — Aseprite sprite sheets: loads assets/sprites/manifest.json and slices each sheet into per-tag frames ("<dir>-<anim>") that override the code-drawn creature frames · sheetsVersion, sheetFrame, loadSpriteSheets
 
 ## js/classes/
 
@@ -184,6 +185,12 @@ then `outline <file>` and read only the line range you need.
 - `vistaHarbor.js` (2.5 KB, 32) — Art painter — Vista — Crossing to the Dark Continent · paint
 - `vistaLantern.js` (1.7 KB, 27) — Art painter — Vista — The Lantern Knight, three centuries ago · paint
 - `worldMap.js` (4.1 KB, 37) — Art painter — Vista — Map of the two continents · paint
+
+## tools/aseprite/
+
+- `export.mjs` (3.7 KB, 67) — Exports aseprite/**/*.aseprite with aseprite -b to assets/sprites/<key>.png + .json, checks tags/size against the code sprite, rewrites the manifest
+- `lib.mjs` (3.2 KB, 59) — Aseprite tool helpers: find the Aseprite executable, read a creature sprite headless, write PNGs · ROOT, SRC_DIR, OUT_DIR, findAseprite, codeSprite, writePng
+- `seed.mjs` (2.4 KB, 55) — Starts aseprite/<kind>/<key>.aseprite from a creature's code-drawn frames (one tag per direction+animation): node tools/aseprite/seed.mjs monster/slime
 
 ## tools/audio/
 
