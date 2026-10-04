@@ -745,7 +745,7 @@ export class EnemyManager {
       this.loot.spawnLoot(e.x + 10, e.y + 12, {
         grade: this.tier, level: e.level, cls: p ? p.heroData.id : "novice", key: e.key,
         boss: Boolean(e.boss), drop: e.boss ? e.kind.drop : null,
-        tier: e.boss ? "mvp" : e.tier || "normal", diff,
+        tier: e.boss ? "mvp" : e.tier || "normal", diff, element: e.element, race: e.kind.race,
         extra: Math.random() < 0.3 * this.night ? 1 : 0     // night: extra loot
       });
     }

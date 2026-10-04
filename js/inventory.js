@@ -1,5 +1,6 @@
 import { getLang } from "./i18n.js";
-import { describe, canEquip, upgradeCost, refineChance, SLOTS, slotName, MAX_PLUS, statText, RARITY, GRADE_NAMES, slotsFor, SETS, SET_THRESHOLDS, getItem } from "./items/itemdb.js";
+import { describe, canEquip, upgradeCost, refineChance, SLOTS, slotName, MAX_PLUS, statText, skillText, RARITY, GRADE_NAMES, slotsFor, SETS, setThresholds, getItem } from "./items/itemdb.js";
+import { sell, Market } from "./items/economy.js";
 import { temperInfo, temper, MAX_TEMPER } from "./items/forge.js";
 import { iconURL } from "./items/icons.js";
 import { BAG_SIZE } from "./items/bag.js";
@@ -17,7 +18,7 @@ const TEXT = {
     title: "Inventory", equip: "Equipment", stats: "Stats", bag: "Bag", buffs: "Active effects", none: "Empty",
     hp: "HP", def: "DEF", spd: "SPD", atk: "ATK", crit: "CRIT", cdr: "CDR", points: "Stat pts", gold: "Gold",
     doEquip: "Equip", doUnequip: "Unequip", doUse: "Use", doUpgrade: "Refine", sortStack: "Sort & Stack", sellAll: "Sell all", doSell: "Sell", doDrop: "Drop", confirm: "Confirm drop?",
-    locked: "Locked by 2H weapon", wrongClass: "Not for your class", needSanctuary: "Sell in a sanctuary (Barracks or camp)",
+    locked: "Locked by 2H weapon", wrongClass: "Not for your class", needLevel: (lv) => `Requires Lv ${lv}`, needSanctuary: "Sell in a sanctuary (Barracks or camp)",
     maxed: "Maximum upgrade", noShards: "Not enough Monster Shards", noCrystals: "Not enough Void Crystals", noGold: "Not enough gold",
     upgraded: "Refine succeeded!", failed: "Refine failed... the materials crumbled (your item is safe).", cost: "Cost",
     type: { equip: "Equipment", consume: "Consumable", material: "Refine material", quest: "Quest item", card: "Card" },
@@ -46,7 +47,7 @@ const TEXT = {
     title: "Imbentaryo", equip: "Kagamitan", stats: "Katangian", bag: "Bag", buffs: "Aktibong epekto", none: "Wala",
     hp: "HP", def: "DEP", spd: "BLS", atk: "ATK", crit: "CRIT", cdr: "CDR", points: "Stat pts", gold: "Ginto",
     doEquip: "Isuot", doUnequip: "Hubarin", doUse: "Gamitin", doUpgrade: "I-refine", sortStack: "Ayusin at Pagsamahin", sellAll: "Ibenta lahat", doSell: "Ibenta", doDrop: "Itapon", confirm: "Sigurado?",
-    locked: "Naka-lock dahil sa 2H", wrongClass: "Hindi para sa iyong class", needSanctuary: "Magbenta sa sanctuary (Barracks o kampo)",
+    locked: "Naka-lock dahil sa 2H", wrongClass: "Hindi para sa iyong class", needLevel: (lv) => `Kailangan ang Lv ${lv}`, needSanctuary: "Magbenta sa sanctuary (Barracks o kampo)",
     maxed: "Pinakamataas na upgrade", noShards: "Kulang ang Monster Shard", noCrystals: "Kulang ang Void Crystal", noGold: "Kulang ang ginto",
     upgraded: "Tagumpay ang refine!", failed: "Pumalya ang refine... gumuho ang materyales (ligtas ang item).", cost: "Halaga",
     type: { equip: "Kagamitan", consume: "Nagagamit", material: "Pang-refine", quest: "Quest item", card: "Card" },
@@ -110,7 +111,7 @@ export class InventoryPanel {
     const bySlot = {};
     bag.slots.forEach((s, i) => {
       const it = describe(s);
-      if (!it || it.type !== "equip" || !canEquip(it, cls)) return;
+      if (!it || it.type !== "equip" || !canEquip(it, cls, p.level)) return;
       if (it.slot === "offhand" && bag.offhandLocked()) return;
       const wornPower = (sl) => (isBroken(bag.equip[sl]) ? 0 : power(bag.equippedItem(sl)));
       const worn = Math.min(...slotsFor(it).map(wornPower));
@@ -128,7 +129,7 @@ export class InventoryPanel {
     // one piece per round: bag indices shift after each equip, so re-evaluate every time
     for (let round = 0; round < 12; round++) {
       const idx = Object.keys(this.recommendations()).map(Number)[0];
-      if (idx === undefined || bag.equipFrom(idx, p.heroData.id)) break;   // non-empty string = refused
+      if (idx === undefined || bag.equipFrom(idx, p.heroData.id, p.level)) break;   // non-empty string = refused
     }
     this.sel = null;
     p.recalc();
@@ -220,8 +221,10 @@ export class InventoryPanel {
     const p = this.player, bag = p.bag, T = tx();
     this.msg = "";
     if (d.from.kind === "bag" && target.closest(".inv-eq, .inv-portrait")) {
-      const err = bag.equipFrom(d.from.index, p.heroData.id);
+      const dragged = bag.itemAt(d.from.index);
+      const err = bag.equipFrom(d.from.index, p.heroData.id, p.level);
       if (err === "class") this.msg = T.wrongClass;
+      else if (err === "level") this.msg = T.needLevel(dragged ? dragged.reqLevel : 0);
       else if (err === "locked") this.msg = T.locked;
       this.sel = null;
     } else if (d.from.kind === "slot" && target.closest(".inv-right")) {
@@ -299,8 +302,9 @@ export class InventoryPanel {
     this.msg = "";
 
     if (action === "equip" && this.sel.kind === "bag") {
-      const err = bag.equipFrom(this.sel.index, p.heroData.id);
+      const err = bag.equipFrom(this.sel.index, p.heroData.id, p.level);
       if (err === "class") this.msg = T.wrongClass;
+      else if (err === "level") this.msg = T.needLevel(it ? it.reqLevel : 0);
       else if (err === "locked") this.msg = T.locked;
       else this.sel = { kind: "slot", slot: SLOTS.find((sl) => bag.equip[sl] && bag.equip[sl].id === it.id) || it.slot };
     } else if (action === "unequip" && this.sel.kind === "slot") {
@@ -338,14 +342,14 @@ export class InventoryPanel {
       if (!sanctuary) this.msg = T.needSanctuary;
       else {
         const s = bag.slots[this.sel.index];
-        p.gold += Math.max(1, Math.floor(it.price / 2)) * s.qty;
+        sell(p, it, s.qty);
         bag.removeAt(this.sel.index, s.qty);
         this.sel = null;
       }
     } else if (action === "sell" && this.sel.kind === "bag") {
       if (!sanctuary) this.msg = T.needSanctuary;
       else {
-        p.gold += Math.max(1, Math.floor(it.price / 2));
+        sell(p, it, 1);
         bag.removeAt(this.sel.index, 1);
         if (!bag.slots[this.sel.index] || bag.slots[this.sel.index].id !== it.id) this.sel = null;
       }
@@ -517,6 +521,7 @@ export class InventoryPanel {
           add(det, "div", "inv-meta", `${T.sockets}: ${sock.join("  ")}`);
         }
         if (it.cls && !canEquip(it, cls)) add(det, "div", "inv-warn", T.wrongClass);
+        if (it.reqLevel) add(det, "div", p.level >= it.reqLevel ? "inv-meta" : "inv-warn", T.needLevel(it.reqLevel));
         if (this.sel.kind === "bag" && rec[this.sel.index]) add(det, "div", "inv-recnote", T.recNote(slotName(it.slot), Math.round(rec[this.sel.index])));
         if (it.type === "equip") {
           const inst = this.selectedInst();
@@ -534,15 +539,17 @@ export class InventoryPanel {
       };
       const inBag = this.sel.kind === "bag";
       if (it.type === "equip") {
-        if (inBag) actBtn(T.doEquip, "equip", !canEquip(it, cls));
+        if (inBag) actBtn(T.doEquip, "equip", !canEquip(it, cls, p.level));
         else actBtn(T.doUnequip, "unequip");
         const inst = this.selectedInst();
         if (it.set) {
           const set = SETS[it.set], worn = bag.setCounts()[it.set] || 0, Lg2 = getLang() === "fil" ? "fil" : "en";
           add(det, "div", "inv-meta", T.setBonus(worn));
-          SET_THRESHOLDS.forEach((k) => {
-            const line = Object.entries(set.bonus[k]).map(([s, v]) => statText(s, v)).join("  ");
-            const row = add(det, "div", "inv-setrow" + (worn >= k ? " on" : ""), `(${k}) ${k === 5 ? `${T.passive} · ${set.passive[Lg2]}: ` : ""}${line}`);
+          const steps = setThresholds(set), top = steps[steps.length - 1];
+          steps.forEach((k) => {
+            const line = [...Object.entries(set.bonus[k]).map(([s, v]) => statText(s, v)),
+              ...Object.entries((set.skill && set.skill[k]) || {}).map(([s, v]) => skillText(s, v))].join("  ");
+            const row = add(det, "div", "inv-setrow" + (worn >= k ? " on" : ""), `(${k}) ${k === top ? `${T.passive} · ${set.passive[Lg2]}: ` : ""}${line}`);
             row.style.setProperty("--set", set.color);
           });
         }
@@ -571,9 +578,10 @@ export class InventoryPanel {
         open.forEach((slot) => actBtn(`${T.insert} ${bag.equippedItem(slot).name}`, `insert:${slot}`));
       }
       if (inBag && it.type !== "quest") {
-        actBtn(`${T.doSell} (${Math.max(1, Math.floor(it.price / 2))}G)`, "sell");
+        if (!p.market) p.market = new Market();
+        actBtn(`${T.doSell} (${p.market.quote(it, 1)}G)`, "sell");
         const stackQty = bag.slots[this.sel.index] ? bag.slots[this.sel.index].qty : 1;
-        if (stackQty > 1) actBtn(`${T.sellAll} ×${stackQty} (${Math.max(1, Math.floor(it.price / 2)) * stackQty}G)`, "sellall");
+        if (stackQty > 1) actBtn(`${T.sellAll} ×${stackQty} (${p.market.quote(it, stackQty)}G)`, "sellall");
         actBtn(this.confirmDrop ? T.confirm : T.doDrop, "drop");
       }
       if (this.msg) add(det, "div", "inv-msg", this.msg);

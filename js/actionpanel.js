@@ -6,7 +6,7 @@ import { iconURL } from "./items/icons.js";
 // Each button: icon + name + shortcut key.
 //   Skills  (J, K, L, Space, E): press and hold = like holding the key (hold works).
 //                             Cooldown overlay, and "SAFE" inside a sanctuary.
-//   Options (Q, I, C, M, N, Esc, H): call the handler from main.js.
+//   Options (Q, I, C, M, N, B, Esc, H): call the handler from main.js (B = Workshop, safe zones only).
 //   (Act lore is read through the lore panel's "Read more", so it has no button here.)
 // The J/K/L names follow the player's class (LORE.md, Acts III–IV).
 
@@ -23,12 +23,12 @@ const TEXT = {
   en: {
     skills: "Skills", options: "Options", attack: "Attack", skill: "Skill", belt: "Quick slots", auto: "AUTO",
     sprint: "Sprint", talk: "Talk", quests: "Quests", inventory: "Inventory", character: "Character",
-    pause: "Pause", resume: "Resume", menu: "Main Menu", map: "World Map", codex: "Codex", safe: "Safe zone", nobody: "No one nearby"
+    pause: "Pause", resume: "Resume", menu: "Main Menu", map: "World Map", codex: "Codex", workshop: "Workshop", safe: "Safe zone", nobody: "No one nearby"
   },
   fil: {
     skills: "Mga Skill", options: "Mga Opsyon", attack: "Atake", skill: "Skill", belt: "Mabilisang gamit", auto: "AUTO",
     sprint: "Takbo", talk: "Kausapin", quests: "Quest", inventory: "Imbentaryo", character: "Karakter",
-    pause: "Pause", resume: "Ituloy", menu: "Main Menu", map: "Mapa ng Mundo", codex: "Codex", safe: "Ligtas na lugar", nobody: "Walang malapit"
+    pause: "Pause", resume: "Ituloy", menu: "Main Menu", map: "Mapa ng Mundo", codex: "Codex", workshop: "Talyer", safe: "Ligtas na lugar", nobody: "Walang malapit"
   }
 };
 const tx = (k) => (TEXT[getLang()] || TEXT.en)[k];
@@ -117,6 +117,7 @@ export class ActionPanel {
       character: this.clickButton("character", "KeyC", h.character),
       map: this.clickButton("map", "KeyM", h.map),
       codex: this.clickButton("codex", "KeyN", h.codex),
+      workshop: this.clickButton("workshop", "KeyB", h.workshop),
       pause: this.clickButton("pause", "Escape", h.pause),
       menu: this.clickButton("menu", "KeyH", h.menu)
     };
@@ -126,6 +127,7 @@ export class ActionPanel {
     this.set(this.options.character, "📜", tx("character"));
     this.set(this.options.map, "🗺️", tx("map"));
     this.set(this.options.codex, "📖", tx("codex"));
+    this.set(this.options.workshop, "⚒️", tx("workshop"));
     this.set(this.options.pause, "❚❚", tx("pause"));
     this.set(this.options.menu, "🏠", tx("menu"));
     Object.values(this.options).forEach((b) => this.optionsEl.appendChild(b));
@@ -203,6 +205,7 @@ export class ActionPanel {
     this.toggle(this.buttons.E, "talk", "ready", Boolean(s.canTalk));
     this.toggle(this.buttons.Space, "sprint", "ready", Boolean(s.sprinting));
     this.toggle(this.options.map, "map", "on", Boolean(s.mapOpen));
+    this.toggle(this.options.workshop, "workshop", "on", safe);     // the Workshop opens only in a safe zone
     this.toggle(this.options.inventory, "inv", "on", Boolean(s.inventoryOpen));
     this.toggle(this.options.character, "char", "on", Boolean(s.charOpen));
     // Unspent stat/skill points
