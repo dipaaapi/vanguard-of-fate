@@ -46,15 +46,17 @@ const CORE_PRICE = [40, 100, 250, 600, 1500];
 
 export const CRAFT_ITEMS = {};
 CRAFT_TIERS.forEach((c, i) => {
+  // the Lv 75 materials also come from Elites of the tier below (NEXT_FROM_TIER) and every boss drops the next tier's
+  const also = i === 3 ? N(" Elites of Lv 33+ drop it too.", " Hulog din ng Elite na Lv 33+.") : { en: "", fil: "" };
   CRAFT_ITEMS[c.ore] = {
     type: "material", icon: "ore", tint: ORE_TINT[i], price: ORE_PRICE[i], name: ORE_NAMES[i],
-    desc: N(`Crafting ore for the Lv ${c.level} sets. Dropped by monsters of Lv ${c.minMonster}+ and found in ore veins.`,
-      `Mineral sa paggawa ng mga set na Lv ${c.level}. Hulog ng halimaw na Lv ${c.minMonster}+ at nasa mga ugat ng mineral.`)
+    desc: N(`Crafting ore for the Lv ${c.level} sets. Dropped by monsters of Lv ${c.minMonster}+ and found in ore veins.${also.en}`,
+      `Mineral sa paggawa ng mga set na Lv ${c.level}. Hulog ng halimaw na Lv ${c.minMonster}+ at nasa mga ugat ng mineral.${also.fil}`)
   };
   CRAFT_ITEMS[c.core] = {
     type: "material", icon: "core", tint: ORE_TINT[i], price: CORE_PRICE[i], name: CORE_NAMES[i],
-    desc: N(`Rare heart of a Lv ${c.minMonster}+ monster. Champions, Elites and bosses drop it far more often. Lv ${c.level} weapons, armor and helms need it.`,
-      `Bihirang puso ng halimaw na Lv ${c.minMonster}+. Mas madalas ihulog ng Champion, Elite at boss. Kailangan sa sandata, baluti at helmet na Lv ${c.level}.`)
+    desc: N(`Rare heart of a Lv ${c.minMonster}+ monster. Champions, Elites and bosses drop it far more often. Lv ${c.level} weapons, armor and helms need it.${also.en}`,
+      `Bihirang puso ng halimaw na Lv ${c.minMonster}+. Mas madalas ihulog ng Champion, Elite at boss. Kailangan sa sandata, baluti at helmet na Lv ${c.level}.${also.fil}`)
   };
 });
 CRAFT_ITEMS.furyEssence = { type: "material", icon: "essence", tint: "#ef4444", price: 12, name: N("Fury Essence", "Diwa ng Poot"),
@@ -120,9 +122,12 @@ CRAFT_TIERS.forEach((c, i) => PATH_ORDER.forEach((path) => {
 const DROPS = {
   normal:   { ore: [0.35, 1, 2], essence: 0.35, core: 0.03, food: 0.08 },
   champion: { ore: [0.7, 2, 3], essence: 0.5, core: 0.12, food: 0.15, essenceQty: 2 },
-  elite:    { ore: [1, 3, 4], essence: 1, core: 0.5, food: 0.3, essenceQty: 2 },
-  mvp:      { ore: [1, 8, 10], essence: 1, core: 1, food: 1, coreQty: 3, essenceQty: 3, nextCore: 0.35 }
+  elite:    { ore: [1, 3, 4], essence: 1, core: 0.5, food: 0.3, essenceQty: 2, nextOre: [0.2, 1, 2], nextCore: 0.06 },
+  mvp:      { ore: [1, 8, 10], essence: 1, core: 1, food: 1, coreQty: 3, essenceQty: 3, nextOre: [1, 2, 4], nextCore: 0.35 }
 };
+// next*: the next tier's materials. Elites roll them only from the Lv 50 tier up (Siege and Maw elites), so the
+// Lv 75 set can be started in Book I without a Lv 50 monster; the Lv 100 set still needs transmuting or later Books.
+const NEXT_FROM_TIER = { elite: 3, mvp: 1 };
 const MEAT_RACES = ["brute", "dragon", "fish", "demihuman"];
 const SPICE_RACES = ["plant", "insect", "formless"];
 
@@ -140,7 +145,12 @@ export function rollMaterials(info = {}, dm = 1, rnd = Math.random) {
     out.push({ id: pick, qty: D.essenceQty || 1 });
   }
   if (rnd() < D.core * dm) out.push({ id: c.core, qty: D.coreQty || 1 });
-  if (D.nextCore && c.tier < CRAFT_TIERS.length && rnd() < D.nextCore) out.push({ id: CRAFT_TIERS[c.tier].core, qty: 1 });
+  const kind = DROPS[info.tier] ? info.tier : info.boss ? "mvp" : "normal";
+  if (c.tier < CRAFT_TIERS.length && c.tier >= (NEXT_FROM_TIER[kind] || Infinity)) {
+    const n = CRAFT_TIERS[c.tier];
+    if (D.nextOre && rnd() < D.nextOre[0]) out.push({ id: n.ore, qty: between(D.nextOre[1], D.nextOre[2]) });
+    if (D.nextCore && rnd() < D.nextCore) out.push({ id: n.core, qty: 1 });
+  }
   // Cooking ingredients (js/items/cooking.js): beasts drop meat, plants and insects drop spice
   if (rnd() < D.food * dm) {
     const meat = MEAT_RACES.includes(info.race), spice = SPICE_RACES.includes(info.race);
