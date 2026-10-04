@@ -42,7 +42,7 @@ then `outline <file>` and read only the line range you need.
 - `enemy.js` (40 KB, 933) — Enemy manager: monster spawning (hub, platforms, night, ambushes, bosses), AI state machines, telegraphed attacks, tiers/elements, death and drops · HUB_KINDS, EnemyManager
 - `fx.js` (14 KB, 455) — Game feel: screen shake, hit-stop, shockwave rings, sparks, blood, damage numbers, flashes, vignette · FXManager
 - `hudbar.js` (4.5 KB, 105) — Bottom bar HUD outside the canvas: name, level, HP/EXP/gold, status icons, quest objective, field state, Quest/Pause buttons · HudBar
-- `i18n.js` (17 KB, 406) — UI strings in English and Filipino (STRINGS.en / STRINGS.fil), language stored in localStorage; t(key), getLang/setLang/toggleLang/onLangChange · getLang, setLang, toggleLang, onLangChange, t
+- `i18n.js` (17 KB, 418) — UI strings in English and Filipino (STRINGS.en / STRINGS.fil), language stored in localStorage; t(key), getLang/setLang/toggleLang/onLangChange · getLang, setLang, toggleLang, onLangChange, t
 - `inventory.js` (31 KB, 622) — Inventory panel (I): hero look, worn equipment, stats, tabbed bag, item details and actions (equip, upgrade, refine, sockets) · InventoryPanel
 - `juice.js` (4.0 KB, 99) — Shared combat animation helpers for every fighter: rest/hit/attack/windup/breath/spawn poses, swing arcs · REST, hitPose, attackPose, windupPose, breathPose, spawnPose, mix, around +1
 - `loot.js` (8.8 KB, 250) — Loot drops: gold and items from slain monsters, ground items, magnetic pickup into the bag · LootManager
@@ -62,7 +62,7 @@ then `outline <file>` and read only the line range you need.
 - `skills.js` (18 KB, 231) — Stat builder rules and skill trees per class (Ragnarok style): stat costs/caps, skill definitions and bonuses, learn rules (level, style, own summon), resonance, auto stat path (autoAllocate), en/fil text · STATS, PRIMARY, STAT_INFO, statCost, STAT_MAX, TREES, skillText, treesFor +10
 - `stage.js` (4.1 KB, 116) — Hub map of the Aethelgard plains (Acts I–VI): grassland, Barracks, Citadel, 4 Warp Gateways, safe zones; same interface as world/platform.js · Stage
 - `status.js` (3.4 KB, 68) — Abnormal statuses (Seven Anomaly Blights: bleed, silence, poison, shock, burn, freeze, blind): effects, resist chance, ticking · STATUS, STATUS_KEYS, statusName, resistChance, tickStatuses, blocksRegen
-- `title.js` (21 KB, 618) — Title screen scene: menu, options (music/sfx/blood/weather/language), Chronicles, credits, save slot info; canvas draws embers and sword glow · TitleScene
+- `title.js` (29 KB, 788) — Title screen scene: menu, options (music/sfx/blood/weather/language), Chronicles, credits, save slot info; canvas animates the painting (stars, meteors, eclipse corona, sea glints, a passing ship, pentagram circle, lantern, embers) · TitleScene
 - `ui.js` (19 KB, 449) — In-canvas UI: terrain minimap with objective/compass/place name, overhead cooldown bar, and the framed pause, Apothecary shop, Mercenary Guild and game over panels (EN/FIL via t()) · UIManager
 - `uiframe.js` (4.3 KB, 115) — Shared look for in-canvas panels: drawFrame (slate panel, gold double border, corner studs, title ribbon, open animation), drawBorder, drawBackdrop, openEase, keyChip · drawBackdrop, drawBorder, drawFrame, openEase, keyChip
 - `worldmap.js` (13 KB, 341) — World map (M): land, Barracks, Citadel, coast, gateways, player, NPCs, foes, loot and quest objective · WorldMap
@@ -114,11 +114,11 @@ then `outline <file>` and read only the line range you need.
 
 - `ambient.js` (4.7 KB, 122) — Per-platform ambience particles and sky colour (spores, storm, blizzard, ash, …) · Ambient
 - `barracks.js` (2.0 KB, 72) — Barracks Sanctuary safe zone on the hub map: drawing and bounds · BarracksSystem
-- `boat.js` (14 KB, 389) — Boat sailing in the Cerulean Abyss and the sea monolith · BoatSystem
+- `boat.js` (23 KB, 607) — Crewed sailing ship in the Cerulean Abyss (boarding, deck posts for companions, landing at any shore) and the sea monolith · BoatSystem
 - `castle.js` (7.5 KB, 253) — Imperial Citadel on the hub map: drawing and solid hitboxes · CastleSystem
 - `grassland.js` (1.6 KB, 57) — Hub grassland ground rendering (seeded grass and flora) · GrasslandSystem
 - `mining.js` (5.2 KB, 118) — Ore veins on Ashfall and Obsidian Citadel platforms: mining unlock, picks per vein, ore drops · MINE_RANGE, OreVeins
-- `platform.js` (11 KB, 259) — Platform map for one campaign Act: tilemap, ambience, gateway, safe zones; same interface as Stage · Platform
+- `platform.js` (12 KB, 261) — Platform map for one campaign Act: tilemap, ambience, gateway, safe zones; same interface as Stage · Platform
 - `platforms.js` (29 KB, 454) — Campaign platform definitions for Acts VII–XII: places, monsters, bosses, quest items, seal stones, en/fil text · SEAL_STONES, PLATFORMS, PLATFORM_ORDER, PLATFORM_SIZE
 - `portal.js` (4.3 KB, 121) — Celestial Warp Gateways: drawing and collision; calls main.js's handler to travel or report sealed · drawGateway, PortalSystem
 - `tilemap.js` (15 KB, 407) — Tile map generation and rendering from the tileset, foot hitbox collision, decorations · TileMap

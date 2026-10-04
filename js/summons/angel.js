@@ -35,6 +35,11 @@ export class GuardianAngelCompanion {
     this.moving = false;
     this.aimX = 0;
     this.aimY = 0;
+    // Ship crew: hovers over the deck (feet at the post) and can't leave the ship while the crew is aboard
+    this.flying = true;
+    this.footX = 16;
+    this.footY = 29;
+    this.aboard = false;
   }
 
   update(player, enemyManager, fx, lootManager, idx, isInBarracks) {
@@ -86,7 +91,9 @@ export class GuardianAngelCompanion {
       const tdy = enemyTarget.y - this.y;
       const dist = Math.hypot(tdx, tdy);
 
-      if (dist > 20) {
+      if (this.aboard && dist > 36) {
+        // Aboard: holds its post and strikes only what comes alongside
+      } else if (dist > 20 && !this.aboard) {
         this.x += (tdx / dist) * 1.8;
         this.y += (tdy / dist) * 1.8;
         this.state = "HOVERING";
@@ -103,9 +110,11 @@ export class GuardianAngelCompanion {
         if (fx && fx.spawnHitSparks) fx.spawnHitSparks(enemyTarget.x + 10, enemyTarget.y + 10, "#ffd166", 14);
       }
     } else {
-      // Back beside the Priest
-      this.x += (flankX - this.x) * 0.1;
-      this.y += (flankY - this.y) * 0.1;
+      // Back beside the Priest (aboard, the ship keeps it at its post)
+      if (!this.aboard) {
+        this.x += (flankX - this.x) * 0.1;
+        this.y += (flankY - this.y) * 0.1;
+      }
 
       // Random taunt check while standing still
       this.tauntCooldown--;
@@ -128,11 +137,13 @@ export class GuardianAngelCompanion {
     const ax = Math.floor(this.x);
     const ay = Math.floor(this.y);
 
-    // Holy Mist Contact Shadow
-    ctx.fillStyle = "rgba(0, 240, 255, 0.25)";
-    ctx.beginPath();
-    ctx.ellipse(ax + 16, ay + 36, 16, 5, 0, 0, Math.PI * 2);
-    ctx.fill();
+    // Holy Mist Contact Shadow (not over the ship's sails)
+    if (!this.aboard) {
+      ctx.fillStyle = "rgba(0, 240, 255, 0.25)";
+      ctx.beginPath();
+      ctx.ellipse(ax + 16, ay + 36, 16, 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
     // Floating: the feet hover above the shadow, bobbing slightly
     const hover = Math.round(Math.sin(this.animTimer / 12) * 1.5);
