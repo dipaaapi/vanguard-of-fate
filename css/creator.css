@@ -19,7 +19,7 @@ body[data-mode="create"] #creator {
   inset: 0;
   background:
     linear-gradient(to right, rgba(3, 6, 17, 0.35), rgba(3, 6, 17, 0.8) 55%, rgba(3, 6, 17, 0.95)),
-    url("../assets/bg/portal_bg.jpg") center / cover no-repeat;
+    url("../assets/bg/portal_bg.png") center / cover no-repeat;
   filter: saturate(0.85);
 }
 

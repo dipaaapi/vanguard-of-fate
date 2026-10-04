@@ -1,6 +1,6 @@
 import { Sound } from "./audio.js";
 import { t, getLang, setLang, toggleLang, onLangChange } from "./i18n.js";
-import { loadLore, parseChapters, actNumber, bannerSrc, BANNER_EXTS } from "./lore.js";
+import { loadLore, parseChapters, chapterKey, bannerSrc, BANNER_EXTS } from "./lore.js";
 
 // Title screen (full window). The logo, menu and Chronicles are HTML/CSS;
 // the canvas (#titleFx) only draws the embers and the sword's glow.
@@ -12,7 +12,7 @@ import { loadLore, parseChapters, actNumber, bannerSrc, BANNER_EXTS } from "./lo
 //   chronicles → lore, split by Act
 
 const SAVE_KEY = "vanguard_savegame";
-const BG_SRC = "assets/bg/title_bg.gif";
+const BG_SRC = "assets/bg/title_bg.png";
 const SWORD = { x: 0.5, y: 0.42 };   // position of the sword in the picture (0–1)
 const FX_PIXEL = 3;                  // size of one ember "pixel" on screen
 
@@ -461,8 +461,8 @@ export class TitleScene {
     const ch = this.chapters[this.chapter];
     this.chronBody.innerHTML = "";
     if (!ch) return;
-    // Act picture (assets/banner/act-N.*); tries other extensions, hidden when missing
-    const act = actNumber(ch.tab);
+    // Chapter picture (assets/banner/act-N.* or prophecy/ledger/heralds.*); tries other extensions, hidden when missing
+    const act = chapterKey(ch.tab);
     if (act) {
       const fig = document.createElement("figure");
       fig.className = "c-banner";

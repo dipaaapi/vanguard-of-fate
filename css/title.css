@@ -26,7 +26,7 @@ body[data-mode="title"] #title {
 .t-bg {
   position: absolute;
   inset: 0;
-  background: url("../assets/bg/title_bg.gif") center / cover no-repeat;
+  background: url("../assets/bg/title_bg.png") center / cover no-repeat;
   animation: t-pan 38s ease-in-out infinite alternate;
 }
 @keyframes t-pan {
