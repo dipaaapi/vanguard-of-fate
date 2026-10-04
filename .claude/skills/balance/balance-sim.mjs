@@ -5,11 +5,9 @@
  *   node .claude/skills/balance/balance-sim.mjs                 # summary: every class × every area
  *   node .claude/skills/balance/balance-sim.mjs --area frost    # one area, one row per monster
  *   node .claude/skills/balance/balance-sim.mjs --level +2      # heroes 2 levels above the default
- *   node .claude/skills/balance/balance-sim.mjs --gear kit      # kit weapon + starter clothes only
- *   node .claude/skills/balance/balance-sim.mjs --gear best     # best normal piece per slot at the Act's grade (the old drop gear)
- *                                                               # default: craft = the crafted set of the hero's tier and class path
- *   node .claude/skills/balance/balance-sim.mjs --economy       # + gold and crafting materials per kill, kills per crafted set, upkeep
- *   node .claude/skills/balance/balance-sim.mjs --units         # + mercenaries and the Archer's/Priest's companions against the band
+ *   node .claude/skills/balance/balance-sim.mjs --gear kit      # kit weapon + starter clothes only (default: best normal gear of the Act's grade)
+ *   node .claude/skills/balance/balance-sim.mjs --build str      # stats spent by the auto stat path (str | dex | int | class = class's main stat path)
+ *   node .claude/skills/balance/balance-sim.mjs --familiar 5     # Knight/Mage/Fighter/Novice add their familiar (skill level 5) to DPS
  *   node .claude/skills/balance/balance-sim.mjs --out reports/balance-report.md
  *
  * Nothing is copied from the game: heroes are real Player objects (js/player.js) with stats spent and gear
@@ -19,9 +17,8 @@
  * So any change to a formula, a kit, a monster or an item shows up here.
  *
  * Assumptions (state them when you quote numbers): 1 v 1, target stands still in range, every action is used
- * on cooldown, no skill-tree points, no potions, day time, normal-tier monsters (Champion ×2 HP ×1.2 dmg,
- * Elite ×3.5 HP ×1.35 dmg), the Archer's quiver reload is spread over its shots and its K is the real falcon dive; the Priest's two Guardian Angels
- * (real GuardianAngelCompanion AI) count in its DPS and its J heal in its survival (monsters hitting the angels first is not),
+ * on cooldown, no skill-tree points (except --familiar), no potions, day time, normal-tier monsters (Champion ×2 HP ×1.2 dmg,
+ * Elite ×3.5 HP ×1.35 dmg), the Archer's quiver reload and the Priest's angels/heals are not modelled,
  * area-of-effect skills are counted on one target, monster attack interval = windup (36 frames) + 1.
  */
 import path from "node:path";
@@ -37,6 +34,8 @@ const AREA = opt("--area", null);
 const LEVEL_SHIFT = parseInt(opt("--level", "0"), 10) || 0;
 const GEAR = opt("--gear", "craft");
 const OUT = opt("--out", null);
+const BUILD = opt("--build", null);
+const FAMILIAR_LV = parseInt(opt("--familiar", "0"), 10) || 0;
 const TRIALS = 12;
 const ECON = args.includes("--economy");
 const UNITS = args.includes("--units");
@@ -47,7 +46,11 @@ const { EnemyManager, HUB_KINDS } = await load("js/enemy.js");
 const { ProjectileManager } = await load("js/projectiles.js");
 const { MONSTERS, BOSSES } = await load("js/bestiary.js");
 const { PLATFORMS, PLATFORM_ORDER } = await load("js/world/platforms.js");
-const { PRIMARY } = await load("js/skills.js");
+const { PRIMARY, autoAllocate } = await load("js/skills.js");
+const { FAMILIARS, familiarDamage } = await load("js/summons/familiar.js");
+const { elementMult } = await load("js/elements.js");
+const { damageTakenMult } = await load("js/monsterTiers.js");
+const FAMILIAR_OF = { novice: "slime", knight: "hound", mage: "owl", fighter: "fox" };
 const { codexItems, describe, canEquip } = await load("js/items/itemdb.js");
 const { getNovice } = await load("js/classes/novice.js");
 const { craftSlots, pieceFor, tierForLevel, setIdFor } = await load("js/items/crafting.js");
@@ -104,8 +107,13 @@ function makeHero(cls, level, grade) {
   p.skillPoints = level - 1;
   // Spend stats: primary and VIT about 2:1 (a common build); DEX gets every fourth point for ranged classes
   const prim = PRIMARY[cls] || "str";
-  const order = [prim, prim, "vit"].concat(cls === "archer" || cls === "fighter" ? ["dex"] : []);
-  for (let i = 0, fails = 0; fails < order.length; i++) fails = p.raiseStat(order[i % order.length]) ? 0 : fails + 1;
+  if (BUILD) {
+    // Auto stat path (js/skills.js autoAllocate), as the game spends it on level-up
+    autoAllocate(p, BUILD === "class" ? prim : BUILD);
+  } else {
+    const order = [prim, prim, "vit"].concat(cls === "archer" || cls === "fighter" ? ["dex"] : []);
+    for (let i = 0, fails = 0; fails < order.length; i++) fails = p.raiseStat(order[i % order.length]) ? 0 : fails + 1;
+  }
   // Gear: class kit (weapon/offhand) at the Act's grade, then the best normal-rarity piece per slot
   p.bag.giveKit(cls, cls === "novice" ? 0 : Math.max(1, grade));
   if (GEAR === "best") {
@@ -226,10 +234,14 @@ function fight(hero, area, em, key, level, boss = false) {
   const hp = sample.maxHp;
   const fr = frames(hero);
   const dmg = { J: actionDamage(hero, "onAttack", em, spawn), K: actionDamage(hero, "onSkill", em, spawn), L: actionDamage(hero, "onSkill2", em, spawn) };
-  const priest = hero.heroData.id === "priest";
-  if (priest) dmg.K = 0;                   // the kit's K only books the angels; main.js spawns the real ones (below)
-  if (hero.heroData.id === "archer") dmg.K = falconDive(hero, em, spawn);
-  const dps = 60 * (dmg.J / fr.J + dmg.K / fr.K + dmg.L / fr.L) + (priest ? angelDps(hero, em, spawn) : 0);
+  let dps = 60 * (dmg.J / fr.J + dmg.K / fr.K + dmg.L / fr.L);
+  // Familiar (js/summons/familiar.js): its bite through EnemyManager.damage, on its own cooldown
+  const fam = FAMILIAR_LV && FAMILIAR_OF[hero.heroData.id];
+  if (fam) {
+    // EnemyManager.damage without a hero: element × tier modifiers only (no RNG, so other rows don't shift)
+    const hit = familiarDamage(fam, hero.level, FAMILIAR_LV) * elementMult(FAMILIARS[fam].elem, sample.element || "neutral") * damageTakenMult(sample);
+    dps += (60 * hit) / FAMILIARS[fam].cd;
+  }
   const taken = hitOnHero(em, sample, hero);
   const ttk = dps > 0 ? hp / dps : Infinity;
   const hitsToDie = Math.ceil(hero.maxHp / Math.max(1, taken));
@@ -249,7 +261,7 @@ const say = (s = "") => { out.push(s); };
 
 say(`# Balance report (${new Date().toISOString().slice(0, 10)})`);
 say("");
-say(`Generated by \`node .claude/skills/balance/balance-sim.mjs${args.length ? " " + args.join(" ") : ""}\`. 1 v 1, target in range, every action on cooldown, gear: ${GEAR === "best" ? "best normal piece per slot at the Act's grade" : GEAR === "craft" ? "the crafted set of the hero's tier in the class's path (kit below Lv 10)" : "class kit + starter clothes"}, no skill-tree points, day time.`);
+say(`Generated by \`node .claude/skills/balance/balance-sim.mjs${args.length ? " " + args.join(" ") : ""}\`. 1 v 1, target in range, every action on cooldown, gear: ${GEAR === "best" ? "best normal piece per slot at the Act's grade" : "class kit + starter clothes"}, stats: ${BUILD ? `auto path ${BUILD}` : "main stat + VIT 2:1"}, ${FAMILIAR_LV ? `familiar skill Lv ${FAMILIAR_LV}` : "no skill-tree points"}, day time.`);
 say("**Fights per life** = seconds the hero survives one same-band normal monster ÷ seconds to kill it. Above ~3 feels safe; below 1 the hero loses a straight 1 v 1. **Kills/Lv** = same-level normal kills for the next level.");
 say("");
 

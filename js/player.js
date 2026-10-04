@@ -1,8 +1,7 @@
 import { Sound } from "./audio.js";
 import { Bag } from "./items/bag.js";
-import { mealBonus } from "./items/cooking.js";
-import { Market } from "./items/economy.js";
-import { STATS, PRIMARY, statCost, STAT_MAX, skillBonus, canLearn, findSkill } from "./skills.js";
+import { STATS, PRIMARY, statCost, STAT_MAX, skillBonus, canLearn, findSkill, autoAllocate } from "./skills.js";
+import { SLOT_KEYS, noteStyle, slotNewActive, tickActives, styleOf } from "./skillpaths.js";
 import { STATUS_KEYS, tickStatuses, resistChance, blocksRegen } from "./status.js";
 import { around, mix, hitPose, attackPose, breathPose, drawSwing } from "./juice.js";
 
@@ -38,6 +37,15 @@ export class Player {
     this.dmgMult = 1;         // extra % damage from skills
     this.dmgReduce = 0;       // reduction of damage taken (0..0.5)
     this.regenTimer = 0;
+    // Skill paths (js/skillpaths.js): play-style affinity, active skill slots (T/Y/U) and their cooldowns
+    this.style = { str: 0, dex: 0, int: 0 };
+    this.pathSlots = SLOT_KEYS.map(() => null);
+    this.activeCd = {};
+    this.wardT = 0;           // Unbreakable / Mana Shield: frames left
+    this.wardPct = 0;         // share of damage they stop
+    this.styleCheck = 0;
+    this.styleNow = null;
+    this.autoStat = "off";    // auto stat path: off | str | dex | int | style (js/skills.js autoAllocate)
 
     this.bonusHp = 0;
     this.bonusDamage = 0;
@@ -176,6 +184,7 @@ export class Player {
     });
     this.skillPoints += Object.values(this.skillLevels).reduce((n, lv) => n + lv, 0);
     this.skillLevels = {};
+    this.pathSlots = SLOT_KEYS.map(() => null);
     this.recalc();
     this.hp = Math.min(this.hp, this.maxHp);
   }
@@ -200,6 +209,7 @@ export class Player {
     if (!s || !canLearn(this, s)) return false;
     this.skillPoints--;
     this.skillLevels[id] = (this.skillLevels[id] || 0) + 1;
+    slotNewActive(this, id);
     this.recalc();
     return true;
   }
@@ -210,7 +220,8 @@ export class Player {
     if (this.hitFlashTimer > 0) return;
     if (this.invulnTimer > 0) return;   // e.g. the Novice's Dodge Roll
 
-    const guard = (this.guardTimer > 0 ? 0.65 : 1) * (this.mercGuard || 1);   // Bastion Forcefield (−35%) · Guardian Aura (−15%)
+    const guard = (this.guardTimer > 0 ? 0.65 : 1) * (this.mercGuard || 1)   // Bastion Forcefield (−35%) · Guardian Aura (−15%)
+      * (this.wardT > 0 ? 1 - this.wardPct : 1);                             // Unbreakable / Mana Shield
     // DEF mitigates a share of each hit: DEF / (DEF + 20 + 4 × level). Flat subtraction made heavy gear
     // nearly immune and let the hero grow tankier every level; this keeps survival steady (~13–15 same-level hits).
     const mitigation = this.defense / (this.defense + 20 + 4 * this.level);
@@ -218,6 +229,7 @@ export class Player {
     this.hp -= netDmg;
     this.hitFlashTimer = 16;
     this.hurtT = 12;
+    noteStyle(this, "str", 0.3);   // standing your ground counts toward Might
     this.hurtDir = source && typeof source.x === "number" ? Math.sign(source.x - this.x) : 0;
     // A heavy blow (≥ 12% of max HP) stops the fight for a beat so you feel it
     if (fx && fx.hitStop && netDmg >= this.maxHp * 0.12) fx.hitStop(4);
@@ -232,6 +244,15 @@ export class Player {
     if (this.hp <= 0) {
       this.hp = 0;
     }
+  }
+
+  // A hit the hero landed (js/enemy.js damage): up close counts toward Might, from range toward Finesse;
+  // casters' hits are counted when they cast instead
+  noteHit(enemy, isCrit) {
+    if (this.heroData.id === "mage" || this.heroData.id === "priest") return;
+    const d = Math.hypot(enemy.x - this.x, enemy.y - this.y);
+    noteStyle(this, d < 56 ? "str" : "dex", 0.6);
+    if (isCrit) noteStyle(this, "dex", 0.3);
   }
 
   // Returns true when it takes hold (VIT/INT/LUK may resist, as in Ragnarok)
@@ -268,6 +289,7 @@ export class Player {
       if (Sound && Sound.playLevelUp) Sound.playLevelUp();
       if (this.onLevelUp) this.onLevelUp(this.level);
     }
+    if (this.autoStat && this.autoStat !== "off" && this.statPoints > 0 && autoAllocate(this)) this.recalc();
   }
 
   upgradeStat(type) {
@@ -329,6 +351,12 @@ export class Player {
     }
     if (this.portalCooldown > 0) this.portalCooldown--;
     if (this.invulnTimer > 0) this.invulnTimer--;
+    // Once a second: a new resonant path changes which passives get the bonus
+    if (++this.styleCheck >= 60) {
+      this.styleCheck = 0;
+      const style = styleOf(this);
+      if (style !== this.styleNow) { this.styleNow = style; this.recalc(); }
+    }
 
     for (const b in this.buffs) {
       if (this.buffs[b] > 0) this.buffs[b]--;
@@ -421,6 +449,7 @@ export class Player {
       if (this.heroData && this.heroData.onAttack) {
         const ok = this.heroData.onAttack(this, closestEnemy, spawnProjectile);
         if (ok !== false) {
+          if (caster) noteStyle(this, "int", 1);
           this.faceAim();
           this.state = "slash";
           this.animFrame = 0;
@@ -437,6 +466,7 @@ export class Player {
       if (this.heroData && this.heroData.onSkill) {
         const ok = this.heroData.onSkill(this, closestEnemy, spawnProjectile);
         if (ok !== false) {
+          noteStyle(this, this.rollTimer ? "dex" : "int", 1);   // the Novice's K is a dodge roll
           // Job: face the target while casting (the Novice's Dodge Roll follows the movement)
           if (this.heroData.animMap) this.faceAim();
           this.state = "bash";
@@ -456,10 +486,14 @@ export class Player {
           this.state = "slash";
           this.animFrame = 0;
           this.startAttackPose(18);
+          noteStyle(this, "int", 1);
           this.skill2CooldownTimer = Math.round((this.heroData.cooldown2 || 120) * Math.max(0.3, 1 - this.cdr - (this.sk.lcd || 0) / 100));
         }
       }
     }
+
+    // Path actives on the skill slots (T / Y / U), plus their cooldowns, ward and dash
+    tickActives(this, isPressed, { target: closestEnemy, spawn: spawnProjectile, fx, safe: isInSafeZone });
 
     this.animTimer++;
     const spriteObj = this.heroData ? this.heroData.sprites : null;

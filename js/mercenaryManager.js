@@ -153,6 +153,19 @@ export class MercenaryManager {
     }
   }
 
+  // Normal attack and special skill, each on its own cooldown
+  strike(m, foe, enemies, enemyManager, fx, spawnProj) {
+    if (m.attackCooldown <= 0) {
+      m.attackCooldown = m.data.attackCooldownMax;
+      m.attackAnim = 16;
+      m.data.onAttack(m, foe, this.scaled(m, enemyManager), fx, this.ownShots(m, spawnProj));
+    }
+    if (m.skillCooldown <= 0) {
+      m.skillCooldown = m.data.skillCooldownMax;
+      m.data.onSkill(m, enemies, this.scaled(m, enemyManager), fx, this.ownShots(m, spawnProj));
+    }
+  }
+
   // Direction and animation from the actual movement (or the target while attacking)
   animate(m, dx, dy) {
     const moved = Math.hypot(dx, dy) > 0.05;
@@ -186,6 +199,17 @@ export class MercenaryManager {
 
   // One mercenary's AI per frame (follow, pick up loot, fight)
   step(m, pX, pY, enemyManager, lootManager, fx, spawnProj, stage) {
+      // Aboard the ship: hold the deck post (the ship carries it) and fight what comes in reach
+      if (m.aboard) {
+        const enemies = enemyManager ? enemyManager.enemies.filter((e) => e.isAlive) : [];
+        const foe = enemies.find((e) => Math.hypot(e.x - m.x, e.y - m.y) <= m.data.attackRange);
+        if (foe) {
+          m.facing = foe.x >= m.x ? "right" : "left";
+          m.aimAngle = Math.atan2(foe.y - m.y, foe.x - m.x);
+          this.strike(m, foe, enemies, enemyManager, fx, spawnProj);
+        }
+        return;
+      }
       const distToPlayer = Math.hypot(pX - m.x, pY - m.y);
 
       // SPRINT CHECK: sprint to keep up when the player moves away
@@ -253,17 +277,7 @@ export class MercenaryManager {
           m.x += (dx / closestDist) * baseSpeed;
           m.y += (dy / closestDist) * baseSpeed;
         } else {
-          // Normal Attack Trigger
-          if (m.attackCooldown <= 0) {
-            m.attackCooldown = m.data.attackCooldownMax;
-            m.attackAnim = 16;
-            m.data.onAttack(m, closestEnemy, this.scaled(m, enemyManager), fx, this.ownShots(m, spawnProj));
-          }
-          // Special Skill Trigger
-          if (m.skillCooldown <= 0) {
-            m.skillCooldown = m.data.skillCooldownMax;
-            m.data.onSkill(m, enemies, this.scaled(m, enemyManager), fx, this.ownShots(m, spawnProj));
-          }
+          this.strike(m, closestEnemy, enemies, enemyManager, fx, spawnProj);
         }
       } else {
         // NATURAL FLANKING: follow and stand beside the player (24–32px allowance)

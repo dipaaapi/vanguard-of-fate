@@ -50,6 +50,9 @@ import { t, onLangChange, getLang } from "./i18n.js";
 
 import { FalconCompanion } from "./summons/falcon.js";
 import { GuardianAngelCompanion } from "./summons/angel.js";
+import { syncFamiliar } from "./summons/familiar.js";
+import { PATH_IDS, SLOT_KEYS, assignSlot } from "./skillpaths.js";
+import { AUTO_MODES } from "./skills.js";
 import "./saveSecurity.js";
 
 const canvas = document.getElementById("gameCanvas");
@@ -703,6 +706,13 @@ function syncBoss() {
   enemyManager.spawnBoss(def.boss, def.bossSpawn.x, def.bossSpawn.y, player.level);
 }
 
+// Everyone travelling with the hero, who boards the ship with them: mercenaries, summons, and any
+// pet or familiar listed in player.companions (entities with x / y; flying: true perches in the rigging)
+function crewOf() {
+  if (!player) return [];
+  return [...mercManager.mercenaries, player.falconCompanion, ...(player.angelCompanions || []), ...(player.companions || [])].filter(Boolean);
+}
+
 // Move to another place. at = { x, y } (player pixels) or nothing for the default arrival.
 function travelTo(id, at = null) {
   const from = stage.id;
@@ -710,6 +720,9 @@ function travelTo(id, at = null) {
   stage = platformById(id);
   syncPlatformFlags();
   const spot = at || (stage === hub ? hub.arrivalFrom(from) : stage.arrival());
+  // Arriving on foot: the ship stays behind in the Cerulean Abyss
+  player.inBoat = false;
+  crewOf().forEach((c) => { c.aboard = false; });
   player.x = spot.x;
   player.y = spot.y;
   player.portalCooldown = 75;
@@ -728,6 +741,7 @@ function travelTo(id, at = null) {
   // Mercenaries and summons follow
   mercManager.mercenaries.forEach((m, k) => { m.x = player.x - 16 + k * 10; m.y = player.y + 14; });
   if (player.falconCompanion) { player.falconCompanion.x = player.x - 22; player.falconCompanion.y = player.y - 18; }
+  if (player.familiar) player.familiar.place(player);
   (player.angelCompanions || []).forEach((a, k) => { a.x = player.x + (k ? 30 : -30); a.y = player.y - 16; });
 
   if (fx.spawnHitSparks) fx.spawnHitSparks(player.x + 10, player.y + 10, def ? def.color : "#ffd166", 22);
@@ -895,6 +909,9 @@ function getSavePayload() {
     stats: { ...player.stats },             // STR/AGI/VIT/INT/DEX/LUK
     skills: { ...player.skillLevels },
     skillPoints: player.skillPoints,
+    pathSlots: [...(player.pathSlots || [])],   // path actives on T / Y / U
+    style: { ...player.style },                    // play-style affinity (js/skillpaths.js)
+    autoStat: player.autoStat || "off",
     belt: [...player.belt],
     autoPot: { ...player.autoPot },
     life: Workshop.serialize(player),       // craft target, active meal, market saturation
@@ -904,6 +921,13 @@ function getSavePayload() {
     x: player.x,
     y: player.y
   };
+}
+
+// Skill paths from a save: slots only take learned actives, style values must be finite numbers
+function loadPaths(p, data) {
+  if (data.style) PATH_IDS.forEach((k) => { const v = Number(data.style[k]); p.style[k] = Number.isFinite(v) && v > 0 ? Math.min(v, 1e4) : 0; });
+  if (Array.isArray(data.pathSlots)) SLOT_KEYS.forEach((_, i) => assignSlot(p, i, typeof data.pathSlots[i] === "string" ? data.pathSlots[i] : null));
+  p.autoStat = AUTO_MODES.includes(data.autoStat) ? data.autoStat : "off";
 }
 
 function saveGame() {
@@ -1018,6 +1042,7 @@ function loadGame() {
       Object.keys(player.stats).forEach((k) => { player.stats[k] = Math.max(1, Math.min(99, data.stats[k] | 0 || 1)); });
       player.skillLevels = { ...(data.skills || {}) };
       player.skillPoints = data.skillPoints || 0;
+      loadPaths(player, data);
     } else {
       player.statPoints = (data.statPoints || 0) + 10 + (player.level - 1) * 3;
       player.skillPoints = player.level - 1;
@@ -1117,7 +1142,7 @@ function awaken(chosenHero) {
   const p = new Player(old.x, old.y, equipJob(chosenHero, old.avatarConfig));
   ["level", "exp", "expNext", "gold", "statPoints", "bonusHp", "bonusDamage",
     "bonusDefense", "bonusSpeed", "bonusCrit", "bonusCooldown", "heroName", "avatarConfig",
-    "stats", "skillLevels", "skillPoints", "belt", "autoPot"].forEach((k) => { p[k] = old[k]; });
+    "stats", "skillLevels", "skillPoints", "belt", "autoPot", "style", "pathSlots", "autoStat"].forEach((k) => { p[k] = old[k]; });
   // Keeps the bag; the summoner hands over the class's custom-forged weapon (LORE Act IV)
   p.bag = old.bag;
   p.bag.giveKit(chosenHero.id, 1);
@@ -1317,12 +1342,8 @@ window.addEventListener("keydown", (e) => {
         showShopModal = false;
       } else if (showMercModal) {
         showMercModal = false;
-      } else if (stage.boatSystem && (
-        (player.inBoat && Math.hypot(player.x + 10 - stage.boatSystem.pier.x, player.y + 18 - stage.boatSystem.pier.y) < 55) ||
-        (!player.inBoat && Math.hypot(player.x + 10 - stage.boatSystem.pier.x, player.y + 18 - stage.boatSystem.pier.y) < 45) ||
-        (!player.inBoat && Math.hypot(player.x - stage.boatSystem.dockedBoat.x, player.y - stage.boatSystem.dockedBoat.y) < 45)
-      )) {
-        stage.boatSystem.toggleBoard(player, fx);
+      } else if (stage.boatSystem && stage.boatSystem.canToggle(player)) {
+        stage.boatSystem.toggleBoard(player, fx, crewOf());
       } else if (stage.boatSystem && Math.hypot(player.x - stage.boatSystem.monolith.x, player.y - stage.boatSystem.monolith.y) < 65) {
         stage.boatSystem.activateMonolith(player, fx, () => {
           quest.monolith = true;
@@ -1404,7 +1425,10 @@ window.addEventListener("keydown", (e) => {
       }
     }
 
-    if (e.code === "KeyK" && player.heroData.id === "archer" && player.falconCompanion && player.skillCooldownTimer <= 0 && !stage.isInsideSafeZone(player.x, player.y)) {
+    if (e.code === "KeyK" && player.heroData.id === "archer" && player.falconCompanion && player.falconCompanion.aboard) {
+      // Flyers can't leave the ship while the crew is aboard
+      if (fx.spawnDamagePopup) fx.spawnDamagePopup(player.x + 10, player.y - 14, t("falconAboard"), false, "#38bdf8");
+    } else if (e.code === "KeyK" && player.heroData.id === "archer" && player.falconCompanion && player.skillCooldownTimer <= 0 && !stage.isInsideSafeZone(player.x, player.y)) {
       // Falcon reach: 240px
       const closestEnemy = enemyManager.enemies
         .filter((en) => en.isAlive && Math.hypot(en.x - player.x, en.y - player.y) <= 240)
@@ -1511,6 +1535,9 @@ function updateGame() {
     player.falconCompanion.update(player, enemyManager, fx, lootManager);
   }
 
+  const familiar = syncFamiliar(player);   // pet / familiar from the skill tree
+  if (familiar) familiar.update(player, enemyManager, fx, lootManager, isInBarracks);
+
   if (player.angelCompanions && player.angelCompanions.length > 0) {
     player.angelCompanions.forEach((angel, idx) => {
       angel.update(player, enemyManager, fx, lootManager, idx, isInBarracks);
@@ -1535,6 +1562,8 @@ function updateGame() {
   npcManager.update(player, enemyManager, fx);
 
   mercManager.update(player, enemyManager, lootManager, fx, (proj) => projectileManager.add(proj), stage);
+  // At sea the crew keep their posts on the ship
+  if (stage.boatSystem) stage.boatSystem.carry(player, crewOf());
   projectileManager.update(enemyManager.enemies, enemyManager, fx, lootManager, player);
   lootManager.update(player, fx);
   workshop.update(player, stage.isInsideSafeZone(player.x + 10, player.y + 17));
@@ -1672,6 +1701,7 @@ function renderGameWorld() {
     if (player.falconCompanion) {
       player.falconCompanion.draw(ctx, player.facing === "right");
     }
+    if (player.familiar) player.familiar.draw(ctx);
 
     if (player.angelCompanions) {
       player.angelCompanions.forEach((angel) => {
