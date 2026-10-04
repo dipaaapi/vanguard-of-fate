@@ -251,7 +251,9 @@ export class Platform {
     drawGateway(ctx, this.gate, this.tick * 0.08, false, L === "fil" ? "PABALIK SA AETHELGARD" : "RETURN TO AETHELGARD");
   }
 
-  drawOverlay(ctx) {
+  drawOverlay(ctx, player = null) {
+    // The ship's near side goes over the crew standing on its deck
+    if (this.boatSystem) this.boatSystem.drawFront(ctx, player);
     this.tilemap.drawOverlay(ctx);
     this.ambient.draw(ctx);
   }

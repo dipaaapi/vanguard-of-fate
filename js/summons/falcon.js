@@ -21,6 +21,11 @@ export class FalconCompanion {
     this.targetY = 0;
     this.speed = 6.8;
     this.damageDealt = false;
+    // Ship crew: perches in the crow's nest (its body centre at the perch point) and can't leave it
+    this.flying = true;
+    this.footX = 16;
+    this.footY = 18;
+    this.aboard = false;
   }
 
   triggerStrike(target, targetX, targetY) {
@@ -45,6 +50,11 @@ export class FalconCompanion {
   step(player, enemyManager, fx, lootManager) {
     this.wingTimer++;
     this.stateTimer++;
+    // Aboard the ship: no dives until the crew goes ashore
+    if (this.aboard) {
+      if (this.state !== "TAUNTING") this.state = "HOVERING";
+      this.trail = [];
+    }
 
     // 1. ATTACKING / DIVE STANCE
     if (this.state === "ATTACKING") {
@@ -118,11 +128,13 @@ export class FalconCompanion {
     const cx = Math.floor(this.x) + 16;
     const cy = Math.floor(this.y) + 14;
 
-    // Shadow on the ground
-    ctx.fillStyle = "rgba(0, 0, 0, 0.32)";
-    ctx.beginPath();
-    ctx.ellipse(cx, Math.floor(this.y) + 36, 10, 3.5, 0, 0, Math.PI * 2);
-    ctx.fill();
+    // Shadow on the ground (none while perched on the ship's rigging)
+    if (!this.aboard) {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.32)";
+      ctx.beginPath();
+      ctx.ellipse(cx, Math.floor(this.y) + 36, 10, 3.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
     // Face the direction of flight; when hovering, the player's direction
     const flying = Math.abs(this.vx) > 0.35;
