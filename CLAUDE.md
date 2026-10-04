@@ -8,6 +8,7 @@
 - After any code change, run `node .claude/skills/codemap/codemap.mjs verify` (syntax + every import resolves). There is no bundler, so this is the cheapest way to catch the error that would otherwise only show up as a blank page.
 - At the start of a session, briefly explain what's in the project and propose what to do next.
 - Story, dialogue and EN/FIL text: use `/lore` (canon sheet + `lore-tool.mjs`) instead of reading LORE.md or the dialogue tables whole.
+- Measure, don't estimate: balance or fairness questions go through `/balance` (headless sim on the real code), new or renamed game data through `/content` (recipes + cross-check), looks through `/sprite-preview` (PNG of the real sprite), and flow/UI checks through `/playtest` (headless browser). Each tool takes seconds and replaces reading many files or asking the user to test.
 - Repetitive, reusable text (NPC chatter, message wording, EN/FIL pairs, lookup tables) goes in a `.json` file under `data/` or an existing table module and is referenced by key, not hardcoded inline. Example: `data/npc_conversations.json`.
 
 ## Project overview
@@ -19,10 +20,15 @@ No backend and no build step: the game is static files. State persists in `local
 ## Commands
 
 - `npx -y http-server -p 5173 -c-1` — serve the game at <http://localhost:5173> (same as `.claude/launch.json`). ES modules and `fetch` don't work from `file://`.
-- `node .claude/skills/codemap/codemap.mjs verify` — syntax-check every module and every relative import/export (main validation).
+- `node .claude/skills/codemap/codemap.mjs verify && node .claude/skills/content/content-check.mjs` — syntax, imports and data cross-references (main validation, ~1 s).
 - `/codemap` — project map: `CODEMAP.md` plus `codemap.mjs outline|where|changed|verify|check|build`.
 - `/lore` — story/lore/flavour text: canon sheet in `.claude/skills/lore/SKILL.md` plus `lore-tool.mjs sections|section|entity|find|check` (check verifies EN/FIL pairs).
+- `/balance` — `node .claude/skills/balance/balance-sim.mjs [--area <id>] [--level ±n] [--gear kit]`: class × Act DPS, survivability, fights per life, boss fights, EXP pace, class spread.
+- `/content` — `node .claude/skills/content/content-check.mjs`: cross-checks monsters, bosses, platforms, items, NPCs, chatter and quest text; SKILL.md has the add-a-monster/item/NPC/platform recipes.
+- `/sprite-preview` — `node .claude/skills/sprite-preview/sprite-tool.mjs render <class:|npc:|merc:|monster:|boss:|icon:><key> [--before HEAD]`: PNG sheet of the real sprite.
+- `/playtest` — `node .claude/skills/playtest/playtest.mjs [--flow newgame] [--keys …]`: headless Chromium run with console errors and screenshots.
 - `/security-audit` — audit save import, localStorage loading, innerHTML use, page config and the dev server.
+- `scripts/headless.mjs` — lets any Node script `load("js/<module>.js")` with browser stubs; build new tools and tests on it instead of copying formulas.
 
 ## Architecture
 

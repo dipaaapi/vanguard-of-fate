@@ -80,5 +80,6 @@
   "js/world/castle.js": "Imperial Citadel on the hub map: drawing and solid hitboxes",
   "js/world/barracks.js": "Barracks Sanctuary safe zone on the hub map: drawing and bounds",
   "js/world/grassland.js": "Hub grassland ground rendering (seeded grass and flora)",
-  "js/world/mining.js": "Ore veins on Ashfall and Obsidian Citadel platforms: mining unlock, picks per vein, ore drops"
+  "js/world/mining.js": "Ore veins on Ashfall and Obsidian Citadel platforms: mining unlock, picks per vein, ore drops",
+  "scripts/headless.mjs": "Headless loader: stubs document/window/localStorage/canvas so Node can import the game's modules (used by the balance, content and sprite tools); seedRandom for repeatable runs"
 }

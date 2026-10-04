@@ -200,7 +200,10 @@ function cmdVerify() {
   }
   const importRe = /import\s+([\s\S]*?)\s+from\s+["'](\.{1,2}\/[^"']+)["']|import\s+["'](\.{1,2}\/[^"']+)["']/g;
   for (const f of files) {
-    const text = read(path.join(ROOT, f));
+    // Blank out comments (keeping line numbers) so example imports in them are not checked
+    const text = read(path.join(ROOT, f))
+      .replace(/\/\*[\s\S]*?\*\//g, (c) => c.replace(/[^\n]/g, ' '))
+      .replace(/^\s*\/\/.*$/gm, '');
     for (const m of text.matchAll(importRe)) {
       const spec = m[2] || m[3];
       const target = path.posix.normalize(path.posix.join(path.posix.dirname(f), spec));
