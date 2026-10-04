@@ -1,6 +1,7 @@
 // ==================== CELESTIAL WARP GATEWAYS (LORE Act I) ====================
 // Four ancient gateways on the plains of Aethelgard. Each leads to a campaign
-// platform (Acts VII–X); sealed until the story reaches it.
+// platform (Acts VII–X); sealed until the story reaches it. A fifth, the Wayfarer's Gate,
+// leads to the Greyhorn Badlands frontier (Acts IV–VI).
 // The system itself no longer teleports: it only calls the handler, and main.js
 // decides (change platform or show that it is sealed).
 
@@ -76,7 +77,9 @@ export class PortalSystem {
       { id: "NORTH", dest: "frost", dir: "horizontal", x: Math.round(this.worldWidth / 2), y: 46, w: 58, h: 22, color: "#bfe9ff" },
       { id: "SOUTH", dest: "ash", dir: "horizontal", x: Math.round(this.worldWidth / 2), y: this.worldHeight - 46, w: 58, h: 22, color: "#ff7a1a" },
       { id: "WEST", dest: "coast", dir: "vertical", x: 48, y: Math.round(this.worldHeight / 2), w: 22, h: 58, color: "#38bdf8" },
-      { id: "EAST", dest: "canopy", dir: "vertical", x: this.worldWidth - 48, y: Math.round(this.worldHeight / 2), w: 22, h: 58, color: "#c77dff" }
+      { id: "EAST", dest: "canopy", dir: "vertical", x: this.worldWidth - 48, y: Math.round(this.worldHeight / 2), w: 22, h: 58, color: "#c77dff" },
+      // The Wayfarer's Gate (south-west): the Greyhorn Badlands frontier, open from Act IV (js/world/frontiers.js)
+      { id: "BADLANDS", dest: "rocky", dir: "horizontal", x: 220, y: this.worldHeight - 46, w: 58, h: 22, color: "#d6a35c" }
     ];
     // Set by main.js every frame: (portal) => { sealed, label }
     this.stateOf = () => ({ sealed: false, label: "" });
@@ -86,7 +89,7 @@ export class PortalSystem {
   exitPoint(id) {
     const p = this.portals.find((q) => q.id === id);
     if (!p) return { x: this.worldWidth / 2, y: this.worldHeight / 2 };
-    const inward = { NORTH: [0, 44], SOUTH: [0, -56], WEST: [44, -10], EAST: [-60, -10] }[p.id];
+    const inward = { NORTH: [0, 44], SOUTH: [0, -56], WEST: [44, -10], EAST: [-60, -10], BADLANDS: [0, -56] }[p.id];
     return { x: p.x + inward[0] - 10, y: p.y + inward[1] - 12 };
   }
 

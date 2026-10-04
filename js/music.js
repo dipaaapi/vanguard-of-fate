@@ -300,7 +300,8 @@ export const TRACKS = {
 };
 
 // Which track plays where: platform id → track (the boss track overrides while a boss is engaged)
-export const AREA_TRACK = { hub: "hub", canopy: "canopy", coast: "coast", frost: "frost", ash: "ash", siege: "siege", darkShore: "siege", maw: "maw" };
+export const AREA_TRACK = { hub: "hub", canopy: "canopy", coast: "coast", frost: "frost", ash: "ash", siege: "siege", darkShore: "siege", maw: "maw",
+  rocky: "hub", swamp: "canopy", mountain: "frost", desert: "ash" };   // frontier maps borrow the nearest Act's theme
 
 // Short one-shot phrases (played on the SFX bus): [step (16ths), note, length, velocity]
 export const JINGLES = {

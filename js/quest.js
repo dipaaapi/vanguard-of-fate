@@ -2,6 +2,8 @@ import { getLang } from "./i18n.js";
 import { PLATFORMS, PLATFORM_ORDER, SEAL_STONES } from "./world/platforms.js";
 import { BOSSES } from "./bestiary.js";
 import { getItem } from "./items/itemdb.js";
+import { FRONTIERS } from "./world/frontiers.js";
+import { SideQuests } from "./sidequest.js";
 
 // ==================== MAIN QUEST: ACTS II–VI (following LORE.md) ====================
 // Each step has: an act (chapter number in LORE.md), a place, and the characters involved.
@@ -20,7 +22,12 @@ import { getItem } from "./items/itemdb.js";
 //  +0   enter the platform (Act XI: through the Celestial Monolith)
 //  +1   defeat the boss and pick up its quest item
 //  +2   bring the quest item to the summoner at the platform's camp
-// 25    XII✔  the Sovereign Dawn (story complete)
+// 25    XII✔  the Sovereign Dawn (story complete: the end of Book I; Book II is coming soon)
+//
+// BOOK I · SIDE QUESTS (js/sidequest.js): each Act II–XII rolls 5 to 10 side quests when it begins. The Act's
+// main quest waits at its gate step (GATE_STEPS) until all of them are done: Act II meeting Ronald and Edgar,
+// Act III the five souls, Act IV the Awakening, Act V the mentor, Act VI the summoner, and in Acts VII–XII
+// the boss (it only appears once the side quests are finished).
 
 const AWAKEN_LEVEL = 10;
 const CAMPAIGN_START = 7;
@@ -50,8 +57,8 @@ function campaignText(L) {
       (q) => (L === "fil" ? `Dalhin ang ${getItem(p.item).name} kay ${q.summonerName} sa kampo` : `Bring the ${getItem(p.item).name} to ${q.summonerName} at the camp`)
     );
   });
-  act.push(L === "fil" ? "Tapos ang Act XII · Ang Sovereign Dawn" : "Act XII complete · The Sovereign Dawn");
-  goal.push(() => (L === "fil" ? "Malaya na ang Aethelgard. Salamat, Kampeon." : "Aethelgard is free. Thank you, Champion."));
+  act.push(L === "fil" ? "Tapos ang Aklat I · Ang Sovereign Dawn" : "Book I complete · The Sovereign Dawn");
+  goal.push(() => (L === "fil" ? "Malaya na ang Aethelgard. Salamat, Kampeon. Malapit na ang Aklat II." : "Aethelgard is free. Thank you, Champion. Book II is coming soon."));
   return { act, goal };
 }
 
@@ -68,6 +75,16 @@ function monolithGoal(L, q, name) {
 
 const SOULS = ["arthur", "lyra", "julian", "sam", "renzo"];
 export const MENTOR_BY_CLASS = { knight: "arthur", archer: "lyra", priest: "julian", mage: "sam", fighter: "renzo" };
+
+// The step of each Act where the main quest waits for the side quests
+const GATE_STEPS = new Set([1, 2, 4, 5, 6, ...PLATFORM_ORDER.map((id, k) => CAMPAIGN_START + k * 3 + 1)]);
+
+// Book I is Acts I–XII; Book II is announced as coming soon
+const BOOK = {
+  en: { one: "Book I · The Fated Vanguard", two: "Book II · Coming soon", acts: "Acts I–XII" },
+  fil: { one: "Aklat I · Ang Fated Vanguard", two: "Aklat II · Malapit na", acts: "Act I–XII" }
+};
+export const bookText = (key) => (BOOK[getLang()] || BOOK.en)[key];
 
 // Which LORE.md chapter the current step belongs to (for the lore panel and banner on the right)
 const STEP_ACT = [2, 2, 3, 4, 4, 5, 6, ...PLATFORM_ORDER.flatMap((id) => [PLATFORMS[id].act, PLATFORMS[id].act, PLATFORMS[id].act]), 12];
@@ -155,6 +172,7 @@ function emptyMet() {
 export class QuestManager {
   constructor() {
     this.onChange = null;   // called when the step changes (for the HUD toast and the lore panel)
+    this.side = new SideQuests();
     this.reset();
   }
 
@@ -164,6 +182,8 @@ export class QuestManager {
     this.monolith = false;   // Celestial Monolith awakened (all four Seal Stones placed)
     this.mining = 0;         // Thane Durgrim's charge: 0 not offered · 1 hunting · 2 mining unlocked
     this.miningKills = 0;    // Ashfall beasts slain for the charge
+    this.side.reset();
+    this.side.ensure(this.act());
   }
 
   // From a save. Also repairs old (v1) saves and saves without a quest.
@@ -186,10 +206,11 @@ export class QuestManager {
     if (!isNovice && this.step < 5) this.step = 5;
     if (this.step >= 2) { this.met.ronald = true; this.met.edgar = true; }
     if (this.step >= 3) SOULS.forEach((id) => { this.met[id] = true; });
+    this.side.load(data && data.side, this.act());
   }
 
   serialize() {
-    return { v: QUEST_VERSION, step: this.step, met: { ...this.met }, monolith: this.monolith, mining: this.mining, miningKills: this.miningKills };
+    return { v: QUEST_VERSION, step: this.step, met: { ...this.met }, monolith: this.monolith, mining: this.mining, miningKills: this.miningKills, side: this.side.serialize() };
   }
 
   // LORE.md Act number for the current step
@@ -201,10 +222,20 @@ export class QuestManager {
     return SOULS.filter((id) => this.met[id]).length;
   }
 
+  // The main quest waits here until the Act's side quests are done
+  gated() {
+    return GATE_STEPS.has(this.step) && !this.side.complete();
+  }
+
+  gateOpen() {
+    return !this.gated();
+  }
+
   advance(to) {
     const next = to ?? this.step + 1;
-    if (next <= this.step) return;
+    if (next <= this.step || this.gated()) return;
     this.step = Math.min(FINAL_STEP, next);
+    this.side.ensure(this.act());
     if (this.onChange) this.onChange(this.step);
   }
 
@@ -224,6 +255,13 @@ export class QuestManager {
   // Called every frame
   update(player) {
     if (this.step === 3 && player.level >= AWAKEN_LEVEL) this.advance(4);
+    // Talks that happened while the side quests were still open count once they are done
+    if (this.gated()) return;
+    if (this.step === 1 && this.met.ronald && this.met.edgar) this.advance(2);
+    if (this.step === 2 && this.soulsMet() === SOULS.length) this.advance(3);
+    // The platform's quest item was already picked up (e.g. an older save) once the side quests are done
+    const p = this.currentPlatform();
+    if (p && this.step === this.baseStep(p) + 1 && player.bag && player.bag.has(PLATFORMS[p].item)) this.advance();
   }
 
   // ---------- CAMPAIGN (Acts VII–XII) ----------
@@ -239,6 +277,9 @@ export class QuestManager {
   }
 
   unlocked(platformId) {
+    // Frontier maps open with their Act (and stay open)
+    const f = FRONTIERS[platformId];
+    if (f) return this.step >= FINAL_STEP || this.act() >= f.unlockAct;
     return PLATFORM_ORDER.includes(platformId) && this.step >= this.baseStep(platformId);
   }
 
@@ -247,8 +288,9 @@ export class QuestManager {
     return this.step >= this.baseStep(platformId) + 2;
   }
 
+  // The boss appears once the platform's side quests are done
   wantsBoss(platformId) {
-    return this.step === this.baseStep(platformId) + 1;
+    return this.step === this.baseStep(platformId) + 1 && this.side.complete();
   }
 
   canDeliver(platformId) {
@@ -275,6 +317,7 @@ export class QuestManager {
 
   // Which NPC is the objective now (for the "!" marker and the on-screen arrow)
   targetNpc(summonerId, cls) {
+    if (this.gated()) return null;
     if (this.step === 0 || this.step === 4 || this.step === 6) return summonerId;
     if (this.step === 1) return !this.met.ronald ? "ronald" : !this.met.edgar ? "edgar" : null;
     if (this.step === 2) return SOULS.find((id) => !this.met[id]) || null;
@@ -302,7 +345,7 @@ export class QuestManager {
   text(player, summonerName, mentorName) {
     const S = stepsText();
     const q = this.ctx(player, summonerName, mentorName);
-    return { act: S.act[this.step], goal: S.goal[this.step](q) };
+    return { act: S.act[this.step], goal: this.gated() ? this.side.hudLine() : S.goal[this.step](q) };
   }
 
   // Every step for the Quest Log

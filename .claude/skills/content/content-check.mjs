@@ -20,7 +20,9 @@ const LIST = process.argv.includes("--list");
 const STRICT = process.argv.includes("--strict");
 
 const { MONSTERS, BOSSES, NIGHT_KINDS, BLIGHTS } = await load("js/bestiary.js");
-const { HUB_KINDS } = await load("js/enemy.js");
+const { HUB_KINDS, HUB_ELITES } = await load("js/enemy.js");
+const { FRONTIERS, FRONTIER_ORDER } = await load("js/world/frontiers.js");
+const { HUB_AREA } = await load("js/world/areas.js");
 const { PLATFORMS, PLATFORM_ORDER, SEAL_STONES } = await load("js/world/platforms.js");
 const { describe, codexItems, CLASS_KIT, SETS } = await load("js/items/itemdb.js");
 const { ELEMENTS } = await load("js/elements.js");
@@ -58,13 +60,33 @@ for (const [table, defs] of [["MONSTERS", MONSTERS], ["BOSSES", BOSSES]]) {
     for (const s of (m.attacks && m.attacks.summon) || []) if (!MONSTERS[s]) bad(`${table}.${k}: summons unknown monster "${s}"`);
   }
 }
-for (const [name, list] of [["HUB_KINDS", HUB_KINDS], ["NIGHT_KINDS", NIGHT_KINDS]]) {
+for (const [name, list] of [["HUB_KINDS", HUB_KINDS], ["HUB_ELITES", HUB_ELITES], ["NIGHT_KINDS", NIGHT_KINDS]]) {
   for (const k of list) if (!MONSTERS[k]) bad(`${name}: unknown monster "${k}"`);
 }
 for (const b of BLIGHTS) if (!STATUS[b]) bad(`BLIGHTS: "${b}" has no STATUS entry`);
 
 // ── Platforms (Acts VII–XII) ─────────────────────────────────────────────────
-const used = new Set([...HUB_KINDS, ...NIGHT_KINDS]);
+const used = new Set([...HUB_KINDS, ...HUB_ELITES, ...NIGHT_KINDS]);
+// Every Book I map lists 5 regular kinds and 4 elite kinds (elite: true in MONSTERS) and named sites for scouting quests
+function checkKinds(where, a) {
+  const regs = a.monsters || [], elites = a.elites || [];
+  if (regs.length !== 5) bad(`${where}: ${regs.length} regular kinds (expected 5)`);
+  if (elites.length !== 4) bad(`${where}: ${elites.length} elite kinds (expected 4)`);
+  for (const k of regs) if (MONSTERS[k] && MONSTERS[k].elite) bad(`${where}: "${k}" is an elite kind in the regular list`);
+  for (const k of elites) { used.add(k); if (!MONSTERS[k]) bad(`${where}: unknown elite "${k}"`); else if (!MONSTERS[k].elite) bad(`${where}: elite "${k}" lacks elite: true`); }
+  for (const s of a.sites || []) if (!hasText(s.name) || !Number.isFinite(s.x) || !Number.isFinite(s.y)) bad(`${where}: site needs x, y and an en/fil name`);
+  if (!(a.sites || []).length) bad(`${where}: no sites`);
+}
+checkKinds("hub", HUB_AREA);
+for (const id of FRONTIER_ORDER) {
+  const f = FRONTIERS[id];
+  count("frontiers");
+  if (!f) { bad(`FRONTIER_ORDER: unknown frontier "${id}"`); continue; }
+  if (!hasText(f.name) || !hasText(f.arenaName)) bad(`frontier ${id}: name and arenaName need en and fil`);
+  if (!f.text || !f.text.en || !f.text.fil || !f.text.en.arrive || !f.text.fil.arrive) bad(`frontier ${id}: text.en/fil.arrive missing`);
+  for (const k of f.monsters || []) { used.add(k); if (!MONSTERS[k]) bad(`frontier ${id}: unknown monster "${k}"`); }
+  checkKinds(`frontier ${id}`, f);
+}
 for (const id of PLATFORM_ORDER) {
   const p = PLATFORMS[id];
   count("platforms");
@@ -75,6 +97,7 @@ for (const id of PLATFORM_ORDER) {
   if (!item(p.item)) bad(`platform ${id}: quest item "${p.item}" is not an item`);
   if (p.seal && !item(p.seal)) bad(`platform ${id}: seal "${p.seal}" is not an item`);
   for (const k of p.monsters || []) { used.add(k); if (!MONSTERS[k]) bad(`platform ${id}: unknown monster "${k}"`); }
+  checkKinds(`platform ${id}`, p);
   if (p.text) for (const L of ["en", "fil"]) if (!p.text[L]) bad(`platform ${id}: text.${L} missing`);
   if (p.text && p.text.en && p.text.fil) {
     for (const key of Object.keys(p.text.en)) {
@@ -87,7 +110,7 @@ for (const id of PLATFORM_ORDER) {
 for (const s of SEAL_STONES) if (!item(s)) bad(`SEAL_STONES: "${s}" is not an item`);
 for (const k of Object.keys(MONSTERS)) {
   const summoned = Object.values(BOSSES).some((b) => ((b.attacks && b.attacks.summon) || []).includes(k));
-  if (!used.has(k) && !summoned) note(`MONSTERS.${k}: never spawns (not in HUB_KINDS, NIGHT_KINDS, a platform's monsters or a boss summon)`);
+  if (!used.has(k) && !summoned) note(`MONSTERS.${k}: never spawns (not in HUB_KINDS/HUB_ELITES, NIGHT_KINDS, a map's monsters/elites or a boss summon)`);
 }
 
 // ── Items ────────────────────────────────────────────────────────────────────

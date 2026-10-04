@@ -62,6 +62,8 @@ With the completion of the Awakening, the hero transitions into one of five lege
 
 This momentous progression also unseals the Dual Equipment Matrix, a strategic armory system that governs offensive and defensive balance. While the Novice remains strictly restricted to simple daggers and bucklers, advanced classes choose between specialized Two-Handed (2H) armaments or versatile One-Handed and Offhand (1H + OH) configurations. Equipping a massive two-handed weapon grants unmatched crowd-clearing force or long-range spell potency at the cost of occupying both arm slots, while one-handed weapons allow the pairing of heavy tower shields, grimoires, trapper tools, or arcane foci to counter specific demonic threats.
 
+Even before the Awakening, the war camps of the plains begin posting bounties of their own. Past the southern road the grass thins into the Greyhorn Badlands, a land of red mesas and fossil gullies where brigands have fortified the Shattered Quarry and the dead of an old mining company still walk. The Imperial quartermasters treat every Act of the campaign the same way: the main road waits until the side work is done, five to ten tasks of hunting, scouting and trophy gathering that keep the villages fed and the Vanguard seasoned. Only once the board is cleared does the Princess (or Prince) call the hero onward.
+
 ---
 
 ## 🛡️ Act V: The Dual Equipment Matrix & Strategic Warfare
@@ -98,6 +100,8 @@ Deep within the heartwood grove, the vanguard confronted the corruptor of the ca
 
 As the purified woodland breathed anew, the elven matriarchs formally consecrated their allegiance to the Fated Vanguard, opening hidden supply trails and ancient elven armories to the war effort. That evening, amidst bioluminescent canopies that had not shone in decades, the protagonist and their royal companion shared a rare respite from the battlefield. In that quiet starlit glade, the summoner placed a gentle hand over the hero’s worn gauntlet, openly confessing that their survival had become far more vital to the kingdom—and to the royal heir's own heart—than the crown itself.
 
+East of the canopy the roots sink into black water. The Gloomwater Fens were once the elves' rice terraces; now witchlights drift over rotting boardwalks, and a mire hydra coils around the Drowned Shrine at the marsh's heart. The matriarchs would not open their armories until the Vanguard had cleared the fen trails, so the bounties of Act VII and Act VIII lead the hero through its reeds as often as through the forest.
+
 ---
 
 ## 🌊 Act VIII: The Cerulean Abyss & The Sunken Monoliths
@@ -122,6 +126,8 @@ At the summit fortress of Glacial Crest, the champion faced the Frost Empress Cr
 
 Seeking refuge within an abandoned dwarven stone shelter as snowdrifts piled outside, the protagonist tended to the summoner’s frostbitten hands beside a roaring hearth. In the intimate warmth of the stone hall, away from the watchful eyes of generals and nobility, the summoner discarded all royal pretense, resting their head against the hero's chest. They spoke softly of their earthly world, laughing bittersweetly at tales of modern cities, motor vehicles, and towering skyscrapers, finding solace in the realization that in each other's arms, both had found an unbreakable home amidst the apocalypse.
 
+Beyond the glacier's eastern shoulder rise the Stormcrown Highlands, granite peaks above the snow line where thunder nests and griffins hunt. Highland raiders and old trolls hold the passes, and the clans' shamans keep their storms at the Thunder Aerie. The war camp at the foot of the range will not send the hero to Glacial Crest until the highland bounties are answered.
+
 ---
 
 ## 🌋 Act X: The Ashfall Wastelands & The Hellforge
@@ -133,6 +139,8 @@ The environment itself served as Satan’s greatest weapon, subjecting the Fated
 Guarding the crucible of the Hellforge stood Ignis the Iron Lord, a towering demon blacksmith fused into an impenetrable carapace of basalt and smoldering brimstone. Ignis swung an earth-shattering war hammer that sent shockwaves of volcanic fire ripping through the basalt platforms, challenging the protagonist’s combat mastery. Utilizing lightning reflexes, precise positioning, and unrelenting counter-attacks, the champion dismantled the Iron Lord’s fiery armor plate by plate before driving their blade directly into the exposed magma reactor, detonating the entire foundry and severing Satan's primary weapon pipeline. From the cooling slag the hero pried the Ember Seal Stone, the last of the four, still warm from the forge that had tried to unmake it.
 
 Escaping the collapsing magma chambers as subterranean caverns caved in, the champion and the royal summoner emerged onto a blackened ridge overlooking the sea of ash. Covered in soot, sweat, and crimson demon blood, they looked upon one another with deep emotion, realizing that four of Satan's greatest bastions had fallen to their united will. As the royal heir embraced the battle-weary champion beneath the falling embers, the entire Fated Vanguard saluted their commanders, knowing that only one final, terrible march remained before the fate of Aethelgard was decided.
+
+South of the Hellforge the ash gives way to sand. The Sunscorch Dunes hide a temple older than the crown, the Buried Sun Temple, where a scarab monarch and a tomb king still rule over the bleached bones of a forgotten kingdom. Sandstorms swallow whole caravans there, and the war camp on the northern ridge asks the Vanguard to clear the dunes before the march on the Hellforge's heart.
 
 ---
 
@@ -159,6 +167,8 @@ In his final desperate frenzy, Satan concentrated the entire energy of the Void 
 As the demon lord's form came apart, a small, steady light rose out of the vortex where his heart had been: the lantern of the first summoned soul, three hundred years a prisoner of the seal it had made. For a long moment it hung beside the hero, the first Vanguard greeting the last, while the five points of the Pentagram Seal blazed across the sky above the distant Citadel. The star was whole. The Lantern went home.
 
 With Satan’s demise, the Void Miasma unraveled across the skies of Aethelgard, replaced by the brilliant, golden rays of a true dawn breaking over rejuvenated green plains, shimmering oceans, and tranquil alpine peaks. The ancient Celestial Portals chimed in peaceful harmony, opening a bidirectional doorway back to the mortal world of Earth: the road the Lantern Knight had walked first, and one every summoned soul was now free to take. Standing at the threshold between dimensions, the hero gazed upon their modern past, then turned toward the Sovereign who stood holding out their hand in tearful devotion. Turning their back on their old life, the hero took their lover’s hand, choosing to remain in Aethelgard as the Sovereign’s eternal protector, leading an era of unbroken peace and prosperity across the reborn realm.
+
+So closes Book I, the chronicle of the Fated Vanguard. The dawn over Aethelgard is real, but the bidirectional portals open both ways, and what waits on the far side of them is a story for Book II.
 
 ---
 

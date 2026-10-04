@@ -4,6 +4,7 @@ import { CastleSystem } from "./world/castle.js";
 import { PortalSystem } from "./world/portal.js";
 import { WeatherSystem } from "./world/weather.js";
 import { TileMap } from "./world/tilemap.js";
+import { HUB_AREA } from "./world/areas.js";
 
 // The plains of Aethelgard (Acts I–VI): Barracks, Citadel and the 4 Warp Gateways.
 // The boat and the sea are in the Cerulean Abyss (the "coast" platform).
@@ -39,6 +40,10 @@ export class Stage {
 
     // Sacred places monsters cannot enter: the Barracks and the Citadel's audience dais
     this.safeZones = [this.safeZone, this.dais];
+
+    // Dirt paths from the Barracks: the four gateways (as before), the Wayfarer's Gate and every site to scout
+    this.sites = HUB_AREA.sites;
+    this.pathTargets = [[640, 32], [640, 896], [32, 480], [1216, 480], [HUB_AREA.trail.x, HUB_AREA.trail.y - 24], ...this.sites.map((s) => [s.x, s.y])];
 
     // Tile-based ground (grass, paths, trees, rocks). Built last because it reads
     // where the castle, barracks and portals are drawn.

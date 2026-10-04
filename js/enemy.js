@@ -6,6 +6,7 @@ import { ELEMENTS, elementMult, raceBonus, sizeMod, rollVariant, variantPrefix, 
 import { getLang } from "./i18n.js";
 import { STATUS, statusName } from "./status.js";
 import { around, mix, hitPose, attackPose, windupPose, breathPose, spawnPose, REST } from "./juice.js";
+import { HUB_KINDS, HUB_ELITES } from "./world/areas.js";
 
 // ========================================================
 // ENEMIES
@@ -24,10 +25,10 @@ import { around, mix, hitPose, attackPose, windupPose, breathPose, spawnPose, RE
 //   purple BOSS
 // Passive monsters wander; aggressive ones chase you when you get close.
 
-export const HUB_KINDS = [
-  "slime", "wolf", "skeleton", "goblinScout", "forestBear",
-  "windFalcon", "bloodBat", "skyGargoyle"
-];
+// Every map has 5 regular kinds (random spawns) and 4 elite kinds (always Elite, one of each roams the map
+// and comes back a while after it falls). Rosters: js/world/areas.js, platforms.js and frontiers.js.
+export { HUB_KINDS, HUB_ELITES };
+const ELITE_RESPAWN = 60 * 40;   // frames before a slain elite kind returns
 const WALK_TICKS = 10;
 const IDLE_TICKS = 30;
 const SPAWN_POP = 14;     // frames a new monster takes to rise out of the ground
@@ -57,6 +58,8 @@ export class EnemyManager {
     this.enemies = [];
     this.spawnTimer = 0;
     this.kinds = HUB_KINDS;
+    this.elites = HUB_ELITES;
+    this.eliteTimer = 0;
     this.tier = 0;
     this.stage = null;
     this.player = null;
@@ -84,13 +87,16 @@ export class EnemyManager {
   }
 
   // Change place (Aethelgard or an Act platform)
-  setArea(stage, kinds = HUB_KINDS, tier = 0) {
+  // levels: [min, max] for a frontier map (otherwise from the tier)
+  setArea(stage, kinds = HUB_KINDS, tier = 0, elites = HUB_ELITES, levels = null) {
     this.stage = stage;
     this.kinds = kinds;
+    this.elites = elites || [];
+    this.eliteTimer = 0;
     this.tier = tier;
     // Act level floor: VII 10 · VIII 15 · IX 20 · X 25 · XI 30 · XII 35 (Aethelgard has none)
-    this.levelFloor = tier >= 2 ? tier * 5 : 1;
-    this.levelCap = this.levelFloor + 7;
+    this.levelFloor = levels ? levels[0] : tier >= 2 ? tier * 5 : 1;
+    this.levelCap = levels ? levels[1] : this.levelFloor + 7;
     this.enemies = [];
     this.corpses = [];
     this.hazards = [];
@@ -99,60 +105,34 @@ export class EnemyManager {
     this.maxAlive = 16;
   }
 
-  // Place start-up: 2 to 3 Elites scattered for Land, Sky and Sea (when there is water)
+  // Place start-up: one of each of the place's elite kinds (with a minion) and a handful of regulars
   init(playerLevel = 1) {
     this.enemies = [];
     this.maxAlive = 16;
+    this.eliteTimer = 0;
+    this.elites.forEach((k) => {
+      if (!MONSTERS[k]) return;
+      const spot = this.randomSpot(MONSTERS[k]);
+      this.spawn(k, playerLevel, spot.x, spot.y, rint(1, 3), "elite");
+    });
+    for (let i = 0; i < 6; i++) this.spawnRandomEnemy(playerLevel);
+  }
 
+  // A slain elite kind comes back after a while (so side quests that hunt it can always be finished)
+  respawnElites(playerLevel) {
+    if (++this.eliteTimer < ELITE_RESPAWN) return;
+    this.eliteTimer = 0;
+    const alive = new Set(this.enemies.filter((e) => e.isAlive && e.elite).map((e) => e.key));
+    const k = this.elites.find((key) => MONSTERS[key] && !alive.has(key));
+    if (!k) return;
+    const spot = this.randomSpot(MONSTERS[k]);
+    this.spawn(k, playerLevel, spot.x, spot.y, rint(1, 3), "elite");
+  }
+
+  // Regular kinds of the place (night adds the night prowlers on the plains); elite kinds never spawn at random
+  regularPool() {
     const pool = this.stage && this.stage.id === "hub" && this.night > 0.5 ? [...this.kinds, ...NIGHT_KINDS] : this.kinds;
-    
-    const landKinds = pool.filter((k) => {
-      const def = MONSTERS[k];
-      return def && !def.flying && !def.aquatic;
-    });
-    const skyKinds = pool.filter((k) => {
-      const def = MONSTERS[k];
-      return def && def.flying;
-    });
-    const seaKinds = pool.filter((k) => {
-      const def = MONSTERS[k];
-      return def && (def.aquatic || def.medium === "sea");
-    });
-
-    const hasWater = this.hasWaterNearby();
-
-    // 1. 2 or 3 scattered Elites for Land
-    const landEliteCount = rint(2, 3);
-    for (let i = 0; i < landEliteCount; i++) {
-      const kList = landKinds.length ? landKinds : pool;
-      const k = kList[Math.floor(Math.random() * kList.length)];
-      const spot = this.randomSpot(MONSTERS[k]);
-      this.spawn(k, playerLevel, spot.x, spot.y, rint(1, 4), "elite");
-    }
-
-    // 2. 2 or 3 scattered Elites for Sky
-    const skyEliteCount = rint(2, 3);
-    for (let i = 0; i < skyEliteCount; i++) {
-      const kList = skyKinds.length ? skyKinds : pool;
-      const k = kList[Math.floor(Math.random() * kList.length)];
-      const spot = this.randomSpot(MONSTERS[k]);
-      this.spawn(k, playerLevel, spot.x, spot.y, rint(1, 4), "elite");
-    }
-
-    // 3. 2 or 3 scattered Elites for Sea when there is water
-    if (hasWater && seaKinds.length > 0) {
-      const seaEliteCount = rint(2, 3);
-      for (let i = 0; i < seaEliteCount; i++) {
-        const k = seaKinds[Math.floor(Math.random() * seaKinds.length)];
-        const spot = this.randomSpot(MONSTERS[k]);
-        this.spawn(k, playerLevel, spot.x, spot.y, rint(1, 4), "elite");
-      }
-    }
-
-    // 4. Extra normal/champion monsters
-    for (let i = 0; i < 6; i++) {
-      this.spawnRandomEnemy(playerLevel);
-    }
+    return pool.filter((k) => MONSTERS[k] && !MONSTERS[k].elite);
   }
 
   // A spot that suits the monster (Land, Sky or Sea)
@@ -203,7 +183,8 @@ export class EnemyManager {
   }
 
   spawnRandomEnemy(playerLevel) {
-    const pool = this.stage && this.stage.id === "hub" && this.night > 0.5 ? [...this.kinds, ...NIGHT_KINDS] : this.kinds;
+    const pool = this.regularPool();
+    if (!pool.length) return null;
     const key = pool[Math.floor(Math.random() * pool.length)];
     const def = MONSTERS[key];
     const { x, y } = this.randomSpot(def);
@@ -229,12 +210,18 @@ export class EnemyManager {
     // Elemental variant (Blazing, Frozen, …) and tier: Champion / Elite (Diablo II)
     const v = rollVariant(this.stage ? this.stage.id : "hub");
     if (v && v !== e.element) { e.variant = v; e.element = v; }
-    applyTier(e, forceTier || rollTier());
+    // An elite kind is always an Elite; a regular kind is never forced into one by accident
+    applyTier(e, kind.elite ? (forceTier === "normal" ? "elite" : forceTier || "elite") : forceTier || rollTier());
     this.enemies.push(e);
-    // Elites bring minions
+    // Elites bring minions: an elite kind brings one regular of its medium, a lucky regular Elite two of its own kind
     if (e.elite) {
-      for (let k = 0; k < TIERS.elite.minions; k++) {
-        const m = this.spawn(key, playerLevel, x + (k ? 18 : -18), y + 10, null, "normal", lvl - 1);
+      const medium = kind.medium || "land";
+      const same = kind.elite ? this.kinds.filter((k) => MONSTERS[k] && !MONSTERS[k].elite && (MONSTERS[k].medium || "land") === medium) : [];
+      const n = kind.elite ? 1 : TIERS.elite.minions;
+      for (let k = 0; k < n; k++) {
+        const mk = kind.elite ? (same.length ? same[Math.floor(Math.random() * same.length)] : null) : key;
+        if (!mk) break;
+        const m = this.spawn(mk, playerLevel, x + (k ? 18 : -18), y + 10, null, "normal", lvl - 1);
         if (m) { m.minionOf = e.id; m.homeX = x; m.homeY = y; }
       }
     }
@@ -283,6 +270,7 @@ export class EnemyManager {
       this.spawnTimer = 0;
       this.spawnRandomEnemy(player.level);
     }
+    this.respawnElites(player.level);
 
     this.enemies.forEach((e) => {
       if (!e.isAlive) return;
