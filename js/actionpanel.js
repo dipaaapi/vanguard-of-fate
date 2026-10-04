@@ -6,7 +6,7 @@ import { iconURL } from "./items/icons.js";
 // Each button: icon + name + shortcut key.
 //   Skills  (J, K, L, Space, E): press and hold = like holding the key (hold works).
 //                             Cooldown overlay, and "SAFE" inside a sanctuary.
-//   Options (Q, I, C, M, N, B, Esc, H): call the handler from main.js (B = Workshop, safe zones only).
+//   Options (Q, I, C, M, N, G, Esc, H): call the handler from main.js (G = Workshop, safe zones only).
 //   (Act lore is read through the lore panel's "Read more", so it has no button here.)
 // The J/K/L names follow the player's class (LORE.md, Acts III–IV).
 
@@ -117,7 +117,7 @@ export class ActionPanel {
       character: this.clickButton("character", "KeyC", h.character),
       map: this.clickButton("map", "KeyM", h.map),
       codex: this.clickButton("codex", "KeyN", h.codex),
-      workshop: this.clickButton("workshop", "KeyB", h.workshop),
+      workshop: this.clickButton("workshop", "KeyG", h.workshop),
       pause: this.clickButton("pause", "Escape", h.pause),
       menu: this.clickButton("menu", "KeyH", h.menu)
     };

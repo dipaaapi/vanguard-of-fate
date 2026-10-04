@@ -124,6 +124,6 @@
   "js/items/crafting.js": "Safe-zone crafting: base item per class/path/slot, craft checks, crafting pieces, auto-craft, recommended path, material transmutes",
   "js/items/cooking.js": "Fishing and cooking data: fish per place, food items, 15 dishes (5 per STR/DEX/INT) with stat and skill buffs, cook/eat",
   "js/items/economy.js": "Buy and sell prices: sell rates per item type, shop stock and markups, market saturation (Market) and sell()",
-  "js/workshop.js": "Workshop menu (B in a safe zone): craft sets, auto-craft toggle, cooking, transmutes; save/load of craft, meal and market",
+  "js/workshop.js": "Workshop menu (G in a safe zone): craft sets, auto-craft toggle, cooking, transmutes; save/load of craft, meal and market",
   "js/world/fishing.js": "Fishing at liquid tiles: cast, bite, hook with E, bobber/line drawing and prompt"
 }

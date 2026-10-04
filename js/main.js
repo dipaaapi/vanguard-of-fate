@@ -238,7 +238,7 @@ function openService(service, opts) {
 // NPC service menus. Ronald: mercenaries, safe refines up to +4, and field repairs at double the dwarves' price.
 const serviceMenu = new ServiceMenu(document.getElementById("serviceMenu"));
 
-// Workshop (B, safe zones only): craft gear from materials, auto-craft, cook, transmute (js/workshop.js)
+// Workshop (G, safe zones only): craft gear from materials, auto-craft, cook, transmute (js/workshop.js)
 const workshop = new Workshop({
   menu: serviceMenu, fx, sound: Sound,
   log: (kind, text, color) => chatLog.event(kind, text, dayNight.label(), null, color),
@@ -1341,8 +1341,8 @@ window.addEventListener("keydown", (e) => {
       return;
     }
 
-    // B = the safe-zone Workshop (craft, cook, transmute)
-    if (e.code === "KeyB" && gameState === "PLAYING") {
+    // G = the safe-zone Workshop (B is the Market) (craft, cook, transmute)
+    if (e.code === "KeyG" && gameState === "PLAYING") {
       openWorkshop();
       return;
     }

@@ -5,7 +5,7 @@ import { craftSlots, craftCheck, craftPiece, ownedPieces, autoCraft, recommended
 import { DISHES, cook, cookCheck } from "./items/cooking.js";
 import { Market } from "./items/economy.js";
 
-// ==================== SAFE-ZONE WORKSHOP (B) ====================
+// ==================== SAFE-ZONE WORKSHOP (G) ====================
 // Opens in any safe zone (Barracks, the Citadel dais, a platform camp). Uses the NPC service menu.
 //   Craft gear  — tier (Lv 10–100) → path (STR / DEX / INT; ★ = the path your build leans to) → piece
 //   Auto-craft  — pick a target set; the next missing piece is crafted whenever you are in a safe zone

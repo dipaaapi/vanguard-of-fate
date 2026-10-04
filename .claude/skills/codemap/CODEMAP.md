@@ -64,7 +64,7 @@ then `outline <file>` and read only the line range you need.
 - `title.js` (21 KB, 618) — Title screen scene: menu, options (music/sfx/blood/weather/language), Chronicles, credits, save slot info; canvas draws embers and sword glow · TitleScene
 - `ui.js` (19 KB, 450) — In-canvas UI: terrain minimap with objective/compass/place name, overhead cooldown bar, and the framed pause, Apothecary shop, Mercenary Guild and game over panels (EN/FIL via t()) · UIManager
 - `uiframe.js` (4.3 KB, 115) — Shared look for in-canvas panels: drawFrame (slate panel, gold double border, corner studs, title ribbon, open animation), drawBorder, drawBackdrop, openEase, keyChip · drawBackdrop, drawBorder, drawFrame, openEase, keyChip
-- `workshop.js` (11 KB, 216) — Workshop menu (B in a safe zone): craft sets, auto-craft toggle, cooking, transmutes; save/load of craft, meal and market · Workshop
+- `workshop.js` (11 KB, 216) — Workshop menu (G in a safe zone): craft sets, auto-craft toggle, cooking, transmutes; save/load of craft, meal and market · Workshop
 - `worldmap.js` (13 KB, 341) — World map (M): land, Barracks, Citadel, coast, gateways, player, NPCs, foes, loot and quest objective · WorldMap
 
 ## js/avatar/
