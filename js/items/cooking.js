@@ -12,10 +12,10 @@ const N = (en, fil = en) => ({ en, fil });
 // ---------- Fish (by the kind of water: see FISH_POOLS) ----------
 const FISH = {
   tilapia:  { tint: "#94a3b8", price: 6,  name: N("Tilapia", "Tilapia"), where: N("Swamp and coast water", "Tubig ng latian at baybayin") },
-  mudcarp:  { tint: "#a16207", price: 8,  name: N("Mudfin Carp", "Karpang Putik"), where: N("Swamp water of the Canopy", "Latian ng Canopy") },
+  mudcarp:  { tint: "#a16207", price: 8,  name: N("Mudfin Carp", "Karpang Putik"), where: N("Swamp water of the Canopy and the Gloomwater Fens", "Latian ng Canopy at ng Gloomwater Fens") },
   mackerel: { tint: "#38bdf8", price: 12, name: N("Silver Mackerel", "Pilak na Alumahan"), where: N("The Cerulean Abyss and the Frostfang shore", "Cerulean Abyss at baybay ng Frostfang") },
   squid:    { tint: "#f0abfc", price: 18, name: N("Abyss Squid", "Pusit ng Kailaliman"), where: N("Deep sea and void water", "Malalim na dagat at tubig ng void") },
-  trout:    { tint: "#bfe9ff", price: 16, name: N("Frost Trout", "Trout ng Yelo"), where: N("Ice pools of the Frostfang", "Mga lawang yelo ng Frostfang") },
+  trout:    { tint: "#bfe9ff", price: 16, name: N("Frost Trout", "Trout ng Yelo"), where: N("Ice pools of the Frostfang and the Stormcrown tarns", "Mga lawang yelo ng Frostfang at mga lawa ng Stormcrown") },
   eel:      { tint: "#f97316", price: 24, name: N("Magma Eel", "Igat ng Magma"), where: N("Lava pools of the Ashfall", "Lawa ng lava sa Ashfall") },
   angler:   { tint: "#a855f7", price: 32, name: N("Void Angler", "Angler ng Void"), where: N("The void water of the Maw", "Tubig ng void sa Maw") },
   bangus:   { tint: "#fde047", price: 60, name: N("Golden Bangus", "Gintong Bangus"), where: N("Rare in any water", "Bihira sa anumang tubig") }
@@ -27,7 +27,9 @@ export const FISH_POOLS = {
   frost: [["trout", 75], ["mackerel", 20], ["bangus", 5]],
   ash: [["eel", 95], ["bangus", 5]],
   maw: [["angler", 75], ["squid", 20], ["bangus", 5]],
-  hub: [["tilapia", 80], ["mudcarp", 15], ["bangus", 5]]
+  hub: [["tilapia", 80], ["mudcarp", 15], ["bangus", 5]],
+  swamp: [["mudcarp", 60], ["tilapia", 35], ["bangus", 5]],         // Gloomwater Fens (frontier theme)
+  highland: [["trout", 90], ["bangus", 10]]                          // Stormcrown tarns; the Badlands and the Dunes' quicksand have no fish
 };
 
 export const FOOD_ITEMS = {};
