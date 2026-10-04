@@ -140,7 +140,7 @@ export class ProjectileManager {
           continue;
         }
       }
-      // 8. Bolt (Throw Stone, Holy Light, Frost Diver) — a flying shot with an element
+      // 8. Bolt (Throw Stone, Holy Light, Frost Diver, path actives) — a flying shot with an element; crit: always critical
       else if (p.type === "bolt") {
         p.x += p.vx;
         p.y += p.vy;
@@ -149,7 +149,7 @@ export class ProjectileManager {
         for (let e of enemies) {
           if (e.isAlive && Math.hypot(cx(e) - p.x, cy(e) - p.y) <= 12 + hr(e)) {
             hit = true;
-            enemyManager.damage(e, p.damage, Math.atan2(p.vy, p.vx), false, fx, lootManager, 6, false, player, p.elem);
+            enemyManager.damage(e, p.crit ? Math.round(p.damage * 1.8) : p.damage, Math.atan2(p.vy, p.vx), Boolean(p.crit), fx, lootManager, 6, false, player, p.elem);
             if (p.freeze && !e.boss) { e.stunTimer = Math.max(e.stunTimer, p.freeze); e.frozen = p.freeze; }
             if (fx) fx.spawnHitSparks(cx(e), cy(e), p.color, 10);
             break;
@@ -227,7 +227,7 @@ export class ProjectileManager {
               }
 
               if (p.merc) enemyManager.damage(e, Math.round((p.damage || 22) * p.power), hitAngle, false, fx, lootManager, pushDist, isStun, null);
-              else enemyManager.damage(e, 22, hitAngle, false, fx, lootManager, pushDist, isStun, player);
+              else enemyManager.damage(e, p.damage || 22, hitAngle, false, fx, lootManager, pushDist, isStun, player);   // the kit's arrow damage (was a fixed 22)
             }
             break;
           }

@@ -670,7 +670,8 @@ export class EnemyManager {
       const canCrit = !(d.blind > 0 || d.curse > 0);
       if (!isCrit && canCrit && Math.random() < (player.crit || 0)) { isCrit = true; amount *= 1.8; }
       amount = Math.round(amount);
-    }
+      if (!this.hitSource && player.noteHit) player.noteHit(enemy, isCrit);   // play style (js/skillpaths.js)
+    } else amount = Math.round(amount);   // allies and familiars: whole numbers after element/tier
 
     enemy.hp -= amount;
     // Last-hit rule: only a kill landed by the hero (or the hero's summons) earns EXP and loot.
@@ -733,7 +734,7 @@ export class EnemyManager {
       this.loot.spawnLoot(e.x + 10, e.y + 12, {
         grade: this.tier, level: e.level, cls: p ? p.heroData.id : "novice", key: e.key,
         boss: Boolean(e.boss), drop: e.boss ? e.kind.drop : null,
-        tier: e.boss ? "mvp" : e.tier || "normal", diff,
+        tier: e.boss ? "mvp" : e.tier || "normal", diff, element: e.element, race: e.kind.race,
         extra: Math.random() < 0.3 * this.night ? 1 : 0     // night: extra loot
       });
     }

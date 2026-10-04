@@ -248,9 +248,9 @@ const FALCON_WING = [
 ];
 
 export class FalconSprite extends CreatureSprite {
-  constructor() {
+  constructor(colors = {}) {
     super(28, 20, 14, 10, { fly: 4, dive: 1, taunt: 2 });
-    this.c = FALCON;
+    this.c = { ...FALCON, ...colors };
   }
 
   wing(p, rows, col, colD, dx = 0) {

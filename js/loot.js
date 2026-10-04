@@ -103,12 +103,13 @@ export class LootManager {
 
     // gold
     const GOLD_MULT = { normal: 1, champion: 2, elite: 4, mvp: 12 };
-    const gold = Math.round((2 + level * 0.8) * (0.7 + Math.random() * 0.6) * (GOLD_MULT[info.tier] || (info.boss ? 12 : 1)));
+    // economy pass: was 2 + level × 0.8 — late Acts could not pay for their own potions (balance-sim --economy)
+    const gold = Math.round((3 + level * 1.1) * (0.7 + Math.random() * 0.6) * (GOLD_MULT[info.tier] || (info.boss ? 12 : 1)));
     this.items.push({ ...scatter(), type: "gold", amount: gold, color: "#ffd166", bobTimer: Math.random() * 6 });
 
     // item
     const grade = info.grade ?? info.tierGrade ?? 0;
-    rollDrop(grade, info.cls || "novice", { key: info.key, tier: info.tier, boss: info.boss, diff: info.diff, extra: info.extra })
+    rollDrop(grade, info.cls || "novice", { key: info.key, tier: info.tier, boss: info.boss, diff: info.diff, extra: info.extra, level, element: info.element, race: info.race })
       .forEach((inst) => this.drop(scatter(), inst));
     if (info.drop) this.drop({ x, y }, { id: info.drop, qty: 1 }, true, stage);
   }

@@ -4,7 +4,7 @@ import { NPC_DEFS } from "./npc/roster.js";
 import { MONSTERS, BOSSES, NIGHT_KINDS } from "./bestiary.js";
 import { BOOK_ONE_AREAS, areaDef } from "./world/areas.js";
 import { PLATFORMS, PLATFORM_ORDER } from "./world/platforms.js";
-import { codexItems, getItem, statText, slotName, SETS, SET_THRESHOLDS, RARITY } from "./items/itemdb.js";
+import { codexItems, getItem, statText, skillText, slotName, SETS, setThresholds, RARITY } from "./items/itemdb.js";
 import { iconURL } from "./items/icons.js";
 import { elementName, raceName, sizeName, ELEMENTS } from "./elements.js";
 import { statusName } from "./status.js";
@@ -23,7 +23,8 @@ const TEXT = {
     element: "Element", race: "Race", size: "Size", hp: "HP", dmg: "Damage", blight: "Inflicts", drop: "Drops", arena: "Lair",
     night: "Night only", role: "Role", where: "Found at", classes: "Classes", any: "Any class", hands2: "Two-handed",
     stats: "Base stats", grows: "Stats grow with grade (Aethelgard → Sovereign) and refining.", price: "Value", setBonus: "Set bonuses",
-    pieces: "Pieces: weapon, head, armor, gloves, boots (built for your class)", mvp: "MVP", close: "N / Esc — close · ←/→ tabs · ↑/↓ entries",
+    pieces: "Pieces: weapon, head, armor, gloves, boots (built for your class)",
+    craftedPieces: (lv) => `Crafted at any safe zone (G). Requires Lv ${lv}. Pieces: weapon, off-hand, head, armor, garment, gloves, boots, amulet, rings (built for your class)`, mvp: "MVP", close: "N / Esc — close · ←/→ tabs · ↑/↓ entries",
     tabs: { npc: "NPCs", monsters: "Monsters & MVP", weapons: "Weapons", equipment: "Equipment", accessories: "Accessories", others: "Others" },
     groups: { consume: "Consumables", material: "Upgrade Materials", card: "Cards", quest: "Quest Items", unique: "Unique", set: "Set", mvp: "MVP Bosses", monsters: "Monsters" }
   },
@@ -32,7 +33,8 @@ const TEXT = {
     element: "Elemento", race: "Lahi", size: "Laki", hp: "HP", dmg: "Pinsala", blight: "Nagdudulot", drop: "Nahuhulog", arena: "Pugad",
     night: "Gabi lamang", role: "Tungkulin", where: "Matatagpuan sa", classes: "Mga class", any: "Kahit anong class", hands2: "Dalawang kamay",
     stats: "Batayang stats", grows: "Lumalaki ang stats ayon sa grado (Aethelgard → Sovereign) at pag-refine.", price: "Halaga", setBonus: "Bonus ng set",
-    pieces: "Piyesa: sandata, ulo, baluti, guwantes, bota (ginawa para sa iyong class)", mvp: "MVP", close: "N / Esc — isara · ←/→ tab · ↑/↓ entry",
+    pieces: "Piyesa: sandata, ulo, baluti, guwantes, bota (ginawa para sa iyong class)",
+    craftedPieces: (lv) => `Ginagawa sa anumang ligtas na lugar (G). Kailangan ang Lv ${lv}. Piyesa: sandata, kabilang kamay, ulo, baluti, balabal, guwantes, bota, kuwintas, singsing (ginawa para sa iyong class)`, mvp: "MVP", close: "N / Esc — isara · ←/→ tab · ↑/↓ entry",
     tabs: { npc: "Mga NPC", monsters: "Halimaw at MVP", weapons: "Sandata", equipment: "Kagamitan", accessories: "Aksesorya", others: "Iba pa" },
     groups: { consume: "Nagagamit", material: "Pang-upgrade", card: "Card", quest: "Quest Item", unique: "Unique", set: "Set", mvp: "MVP Boss", monsters: "Halimaw" }
   }
@@ -251,10 +253,13 @@ export class Codex {
     } else if (e.kind === "set") {
       const set = SETS[e.id];
       add(det, "div", "cx-name", set.name[Lg]).style.color = set.color;
-      add(det, "div", "cx-desc", T.pieces);
+      add(det, "div", "cx-desc", set.crafted ? T.craftedPieces(set.level) : T.pieces);
       row(T.stats, Object.entries(set.piece).map(([s, v]) => statText(s, v)).join("  "));
       add(det, "div", "cx-sub", T.setBonus);
-      SET_THRESHOLDS.forEach((n) => row(`(${n})`, `${n === 5 ? `${set.passive[Lg]}: ` : ""}${Object.entries(set.bonus[n]).map(([s, v]) => statText(s, v)).join("  ")}`));
+      const steps = setThresholds(set), top = steps[steps.length - 1];
+      steps.forEach((n) => row(`(${n})`, `${n === top ? `${set.passive[Lg]}: ` : ""}${[
+        ...Object.entries(set.bonus[n]).map(([s, v]) => statText(s, v)),
+        ...Object.entries((set.skill && set.skill[n]) || {}).map(([s, v]) => skillText(s, v))].join("  ")}`));
     } else {
       const it = e.item;
       this.portrait(det, add, (c, w, h) => { const img = new Image(); img.onload = () => c.drawImage(img, 12, 12, w - 24, h - 24); img.src = iconURL(it); });
