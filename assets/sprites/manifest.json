@@ -1,5 +1,11 @@
 {
   "sheets": [
-    "monster/slime"
+    "monster/slime",
+    "summon/angel",
+    "summon/falcon",
+    "summon/fox",
+    "summon/hound",
+    "summon/owl",
+    "summon/slime"
   ]
 }

@@ -1,4 +1,5 @@
 import { normalizeConfig } from "./options.js";
+import { sheetCount, sheetFrame, sheetsVersion } from "./sheets.js";
 
 // ==================== MODULAR AVATAR RENDERER ====================
 // A character is built from separate parts (layers):
@@ -1197,16 +1198,29 @@ export class Avatar {
     this.cache = new Map();
   }
 
+  // Frames in an animation: the Aseprite sheet's tag when there is one (sheetKey, js/avatar/sheets.js)
+  count(dir, anim) {
+    return (this.sheetKey && sheetCount(this.sheetKey, dir, anim)) || FRAMES[anim] || 1;
+  }
+
+  // Whether an Aseprite sheet gives this Avatar the animation. Only sheets count here, so monsters and
+  // summons switch to "run"/"skill" only where art was drawn for it (the code-drawn ones always exist).
+  has(anim, dir = "down") {
+    return !!(this.sheetKey && sheetCount(this.sheetKey, dir, anim));
+  }
+
   frame(dir, anim, i) {
-    const n = FRAMES[anim] || 1;
+    const n = this.count(dir, anim);
     const idx = ((i % n) + n) % n;
+    const img = this.sheetKey && sheetFrame(this.sheetKey, dir, anim, idx);
+    if (img) return img;
     const key = `${dir}|${anim}|${idx}`;
     if (!this.cache.has(key)) this.cache.set(key, renderFrame(this.config, dir, anim, idx));
     return this.cache.get(key);
   }
 
   flashFrame(dir, anim, i) {
-    const key = `w|${dir}|${anim}|${i}`;
+    const key = `w${sheetsVersion()}|${dir}|${anim}|${i}`;
     if (!this.cache.has(key)) this.cache.set(key, whiteOf(this.frame(dir, anim, i)));
     return this.cache.get(key);
   }
@@ -1218,7 +1232,9 @@ export class Avatar {
     ctx.save();
     ctx.translate(Math.round(x), Math.round(y));
     if (flip && dir === "side") ctx.scale(-1, 1);
-    ctx.drawImage(img, -ANCHOR_X * scale, -ANCHOR_Y * scale * squash, FRAME_W * scale, FRAME_H * scale * squash);
+    // A larger (sheet) frame keeps the same feet: extra width split left/right, extra height on top
+    const ax = ANCHOR_X + Math.floor((img.width - FRAME_W) / 2), ay = ANCHOR_Y + (img.height - FRAME_H);
+    ctx.drawImage(img, -ax * scale, -ay * scale * squash, img.width * scale, img.height * scale * squash);
     ctx.restore();
   }
 

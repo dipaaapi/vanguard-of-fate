@@ -9,6 +9,7 @@ const ANGEL = new Avatar({
   outfit: "gown", outfitColor: "#ffffff", legColor: "#ffffff", gloves: "none", legs: "pants",
   boots: "sandals", bootColor: "#e0b44c", headgear: "halo", wings: "#ffffff", weapon: "sword"
 });
+ANGEL.sheetKey = "summon/angel";   // aseprite/summon/angel.aseprite when exported
 
 export class GuardianAngelCompanion {
   constructor(x, y, maxHp) {
@@ -148,8 +149,15 @@ export class GuardianAngelCompanion {
     // Floating: the feet hover above the shadow, bobbing slightly
     const hover = Math.round(Math.sin(this.animTimer / 12) * 1.5);
     let anim = "idle", frame = Math.floor(this.animTimer / 10);   // idle: slow wing beats
-    if (this.state === "ATTACKING") { anim = "attack"; frame = this.stateTimer < 6 ? 0 : 1; }
-    else if (this.state === "TAUNTING") { anim = "attack"; frame = 0; }          // sword raised
+    if (this.state === "ATTACKING") {
+      anim = "attack";
+      const n = ANGEL.count(this.dir, "attack");
+      frame = n <= 2 ? (this.stateTimer < 6 ? 0 : 1) : Math.min(n - 1, Math.floor(this.stateTimer / 5));
+    } else if (this.state === "TAUNTING") {
+      // sword raised; a sheet's "skill" plays the prayer glow over the 80-frame taunt
+      if (ANGEL.has("skill", this.dir)) { anim = "skill"; frame = Math.min(ANGEL.count(this.dir, "skill") - 1, Math.floor(this.stateTimer / 12)); }
+      else { anim = "attack"; frame = 0; }
+    }
     else if (this.moving) { anim = "walk"; frame = Math.floor(this.animTimer / 5); }
     // The blow lands on the first frame, so the pose starts at the strike and follows through
     const len = Math.hypot(this.aimX || 0, this.aimY || 0) || 1;

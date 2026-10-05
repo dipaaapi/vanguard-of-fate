@@ -19,6 +19,8 @@ export const FAMILIARS = {
   fox: { skill: "spiritfox", mult: 0.9, cd: 46, reach: 16, speed: 2.6, elem: "fire", spark: "#fb923c", stamina: 4, scale: 0.8,
     sprite: new WolfSprite({ fur: "#f97316", furD: "#c2410c", furDD: "#7c2d12", furL: "#fdba74", belly: "#fff7ed", eye: "#fde047" }) }
 };
+// Aseprite sheets (aseprite/summon/<kind>.aseprite) replace the code-drawn frames when exported
+for (const [kind, def] of Object.entries(FAMILIARS)) def.sprite.sheetKey = `summon/${kind}`;
 const JOB_FAMILIAR = { knight: "hound", mage: "owl", fighter: "fox" };
 const NO_FAMILIAR = ["priest", "archer"];   // they have Guardian Angels / the falcon
 const LEASH = 120;        // foes farther than this from the hero are left alone
@@ -121,16 +123,20 @@ export class Familiar {
       this.x += mx; this.y += my;
     }
     this.face = facingFrom(e && dist <= stop ? e.x - this.x : mx, e && dist <= stop ? e.y - this.y : my, this.face);
-    this.anim = this.atkT > 0 ? "attack" : Math.hypot(mx, my) > 0.2 ? "walk" : "idle";
+    const moving = Math.hypot(mx, my) > 0.2;
+    this.anim = this.atkT > 0 ? (this.special && k.sprite.has("skill", this.face.dir) ? "skill" : "attack")
+      : moving ? ((e || dist > 60) && k.sprite.has("run", this.face.dir) ? "run" : "walk") : "idle";
 
     // Attack
     if (!e || this.cd > 0) return;
     const reach = k.ranged || k.reach;
     if (Math.hypot(e.x - this.x, e.y - this.y) > reach + 8) return;
     this.cd = k.cd;
-    this.atkT = 12;
     this.bites++;
     const stun = Boolean(k.stunEvery && this.bites % k.stunEvery === 0);
+    // Every 4th hit (the hound's stunning bite) shows the skill animation; damage is unchanged
+    this.special = stun || this.bites % (k.stunEvery || 4) === 0;
+    this.atkT = this.special && k.sprite.has("skill", this.face.dir) ? 24 : 12;
     const angle = Math.atan2(e.y - this.y, e.x - this.x);
     // Credited to the hero (EXP, loot) without adding the hero's ATK or crit
     const prev = enemyManager.hitSource;
@@ -166,7 +172,12 @@ export class Familiar {
       const anim = this.atkT > 0 ? "taunt" : "fly";
       k.sprite.draw(ctx, x, y - 4, "side", anim, Math.floor(this.t / (anim === "fly" ? 5 : 8)), this.face.flip);
     } else {
-      k.sprite.draw(ctx, x, y, this.face.dir, this.anim, Math.floor(this.t / (this.anim === "walk" ? 6 : 16)), this.face.flip, false, s);
+      // attack / skill play once over the strike; the others loop
+      const n = k.sprite.count(this.face.dir, this.anim);
+      const max = this.anim === "skill" ? 24 : 12;
+      const i = this.anim === "attack" || this.anim === "skill" ? (n <= 2 ? Math.floor(this.t / 16) : Math.min(n - 1, Math.floor((1 - this.atkT / max) * n)))
+        : Math.floor(this.t / ({ walk: 6, run: 4 }[this.anim] || (n > 2 ? 10 : 16)));
+      k.sprite.draw(ctx, x, y, this.face.dir, this.anim, i, this.face.flip, false, s);
     }
   }
 }

@@ -24,7 +24,7 @@ if (!key) {
 }
 const sprite = await codeSprite(key);
 if (!sprite) {
-  console.error(`"${key}" is not a creature sprite (monster/<key> or boss/<key>; humanoids use the Avatar and have no sheet support yet)`);
+  console.error(`"${key}" has no sprite to seed from (monster/<key>, boss/<key> or summon/<slime|hound|owl|fox|falcon|angel>)`);
   process.exit(1);
 }
 const out = path.join(SRC_DIR, `${key}.aseprite`);

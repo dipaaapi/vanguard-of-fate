@@ -10,7 +10,7 @@
   "js/actionpanel.js": "Hotbar on the bottom tray (J/K/L skill slots with drag-and-drop arranging and the skill book (P), Space/E, quick slots 1–4, Market B and Full Screen F) and the right panel's option buttons",
   "js/actreader.js": "\"Read more\" Act reader: full text of finished Acts from LORE.md with their banners",
   "js/audio.js": "Procedural Web Audio engine (exported Sound): master/music/SFX buses with compressor and reverb, synth instruments, a lookahead sequencer that crossfades the tracks in js/music.js by place/night/boss (setScene), fanfares (playJingle) and 30+ play* SFX that fade by distance and mute off screen",
-  "js/avatar/avatar.js": "Modular pixel-art Avatar renderer: layered parts (cape, hair, body, arms, held item), 8 directions, cached frames; Pix buffer and shade helpers",
+  "js/avatar/avatar.js": "Modular pixel-art Avatar renderer: layered parts (cape, hair, body, arms, held item), 8 directions, cached frames; Pix buffer and shade helpers; optional Aseprite sheet (sheetKey) like CreatureSprite",
   "js/avatar/beasts.js": "Act monster sprites (sporeling, drake, crab, serpent, brute, imp, specter, treant, …) with idle/walk/attack frames",
   "js/avatar/creature.js": "Non-human sprite base (CreatureSprite; uses Aseprite sheet frames when loaded, incl. extra anims and larger canvases) plus slime, wolf and falcon sprites; facingFrom direction helper",
   "js/avatar/options.js": "Character Creator choices and colours, NPC-only parts, config normalisation and random look/name",
@@ -140,5 +140,11 @@
   "js/avatar/sheets.js": "Aseprite sprite sheets: loads assets/sprites/manifest.json and slices each sheet into per-tag frames (\"<dir>-<anim>\") that override the code-drawn creature frames; sheetCount for frame counts",
   "tools/aseprite/lib.mjs": "Aseprite tool helpers: find the Aseprite executable, read a creature sprite headless, write PNGs",
   "tools/aseprite/seed.mjs": "Starts aseprite/<kind>/<key>.aseprite from a creature's code-drawn frames (one tag per direction+animation): node tools/aseprite/seed.mjs monster/slime",
-  "tools/aseprite/export.mjs": "Exports aseprite/**/*.aseprite with aseprite -b to assets/sprites/<key>.png + .json, checks tags/size against the code sprite, rewrites the manifest"
+  "tools/aseprite/export.mjs": "Exports aseprite/**/*.aseprite with aseprite -b to assets/sprites/<key>.png + .json, checks tags/size against the code sprite, rewrites the manifest",
+  "tools/aseprite/paint/kit.mjs": "Painting kit for the procedural Aseprite starting points: Canvas (lit dithered blobs, thick lines, polygons, outline, sparks), fromGame, build() → aseprite/<key>.aseprite via seed.lua",
+  "tools/aseprite/paint/paint.mjs": "Recreates the detailed procedural .aseprite starting points (overwrites): node tools/aseprite/paint/paint.mjs <key|all>",
+  "tools/aseprite/paint/slime.mjs": "Painter: detailed slime 32×24 (Forest Slime; Pocket Slime with sprout), idle/walk/run/attack/skill × 3 directions",
+  "tools/aseprite/paint/beast.mjs": "Painter: detailed four-legged familiars 40×28 (War Hound, Spirit Fox), idle/walk/run/attack/skill × 3 directions",
+  "tools/aseprite/paint/bird.mjs": "Painter: detailed birds 36×28, side view (Archer's falcon, Arcane Owl): fly, dive, taunt",
+  "tools/aseprite/paint/angel.mjs": "Painter: detailed Guardian Angel 44×44 from the game's Avatar body plus feathered wings, halo glow and holy light"
 }

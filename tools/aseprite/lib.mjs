@@ -31,11 +31,25 @@ export function findAseprite() {
   throw new Error("Aseprite not found. Install it or set ASEPRITE to the executable's path.");
 }
 
-/** The game's creature sprite for "monster/<key>" or "boss/<key>" (CreatureSprite with frames), or null. */
+/**
+ * The game sprite a sheet key replaces, with its size and code-drawn animations ({ w, h, frames } and
+ * frame()): "monster/<key>", "boss/<key>" (creature sprites), "summon/<slime|hound|owl|fox|falcon|angel>".
+ * Null when the key matches nothing (or a humanoid monster, which has no sheet support yet).
+ */
 export async function codeSprite(key) {
   const { load } = await import(pathToFileURL(path.join(ROOT, "scripts/headless.mjs")).href);
-  const { MONSTERS, BOSSES } = await load("js/bestiary.js");
   const [kind, name] = key.split("/");
+  if (kind === "summon") {
+    if (name === "angel") {
+      const A = await load("js/avatar/avatar.js");
+      const { LOOK } = await import(pathToFileURL(path.join(ROOT, "tools/aseprite/paint/angel.mjs")).href);
+      return Object.assign(new A.Avatar({ ...LOOK }), { w: A.FRAME_W, h: A.FRAME_H, frames: { idle: 2, walk: 4, run: 4, attack: 2 } });
+    }
+    if (name === "falcon") return new (await load("js/avatar/creature.js")).FalconSprite();
+    const { FAMILIARS } = await load("js/summons/familiar.js");
+    return FAMILIARS[name] ? FAMILIARS[name].sprite : null;
+  }
+  const { MONSTERS, BOSSES } = await load("js/bestiary.js");
   const def = (kind === "monster" ? MONSTERS : kind === "boss" ? BOSSES : {})[name];
   return def && def.sprite.frames ? def.sprite : null;
 }

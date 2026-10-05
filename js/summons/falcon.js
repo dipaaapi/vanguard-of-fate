@@ -3,6 +3,7 @@ import { GFX } from "../settings.js";
 
 // One sprite for every falcon (frames are cached)
 const SPRITE = new FalconSprite();
+SPRITE.sheetKey = "summon/falcon";   // aseprite/summon/falcon.aseprite when exported
 
 export class FalconCompanion {
   constructor(ownerX, ownerY) {
@@ -35,6 +36,7 @@ export class FalconCompanion {
     this.targetX = targetX;
     this.targetY = targetY;
     this.damageDealt = false;
+    this.stateTimer = 0;       // dive frames play from the start of the strike
   }
 
   update(player, enemyManager, fx, lootManager) {
@@ -157,10 +159,10 @@ export class FalconCompanion {
       ctx.scale(1.2, 0.85);
       ctx.rotate(-Math.atan2(this.vy, this.vx));
       ctx.translate(-cx, -cy);
-      SPRITE.draw(ctx, cx, cy, "side", "dive", 0, left, false, 1, rot);
+      SPRITE.draw(ctx, cx, cy, "side", "dive", Math.min(SPRITE.count("side", "dive") - 1, Math.floor(this.stateTimer / 2)), left, false, 1, rot);   // a dive is short
       ctx.restore();
     } else if (this.state === "TAUNTING") {
-      SPRITE.draw(ctx, cx, cy, "side", "taunt", Math.floor(this.stateTimer / 10), left);
+      SPRITE.draw(ctx, cx, cy, "side", "taunt", Math.floor(this.stateTimer / (SPRITE.count("side", "taunt") > 2 ? 13 : 10)), left);
     } else {
       // Faster wing beats when flying back quickly
       const rate = this.state === "RETURNING" ? 3 : 5;

@@ -75,7 +75,7 @@ then `outline <file>` and read only the line range you need.
 
 ## js/avatar/
 
-- `avatar.js` (50 KB, 1234) — Modular pixel-art Avatar renderer: layered parts (cape, hair, body, arms, held item), 8 directions, cached frames; Pix buffer and shade helpers · FRAME_W, FRAME_H, DIRS, shade, Pix, whiteOf, Avatar
+- `avatar.js` (50 KB, 1234) — Modular pixel-art Avatar renderer: layered parts (cape, hair, body, arms, held item), 8 directions, cached frames; Pix buffer and shade helpers; optional Aseprite sheet (sheetKey) like CreatureSprite · FRAME_W, FRAME_H, DIRS, shade, Pix, whiteOf, Avatar
 - `beasts.js` (25 KB, 518) — Act monster sprites (sporeling, drake, crab, serpent, brute, imp, specter, treant, …) with idle/walk/attack frames · SporelingSprite, DrakeSprite, CrabSprite, SerpentSprite, BruteSprite, ImpSprite, SpecterSprite, TreantSprite +1
 - `creature.js` (13 KB, 304) — Non-human sprite base (CreatureSprite; uses Aseprite sheet frames when loaded, incl. extra anims and larger canvases) plus slime, wolf and falcon sprites; facingFrom direction helper · CreatureSprite, ellipse, SlimeSprite, WolfSprite, FalconSprite, facingFrom
 - `options.js` (4.6 KB, 119) — Character Creator choices and colours, NPC-only parts, config normalisation and random look/name · FIELDS, DEFAULT_CONFIG, normalizeConfig, randomConfig, randomName
@@ -191,6 +191,15 @@ then `outline <file>` and read only the line range you need.
 - `export.mjs` (3.7 KB, 67) — Exports aseprite/**/*.aseprite with aseprite -b to assets/sprites/<key>.png + .json, checks tags/size against the code sprite, rewrites the manifest
 - `lib.mjs` (3.2 KB, 59) — Aseprite tool helpers: find the Aseprite executable, read a creature sprite headless, write PNGs · ROOT, SRC_DIR, OUT_DIR, findAseprite, codeSprite, writePng
 - `seed.mjs` (2.4 KB, 55) — Starts aseprite/<kind>/<key>.aseprite from a creature's code-drawn frames (one tag per direction+animation): node tools/aseprite/seed.mjs monster/slime
+
+## tools/aseprite/paint/
+
+- `angel.mjs` (5.6 KB, 107) — Painter: detailed Guardian Angel 44×44 from the game's Avatar body plus feathered wings, halo glow and holy light · W, H, FRAMES, DURATIONS, LOOK, prepare
+- `beast.mjs` (15.9 KB, 297) — Painter: detailed four-legged familiars 40×28 (War Hound, Spirit Fox), idle/walk/run/attack/skill × 3 directions · W, H, FRAMES, DURATIONS, KINDS, paintBeast, mix
+- `bird.mjs` (7.8 KB, 142) — Painter: detailed birds 36×28, side view (Archer's falcon, Arcane Owl): fly, dive, taunt · W, H, FRAMES, DURATIONS, KINDS, paintBird
+- `kit.mjs` (6.7 KB, 125) — Painting kit for the procedural Aseprite starting points: Canvas (lit dithered blobs, thick lines, polygons, outline, sparks), fromGame, build() → aseprite/<key>.aseprite via seed.lua · hex, mixc, Canvas, fromGame, build
+- `paint.mjs` (2.2 KB, 36) — Recreates the detailed procedural .aseprite starting points (overwrites): node tools/aseprite/paint/paint.mjs <key|all> · SUBJECTS
+- `slime.mjs` (7.5 KB, 140) — Painter: detailed slime 32×24 (Forest Slime; Pocket Slime with sprout), idle/walk/run/attack/skill × 3 directions · W, H, FOREST, FRAMES, DURATIONS, paintSlime
 
 ## tools/audio/
 
