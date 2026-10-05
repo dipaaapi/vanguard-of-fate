@@ -53,7 +53,7 @@
   "js/mercenary/greatsword.js": "Greatsword mercenary: heavy melee stats and skills",
   "js/mercenary/wand.js": "Wand mercenary: caster stats and skills",
   "js/mercenaryManager.js": "Hireable mercenaries: contracts and fees, following, AI combat, daze and recovery, drawing",
-  "js/monsterTiers.js": "Monster tiers (Normal, Champion, Elite, MVP) and modifiers: rolling, applying, damage multipliers, names",
+  "js/monsterTiers.js": "Monster tiers (Normal, Champion, Elite, MVP) and modifiers: rolling, applying, damage multipliers, names, life bars (lives per level and tier)",
   "js/music.js": "Music score as data: note/chord helpers, bass/arp/pad pattern styles, compileTrack, TRACKS (title, hub, night, canopy, coast, frost, ash, siege, maw, boss, finale), AREA_TRACK (platform id → track) and JINGLES",
   "js/npc/npcs.js": "NPCs in the world: spawning per place, wandering, ambient chatter (npc_conversations.json), sparring, talking",
   "js/npc/roster.js": "Lore characters from LORE.md: Avatar looks, places, mentor per class, summoner (Aurelia/Kenneth)",
