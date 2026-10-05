@@ -10,7 +10,7 @@ import { FXManager } from "./fx.js";
 import { EnemyManager } from "./enemy.js";
 import { ProjectileManager } from "./projectiles.js";
 import { UIManager } from "./ui.js";
-import { LootManager } from "./loot.js";
+import { LootManager, findNearestWalkableSpot } from "./loot.js";
 import { MercenaryManager, MERC_CLASSES } from "./mercenaryManager.js";
 import { Sound } from "./audio.js";
 import { Stage } from "./stage.js";
@@ -177,8 +177,17 @@ let stage = hub;
 const platformCache = {};
 function platformById(id) {
   if (id === "hub" || !(PLATFORMS[id] || FRONTIERS[id])) return hub;
-  if (!platformCache[id]) platformCache[id] = new Platform(id);
+  if (!platformCache[id]) {
+    platformCache[id] = new Platform(id);
+    if (savedShip && platformCache[id].boatSystem) platformCache[id].boatSystem.load(savedShip);
+  }
   return platformCache[id];
+}
+// The Cerulean Abyss ship from the save (where it is moored, or sailing with the hero aboard)
+let savedShip = null;
+function shipState() {
+  const p = Object.values(platformCache).find((c) => c.boatSystem);
+  return p ? p.boatSystem.serialize(stage === p ? player : null) : savedShip;
 }
 
 const camera = new Camera(VIEW_W, VIEW_H, hub.width, hub.height);
@@ -788,12 +797,22 @@ function crewOf() {
 function travelTo(id, at = null) {
   const from = stage.id;
   lockedTarget = null;
+  // Leaving at sea (the Celestial Monolith's portal): the hero crosses alone and the ship sails
+  // itself back to its berth at the pier, where the hero can walk to it on the way back
+  if (player.inBoat && stage.boatSystem) stage.boatSystem.returnToPier();
   stage = platformById(id);
   syncPlatformFlags();
-  const spot = at || (stage === hub ? hub.arrivalFrom(from) : stage.arrivalFrom(from));
+  let spot = at || (stage === hub ? hub.arrivalFrom(from) : stage.arrivalFrom(from));
   // Arriving on foot: the ship stays behind in the Cerulean Abyss
   player.inBoat = false;
   crewOf().forEach((c) => { c.aboard = false; });
+  // A saved spot in the water or inside an obstacle (an old save made at sea): the nearest dry ground
+  if (at) {
+    const dry = findNearestWalkableSpot(spot.x + 10, spot.y + 20, stage);
+    spot = { x: dry.x - 10, y: dry.y - 20 };
+  }
+  // A ship moored where no shore can be walked to sails back to the pier
+  if (stage.boatSystem) stage.boatSystem.checkMooring();
   player.x = spot.x;
   player.y = spot.y;
   player.portalCooldown = 75;
@@ -1042,6 +1061,7 @@ function getSavePayload() {
     codex: codex.serialize(),
     dayTick: dayNight.serialize(),
     platform: stage.id,                     // "hub" or an Act platform
+    ship: shipState(),                      // the Cerulean Abyss ship: mooring, heading, hero aboard
     x: player.x,
     y: player.y
   };
@@ -1192,7 +1212,11 @@ function loadGame() {
     beginPlaying();
     // Return to the platform where the game was saved (if the quest still allows it)
     const saved = data.platform && data.platform !== "hub" && areaDef(data.platform) && quest.unlocked(data.platform) ? data.platform : null;
+    savedShip = data.ship && typeof data.ship === "object" ? data.ship : null;
+    Object.values(platformCache).forEach((c) => { if (c.boatSystem && !c.boatSystem.load(savedShip)) c.boatSystem.returnToPier(); });
     if (saved) travelTo(saved, { x: player.x, y: player.y });
+    // Saved at sea: back at the helm where the ship was
+    if (saved && stage.boatSystem && savedShip && savedShip.aboard === true && stage.boatSystem.load(savedShip)) stage.boatSystem.embark(player, crewOf());
     return true;
   } catch (e) {
     console.error(e);
@@ -1703,7 +1727,7 @@ function updateGame() {
   }
 
   const familiar = syncFamiliar(player);   // pet / familiar from the skill tree
-  if (familiar && !isAway(player, "familiar")) familiar.update(player, enemyManager, fx, lootManager, isInBarracks);
+  if (familiar && !isAway(player, "familiar")) familiar.update(player, enemyManager, fx, lootManager, isInBarracks, stage);
 
   if (player.angelCompanions && player.angelCompanions.length > 0) {
     player.angelCompanions.forEach((angel, idx) => {
@@ -1722,7 +1746,7 @@ function updateGame() {
     });
   }
   enemyManager.enemies.forEach((enemy) => {
-    if (enemy.isAlive) stage.resolveTileCollision(enemy);
+    if (enemy.isAlive && !enemy.kind.flying) stage.resolveTileCollision(enemy);
   });
 
   quest.update(player);

@@ -26,7 +26,7 @@ then `outline <file>` and read only the line range you need.
 ## js/
 
 - `actintro.js` (6.6 KB, 177) — Act intro cinematic (ActIntro): when the story reaches a new Act, the Act banner pushes in behind letterbox bars with motes and a light sweep, then the Act number, title and the banner's EN/FIL caption from data/art_manifest.json; skippable · ActIntro
-- `actionpanel.js` (20 KB, 470) — Hotbar on the bottom tray (J/K/L skill slots with drag-and-drop arranging and the skill book (P), Space/E, quick slots 1–4, Market B and Full Screen F) and the right panel's option buttons · ActionPanel
+- `actionpanel.js` (20 KB, 472) — Hotbar on the bottom tray (J/K/L skill slots with drag-and-drop arranging and the skill book (P), Space/E, quick slots 1–4, Market B and Full Screen F) and the right panel's option buttons · ActionPanel
 - `actreader.js` (5.0 KB, 146) — "Read more" Act reader: full text of finished Acts from LORE.md with their banners · ActReader
 - `audio.js` (31 KB, 661) — Procedural Web Audio engine (exported Sound): master/music/SFX buses with compressor and reverb, synth instruments, a lookahead sequencer that crossfades the tracks in js/music.js by place/night/boss (setScene), fanfares (playJingle) and 30+ play* SFX that fade by distance and mute off screen · Sound
 - `background.js` (0.9 KB, 25) — Background image helpers for assets/bg/: loadImage and cover-fit drawCover · loadImage, drawCover
@@ -42,18 +42,19 @@ then `outline <file>` and read only the line range you need.
 - `dialog.js` (7.1 KB, 228) — HTML dialogue box with speaker portrait, quest tracker HUD and quest log overlays · DialogBox, QuestHud
 - `dialogue.js` (23 KB, 400) — Story dialogue for Acts II–VI per NPC and quest step (en/fil); getDialogue(id, ctx), npcName · npcName, getDialogue
 - `elements.js` (4.9 KB, 104) — Race, element, size and type tables with damage multipliers and variant prefixes (Ragnarok style), en/fil names · ELEMENTS, elementMult, raceBonus, sizeMod, rollVariant, variantPrefix, elementName, raceName +1
-- `enemy.js` (44 KB, 984) — Enemy manager: monster spawning (hub, platforms, frontiers, elites, night, ambushes, bosses), AI state machines, telegraphed attacks, tiers/elements, death and drops · HUB_KINDS, HUB_ELITES, EnemyManager
+- `enemy.js` (45 KB, 994) — Enemy manager: monster spawning (hub, platforms, frontiers, elites, night, ambushes, bosses), AI state machines, telegraphed attacks, tiers/elements, death and drops · HUB_KINDS, HUB_ELITES, EnemyManager
+- `errand.js` (8.9 KB, 212) — Summon errands: the familiar/Falcon/Guardian Angel carries a 9-slot pack to market from the field (sell non-quest items, buy potions and herbs), is out of combat until back; ErrandPack order, dispatch, updateErrand, save/load · errandReady, errandConfig, errandText, runnerName, errandBuyPrice, runnerFor, hasRunnerKind, awayRunner +7
 - `fx.js` (15 KB, 474) — Game feel: screen shake, hit-stop, shockwave rings, sparks, blood, damage numbers, flashes, vignette · FXManager
 - `fxsprites.js` (2.1 KB, 53) — Effect sprites from Aseprite (assets/sprites/fx/<name>, "down-play" tag): drawFx with rotation, size, anchor, alpha and cached tints; false when not loaded so callers keep their code-drawn effect · fxFrames, drawFx
 - `hudbar.js` (4.5 KB, 105) — Bottom bar HUD outside the canvas: name, level, HP/EXP/gold, status icons, quest objective, field state, Quest/Pause buttons · HudBar
 - `i18n.js` (19 KB, 458) — UI strings in English and Filipino (STRINGS.en / STRINGS.fil), language stored in localStorage; t(key), getLang/setLang/toggleLang/onLangChange · getLang, setLang, toggleLang, onLangChange, t
 - `inventory.js` (32 KB, 630) — Inventory panel (I): hero look, worn equipment, stats, tabbed bag, item details and actions (equip, upgrade, refine, sockets) · InventoryPanel
 - `juice.js` (4.0 KB, 99) — Shared combat animation helpers for every fighter: rest/hit/attack/windup/breath/spawn poses, swing arcs · REST, hitPose, attackPose, windupPose, breathPose, spawnPose, mix, around +1
-- `loot.js` (11 KB, 273) — Loot drops: gold and items from slain monsters, ground items, magnetic pickup into the bag; blocked drops slide to the nearest walkable tile (findNearestWalkableSpot) · findNearestWalkableSpot, LootManager
+- `loot.js` (11 KB, 277) — Loot drops: gold and items from slain monsters, ground items, magnetic pickup into the bag; blocked drops slide to the nearest walkable tile (findNearestWalkableSpot) · findNearestWalkableSpot, LootManager
 - `lore.js` (8.0 KB, 245) — Loads LORE.md / LORE_FIL.md, parses ## Acts into chapters, act banners, auto-scrolling lore panel · loadLore, parseChapters, actNumber, chapterKey, BANNER_EXTS, bannerSrc, createLorePanel
-- `main.js` (85 KB, 2057) — Entry module and coordinator: canvas fit, scene routing (title → prologue → creator → game), managers, menus/shops, platform travel, save/load/export/import, Job Awakening, update + render game loop
-- `market.js` (8.7 KB, 229) — Safe-zone Market (B): buy the stock in data/market.json and sell bag items for half price from anywhere inside a sanctuary; HTML overlay with Buy/Sell tabs, bulk buy and Sell all Normal gear · sellPrice, Market, marketText
-- `mercenaryManager.js` (14 KB, 371) — Hireable mercenaries: contracts and fees, following, AI combat, daze and recovery, drawing · MERC_CLASSES, MercenaryManager
+- `main.js` (89 KB, 2113) — Entry module and coordinator: canvas fit, scene routing (title → prologue → creator → game), managers, menus/shops, platform travel, save/load/export/import, Job Awakening, update + render game loop
+- `market.js` (13 KB, 317) — Market (B): buy and sell with a quantity slider per row (prices from items/economy.js via ctx) inside a sanctuary; outside one the same overlay builds and sends a summon errand (errand.js) · sellPrice, Market, marketText
+- `mercenaryManager.js` (15 KB, 391) — Hireable mercenaries: contracts and fees, following, AI combat, daze and recovery, drawing · MERC_CLASSES, MercenaryManager
 - `monsterTiers.js` (6.2 KB, 134) — Monster tiers (Normal, Champion, Elite, MVP) and modifiers: rolling, applying, damage multipliers, names, life bars (lives per level and tier) · MODS, modName, TIERS, rollTier, applyTier, tierName, has, MAX_LIVES +9
 - `music.js` (15 KB, 314) — Music score as data: note/chord helpers, bass/arp/pad pattern styles, compileTrack, TRACKS (title, hub, night, canopy, coast, frost, ash, siege, maw, boss, finale), AREA_TRACK (platform id → track) and JINGLES · midi, freq, chord, compileTrack, TRACKS, AREA_TRACK, JINGLES
 - `player.js` (26 KB, 637) — Player entity: stats, stamina/sprint/dodge roll, damage and debuffs, EXP/levels, skill learning, movement, attack pose, drawing · expFor, Player
@@ -122,24 +123,26 @@ then `outline <file>` and read only the line range you need.
 
 - `angel.js` (7.4 KB, 189) — Priest's Guardian Angel companion: lifespan, hover/attack/taunt AI, drawing · GuardianAngelCompanion
 - `falcon.js` (6.2 KB, 174) — Archer's falcon companion: dive attacks, taunts, afterimages · FalconCompanion
-- `familiar.js` (9.0 KB, 185) — Familiars for heroes with no summon (Novice slime, Knight hound, Mage owl, Fighter fox): learned in the skill tree, follow and fight on their own; syncFamiliar, familiarDamage · FAMILIARS, familiarFor, familiarDamage, syncFamiliar, Familiar
+- `familiar.js` (9.3 KB, 189) — Familiars for heroes with no summon (Novice slime, Knight hound, Mage owl, Fighter fox): learned in the skill tree, follow and fight on their own; syncFamiliar, familiarDamage · FAMILIARS, familiarFor, familiarDamage, syncFamiliar, Familiar
 
 ## js/world/
 
 - `ambient.js` (5.5 KB, 130) — Per-platform ambience particles and sky colour (spores, storm, blizzard, ash, …) · Ambient
 - `areas.js` (2.3 KB, 57) — Book I map registry: hub area (kinds, elites, sites, Badlands trail), areaDef/areaName/areaLevels over hub, platforms and frontiers, actAreas(act) for side quests · HUB_KINDS, HUB_ELITES, HUB_AREA, BOOK_ONE_AREAS, areaDef, isFrontier, areaName, areaLevels +1
 - `barracks.js` (2.0 KB, 72) — Barracks Sanctuary safe zone on the hub map: drawing and bounds · BarracksSystem
-- `boat.js` (23 KB, 607) — Crewed sailing ship in the Cerulean Abyss (boarding, deck posts for companions, landing at any shore) and the sea monolith · BoatSystem
+- `boat.js` (37 KB, 928) — Crewed sailing ship in the Cerulean Abyss: faces E/W/N/S as it sails, boarding, deck posts for companions, landing at any shore, save state, return to the pier; and the sea monolith · BoatSystem
 - `castle.js` (7.5 KB, 253) — Imperial Citadel on the hub map: drawing and solid hitboxes · CastleSystem
+- `edges.js` (6.4 KB, 145) — Barrier band along every Act platform / frontier map edge: solid tiles, themed boulders + trees on land, rolling haze (fog, smoke, poison gas…) over water · EDGE_TILES, markEdges, paintLandEdges, bakeHaze, drawHaze
 - `fishing.js` (5.2 KB, 113) — Fishing at liquid tiles: cast, bite, hook with E, bobber/line drawing and prompt · Fishing
 - `frontiers.js` (11 KB, 184) — Four frontier maps (Greyhorn Badlands, Gloomwater Fens, Stormcrown Highlands, Sunscorch Dunes): Acts, levels, themes, monsters, elites, sites, terrain and landmarks, en/fil text · FRONTIERS, FRONTIER_ORDER
 - `grassland.js` (1.6 KB, 57) — Hub grassland ground rendering (seeded grass and flora) · GrasslandSystem
 - `mining.js` (5.5 KB, 121) — Ore veins on every platform (tier ore, plus minerals on Ashfall and the Citadel; rock salt): picks per vein, ore drops · MINE_RANGE, needsPick, OreVeins
+- `nav.js` (5.8 KB, 140) — Ground movement for monsters, mercenaries and walking pets: obstacle grid, flow field toward the hero, steering around obstacles, confinement to bounds · blockedAt, footBlocked, clearLine, trackGoal, towardGoal, steer, confine
 - `platform.js` (13 KB, 291) — Platform or frontier map for one Act: tilemap, ambience, return gateway, frontier trail, safe zones; same interface as Stage · Platform
 - `platforms.js` (31 KB, 472) — Campaign platform definitions for Acts VII–XII: places, 5 monsters + 4 elites, sites, frontier trails, bosses, quest items, seal stones, en/fil text · SEAL_STONES, PLATFORMS, PLATFORM_ORDER, PLATFORM_SIZE
 - `portal.js` (4.7 KB, 124) — Celestial Warp Gateways and the Badlands trail: drawing and collision; calls main.js's handler to travel or report sealed · drawGateway, PortalSystem
-- `tilemap.js` (15 KB, 407) — Tile map generation and rendering from the tileset, foot hitbox collision, decorations · TileMap
-- `tileset.js` (25 KB, 583) — Procedural 16×16 pixel-art tile atlas, themes, seeded RNG (mulberry32), tree/rock/bush drawing · TILE, ATLAS_COLS, T, THEMES, mulberry32, buildTileset, drawTreeSplit, drawRock +1
+- `tilemap.js` (16 KB, 418) — Tile map generation and rendering from the tileset, foot hitbox collision, decorations · TileMap
+- `tileset.js` (26 KB, 596) — Procedural 16×16 pixel-art tile atlas, themes, seeded RNG (mulberry32), tree/rock/bush drawing · TILE, ATLAS_COLS, T, THEMES, mulberry32, buildTileset, drawTreeSplit, drawRock +1
 - `weather.js` (8.9 KB, 234) — Hub weather cycle (clear, rain, storm, fog) with pixel-art clouds and shadows · WeatherSystem
 
 ## scripts/
