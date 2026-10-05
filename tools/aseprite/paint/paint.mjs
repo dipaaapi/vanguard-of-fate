@@ -4,6 +4,7 @@
  *
  *   node tools/aseprite/paint/paint.mjs                   # list what can be painted
  *   node tools/aseprite/paint/paint.mjs summon/hound      # → aseprite/summon/hound.aseprite
+ *   node tools/aseprite/paint/paint.mjs fx                # every effect (fx/<name>)
  *   node tools/aseprite/paint/paint.mjs all
  *
  * This overwrites the .aseprite, so don't run it on art that has been edited by hand.
@@ -14,6 +15,7 @@ import * as slime from "./slime.mjs";
 import * as beast from "./beast.mjs";
 import * as bird from "./bird.mjs";
 import * as angel from "./angel.mjs";
+import { FX } from "./fx.mjs";
 
 const DIRS = ["down", "side", "up"];
 const all = (frames) => Object.fromEntries(DIRS.map((d) => [d, frames]));
@@ -28,9 +30,12 @@ export const SUBJECTS = {
   "summon/angel": async () => { const a = await angel.prepare(); build("summon/angel", angel.W, angel.H, all(angel.FRAMES), (d, an, i) => a.paint(d, an, i), angel.DURATIONS); }
 };
 
+// Effects: one "down-play" tag each (js/fxsprites.js)
+for (const [name, e] of Object.entries(FX)) SUBJECTS[`fx/${name}`] = () => build(`fx/${name}`, e.w, e.h, { down: { play: e.n } }, (d, a, i) => e.paint(i), { play: e.dur });
+
 const [arg] = process.argv.slice(2);
 if (!arg) console.log(`paintable: ${Object.keys(SUBJECTS).join(", ")}, all`);
-else for (const key of arg === "all" ? Object.keys(SUBJECTS) : arg.split(",")) {
+else for (const key of arg === "all" ? Object.keys(SUBJECTS) : arg === "fx" ? Object.keys(SUBJECTS).filter((k) => k.startsWith("fx/")) : arg.split(",")) {
   if (!SUBJECTS[key]) { console.error(`unknown subject "${key}"`); process.exit(1); }
   await SUBJECTS[key]();
 }

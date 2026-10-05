@@ -43,6 +43,7 @@ then `outline <file>` and read only the line range you need.
 - `elements.js` (4.9 KB, 104) — Race, element, size and type tables with damage multipliers and variant prefixes (Ragnarok style), en/fil names · ELEMENTS, elementMult, raceBonus, sizeMod, rollVariant, variantPrefix, elementName, raceName +1
 - `enemy.js` (40 KB, 931) — Enemy manager: monster spawning (hub, platforms, night, ambushes, bosses), AI state machines, telegraphed attacks, tiers/elements, death and drops · HUB_KINDS, EnemyManager
 - `fx.js` (14 KB, 455) — Game feel: screen shake, hit-stop, shockwave rings, sparks, blood, damage numbers, flashes, vignette · FXManager
+- `fxsprites.js` (2.1 KB, 52) — Effect sprites from Aseprite (assets/sprites/fx/<name>, "down-play" tag): drawFx with rotation, size, anchor, alpha and cached tints; false when not loaded so callers keep their code-drawn effect · fxFrames, drawFx
 - `hudbar.js` (4.5 KB, 105) — Bottom bar HUD outside the canvas: name, level, HP/EXP/gold, status icons, quest objective, field state, Quest/Pause buttons · HudBar
 - `i18n.js` (17 KB, 418) — UI strings in English and Filipino (STRINGS.en / STRINGS.fil), language stored in localStorage; t(key), getLang/setLang/toggleLang/onLangChange · getLang, setLang, toggleLang, onLangChange, t
 - `inventory.js` (32 KB, 630) — Inventory panel (I): hero look, worn equipment, stats, tabbed bag, item details and actions (equip, upgrade, refine, sockets) · InventoryPanel
@@ -197,6 +198,7 @@ then `outline <file>` and read only the line range you need.
 - `angel.mjs` (5.6 KB, 107) — Painter: detailed Guardian Angel 44×44 from the game's Avatar body plus feathered wings, halo glow and holy light · W, H, FRAMES, DURATIONS, LOOK, prepare
 - `beast.mjs` (15.9 KB, 297) — Painter: detailed four-legged familiars 40×28 (War Hound, Spirit Fox), idle/walk/run/attack/skill × 3 directions · W, H, FRAMES, DURATIONS, KINDS, paintBeast, mix
 - `bird.mjs` (7.8 KB, 142) — Painter: detailed birds 36×28, side view (Archer's falcon, Arcane Owl): fly, dive, taunt · W, H, FRAMES, DURATIONS, KINDS, paintBird
+- `fx.mjs` (9.5 KB, 186) — Painter: skill and hit effects (meteor, blast, lightning, holy, sphere, slash, wave, bolt, arrow, arrowfall, bite, claw, arcane); grey ones are tinted in game · FX, mix
 - `kit.mjs` (6.7 KB, 125) — Painting kit for the procedural Aseprite starting points: Canvas (lit dithered blobs, thick lines, polygons, outline, sparks), fromGame, build() → aseprite/<key>.aseprite via seed.lua · hex, mixc, Canvas, fromGame, build
 - `paint.mjs` (2.2 KB, 36) — Recreates the detailed procedural .aseprite starting points (overwrites): node tools/aseprite/paint/paint.mjs <key|all> · SUBJECTS
 - `slime.mjs` (7.5 KB, 140) — Painter: detailed slime 32×24 (Forest Slime; Pocket Slime with sprout), idle/walk/run/attack/skill × 3 directions · W, H, FOREST, FRAMES, DURATIONS, paintSlime

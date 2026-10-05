@@ -76,6 +76,7 @@ export class FalconCompanion {
           if (this.target && this.target.isAlive) {
             enemyManager.damage(this.target, 38, Math.atan2(dy, dx), true, fx, lootManager, 14, false, player, "wind");
             if (fx && fx.spawnHitSparks) fx.spawnHitSparks(this.x + 12, this.y + 12, "#ffd166", 16);
+            if (fx && fx.spawnSprite) fx.spawnSprite("claw", this.x + 12, this.y + 12, { every: 2 });
           }
         }
         this.state = "RETURNING";

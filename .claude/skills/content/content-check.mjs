@@ -12,10 +12,10 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const { load, ROOT } = await import(path.join(HERE, "../../../scripts/headless.mjs"));
+const { load, ROOT } = await import(pathToFileURL(path.join(HERE, "../../../scripts/headless.mjs")).href);
 const LIST = process.argv.includes("--list");
 const STRICT = process.argv.includes("--strict");
 

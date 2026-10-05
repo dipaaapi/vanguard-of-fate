@@ -22,10 +22,10 @@ import os from "node:os";
 import path from "node:path";
 import zlib from "node:zlib";
 import { execFileSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const { load, ROOT } = await import(path.join(HERE, "../../../scripts/headless.mjs"));
+const { load, ROOT } = await import(pathToFileURL(path.join(HERE, "../../../scripts/headless.mjs")).href);
 
 const argv = process.argv.slice(2);
 const opt = (k, d) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : d; };
@@ -70,7 +70,7 @@ function list(A) {
 function resolve(A, subj) {
   const [kind, ...rest] = subj.split(":");
   const key = rest.join(":");
-  const avatarAnims = { idle: 2, walk: 4, run: 4, attack: 2 };
+  const avatarAnims = { idle: 2, walk: 4, run: 4, attack: 2, skill: 6 };
   const config = opt("--config", null) ? JSON.parse(opt("--config")) : A.options.DEFAULT_CONFIG;
   if (kind === "class") {
     const def = key === "novice" ? A.novice.getNovice(config) : A.classes[key] && A.job.equipJob(A.classes[key], config);
@@ -91,7 +91,10 @@ function resolve(A, subj) {
     const d = (kind === "boss" ? A.bestiary.BOSSES : A.bestiary.MONSTERS)[key];
     if (!d) throw new Error(`unknown ${kind} "${key}"`);
     const s = d.sprite;
-    return { sprite: s, anims: s.frames || avatarAnims };
+    if (!s.frames) return { sprite: s, anims: avatarAnims };
+    // drawn animations plus the ones built from them (run from walk, skill from attack)
+    const extra = ["run", "skill"].filter((a) => !s.frames[a] && s.has && s.has(a));
+    return { sprite: s, anims: { ...s.frames, ...Object.fromEntries(extra.map((a) => [a, s.count("down", a)])) } };
   }
   if (kind === "icon") {
     const item = A.items.describe({ id: key });

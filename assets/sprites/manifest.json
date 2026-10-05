@@ -1,5 +1,18 @@
 {
   "sheets": [
+    "fx/arcane",
+    "fx/arrow",
+    "fx/arrowfall",
+    "fx/bite",
+    "fx/blast",
+    "fx/bolt",
+    "fx/claw",
+    "fx/holy",
+    "fx/lightning",
+    "fx/meteor",
+    "fx/slash",
+    "fx/sphere",
+    "fx/wave",
     "monster/slime",
     "summon/angel",
     "summon/falcon",

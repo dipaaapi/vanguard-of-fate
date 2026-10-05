@@ -9,7 +9,20 @@ aseprite/boss/<key>.aseprite      → BOSSES[<key>]
 aseprite/summon/slime|hound|owl|fox.aseprite → the familiars (js/summons/familiar.js)
 aseprite/summon/falcon.aseprite   → the Archer's falcon (side view only: fly, dive, taunt)
 aseprite/summon/angel.aseprite    → the Priest's Guardian Angel (an Avatar: 32×36 base, feet at 16,34)
+aseprite/npc/<id>.aseprite        → an NPC (NPC_DEFS in js/npc/roster.js), Avatar-sized
+aseprite/merc/<axe|crossbow|greatsword|wand>.aseprite → a mercenary
+aseprite/fx/<name>.aseprite       → a skill or hit effect (one "down-play" tag, any size; js/fxsprites.js)
 ```
+
+Without a file, everything still has detailed art from code: every character and monster gets a
+volume-shading and texture pass (`Pix.detail` in js/avatar/avatar.js), and `run` / `skill` animations
+built from the walk and attack. `seed.mjs` starts a file from exactly that, for any key above
+(`node tools/aseprite/seed.mjs npc/brakka`, `monster/wolf`, `merc/axe`, `boss/malakor`). The hero's
+look comes from the Character Creator, so the hero stays code-drawn.
+
+Effects: `meteor`, `blast`, `lightning`, `holy`, `sphere`, `slash`, `wave`, `bolt`, `arrow`, `arrowfall`,
+`bite`, `claw`, `arcane`. Heading effects point right (the game rotates them); `slash`, `wave`, `bolt`
+and `bite` are painted in greys and tinted per skill.
 
 ## Workflow
 

@@ -33,17 +33,30 @@ export function findAseprite() {
 
 /**
  * The game sprite a sheet key replaces, with its size and code-drawn animations ({ w, h, frames } and
- * frame()): "monster/<key>", "boss/<key>" (creature sprites), "summon/<slime|hound|owl|fox|falcon|angel>".
- * Null when the key matches nothing (or a humanoid monster, which has no sheet support yet).
+ * frame()): "monster/<key>", "boss/<key>", "npc/<id>", "merc/<axe|crossbow|greatsword|wand>",
+ * "summon/<slime|hound|owl|fox|falcon|angel>". Avatars (humanoids) get their size and animations
+ * (idle, walk, run, attack, skill) attached. Null when the key matches nothing.
  */
 export async function codeSprite(key) {
   const { load } = await import(pathToFileURL(path.join(ROOT, "scripts/headless.mjs")).href);
   const [kind, name] = key.split("/");
+  const A = await load("js/avatar/avatar.js");
+  const human = (av) => Object.assign(av, { w: A.FRAME_W, h: A.FRAME_H, frames: { idle: 2, walk: 4, run: 4, attack: 2, skill: 6 } });
+  if (kind === "npc") {
+    const { NPC_DEFS } = await load("js/npc/roster.js");
+    return NPC_DEFS[name] ? human(new A.Avatar(NPC_DEFS[name].look)) : null;
+  }
+  if (kind === "merc") {
+    const file = { axe: "axe", crossbow: "crossbow", greatsword: "greatsword", wand: "wand" }[name];
+    if (!file) return null;
+    const mod = await load(`js/mercenary/${file}.js`);
+    const cls = Object.values(mod).find((v) => v && v.look);
+    return cls ? human(new A.Avatar(cls.look)) : null;
+  }
   if (kind === "summon") {
     if (name === "angel") {
-      const A = await load("js/avatar/avatar.js");
       const { LOOK } = await import(pathToFileURL(path.join(ROOT, "tools/aseprite/paint/angel.mjs")).href);
-      return Object.assign(new A.Avatar({ ...LOOK }), { w: A.FRAME_W, h: A.FRAME_H, frames: { idle: 2, walk: 4, run: 4, attack: 2 } });
+      return human(new A.Avatar({ ...LOOK }));
     }
     if (name === "falcon") return new (await load("js/avatar/creature.js")).FalconSprite();
     const { FAMILIARS } = await load("js/summons/familiar.js");
@@ -51,7 +64,12 @@ export async function codeSprite(key) {
   }
   const { MONSTERS, BOSSES } = await load("js/bestiary.js");
   const def = (kind === "monster" ? MONSTERS : kind === "boss" ? BOSSES : {})[name];
-  return def && def.sprite.frames ? def.sprite : null;
+  if (!def) return null;
+  if (!def.sprite.frames) return human(def.sprite);
+  // creature: drawn animations plus the ones built from them (run, skill)
+  const s = def.sprite, frames = { ...s.frames };
+  for (const a of ["run", "skill"]) if (!frames[a] && s.has(a)) frames[a] = s.count("down", a);
+  return { w: s.w, h: s.h, frames, frame: (dir, anim, i) => s.frame(dir, anim, i) };
 }
 
 /** Encode RGBA pixels as a PNG file. */

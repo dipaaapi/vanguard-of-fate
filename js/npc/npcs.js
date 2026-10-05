@@ -149,6 +149,7 @@ class NPC {
     this.flip = false;
     this.visible = true;
     this.avatar = new Avatar(NPC_DEFS[id].look);
+    this.avatar.sheetKey = `npc/${id}`;   // aseprite/npc/<id>.aseprite when exported
     this.squash = NPC_DEFS[id].dwarf ? 0.8 : 1;   // dwarves stand shorter
     this.tick = Math.floor(Math.random() * 120);
 

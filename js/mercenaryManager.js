@@ -10,7 +10,8 @@ import { GFX } from "./settings.js";
 
 // One Avatar per mercenary type (frames are cached)
 const AVATARS = {};
-const avatarOf = (data) => AVATARS[data.type] || (AVATARS[data.type] = new Avatar(data.look));
+// aseprite/merc/<type>.aseprite replaces the code-drawn look when exported
+const avatarOf = (data) => AVATARS[data.type] || (AVATARS[data.type] = Object.assign(new Avatar(data.look), { sheetKey: `merc/${data.type}` }));
 
 // How long a mercenary stays dazed before getting back up (15 seconds at 60 fps)
 const KO_TIME = 900;

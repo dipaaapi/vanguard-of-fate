@@ -109,6 +109,7 @@ export class GuardianAngelCompanion {
         if (Sound && Sound.playSlash) Sound.playSlash(this.x, this.y);
         enemyManager.damage(enemyTarget, this.damage, Math.atan2(tdy, tdx), false, fx, lootManager, 12, false, player, "holy");
         if (fx && fx.spawnHitSparks) fx.spawnHitSparks(enemyTarget.x + 10, enemyTarget.y + 10, "#ffd166", 14);
+        if (fx && fx.spawnSprite) fx.spawnSprite("slash", enemyTarget.x + 10, enemyTarget.y + 10, { tint: "#ffd166", rot: Math.atan2(tdy, tdx), every: 2 });
       }
     } else {
       // Back beside the Priest (aboard, the ship keeps it at its post)

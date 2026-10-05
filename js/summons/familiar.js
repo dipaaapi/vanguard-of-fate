@@ -146,6 +146,7 @@ export class Familiar {
     if (k.ranged) this.beam = { x1: e.x + 12, y1: e.y + 10, t: 8 };
     if (k.stamina) player.stamina = Math.min(player.maxStamina, player.stamina + k.stamina);
     if (fx && fx.spawnHitSparks) fx.spawnHitSparks(e.x + 12, e.y + 12, k.spark, 6);
+    if (fx && fx.spawnSprite) fx.spawnSprite(k.ranged ? "arcane" : "bite", e.x + 12, e.y + 10, { tint: k.ranged ? null : k.spark, scale: this.special ? 1.3 : 1 });
     if (Sound.playHitEnemy && !k.ranged) Sound.playHitEnemy(false, e.x, e.y);
   }
 

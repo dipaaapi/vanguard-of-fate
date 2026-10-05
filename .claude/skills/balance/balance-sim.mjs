@@ -28,10 +28,10 @@
  */
 import path from "node:path";
 import fs from "node:fs";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const { load, seedRandom, ROOT } = await import(path.join(HERE, "../../../scripts/headless.mjs"));
+const { load, seedRandom, ROOT } = await import(pathToFileURL(path.join(HERE, "../../../scripts/headless.mjs")).href);
 
 const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : d; };

@@ -146,5 +146,7 @@
   "tools/aseprite/paint/slime.mjs": "Painter: detailed slime 32×24 (Forest Slime; Pocket Slime with sprout), idle/walk/run/attack/skill × 3 directions",
   "tools/aseprite/paint/beast.mjs": "Painter: detailed four-legged familiars 40×28 (War Hound, Spirit Fox), idle/walk/run/attack/skill × 3 directions",
   "tools/aseprite/paint/bird.mjs": "Painter: detailed birds 36×28, side view (Archer's falcon, Arcane Owl): fly, dive, taunt",
-  "tools/aseprite/paint/angel.mjs": "Painter: detailed Guardian Angel 44×44 from the game's Avatar body plus feathered wings, halo glow and holy light"
+  "tools/aseprite/paint/angel.mjs": "Painter: detailed Guardian Angel 44×44 from the game's Avatar body plus feathered wings, halo glow and holy light",
+  "js/fxsprites.js": "Effect sprites from Aseprite (assets/sprites/fx/<name>, \"down-play\" tag): drawFx with rotation, size, anchor, alpha and cached tints; false when not loaded so callers keep their code-drawn effect",
+  "tools/aseprite/paint/fx.mjs": "Painter: skill and hit effects (meteor, blast, lightning, holy, sphere, slash, wave, bolt, arrow, arrowfall, bite, claw, arcane); grey ones are tinted in game"
 }

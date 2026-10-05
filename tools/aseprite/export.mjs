@@ -42,6 +42,11 @@ for (const file of files) {
 
   const data = JSON.parse(fs.readFileSync(json, "utf8"));
   const warn = (msg) => { problems++; console.warn(`  ! ${key}: ${msg}`); };
+  if (key.startsWith("fx/")) {   // effects: one "down-play" tag, any size (js/fxsprites.js)
+    if (!(data.meta.frameTags || []).some((t) => t.name === "down-play")) warn(`effect needs a "down-play" tag`);
+    console.log(`${rel(png)}  ${data.frames[0].frame.w}×${data.frames[0].frame.h}  play×${data.frames.length}`);
+    continue;
+  }
   const sprite = await codeSprite(key);
   if (!sprite) warn(`no creature sprite "${key}" in js/bestiary.js, so the game won't use this sheet`);
   const used = [];
