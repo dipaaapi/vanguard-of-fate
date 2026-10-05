@@ -42,7 +42,7 @@ export const SETS = {
     passive: { en: "Forge Heart", fil: "Puso ng Pandayan" }
   },
   mythril: {
-    mineral: true, grade: 6, color: "#93c5fd", name: { en: "Mythril Vanguard", fil: "Mythril Vanguard" },
+    mineral: true, grade: 6, color: "#93c5fd", name: { en: "Aethersilver Vanguard", fil: "Aethersilver Vanguard" },
     piece: { def: 4, cdr: 1 },
     bonus: { 2: { cdr: 6 }, 4: { def: 20, hp: 150 }, 5: { atk: 25, spd: 0.1 } },
     passive: { en: "Unbroken Line", fil: "Hindi Nasisirang Hanay" }
@@ -99,7 +99,7 @@ const EQUIP = {
   helm:       { slot: "head", cls: ["knight", "fighter", "archer", "novice"], icon: "helm", stats: { def: 4, hp: 10 }, sockets: 1, name: N("Helm", "Helmet") },
   wizhat:     { slot: "head", cls: ["mage", "priest"], icon: "hat", stats: { def: 1, int: 2 }, sockets: 1, name: N("Wizard Hat", "Sombrero ng Salamangkero") },
   circlet:    { slot: "head", icon: "circlet", stats: { crit: 2, cdr: 2 }, sockets: 1, name: N("Astral Circlet", "Astral na Korona") },
-  bunny:      { slot: "head", icon: "bunny", stats: { luk: 3, def: 1 }, sockets: 1, name: N("Bunny Band", "Bunny Band") },
+  bunny:      { slot: "head", icon: "bunny", stats: { luk: 3, def: 1 }, sockets: 1, name: N("Rabbit-Ear Band", "Banda ng Tainga ng Kuneho") },
   // ---- Baluti ----
   tunic:      { slot: "armor", icon: "tunic", stats: { def: 2, hp: 10 }, sockets: 1, name: N("Adventurer's Suit", "Kasuotan ng Adventurer") },
   mail:       { slot: "armor", cls: ["knight", "fighter", "archer"], icon: "mail", stats: { def: 5, hp: 20 }, sockets: 1, name: N("Chain Mail", "Chain Mail") },
@@ -148,7 +148,7 @@ const OTHER = {
   // Minerals: mined in the Ashfall Wastelands (emberite, obsidian) and the Siege (mythril, starsteel)
   emberite:    { type: "material", icon: "ore", tint: "#f97316", price: 30, name: N("Emberite", "Emberite"), desc: N("Ore still warm from the Hellforge. Forges Emberforged gear and tempers weapons.", "Mineral na mainit pa mula sa Hellforge. Pang-forge ng Emberforged at pampatibay ng sandata.") },
   obsidianOre: { type: "material", icon: "crystal", tint: "#818cf8", price: 40, name: N("Obsidian Ore", "Obsidian Ore"), desc: N("Glassy volcanic ore. Used in set forging and to temper armor.", "Makinang na bulkanikong mineral. Pang-forge ng set at pampatibay ng baluti.") },
-  mythril:     { type: "material", icon: "ore", tint: "#93c5fd", price: 80, name: N("Mythril", "Mythril"), desc: N("Light, unbreakable silver from the Obsidian Citadel's buried veins. Forges Mythril Vanguard and tempers accessories.", "Magaan at matibay na pilak mula sa ilalim ng Obsidian Citadel. Pang-forge ng Mythril Vanguard at pampatibay ng aksesorya.") },
+  mythril:     { type: "material", icon: "ore", tint: "#93c5fd", price: 80, name: N("Aethersilver", "Aethersilver"), desc: N("Light, unbreakable silver from the Obsidian Citadel's buried veins. Forges Aethersilver Vanguard and tempers accessories.", "Magaan at matibay na pilak mula sa ilalim ng Obsidian Citadel. Pang-forge ng Aethersilver Vanguard at pampatibay ng aksesorya.") },
   starsteel:   { type: "material", icon: "crystal", tint: "#fde68a", price: 200, name: N("Starsteel", "Starsteel"), desc: N("A rare fallen-star alloy. Needed for Starforged gear.", "Bihirang haluang metal mula sa bumagsak na bituin. Kailangan sa Starforged.") },
   dwarvenPickaxe: { type: "quest", icon: "ore", tint: "#a8a29e", name: N("Dwarven Pickaxe", "Piko ng Dwarf"), desc: N("Thane Durgrim's gift. Lets you mine ore veins in the Ashfall Wastelands and the Siege.", "Regalo ni Thane Durgrim. Nagbibigay-daan sa pagmimina sa Ashfall Wastelands at sa Siege.") },
   // healPct: potions keep up with the hero — they restore the HP or that share of max HP, whichever is more
@@ -158,13 +158,13 @@ const OTHER = {
   panacea:  { type: "consume", icon: "potion", tint: "#4ade80", price: 15, effect: { cure: true }, name: N("Edgar's Panacea", "Panacea ni Edgar"), desc: N("Purges all seven miasmic blights.", "Inaalis ang pitong sumpa ng miasma.") },
   // Rare respec item: drops very seldom, sometimes sold by Pip in Emberhold at a steep price
   mushroom: { type: "consume", icon: "herb", tint: "#c026d3", price: 1200, effect: { respec: true }, name: N("Oblivion Mushroom", "Kabuti ng Paglimot"), desc: N("Forget every stat and skill: all points are refunded to spend again. Cannot be undone.", "Kalimutan ang lahat ng stat at skill: ibinabalik ang lahat ng puntos para gastusin muli. Hindi na maibabalik.") },
-  herb:     { type: "consume", icon: "herb", price: 25, effect: { heal: 30, resetSkill: true }, name: N("Yggdrasil Leaf", "Dahon ng Yggdrasil"), desc: N("+30 HP and resets your skill cooldown (not during boss fights).", "+30 HP at nire-reset ang cooldown ng skill (hindi sa laban sa boss).") },
+  herb:     { type: "consume", icon: "herb", price: 25, effect: { heal: 30, resetSkill: true }, name: N("Astraea's Leaf", "Dahon ni Astraea"), desc: N("+30 HP and resets your skill cooldown (not during boss fights).", "+30 HP at nire-reset ang cooldown ng skill (hindi sa laban sa boss).") },
   shardPower: { type: "consume", icon: "shard", tint: "#ef4444", price: 8, effect: { buff: "damage", time: 420 }, name: N("Power Shard", "Shard ng Lakas"), desc: N("+50% damage for 7s.", "+50% pinsala sa 7s.") },
   shardRapid: { type: "consume", icon: "shard", tint: "#facc15", price: 8, effect: { buff: "atkSpeed", time: 420 }, name: N("Rapid Shard", "Shard ng Bilis ng Atake"), desc: N("Double attack speed for 7s.", "Dobleng bilis ng atake sa 7s.") },
   shardSwift: { type: "consume", icon: "shard", tint: "#38bdf8", price: 8, effect: { buff: "moveSpeed", time: 420 }, name: N("Swift Shard", "Shard ng Takbo"), desc: N("+50% move speed for 7s.", "+50% bilis ng lakad sa 7s.") },
   shardGhost: { type: "consume", icon: "shard", tint: "#a855f7", price: 8, effect: { buff: "invis", time: 360 }, name: N("Ghost Shard", "Shard ng Multo"), desc: N("Near-invisible for 6s.", "Halos di-makita sa 6s.") },
-  monsterShard: { type: "material", icon: "ore", tint: "#94a3b8", price: 4, name: N("Phracon Shard", "Phracon Shard"), desc: N("Refine material (+1 to +5).", "Pang-refine (+1 hanggang +5).") },
-  voidCrystal:  { type: "material", icon: "crystal", tint: "#a855f7", price: 20, name: N("Void Oridecon", "Void Oridecon"), desc: N("Purified miasma ore. Needed from +6 to +10.", "Nilinis na mineral ng miasma. Kailangan mula +6 hanggang +10.") },
+  monsterShard: { type: "material", icon: "ore", tint: "#94a3b8", price: 4, name: N("Monster Shard", "Monster Shard"), desc: N("Refine material (+1 to +5).", "Pang-refine (+1 hanggang +5).") },
+  voidCrystal:  { type: "material", icon: "crystal", tint: "#a855f7", price: 20, name: N("Void Crystal", "Kristal ng Void"), desc: N("Purified miasma ore. Needed from +6 to +10.", "Nilinis na mineral ng miasma. Kailangan mula +6 hanggang +10.") },
   heartstone:   { type: "quest", icon: "heart", tint: "#ef4444", name: N("Blighted Heartstone", "Bulok na Heartstone"), desc: N("Malakor's shattered heart. Bring it to your summoner.", "Ang basag na puso ni Malakor. Dalhin sa tagapagtawag.") },
   abyssHelm:    { type: "quest", icon: "shell", tint: "#38bdf8", name: N("Abyssal Helm Shard", "Piraso ng Abyssal Helm"), desc: N("Broken from the Leviathan Regent's crown.", "Nabasag mula sa korona ng Leviathan Regent.") },
   cryoCore:     { type: "quest", icon: "crystal", tint: "#bfe9ff", name: N("Cryonix Core", "Core ni Cryonix"), desc: N("The fractured heart of the Frost Empress.", "Ang basag na puso ng Frost Empress.") },

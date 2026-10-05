@@ -16,10 +16,10 @@ import { skillText } from "./skills.js";
 
 const SKILLS = {
   novice:  { J: ["🗡️", "Dagger Jab"],        K: ["🌀", "Dodge Roll"],            L: ["🪨", "Throw Stone"] },
-  knight:  { J: ["🛡️", "Bastion Forcefield"], K: ["⚡", "Piercing Lance Charge"], L: ["🌙", "Brandish Spear"] },
-  archer:  { J: ["🏹", "Quiver Shot"],        K: ["🦅", "Falcon Dive"],           L: ["🌧️", "Arrow Shower"] },
+  knight:  { J: ["🛡️", "Bastion Forcefield"], K: ["⚡", "Piercing Lance Charge"], L: ["🌙", "Crescent Sweep"] },
+  archer:  { J: ["🏹", "Quiver Shot"],        K: ["🦅", "Falcon Dive"],           L: ["🌧️", "Skyfall Volley"] },
   priest:  { J: ["✚", "Priority Heal"],       K: ["👼", "Guardian Angels"],       L: ["🌟", "Holy Light"] },
-  mage:    { J: ["☄️", "Meteor Fall"],        K: ["🌩️", "Thunderstorm"],          L: ["🧊", "Frost Diver"] },
+  mage:    { J: ["☄️", "Meteor Fall"],        K: ["🌩️", "Thunderstorm"],          L: ["🧊", "Glacial Lance"] },
   fighter: { J: ["🔵", "Force Sphere"],       K: ["🦶", "Flying Dropkick"],       L: ["💢", "Ki Explosion"] }
 };
 

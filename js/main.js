@@ -360,7 +360,7 @@ function openRonaldMenu() {
 function openSmithMenu() {
   const fil = lang() === "fil", who = npcName("brakka");
   serviceMenu.show(who, [
-    { label: fil ? "Mag-refine (hanggang +10)" : "Refine gear (up to +10)", hint: fil ? "Phracon, Oridecon at ginto" : "Phracon, Oridecon and gold",
+    { label: fil ? "Mag-refine (hanggang +10)" : "Refine gear (up to +10)", hint: fil ? "Monster Shard, Kristal ng Void at ginto" : "Monster Shards, Void Crystals and gold",
       onPick: () => openService("refine", { serviceName: who }) },
     { label: fil ? "Mag-forge ng set" : "Forge a set piece", hint: fil ? "Mga mineral mula sa minahan" : "From mined minerals", onPick: openForgeSets },
     { label: fil ? "Patibayin gamit ang mineral" : "Temper with minerals", hint: fil ? "Hanggang 3 beses bawat hindi-set na gamit" : "Up to 3 times on any non-set gear",
@@ -435,7 +435,7 @@ function openNobleMenu() {
   } else {
     serviceMenu.show(who, [{
       label: fil ? "Tungkol sa pagmimina" : "About mining",
-      hint: fil ? "Emberite at Obsidian sa Ashfall · Mythril at Starsteel sa Siege · dalhin kay Brakka" : "Emberite & Obsidian in the Ashfall · Mythril & Starsteel in the Siege · take them to Brakka",
+      hint: fil ? "Emberite at Obsidian sa Ashfall · Aethersilver at Starsteel sa Siege · dalhin kay Brakka" : "Emberite & Obsidian in the Ashfall · Aethersilver & Starsteel in the Siege · take them to Brakka",
       onPick: () => {}
     }]);
   }

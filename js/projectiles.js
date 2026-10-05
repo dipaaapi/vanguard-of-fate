@@ -143,7 +143,7 @@ export class ProjectileManager {
           continue;
         }
       }
-      // 8. Bolt (Throw Stone, Holy Light, Frost Diver, path actives) — a flying shot with an element; crit: always critical
+      // 8. Bolt (Throw Stone, Holy Light, Glacial Lance, path actives) — a flying shot with an element; crit: always critical
       else if (p.type === "bolt") {
         p.x += p.vx;
         p.y += p.vy;
@@ -163,7 +163,7 @@ export class ProjectileManager {
           continue;
         }
       }
-      // 9. Rain (Arrow Shower) — several waves of hits on one spot
+      // 9. Rain (Skyfall Volley) — several waves of hits on one spot
       else if (p.type === "rain") {
         p.timer++;
         if (p.timer % p.every === 1) {
