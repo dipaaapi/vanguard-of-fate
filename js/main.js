@@ -21,7 +21,7 @@ import { PrologueScene } from "./prologue.js";
 import { getNovice } from "./classes/novice.js";
 import { equipJob, refreshLook } from "./classes/job.js";
 import { Platform } from "./world/platform.js";
-import { PLATFORMS, PLATFORM_ORDER, SEAL_STONES } from "./world/platforms.js";
+import { PLATFORMS, PLATFORM_ORDER, SEAL_STONES, DARK_CONTINENT } from "./world/platforms.js";
 import { FRONTIERS } from "./world/frontiers.js";
 import { areaDef, areaName } from "./world/areas.js";
 import { drawSites } from "./sidequest.js";
@@ -170,7 +170,7 @@ function applyConfig(key) {
   if (key === "sfx") Sound.sfxEnabled = gameConfig.sfx;
 }
 
-// The plains of Aethelgard (hub) and the Act VII–XII platforms (built on first entry).
+// The plains of Aethelgard (hub) and the Act VII–XV platforms (built on first entry).
 // Same size (1280x960), so one camera, enemy and projectile manager serve all of them.
 const hub = new Stage(1280, 960);
 let stage = hub;
@@ -747,7 +747,7 @@ quest.onChange = () => {
   saveGame();
 };
 
-// ==================== TRAVELLING BETWEEN PLATFORMS (Acts VII–XII) ====================
+// ==================== TRAVELLING BETWEEN PLATFORMS (Acts VII–XV) ====================
 const lang = () => (getLang() === "fil" ? "fil" : "en");
 const fillNames = (lines) => lines.map((s) => s.replace(/\{s\}/g, summonerName()).replace(/\{h\}/g, (player && player.heroName) || "Champion"));
 
@@ -860,12 +860,14 @@ function handlePortal(portal) {
   const dest = portal.dest;
   if (portal.id === "RETURN") return travelTo(portal.dest || "hub");
   if (portal.id === "DARK_CONTINENT_PORTAL" || dest === "dark_continent") {
-    // The Celestial Monolith portal is the only way to the Dark Continent (Acts XI–XII)
-    if (!quest.unlocked("siege")) {
+    // The Celestial Monolith portal is the only way to the Dark Continent (Acts XI–XV); it opens onto
+    // the furthest Dark Continent Act reached so far
+    const open = DARK_CONTINENT.filter((pid) => quest.unlocked(pid));
+    if (!open.length) {
       fx.spawnDamagePopup(player.x + 10, player.y - 10, lang() === "fil" ? "SELYADO · ACT XI" : "SEALED · ACT XI", false, "#94a3b8");
       return;
     }
-    travelTo("siege");
+    travelTo(open[open.length - 1]);
     if (fx && fx.spawnDamagePopup) {
       fx.spawnDamagePopup(player.x + 10, player.y - 12, lang() === "fil" ? "🌌 DARK CONTINENT" : "🌌 THE DARK CONTINENT", true, "#9d4edd");
     }
@@ -1322,8 +1324,15 @@ function awaken(chosenHero) {
 function talkTo(npc) {
   codex.meet(npc.id);
   if (npc.tag === "field") return talkField(npc);
-  const d = getDialogue(npc.id, { step: quest.step, cls: playerClass(), met: quest.met, summoner: npcManager.summonerId });
-  dialog.start(npc.id, npc.avatar, d.lines, () => {
+  const place = npc.platform, pdef = PLATFORMS[place];
+  const d = getDialogue(npc.id, {
+    step: quest.step, cls: playerClass(), met: quest.met, summoner: npcManager.summonerId,
+    // for the guides: Maren's recap, Isolde's sea advice, Veyra's and Aldric's camp lines
+    act: quest.act(), goal: quest.text(player, summonerName(), mentorName()).goal, done: quest.step >= FINAL_STEP,
+    place, boss: pdef && pdef.boss, cleared: Boolean(pdef && quest.cleared(place)),
+    sealsReady: quest.monolith || SEAL_STONES.every((s) => player.bag.has(s))
+  });
+  dialog.start(npc.id, npc.avatar, fillNames(d.lines), () => {
     quest.onTalk(npc.id, npcManager.summonerId, playerClass());
     npcManager.applyQuest(quest, playerClass());
     saveGame();   // records who has been spoken to
@@ -1821,7 +1830,8 @@ function objectivePoint() {
   }
   // The next platform must be reached
   // Act XI: first fetch any missing Seal Stone (it waits in its boss arena), then the monolith
-  const missingSeal = next === "siege" && !quest.monolith
+  const dark = PLATFORMS[next].dark;
+  const missingSeal = dark && !quest.monolith
     ? PLATFORM_ORDER.find((pid) => PLATFORMS[pid].seal && !player.bag.has(PLATFORMS[pid].seal)) : null;
   if (missingSeal) {
     if (stage === hub) {
@@ -1833,12 +1843,13 @@ function objectivePoint() {
   }
   if (stage === hub) {
     // Act XI is reached through the Cerulean Abyss (WEST gateway), where the monolith stands
-    const gate = hub.portals.portals.find((p) => p.dest === (next === "siege" ? "coast" : next));
+    const gate = hub.portals.portals.find((p) => p.dest === (dark ? "coast" : next));
     return gate ? { x: gate.x, y: gate.y } : null;
   }
-  if (stage.def.rift && stage.def.rift.dest === next) return { x: stage.def.rift.x, y: stage.def.rift.y };
+  // the road / rift onward (on the Dark Continent it leads on towards the current Act)
+  if (stage.def.rift && stage.riftOpen && (stage.def.rift.dest === next || stage.def.dark)) return { x: stage.def.rift.x, y: stage.def.rift.y };
   // On the coast, Act XI points at the monolith (or its open portal)
-  if (next === "siege" && stage.boatSystem) {
+  if (dark && stage.boatSystem) {
     const b = stage.boatSystem;
     return b.seaPortal.active ? { x: b.seaPortal.x, y: b.seaPortal.y } : { x: b.monolith.x, y: b.monolith.y - 20 };
   }

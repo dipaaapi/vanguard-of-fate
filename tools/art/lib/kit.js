@@ -646,3 +646,77 @@ export function demonColossus(P, cx, cy, s, { c = "#14061e", rimC = "#a855f7", e
     }
   for (const k of [-1, 1]) { const ex = cx + k * 5 * s, ey = cy - 30 * s; P.glow(ex, ey, 7 * s, hex(eyes), 0.9, 2); P.rect(ex - s, ey - s * 0.5, 2 * s, s, hex("#ffd0a0")); }
 }
+
+// ── Chains, bones and banners (Acts XI–XIV) ──────────────────────────────────
+
+/** Iron chain from (x0, y0) to (x1, y1), sagging by `sag` px at the middle; links alternate face-on / side-on */
+export function chain(P, x0, y0, x1, y1, { link = 3, c = "#5a5462", lit = "#9a94a6", dark = "#1a161e", sag = 0, a = 1 } = {}) {
+  const C = hex(c), L = hex(lit), D = hex(dark);
+  const len = Math.hypot(x1 - x0, y1 - y0), n = Math.max(1, Math.round(len / (link * 1.25)));
+  const at = (t) => [lerp(x0, x1, t), lerp(y0, y1, t) + sag * 4 * t * (1 - t)];
+  for (let i = 0; i <= n; i++) {
+    const t = i / n, [x, y] = at(t), [nx, ny] = at(Math.min(1, t + 0.5 / n));
+    if (i % 2 === 0) {
+      const r = link / 2;
+      for (let k = 0; k < 12; k++) { const q = (k / 12) * Math.PI * 2; P.set(Math.round(x + Math.cos(q) * r), Math.round(y + Math.sin(q) * r * 0.75), k < 6 ? C : L, a); }
+      P.set(Math.round(x), Math.round(y), D, a * 0.6);
+    } else {
+      P.line(x - (nx - x), y - (ny - y), x + (nx - x), y + (ny - y), L, a);
+      P.set(Math.round(x), Math.round(y) + 1, D, a);
+    }
+  }
+}
+
+/** Skull, r = half width; kind: "man" | "horned" | "beast" | "helmed" */
+export function skull(P, x, y, r, { c = "#e2dac4", dark = "#3a342c", kind = "man", helm = "#5a5048", flip = false } = {}) {
+  const C = hex(c), D = hex(dark), sh = shadeC(C, -0.25), f = flip ? -1 : 1;
+  if (kind === "beast") {
+    P.ellipse(x, y, r, r * 0.8, C); P.ellipse(x + f * r * 1.1, y + r * 0.3, r * 0.9, r * 0.45, C);
+    P.hline(x + f * r * 0.5, x + f * r * 1.9, y + r * 0.6, sh);
+    P.set(x - f * r * 0.1, y - r * 0.1, D); if (r > 2) P.set(x + f * r * 0.3, y - r * 0.1, D);
+    return;
+  }
+  P.disc(x, y, r, C);
+  P.rect(x - r * 0.55, y + r * 0.5, r * 1.1 + 1, Math.max(1, r * 0.6), sh);
+  if (r >= 2) { P.set(x - r * 0.4, y, D); P.set(x + r * 0.4, y, D); if (r >= 3) { P.set(x - r * 0.4 + 1, y, D); P.set(x + r * 0.4 - 1, y, D); P.set(x, y + r * 0.4, D); } }
+  else P.set(x, y, D);
+  if (kind === "horned") for (const k of [-1, 1]) { P.line(x + k * r, y - r * 0.4, x + k * r * 1.6, y - r * 1.4, sh); P.set(x + k * r * 1.5, y - r * 1.6, C); }
+  if (kind === "helmed") { const H = hex(helm); P.ellipse(x, y - r * 0.4, r * 1.1, r * 0.7, H); P.hline(x - r * 1.1, x + r * 1.1, y - r * 0.1, shadeC(H, 0.3)); }
+}
+
+/** Scatter of loose bones (long bones with knobbed ends) */
+export function bones(P, R, n, { x0 = 0, x1 = P.w, y0 = 0, y1 = P.h, c = "#d8d0b8", scaleBy = null } = {}) {
+  const C = hex(c), sh = shadeC(C, -0.3);
+  for (let i = 0; i < n; i++) {
+    const x = R.range(x0, x1), y = R.range(y0, y1), s = scaleBy ? scaleBy(y) : 1;
+    const a = R.range(0, Math.PI), l = R.range(2, 5) * s;
+    const dx = Math.cos(a) * l, dy = Math.sin(a) * l * 0.5;
+    P.line(x - dx, y - dy, x + dx, y + dy, C);
+    P.line(x - dx, y - dy + 1, x + dx, y + dy + 1, sh, 0.6);
+    if (s > 0.8) { P.set(x - dx - 1, y - dy, C); P.set(x + dx + 1, y + dy, C); }
+  }
+}
+
+/** Ribcage lying on the ground, opening upward */
+export function ribcage(P, x, ground, s, { c = "#d8d0b8" } = {}) {
+  const C = hex(c), sh = shadeC(C, -0.3);
+  P.line(x - 6 * s, ground - 1, x + 6 * s, ground - 1, sh);
+  for (let i = 0; i < 5; i++) {
+    const rx = x - 5 * s + i * 2.5 * s, h = (5 - Math.abs(i - 2) * 1.2) * s;
+    for (let k = 0; k <= 6; k++) { const q = (k / 6) * Math.PI; P.set(Math.round(rx + Math.cos(q) * 1.4 * s), Math.round(ground - 1 - Math.sin(q) * h), k < 3 ? C : sh); }
+  }
+}
+
+/** Broken pole with a tattered banner; lean = dx per px of height */
+export function tornBanner(P, x, ground, h, color, { lean = 0, R = null, w = 10, pole = "#3a2e22" } = {}) {
+  const Pc = hex(pole), C = hex(color);
+  const tx = x + lean * h, ty = ground - h;
+  P.line(x, ground, tx, ty, Pc); P.line(x + 1, ground, tx + 1, ty, shadeC(Pc, 0.2));
+  const bh = Math.round(h * 0.45);
+  for (let j = 0; j < bh; j++) {
+    const px = tx + lean * j + 1;
+    const ragged = R ? R.int(0, 3) : (j * 7) % 4;
+    const ww = Math.max(2, w - ragged - (j > bh * 0.6 ? (j - bh * 0.6) * 0.8 : 0));
+    for (let i = 0; i < ww; i++) if (!(R && R.chance(0.06))) P.set(px + i, ty + 2 + j + Math.sin(i * 0.5) * 1.2, i < 2 ? shadeC(C, 0.15) : (i + j) % 7 === 0 ? shadeC(C, -0.3) : C);
+  }
+}

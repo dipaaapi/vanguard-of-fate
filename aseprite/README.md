@@ -37,8 +37,15 @@ built from the walk and attack. `seed.mjs` starts a file from exactly that, for 
 look comes from the Character Creator, so the hero stays code-drawn.
 
 Effects: `meteor`, `blast`, `lightning`, `holy`, `sphere`, `slash`, `wave`, `bolt`, `arrow`, `arrowfall`,
-`bite`, `claw`, `arcane`. Heading effects point right (the game rotates them); `slash`, `wave`, `bolt`
-and `bite` are painted in greys and tinted per skill.
+`bite`, `claw`, `arcane`, and for the Dark Continent bosses `tear` (Dolora's black tear, 16×24),
+`bonespike` (Morgrave's bone lances, 24×28), `chain` (Vorgath's chain lash, 40×12) and `shockring`
+(Vorgath's ground shockwave, 64×32). Heading effects point right (the game rotates them); `slash`, `wave`,
+`bolt`, `bite` and `chain` are painted in greys and tinted per skill.
+
+Bosses with sheets (twice the size of their 2×-scaled code sprite, feet where the game anchors them):
+`boss/dolora` 64×72 (feet 32,68; she floats ~4px above them), `boss/morgrave` 96×104 (feet 48,100) and
+`boss/vorgath` 112×112 (feet 56,108), each with idle 4, walk 6, run 6, attack 4 and skill 6 frames per
+direction.
 
 ## Workflow
 
@@ -74,4 +81,5 @@ grid instead of packed, which the game reads the same way. `--node` forces that 
 The files here were painted procedurally as detailed starting points for hand edits
 (`node tools/aseprite/paint/paint.mjs <key>` recreates one, overwriting it, so don't run it on edited art):
 the Forest Slime and Pocket Slime (32×24), War Hound and Spirit Fox (40×28), falcon and Arcane Owl
-(36×28, side view) and Guardian Angel (44×44), with idle 4, walk 6, run 6, attack 4 and skill 6 frames.
+(36×28, side view), Guardian Angel (44×44) and the bosses Dolora, Morgrave and Vorgath (`paint/boss.mjs`),
+with idle 4, walk 6, run 6, attack 4 and skill 6 frames.

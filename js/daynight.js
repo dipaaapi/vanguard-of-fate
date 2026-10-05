@@ -33,7 +33,7 @@ export class DayNight {
 
   // Call when changing place
   setPlace(id) {
-    this.forced = id === "maw" ? "NIGHT" : id === "siege" ? "DUSK" : null;
+    this.forced = id === "maw" || id === "chainspire" ? "NIGHT" : id === "siege" || id === "strand" ? "DUSK" : null;
   }
 
   update() {

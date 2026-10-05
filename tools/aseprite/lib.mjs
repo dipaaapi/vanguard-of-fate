@@ -89,3 +89,38 @@ export function writePng(file, w, h, rgba) {
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk("IHDR", ihdr), chunk("IDAT", zlib.deflateSync(raw)), chunk("IEND", Buffer.alloc(0))]));
 }
+
+/** Decode an 8-bit RGBA or RGB PNG (non-interlaced) → { w, h, rgba }. */
+export function readPng(file) {
+  const b = fs.readFileSync(file);
+  let off = 8, w = 0, h = 0, type = 6;
+  const idat = [];
+  while (off < b.length) {
+    const len = b.readUInt32BE(off), t = b.toString("latin1", off + 4, off + 8), d = b.subarray(off + 8, off + 8 + len);
+    if (t === "IHDR") {
+      w = d.readUInt32BE(0); h = d.readUInt32BE(4); type = d[9];
+      if (d[8] !== 8 || (type !== 6 && type !== 2) || d[12]) throw new Error(`${file}: only 8-bit RGB/RGBA non-interlaced PNGs`);
+    } else if (t === "IDAT") idat.push(d);
+    off += 12 + len;
+  }
+  const bpp = type === 6 ? 4 : 3, stride = w * bpp, raw = zlib.inflateSync(Buffer.concat(idat));
+  const px = Buffer.alloc(stride * h);
+  for (let y = 0; y < h; y++) {
+    const f = raw[y * (stride + 1)], line = raw.subarray(y * (stride + 1) + 1, (y + 1) * (stride + 1));
+    for (let x = 0; x < stride; x++) {
+      const a = x >= bpp ? px[y * stride + x - bpp] : 0, up = y ? px[(y - 1) * stride + x] : 0, c = x >= bpp && y ? px[(y - 1) * stride + x - bpp] : 0;
+      let v = line[x];
+      if (f === 1) v += a; else if (f === 2) v += up; else if (f === 3) v += (a + up) >> 1;
+      else if (f === 4) { const p = a + up - c, pa = Math.abs(p - a), pb = Math.abs(p - up), pc = Math.abs(p - c); v += pa <= pb && pa <= pc ? a : pb <= pc ? up : c; }
+      px[y * stride + x] = v & 0xff;
+    }
+  }
+  const rgba = new Uint8ClampedArray(w * h * 4);
+  for (let j = 0; j < w * h; j++) { rgba[j * 4] = px[j * bpp]; rgba[j * 4 + 1] = px[j * bpp + 1]; rgba[j * 4 + 2] = px[j * bpp + 2]; rgba[j * 4 + 3] = bpp === 4 ? px[j * bpp + 3] : 255; }
+  return { w, h, rgba };
+}
+
+/** The Aseprite executable, or null when it isn't installed (the tools then use asefile.mjs). */
+export function tryAseprite() {
+  try { return findAseprite(); } catch { return null; }
+}

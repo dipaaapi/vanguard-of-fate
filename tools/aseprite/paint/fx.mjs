@@ -180,6 +180,92 @@ export const FX = {
     for (let k = 0; k < 4; k++) { const a = (k / 4) * TAU + i * 0.4; f.line(12, 12, 12 + Math.cos(a) * (3 + i * 2), 12 + Math.sin(a) * (3 + i * 2), 1, VIOLET[i < 2 ? 1 : 2]); }
     if (i < 3) orb(f, 12, 12, 3 - i * 0.6, VIOLET);
     return f;
+  } },
+  // Dolora's black tear: falls, splashes into a ring with a cyan glint
+  tear: { w: 16, h: 24, n: 6, dur: 0.07, paint(i) {
+    const f = new Canvas(16, 24);
+    const T = [H("#030407"), H("#11151f"), H("#2a3346"), H("#475569")], G = [H("#ffffff"), H("#7df3ff"), H("#22d3ee")];
+    if (i < 3) {
+      const y = [7, 11, 16][i], st = i === 2 ? 2 : 1;          // stretched while falling
+      orb(f, 8, y + 1, 2.8, T.slice(0, 3));
+      f.poly([[6.4, y], [9.6, y], [8, y - 3 - st * 1.5]], T[0]);
+      f.set(7, y, G[1], true); f.set(7, y - 1, G[0], true);
+      for (let k = 1; k <= st + 1; k++) f.set(8, y - 4 - st - k, T[2 + (k > 1 ? 1 : 0)], true);   // streak above
+    } else {
+      const k = i - 3;
+      ring(f, 8, 20, 3.5 + k * 2, 1.3 + k * 0.6, 1.2, k < 2 ? [T[0], T[1], T[2]] : [T[1], T[2], T[3]], k === 2 ? 1 : 0, k);
+      if (k < 2) { orb(f, 8, 20, 1.6 - k * 0.5, T); f.set(8, 19 - k, G[1], true); }
+      // droplets thrown up
+      [[-1, 1], [1, 1], [-1.6, 0.6], [1.6, 0.6]].forEach(([dx, h], j) => {
+        if (k === 2 && j > 1) return;
+        const x = 8 + dx * (2 + k * 2), y = 19 - h * [4, 5, 3][k] + k;
+        f.set(x, y, T[0], true); if (j === 0) f.set(x + 1, y, G[2], true);
+      });
+    }
+    return f;
+  } },
+  // Morgrave's bone lance: a cluster of spikes erupts, holds, then crumbles
+  bonespike: { w: 24, h: 28, n: 6, dur: 0.07, paint(i) {
+    const f = new Canvas(24, 28);
+    const B = ["#5c5348", "#8a8073", "#b8ae9e", "#d9d2c3", "#f2ede2", "#ffffff"].map(H), O = H("#1a1612"), DIRT = [H("#3b3128"), H("#5a4a3a"), H("#7a6650")];
+    const grow = [0.35, 0.85, 1, 1, 0.9, 0.6][i], crumble = i >= 4 ? i - 3 : 0;
+    // ground crack and dirt clods
+    for (let x = 3; x <= 21; x++) if ((x * 7 + i) % 5 !== 0) f.set(x, 26 + ((x * 3) % 2), DIRT[(x + i) % 3], true);
+    const spikes = [[12, 22, 3.4], [7, 15, 2.6], [17, 17, 2.6], [4, 9, 1.8], [20, 10, 1.8]];
+    const g = new Canvas(24, 28);
+    spikes.forEach(([x, h, w], k) => {
+      const hh = h * grow, lean = (x - 12) * 0.12;
+      for (let y = 0; y <= hh; y++) {
+        const t = y / hh, ww = w * (1 - t * 0.92);
+        for (let dx = -ww; dx <= ww; dx += 0.5) {
+          const px = x + dx + lean * y, py = 25 - y;
+          if (crumble && ((Math.round(px) * 13 + Math.round(py) * 7 + k) % 5) < crumble + (t > 0.6 ? 1 : 0)) continue;
+          const v = dx / Math.max(0.5, ww);
+          g.set(px, py, B[Math.max(0, Math.min(5, Math.round(3.6 - v * 1.6 + t * 1.2 - (k > 2 ? 1 : 0))))]);
+        }
+        if (y % 4 === 2 && !crumble) g.set(x + lean * y, 25 - y, B[1]);   // ridges like vertebrae
+      }
+    });
+    g.outline(O);
+    f.blit(g, 0, 0);
+    if (i === 1) [[3, 18], [21, 20], [12, 1], [6, 5], [18, 4]].forEach(([x, y]) => f.set(x, y, B[4], true));
+    if (crumble) for (let k = 0; k < 6 + crumble * 3; k++) f.set(3 + ((k * 7 + i) % 18), 26 - ((k * 5 + i * 3) % (10 - crumble * 2)) + crumble, B[2 + (k % 3)], true);
+    return f;
+  } },
+  // Vorgath's chain lash heading right (painted in greys and tinted by the game)
+  chain: { w: 40, h: 12, n: 4, dur: 0.05, tint: true, paint(i) {
+    const f = new Canvas(40, 12);
+    const amp = [2.6, -1.8, 1.2, -0.5][i];
+    for (let k = 0; k < 12; k++) {
+      const x = 2 + k * 3.1, t = k / 11, y = 6 + Math.sin(t * Math.PI * 1.5 + i) * amp * t;
+      if (k % 2 === 0) {
+        for (let a = 0; a < TAU; a += TAU / 12) {
+          const px = x + Math.cos(a) * 1.8, py = y + Math.sin(a) * 1.4;
+          f.set(px, py, GREY[Math.sin(a) < -0.3 ? 0 : Math.sin(a) > 0.4 ? 4 : 2], true);
+        }
+      } else { f.set(x - 1, y, GREY[3], true); f.set(x, y, GREY[1], true); f.set(x + 1, y, GREY[3], true); }
+    }
+    // hooked tip and speed lines
+    f.poly([[37, 3.5], [40, 6], [37, 8.5]], GREY[1]); f.set(37, 6, GREY[0], true);
+    if (i < 2) for (let k = 0; k < 3; k++) for (let x = 0; x < 6 - k * 2; x++) f.set(x, 2 + k * 4, GREY[3 + (x % 2)], true);
+    return f;
+  } },
+  // Vorgath's ground shockwave: an expanding ring with flying debris (dark red / orange)
+  shockring: { w: 64, h: 32, n: 6, dur: 0.06, paint(i) {
+    const f = new Canvas(64, 32);
+    const p = (i + 1) / 6, rx = 6 + 25 * p, ry = rx * 0.45;
+    const RING = i < 3 ? [FIRE[2], FIRE[3], FIRE[4], FIRE[5]] : [FIRE[4], FIRE[5], FIRE[6]];
+    ring(f, 32, 18, rx, ry, i < 4 ? 3 : 2, RING, i === 5 ? 1 : 0, i);
+    if (i < 2) orb(f, 32, 18, 5 - i * 1.5, FIRE.slice(1, 5), 0.5);
+    for (let k = 0; k < 12; k++) {      // rocks thrown up off the ring
+      const a = (k / 12) * TAU + 0.2, d = rx * (0.9 + (k % 3) * 0.08);
+      const x = 32 + Math.cos(a) * d, y = 18 + Math.sin(a) * d * 0.45 - Math.sin(p * Math.PI) * (3 + (k % 4) * 1.5);
+      const rock = [H("#2a1a14"), H("#4a2f22"), H("#6b4532")][k % 3];
+      f.set(x, y, rock, true); if (k % 2 === 0) f.set(x + 1, y, rock, true);
+      if (i < 3 && k % 3 === 0) f.set(x, y + 1, FIRE[3], true);
+    }
+    if (i >= 2) for (let k = 0; k < 6; k++) { const a = (k / 6) * TAU + i; const d = rx * 0.6; f.set(32 + Math.cos(a) * d, 18 + Math.sin(a) * d * 0.45 - 1, H("#5c1a1a"), true); }
+    return f;
   } }
 };
 

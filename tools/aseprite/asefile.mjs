@@ -5,6 +5,8 @@
 //                    tags: [{ name: "down-idle", from: 0, to: 5 }] })
 //     RGBA sprite; each layer gets one compressed cel per frame (a frame identical to the one before is
 //     stored as a linked cel). The palette lists the colours used, so they are at hand when editing.
+//   writeAse(file, { w, h, frames: [{ rgba, duration }], tags, layer = "art" })
+//     The same with one layer.
 //   readAse(file) → { w, h, frames: [{ duration, rgba }], tags, layers, warnings }
 //     Flattens the visible layers (normal blending, layer and cel opacity) of RGBA, grayscale and
 //     indexed files, including linked cels and groups. Other blend modes are drawn as normal (warned).
@@ -49,7 +51,9 @@ function bbox(px, w, h) {
   return x1 < 0 ? null : { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 };
 }
 
-export function writeAse(file, { w, h, layers, frames, tags = [] }) {
+export function writeAse(file, { w, h, layers, frames, tags = [], layer = "art" }) {
+  // single-layer form: frames: [{ rgba, duration }] → one layer named `layer`
+  if (!layers) { layers = [layer]; frames = frames.map((f) => ({ duration: f.duration, cels: { [layer]: f.rgba } })); }
   fs.mkdirSync(path.dirname(file), { recursive: true });
   const allCels = frames.flatMap((f) => Object.values(f.cels).filter(Boolean));
   const pal = paletteOf(allCels);

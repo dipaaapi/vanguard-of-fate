@@ -175,6 +175,9 @@ const OTHER = {
   emberSeal:    { type: "quest", icon: "crystal", tint: "#ff7a1a", name: N("Ember Seal Stone", "Ember Seal Stone"), desc: N("One of four Seal Stones. Place all four on the Celestial Monolith in the Cerulean Abyss.", "Isa sa apat na Seal Stone. Ilagay ang lahat ng apat sa Celestial Monolith sa Cerulean Abyss.") },
   forgeCore:    { type: "quest", icon: "heart", tint: "#ff7a1a", name: N("Hellforge Reactor Core", "Reactor Core ng Hellforge"), desc: N("Torn from Ignis the Iron Lord.", "Hinugot mula kay Ignis the Iron Lord.") },
   imperialCrest:{ type: "quest", icon: "crest", tint: "#ffd166", name: N("Imperial Crest", "Imperial Crest"), desc: N("The King's last gift, for the new Sovereign.", "Huling handog ng Hari para sa bagong Sovereign.") },
+  tearUrn:      { type: "quest", icon: "urn", tint: "#334155", name: N("Urn of Black Tears", "Urna ng Itim na Luha"), desc: N("Dolora's urn, heavy with the grief of the dead. It hums like a voice far away.", "Ang urna ni Dolora, mabigat sa dalamhati ng mga patay. Umuugong ito na parang tinig mula sa malayo.") },
+  lanternVisor: { type: "quest", icon: "helm", tint: "#ffd166", name: N("Lantern Knight's Visor", "Visor ng Lantern Knight"), desc: N("Morgrave's trophy. The Knight's last words are still bound in the steel.", "Tropeo ni Morgrave. Nakatali pa sa bakal ang huling salita ng Knight.") },
+  wardensKey:   { type: "quest", icon: "key", tint: "#f43f5e", name: N("Warden's Key", "Susi ng Bantay"), desc: N("Vorgath's key to the last gate of the Maw. Every chain on the spire answers to it.", "Ang susi ni Vorgath sa huling tarangkahan ng Maw. Sumusunod dito ang bawat kadena sa tore.") },
   astralAsh:    { type: "quest", icon: "ash", tint: "#fde68a", name: N("Astral Ash of Satan", "Astral na Abo ni Satan"), desc: N("All that remains of the Demon Lord.", "Ang natira sa Demon Lord.") }
 };
 // Crafting materials (ores, cores, essences) and cooking (fish, ingredients, the 15 dishes)
@@ -298,11 +301,44 @@ const CARDS = {
   tombKing: { n: N("Sunken Tomb King", "Hari ng Lubog na Libingan"), stats: { int: 5, hp: 55 } },   // elite
   sandstormWraith: { n: N("Sandstorm Wraith", "Wraith ng Bagyong Buhangin"), stats: { agi: 5, int: 5 } },   // elite
   duneColossus: { n: N("Dune Colossus", "Higante ng Buhangin"), stats: { def: 9, vit: 5 } },   // elite
+  // Lamenting Strand (strand)
+  tearSlime: { n: N("Black Tear Slime", "Slime ng Itim na Luha"), stats: { hp: 50 } },
+  sorrowWisp: { n: N("Sorrow Wisp", "Kaluluwang Nagdadalamhati"), stats: { int: 4 } },
+  strandCrab: { n: N("Black-Sand Pincher", "Alimango ng Itim na Buhangin"), stats: { def: 7 } },
+  mourningEel: { n: N("Mourning Eel", "Igat ng Pagluluksa"), stats: { agi: 4 } },
+  keeningBanshee: { n: N("Keening Banshee", "Banshee na Umaatungal"), stats: { int: 5, cdr: 4 } },   // elite
+  hollowPaladin: { n: N("Hollow Paladin of the Dawnstar", "Hungkag na Paladin ng Dawnstar"), stats: { def: 7, vit: 4 } },   // elite
+  brinewingDrake: { n: N("Brinewing Drake", "Drake ng Maalat na Pakpak"), stats: { agi: 5, dex: 4 } },   // elite
+  weepingColossus: { n: N("Weeping Colossus", "Higanteng Lumuluha"), stats: { hp: 50, vit: 4 } },   // elite
+  // Ossuary Fields (ossuary)
+  barrowHound: { n: N("Barrow Hound", "Asong-Libingan"), stats: { atk: 12 } },
+  cryptGhoul: { n: N("Mass-Grave Ghoul", "Ghoul ng Libingang Pangmaramihan"), stats: { hp: 55 } },
+  graveCrow: { n: N("Grave Crow", "Uwak ng Libingan"), stats: { dex: 5 } },
+  ossuaryCrawler: { n: N("Ossuary Crawler", "Gumagapang na Buto"), stats: { def: 8 } },
+  bannerWraith: { n: N("Banner Wraith", "Wraith ng Bandila"), stats: { luk: 5, int: 5 } },   // elite
+  boneColossus: { n: N("Bone Colossus", "Higanteng Buto"), stats: { def: 8, vit: 5 } },   // elite
+  lichAdjutant: { n: N("Lich Adjutant", "Lich na Ayudante"), stats: { int: 5, cdr: 5 } },   // elite
+  boneDrake: { n: N("Bone Drake", "Drake na Buto"), stats: { str: 5, agi: 5 } },   // elite
+  // Chainspire Descent (chainspire)
+  shackledSoul: { n: N("Shackled Soul", "Kaluluwang Nakagapos"), stats: { hp: 60 } },
+  chainImp: { n: N("Chain Imp", "Imp ng Kadena"), stats: { aspd: 6 } },
+  hookCrawler: { n: N("Hook Crawler", "Gumagapang na Kawit"), stats: { crit: 6 } },
+  miseryLeech: { n: N("Misery Leech", "Lintang Pighati"), stats: { vit: 6 } },
+  tormentGolem: { n: N("Torment Golem", "Golem ng Pahirap"), stats: { def: 9, vit: 6 } },   // elite
+  hollowExecutioner: { n: N("Hollow Executioner", "Hungkag na Berdugo"), stats: { str: 6, crit: 6 } },   // elite
+  shackleDrake: { n: N("Shackle Drake", "Drake na Nakagapos"), stats: { agi: 6, dex: 6 } },   // elite
+  chainWraith: { n: N("Chain Wraith", "Wraith ng Kadena"), stats: { int: 6, luk: 6 } },   // elite
   malakor: { n: N("Malakor", "Malakor"), stats: { vit: 6, hp: 60 }, boss: true },
   leviathan: { n: N("Leviathan Regent", "Leviathan Regent"), stats: { int: 6, cdr: 6 }, boss: true },
   cryonix: { n: N("Cryonix", "Cryonix"), stats: { agi: 6, aspd: 8 }, boss: true },
   ignis: { n: N("Ignis", "Ignis"), stats: { str: 7, atk: 15 }, boss: true },
   commander: { n: N("Demon Commander", "Heneral ng mga Demonyo"), stats: { crit: 10, dex: 5 }, boss: true },
+  wreckGhoul: { n: N("Wreck Ghoul", "Ghoul ng Wasak na Barko"), stats: { hp: 60 } },
+  boneLegionnaire: { n: N("Bone Legionnaire", "Kalansay na Lehiyonaryo"), stats: { def: 9 } },
+  ironGaoler: { n: N("Iron Gaoler", "Bakal na Bantay-Bilangguan"), stats: { atk: 16 } },
+  dolora: { n: N("Dolora", "Dolora"), stats: { int: 7, cdr: 8 }, boss: true },
+  morgrave: { n: N("Morgrave", "Morgrave"), stats: { str: 7, def: 12 }, boss: true },
+  vorgath: { n: N("Vorgath", "Vorgath"), stats: { vit: 8, hp: 90 }, boss: true },
   satan: { n: N("Satan", "Satan"), stats: { str: 5, agi: 5, vit: 5, int: 5, dex: 5, luk: 5 }, boss: true }
 };
 

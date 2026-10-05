@@ -51,6 +51,9 @@ export const CAMP_THEMES = {
   rocky: { ground: ramp("#5a3d26", "#6e4c31", "#86603f", "#9f7550"), tent: ramp("#6b5333", "#8f7149", "#b39261", "#d1b27e"), supply: VANGUARD, extra: "ore" },
   swamp: { ground: ramp("#26291b", "#323623", "#3f452c", "#4e5536"), tent: ramp("#2e3b1f", "#41552b", "#587339", "#6f8f48"), supply: VANGUARD, extra: "reeds", deck: true },
   mountain: { ground: ramp("#3c4a30", "#4b5b3c", "#5d6f4a", "#72865b"), tent: ramp("#1f3550", "#2d4d72", "#3f6894", "#5d8ab5"), supply: VANGUARD, extra: "cairn" },
+  strand: { ground: ramp("#4a5563", "#5b6878", "#6f7d8f", "#8593a6"), tent: ramp("#1e2f4a", "#2c4468", "#3f5f8c", "#6489b5"), supply: ramp("#5b4a3a", "#78624d", "#947b62", "#b09779"), extra: "tearpools" },
+  ossuary: { ground: ramp("#3a3530", "#4a443d", "#5c554c", "#706860"), tent: ramp("#3f3a36", "#57514b", "#736b63", "#958c82"), supply: VANGUARD, extra: "bones", pennant: rgb("#e7e5e4") },
+  chainspire: { ground: ramp("#1c1416", "#2a1d20", "#3a282c", "#4d3539"), tent: ramp("#4a1219", "#6b1a26", "#8f2433", "#b83347"), supply: ramp("#2b2d33", "#41444d", "#5b5f6b", "#7a7f8c"), extra: "chains", metal: "#3f3f46" },
   desert: { ground: ramp("#a8773f", "#bd8a4f", "#cf9d61", "#e0b477"), tent: ramp("#7a1f1f", "#a32a2a", "#c94a3a", "#e07a5a"), supply: ramp("#a8977a", "#c4b293", "#dccbab", "#f0e2c4"), extra: "pots", stripes: true }
 };
 
@@ -102,6 +105,28 @@ function campExtras(L, kind, c, T, f) {
       shadow(g, x, y, 4, 1.5);
       p.ellipse(x, y - 3, 3.5, 3.5, (px, py) => pick(ramp("#7c2d12", "#9a3412", "#c2410c", "#ea8a4a"), 0.85 - (px - x + 3) / 8, px, py));
       p.rect(x - 1, y - 8, 3, 2, rgb("#9a3412"));
+    });
+  } else if (kind === "tearpools") {
+    [[c.cx + 54, c.cy + 22 * side, 9], [c.cx - 66, c.cy + 18 * side, 7]].forEach(([x, y, r], k) => {   // still pools of tears
+      g.ellipse(x, y, r, r * 0.45, (px, py) => pick(ramp("#1e3a5f", "#2f6390", "#5fa8d3", "#bfe6ff"), 0.75 - (py - y) / (r * 0.9), px, py));
+      glow(L.fire, x, y, r + 6, rgb("#7dd3fc"), 18 + Math.round(6 * Math.sin(ph(f) + k * 2)));
+    });
+    p.line(c.cx + 30, c.cy + 30 * side, c.cx + 44, c.cy + 27 * side, rgb("#6b5a48"), 2);     // driftwood from the wreck
+  } else if (kind === "bones") {
+    [[c.cx + 50, c.cy + 24 * side], [c.cx + 60, c.cy + 20 * side], [c.cx - 68, c.cy + 20 * side]].forEach(([x, y], k) => {
+      p.line(x - 4, y, x + 4, y - (k % 2 ? 2 : -1), rgb("#d6d3d1"), 1);
+      p.ellipse(x - 4, y, 1.2, 1.2, rgb("#e7e5e4")); p.ellipse(x + 4, y - (k % 2 ? 2 : -1), 1.2, 1.2, rgb("#e7e5e4"));
+    });
+    const x = c.cx + 64, y = c.cy + 30 * side;      // a skull on a cairn
+    shadow(g, x, y, 5, 1.5);
+    p.ellipse(x, y - 2, 4, 2.4, (px, py) => pick(STONE, py < y - 2 ? 0.8 : 0.3, px, py));
+    p.ellipse(x, y - 6, 2.4, 2.2, rgb("#e7e5e4")); p.put(x - 1, y - 6, rgb("#292524")); p.put(x + 1, y - 6, rgb("#292524"));
+  } else if (kind === "chains") {
+    [[c.cx + 52, c.cy + 24 * side], [c.cx - 68, c.cy + 20 * side]].forEach(([x, y], k) => {   // chain posts
+      shadow(g, x, y, 4, 1.5);
+      p.rect(x - 1, y - 14, 3, 14, rgb("#3f3f46")); p.rect(x - 2, y - 15, 5, 2, rgb("#71717a"));
+      for (let i = 0; i < 5; i++) p.ellipse(x + 3 + i * 3, y - 12 + i * 2 + (i > 2 ? -(i - 2) * 2 : 0), 1.4, 1, rgb(i % 2 ? "#a1a1aa" : "#71717a"));
+      glow(L.fire, x, y - 8, 10, rgb("#f43f5e"), 16 + Math.round(6 * Math.sin(ph(f) + k)));
     });
   } else if (kind === "snow") {
     for (let k = 0; k < 40; k++) {

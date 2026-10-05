@@ -42,9 +42,9 @@ node $L check                    # EN/FIL gaps: LORE section/paragraph mismatche
 
 **The player's path:** the hero is made in the Character Creator and starts as a **Novice** (dagger + wooden buckler). The **Job Awakening** at the Imperial Citadel's audience dais (Lv 10, Act IV) grants one of the five classes, and the summoned soul of that class becomes the mentor. The **Dual Equipment Matrix** (Act V): two-handed weapons lock the offhand; 1H + offhand pairs trade power for utility. **Act VI** is the slow-burn bond and romance between the hero and the royal summoner.
 
-**Hub (Acts I–VI):** the plains of Aethelgard: **Barracks Sanctuary** (safe zone; **Captain Ronald** drills mercenaries, **Edgar the Apothecary** sells cures), the **Imperial Citadel**, four **Celestial Warp Gateways**. Other NPCs: Royal Guards, **Brakka** (Emberhold Forge), **Hilde**, **Thane Durgrim** (mining quest), **Pip**, the **Elven Matriarch** (see `js/npc/roster.js`).
+**Hub (Acts I–VI):** the plains of Aethelgard: **Barracks Sanctuary** (safe zone; **Captain Ronald** drills mercenaries, **Edgar the Apothecary** sells cures, **Archivist Maren** (`maren`) keeps the Chronicles, recaps the story and points the hero to the next goal), the **Imperial Citadel**, four **Celestial Warp Gateways**. Other NPCs: Royal Guards, **Brakka** (Emberhold Forge), **Hilde**, **Thane Durgrim** (mining quest), **Pip**, the **Elven Matriarch** (see `js/npc/roster.js`). Campaign NPCs: **Captain Isolde Wavecrest** (`isolde`, captain of the crewed ship; Cerulean Abyss camp, then the Lamenting Strand camp; explains sailing, the Monolith and the Seal Stones), **Veyra the Ashen Scout** (`veyra`, half-demon deserter of Satan's legion; Dark Continent camps, Acts XI–XV; briefs the hero on each Dark Continent boss), **Brother Aldric of the Lantern** (`aldric`, last monk of the Order of the Lantern; Ossuary Fields camp, Act XII; the Lantern Knight, the First War and the worn carvings of a sealed "queen of sorrows", never named in Book I).
 
-**Campaign platforms (Acts VII–XII, `js/world/platforms.js`):**
+**Campaign platforms (Acts VII–XV, `js/world/platforms.js`):**
 
 | Act | Place | Reached by | Boss | Quest item |
 |---|---|---|---|---|
@@ -52,12 +52,15 @@ node $L check                    # EN/FIL gaps: LORE section/paragraph mismatche
 | VIII | Cerulean Abyss | West gateway | Leviathan Regent | Abyssal Helm Shard |
 | IX | Frostfang Precipice | North gateway | Frost Empress Cryonix | Cryonix Core |
 | X | Ashfall Wastelands | South gateway | Ignis | Hellforge Reactor Core |
-| XI | Siege of the Obsidian Citadel (Dark Continent) | Celestial Monolith, by boat | Demon Commander | Imperial Crest |
-| XII | Maw of Damnation | rift behind the Obsidian throne | Satan | Astral Ash |
+| XI | The Lamenting Strand (Dark Continent) | Celestial Monolith, by boat | Dolora, the Weeping Matron | Urn of Black Tears |
+| XII | The Ossuary Fields | road from the Strand | Morgrave, the Ossuary Warlord | Lantern Knight's Visor |
+| XIII | Siege of the Obsidian Citadel | march from the Ossuary Fields | Demon Commander | Imperial Crest |
+| XIV | The Chainspire Descent | rift behind the Obsidian throne | Vorgath, the Chained Warden | Warden's Key |
+| XV | Maw of Damnation | the last gate at the foot of the Chainspire | Satan | Astral Ash |
 
-The bosses of Acts VII–X drop the Seal Stones that open the Celestial Monolith. Ore veins exist only on Ashfall and the Obsidian Citadel.
+The bosses of Acts VII–X drop the Seal Stones that open the Celestial Monolith. FIL names: Dalampasigan ng Panaghoy / Dolora, ang Lumuluhang Matrona / Urna ng Itim na Luha; Kaparangan ng mga Buto / Morgrave, ang Panginoong-Digma ng mga Buto / Visor ng Lantern Knight; Ang Pagbaba sa Toreng Kadena / Vorgath, ang Nakakadenang Bantay / Susi ng Bantay. Dolora, Morgrave and Vorgath are Satan's servants outside the five Heralds. The Visor's message: the gate home opens once, for the first dawn after the star is whole; at the end of Act XV the hero sees home, stays with the Sovereign, hides their grief, and something beneath the Ossuary Fields stirs (Book II: The Witch of Darkness Misery's Revenge). Ore veins exist only on Ashfall and the Obsidian Citadel.
 
-**Book I and side quests:** Acts I–XII are **Book I · The Fated Vanguard** (FIL *Aklat I*); **Book II** is "coming soon". From Act II on, each Act's main quest waits at a gate step until the Act's 5–10 side quests (seeded per save; `js/sidequest.js`) are done: hunts, trophies, scouting named sites, purges, flyers, and (Act V on) elite and champion bounties posted by the war camps.
+**Book I and side quests:** Acts I–XV are **Book I · The Fated Vanguard** (FIL *Aklat I*); **Book II** is "coming soon". From Act II on, each Act's main quest waits at a gate step until the Act's 5–10 side quests (seeded per save; `js/sidequest.js`) are done: hunts, trophies, scouting named sites, purges, flyers, and (Act V on) elite and champion bounties posted by the war camps.
 
 **Frontier maps (`js/world/frontiers.js`, no boss, each with a war camp, a named arena and three scouting sites):**
 

@@ -17,11 +17,24 @@ import { FighterClass } from "../../../js/classes/fighter.js";
 const CLASSES = { knight: KnightClass, mage: MageClass, priest: PriestClass, archer: ArcherClass, fighter: FighterClass };
 const cache = new Map();
 
+// Reference looks for Book I NPCs added with Acts XI–XV, used when js/npc/roster.js has no entry
+// for them yet (the roster wins once it does). Copy these into NPC_DEFS to keep the art in step.
+export const ART_LOOKS = {
+  maren: { gloves: "none", legs: "skirt", boots: "shoes", body: "female", skin: "#f1c27d", eyes: "#4a3222", hairStyle: "bob", hairColor: "#c8ccd4", glasses: true,
+    outfit: "robe", outfitColor: "#2a4a5a", legColor: "#1e293b", bootColor: "#3a2616", weapon: "book" },
+  isolde: { gloves: "leather", legs: "pants", boots: "boots", body: "female", skin: "#c68642", eyes: "#2f6db5", hairStyle: "ponytail", hairColor: "#2b1d14",
+    outfit: "coat", outfitColor: "#1e3a6a", legColor: "#e8e2d0", bootColor: "#2b1d14", headgear: "hat", weapon: "sword" },
+  veyra: { gloves: "leather", legs: "pants", boots: "boots", body: "female", skin: "#9aa0a8", eyes: "#b3312b", hairStyle: "long", hairColor: "#1f1a24",
+    outfit: "vest", outfitColor: "#2b2b33", legColor: "#1f1a24", bootColor: "#141018", headgear: "horns", weapon: "bow", quiver: true },
+  aldric: { gloves: "none", legs: "pants", boots: "sandals", body: "male", skin: "#e0ac69", eyes: "#4a3222", hairStyle: "none", hairColor: "#c8ccd4", beard: true,
+    outfit: "robe", outfitColor: "#c9963a", legColor: "#8a6a2a", bootColor: "#5e3b1a", weapon: "staff" }
+};
+
 /** NPC by roster id (aurelia, kenneth, king, ronald, edgar, brakka, arthur, lyra, julian, sam, renzo, …) */
 export function npc(id, dir = "down", anim = "idle", i = 0) {
   const key = `npc:${id}`;
   if (!cache.has(key)) {
-    const d = NPC_DEFS[id];
+    const d = NPC_DEFS[id] || (ART_LOOKS[id] && { look: ART_LOOKS[id] });
     if (!d) throw new Error(`unknown NPC ${id}`);
     cache.set(key, new Avatar(d.look));
   }

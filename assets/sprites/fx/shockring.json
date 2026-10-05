@@ -1,0 +1,156 @@
+{
+ "frames": [
+  {
+   "filename": "shockring 0.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 32
+   },
+   "duration": 60
+  },
+  {
+   "filename": "shockring 1.aseprite",
+   "frame": {
+    "x": 64,
+    "y": 0,
+    "w": 64,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 32
+   },
+   "duration": 60
+  },
+  {
+   "filename": "shockring 2.aseprite",
+   "frame": {
+    "x": 128,
+    "y": 0,
+    "w": 64,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 32
+   },
+   "duration": 60
+  },
+  {
+   "filename": "shockring 3.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 32,
+    "w": 64,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 32
+   },
+   "duration": 60
+  },
+  {
+   "filename": "shockring 4.aseprite",
+   "frame": {
+    "x": 64,
+    "y": 32,
+    "w": 64,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 32
+   },
+   "duration": 60
+  },
+  {
+   "filename": "shockring 5.aseprite",
+   "frame": {
+    "x": 128,
+    "y": 32,
+    "w": 64,
+    "h": 32
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 32
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 32
+   },
+   "duration": 60
+  }
+ ],
+ "meta": {
+  "app": "tools/aseprite/asefile.mjs",
+  "version": "1",
+  "image": "shockring.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 192,
+   "h": 64
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "down-play",
+    "from": 0,
+    "to": 5,
+    "direction": "forward",
+    "color": "#000000ff"
+   }
+  ]
+ }
+}

@@ -49,7 +49,7 @@ const NPCS = {
   king: { en: ["King of Aethelgard", "Audience dais of the Imperial Citadel"], fil: ["Hari ng Aethelgard", "Audience dais ng Imperial Citadel"] },
   royalGuard: { en: ["Guards the King", "Audience dais of the Imperial Citadel"], fil: ["Bantay ng Hari", "Audience dais ng Imperial Citadel"] },
   ronald: { en: ["Mercenary Commander · hires mercenaries, refines to +4, field repairs", "Barracks Sanctuary"], fil: ["Kumander ng Mercenary · umuupa ng mercenary, nagre-refine hanggang +4, field repair", "Barracks Sanctuary"] },
-  edgar: { en: ["Apothecary · potions and cures", "Barracks Sanctuary"], fil: ["Apothecary · mga potion at lunas", "Barracks Sanctuary"] },
+  edgar: { en: ["Apothecary · potions and cures", "Barracks Sanctuary, and a field apothecary on the Lamenting Strand"], fil: ["Apothecary · mga potion at lunas", "Barracks Sanctuary, at may pansamantalang botika sa Dalampasigan ng Panaghoy"] },
   arthur: { en: ["Earthbound soul · Knight mentor", "Barracks Sanctuary"], fil: ["Kaluluwang taga-Daigdig · mentor ng Knight", "Barracks Sanctuary"] },
   lyra: { en: ["Earthbound soul · Archer mentor", "Barracks Sanctuary"], fil: ["Kaluluwang taga-Daigdig · mentor ng Archer", "Barracks Sanctuary"] },
   julian: { en: ["Earthbound soul · Priest mentor", "Barracks Sanctuary"], fil: ["Kaluluwang taga-Daigdig · mentor ng Priest", "Barracks Sanctuary"] },
@@ -58,7 +58,12 @@ const NPCS = {
   brakka: { en: ["Master smith · refines to +10, forges mineral sets, tempers gear", "Emberhold, Ashfall Wastelands"], fil: ["Punong panday · refine hanggang +10, forge ng set, pagpapatibay", "Emberhold, Ashfall Wastelands"] },
   hilde: { en: ["Repairs weapons and armor", "Emberhold, Ashfall Wastelands"], fil: ["Nag-aayos ng sandata at baluti", "Emberhold, Ashfall Wastelands"] },
   durgrim: { en: ["Thane of Emberhold · grants the right to mine", "Emberhold, Ashfall Wastelands"], fil: ["Thane ng Emberhold · nagbibigay ng karapatang magmina", "Emberhold, Ashfall Wastelands"] },
-  pip: { en: ["Shopkeeper · materials and potions", "Emberhold, Ashfall Wastelands"], fil: ["Tindero · mga materyales at potion", "Emberhold, Ashfall Wastelands"] }
+  pip: { en: ["Shopkeeper · materials and potions", "Emberhold, Ashfall Wastelands"], fil: ["Tindero · mga materyales at potion", "Emberhold, Ashfall Wastelands"] },
+  elvenMatriarch: { en: ["Elder of the elves · tells how to fight Malakor", "Camp of the Whispering Canopy"], fil: ["Nakatatanda ng mga elf · nagtuturo kung paano labanan si Malakor", "Kampo ng Whispering Canopy"] },
+  maren: { en: ["Archivist of the Chronicles · recaps your story and tells you where to go next", "Barracks Sanctuary"], fil: ["Arkibista ng mga Kronika · nagbubuod ng iyong kuwento at nagsasabi kung saan susunod", "Barracks Sanctuary"] },
+  isolde: { en: ["Ship's captain · advice on the sea, the Seal Stones and the Monolith", "Cerulean Abyss camp, Lamenting Strand camp"], fil: ["Kapitana ng barko · payo tungkol sa dagat, mga Seal Stone at Monolith", "Kampo ng Cerulean Abyss, kampo ng Dalampasigan ng Panaghoy"] },
+  veyra: { en: ["Half-demon scout · briefs you on each Dark Continent boss", "Every camp on the Dark Continent"], fil: ["Kalahating-demonyong batyaw · nagpapaliwanag ng bawat boss ng Dark Continent", "Bawat kampo sa Dark Continent"] },
+  aldric: { en: ["Last monk of the Order of the Lantern · the Lantern Knight and the First War", "Camp of the Ossuary Fields"], fil: ["Huling monghe ng Orden ng Lantern · ang Lantern Knight at ang Unang Digmaan", "Kampo ng Kaparangan ng mga Buto"] }
 };
 
 const WEAPON_SLOTS = ["weapon"];

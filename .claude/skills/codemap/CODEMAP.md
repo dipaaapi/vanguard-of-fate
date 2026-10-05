@@ -14,10 +14,10 @@ then `outline <file>` and read only the line range you need.
 
 ## data/
 
-- `art_manifest.json` (15 KB, 513) — Every generated image (banners, title/portal backgrounds, vistas, portraits, relics): kind, EN/FIL caption and where the game uses it; paired with tools/art/scenes/index.js
+- `art_manifest.json` (19 KB, 625) — Every generated image (banners, title/portal backgrounds, vistas, portraits, relics): kind, EN/FIL caption and where the game uses it; paired with tools/art/scenes/index.js
 - `errand.json` (3.1 KB, 39) — Summon errand tuning (pack slots, stack per slot, trip time, what it may buy) and EN/FIL wording
 - `market.json` (1.6 KB, 22) — Market (B) stock and EN/FIL wording
-- `npc_conversations.json` (29 KB, 560) — NPC ambient chatter: solo lines per NPC and two-NPC exchanges, each line with en/fil text (fetched by npc/npcs.js)
+- `npc_conversations.json` (37 KB, 692) — NPC ambient chatter: solo lines per NPC and two-NPC exchanges, each line with en/fil text (fetched by npc/npcs.js)
 
 ## (root)
 
@@ -25,24 +25,24 @@ then `outline <file>` and read only the line range you need.
 
 ## js/
 
-- `actintro.js` (6.6 KB, 177) — Act intro cinematic (ActIntro): when the story reaches a new Act, the Act banner pushes in behind letterbox bars with motes and a light sweep, then the Act number, title and the banner's EN/FIL caption from data/art_manifest.json; skippable · ActIntro
+- `actintro.js` (6.8 KB, 178) — Act intro cinematic (ActIntro): when the story reaches a new Act, the Act banner pushes in behind letterbox bars with motes and a light sweep, then the Act number, title and the banner's EN/FIL caption from data/art_manifest.json; skippable · ActIntro
 - `actionpanel.js` (20 KB, 472) — Hotbar on the bottom tray (J/K/L skill slots with drag-and-drop arranging and the skill book (P), Space/E, quick slots 1–4, Market B and Full Screen F) and the right panel's option buttons · ActionPanel
 - `actreader.js` (5.0 KB, 146) — "Read more" Act reader: full text of finished Acts from LORE.md with their banners · ActReader
 - `audio.js` (31 KB, 661) — Procedural Web Audio engine (exported Sound): master/music/SFX buses with compressor and reverb, synth instruments, a lookahead sequencer that crossfades the tracks in js/music.js by place/night/boss (setScene), fanfares (playJingle) and 30+ play* SFX that fade by distance and mute off screen · Sound
 - `background.js` (0.9 KB, 25) — Background image helpers for assets/bg/: loadImage and cover-fit drawCover · loadImage, drawCover
-- `bestiary.js` (50 KB, 507) — Monster and boss definitions per Act (stats, sprite, medium, debuffs, en/fil names), night kinds and blights · MONSTERS, BOSSES, NIGHT_KINDS, BLIGHTS
+- `bestiary.js` (64 KB, 640) — Monster and boss definitions per Act (stats, sprite, medium, debuffs, en/fil names, boss move style and attacks), night kinds and blights · MONSTERS, BOSSES, NIGHT_KINDS, BLIGHTS
 - `camera.js` (0.6 KB, 18) — Camera following the player, clamped to world bounds · Camera
 - `charpanel.js` (15 KB, 298) — Character panel (C): Ragnarok-style stat builder (STR/AGI/VIT/INT/DEX/LUK) with the auto stat path, class skill trees, and the Paths tab (style meter, three path trees, T/Y/U slots) · CharacterPanel
 - `chatlog.js` (3.2 KB, 83) — Bottom adventure log tray: NPC lines, hits taken, loot, gear changes (newest first) · ChatLog
-- `codex.js` (17 KB, 285) — Codex (N): in-game encyclopedia of NPCs, monsters & MVPs, weapons, equipment, accessories and other items; entries unlock when met/seen · Codex
-- `continent.js` (18 KB, 339) — Continent world map art and data: Aethelgard, its frontiers and the Dark Continent with roads, biomes, side-quest badges and the Book II isle · ContinentMap
+- `codex.js` (18 KB, 290) — Codex (N): in-game encyclopedia of NPCs, monsters & MVPs, weapons, equipment, accessories and other items; entries unlock when met/seen · Codex
+- `continent.js` (19 KB, 342) — Continent world map art and data: Aethelgard, its frontiers and the Dark Continent with roads, biomes, side-quest badges and the Book II isle · ContinentMap
 - `controller.js` (1.4 KB, 58) — Keyboard input state (held keys, just-pressed) · InputController
 - `creator.js` (12 KB, 330) — Character Creator scene: builds the Novice's modular Avatar part by part before the summoning · CreatorScene
 - `daynight.js` (3.8 KB, 109) — Day/night cycle (6-minute day): phases, night tint and night monster behaviour · DayNight
 - `dialog.js` (7.1 KB, 228) — HTML dialogue box with speaker portrait, quest tracker HUD and quest log overlays · DialogBox, QuestHud
-- `dialogue.js` (23 KB, 400) — Story dialogue for Acts II–VI per NPC and quest step (en/fil); getDialogue(id, ctx), npcName · npcName, getDialogue
+- `dialogue.js` (34 KB, 514) — Story dialogue for Acts II–VI per NPC and quest step (en/fil); getDialogue(id, ctx), npcName · npcName, getDialogue
 - `elements.js` (4.9 KB, 104) — Race, element, size and type tables with damage multipliers and variant prefixes (Ragnarok style), en/fil names · ELEMENTS, elementMult, raceBonus, sizeMod, rollVariant, variantPrefix, elementName, raceName +1
-- `enemy.js` (45 KB, 994) — Enemy manager: monster spawning (hub, platforms, frontiers, elites, night, ambushes, bosses), AI state machines, telegraphed attacks, tiers/elements, death and drops · HUB_KINDS, HUB_ELITES, EnemyManager
+- `enemy.js` (57 KB, 1228) — Enemy manager: monster spawning (hub, platforms, frontiers, elites, night, ambushes, bosses), AI state machines, telegraphed attacks, boss move styles (drift/blink, charge, chained) and skills (tear rain, wail cone, bone lances, chain sweep/grab, shockwave rings) with Aseprite effects, tiers/elements, death and drops · HUB_KINDS, HUB_ELITES, EnemyManager
 - `errand.js` (8.9 KB, 212) — Summon errands: the familiar/Falcon/Guardian Angel carries a 9-slot pack to market from the field (sell non-quest items, buy potions and herbs), is out of combat until back; ErrandPack order, dispatch, updateErrand, save/load · errandReady, errandConfig, errandText, runnerName, errandBuyPrice, runnerFor, hasRunnerKind, awayRunner +7
 - `fx.js` (15 KB, 474) — Game feel: screen shake, hit-stop, shockwave rings, sparks, blood, damage numbers, flashes, vignette · FXManager
 - `fxsprites.js` (2.1 KB, 53) — Effect sprites from Aseprite (assets/sprites/fx/<name>, "down-play" tag): drawFx with rotation, size, anchor, alpha and cached tints; false when not loaded so callers keep their code-drawn effect · fxFrames, drawFx
@@ -52,7 +52,7 @@ then `outline <file>` and read only the line range you need.
 - `juice.js` (4.0 KB, 99) — Shared combat animation helpers for every fighter: rest/hit/attack/windup/breath/spawn poses, swing arcs · REST, hitPose, attackPose, windupPose, breathPose, spawnPose, mix, around +1
 - `loot.js` (11 KB, 277) — Loot drops: gold and items from slain monsters, ground items, magnetic pickup into the bag; blocked drops slide to the nearest walkable tile (findNearestWalkableSpot) · findNearestWalkableSpot, LootManager
 - `lore.js` (8.0 KB, 245) — Loads LORE.md / LORE_FIL.md, parses ## Acts into chapters, act banners, auto-scrolling lore panel · loadLore, parseChapters, actNumber, chapterKey, BANNER_EXTS, bannerSrc, createLorePanel
-- `main.js` (89 KB, 2113) — Entry module and coordinator: canvas fit, scene routing (title → prologue → creator → game), managers, menus/shops, platform travel, save/load/export/import, Job Awakening, update + render game loop
+- `main.js` (90 KB, 2124) — Entry module and coordinator: canvas fit, scene routing (title → prologue → creator → game), managers, menus/shops, platform travel, save/load/export/import, Job Awakening, update + render game loop
 - `market.js` (13 KB, 317) — Market (B): buy and sell with a quantity slider per row (prices from items/economy.js via ctx) inside a sanctuary; outside one the same overlay builds and sends a summon errand (errand.js) · sellPrice, Market, marketText
 - `mercenaryManager.js` (15 KB, 391) — Hireable mercenaries: contracts and fees, following, AI combat, daze and recovery, drawing · MERC_CLASSES, MercenaryManager
 - `monsterTiers.js` (6.5 KB, 138) — Monster tiers (Normal, Champion, Elite, MVP) and modifiers: rolling, applying, damage multipliers, names, life bars (lives per level and tier) · MODS, modName, TIERS, rollTier, applyTier, tierName, has, MAX_LIVES +10
@@ -60,7 +60,7 @@ then `outline <file>` and read only the line range you need.
 - `player.js` (26 KB, 637) — Player entity: stats, stamina/sprint/dodge roll, damage and debuffs, EXP/levels, skill learning, movement, attack pose, drawing · expFor, Player
 - `projectiles.js` (15 KB, 379) — Player/mercenary projectiles and skill effects (meteor, thunder, arrows, ki spheres, dropkick) and their hit detection · ProjectileManager
 - `prologue.js` (37 KB, 801) — Act I animated pixel-art cutscene (480×270) explaining how the hero reached Aethelgard · PrologueScene
-- `quest.js` (16 KB, 362) — Main quest (Book I, Acts II–XII): steps with act, place, characters, objectives; QuestManager progress, side-quest gate, Book titles; mentor per class · FINAL_STEP, MENTOR_BY_CLASS, bookText, qt, QuestManager
+- `quest.js` (17 KB, 369) — Main quest (Book I, Acts II–XV): steps with act, place, characters, objectives; QuestManager progress, side-quest gate, Book titles; mentor per class; save migration (v1/v2 → v3) · FINAL_STEP, MENTOR_BY_CLASS, bookText, qt, QuestManager
 - `saveSecurity.js` (10 KB, 261) — Save format .vof: checksum/HMAC-style signing, XOR obfuscation, sanity audit of gold/stats/items/level, legacy .json migration; exposed as window.SaveSecurity
 - `select.js` (10 KB, 280) — Hero select scene with the Earthbound Souls isekai profiles · SelectScene
 - `services.js` (3.1 KB, 95) — NPC service menu: short choice list (mouse, 1–9, arrows + Enter) shown after talking to a service NPC · ServiceMenu
@@ -69,7 +69,7 @@ then `outline <file>` and read only the line range you need.
 - `skillpaths.js` (15 KB, 243) — Might (STR) / Finesse (DEX) / Arcana (INT) skill paths: passive and active nodes, play-style affinity (noteStyle/styleOf), resonance, T/Y/U skill slots (assignSlot, castActive, tickActives) for the hotbar · PATH_IDS, PATHS, RESONANCE, SLOT_KEYS, SKILL_DRAG_TYPE, PATH_TREES, PATH_TREE_IDS, activeSkill +9
 - `skills.js` (18 KB, 231) — Stat builder rules and skill trees per class (Ragnarok style): stat costs/caps, skill definitions and bonuses, learn rules (level, style, own summon), resonance, auto stat path (autoAllocate), en/fil text · STATS, PRIMARY, STAT_INFO, statCost, STAT_MAX, TREES, skillText, treesFor +10
 - `skillslots.js` (1.8 KB, 54) — Hotbar skill slots J/K/L: which ability sits in each slot (drag and drop), logical() maps a pressed key to its slot's ability for the controller and main.js, saved as skillKeys; ActionPanel.addSlotGroup adds more slot groups (e.g. path actives) · SLOT_KEYS, ABILITIES, SkillSlots
-- `stage.js` (4.7 KB, 124) — Hub map of the Aethelgard plains (Acts I–VI): grassland, Barracks, Citadel, 4 Warp Gateways, safe zones; same interface as world/platform.js · Stage
+- `stage.js` (4.8 KB, 126) — Hub map of the Aethelgard plains (Acts I–VI): grassland, Barracks, Citadel, 4 Warp Gateways, safe zones; same interface as world/platform.js · Stage
 - `status.js` (3.4 KB, 68) — Abnormal statuses (Seven Anomaly Blights: bleed, silence, poison, shock, burn, freeze, blind): effects, resist chance, ticking · STATUS, STATUS_KEYS, statusName, resistChance, tickStatuses, blocksRegen
 - `title.js` (28 KB, 780) — Title screen scene: menu, options (music/sfx/blood/weather/language), Chronicles, credits, save slot info; canvas draws embers and sword glow · TitleScene
 - `ui.js` (19 KB, 453) — In-canvas UI: terrain minimap with objective/compass/place name (drawn in the right panel's World Map box), overhead cooldown bar, and the framed pause, Apothecary shop, Mercenary Guild and game over panels (EN/FIL via t()) · UIManager
@@ -81,7 +81,7 @@ then `outline <file>` and read only the line range you need.
 
 - `avatar.js` (55 KB, 1337) — Modular pixel-art Avatar renderer: layered parts (cape, hair, body, arms, held item), 8 directions, cached frames; Pix buffer and shade helpers; optional Aseprite sheet (sheetKey) like CreatureSprite · FRAME_W, FRAME_H, DIRS, shade, Pix, whiteOf, Avatar
 - `beasts.js` (25 KB, 518) — Act monster sprites (sporeling, drake, crab, serpent, brute, imp, specter, treant, …) with idle/walk/attack frames · SporelingSprite, DrakeSprite, CrabSprite, SerpentSprite, BruteSprite, ImpSprite, SpecterSprite, TreantSprite +1
-- `creature.js` (15 KB, 349) — Non-human sprite base (CreatureSprite; uses Aseprite sheet frames when loaded, incl. extra anims and larger canvases) plus slime, wolf and falcon sprites; facingFrom direction helper · CreatureSprite, ellipse, SlimeSprite, WolfSprite, FalconSprite, facingFrom
+- `creature.js` (16 KB, 385) — Non-human sprite base (CreatureSprite; uses Aseprite sheet frames when loaded, incl. extra anims and larger canvases) plus slime, wolf and falcon sprites and SheetBossSprite (a boss drawn from its Aseprite sheet, code sprite ×2 as fallback); facingFrom direction helper · CreatureSprite, ellipse, SheetBossSprite, SlimeSprite, WolfSprite, FalconSprite, facingFrom
 - `options.js` (4.6 KB, 119) — Character Creator choices and colours, NPC-only parts, config normalisation and random look/name · FIELDS, DEFAULT_CONFIG, normalizeConfig, randomConfig, randomName
 - `sheets.js` (3.4 KB, 88) — Aseprite sprite sheets: loads assets/sprites/manifest.json and slices each sheet into per-tag frames ("<dir>-<anim>") that override the code-drawn creature frames; sheetCount for frame counts · sheetsVersion, sheetCount, sheetFrame, sheetDurations, loadSpriteSheets
 
@@ -104,8 +104,8 @@ then `outline <file>` and read only the line range you need.
 - `durability.js` (1.8 KB, 39) — Equipment durability: wear on use, broken state, repair cost · DUR_MAX, WEAR_WEAPON, WEAR_ARMOR, LOW_DUR, ARMOR_SLOTS, durOf, isBroken, wear +2
 - `economy.js` (4.1 KB, 94) — Buy and sell prices: sell rates per item type, shop stock and markups, market saturation (Market) and sell() · SELL_RATE, MARKET, SHOPS, buyPrice, baseSellPrice, Market, sell
 - `forge.js` (3.5 KB, 76) — Emberhold Forge (Brakka): set recipes, forging pieces, tempering · SET_SLOTS, MAX_TEMPER, RECIPES, recipeCost, forgePiece, temperInfo, temper
-- `icons.js` (12 KB, 103) — 16×16 pixel item icons, cached per kind and colour (canvas and data URL) · iconCanvas, iconURL
-- `itemdb.js` (40 KB, 525) — Item database (Ragnarok/Diablo style): slots, rarity, sets, grades, cards, affixes, drop rolls, describe/statText · MAX_PLUS, SLOTS, RARITY, SETS, SET_THRESHOLDS, setThresholds, GRADE_NAMES, slotName +11
+- `icons.js` (13 KB, 105) — 16×16 pixel item icons, cached per kind and colour (canvas and data URL) · iconCanvas, iconURL
+- `itemdb.js` (42 KB, 534) — Item database (Ragnarok/Diablo style): slots, rarity, sets, grades, cards, affixes, drop rolls, describe/statText · MAX_PLUS, SLOTS, RARITY, SETS, SET_THRESHOLDS, setThresholds, GRADE_NAMES, slotName +11
 
 ## js/mercenary/
 
@@ -116,8 +116,8 @@ then `outline <file>` and read only the line range you need.
 
 ## js/npc/
 
-- `npcs.js` (26 KB, 752) — NPCs in the world: spawning per place, wandering, ambient chatter (npc_conversations.json), sparring, talking · NPCManager
-- `roster.js` (5.4 KB, 101) — Lore characters from LORE.md: Avatar looks, places, mentor per class, summoner (Aurelia/Kenneth) · NPC_DEFS, MENTOR_OF, summonerIdFor
+- `npcs.js` (27 KB, 768) — NPCs in the world: spawning per place, wandering, ambient chatter (npc_conversations.json), sparring, talking · NPCManager
+- `roster.js` (7.0 KB, 119) — Lore characters from LORE.md: Avatar looks, places, mentor per class, summoner (Aurelia/Kenneth) · NPC_DEFS, MENTOR_OF, summonerIdFor
 
 ## js/summons/
 
@@ -127,7 +127,7 @@ then `outline <file>` and read only the line range you need.
 
 ## js/world/
 
-- `ambient.js` (5.5 KB, 130) — Per-platform ambience particles and sky colour (spores, storm, blizzard, ash, …) · Ambient
+- `ambient.js` (6.2 KB, 136) — Per-platform ambience particles and sky colour (spores, storm, blizzard, ash, …) · Ambient
 - `areas.js` (2.3 KB, 57) — Book I map registry: hub area (kinds, elites, sites, Badlands trail), areaDef/areaName/areaLevels over hub, platforms and frontiers, actAreas(act) for side quests · HUB_KINDS, HUB_ELITES, HUB_AREA, BOOK_ONE_AREAS, areaDef, isFrontier, areaName, areaLevels +1
 - `barracks.js` (2.8 KB, 91) — Barracks Sanctuary safe zone on the hub map: drawing and bounds · BarracksSystem
 - `boat.js` (37 KB, 928) — Crewed sailing ship in the Cerulean Abyss: faces E/W/N/S as it sails, boarding, deck posts for companions, landing at any shore, save state, return to the pier; and the sea monolith · BoatSystem
@@ -139,10 +139,10 @@ then `outline <file>` and read only the line range you need.
 - `mining.js` (5.5 KB, 121) — Ore veins on every platform (tier ore, plus minerals on Ashfall and the Citadel; rock salt): picks per vein, ore drops · MINE_RANGE, needsPick, OreVeins
 - `nav.js` (5.8 KB, 140) — Ground movement for monsters, mercenaries and walking pets: obstacle grid, flow field toward the hero, steering around obstacles, confinement to bounds · blockedAt, footBlocked, clearLine, trackGoal, towardGoal, steer, confine
 - `platform.js` (14 KB, 314) — Platform or frontier map for one Act: tilemap, ambience, return gateway, frontier trail, safe zones; same interface as Stage · Platform
-- `platforms.js` (31 KB, 472) — Campaign platform definitions for Acts VII–XII: places, 5 monsters + 4 elites, sites, frontier trails, bosses, quest items, seal stones, en/fil text · SEAL_STONES, PLATFORMS, PLATFORM_ORDER, PLATFORM_SIZE
+- `platforms.js` (48 KB, 684) — Campaign platform definitions for Acts VII–XV (Aethelgard + the Dark Continent: strand, ossuary, siege, chainspire, maw): places, 5 monsters + 4 elites, sites, frontier trails, roads/rifts, bosses, quest items, seal stones, en/fil text · DARK_CONTINENT · SEAL_STONES, PLATFORMS, PLATFORM_ORDER, DARK_CONTINENT, PLATFORM_SIZE
 - `portal.js` (4.7 KB, 124) — Celestial Warp Gateways and the Badlands trail: drawing and collision; calls main.js's handler to travel or report sealed · drawGateway, PortalSystem
 - `tilemap.js` (16 KB, 419) — Tile map generation and rendering from the tileset, foot hitbox collision, decorations · TileMap
-- `tileset.js` (26 KB, 596) — Procedural 16×16 pixel-art tile atlas, themes, seeded RNG (mulberry32), tree/rock/bush drawing · TILE, ATLAS_COLS, T, THEMES, mulberry32, buildTileset, drawTreeSplit, drawRock +1
+- `tileset.js` (28 KB, 621) — Procedural 16×16 pixel-art tile atlas, themes, seeded RNG (mulberry32), tree/rock/bush drawing · TILE, ATLAS_COLS, T, THEMES, mulberry32, buildTileset, drawTreeSplit, drawRock +1
 - `weather.js` (8.9 KB, 234) — Hub weather cycle (clear, rain, storm, fog) with pixel-art clouds and shadows · WeatherSystem
 - `zonesprites.js` (5.4 KB, 107) — Safe-zone art from Aseprite (zone/barracks, zone/castle, zone/<map id> camps and Emberhold): ZONE_ART placement + solid footprints, campLayout shared with the painter, drawZoneArt, zoneSolids, pushOutOf · ZONE_ART, CAMP_PAD, gateSide, campLayout, hasZoneArt, drawZoneArt, zoneSolids, pushOutOf
 
@@ -153,9 +153,10 @@ then `outline <file>` and read only the line range you need.
 
 ## tools/art/lib/
 
-- `kit.js` (31 KB, 649) — Painting kit for scenes: skies, eclipse/moon/sun, clouds, ridges, water/lava, castles, trees, rocks, crystals, rune circles, beams, rays, sparks, character staging (stand, rimLight) and discipline colours · Px, hex, mixC, shadeC, clamp, lerp, smooth, dith +46
+- `darkBosses.js` (11 KB, 173) — Hand-painted figures of the Dark Continent bosses (dolora, morgrave, vorgath) shared by the Act banners and portraits · dolora, morgrave, vorgath
+- `kit.js` (35 KB, 723) — Painting kit for scenes: skies, eclipse/moon/sun, clouds, ridges, water/lava, castles, trees, rocks, crystals, rune circles, beams, rays, sparks, character staging (stand, rimLight) and discipline colours · Px, hex, mixC, shadeC, clamp, lerp, smooth, dith +51
 - `px.js` (13 KB, 298) — Px pixel buffer (shapes, gradients, glow, blit, silhouette, vignette, quantize, toCanvas) plus colour, noise, fbm, Bayer dither and banded ramp helpers · hex, mixC, shadeC, clamp, lerp, smooth, bayer, dith +7
-- `sprites.js` (3.4 KB, 66) — Game sprites for the art tools: NPC, hero, monster, boss and item-icon frames from the real Avatar/creature/icon code, plus the Lantern Knight look · npc, look, hero, monster, boss, DEFAULT_LOOK, icon, LANTERN_KNIGHT_LOOK +1
+- `sprites.js` (4.7 KB, 79) — Game sprites for the art tools: NPC, hero, monster, boss and item-icon frames from the real Avatar/creature/icon code, plus the Lantern Knight look · ART_LOOKS, npc, look, hero, monster, boss, DEFAULT_LOOK, icon +2
 
 ## tools/art/
 
@@ -174,15 +175,18 @@ then `outline <file>` and read only the line range you need.
 - `act08.js` (3.4 KB, 46) — Art painter — Act VIII — The Cerulean Abyss & The Sunken Monoliths · paint
 - `act09.js` (3.2 KB, 44) — Art painter — Act IX — The Frostfang Precipice & The Shivering Siege · paint
 - `act10.js` (4.2 KB, 65) — Art painter — Act X — The Ashfall Wastelands & The Hellforge · paint
-- `act11.js` (3.4 KB, 49) — Art painter — Act XI — The Siege of the Obsidian Citadel & The Broken Gates · paint
-- `act12.js` (2.7 KB, 39) — Art painter — Act XII — The Heart of the Abyss & The Sovereign Dawn · paint
+- `actChainspire.js` (5.1 KB, 85) — Art painter — Act XIV — The Chainspire Descent (chain spire over the abyss, Vorgath) · paint
+- `actMaw.js` (2.8 KB, 39) — Art painter — Act XV — The Heart of the Abyss & The Sovereign Dawn · paint
+- `actOssuary.js` (5.4 KB, 78) — Art painter — Act XII — The Ossuary Fields (bone field, the Lantern Knight's cairn, Morgrave) · paint
+- `actSiege.js` (3.5 KB, 49) — Art painter — Act XIII — The Siege of the Obsidian Citadel & The Broken Gates · paint
+- `actStrand.js` (5.6 KB, 79) — Art painter — Act XI — The Lamenting Strand (Dawnstar wreck, tear pools, Dolora over the water) · paint
 - `heralds.js` (2.0 KB, 35) — Art painter — Heralds — The Inverted Star · paint
-- `index.js` (3.6 KB, 65) — Scene registry: key → output path, native size, upscale and painter module; paintScene(key) · SCENES, paintScene
+- `index.js` (3.9 KB, 70) — Scene registry: key → output path, native size, upscale and painter module; paintScene(key) · SCENES, paintScene
 - `ledger.js` (3.1 KB, 53) — Art painter — Ledger — The Rules of the Summoned · paint
 - `portal.js` (2.5 KB, 31) — Art painter — Portal — The Pentagram Gate · paint
-- `portraits.js` (2.7 KB, 33) — Art painter — Portrait cards — one per lore character, drawn with the character's in-game sprite on a backdrop · BOSSES, paint
+- `portraits.js` (3.8 KB, 50) — Art painter — Portrait cards — one per lore character, drawn with the character's in-game sprite on a backdrop · BOSSES, paint
 - `prophecy.js` (3.1 KB, 52) — Art painter — Prophecy — The Pentagram Seal · paint
-- `relics.js` (5.4 KB, 54) — Art painter — Relics and sigils — 32×32 item art for story objects that have no in-game icon yet: the four · paint
+- `relics.js` (7.6 KB, 73) — Art painter — Relics and sigils — 32×32 item art for story objects that have no in-game icon yet: the four · paint
 - `title.js` (3.6 KB, 48) — Art painter — Title — The Lantern Knight's Sword · paint
 - `vistaBarracks.js` (2.1 KB, 32) — Art painter — Vista — The Barracks Sanctuary by day · paint
 - `vistaDawn.js` (2.6 KB, 33) — Art painter — Vista — The Sovereign Dawn · paint
@@ -195,22 +199,23 @@ then `outline <file>` and read only the line range you need.
 
 ## tools/aseprite/
 
-- `asefile.mjs` (11 KB, 216) — Reads and writes .aseprite files in plain Node (layers, linked cels, tags, palette); export.mjs uses it when Aseprite isn't installed · writeAse, readAse
+- `asefile.mjs` (12 KB, 220) — Reads and writes .aseprite files in plain Node (layers or a single layer, linked cels, tags, palette); export.mjs, seed.mjs and the painters use it when Aseprite isn't installed · writeAse, readAse
 - `export.mjs` (6.3 KB, 103) — Exports aseprite/**/*.aseprite with aseprite -b to assets/sprites/<key>.png + .json, checks tags/size against the code sprite, rewrites the manifest
-- `lib.mjs` (4.9 KB, 92) — Aseprite tool helpers: find the Aseprite executable, read a creature sprite headless, write PNGs · ROOT, SRC_DIR, OUT_DIR, findAseprite, codeSprite, writePng
-- `seed.mjs` (2.4 KB, 56) — Starts aseprite/<kind>/<key>.aseprite from a creature's code-drawn frames (one tag per direction+animation): node tools/aseprite/seed.mjs monster/slime
+- `lib.mjs` (6.7 KB, 127) — Aseprite tool helpers: find the Aseprite executable, read a creature sprite headless, write PNGs; readPng and tryAseprite for the Node fallback · ROOT, SRC_DIR, OUT_DIR, findAseprite, codeSprite, writePng, readPng, tryAseprite
+- `seed.mjs` (2.7 KB, 61) — Starts aseprite/<kind>/<key>.aseprite from a creature's code-drawn frames (one tag per direction+animation): node tools/aseprite/seed.mjs monster/slime
 
 ## tools/aseprite/paint/
 
 - `angel.mjs` (5.5 KB, 108) — Painter: detailed Guardian Angel 44×44 from the game's Avatar body plus feathered wings, halo glow and holy light · W, FRAMES, DURATIONS, LOOK, prepare
 - `beast.mjs` (16 KB, 298) — Painter: detailed four-legged familiars 40×28 (War Hound, Spirit Fox), idle/walk/run/attack/skill × 3 directions · W, FRAMES, DURATIONS, KINDS, paintBeast, mix
 - `bird.mjs` (7.8 KB, 143) — Painter: detailed birds 36×28, side view (Archer's falcon, Arcane Owl): fly, dive, taunt · W, FRAMES, DURATIONS, KINDS, paintBird
-- `fx.mjs` (9.3 KB, 187) — Painter: skill and hit effects (meteor, blast, lightning, holy, sphere, slash, wave, bolt, arrow, arrowfall, bite, claw, arcane); grey ones are tinted in game · FX, mix
-- `kit.mjs` (7.3 KB, 137) — Painting kit for the procedural Aseprite starting points: Canvas (lit dithered blobs, thick lines, polygons, outline, sparks), fromGame, build() → aseprite/<key>.aseprite via seed.lua · hex, mixc, Canvas, fromGame, build
-- `paint.mjs` (2.9 KB, 47) — Recreates the detailed procedural .aseprite starting points (overwrites): node tools/aseprite/paint/paint.mjs <key|all> · SUBJECTS
+- `boss.mjs` (64 KB, 1099) — Painter: Dark Continent bosses Dolora 64×72, Morgrave 96×104, Vorgath 112×112, idle/walk/run/attack/skill × 3 directions · FRAMES, BOSSES
+- `fx.mjs` (14 KB, 273) — Painter: skill and hit effects (meteor, blast, lightning, holy, sphere, slash, wave, bolt, arrow, arrowfall, bite, claw, arcane, tear, bonespike, chain, shockring); grey ones are tinted in game · FX, mix
+- `kit.mjs` (7.8 KB, 145) — Painting kit for the procedural Aseprite starting points: Canvas (lit dithered blobs, thick lines, polygons, outline, sparks), fromGame, build() → aseprite/<key>.aseprite via seed.lua · hex, mixc, Canvas, fromGame, build
+- `paint.mjs` (3.1 KB, 51) — Recreates the detailed procedural .aseprite starting points (overwrites): node tools/aseprite/paint/paint.mjs <key|all> · SUBJECTS
 - `scenery.mjs` (23 KB, 430) — Scenery kit for the safe-zone painters: alpha Img canvas, flagstones, clearings, shingles, timber walls, tents, braziers, banners, crates, barrels, smoke, campfire · FRAMES, ph, rgb, mix, withA, shade, ramp, pick +25
 - `slime.mjs` (7.5 KB, 141) — Painter: detailed slime 32×24 (Forest Slime; Pocket Slime with sprout), idle/walk/run/attack/skill × 3 directions · W, FOREST, FRAMES, DURATIONS, paintSlime
-- `zones.mjs` (35 KB, 556) — Paints the safe zones as layered .aseprite files: themed Fated Vanguard camps per map, Barracks + longhouses, Imperial Citadel + dais, Emberhold · CAMP_THEMES, zoneSubjects
+- `zones.mjs` (37 KB, 581) — Paints the safe zones as layered .aseprite files: themed Fated Vanguard camps per map, Barracks + longhouses, Imperial Citadel + dais, Emberhold · CAMP_THEMES, zoneSubjects
 
 ## tools/audio/
 

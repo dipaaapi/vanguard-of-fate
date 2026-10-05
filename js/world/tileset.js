@@ -89,6 +89,31 @@ export const THEMES = {
     tree: "pillar", rock: ["#2a2433", "#3f3650", "#5f5270"], bush: "bones", treeDensity: 0.72,
     edge: { air: "void miasma", haze: ["#c084fc", "#6b21a8", "#1e1b4b"], glow: "#ff7a1a" }
   },
+  // ---- Dark Continent (Acts XI, XII, XIV) ----
+  strand: {
+    grass: ["#2a2d33", "#272a30", "#2d3037"], grassLight: "#3f444d", grassDark: "#1b1d22",
+    dirt: ["#3a3a3f", "#36363b"], dirtLight: "#4d4d54", dirtDark: "#26262a",
+    deco: "shells", decoColors: ["#cbd5e1", "#7dd3fc", "#e2e8f0"],
+    liquid: { base: "#0b1220", light: "#1e293b", dark: "#05080f", rim: "#7dd3fc" },
+    wall: { base: "#3f3f46", light: "#52525b", dark: "#27272a" },
+    tree: "weeping", rock: ["#27272a", "#3f3f46", "#71717a"], bush: "kelp", treeDensity: 0.55
+  },
+  ossuary: {
+    grass: ["#6e6a5c", "#686456", "#747062"], grassLight: "#8a8574", grassDark: "#4f4c42",
+    dirt: ["#5a5246", "#554d42"], dirtLight: "#6e6556", dirtDark: "#403a32",
+    deco: "pebbles", decoColors: ["#e7e5e4", "#d6d3d1", "#7f1d1d"],
+    liquid: { base: "#2b2a24", light: "#45433a", dark: "#1a1915", rim: "#a8a29e" },
+    wall: { base: "#d6d3d1", light: "#f5f5f4", dark: "#a8a29e" },
+    tree: "ruin", rock: ["#78716c", "#a8a29e", "#e7e5e4"], bush: "bones", treeDensity: 0.62
+  },
+  chainspire: {
+    grass: ["#2b2626", "#2f2929", "#272222"], grassLight: "#463d3d", grassDark: "#1a1616",
+    dirt: ["#3a3030", "#362c2c"], dirtLight: "#4d4040", dirtDark: "#241d1d",
+    deco: "embers", decoColors: ["#f43f5e", "#fb7185", "#a1a1aa"],
+    liquid: { base: "#1a0710", light: "#4c0519", dark: "#0c0306", rim: "#f43f5e" },
+    wall: { base: "#27272a", light: "#3f3f46", dark: "#18181b" },
+    tree: "pillar", rock: ["#27272a", "#3f3f46", "#71717a"], bush: "bones", treeDensity: 0.7
+  },
   // ---- Frontier maps (js/world/frontiers.js) ----
   rocky: {
     grass: ["#8a7357", "#846d52", "#90795c"], grassLight: "#a88f6e", grassDark: "#6b5a41",
