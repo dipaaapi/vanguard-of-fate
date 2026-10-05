@@ -34,7 +34,7 @@ export const MageClass = {
     return true;
   },
 
-  // KEY L: Frost Diver — an ice spear that freezes the target (water element)
+  // KEY L: Glacial Lance — an ice spear that freezes the target (water element)
   cooldown2: 90,
   onSkill2(player, target, spawnSpell) {
     const a = player.aimAngle;

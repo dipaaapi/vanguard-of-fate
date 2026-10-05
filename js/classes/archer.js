@@ -102,7 +102,7 @@ export const ArcherClass = {
     }
   },
 
-  // KEY L: Arrow Shower — three volleys of arrows on the target's area (wind element)
+  // KEY L: Skyfall Volley — three volleys of arrows on the target's area (wind element)
   cooldown2: 300,
   onSkill2(player, target, spawnProjectile) {
     const a = player.aimAngle;

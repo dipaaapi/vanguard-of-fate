@@ -564,7 +564,7 @@ export class InventoryPanel {
         if (this.ctx.service === "refine" && it.plus < (this.ctx.maxPlus ?? MAX_PLUS)) {
           const c = upgradeCost(it);
           const ch = Math.round(refineChance(it.plus) * 100);
-          actBtn(`${T.doUpgrade} +${it.plus + 1} · ${ch}% ${T.chance} (Phracon ${c.shards}${c.crystals ? ` · Oridecon ${c.crystals}` : ""} · ${c.gold}G)`, "upgrade");
+          actBtn(`${T.doUpgrade} +${it.plus + 1} · ${ch}% ${T.chance} (Shard ${c.shards}${c.crystals ? ` · Void Crystal ${c.crystals}` : ""} · ${c.gold}G)`, "upgrade");
         }
       }
       if (it.type === "consume" && inBag) {
