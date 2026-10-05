@@ -203,6 +203,101 @@ const CARDS = {
   shockTrooper: { n: N("Shock Trooper", "Shock Trooper"), stats: { crit: 6 } },
   voidSpider: { n: N("Miasma Spider", "Gagamba ng Miasma"), stats: { dex: 5 } },
   specter: { n: N("Spectral Horror", "Multong Kakila-kilabot"), stats: { luk: 6 } },
+  // Every other monster, by the first map it appears on. One stat from its element (fire ATK, water HP,
+  // earth DEF, wind AGI, poison DEX, shadow CRIT, ghost LUK, undead/holy INT, neutral VIT), sized to the
+  // map's level band; elite kinds add a second stat from their race.
+  // Plains of Aethelgard
+  goblinScout: { n: N("Goblin Raider", "Gobling Mananalakay"), stats: { def: 3 } },
+  forestBear: { n: N("Plains Ursath", "Ursath ng Kapatagan"), stats: { def: 3 } },
+  windFalcon: { n: N("Sky Storm Harrier", "Lawin ng Bagyo"), stats: { agi: 2 } },
+  bloodBat: { n: N("Dusk Bat", "Paniki ng Takipsilim"), stats: { crit: 3 } },
+  goblinWarchief: { n: N("Goblin Warchief", "Pinunong Goblin"), stats: { def: 3, dex: 2 } },   // elite
+  ironpeltAlpha: { n: N("Ironpelt Alpha", "Alphang Bakal-Balahibo"), stats: { def: 3, str: 2 } },   // elite
+  thunderRoc: { n: N("Thunderbeak Roc", "Roc ng Kulog"), stats: { agi: 2, str: 2 } },   // elite
+  bramblecrownSlime: { n: N("Bramblecrown Slime", "Slime na Koronang-Tinik"), stats: { def: 3, vit: 2 } },   // elite
+  // Greyhorn Badlands (rocky)
+  skyGargoyle: { n: N("Granite Gargoyle", "Gargoyle na Bato"), stats: { agi: 2 } },
+  rubbleCrawler: { n: N("Rubble Crawler", "Gumagapang na Guho"), stats: { def: 4 } },
+  badlandBrigand: { n: N("Badland Brigand", "Tulisan ng Kabatuhan"), stats: { vit: 2 } },
+  dustJackal: { n: N("Dust Jackal", "Asong-Ligaw ng Alikabok"), stats: { def: 4 } },
+  quarryColossus: { n: N("Quarry Colossus", "Higante ng Tibagan"), stats: { def: 4, vit: 2 } },   // elite
+  brigandWarlord: { n: N("Brigand Warlord", "Panginoon ng mga Tulisan"), stats: { vit: 2, dex: 2 } },   // elite
+  boneMarshal: { n: N("Bone Marshal", "Kalansay na Mariskal"), stats: { int: 2, hp: 25 } },   // elite
+  cliffWyvern: { n: N("Cliffcrest Wyvern", "Wyvern ng Bangin"), stats: { agi: 2, str: 2 } },   // elite
+  // Whispering Canopy (canopy)
+  mossTreant: { n: N("Briar Ancient", "Sinaunang Tinik"), stats: { def: 5 } },
+  blightHarpy: { n: N("Blight Harpy", "Harpy ng Salot"), stats: { agi: 3 } },
+  sporeHornet: { n: N("Miasma Hornet", "Pukyutan ng Miasma"), stats: { dex: 3 } },
+  rotheartDryad: { n: N("Rotheart Dryad", "Dryad na Bulok ang Puso"), stats: { dex: 3, vit: 3 } },   // elite
+  beastmanChieftain: { n: N("Beastman Chieftain", "Pinuno ng mga Beastman"), stats: { def: 5, dex: 3 } },   // elite
+  thornbackBehemoth: { n: N("Thornback Behemoth", "Behemoth na Tinik ang Likod"), stats: { def: 5, vit: 3 } },   // elite
+  miasmaHiveQueen: { n: N("Miasma Hive Queen", "Reyna ng Pugad ng Miasma"), stats: { dex: 3, agi: 3 } },   // elite
+  // Gloomwater Fens (swamp)
+  bogSerpent: { n: N("Venom Mire Serpent", "Serpent ng Lusak"), stats: { dex: 3 } },
+  swampCrab: { n: N("Bog Shell Crab", "Alimango ng Putikan"), stats: { dex: 3 } },
+  mireGhoul: { n: N("Mire Ghoul", "Ghoul ng Lusak"), stats: { dex: 3 } },
+  peatHulk: { n: N("Peat Hulk", "Halimaw na Pit"), stats: { def: 6 } },
+  fenMoth: { n: N("Gloom Moth", "Gamugamo ng Dilim"), stats: { agi: 3 } },
+  gloomwaterHag: { n: N("Gloomwater Hag", "Mangkukulam ng Gloomwater"), stats: { crit: 5, dex: 3 } },   // elite
+  mireHydra: { n: N("Mire Hydra", "Hydra ng Lusak"), stats: { dex: 3, str: 3 } },   // elite
+  bogTitan: { n: N("Bog Titan", "Titan ng Putikan"), stats: { hp: 35, vit: 3 } },   // elite
+  plagueMothMatriarch: { n: N("Plague Moth Matriarch", "Inang Gamugamo ng Salot"), stats: { dex: 3, agi: 3 } },   // elite
+  // Cerulean Abyss (coast)
+  coralGolem: { n: N("Coral Golem", "Golem na Bahura"), stats: { hp: 40 } },
+  stormPetrel: { n: N("Thunder Skimmer", "Wyvern ng Bagyo"), stats: { agi: 3 } },
+  drownedSpecter: { n: N("Abyssal Banshee", "Banshee ng Kailaliman"), stats: { hp: 40, int: 3 } },   // elite
+  siren: { n: N("Tidecaller Siren", "Sirena ng Taob"), stats: { hp: 40, agi: 3 } },   // elite
+  drownedCaptain: { n: N("Drowned Captain", "Nalunod na Kapitan"), stats: { hp: 40, int: 3 } },   // elite
+  abyssalKraken: { n: N("Abyssal Kraken", "Kraken ng Kailaliman"), stats: { hp: 40, agi: 3 } },   // elite
+  // Maw of Damnation (maw)
+  deepKraken: { n: N("Kraken Hatchling", "Munting Kraken"), stats: { hp: 65 } },
+  voidSerpent: { n: N("Void Serpent", "Serpent ng Void"), stats: { hp: 65 } },
+  voidHusk: { n: N("Void Husk", "Hungkag ng Void"), stats: { crit: 7 } },
+  fallenSeraph: { n: N("Fallen Seraph", "Nahulog na Seraph"), stats: { int: 6, str: 6 } },   // elite
+  abyssBehemoth: { n: N("Abyss Behemoth", "Behemoth ng Kalaliman"), stats: { crit: 7, str: 6 } },   // elite
+  abyssWyrm: { n: N("Abyssal Wyrm", "Wyrm ng Kalaliman"), stats: { crit: 7, str: 6 } },   // elite
+  wraithLord: { n: N("Wraith Lord", "Panginoon ng mga Wraith"), stats: { luk: 6, int: 6 } },   // elite
+  // Frostfang Precipice (frost)
+  frostStalker: { n: N("Glacier Wolf", "Lobo ng Glosyer"), stats: { hp: 45 } },
+  frostGargoyle: { n: N("Permafrost Gargoyle", "Gargoyle ng Yelo"), stats: { hp: 45, vit: 4 } },   // elite
+  frostSerpent: { n: N("Glacial Serpent", "Serpent ng Glosyer"), stats: { hp: 45, agi: 4 } },   // elite
+  frozenCrab: { n: N("Icebound Scuttler", "Alimangong Yelo"), stats: { hp: 45 } },
+  rimeJotun: { n: N("Rime Jotun", "Jotun ng Hamog-Yelo"), stats: { hp: 45, str: 4 } },   // elite
+  glacierWitch: { n: N("Glacier Witch", "Bruha ng Glosyer"), stats: { hp: 45, dex: 4 } },   // elite
+  // Stormcrown Highlands (mountain)
+  blizzardHawk: { n: N("Ice Griffin", "Griffin ng Niyebe"), stats: { agi: 4 } },
+  highlandLynx: { n: N("Highland Lynx", "Lynx ng Kabundukan"), stats: { def: 8 } },
+  graniteTroll: { n: N("Granite Troll", "Trolong Granite"), stats: { def: 8 } },
+  galeHarpy: { n: N("Gale Harpy", "Harpy ng Unos"), stats: { agi: 4 } },
+  highlandRaider: { n: N("Highland Raider", "Mananalakay ng Kabundukan"), stats: { vit: 4 } },
+  stormcrownGriffin: { n: N("Stormcrown Griffin", "Griffin ng Stormcrown"), stats: { agi: 4, str: 4 } },   // elite
+  avalancheGolem: { n: N("Avalanche Golem", "Golem ng Guho-Niyebe"), stats: { hp: 50, vit: 4 } },   // elite
+  peakShaman: { n: N("Peak Shaman", "Shaman ng Tuktok"), stats: { agi: 4, dex: 4 } },   // elite
+  elderTroll: { n: N("Elder Troll", "Matandang Trolo"), stats: { def: 8, str: 4 } },   // elite
+  // Ashfall Wastelands (ash)
+  hellHound: { n: N("Hellforge Hound", "Aso ng Hellforge"), stats: { atk: 12 } },
+  fireGargoyle: { n: N("Brimstone Gargoyle", "Gargoyle ng Asupre"), stats: { atk: 12, str: 5 } },   // elite
+  lavaSerpent: { n: N("Magma Serpent", "Serpent ng Magma"), stats: { atk: 12, str: 5 } },   // elite
+  lavaCrab: { n: N("Cinder Crab", "Alimangong Baga"), stats: { atk: 12 } },
+  hellforgeOverseer: { n: N("Hellforge Overseer", "Tagabantay ng Hellforge"), stats: { atk: 12, str: 5 } },   // elite
+  cinderBehemoth: { n: N("Cinder Behemoth", "Behemoth ng Baga"), stats: { atk: 12, str: 5 } },   // elite
+  // Siege of the Obsidian Citadel (siege)
+  abyssalJuggernaut: { n: N("Siege Dreadnought", "Kuta ng Pagkawasak"), stats: { crit: 6, str: 5 } },   // elite
+  chaosGargoyle: { n: N("Chaos Gargoyle", "Gargoyle ng Kaguluhan"), stats: { crit: 6 } },
+  corruptedCrab: { n: N("Corrupted Moat Crab", "Bulok na Alimango"), stats: { hp: 60 } },
+  hellfireWarlock: { n: N("Hellfire Warlock", "Warlock ng Apoy-Impiyerno"), stats: { atk: 14, str: 5 } },   // elite
+  obsidianSentinel: { n: N("Obsidian Sentinel", "Bantay na Obsidian"), stats: { crit: 6, str: 5 } },   // elite
+  infernalWyvern: { n: N("Infernal Wyvern", "Wyvern ng Impiyerno"), stats: { atk: 14, str: 5 } },   // elite
+  // Sunscorch Dunes (desert)
+  duneScarab: { n: N("Dune Scarab", "Salagubang ng Buhangin"), stats: { def: 9 } },
+  duneHyena: { n: N("Dune Hyena", "Hyena ng Buhangin"), stats: { def: 9 } },
+  sunDriedRevenant: { n: N("Sun-Dried Revenant", "Tuyong Revenant"), stats: { int: 5 } },
+  sandWyrm: { n: N("Sand Wyrm", "Wyrm ng Buhangin"), stats: { def: 9 } },
+  carrionVulture: { n: N("Carrion Vulture", "Buwitre ng Bangkay"), stats: { agi: 5 } },
+  scarabMonarch: { n: N("Scarab Monarch", "Haring Salagubang"), stats: { def: 9, agi: 5 } },   // elite
+  tombKing: { n: N("Sunken Tomb King", "Hari ng Lubog na Libingan"), stats: { int: 5, hp: 55 } },   // elite
+  sandstormWraith: { n: N("Sandstorm Wraith", "Wraith ng Bagyong Buhangin"), stats: { agi: 5, int: 5 } },   // elite
+  duneColossus: { n: N("Dune Colossus", "Higante ng Buhangin"), stats: { def: 9, vit: 5 } },   // elite
   malakor: { n: N("Malakor", "Malakor"), stats: { vit: 6, hp: 60 }, boss: true },
   leviathan: { n: N("Leviathan Regent", "Leviathan Regent"), stats: { int: 6, cdr: 6 }, boss: true },
   cryonix: { n: N("Cryonix", "Cryonix"), stats: { agi: 6, aspd: 8 }, boss: true },
