@@ -96,7 +96,8 @@ export class TileMap {
       cv.height = this.pxH;
       const c = cv.getContext("2d");
       (stage.coverageSystems || [stage.castle, stage.barracks, stage.portals]).forEach((sys) => {
-        try { if (sys && sys.draw) sys.draw(c); } catch (_) { /* skip */ }
+        // drawCoverage: the footprint to keep clear, independent of whether Aseprite art has loaded yet
+        try { if (sys && (sys.drawCoverage || sys.draw)) (sys.drawCoverage || sys.draw).call(sys, c); } catch (_) { /* skip */ }
       });
       const data = c.getImageData(0, 0, this.pxW, this.pxH).data;
 

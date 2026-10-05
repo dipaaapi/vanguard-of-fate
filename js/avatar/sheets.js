@@ -27,6 +27,11 @@ export function sheetFrame(key, dir, anim, i) {
   return tag && i < tag.length ? tag[i] : null;
 }
 
+/** Frame durations (ms) of the sheet's `dir`/`anim` tag, as set in Aseprite (empty = no such tag). */
+export function sheetDurations(key, dir, anim) {
+  return sheets.get(key)?.get(`${dir}|${anim}`)?.durations || [];
+}
+
 /** Cut an exported sheet into one canvas per frame, grouped by tag. */
 function slice(img, data) {
   const frames = Array.isArray(data.frames) ? data.frames : Object.values(data.frames);
@@ -43,6 +48,7 @@ function slice(img, data) {
       c.getContext("2d").drawImage(img, r.x, r.y, r.w, r.h, 0, 0, r.w, r.h);
       list.push(c);
     }
+    list.durations = frames.slice(tag.from, tag.to + 1).map((f) => f.duration || 100);
     tags.set(`${m[1]}|${m[2]}`, list);
   }
   return tags;
