@@ -6,7 +6,7 @@ then `outline <file>` and read only the line range you need.
 
 ## css/
 
-- `controls.css` (8.1 KB, 217) — Hotbar and skill book in the bottom tray, side-panel world map, Market and Settings overlays (sized by --s)
+- `controls.css` (9.9 KB, 270) — Hotbar and skill book in the bottom tray, side-panel world map, Market and Settings overlays (sized by --s)
 - `creator.css` (9.2 KB, 369) — Character Creator screen styles (uses title.css variables)
 - `dialog.css` (23 KB, 490) — Dialogue box, quest tracker/log, service menu and panel overlays; --s = integer canvas scale set by main.js fitCanvas
 - `style.css` (17 KB, 584) — Global page layout, pixelated canvas, side panel, bottom bar / adventure log tray
@@ -15,7 +15,8 @@ then `outline <file>` and read only the line range you need.
 ## data/
 
 - `art_manifest.json` (19 KB, 625) — Every generated image (banners, title/portal backgrounds, vistas, portraits, relics): kind, EN/FIL caption and where the game uses it; paired with tools/art/scenes/index.js
-- `market.json` (1.6 KB, 24) — Market (B) stock, buy quantities and EN/FIL wording
+- `errand.json` (3.1 KB, 39) — Summon errand tuning (pack slots, stack per slot, trip time, what it may buy) and EN/FIL wording
+- `market.json` (1.6 KB, 22) — Market (B) stock and EN/FIL wording
 - `npc_conversations.json` (37 KB, 692) — NPC ambient chatter: solo lines per NPC and two-NPC exchanges, each line with en/fil text (fetched by npc/npcs.js)
 
 ## (root)
@@ -25,7 +26,7 @@ then `outline <file>` and read only the line range you need.
 ## js/
 
 - `actintro.js` (6.8 KB, 178) — Act intro cinematic (ActIntro): when the story reaches a new Act, the Act banner pushes in behind letterbox bars with motes and a light sweep, then the Act number, title and the banner's EN/FIL caption from data/art_manifest.json; skippable · ActIntro
-- `actionpanel.js` (20 KB, 470) — Hotbar on the bottom tray (J/K/L skill slots with drag-and-drop arranging and the skill book (P), Space/E, quick slots 1–4, Market B and Full Screen F) and the right panel's option buttons · ActionPanel
+- `actionpanel.js` (20 KB, 472) — Hotbar on the bottom tray (J/K/L skill slots with drag-and-drop arranging and the skill book (P), Space/E, quick slots 1–4, Market B and Full Screen F) and the right panel's option buttons · ActionPanel
 - `actreader.js` (5.0 KB, 146) — "Read more" Act reader: full text of finished Acts from LORE.md with their banners · ActReader
 - `audio.js` (31 KB, 661) — Procedural Web Audio engine (exported Sound): master/music/SFX buses with compressor and reverb, synth instruments, a lookahead sequencer that crossfades the tracks in js/music.js by place/night/boss (setScene), fanfares (playJingle) and 30+ play* SFX that fade by distance and mute off screen · Sound
 - `background.js` (0.9 KB, 25) — Background image helpers for assets/bg/: loadImage and cover-fit drawCover · loadImage, drawCover
@@ -33,7 +34,7 @@ then `outline <file>` and read only the line range you need.
 - `camera.js` (0.6 KB, 18) — Camera following the player, clamped to world bounds · Camera
 - `charpanel.js` (15 KB, 298) — Character panel (C): Ragnarok-style stat builder (STR/AGI/VIT/INT/DEX/LUK) with the auto stat path, class skill trees, and the Paths tab (style meter, three path trees, T/Y/U slots) · CharacterPanel
 - `chatlog.js` (3.2 KB, 83) — Bottom adventure log tray: NPC lines, hits taken, loot, gear changes (newest first) · ChatLog
-- `codex.js` (18 KB, 285) — Codex (N): in-game encyclopedia of NPCs, monsters & MVPs, weapons, equipment, accessories and other items; entries unlock when met/seen · Codex
+- `codex.js` (18 KB, 290) — Codex (N): in-game encyclopedia of NPCs, monsters & MVPs, weapons, equipment, accessories and other items; entries unlock when met/seen · Codex
 - `continent.js` (19 KB, 342) — Continent world map art and data: Aethelgard, its frontiers and the Dark Continent with roads, biomes, side-quest badges and the Book II isle · ContinentMap
 - `controller.js` (1.4 KB, 58) — Keyboard input state (held keys, just-pressed) · InputController
 - `creator.js` (12 KB, 330) — Character Creator scene: builds the Novice's modular Avatar part by part before the summoning · CreatorScene
@@ -41,7 +42,8 @@ then `outline <file>` and read only the line range you need.
 - `dialog.js` (7.1 KB, 228) — HTML dialogue box with speaker portrait, quest tracker HUD and quest log overlays · DialogBox, QuestHud
 - `dialogue.js` (34 KB, 514) — Story dialogue for Acts II–VI per NPC and quest step (en/fil); getDialogue(id, ctx), npcName · npcName, getDialogue
 - `elements.js` (4.9 KB, 104) — Race, element, size and type tables with damage multipliers and variant prefixes (Ragnarok style), en/fil names · ELEMENTS, elementMult, raceBonus, sizeMod, rollVariant, variantPrefix, elementName, raceName +1
-- `enemy.js` (54 KB, 1169) — Enemy manager: monster spawning (hub, platforms, frontiers, elites, night, ambushes, bosses), AI state machines, telegraphed attacks, boss move styles (drift/blink, charge, chained) and skills (tear rain, wail cone, bone lances, chain sweep/grab, shockwave rings) with Aseprite effects, tiers/elements, death and drops · HUB_KINDS, HUB_ELITES, EnemyManager
+- `enemy.js` (57 KB, 1218) — Enemy manager: monster spawning (hub, platforms, frontiers, elites, night, ambushes, bosses), AI state machines, telegraphed attacks, boss move styles (drift/blink, charge, chained) and skills (tear rain, wail cone, bone lances, chain sweep/grab, shockwave rings) with Aseprite effects, tiers/elements, death and drops · HUB_KINDS, HUB_ELITES, EnemyManager
+- `errand.js` (8.9 KB, 212) — Summon errands: the familiar/Falcon/Guardian Angel carries a 9-slot pack to market from the field (sell non-quest items, buy potions and herbs), is out of combat until back; ErrandPack order, dispatch, updateErrand, save/load · errandReady, errandConfig, errandText, runnerName, errandBuyPrice, runnerFor, hasRunnerKind, awayRunner +7
 - `fx.js` (15 KB, 474) — Game feel: screen shake, hit-stop, shockwave rings, sparks, blood, damage numbers, flashes, vignette · FXManager
 - `fxsprites.js` (2.1 KB, 53) — Effect sprites from Aseprite (assets/sprites/fx/<name>, "down-play" tag): drawFx with rotation, size, anchor, alpha and cached tints; false when not loaded so callers keep their code-drawn effect · fxFrames, drawFx
 - `hudbar.js` (4.5 KB, 105) — Bottom bar HUD outside the canvas: name, level, HP/EXP/gold, status icons, quest objective, field state, Quest/Pause buttons · HudBar
@@ -50,10 +52,10 @@ then `outline <file>` and read only the line range you need.
 - `juice.js` (4.0 KB, 99) — Shared combat animation helpers for every fighter: rest/hit/attack/windup/breath/spawn poses, swing arcs · REST, hitPose, attackPose, windupPose, breathPose, spawnPose, mix, around +1
 - `loot.js` (11 KB, 273) — Loot drops: gold and items from slain monsters, ground items, magnetic pickup into the bag; blocked drops slide to the nearest walkable tile (findNearestWalkableSpot) · findNearestWalkableSpot, LootManager
 - `lore.js` (8.0 KB, 245) — Loads LORE.md / LORE_FIL.md, parses ## Acts into chapters, act banners, auto-scrolling lore panel · loadLore, parseChapters, actNumber, chapterKey, BANNER_EXTS, bannerSrc, createLorePanel
-- `main.js` (86 KB, 2068) — Entry module and coordinator: canvas fit, scene routing (title → prologue → creator → game), managers, menus/shops, platform travel, save/load/export/import, Job Awakening, update + render game loop
-- `market.js` (8.7 KB, 229) — Safe-zone Market (B): buy the stock in data/market.json and sell bag items for half price from anywhere inside a sanctuary; HTML overlay with Buy/Sell tabs, bulk buy and Sell all Normal gear · sellPrice, Market, marketText
+- `main.js` (88 KB, 2100) — Entry module and coordinator: canvas fit, scene routing (title → prologue → creator → game), managers, menus/shops, platform travel, save/load/export/import, Job Awakening, update + render game loop
+- `market.js` (13 KB, 317) — Market (B): buy and sell with a quantity slider per row (prices from items/economy.js via ctx) inside a sanctuary; outside one the same overlay builds and sends a summon errand (errand.js) · sellPrice, Market, marketText
 - `mercenaryManager.js` (14 KB, 371) — Hireable mercenaries: contracts and fees, following, AI combat, daze and recovery, drawing · MERC_CLASSES, MercenaryManager
-- `monsterTiers.js` (4.7 KB, 105) — Monster tiers (Normal, Champion, Elite, MVP) and modifiers: rolling, applying, damage multipliers, names · MODS, modName, TIERS, rollTier, applyTier, tierName, has, damageTakenMult +3
+- `monsterTiers.js` (6.2 KB, 134) — Monster tiers (Normal, Champion, Elite, MVP) and modifiers: rolling, applying, damage multipliers, names, life bars (lives per level and tier) · MODS, modName, TIERS, rollTier, applyTier, tierName, has, MAX_LIVES +9
 - `music.js` (15 KB, 314) — Music score as data: note/chord helpers, bass/arp/pad pattern styles, compileTrack, TRACKS (title, hub, night, canopy, coast, frost, ash, siege, maw, boss, finale), AREA_TRACK (platform id → track) and JINGLES · midi, freq, chord, compileTrack, TRACKS, AREA_TRACK, JINGLES
 - `player.js` (26 KB, 637) — Player entity: stats, stamina/sprint/dodge roll, damage and debuffs, EXP/levels, skill learning, movement, attack pose, drawing · expFor, Player
 - `projectiles.js` (15 KB, 379) — Player/mercenary projectiles and skill effects (meteor, thunder, arrows, ki spheres, dropkick) and their hit detection · ProjectileManager
@@ -114,7 +116,7 @@ then `outline <file>` and read only the line range you need.
 
 ## js/npc/
 
-- `npcs.js` (27 KB, 767) — NPCs in the world: spawning per place, wandering, ambient chatter (npc_conversations.json), sparring, talking · NPCManager
+- `npcs.js` (27 KB, 768) — NPCs in the world: spawning per place, wandering, ambient chatter (npc_conversations.json), sparring, talking · NPCManager
 - `roster.js` (7.0 KB, 119) — Lore characters from LORE.md: Avatar looks, places, mentor per class, summoner (Aurelia/Kenneth) · NPC_DEFS, MENTOR_OF, summonerIdFor
 
 ## js/summons/

@@ -1,7 +1,7 @@
 import { Sound } from "./audio.js";
 import { facingFrom } from "./avatar/creature.js";
 import { MONSTERS, BOSSES, BLIGHTS, NIGHT_KINDS } from "./bestiary.js";
-import { TIERS, MODS, rollTier, applyTier, tierName, has, modName, damageTakenMult, damageDealtMult, windupFor, modBlight } from "./monsterTiers.js";
+import { TIERS, MODS, rollTier, applyTier, tierName, has, modName, damageTakenMult, damageDealtMult, windupFor, modBlight, applyLives, totalMaxHp, hpFrac } from "./monsterTiers.js";
 import { ELEMENTS, elementMult, raceBonus, sizeMod, rollVariant, variantPrefix, elementName, raceName, sizeName } from "./elements.js";
 import { getLang } from "./i18n.js";
 import { STATUS, statusName } from "./status.js";
@@ -42,6 +42,29 @@ const MAX_ADDS = 4;
 const REGEN_DELAY = 300;     // 5 seconds without being hit before HP regenerates
 const BOSS_ATTACK_RANGE = 260;
 const ORB_RANGE = 220;
+
+// One life bar: the current bar in front, the next one (dimmer) behind it while lives remain, and a
+// row of pips underneath, one per life (lit = left, dark = broken)
+function drawLifeBar(ctx, e, x, y, w, h, color) {
+  const lives = e.lives || 1, left = e.livesLeft || 1;
+  ctx.fillStyle = "#111";
+  ctx.fillRect(x, y, w, h);
+  if (left > 1) {
+    ctx.save();
+    ctx.globalAlpha = 0.35;
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, w, h);
+    ctx.restore();
+  }
+  ctx.fillStyle = color;
+  ctx.fillRect(x, y, Math.max(0, (e.hp / e.maxHp) * w), h);
+  if (lives < 2) return;
+  const pw = w / lives, ph = h > 3 ? 1.5 : 1, gap = h > 3 ? 1.6 : 0.6;   // the boss bar has a frame to clear
+  for (let i = 0; i < lives; i++) {
+    ctx.fillStyle = i < left ? color : "#3f3f46";
+    ctx.fillRect(x + i * pw, y + h + gap, Math.max(0.6, pw - 0.6), ph);
+  }
+}
 
 const lang = () => (getLang() === "fil" ? "fil" : "en");
 const rint = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
@@ -222,6 +245,7 @@ export class EnemyManager {
     if (v && v !== e.element) { e.variant = v; e.element = v; }
     // An elite kind is always an Elite; a regular kind is never forced into one by accident
     applyTier(e, kind.elite ? (forceTier === "normal" ? "elite" : forceTier || "elite") : forceTier || rollTier());
+    applyLives(e);     // stacked HP bars by level and tier (js/monsterTiers.js)
     this.enemies.push(e);
     // Elites bring minions: an elite kind brings one regular of its medium, a lucky regular Elite two of its own kind
     if (e.elite) {
@@ -253,6 +277,7 @@ export class EnemyManager {
       hitTimer: 0, stunTimer: 0, windupTimer: 0, spawnT: 0, provoked: true, engaged: false,
       bossTimer: 60, pattern: 0, castTimer: 0, enraged: false, element: def.element || "neutral"
     };
+    applyLives(e);
     this.enemies.push(e);
     if (Sound && Sound.playBossRoar) Sound.playBossRoar();
     return e;
@@ -351,7 +376,7 @@ export class EnemyManager {
       }
     }
     else if (elem === "earth" && r < 0.18 && !e.boss) e.stunTimer = Math.max(e.stunTimer, 30);
-    else if (elem === "poison" && r < 0.35) { e.st.poison = 240; e.st.poisonDmg = Math.max(1, Math.round(e.maxHp * 0.01)); }
+    else if (elem === "poison" && r < 0.35) { e.st.poison = 240; e.st.poisonDmg = Math.max(1, Math.round(totalMaxHp(e) * 0.01)); }
     else if (elem === "shadow" && r < 0.3) e.st.curse = 240;
   }
 
@@ -367,18 +392,19 @@ export class EnemyManager {
   dot(e, amt, color, fx) {
     e.hp -= amt;
     if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(e.x + 10, e.y - 4, amt, false, color);
-    if (e.hp <= 0) this.kill(e, fx);
+    if (e.hp <= 0) this.fall(e, fx);
   }
 
-  // After 5 seconds without a hit, HP regenerates (1% every 0.5s; bosses 0.5%)
+  // After 5 seconds without a hit, HP regenerates (1% of all bars every 0.5s; bosses 0.5%), but only
+  // up to the top of the current bar: a broken life stays broken
   regen(e, fx) {
     e.sinceHit = (e.sinceHit || 0) + 1;
     if (e.sinceHit < REGEN_DELAY || e.hp >= e.maxHp) return;
     if (e.sinceHit % 30 === 0) {
-      const amt = Math.max(1, Math.round(e.maxHp * (e.boss ? 0.005 : 0.01)));
+      const amt = Math.min(e.maxHp - e.hp, Math.max(1, Math.round(totalMaxHp(e) * (e.boss ? 0.005 : 0.01))));
       e.hp = Math.min(e.maxHp, e.hp + amt);
       if (e.sinceHit % 90 === 0 && fx && fx.spawnDamagePopup) fx.spawnDamagePopup(e.x + 10, e.y + (e.kind.barY || 0) - 4, `+${amt * 3}`, false, "#4ade80");
-      if (e.hp >= e.maxHp && !e.boss && !e.engaged) e.provoked = false;   // it has forgotten you
+      if (e.livesLeft === e.lives && e.hp >= e.maxHp && !e.boss && !e.engaged) e.provoked = false;   // it has forgotten you
     }
   }
 
@@ -489,7 +515,7 @@ export class EnemyManager {
     const playerSafe = this.stage && this.stage.isInsideSafeZone(px, py);
     e.engaged = !playerSafe && dist < 360;
 
-    if (!e.enraged && e.hp < e.maxHp * 0.5) {
+    if (!e.enraged && hpFrac(e) < 0.5) {
       e.enraged = true;
       if (def.move === "chained") {
         // The Chained Warden tears his chains off the spire and starts hunting
@@ -501,7 +527,7 @@ export class EnemyManager {
       if (fx && fx.addScreenShake) fx.addScreenShake(def.move === "chained" ? 10 : 6);
     }
     // MVP desperation (25%): summons minions at once and attacks faster
-    if (!e.desperate && e.hp < e.maxHp * 0.25) {
+    if (!e.desperate && hpFrac(e) < 0.25) {
       e.desperate = true;
       e.speed *= 1.2;
       e.bossTimer = 20;
@@ -877,8 +903,32 @@ export class EnemyManager {
 
     if (Sound && Sound.playHitEnemy) Sound.playHitEnemy(isCrit, enemy.x, enemy.y);
 
-    if (enemy.hp <= 0) this.kill(enemy, fx);
+    if (enemy.hp <= 0) this.fall(enemy, fx, elem, amount);
     else this.applyElement(enemy, elem, amount, fx);
+  }
+
+  // HP reached 0: break a life if any are left (the overflow carries into the next bar), else die
+  fall(e, fx, elem = null, amount = 0) {
+    let broke = 0;
+    while (e.hp <= 0 && (e.livesLeft || 1) > 1) {
+      e.livesLeft--;
+      e.hp += e.maxHp;
+      broke++;
+    }
+    if (e.hp <= 0) { this.kill(e, fx); return; }
+    this.breakLife(e, fx, broke);
+    if (elem) this.applyElement(e, elem, amount, fx);
+  }
+
+  // A life bar shattered: a stagger (not on bosses), a burst in the tier colour and "×N" lives left
+  breakLife(e, fx, broke) {
+    const col = e.boss ? "#c084fc" : e.elite ? TIERS.elite.color : e.champion ? TIERS.champion.color : "#e2e8f0";
+    const top = e.y + (e.kind.barY || 0);
+    if (!e.boss) { e.stunTimer = Math.max(e.stunTimer, 12); e.windupTimer = 0; }
+    if (fx && fx.spawnHitSparks) fx.spawnHitSparks(e.x + 10, top + 2, col, e.boss ? 18 : 8);
+    if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(e.x + 10, top - 10, `${broke > 1 ? "−" + broke + " " : ""}×${e.livesLeft}`, e.boss, col);
+    if (e.boss && fx && fx.addScreenShake) fx.addScreenShake(3);
+    if (fx && fx.hitStop) fx.hitStop(e.boss ? 4 : 2);
   }
 
   kill(e, fx) {
@@ -1036,13 +1086,7 @@ export class EnemyManager {
       const diff = pl ? e.level - pl.level : 0;
       const color = levelColor(diff, e.boss);
       const by = e.y + k.barY;
-      if (!e.boss) {
-        const w = 20;
-        ctx.fillStyle = "#111";
-        ctx.fillRect(e.x, by, w, 2.5);
-        ctx.fillStyle = color;
-        ctx.fillRect(e.x, by, Math.max(0, (e.hp / e.maxHp) * w), 2.5);
-      }
+      if (!e.boss) drawLifeBar(ctx, e, e.x, by, 20, 2.5, color);
       ctx.font = "bold 4px monospace";
       ctx.textAlign = "center";
       const mark = e.boss ? "☠ MVP " : e.elite ? `${TIERS.elite.mark} ` : e.champion ? `${TIERS.champion.mark} ` : "";
@@ -1151,14 +1195,19 @@ export class EnemyManager {
     const w = 220, x = Math.round(W / 2 - w / 2), y = 16;
     ctx.save();
     ctx.fillStyle = "rgba(3, 6, 17, 0.85)";
-    ctx.fillRect(x - 3, y - 9, w + 6, 16);
+    ctx.fillRect(x - 3, y - 9, w + 6, (e.lives || 1) > 1 ? 18 : 16);
     ctx.fillStyle = "#1f1026";
     ctx.fillRect(x, y, w, 4);
-    ctx.fillStyle = e.enraged ? "#ef4444" : "#c084fc";
-    ctx.fillRect(x, y, Math.max(0, (e.hp / e.maxHp) * w), 4);
+    drawLifeBar(ctx, e, x, y, w, 4, e.enraged ? "#ef4444" : "#c084fc");
     ctx.strokeStyle = "#ffd166";
     ctx.lineWidth = 0.6;
     ctx.strokeRect(x - 0.5, y - 0.5, w + 1, 5);
+    if ((e.lives || 1) > 1) {
+      ctx.font = "bold 5px monospace";
+      ctx.textAlign = "left";
+      ctx.fillStyle = "#ffd166";
+      ctx.fillText(`×${e.livesLeft}`, x + w + 4, y + 4);
+    }
     ctx.font = "bold 5px monospace";
     ctx.textAlign = "center";
     ctx.fillStyle = "#ffd166";

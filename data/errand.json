@@ -1,0 +1,38 @@
+{
+  "_doc": "Summon errands (B outside a safe zone): the hero's summon or familiar carries a pack to the nearest market. It sells any non-quest item and buys only the items in `buy` at the safe-zone price (js/items/economy.js SHOPS.safezone markup). The pack has `slots` slots shared by sales and purchases; a purchase slot holds one item type, up to `stack` of it. The trip takes `baseSeconds` + `perSlotSeconds` per used slot, and the runner can't fight (or be summoned) until it is back.",
+  "slots": 9,
+  "stack": 10,
+  "baseSeconds": 25,
+  "perSlotSeconds": 3,
+  "buy": ["salve", "elixir", "tonic", "panacea", "herb"],
+  "runners": {
+    "slime":  { "en": "Pocket Slime", "fil": "Slime sa Bulsa" },
+    "hound":  { "en": "War Hound", "fil": "Asong Pandigma" },
+    "owl":    { "en": "Arcane Owl", "fil": "Kuwagong Arkano" },
+    "fox":    { "en": "Spirit Fox", "fil": "Espiritung Soro" },
+    "falcon": { "en": "Falcon", "fil": "Palkon" },
+    "angel":  { "en": "Guardian Angel", "fil": "Anghel na Tagapag-ingat" }
+  },
+  "text": {
+    "title":    { "en": "SUMMON ERRAND", "fil": "UTOS SA SUMMON" },
+    "buy":      { "en": "Buy", "fil": "Bumili" },
+    "sell":     { "en": "Sell", "fil": "Magbenta" },
+    "pack":     { "en": "Pack {used}/{max}", "fil": "Supot {used}/{max}" },
+    "add":      { "en": "Pack ×{n}", "fil": "Isupot ×{n}" },
+    "send":     { "en": "Send {name} ({s}s) · {net}", "fil": "Utusan si {name} ({s}s) · {net}" },
+    "packFull": { "en": "The pack is full (9 slots)", "fil": "Puno na ang supot (9 puwang)" },
+    "poor":     { "en": "Not enough gold for the order", "fil": "Kulang ang ginto para sa bilin" },
+    "empty":    { "en": "Nothing to sell.", "fil": "Walang maibebenta." },
+    "packHint": { "en": "Click a packed slot to take it back.", "fil": "I-click ang nakasupot para bawiin." },
+    "noRunner": { "en": "Markets open in a safe zone. Learn a familiar or summon to send errands from the field.", "fil": "Bukas ang palengke sa ligtas na lugar. Matuto ng familiar o summon para makapag-utos mula sa labas." },
+    "noAngel":  { "en": "Summon a Guardian Angel (K) first, then send it on the errand.", "fil": "Magpatawag muna ng Anghel (K), saka ito utusan." },
+    "away":     { "en": "{name} is away on an errand · back in {s}s", "fil": "Nasa lakad si {name} · babalik sa {s}s" },
+    "busy":     { "en": "{name} is on an errand", "fil": "Nasa lakad si {name}" },
+    "sent":     { "en": "{name} left for the market with {n} slot(s)", "fil": "Umalis si {name} papunta sa palengke dala ang {n} puwang" },
+    "back":     { "en": "{name} is back: {sold}{bought}", "fil": "Bumalik si {name}: {sold}{bought}" },
+    "soldPart": { "en": "sold {n} item(s) (+{g}G)", "fil": "naibenta ang {n} gamit (+{g}G)" },
+    "boughtPart": { "en": "{sep}bought {list}", "fil": "{sep}binili ang {list}" },
+    "dropped":  { "en": "Bag full: the rest is on the ground", "fil": "Puno ang bag: nasa lupa ang iba" },
+    "hint":     { "en": "Tab switch · ↑ ↓ choose · ← → amount · Enter pack · Space send · B / Esc close", "fil": "Tab lipat · ↑ ↓ pumili · ← → dami · Enter isupot · Space utos · B / Esc isara" }
+  }
+}

@@ -55,7 +55,7 @@ const { FRONTIERS, FRONTIER_ORDER } = await load("js/world/frontiers.js");
 const { PRIMARY, autoAllocate } = await load("js/skills.js");
 const { FAMILIARS, familiarDamage } = await load("js/summons/familiar.js");
 const { elementMult } = await load("js/elements.js");
-const { damageTakenMult } = await load("js/monsterTiers.js");
+const { damageTakenMult, totalMaxHp, livesFor } = await load("js/monsterTiers.js");
 const FAMILIAR_OF = { novice: "slime", knight: "hound", mage: "owl", fighter: "fox" };
 const { codexItems, describe, canEquip } = await load("js/items/itemdb.js");
 const { getNovice } = await load("js/classes/novice.js");
@@ -244,7 +244,7 @@ function fight(hero, area, em, key, level, boss = false) {
     return e;
   };
   const sample = spawn();
-  const hp = sample.maxHp;
+  const hp = totalMaxHp(sample);   // every life bar (js/monsterTiers.js)
   const fr = frames(hero);
   const dmg = { J: actionDamage(hero, "onAttack", em, spawn), K: actionDamage(hero, "onSkill", em, spawn), L: actionDamage(hero, "onSkill2", em, spawn) };
   const priest = hero.heroData.id === "priest";
@@ -288,6 +288,10 @@ for (const area of areas.filter((a) => !AREA || a.id === AREA)) {
   const { em, floor, cap } = band(area);
   const mid = Math.round((floor + cap) / 2);
   say(`## ${area.name} — monsters Lv ${floor}–${cap}${area.boss ? `, boss ${BOSSES[area.boss].name.en} Lv ${cap + 2}` : ""}`);
+  say("");
+  // Life bars (js/monsterTiers.js livesFor): same total HP, split into stacked bars
+  const lv = (o) => { const lo = livesFor({ ...o, level: floor }), hi = livesFor({ ...o, level: cap }); return lo === hi ? `${lo}` : `${lo}–${hi}`; };
+  say(`Life bars: normal ${lv({})} · champion ${lv({ champion: true })} · elite ${lv({ elite: true })} (elite kinds ${lv({ elite: true, kind: { elite: true } })})${area.boss ? ` · boss ${livesFor({ boss: true, level: cap + 2 })}` : ""}`);
   say("");
   if (!AREA) {
     say("| Class | Lv | HP | DEF | J dmg | DPS | Mon HP | TTK s | Hit taken | Hits to die | Fights/life | Kills/Lv | Elite TTK s | Elite hits to die | Boss TTK s | Boss hits to die |");
@@ -443,7 +447,7 @@ function unitsReport() {
         const skl = data.onSkill ? once((target, sp) => data.onSkill(m, [target], mm.scaled(m, em), noop, mm.ownShots(m, sp))) : 0;
         const d = 60 * (atk / data.attackCooldownMax + skl / (data.skillCooldownMax || 1e9));
         const sample = mk();
-        dps += d; ttk += sample.maxHp / Math.max(1, d); hits += Math.ceil(m.maxHp / Math.max(1, sample.damage));
+        dps += d; ttk += totalMaxHp(sample) / Math.max(1, d); hits += Math.ceil(m.maxHp / Math.max(1, sample.damage));
       }
       const n = kinds.length;
       const ttd = ((hits / n) * MONSTER_CYCLE) / 60;
