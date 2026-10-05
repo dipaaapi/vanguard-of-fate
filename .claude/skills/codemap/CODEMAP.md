@@ -6,7 +6,7 @@ then `outline <file>` and read only the line range you need.
 
 ## css/
 
-- `controls.css` (8.1 KB, 217) — Hotbar and skill book in the bottom tray, side-panel world map, Market and Settings overlays (sized by --s)
+- `controls.css` (9.9 KB, 270) — Hotbar and skill book in the bottom tray, side-panel world map, Market and Settings overlays (sized by --s)
 - `creator.css` (9.2 KB, 369) — Character Creator screen styles (uses title.css variables)
 - `dialog.css` (23 KB, 490) — Dialogue box, quest tracker/log, service menu and panel overlays; --s = integer canvas scale set by main.js fitCanvas
 - `style.css` (17 KB, 584) — Global page layout, pixelated canvas, side panel, bottom bar / adventure log tray
@@ -15,7 +15,8 @@ then `outline <file>` and read only the line range you need.
 ## data/
 
 - `art_manifest.json` (15 KB, 513) — Every generated image (banners, title/portal backgrounds, vistas, portraits, relics): kind, EN/FIL caption and where the game uses it; paired with tools/art/scenes/index.js
-- `market.json` (1.6 KB, 24) — Market (B) stock, buy quantities and EN/FIL wording
+- `errand.json` (3.1 KB, 39) — Summon errand tuning (pack slots, stack per slot, trip time, what it may buy) and EN/FIL wording
+- `market.json` (1.6 KB, 22) — Market (B) stock and EN/FIL wording
 - `npc_conversations.json` (29 KB, 560) — NPC ambient chatter: solo lines per NPC and two-NPC exchanges, each line with en/fil text (fetched by npc/npcs.js)
 
 ## (root)
