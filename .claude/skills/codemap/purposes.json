@@ -148,5 +148,9 @@
   "tools/aseprite/paint/bird.mjs": "Painter: detailed birds 36×28, side view (Archer's falcon, Arcane Owl): fly, dive, taunt",
   "tools/aseprite/paint/angel.mjs": "Painter: detailed Guardian Angel 44×44 from the game's Avatar body plus feathered wings, halo glow and holy light",
   "js/fxsprites.js": "Effect sprites from Aseprite (assets/sprites/fx/<name>, \"down-play\" tag): drawFx with rotation, size, anchor, alpha and cached tints; false when not loaded so callers keep their code-drawn effect",
-  "tools/aseprite/paint/fx.mjs": "Painter: skill and hit effects (meteor, blast, lightning, holy, sphere, slash, wave, bolt, arrow, arrowfall, bite, claw, arcane); grey ones are tinted in game"
+  "tools/aseprite/paint/fx.mjs": "Painter: skill and hit effects (meteor, blast, lightning, holy, sphere, slash, wave, bolt, arrow, arrowfall, bite, claw, arcane); grey ones are tinted in game",
+  "js/world/zonesprites.js": "Safe-zone art from Aseprite (zone/barracks, zone/castle, zone/<map id> camps and Emberhold): ZONE_ART placement + solid footprints, campLayout shared with the painter, drawZoneArt, zoneSolids, pushOutOf",
+  "tools/aseprite/asefile.mjs": "Reads and writes .aseprite files in plain Node (layers, linked cels, tags, palette); export.mjs uses it when Aseprite isn't installed",
+  "tools/aseprite/paint/scenery.mjs": "Scenery kit for the safe-zone painters: alpha Img canvas, flagstones, clearings, shingles, timber walls, tents, braziers, banners, crates, barrels, smoke, campfire",
+  "tools/aseprite/paint/zones.mjs": "Paints the safe zones as layered .aseprite files: themed Fated Vanguard camps per map, Barracks + longhouses, Imperial Citadel + dais, Emberhold"
 }

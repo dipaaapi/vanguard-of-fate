@@ -1,0 +1,155 @@
+{
+ "frames": [
+  {
+   "filename": "barracks 0.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 300,
+    "h": 296
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 300,
+    "h": 296
+   },
+   "sourceSize": {
+    "w": 300,
+    "h": 296
+   },
+   "duration": 120
+  },
+  {
+   "filename": "barracks 1.aseprite",
+   "frame": {
+    "x": 300,
+    "y": 0,
+    "w": 300,
+    "h": 296
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 300,
+    "h": 296
+   },
+   "sourceSize": {
+    "w": 300,
+    "h": 296
+   },
+   "duration": 120
+  },
+  {
+   "filename": "barracks 2.aseprite",
+   "frame": {
+    "x": 600,
+    "y": 0,
+    "w": 300,
+    "h": 296
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 300,
+    "h": 296
+   },
+   "sourceSize": {
+    "w": 300,
+    "h": 296
+   },
+   "duration": 120
+  },
+  {
+   "filename": "barracks 3.aseprite",
+   "frame": {
+    "x": 900,
+    "y": 0,
+    "w": 300,
+    "h": 296
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 300,
+    "h": 296
+   },
+   "sourceSize": {
+    "w": 300,
+    "h": 296
+   },
+   "duration": 120
+  },
+  {
+   "filename": "barracks 4.aseprite",
+   "frame": {
+    "x": 1200,
+    "y": 0,
+    "w": 300,
+    "h": 296
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 300,
+    "h": 296
+   },
+   "sourceSize": {
+    "w": 300,
+    "h": 296
+   },
+   "duration": 120
+  },
+  {
+   "filename": "barracks 5.aseprite",
+   "frame": {
+    "x": 1500,
+    "y": 0,
+    "w": 300,
+    "h": 296
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 300,
+    "h": 296
+   },
+   "sourceSize": {
+    "w": 300,
+    "h": 296
+   },
+   "duration": 120
+  }
+ ],
+ "meta": {
+  "app": "tools/aseprite/asefile.mjs",
+  "image": "barracks.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 1800,
+   "h": 296
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "down-idle",
+    "from": 0,
+    "to": 5,
+    "direction": "forward",
+    "color": "#000000ff"
+   }
+  ]
+ }
+}

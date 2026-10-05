@@ -8,6 +8,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { SRC_DIR, findAseprite, writePng } from "../lib.mjs";
+import { writeAse } from "../asefile.mjs";
 
 export const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16), 255];
 export const mixc = (a, b, t) => [0, 1, 2].map((k) => Math.round(a[k] + (b[k] - a[k]) * t)).concat(255);
@@ -104,10 +105,12 @@ export function build(key, w, h, frames, paint, durations = {}) {
   const tags = [];
   let n = 0;
   const dur = [];
+  const pngPixels = new Map();
   for (const [dir, anims] of Object.entries(frames)) for (const [anim, count] of Object.entries(anims)) {
     const from = n;
     for (let i = 0; i < count; i++) {
       const c = paint(dir, anim, i, count);
+      pngPixels.set(n, c.rgba());
       writePng(path.join(tmp, `f${n++}.png`), w, h, c.rgba());
       dur.push(durations[anim] || 0.12);
     }
@@ -115,9 +118,17 @@ export function build(key, w, h, frames, paint, durations = {}) {
   }
   const out = path.join(SRC_DIR, `${key}.aseprite`);
   fs.mkdirSync(path.dirname(out), { recursive: true });
+  let exe = null;
+  try { exe = findAseprite(); } catch { /* no Aseprite: write the file in Node (tools/aseprite/asefile.mjs) */ }
+  if (!exe) {
+    const frames = [];
+    for (let i = 0; i < n; i++) frames.push({ duration: dur[i], cels: { art: pngPixels.get(i) } });
+    writeAse(out, { w, h, layers: ["art"], frames, tags: tags.map((t) => { const [name, from, to] = t.split(":"); return { name, from: +from, to: +to }; }) });
+  } else {
   const params = { dir: tmp, n, w, h, tags: tags.join(";"), durations: dur.join(","), out };
-  execFileSync(findAseprite(), ["-b", ...Object.entries(params).flatMap(([k, v]) => ["--script-param", `${k}=${v}`]),
+  execFileSync(exe, ["-b", ...Object.entries(params).flatMap(([k, v]) => ["--script-param", `${k}=${v}`]),
     "--script", fileURLToPath(new URL("../seed.lua", import.meta.url))], { stdio: "inherit" });
+  }
   // keep the frames for a contact sheet when asked
   if (process.env.PAINT_KEEP) fs.cpSync(tmp, path.join(process.env.PAINT_KEEP, key.replace(/\//g, "_")), { recursive: true });
   fs.rmSync(tmp, { recursive: true, force: true });
