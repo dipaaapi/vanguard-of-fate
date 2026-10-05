@@ -7,7 +7,7 @@ import { getLang } from "./i18n.js";
 // Outside a safe zone the Market (B) turns into an errand order: the hero's summon or familiar
 // (Pocket Slime, War Hound, Arcane Owl, Spirit Fox, the Archer's Falcon or one of the Priest's Guardian
 // Angels) carries a 9-slot pack to the market. It sells any non-quest item and buys potions and the
-// Yggdrasil Leaf at the safe-zone price. Prices are settled when it leaves (so market saturation is the
+// Astraea's Leaf at the safe-zone price. Prices are settled when it leaves (so market saturation is the
 // same as selling in person); the gold it earns and the goods it buys arrive when it comes back. While it
 // is away it can't fight, strike (Falcon K) or be summoned (one Angel fewer). Tuning and wording:
 // data/errand.json. State lives on player.errand (plain data, saved with the game).

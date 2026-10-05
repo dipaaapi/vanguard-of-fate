@@ -87,8 +87,8 @@ export const has = (e, m) => Boolean(e.mods && e.mods.includes(m));
 
 // ==================== LIVES: STACKED HP BARS ====================
 // A monster's HP is split into lives (stacked bars): break one and the next bar fills in behind it.
-// The count grows with level and tier; the total HP stays what the tier already gives, so balance
-// is unchanged, but HP regeneration only refills the current bar (a broken bar stays broken).
+// The count grows with level and tier; the total HP stays what the tier already gives (bosses get a
+// little more per bar, BOSS_HP_PER_BAR), but HP regeneration only refills the current bar (a broken bar stays broken).
 //   normal    1 · 2 from Lv 10 · 3 from Lv 30
 //   champion  one more than a normal of its level
 //   elite     3 + 1 per 15 levels (+1 for an elite kind), up to 6
@@ -102,9 +102,13 @@ export function livesFor(e) {
   return e.champion ? normal + 1 : normal;
 }
 
+// MVP bosses get +6% of their HP for every bar past the first (Malakor ×1.3 … Satan ×1.54), so a
+// ten-bar boss fight lasts longer than a six-bar one. Other tiers keep the HP their tier gives.
+export const BOSS_HP_PER_BAR = 0.06;
+
 // Split the monster's full HP into its lives: maxHp becomes one bar
 export function applyLives(e, n = livesFor(e)) {
-  const total = e.maxHp;
+  const total = e.maxHp * (e.boss ? 1 + BOSS_HP_PER_BAR * (Math.max(1, n) - 1) : 1);
   e.lives = e.livesLeft = Math.max(1, n);
   e.maxHp = e.hp = Math.max(1, Math.ceil(total / e.lives));
 }

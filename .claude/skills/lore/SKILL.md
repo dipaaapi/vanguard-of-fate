@@ -28,7 +28,7 @@ node $L check                    # EN/FIL gaps: LORE section/paragraph mismatche
 
 ## Canon sheet (keep in sync with LORE.md)
 
-**Premise:** The continent of **Aethelgard**, blessed by the goddess **Astraea**, falls when the **Eclipse of the Abyss** frees **Demon Lord Satan**. His **Void Miasma** mutates wildlife into night-prowling abominations and spreads the **Seven Anomaly Blights**: Bleeding, Silence, Poison, Electrified, Burn, Frost Freeze, Blindness (`js/status.js`). The aging **King** and his heir, **Princess Aurelia** or **Prince Kenneth** (the player picks; Supreme Commander of the Imperial Magic & Research Corps), summon resilient souls from **Earth (2026)** to form the **Grand Slaying Corps**.
+**Premise:** The continent of **Aethelgard**, blessed by the goddess **Astraea**, falls when the **Eclipse of the Abyss** frees **Demon Lord Satan**. His **Void Miasma** mutates wildlife into night-prowling abominations and spreads the **Seven Anomaly Blights**: Bleeding, Silence, Poison, Electrified, Burn, Frost Freeze, Blindness (`js/status.js`). The aging **King** and his heir, **Princess Aurelia** or **Prince Kenneth** (the player picks; Supreme Commander of the Imperial Magic & Research Corps), summon resilient souls from **Earth (2026)** to form the **Fated Vanguard**. Three centuries earlier the crown summoned one soul, the **Lantern Knight**, who sealed Satan with four **Seal Stones** and their own life and never went home; their **Pentagram Prophecy** calls five souls to the points of the star and a sixth (the player, a Novice) to its heart. Summoned souls see the **Covenant Ledger** (the C panel, a status screen natives can't see). Satan's five bosses are his **Heralds** (an inverted star).
 
 **The summoned (Act III), all from Earth, each died saving someone:**
 
@@ -73,13 +73,17 @@ The bosses of Acts VII–X drop the Seal Stones that open the Celestial Monolith
 
 Every map (hub, platforms, frontiers) has 5 regular kinds and 4 elite kinds (`elite: true`, always Elite tier, one of each on the map, respawning).
 
-**Systems with lore names:** monster tiers Normal / Champion / Elite / MVP; Ragnarok-style race, element and size; stats STR/AGI/VIT/INT/DEX/LUK; mercenaries (axe, crossbow, greatsword, wand) hired from Captain Ronald; day/night cycle where night monsters prowl with crimson and violet eyes.
+**Systems with lore names:** monster tiers Normal / Champion / Elite / MVP; race, element and size; stats STR/AGI/VIT/INT/DEX/LUK; mercenaries (axe, crossbow, greatsword, wand) hired from Captain Ronald; day/night cycle where night monsters prowl with crimson and violet eyes.
 
 **Tone & style**
 - Heroic isekai high fantasy, earnest and a little romantic. Earth skills reinterpreted as magic (engineering → forcefields, triage → smart heals, orbital physics → meteors).
 - LORE.md is long-form prose: each Act is `##` heading + 4 paragraphs, separated by `---`. Keep LORE_FIL.md with the **same Acts in the same order and the same paragraph count** (the Act reader and the lore panel parse `##` sections).
 - `{s}` = the summoner's name and `{h}` = the hero's name in dialogue templates.
 - Never contradict a hard fact above without changing the game too.
+
+## Originality (legal safety)
+
+Every name must be original. Use broad genre tropes (summoning, a status screen, job classes, a demon lord), never a name, character, place, item, skill or plot that another game, anime, manga or book coined. Myth and public-domain names (Satan, Titan, Behemoth, Kraken, Valkyrie) and plain words (slime, golem, potion, card, refine) are fine. Retired names and their replacements: Grand Slaying Corps → Fated Vanguard; Truck-kun's Blessing → Second-Life Luck; Oridecon → Void Crystal; Phracon → Monster Shard; Yggdrasil Leaf → Astraea's Leaf; Mythril → Aethersilver; Frost Diver → Glacial Lance; Brandish Spear → Crescent Sweep; Owl's Eye → Steady Aim; Vulture's Eye → Falconer's Sight; Arrow Shower → Skyfall Volley; Energy Coat → Mana Veil; Bunny Band → Rabbit-Ear Band. Keep item and skill **ids** unchanged when renaming (saves store ids). `check` fails on any term in `borrowed-names.json`; add to that list whenever you retire a name.
 
 ## Where text lives
 

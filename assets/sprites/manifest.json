@@ -26,6 +26,21 @@
     "summon/fox",
     "summon/hound",
     "summon/owl",
-    "summon/slime"
+    "summon/slime",
+    "zone/ash",
+    "zone/barracks",
+    "zone/canopy",
+    "zone/castle",
+    "zone/chainspire",
+    "zone/coast",
+    "zone/desert",
+    "zone/frost",
+    "zone/maw",
+    "zone/mountain",
+    "zone/ossuary",
+    "zone/rocky",
+    "zone/siege",
+    "zone/strand",
+    "zone/swamp"
   ]
 }

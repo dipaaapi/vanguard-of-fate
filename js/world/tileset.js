@@ -23,6 +23,8 @@ export const T = {
 // ---------- THEMES ----------
 // deco: flowers | mushrooms | shells | ice | embers | rubble | void | pebbles | reeds | sand
 // tree: oak | weeping | pine | seastack | spire | ruin | pillar | hoodoo | cypress | crag | cactus
+// edge: the barrier at the map's edge over water (js/world/edges.js): its name, haze colours light → dark,
+//       and an optional glow (embers, sparks) inside it. On land the edge is a wall of the theme's rocks and trees.
 export const THEMES = {
   aethelgard: {
     grass: ["#1d4a34", "#1f4f37", "#1a4531"], grassLight: "#2b6647", grassDark: "#153a29",
@@ -30,7 +32,8 @@ export const THEMES = {
     deco: "flowers", decoColors: ["#e2e8f0", "#fde047", "#fb7185"],
     liquid: { base: "#1b4f72", light: "#2e7cb0", dark: "#123a55", rim: "#bfe9ff" },
     wall: { base: "#3b4252", light: "#5b6475", dark: "#262b36" },
-    tree: "oak", rock: ["#475569", "#64748b", "#94a3b8"], bush: "berry", treeDensity: 0.6
+    tree: "oak", rock: ["#475569", "#64748b", "#94a3b8"], bush: "berry", treeDensity: 0.6,
+    edge: { air: "cloud", haze: ["#f1f5f9", "#cbd5e1", "#94a3b8"] }
   },
   canopy: {
     grass: ["#1e2a24", "#222f28", "#1a2520"], grassLight: "#3a4d3a", grassDark: "#121a16",
@@ -38,7 +41,8 @@ export const THEMES = {
     deco: "mushrooms", decoColors: ["#7fffd4", "#c77dff", "#5ee7ff"],
     liquid: { base: "#2a1a3a", light: "#4b2f66", dark: "#1a1026", rim: "#9d4edd" },
     wall: { base: "#2b2620", light: "#43392e", dark: "#1a1612" },
-    tree: "weeping", rock: ["#2f3a33", "#46554a", "#6a7d6e"], bush: "mushroom", treeDensity: 0.5
+    tree: "weeping", rock: ["#2f3a33", "#46554a", "#6a7d6e"], bush: "mushroom", treeDensity: 0.5,
+    edge: { air: "spore haze", haze: ["#d8b4fe", "#9d4edd", "#4c1d95"], glow: "#7fffd4" }
   },
   coast: {
     grass: ["#c9b27c", "#c2aa73", "#d1ba86"], grassLight: "#e6d4a3", grassDark: "#a88f5c",
@@ -46,7 +50,8 @@ export const THEMES = {
     deco: "shells", decoColors: ["#f4a3b4", "#ffffff", "#e76f51"],
     liquid: { base: "#135e75", light: "#2a9db8", dark: "#0b3d4f", rim: "#e0f7ff" },
     wall: { base: "#5a4a3a", light: "#7a6650", dark: "#3a2f25" },
-    tree: "seastack", rock: ["#2f3e4a", "#46586a", "#6f8499"], bush: "kelp", treeDensity: 0.72
+    tree: "seastack", rock: ["#2f3e4a", "#46586a", "#6f8499"], bush: "kelp", treeDensity: 0.72,
+    edge: { air: "sea fog", haze: ["#f0f9ff", "#cbd5e1", "#7d93a8"] }
   },
   frost: {
     grass: ["#dbe8f5", "#d2e1f0", "#e6f0fa"], grassLight: "#ffffff", grassDark: "#b7c8dc",
@@ -54,7 +59,8 @@ export const THEMES = {
     deco: "ice", decoColors: ["#bfe9ff", "#ffffff", "#8fd3ff"],
     liquid: { base: "#7fb8dc", light: "#bfe0f5", dark: "#5a93b8", rim: "#ffffff" },
     wall: { base: "#44566b", light: "#6b819a", dark: "#2c3a4a" },
-    tree: "pine", rock: ["#51677f", "#7189a3", "#b7c8dc"], bush: "snowmound", treeDensity: 0.58
+    tree: "pine", rock: ["#51677f", "#7189a3", "#b7c8dc"], bush: "snowmound", treeDensity: 0.58,
+    edge: { air: "blizzard", haze: ["#ffffff", "#e0f2fe", "#9cc3e0"] }
   },
   ash: {
     grass: ["#2e2522", "#332925", "#2a211e"], grassLight: "#4a3a32", grassDark: "#1c1513",
@@ -62,7 +68,8 @@ export const THEMES = {
     deco: "embers", decoColors: ["#ff7a1a", "#ffd166", "#ff3b3b"],
     liquid: { base: "#e2551b", light: "#ffb347", dark: "#a8310f", rim: "#ffd166" },
     wall: { base: "#241b18", light: "#3a2c26", dark: "#140f0d" },
-    tree: "spire", rock: ["#1f1a1a", "#3a2f2c", "#5a4a44"], bush: "emberrock", treeDensity: 0.66
+    tree: "spire", rock: ["#1f1a1a", "#3a2f2c", "#5a4a44"], bush: "emberrock", treeDensity: 0.66,
+    edge: { air: "volcanic smoke", haze: ["#78716c", "#44403c", "#1c1917"], glow: "#ff7a1a" }
   },
   siege: {
     grass: ["#3a4a2c", "#35442a", "#3f4f30"], grassLight: "#55653f", grassDark: "#27321e",
@@ -70,7 +77,8 @@ export const THEMES = {
     deco: "rubble", decoColors: ["#d8d4cc", "#8a2c2c", "#ffd166"],
     liquid: { base: "#3a0f16", light: "#6b1a24", dark: "#240a0e", rim: "#c9404e" },
     wall: { base: "#c9c4ba", light: "#ece8df", dark: "#8f8a80" },
-    tree: "ruin", rock: ["#8f8a80", "#b5b0a6", "#dcd8cf"], bush: "crate", treeDensity: 0.7
+    tree: "ruin", rock: ["#8f8a80", "#b5b0a6", "#dcd8cf"], bush: "crate", treeDensity: 0.7,
+    edge: { air: "war smoke", haze: ["#a8a29e", "#57534e", "#1c1917"], glow: "#ef4444" }
   },
   maw: {
     grass: ["#2a2433", "#2e2838", "#26202e"], grassLight: "#443a52", grassDark: "#1a1622",
@@ -78,7 +86,8 @@ export const THEMES = {
     deco: "void", decoColors: ["#ff7a1a", "#c77dff", "#9d4edd"],
     liquid: { base: "#2b0f4a", light: "#6a2c9e", dark: "#150726", rim: "#c77dff" },
     wall: { base: "#1f1a26", light: "#322a3d", dark: "#110e16" },
-    tree: "pillar", rock: ["#2a2433", "#3f3650", "#5f5270"], bush: "bones", treeDensity: 0.72
+    tree: "pillar", rock: ["#2a2433", "#3f3650", "#5f5270"], bush: "bones", treeDensity: 0.72,
+    edge: { air: "void miasma", haze: ["#c084fc", "#6b21a8", "#1e1b4b"], glow: "#ff7a1a" }
   },
   // ---- Dark Continent (Acts XI, XII, XIV) ----
   strand: {
@@ -112,7 +121,8 @@ export const THEMES = {
     deco: "pebbles", decoColors: ["#a8a29e", "#d6d3d1", "#e7e5e4"],
     liquid: { base: "#4a5a52", light: "#6b7d72", dark: "#2f3a34", rim: "#a8a29e" },
     wall: { base: "#9a6a3a", light: "#c08a52", dark: "#6b4426" },
-    tree: "hoodoo", rock: ["#57534e", "#78716c", "#a8a29e"], bush: "boulder", treeDensity: 0.5
+    tree: "hoodoo", rock: ["#57534e", "#78716c", "#a8a29e"], bush: "boulder", treeDensity: 0.5,
+    edge: { air: "dust cloud", haze: ["#e7d8bf", "#c4a77d", "#8a7357"] }
   },
   swamp: {
     grass: ["#2f3a26", "#2b3523", "#33402a"], grassLight: "#4d5c3a", grassDark: "#1f2819",
@@ -120,7 +130,8 @@ export const THEMES = {
     deco: "reeds", decoColors: ["#bef264", "#a3a35a", "#f0abfc"],
     liquid: { base: "#1f2e26", light: "#3a5a3f", dark: "#121c17", rim: "#84cc16" },
     wall: { base: "#3b3322", light: "#4d4330", dark: "#241f14" },
-    tree: "cypress", rock: ["#3f4a3a", "#57634f", "#7b8a6e"], bush: "reeds", treeDensity: 0.68
+    tree: "cypress", rock: ["#3f4a3a", "#57634f", "#7b8a6e"], bush: "reeds", treeDensity: 0.68,
+    edge: { air: "poison gas", haze: ["#d9f99d", "#84cc16", "#365314"] }
   },
   highland: {
     grass: ["#4d6b3a", "#486536", "#53723e"], grassLight: "#6f8f52", grassDark: "#36502a",
@@ -128,7 +139,8 @@ export const THEMES = {
     deco: "flowers", decoColors: ["#c4b5fd", "#fde047", "#f9fafb"],
     liquid: { base: "#2c5f7a", light: "#4a8db0", dark: "#1c4257", rim: "#e0f2fe" },
     wall: { base: "#5b6370", light: "#7d8694", dark: "#3b414b" },
-    tree: "crag", rock: ["#4b5563", "#6b7280", "#9ca3af"], bush: "heather", treeDensity: 0.55
+    tree: "crag", rock: ["#4b5563", "#6b7280", "#9ca3af"], bush: "heather", treeDensity: 0.55,
+    edge: { air: "low cloud", haze: ["#ffffff", "#e2e8f0", "#a3b1c2"] }
   },
   desert: {
     grass: ["#d9b87a", "#d4b273", "#dfc084"], grassLight: "#ecd5a4", grassDark: "#b8955a",
@@ -136,7 +148,8 @@ export const THEMES = {
     deco: "sand", decoColors: ["#e7e5e4", "#a16207", "#fef3c7"],
     liquid: { base: "#a88a5a", light: "#c4a676", dark: "#7a6240", rim: "#ecd5a4" },
     wall: { base: "#c08a52", light: "#dca86e", dark: "#8a5a32" },
-    tree: "cactus", rock: ["#8a6a3a", "#b08a52", "#d4b273"], bush: "tumbleweed", treeDensity: 0.45
+    tree: "cactus", rock: ["#8a6a3a", "#b08a52", "#d4b273"], bush: "tumbleweed", treeDensity: 0.45,
+    edge: { air: "sandstorm", haze: ["#fef3c7", "#e3c08a", "#b08a52"] }
   }
 };
 

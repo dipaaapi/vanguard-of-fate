@@ -1,3 +1,5 @@
+import { drawZoneArt } from "./zonesprites.js";
+
 export class CastleSystem {
   constructor(worldWidth, worldHeight) {
     this.worldWidth = worldWidth;
@@ -68,9 +70,22 @@ export class CastleSystem {
 
   update() {
     this.animTick += 0.06;
+    this.tick = (this.tick || 0) + 1;
   }
 
+  // Aseprite art (aseprite/zone/castle.aseprite: the Citadel and its audience dais) when exported,
+  // else the code-drawn keep; the gate portal is always drawn here
   draw(ctx) {
+    if (!drawZoneArt(ctx, "castle", this.x, this.y, this.tick || 0)) this.drawCode(ctx);
+    this.drawPortal(ctx);
+  }
+
+  // The tilemap keeps the code-drawn footprint clear of trees and rocks (same with or without the art)
+  drawCoverage(ctx) {
+    this.drawCode(ctx);
+  }
+
+  drawCode(ctx) {
     ctx.save();
     const bx = this.x;
     const by = this.y;
@@ -209,7 +224,12 @@ export class CastleSystem {
     ctx.beginPath();
     ctx.ellipse(bx + 160, by + 185, 25, 32, 0, Math.PI, 0);
     ctx.stroke();
+    ctx.restore();
+  }
 
+  drawPortal(ctx) {
+    ctx.save();
+    const t = this.animTick;
     // 4. ANIMATED CITADEL GATE PORTAL
     const gp = this.gatePortal;
     const pPulse = Math.sin(t * 2.2) * 2.5;

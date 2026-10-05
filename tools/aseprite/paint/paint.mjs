@@ -5,6 +5,7 @@
  *   node tools/aseprite/paint/paint.mjs                   # list what can be painted
  *   node tools/aseprite/paint/paint.mjs summon/hound      # → aseprite/summon/hound.aseprite
  *   node tools/aseprite/paint/paint.mjs fx                # every effect (fx/<name>)
+ *   node tools/aseprite/paint/paint.mjs zone              # every safe zone (zone/<key>: camps, Barracks, Citadel, Emberhold)
  *   node tools/aseprite/paint/paint.mjs all
  *
  * This overwrites the .aseprite, so don't run it on art that has been edited by hand.
@@ -17,6 +18,7 @@ import * as bird from "./bird.mjs";
 import * as angel from "./angel.mjs";
 import { FX } from "./fx.mjs";
 import * as boss from "./boss.mjs";
+import { zoneSubjects } from "./zones.mjs";
 
 const DIRS = ["down", "side", "up"];
 const all = (frames) => Object.fromEntries(DIRS.map((d) => [d, frames]));
@@ -37,9 +39,12 @@ for (const [name, b] of Object.entries(boss.BOSSES)) SUBJECTS[`boss/${name}`] = 
 // Effects: one "down-play" tag each (js/fxsprites.js)
 for (const [name, e] of Object.entries(FX)) SUBJECTS[`fx/${name}`] = () => build(`fx/${name}`, e.w, e.h, { down: { play: e.n } }, (d, a, i) => e.paint(i), { play: e.dur });
 
+// Safe zones (zones.mjs): written in Node, no Aseprite needed
+Object.assign(SUBJECTS, await zoneSubjects());
+
 const [arg] = process.argv.slice(2);
 if (!arg) console.log(`paintable: ${Object.keys(SUBJECTS).join(", ")}, all`);
-else for (const key of arg === "all" ? Object.keys(SUBJECTS) : arg === "fx" ? Object.keys(SUBJECTS).filter((k) => k.startsWith("fx/")) : arg.split(",")) {
+else for (const key of arg === "all" ? Object.keys(SUBJECTS) : arg === "fx" || arg === "zone" ? Object.keys(SUBJECTS).filter((k) => k.startsWith(`${arg}/`)) : arg.split(",")) {
   if (!SUBJECTS[key]) { console.error(`unknown subject "${key}"`); process.exit(1); }
   await SUBJECTS[key]();
 }

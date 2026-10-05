@@ -119,7 +119,7 @@ const LINES = {
     ],
     durgrimAgain: ["Emberhold stands. So long as it does, you have a home in the wastes."],
     pip: [
-      "Pip Gildbarrow, finest stall this side of the lava river! Shards, Oridecon, potions — fair prices, mostly.",
+      "Pip Gildbarrow, finest stall this side of the lava river! Shards, Void Crystals, potions — fair prices, mostly.",
       "Everything's hauled in by cart past the magma drakes, so don't haggle too hard."
     ],
     pipAgain: ["Back for more? Coin first, then goods!"],
@@ -321,7 +321,7 @@ const LINES = {
     ],
     durgrimAgain: ["Nakatayo pa ang Emberhold. Hangga't nakatayo ito, may tahanan ka sa disyerto ng abo."],
     pip: [
-      "Pip Gildbarrow, pinakamagandang puwesto sa tabi ng ilog ng lava! Shard, Oridecon, potion — patas ang presyo, kadalasan.",
+      "Pip Gildbarrow, pinakamagandang puwesto sa tabi ng ilog ng lava! Shard, Kristal ng Void, potion — patas ang presyo, kadalasan.",
       "Lahat ay hinahakot sakay ng kariton, lampas sa mga magma drake, kaya huwag masyadong tumawad."
     ],
     pipAgain: ["Bumalik ka? Bayad muna, saka paninda!"],

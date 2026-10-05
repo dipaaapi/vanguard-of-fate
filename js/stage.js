@@ -7,6 +7,7 @@ import { TileMap } from "./world/tilemap.js";
 import { GFX } from "./settings.js";
 import { HUB_AREA } from "./world/areas.js";
 import { DARK_CONTINENT } from "./world/platforms.js";
+import { hasZoneArt, pushOutOf } from "./world/zonesprites.js";
 
 // The plains of Aethelgard (Acts I–VI): Barracks, Citadel and the 4 Warp Gateways.
 // The boat and the sea are in the Cerulean Abyss (the "coast" platform).
@@ -52,9 +53,10 @@ export class Stage {
     this.tilemap = new TileMap(this);
   }
 
-  // Impassable tiles (trees, rocks)
+  // Impassable tiles (trees, rocks) and the Barracks longhouses (when their Aseprite art is shown)
   resolveTileCollision(entity) {
     if (this.tilemap) this.tilemap.resolveCollision(entity);
+    if (hasZoneArt("barracks")) pushOutOf(entity, this.barracks.solids);
   }
 
   // Tree canopy: drawn ABOVE the characters

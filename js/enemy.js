@@ -9,6 +9,7 @@ import { around, mix, hitPose, attackPose, windupPose, breathPose, spawnPose, RE
 import { GFX } from "./settings.js";
 import { drawFx } from "./fxsprites.js";
 import { HUB_KINDS, HUB_ELITES } from "./world/areas.js";
+import { confine, steer, trackGoal } from "./world/nav.js";
 
 // ========================================================
 // ENEMIES
@@ -298,6 +299,8 @@ export class EnemyManager {
     this.player = player;
     this.corpses = this.corpses.filter((c) => ++c.t < DEATH_T);
     if (stage) this.stage = stage;
+    // Walkers find their way to the hero around obstacles (js/world/nav.js)
+    if (this.stage) trackGoal(this.stage, player.x + 10, player.y + 20);
     this.spawnTimer++;
     const alive = this.enemies.filter((e) => e.isAlive && !e.boss).length;
     // More of them, spawning more often, at night
@@ -348,6 +351,10 @@ export class EnemyManager {
         }
       }
     });
+
+    // Nobody leaves the map or ends up inside a tree, a rock, water or a wall (knockback, separation,
+    // teleports included); flyers and bosses only keep to the map's bounds
+    this.enemies.forEach((e) => { if (e.isAlive) confine(this.stage, e, 10, 20, Boolean(e.boss || e.kind.flying)); });
 
     this.updateHazards(player, fx);
     this.enemies = this.enemies.filter((e) => e.isAlive);
@@ -436,7 +443,10 @@ export class EnemyManager {
     const spd = e.speed * (1 + 0.15 * this.night) * (e.st && e.st.chill > 0 ? 0.5 : 1);
     if (aggressive && (e.engaged ? dist < 320 : dist < aggroR) && !(this.stage && this.stage.isInsideSafeZone(player.x + 10, player.y + 17))) {
       e.engaged = true;
-      if (dist > e.reach * 0.6) { mx = (dx / dist) * spd; my = (dy / dist) * spd; }
+      if (dist > e.reach * 0.6) {
+        const [ux, uy] = steer(this.stage, e.x + 10, e.y + 20, target.x + 10, target.y + 20, target === player && !e.kind.flying);
+        mx = ux * spd; my = uy * spd;
+      }
     } else {
       e.engaged = false;
       // Wanders around its home

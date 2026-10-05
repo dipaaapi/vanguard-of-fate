@@ -76,7 +76,9 @@
   "js/uiframe.js": "Shared look for in-canvas panels: drawFrame (slate panel, gold double border, corner studs, title ribbon, open animation), drawBorder, drawBackdrop, openEase, keyChip",
   "js/world/ambient.js": "Per-platform ambience particles and sky colour (spores, storm, blizzard, ash, …)",
   "js/world/barracks.js": "Barracks Sanctuary safe zone on the hub map: drawing and bounds",
-  "js/world/boat.js": "Crewed sailing ship in the Cerulean Abyss (boarding, deck posts for companions, landing at any shore) and the sea monolith",
+  "js/world/boat.js": "Crewed sailing ship in the Cerulean Abyss: faces E/W/N/S as it sails, boarding, deck posts for companions, landing at any shore, save state, return to the pier; and the sea monolith",
+  "js/world/edges.js": "Barrier band along every Act platform / frontier map edge: solid tiles, themed boulders + trees on land, rolling haze (fog, smoke, poison gas…) over water",
+  "js/world/nav.js": "Ground movement for monsters, mercenaries and walking pets: obstacle grid, flow field toward the hero, steering around obstacles, confinement to bounds",
   "js/world/castle.js": "Imperial Citadel on the hub map: drawing and solid hitboxes",
   "js/world/grassland.js": "Hub grassland ground rendering (seeded grass and flora)",
   "js/world/mining.js": "Ore veins on every platform (tier ore, plus minerals on Ashfall and the Citadel; rock salt): picks per vein, ore drops",
@@ -155,6 +157,9 @@
   "tools/art/scenes/actChainspire.js": "Art painter — Act XIV — The Chainspire Descent (chain spire over the abyss, Vorgath)",
   "tools/art/scenes/actMaw.js": "Art painter — Act XV — The Heart of the Abyss & The Sovereign Dawn",
   "tools/art/lib/darkBosses.js": "Hand-painted figures of the Dark Continent bosses (dolora, morgrave, vorgath) shared by the Act banners and portraits",
-  "tools/aseprite/asefile.mjs": "Dependency-free .aseprite writer/reader (RGBA, layers, tags, durations) and exportSheet → png + json-array; used when Aseprite isn't installed",
-  "tools/aseprite/paint/boss.mjs": "Painter: Dark Continent bosses Dolora 64×72, Morgrave 96×104, Vorgath 112×112, idle/walk/run/attack/skill × 3 directions"
+  "tools/aseprite/asefile.mjs": "Reads and writes .aseprite files in plain Node (layers or a single layer, linked cels, tags, palette); export.mjs, seed.mjs and the painters use it when Aseprite isn't installed",
+  "tools/aseprite/paint/boss.mjs": "Painter: Dark Continent bosses Dolora 64×72, Morgrave 96×104, Vorgath 112×112, idle/walk/run/attack/skill × 3 directions",
+  "js/world/zonesprites.js": "Safe-zone art from Aseprite (zone/barracks, zone/castle, zone/<map id> camps and Emberhold): ZONE_ART placement + solid footprints, campLayout shared with the painter, drawZoneArt, zoneSolids, pushOutOf",
+  "tools/aseprite/paint/scenery.mjs": "Scenery kit for the safe-zone painters: alpha Img canvas, flagstones, clearings, shingles, timber walls, tents, braziers, banners, crates, barrels, smoke, campfire",
+  "tools/aseprite/paint/zones.mjs": "Paints the safe zones as layered .aseprite files: themed Fated Vanguard camps per map, Barracks + longhouses, Imperial Citadel + dais, Emberhold"
 }
