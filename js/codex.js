@@ -8,6 +8,7 @@ import { codexItems, getItem, statText, skillText, slotName, SETS, setThresholds
 import { iconURL } from "./items/icons.js";
 import { elementName, raceName, sizeName, ELEMENTS } from "./elements.js";
 import { statusName } from "./status.js";
+import { livesFor } from "./monsterTiers.js";
 import { Avatar } from "./avatar/avatar.js";
 
 // ==================== CODEX (N) ====================
@@ -20,7 +21,7 @@ const L = () => (getLang() === "fil" ? "fil" : "en");
 const TEXT = {
   en: {
     title: "Codex", unknown: "???", undiscovered: "Not yet discovered.", kills: "Defeated", habitat: "Habitat",
-    element: "Element", race: "Race", size: "Size", hp: "HP", dmg: "Damage", blight: "Inflicts", drop: "Drops", arena: "Lair",
+    element: "Element", race: "Race", size: "Size", hp: "HP", lives: "Life bars", dmg: "Damage", blight: "Inflicts", drop: "Drops", arena: "Lair",
     night: "Night only", role: "Role", where: "Found at", classes: "Classes", any: "Any class", hands2: "Two-handed",
     stats: "Base stats", grows: "Stats grow with grade (Aethelgard → Sovereign) and refining.", price: "Value", setBonus: "Set bonuses",
     pieces: "Pieces: weapon, head, armor, gloves, boots (built for your class)",
@@ -30,7 +31,7 @@ const TEXT = {
   },
   fil: {
     title: "Codex", unknown: "???", undiscovered: "Hindi pa natutuklasan.", kills: "Natalo", habitat: "Tirahan",
-    element: "Elemento", race: "Lahi", size: "Laki", hp: "HP", dmg: "Pinsala", blight: "Nagdudulot", drop: "Nahuhulog", arena: "Pugad",
+    element: "Elemento", race: "Lahi", size: "Laki", hp: "HP", lives: "Bilang ng buhay", dmg: "Pinsala", blight: "Nagdudulot", drop: "Nahuhulog", arena: "Pugad",
     night: "Gabi lamang", role: "Tungkulin", where: "Matatagpuan sa", classes: "Mga class", any: "Kahit anong class", hands2: "Dalawang kamay",
     stats: "Batayang stats", grows: "Lumalaki ang stats ayon sa grado (Aethelgard → Sovereign) at pag-refine.", price: "Halaga", setBonus: "Bonus ng set",
     pieces: "Piyesa: sandata, ulo, baluti, guwantes, bota (ginawa para sa iyong class)",
@@ -240,7 +241,11 @@ export class Codex {
       if (k.debuff) row(T.blight, k.debuff.type === "all" ? "★" : `${statusName(k.debuff.type)} (${Math.round(k.debuff.chance * 100)}%)`);
       if (e.kind === "boss") {
         const plat = PLATFORM_ORDER.map((id) => PLATFORMS[id]).find((p) => p.boss === e.id);
-        if (plat) row(T.arena, `Act ${plat.act} · ${plat.arenaName[Lg]}`);
+        if (plat) {
+          row(T.arena, `Act ${plat.act} · ${plat.arenaName[Lg]}`);
+          const lv = (plat.levels ? plat.levels[1] : plat.tier * 5 + 7) + 2;   // EnemyManager.spawnBoss
+          row(T.lives, `×${livesFor({ boss: true, level: lv })}`);
+        }
         if (k.drop) row(T.drop, getItem(k.drop).name);
       } else {
         // Every map that has it as a regular or an elite kind ("Elite" is the tier name in both languages)
