@@ -12,7 +12,7 @@
   "js/audio.js": "Procedural Web Audio engine (exported Sound): master/music/SFX buses with compressor and reverb, synth instruments, a lookahead sequencer that crossfades the tracks in js/music.js by place/night/boss (setScene), fanfares (playJingle) and 30+ play* SFX that fade by distance and mute off screen",
   "js/avatar/avatar.js": "Modular pixel-art Avatar renderer: layered parts (cape, hair, body, arms, held item), 8 directions, cached frames; Pix buffer and shade helpers",
   "js/avatar/beasts.js": "Act monster sprites (sporeling, drake, crab, serpent, brute, imp, specter, treant, …) with idle/walk/attack frames",
-  "js/avatar/creature.js": "Non-human sprite base (CreatureSprite; uses an Aseprite sheet frame when one is loaded) plus slime, wolf and falcon sprites; facingFrom direction helper",
+  "js/avatar/creature.js": "Non-human sprite base (CreatureSprite; uses Aseprite sheet frames when loaded, incl. extra anims and larger canvases) plus slime, wolf and falcon sprites; facingFrom direction helper",
   "js/avatar/options.js": "Character Creator choices and colours, NPC-only parts, config normalisation and random look/name",
   "js/background.js": "Background image helpers for assets/bg/: loadImage and cover-fit drawCover",
   "js/bestiary.js": "Monster and boss definitions per Act (stats, sprite, medium, debuffs, en/fil names), night kinds and blights",
@@ -137,7 +137,7 @@
   "js/settings.js": "Settings shared by the title Options and the in-game Settings panel (O): SETTINGS list (volumes, FPS limit, brightness, shadows, glow, quality…), load/normalize/save vanguard_config, stepSetting, GFX drawing flags, glowAt cached additive halo, toggleFullscreen, SettingsPanel overlay",
   "js/skillslots.js": "Hotbar skill slots J/K/L: which ability sits in each slot (drag and drop), logical() maps a pressed key to its slot's ability for the controller and main.js, saved as skillKeys; ActionPanel.addSlotGroup adds more slot groups (e.g. path actives)",
   "scripts/test-loot-drop.mjs": "Headless test: drops thrown into walls, water, cliffs and unreachable pockets on the hub and every platform land on walkable ground (loot.js findNearestWalkableSpot)",
-  "js/avatar/sheets.js": "Aseprite sprite sheets: loads assets/sprites/manifest.json and slices each sheet into per-tag frames (\"<dir>-<anim>\") that override the code-drawn creature frames",
+  "js/avatar/sheets.js": "Aseprite sprite sheets: loads assets/sprites/manifest.json and slices each sheet into per-tag frames (\"<dir>-<anim>\") that override the code-drawn creature frames; sheetCount for frame counts",
   "tools/aseprite/lib.mjs": "Aseprite tool helpers: find the Aseprite executable, read a creature sprite headless, write PNGs",
   "tools/aseprite/seed.mjs": "Starts aseprite/<kind>/<key>.aseprite from a creature's code-drawn frames (one tag per direction+animation): node tools/aseprite/seed.mjs monster/slime",
   "tools/aseprite/export.mjs": "Exports aseprite/**/*.aseprite with aseprite -b to assets/sprites/<key>.png + .json, checks tags/size against the code sprite, rewrites the manifest"

@@ -77,9 +77,9 @@ then `outline <file>` and read only the line range you need.
 
 - `avatar.js` (50 KB, 1234) — Modular pixel-art Avatar renderer: layered parts (cape, hair, body, arms, held item), 8 directions, cached frames; Pix buffer and shade helpers · FRAME_W, FRAME_H, DIRS, shade, Pix, whiteOf, Avatar
 - `beasts.js` (25 KB, 518) — Act monster sprites (sporeling, drake, crab, serpent, brute, imp, specter, treant, …) with idle/walk/attack frames · SporelingSprite, DrakeSprite, CrabSprite, SerpentSprite, BruteSprite, ImpSprite, SpecterSprite, TreantSprite +1
-- `creature.js` (13 KB, 304) — Non-human sprite base (CreatureSprite; uses an Aseprite sheet frame when one is loaded) plus slime, wolf and falcon sprites; facingFrom direction helper · CreatureSprite, ellipse, SlimeSprite, WolfSprite, FalconSprite, facingFrom
+- `creature.js` (13 KB, 304) — Non-human sprite base (CreatureSprite; uses Aseprite sheet frames when loaded, incl. extra anims and larger canvases) plus slime, wolf and falcon sprites; facingFrom direction helper · CreatureSprite, ellipse, SlimeSprite, WolfSprite, FalconSprite, facingFrom
 - `options.js` (4.6 KB, 119) — Character Creator choices and colours, NPC-only parts, config normalisation and random look/name · FIELDS, DEFAULT_CONFIG, normalizeConfig, randomConfig, randomName
-- `sheets.js` (2.8 KB, 75) — Aseprite sprite sheets: loads assets/sprites/manifest.json and slices each sheet into per-tag frames ("<dir>-<anim>") that override the code-drawn creature frames · sheetsVersion, sheetFrame, loadSpriteSheets
+- `sheets.js` (2.8 KB, 75) — Aseprite sprite sheets: loads assets/sprites/manifest.json and slices each sheet into per-tag frames ("<dir>-<anim>") that override the code-drawn creature frames; sheetCount for frame counts · sheetsVersion, sheetCount, sheetFrame, loadSpriteSheets
 
 ## js/classes/
 

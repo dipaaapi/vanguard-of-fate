@@ -4,16 +4,22 @@
 // assets/sprites/<kind>/<key>.png + .json and lists it in assets/sprites/manifest.json.
 //
 // Each Aseprite tag is one direction + animation, named "<dir>-<anim>" (e.g. "side-walk"),
-// and its frames are that animation's frames in order. A tag that is missing, or a frame index
-// past the tag's end, falls back to the code-drawn sprite, so a sheet can be partial.
-// The canvas must be the code sprite's size (the anchor stays the same); a sheet of another
-// size is ignored with a warning.
+// and its frames are that animation's frames in order. A tag can have more frames than the code
+// sprite, and can add animations the code sprite lacks ("run", "skill"). A missing tag falls back
+// to the code-drawn sprite, so a sheet can be partial.
+// The canvas may be larger than the code sprite: it is centred on the same feet, i.e. the extra
+// width is split evenly left/right and the extra height goes on top (see CreatureSprite.draw).
 
 const BASE = "assets/sprites/";
 const sheets = new Map();   // key ("monster/slime") → Map("dir|anim" → [canvas, …])
 let version = 0;            // bumps when sheets arrive, so cached flash frames are rebuilt
 
 export const sheetsVersion = () => version;
+
+/** Number of frames in the sheet's `dir`/`anim` tag (0 = no such tag). */
+export function sheetCount(key, dir, anim) {
+  return sheets.get(key)?.get(`${dir}|${anim}`)?.length || 0;
+}
 
 /** Frame `i` of `dir`/`anim` from the sheet for `key`, or null when there is none. */
 export function sheetFrame(key, dir, anim, i) {

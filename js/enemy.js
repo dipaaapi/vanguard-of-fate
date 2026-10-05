@@ -32,6 +32,8 @@ export { HUB_KINDS, HUB_ELITES };
 const ELITE_RESPAWN = 60 * 40;   // frames before a slain elite kind returns
 const WALK_TICKS = 10;
 const IDLE_TICKS = 30;
+const RUN_TICKS = 6;      // per frame of a sheet's "run" (chasing)
+const SKILL_TICKS = 4;    // per frame of a sheet's "skill" (charging a strike)
 const SPAWN_POP = 14;     // frames a new monster takes to rise out of the ground
 const DEATH_T = 26;       // frames of the death dissolve
 const WINDUP_SHOW = 14;   // from here on the attack windup is shown
@@ -610,7 +612,11 @@ export class EnemyManager {
     if (len > 0.001) { e.aimX = dx / len; e.aimY = dy / len; }   // for the lunge
     if (e.strikeTimer > 0) e.strikeTimer--;
 
-    const anim = e.strikeTimer > 0 || e.windupTimer > WINDUP_SHOW ? "attack" : moved ? "walk" : "idle";
+    let anim = e.strikeTimer > 0 || e.windupTimer > WINDUP_SHOW ? "attack" : moved ? "walk" : "idle";
+    // Sprites that have them (Aseprite sheets): "skill" while charging a strike, "run" while chasing
+    const sp = e.kind.sprite;
+    if (sp.has && anim === "attack" && e.strikeTimer <= 0 && sp.has("skill", e.dir)) anim = "skill";
+    else if (sp.has && anim === "walk" && e.engaged && sp.has("run", e.dir)) anim = "run";
     if (anim !== e.anim) {
       e.anim = anim;
       e.animTimer = 0;
@@ -637,8 +643,18 @@ export class EnemyManager {
   }
 
   frameOf(e) {
-    if (e.anim === "attack") return e.strikeTimer > 0 ? 1 : 0;   // 0 = handa, 1 = tama
-    return Math.floor(e.animTimer / (e.anim === "walk" ? WALK_TICKS : IDLE_TICKS));
+    // n = frames in this animation (more when an Aseprite sheet has them); 2-frame attacks and the
+    // code-drawn idle/walk timing are unchanged
+    const n = e.kind.sprite.count ? e.kind.sprite.count(e.dir, e.anim) : 2;
+    if (e.anim === "attack") {                                    // 0 = handa, 1… = tama
+      if (e.strikeTimer <= 0) return 0;
+      const p = 1 - e.strikeTimer / (e.strikeMax || 12);
+      return n <= 2 ? 1 : Math.min(n - 1, 1 + Math.floor(p * (n - 1)));
+    }
+    if (e.anim === "skill") return Math.min(n - 1, Math.floor(e.animTimer / SKILL_TICKS));   // charge, hold the last pose
+    if (e.anim === "run") return Math.floor(e.animTimer / RUN_TICKS);
+    const base = e.anim === "walk" ? WALK_TICKS * 4 : IDLE_TICKS * 2;   // one cycle, spread over the frames
+    return Math.floor(e.animTimer / Math.max(4, Math.round(base / Math.max(2, n))));
   }
 
   // player = the attacker (extra damage and crit from stats and equipment)

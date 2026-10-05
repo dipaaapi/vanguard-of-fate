@@ -1,5 +1,5 @@
 import { Pix, shade, whiteOf } from "./avatar.js";
-import { sheetFrame, sheetsVersion } from "./sheets.js";
+import { sheetCount, sheetFrame, sheetsVersion } from "./sheets.js";
 
 // ==================== CREATURES (non-human) ====================
 // Same style as the modular Avatar: pixel buffer, selective outline, shade/highlight from the base
@@ -20,18 +20,22 @@ export class CreatureSprite {
     this.cache = new Map();
   }
 
+  // Frames in an animation: the Aseprite sheet's tag when there is one, else the code sprite's
+  count(dir, anim) {
+    return (this.sheetKey && sheetCount(this.sheetKey, dir, anim)) || this.frames[anim] || 1;
+  }
+
+  // Whether this creature has an animation (e.g. "run" or "skill" that only a sheet adds)
+  has(anim, dir = "down") {
+    return !!(this.frames[anim] || (this.sheetKey && sheetCount(this.sheetKey, dir, anim)));
+  }
+
   frame(dir, anim, i) {
-    const n = this.frames[anim] || 1;
+    const n = this.count(dir, anim);
     const idx = ((i % n) + n) % n;
     // Aseprite sheet (js/avatar/sheets.js) first; the code-drawn frame below is the fallback
-    if (this.sheetKey) {
-      const img = sheetFrame(this.sheetKey, dir, anim, idx);
-      if (img && img.width === this.w && img.height === this.h) return img;
-      if (img && !this.sizeWarned) {
-        this.sizeWarned = true;
-        console.warn(`sprite sheet ${this.sheetKey}: frames are ${img.width}×${img.height}, expected ${this.w}×${this.h}; using the code-drawn sprite`);
-      }
-    }
+    const img = this.sheetKey && sheetFrame(this.sheetKey, dir, anim, idx);
+    if (img) return img;
     const key = `${dir}|${anim}|${idx}`;
     if (!this.cache.has(key)) {
       const p = new Pix(this.w, this.h);
@@ -55,7 +59,9 @@ export class CreatureSprite {
     ctx.translate(Math.round(x), Math.round(y));
     if (rot) ctx.rotate(rot);
     if (flip && dir === "side") ctx.scale(-1, 1);
-    ctx.drawImage(img, -this.ax * scale, -this.ay * scale, this.w * scale, this.h * scale);
+    // A larger (sheet) frame keeps the same feet: extra width split left/right, extra height on top
+    const ax = this.ax + Math.floor((img.width - this.w) / 2), ay = this.ay + (img.height - this.h);
+    ctx.drawImage(img, -ax * scale, -ay * scale, img.width * scale, img.height * scale);
     ctx.restore();
   }
 }

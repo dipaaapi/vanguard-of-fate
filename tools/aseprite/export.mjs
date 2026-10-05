@@ -9,7 +9,7 @@
  * Writes assets/sprites/<kind>/<key>.png + .json (Aseprite json-array with tags) and rewrites
  * assets/sprites/manifest.json from what is on disk. Hidden layers are left out, so a hidden
  * reference layer is fine. Checks each sheet against the code sprite it replaces: tag names
- * ("<down|side|up>-<anim>"), frame size, and frame counts.
+ * ("<down|side|up>-<anim>"), animations the game plays, and canvas size (same or larger).
  * Set ASEPRITE to the executable if it isn't on PATH or in the usual install folders.
  */
 import { ROOT, SRC_DIR, OUT_DIR, codeSprite, findAseprite } from "./lib.mjs";
@@ -17,6 +17,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 
+const EXTRA_ANIMS = ["run", "skill"];
 const rel = (p) => path.relative(ROOT, p).split(path.sep).join("/");
 const sources = (dir) => fs.existsSync(dir)
   ? fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? sources(path.join(dir, e.name)) : /\.(aseprite|ase)$/i.test(e.name) ? [path.join(dir, e.name)] : [])
@@ -50,13 +51,12 @@ for (const file of files) {
     const count = tag.to - tag.from + 1;
     used.push(`${tag.name}×${count}`);
     if (!sprite) continue;
-    const want = sprite.frames[m[2]];
-    if (!want) warn(`tag "${tag.name}": the code sprite has no "${m[2]}" animation (${Object.keys(sprite.frames).join(", ")})`);
-    else if (count < want) warn(`tag "${tag.name}" has ${count} frame(s); frames ${count + 1}–${want} stay code-drawn`);
-    else if (count > want) warn(`tag "${tag.name}" has ${count} frames; the game plays ${want}`);
+    // Monsters play idle / walk / attack, plus run (chasing) and skill (charging) when the sheet has them
+    if (!sprite.frames[m[2]] && !EXTRA_ANIMS.includes(m[2])) warn(`tag "${tag.name}": the game never plays "${m[2]}" (${[...Object.keys(sprite.frames), ...EXTRA_ANIMS].join(", ")})`);
   }
   const { w, h } = data.frames[0].frame;
-  if (sprite && (w !== sprite.w || h !== sprite.h)) warn(`canvas is ${w}×${h}, the game needs ${sprite.w}×${sprite.h} (sheet ignored in game)`);
+  if (sprite && (w < sprite.w || h < sprite.h)) warn(`canvas is ${w}×${h}, smaller than the code sprite's ${sprite.w}×${sprite.h}; the feet won't line up`);
+  else if (sprite && (w - sprite.w) % 2) warn(`canvas is ${w} wide; an even difference from ${sprite.w} keeps the feet centred`);
   if (!used.length) warn("no usable tags, nothing will show in game");
   console.log(`${rel(png)}  ${w}×${h}  ${used.join(" ")}`);
 }
