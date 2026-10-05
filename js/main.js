@@ -2083,6 +2083,6 @@ if (new URLSearchParams(location.search).has("debug")) {
   window.__vof = {
     get player() { return player; }, get stage() { return stage; }, get state() { return gameState; },
     quest, enemyManager, lootManager, projectileManager, mercManager, npcManager, inventory, charPanel, travelTo, saveGame, awaken, ROSTER, dayNight, dialog,
-    openShop() { showShopModal = true; }, openMerc() { showMercModal = true; }, actIntro, market, settingsPanel, actionPanel, gameConfig, SkillSlots
+    openShop() { showShopModal = true; }, openMerc() { showMercModal = true; }, actIntro, market, settingsPanel, actionPanel, gameConfig, SkillSlots, fishing, workshop
   };
 }

@@ -7,7 +7,7 @@ export const ArcherClass = {
   name: "Archer",
   title: "Elven Windstrider",
   speed: 1.6,
-  maxHp: 110,
+  maxHp: 125,
   attackCooldown: 20,
   cooldown: 220,
   reloadDuration: 40,  // frames to refill the quiver (it used to tick twice per frame from 75)
@@ -76,7 +76,7 @@ export const ArcherClass = {
       vx: Math.cos(angle) * speed,
       vy: Math.sin(angle) * speed,
       angle: angle,
-      damage: 32,          // fairness pass: arrows used a fixed 22 (projectiles.js); the weakest class once the quiver reload was counted
+      damage: 37,          // fairness pass: arrows used a fixed 22 (projectiles.js); the weakest class once the quiver reload was counted
       isHeavyKnockback: Math.random() < 0.45,
       isStun: Math.random() < 0.25
     });

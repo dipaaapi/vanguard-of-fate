@@ -380,9 +380,8 @@ function economyReport() {
       }
     }
     const per = (id) => (mats[id] || 0) / KILLS;
-    // the set the area's drops build: the highest tier whose ore actually drops here
-    const dropped = CRAFT_TIERS.filter((t) => per(t.ore) > 0);
-    const c = dropped.length ? dropped[dropped.length - 1] : CRAFT_TIERS[0];
+    // the set the area's drops build: the tier whose ore drops most here (elites' next-tier bonus is a trickle)
+    const c = CRAFT_TIERS.reduce((b, t) => (per(t.ore) > per(b.ore) ? t : b), CRAFT_TIERS[0]);
     const fighters = samples.filter((x) => !x.priest);
     // upkeep: HP lost per kill (TTK × intake) and wear on the worn gear
     const hpCost = fighters.reduce((n, x) => n + x.ttk * x.intake * potionGFor(x.hero.maxHp), 0) / fighters.length;
