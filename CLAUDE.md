@@ -13,7 +13,7 @@
 
 ## Project overview
 
-Vanguard of Fate is a browser action RPG / isekai adventure in plain HTML5 Canvas + vanilla JavaScript ES modules. The player creates a hero in the Character Creator, is summoned from Earth to Aethelgard as a Novice, awakens one of five classes (Knight, Mage, Priest, Archer, Fighter) at Lv 10, and follows twelve Acts from the hub plains through six campaign platforms to Satan. See [README.md](README.md) for features and controls (its project-structure section is out of date; CODEMAP is current) and [LORE.md](LORE.md) / [LORE_FIL.md](LORE_FIL.md) for the setting. Both LORE files are fetched at runtime and split on `##` Acts by `js/lore.js`; keep them in sync.
+Vanguard of Fate is a browser action RPG / isekai adventure in plain HTML5 Canvas + vanilla JavaScript ES modules. The player creates a hero in the Character Creator, is summoned from Earth to Aethelgard as a Novice, awakens one of five classes (Knight, Mage, Priest, Archer, Fighter) at Lv 10, and follows fifteen Acts from the hub plains through nine campaign platforms (four in Aethelgard, five on the Dark Continent) to Satan. See [README.md](README.md) for features and controls (its project-structure section is out of date; CODEMAP is current) and [LORE.md](LORE.md) / [LORE_FIL.md](LORE_FIL.md) for the setting. Both LORE files are fetched at runtime and split on `##` Acts by `js/lore.js`; keep them in sync.
 
 No backend and no build step: the game is static files. State persists in `localStorage` (`vanguard_savegame`, `vanguard_config`, language), with `.vof` save export/import through `js/saveSecurity.js`.
 

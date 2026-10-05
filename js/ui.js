@@ -4,7 +4,7 @@ import { iconCanvas } from "./items/icons.js";
 import { STATUS, STATUS_KEYS } from "./status.js";
 import { drawBackdrop, drawFrame, drawBorder, openEase, keyChip } from "./uiframe.js";
 
-const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV"];
 
 // The current Act's banner (assets/banner/act-N.png), loaded on first use, for the pause and game over panels
 const banners = new Map();

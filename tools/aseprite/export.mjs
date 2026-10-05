@@ -10,9 +10,12 @@
  * assets/sprites/manifest.json from what is on disk. Hidden layers are left out, so a hidden
  * reference layer is fine. Checks each sheet against the code sprite it replaces: tag names
  * ("<down|side|up>-<anim>"), animations the game plays, and canvas size (same or larger).
- * Set ASEPRITE to the executable if it isn't on PATH or in the usual install folders.
+ * Set ASEPRITE to the executable if it isn't on PATH or in the usual install folders. Without Aseprite
+ * the files are read by tools/aseprite/asefile.mjs (visible layers composited, frames in a grid) and
+ * the same .png + json-array .json are written.
  */
-import { ROOT, SRC_DIR, OUT_DIR, codeSprite, findAseprite } from "./lib.mjs";
+import { ROOT, SRC_DIR, OUT_DIR, codeSprite, tryAseprite, writePng } from "./lib.mjs";
+import { exportSheet } from "./asefile.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
@@ -31,14 +34,16 @@ if (!files.length) {
   process.exit(1);
 }
 
-const exe = findAseprite();
+const exe = tryAseprite();
+if (!exe) console.log("Aseprite not found: exporting with the Node reader (tools/aseprite/asefile.mjs)");
 let problems = 0;
 for (const file of files) {
   const key = keyOf(file);
   const png = path.join(OUT_DIR, `${key}.png`), json = path.join(OUT_DIR, `${key}.json`);
   fs.mkdirSync(path.dirname(png), { recursive: true });
-  execFileSync(exe, ["-b", rel(file), "--sheet", rel(png), "--data", rel(json), "--format", "json-array",
+  if (exe) execFileSync(exe, ["-b", rel(file), "--sheet", rel(png), "--data", rel(json), "--format", "json-array",
     "--list-tags", "--sheet-type", "packed"], { cwd: ROOT, stdio: "inherit" });
+  else exportSheet(file, png, json, writePng);
 
   const data = JSON.parse(fs.readFileSync(json, "utf8"));
   const warn = (msg) => { problems++; console.warn(`  ! ${key}: ${msg}`); };

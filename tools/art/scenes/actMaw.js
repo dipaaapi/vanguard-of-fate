@@ -1,4 +1,4 @@
-// Act XII — The Heart of the Abyss & The Sovereign Dawn
+// Act XV — The Heart of the Abyss & The Sovereign Dawn (was Act XII before Book I grew to 15 Acts)
 // The Maw of Damnation: on the floating obsidian platform the champion and the Sovereign stand as
 // Satan's colossal form crumbles into ash, the Lantern Knight's light rises out of the vortex, and
 // the five points of the Pentagram Seal blaze across the sky.

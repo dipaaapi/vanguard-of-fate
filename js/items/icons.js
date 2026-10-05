@@ -75,6 +75,8 @@ const DRAW = {
   spice(p, t) { line(p, 4, 14, 9, 4, "#84cc16"); line(p, 9, 14, 12, 6, t); disc(p, 11, 5, 2, "#dc2626", "#991b1b", "#f87171"); disc(p, 5, 11, 2, "#ca8a04", "#a16207", "#fde047"); },
   salt(p, t) { [[5, 10, 3], [10, 9, 3], [8, 5, 2]].forEach(([x, y, r]) => { for (let dy = -r; dy <= r; dy++) for (let dx = -r + Math.abs(dy); dx <= r - Math.abs(dy); dx++) p.set(x + dx, y + dy, dx + dy > 0 ? "#cbd5e1" : t); }); },
   dish(p, t) { for (let x = 2; x < 14; x++) p.set(x, 9, "#e2e8f0"); for (let y = 10; y < 14; y++) for (let x = 3 + (y - 10); x < 13 - (y - 10); x++) p.set(x, y, y === 10 ? "#f8fafc" : "#94a3b8"); disc(p, 8, 7, 4, t, shade(t, -0.3), shade(t, 0.4)); [[6, 2], [9, 1], [11, 3]].forEach(([x, y]) => p.set(x, y, "#f1f5f9")); },
+  urn(p, t) { for (let y = 4; y < 15; y++) { const w = y < 6 ? 2 : y < 12 ? 5 - Math.abs(y - 9) * 0.6 : 3; for (let x = Math.round(8 - w); x <= Math.round(7 + w); x++) p.set(x, y, x > 9 ? shade(t, -0.35) : x < 6 ? shade(t, 0.3) : t); } p.rect(5, 3, 6, 1, "#94a3b8"); p.rect(6, 2, 4, 1, "#cbd5e1"); p.set(7, 8, "#7dd3fc"); p.set(7, 9, "#0f172a"); },
+  key(p, t) { disc(p, 5, 5, 3, t, shade(t, -0.35), shade(t, 0.4)); p.set(5, 5, "#18181b"); line(p, 7, 7, 13, 13, METAL); line(p, 8, 7, 14, 13, METAL_D); p.rect(11, 12, 1, 3, METAL); p.rect(13, 10, 2, 1, METAL); },
   ash(p, t) { [[5, 10], [8, 7], [11, 10], [7, 12], [10, 5]].forEach(([x, y], k) => disc(p, x, y, k % 2 ? 1 : 2, t, shade(t, -0.3), "#ffffff")); }
 };
 

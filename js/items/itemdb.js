@@ -175,6 +175,9 @@ const OTHER = {
   emberSeal:    { type: "quest", icon: "crystal", tint: "#ff7a1a", name: N("Ember Seal Stone", "Ember Seal Stone"), desc: N("One of four Seal Stones. Place all four on the Celestial Monolith in the Cerulean Abyss.", "Isa sa apat na Seal Stone. Ilagay ang lahat ng apat sa Celestial Monolith sa Cerulean Abyss.") },
   forgeCore:    { type: "quest", icon: "heart", tint: "#ff7a1a", name: N("Hellforge Reactor Core", "Reactor Core ng Hellforge"), desc: N("Torn from Ignis the Iron Lord.", "Hinugot mula kay Ignis the Iron Lord.") },
   imperialCrest:{ type: "quest", icon: "crest", tint: "#ffd166", name: N("Imperial Crest", "Imperial Crest"), desc: N("The King's last gift, for the new Sovereign.", "Huling handog ng Hari para sa bagong Sovereign.") },
+  tearUrn:      { type: "quest", icon: "urn", tint: "#334155", name: N("Urn of Black Tears", "Urna ng Itim na Luha"), desc: N("Dolora's urn, heavy with the grief of the dead. It hums like a voice far away.", "Ang urna ni Dolora, mabigat sa dalamhati ng mga patay. Umuugong ito na parang tinig mula sa malayo.") },
+  lanternVisor: { type: "quest", icon: "helm", tint: "#ffd166", name: N("Lantern Knight's Visor", "Visor ng Lantern Knight"), desc: N("Morgrave's trophy. The Knight's last words are still bound in the steel.", "Tropeo ni Morgrave. Nakatali pa sa bakal ang huling salita ng Knight.") },
+  wardensKey:   { type: "quest", icon: "key", tint: "#f43f5e", name: N("Warden's Key", "Susi ng Bantay"), desc: N("Vorgath's key to the last gate of the Maw. Every chain on the spire answers to it.", "Ang susi ni Vorgath sa huling tarangkahan ng Maw. Sumusunod dito ang bawat kadena sa tore.") },
   astralAsh:    { type: "quest", icon: "ash", tint: "#fde68a", name: N("Astral Ash of Satan", "Astral na Abo ni Satan"), desc: N("All that remains of the Demon Lord.", "Ang natira sa Demon Lord.") }
 };
 // Crafting materials (ores, cores, essences) and cooking (fish, ingredients, the 15 dishes)
@@ -208,6 +211,12 @@ const CARDS = {
   cryonix: { n: N("Cryonix", "Cryonix"), stats: { agi: 6, aspd: 8 }, boss: true },
   ignis: { n: N("Ignis", "Ignis"), stats: { str: 7, atk: 15 }, boss: true },
   commander: { n: N("Demon Commander", "Heneral ng mga Demonyo"), stats: { crit: 10, dex: 5 }, boss: true },
+  wreckGhoul: { n: N("Wreck Ghoul", "Ghoul ng Wasak na Barko"), stats: { hp: 60 } },
+  boneLegionnaire: { n: N("Bone Legionnaire", "Kalansay na Lehiyonaryo"), stats: { def: 9 } },
+  ironGaoler: { n: N("Iron Gaoler", "Bakal na Bantay-Bilangguan"), stats: { atk: 16 } },
+  dolora: { n: N("Dolora", "Dolora"), stats: { int: 7, cdr: 8 }, boss: true },
+  morgrave: { n: N("Morgrave", "Morgrave"), stats: { str: 7, def: 12 }, boss: true },
+  vorgath: { n: N("Vorgath", "Vorgath"), stats: { vit: 8, hp: 90 }, boss: true },
   satan: { n: N("Satan", "Satan"), stats: { str: 5, agi: 5, vit: 5, int: 5, dex: 5, luk: 5 }, boss: true }
 };
 

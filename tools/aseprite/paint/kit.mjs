@@ -1,13 +1,14 @@
 // Painting kit for the procedural Aseprite starting points (tools/aseprite/paint/*.mjs):
 // a pixel buffer with lit, dithered shapes, outlines and particles, plus build() which turns
-// painted frames into aseprite/<key>.aseprite through seed.lua. The .aseprite is the source of
+// painted frames into aseprite/<key>.aseprite through seed.lua (or asefile.mjs without Aseprite). The .aseprite is the source of
 // truth afterwards; these painters only give hand edits a detailed first pass.
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { SRC_DIR, findAseprite, writePng } from "../lib.mjs";
+import { SRC_DIR, tryAseprite, writePng } from "../lib.mjs";
+import { writeAse } from "../asefile.mjs";
 
 export const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16), 255];
 export const mixc = (a, b, t) => [0, 1, 2].map((k) => Math.round(a[k] + (b[k] - a[k]) * t)).concat(255);
@@ -100,6 +101,8 @@ export function fromGame(c) {
  * paint(dir, anim, i, count) returns a Canvas. Frame durations (seconds) per animation are optional.
  */
 export function build(key, w, h, frames, paint, durations = {}) {
+  const exe = tryAseprite();
+  if (!exe) return buildNode(key, w, h, frames, paint, durations);
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "vof-paint-"));
   const tags = [];
   let n = 0;
@@ -116,10 +119,26 @@ export function build(key, w, h, frames, paint, durations = {}) {
   const out = path.join(SRC_DIR, `${key}.aseprite`);
   fs.mkdirSync(path.dirname(out), { recursive: true });
   const params = { dir: tmp, n, w, h, tags: tags.join(";"), durations: dur.join(","), out };
-  execFileSync(findAseprite(), ["-b", ...Object.entries(params).flatMap(([k, v]) => ["--script-param", `${k}=${v}`]),
+  execFileSync(exe, ["-b", ...Object.entries(params).flatMap(([k, v]) => ["--script-param", `${k}=${v}`]),
     "--script", fileURLToPath(new URL("../seed.lua", import.meta.url))], { stdio: "inherit" });
   // keep the frames for a contact sheet when asked
   if (process.env.PAINT_KEEP) fs.cpSync(tmp, path.join(process.env.PAINT_KEEP, key.replace(/\//g, "_")), { recursive: true });
   fs.rmSync(tmp, { recursive: true, force: true });
   console.log(`aseprite/${key}.aseprite  ${w}×${h}, ${n} frames, ${tags.length} tags`);
+}
+
+// The same file without Aseprite: one visible layer "art", tags "<dir>-<anim>", durations.
+function buildNode(key, w, h, frames, paint, durations) {
+  const list = [], tags = [];
+  for (const [dir, anims] of Object.entries(frames)) for (const [anim, count] of Object.entries(anims)) {
+    const from = list.length;
+    for (let i = 0; i < count; i++) list.push({ rgba: paint(dir, anim, i, count).rgba(), duration: durations[anim] || 0.12 });
+    tags.push({ name: `${dir}-${anim}`, from, to: list.length - 1 });
+  }
+  if (process.env.PAINT_KEEP) {
+    const keep = path.join(process.env.PAINT_KEEP, key.replace(/\//g, "_"));
+    list.forEach((f, n) => writePng(path.join(keep, `f${n}.png`), w, h, f.rgba));
+  }
+  writeAse(path.join(SRC_DIR, `${key}.aseprite`), { w, h, frames: list, tags });
+  console.log(`aseprite/${key}.aseprite  ${w}×${h}, ${list.length} frames, ${tags.length} tags (Node writer)`);
 }

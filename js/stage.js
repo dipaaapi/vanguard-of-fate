@@ -6,10 +6,11 @@ import { WeatherSystem } from "./world/weather.js";
 import { TileMap } from "./world/tilemap.js";
 import { GFX } from "./settings.js";
 import { HUB_AREA } from "./world/areas.js";
+import { DARK_CONTINENT } from "./world/platforms.js";
 
 // The plains of Aethelgard (Acts I–VI): Barracks, Citadel and the 4 Warp Gateways.
 // The boat and the sea are in the Cerulean Abyss (the "coast" platform).
-// The platforms of Acts VII–XII live in js/world/platform.js (same interface).
+// The platforms of Acts VII–XV live in js/world/platform.js (same interface).
 export class Stage {
   constructor(width = 1280, height = 960) {
     this.id = "hub";
@@ -76,7 +77,8 @@ export class Stage {
 
   // Where the player comes out when returning from a platform
   arrivalFrom(platformId) {
-    if (platformId === "siege") return { x: this.castle.gatePortal.x - 10, y: this.castle.gatePortal.y + 40 };
+    // Back from the Dark Continent: at the Citadel gate
+    if (DARK_CONTINENT.includes(platformId)) return { x: this.castle.gatePortal.x - 10, y: this.castle.gatePortal.y + 40 };
     const gate = this.portals.portals.find((p) => p.dest === platformId);
     return gate ? this.portals.exitPoint(gate.id) : { x: this.safeZone.x + this.safeZone.w / 2 - 10, y: this.safeZone.y + this.safeZone.h - 30 };
   }

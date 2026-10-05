@@ -7,7 +7,7 @@ import { areaLevels } from "./world/areas.js";
 // The world of Vanguard of Fate is made of two great continents:
 // 1. THE CONTINENT OF AETHELGARD (realm of High King Alden, blessed by Astraea), with the plains,
 //    the four campaign platforms of Acts VII–X and the four frontier maps beside them
-// 2. THE DARK CONTINENT (Nox Aeterna / empire of Demon Lord Satan): Acts XI–XII
+// 2. THE DARK CONTINENT (Nox Aeterna / empire of Demon Lord Satan): Acts XI–XV
 // The two continents do not touch: open sea lies between them. The only crossing is the portal of the
 // Celestial Monolith in the Cerulean Abyss, drawn as a sea route around the south of Aethelgard.
 // Roads run from the plains to every gateway; trails lead from a platform to its frontier.
@@ -29,20 +29,23 @@ const LANDS = [
   { id: "monolith", x: 0.035, y: 0.80, act: 8, color: "#00f0ff", icon: "monolith", name: { en: "Celestial Monolith", fil: "Celestial Monolith" } },
 
   // ---- 3. THE DARK CONTINENT (east, across the open sea) ----
-  { id: "darkShore", x: 0.70, y: 0.76, order: 10.5, color: "#6366f1", icon: "anchor", name: { en: "Obsidian Harbor", fil: "Pintuang Obsidian ng Dagat" } },
+  { id: "strand", x: 0.70, y: 0.78, color: "#7dd3fc", icon: "anchor" },
+  { id: "ossuary", x: 0.73, y: 0.55, color: "#e7e5e4", icon: "mesa" },
   { id: "siege", x: 0.81, y: 0.36, color: "#ef4444", icon: "fortress" },
-  { id: "maw", x: 0.86, y: 0.62, color: "#9d4edd", icon: "vortex" }
+  { id: "chainspire", x: 0.91, y: 0.47, color: "#f43f5e", icon: "crag" },
+  { id: "maw", x: 0.86, y: 0.66, color: "#9d4edd", icon: "vortex" }
 ];
 
 // Roads from the plains to the gateways and trails to the frontiers: [from, to, colour]
 const ROADS = [
   ["hub", "frost", "#ffd166"], ["hub", "canopy", "#ffd166"], ["hub", "coast", "#ffd166"], ["hub", "ash", "#ffd166"],
-  ["hub", "rocky", "#d6a35c"], ["frost", "mountain", "#d6a35c"], ["canopy", "swamp", "#d6a35c"], ["ash", "desert", "#d6a35c"]
+  ["hub", "rocky", "#d6a35c"], ["frost", "mountain", "#d6a35c"], ["canopy", "swamp", "#d6a35c"], ["ash", "desert", "#d6a35c"],
+  ["strand", "ossuary", "#9d4edd"], ["ossuary", "siege", "#9d4edd"], ["siege", "chainspire", "#9d4edd"], ["chainspire", "maw", "#9d4edd"]
 ];
 
 const BOOK_TWO = { x: 0.70, y: 0.12, name: { en: "Book II · Coming soon", fil: "Aklat II · Malapit na" } };
 
-const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV"];
 
 function rng(seed) {
   let a = seed;
@@ -290,7 +293,7 @@ export class ContinentMap {
       const act = def ? (frontier ? def.unlockAct : def.act) : land.act;
       const name = def ? def.name[L] : (land.name ? land.name[L] : land.id);
       const awake = Boolean(q && q.monolith);
-      const open = isOpen(land.id) || (land.id === "monolith" && isOpen("coast")) || (land.id === "darkShore" && awake);
+      const open = isOpen(land.id) || (land.id === "monolith" && isOpen("coast"));
       const cleared = def && !frontier && q && q.cleared ? q.cleared(land.id) : false;
       const px = x + w * land.x, py = y + h * land.y;
       const here = s.stageId === land.id || (land.id === "coast" && s.player && s.player.inBoat);

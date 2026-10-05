@@ -4,7 +4,7 @@ import { areaDef, areaName, areaLevels, actAreas } from "./world/areas.js";
 import { mulberry32 } from "./world/tileset.js";
 
 // ==================== SIDE QUESTS (Book I) ====================
-// Every Act from II to XII rolls 5 to 10 side quests from the save's seed, spread over the Act's maps
+// Every Act from II to XV rolls 5 to 10 side quests from the save's seed, spread over the Act's maps
 // (js/world/areas.js actAreas: the Act's own map plus the frontier beside it). The Act's main quest
 // waits at its gate step until they are all done (js/quest.js GATE_STEPS).
 //   hunt      slay N of one regular kind          trophy   collect N trophies (half the kills drop one)
@@ -43,7 +43,7 @@ const TEXT = {
     reward: "+{exp} EXP · +{gold}G"
   }
 };
-const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV"];
 const SCOUT_RANGE = 40;
 const TROPHY_CHANCE = 0.5;
 
@@ -66,7 +66,7 @@ export class SideQuests {
   ensure(act) {
     if (act === this.act) return;
     this.act = act;
-    this.list = act >= 2 && act <= 12 ? this.roll(act) : [];
+    this.list = act >= 2 && act <= 15 ? this.roll(act) : [];
   }
 
   roll(act) {
