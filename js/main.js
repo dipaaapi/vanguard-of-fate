@@ -39,6 +39,8 @@ import { wear, WEAR_WEAPON, WEAR_ARMOR, ARMOR_SLOTS } from "./items/durability.j
 import { needsPick } from "./world/mining.js";
 import { Fishing } from "./world/fishing.js";
 import { Workshop } from "./workshop.js";
+import { SHOPS, buyPrice, Market as EconMarket } from "./items/economy.js";
+import { hasRunnerKind, isAway, updateErrand, serializeErrand, loadErrand, errandText, runnerName } from "./errand.js";
 import { Avatar } from "./avatar/avatar.js";
 import { loadSpriteSheets } from "./avatar/sheets.js";
 import { ActIntro } from "./actintro.js";
@@ -286,24 +288,40 @@ fishing.onCatch = (id) => {
 fishing.onMiss = () => fx.spawnDamagePopup(player.x + 10, player.y - 18, lang() === "fil" ? "Nakatakas!" : "It got away!", false, "#94a3b8");
 
 // Codex (N): encyclopedia of NPCs, monsters, MVPs and items; progress is saved with the game
-// Safe-zone Market (B) and Settings (O): HTML overlays; the game waits while one is open
+// Safe-zone Market (B) and Settings (O): HTML overlays; the game waits while one is open.
+// Prices come from js/items/economy.js (safe-zone markup, sell rates, market saturation); the Market
+// pays the gold itself, so it records the sale instead of calling sell(). Outside a safe zone B opens
+// the same panel as a summon errand order (js/errand.js).
 const market = new Market(document.getElementById("market"), {
+  stock: () => SHOPS.safezone.stock,
+  buyPrice: (id, it) => buyPrice("safezone", id, it),
+  sellQuote: (it, n) => (player.market ||= new EconMarket()).quote(it, n),
+  onSold: (it, n) => player.market.record(it, n),
+  tabs: [{ id: "workshop", label: () => (lang() === "fil" ? "Talyer" : "Workshop"), open: () => openWorkshop() }],
   onTrade: (text) => {
     chatLog.event("loot", text, dayNight.label());
     if (Sound.playCoin) Sound.playCoin();
+  },
+  onErrand: (text) => {
+    chatLog.event("info", text, dayNight.label());
+    if (fx.spawnHitSparks) fx.spawnHitSparks(player.x - 10, player.y + 10, "#ffd166", 14);
+    if (Sound.playPortal) Sound.playPortal(player.x, player.y);
+    inventory.dirty = true;
   },
   onFail: () => { if (Sound.playUiClose) Sound.playUiClose(); }
 });
 function toggleMarket() {
   if (!player || gameState !== "PLAYING" || dialog.open || actReader.open) return;
   if (market.open) { market.close(); panelSound(false); return; }
-  if (!stage.isInsideSafeZone(player.x + 10, player.y + 17)) {
+  // Outside a safe zone: send the summon on an errand instead (if the hero has one)
+  const errand = !stage.isInsideSafeZone(player.x + 10, player.y + 17);
+  if (errand && !hasRunnerKind(player)) {
     fx.spawnDamagePopup(player.x + 10, player.y - 8, "⚖ ✖", false, "#f87171");
     chatLog.event("info", marketText("closed"), dayNight.label());
     return;
   }
   closeOverlays();
-  market.show(player);
+  market.show(player, errand ? "errand" : "shop");
   panelSound(true);
 }
 const settingsPanel = new SettingsPanel(document.getElementById("settings"), gameConfig, (key) => applyConfig(key));
@@ -771,7 +789,8 @@ function syncBoss() {
 // pet or familiar listed in player.companions (entities with x / y; flying: true perches in the rigging)
 function crewOf() {
   if (!player) return [];
-  return [...mercManager.mercenaries, player.falconCompanion, ...(player.angelCompanions || []), ...(player.companions || [])].filter(Boolean);
+  const away = (c) => (c === player.falconCompanion && isAway(player, "falcon")) || (c === player.familiar && isAway(player, "familiar"));
+  return [...mercManager.mercenaries, player.falconCompanion, ...(player.angelCompanions || []), ...(player.companions || [])].filter((c) => c && !away(c));
 }
 
 // Move to another place. at = { x, y } (player pixels) or nothing for the default arrival.
@@ -1038,6 +1057,7 @@ function getSavePayload() {
     skillKeys: SkillSlots.serialize(),      // J/K/L arrangement on the hotbar (skill book, P)
     autoPot: { ...player.autoPot },
     life: Workshop.serialize(player),       // craft target, active meal, market saturation
+    errand: serializeErrand(player),        // a summon away on a market errand (js/errand.js)
     codex: codex.serialize(),
     dayTick: dayNight.serialize(),
     platform: stage.id,                     // "hub" or an Act platform
@@ -1181,6 +1201,7 @@ function loadGame() {
     else starterKit(player);
     attachBag(player);
     Workshop.load(player, data.life);
+    loadErrand(player, data.errand);
     player.hp = Math.min(player.maxHp, data.hp || player.maxHp);
     quest.load(data.quest, player);
 
@@ -1577,7 +1598,8 @@ window.addEventListener("keydown", (e) => {
     if (skillCode === "KeyK" && player.heroData.id === "priest" && !stage.isInsideSafeZone(player.x, player.y)) {
       if (!player.angelCompanions) player.angelCompanions = [];
       player.angelCompanions = player.angelCompanions.filter(a => a.isAlive);
-      if (player.angelCompanions.length < 2 && player.skillCooldownTimer <= 0) {
+      // One Angel fewer while another is away on a market errand
+      if (player.angelCompanions.length < (isAway(player, "angel") ? 1 : 2) && player.skillCooldownTimer <= 0) {
         const angelHp = Math.round(player.maxHp * 0.5);
         player.angelCompanions.push(new GuardianAngelCompanion(player.x + (player.angelCompanions.length === 0 ? -30 : 30), player.y - 16, angelHp));
         player.skillCooldownTimer = 180;
@@ -1585,7 +1607,9 @@ window.addEventListener("keydown", (e) => {
       }
     }
 
-    if (e.code === "KeyK" && player.heroData.id === "archer" && player.falconCompanion && player.falconCompanion.aboard) {
+    if (e.code === "KeyK" && player.heroData.id === "archer" && player.falconCompanion && isAway(player, "falcon")) {
+      if (fx.spawnDamagePopup) fx.spawnDamagePopup(player.x + 10, player.y - 14, errandText("busy", { name: runnerName("falcon") }), false, "#ffd166");
+    } else if (e.code === "KeyK" && player.heroData.id === "archer" && player.falconCompanion && player.falconCompanion.aboard) {
       // Flyers can't leave the ship while the crew is aboard
       if (fx.spawnDamagePopup) fx.spawnDamagePopup(player.x + 10, player.y - 14, t("falconAboard"), false, "#38bdf8");
     } else if (e.code === "KeyK" && player.heroData.id === "archer" && player.falconCompanion && player.skillCooldownTimer <= 0 && !stage.isInsideSafeZone(player.x, player.y)) {
@@ -1691,12 +1715,19 @@ function updateGame() {
   autoPotion();
   summonerHeal();
 
-  if (player.falconCompanion) {
+  // A summon away on a market errand doesn't fight until it's back (js/errand.js)
+  updateErrand(player, {
+    fx, sound: Sound,
+    log: (text) => { chatLog.event("loot", text, dayNight.label()); inventory.dirty = true; },
+    drop: (inst) => lootManager.drop({ x: player.x + 10, y: player.y + 22 }, inst)
+  });
+
+  if (player.falconCompanion && !isAway(player, "falcon")) {
     player.falconCompanion.update(player, enemyManager, fx, lootManager);
   }
 
   const familiar = syncFamiliar(player);   // pet / familiar from the skill tree
-  if (familiar) familiar.update(player, enemyManager, fx, lootManager, isInBarracks, stage);
+  if (familiar && !isAway(player, "familiar")) familiar.update(player, enemyManager, fx, lootManager, isInBarracks, stage);
 
   if (player.angelCompanions && player.angelCompanions.length > 0) {
     player.angelCompanions.forEach((angel, idx) => {
@@ -1864,10 +1895,10 @@ function renderGameWorld() {
   if (player && player.hp > 0) {
     player.draw(ctx);
 
-    if (player.falconCompanion) {
+    if (player.falconCompanion && !isAway(player, "falcon")) {
       player.falconCompanion.draw(ctx, player.facing === "right");
     }
-    if (player.familiar) player.familiar.draw(ctx);
+    if (player.familiar && !isAway(player, "familiar")) player.familiar.draw(ctx);
 
     if (player.angelCompanions) {
       player.angelCompanions.forEach((angel) => {
@@ -2031,6 +2062,7 @@ function gameLoop(now = performance.now()) {
       inSanctuary: stage.isInsideSafeZone(player.x, player.y),
       paused: gameState === "PAUSED",
       canTalk: Boolean(npcManager.nearest),
+      canErrand: hasRunnerKind(player) && !player.errand,   // B outside a safe zone sends the summon
       sprinting: Boolean(player.sprinting || player.sprintLock),
       mapOpen: worldMap.open,
       inventoryOpen: inventory.open,
@@ -2047,7 +2079,7 @@ function gameLoop(now = performance.now()) {
   if (worldMap.open && (gameState !== "PLAYING" || !player)) worldMap.close();
   if (serviceMenu.open && (gameState !== "PLAYING" || !player)) serviceMenu.close();
   if (codex.open && (gameState !== "PLAYING" || !player)) codex.close();
-  if (market.open && (gameState !== "PLAYING" || !player || !stage.isInsideSafeZone(player.x + 10, player.y + 17))) market.close();
+  if (market.open && (gameState !== "PLAYING" || !player || (market.mode === "shop" && !stage.isInsideSafeZone(player.x + 10, player.y + 17)))) market.close();
   if (settingsPanel.open && (layoutMode !== "play" || !player || gameState === "GAMEOVER")) settingsPanel.close();
   if (actionPanel.editing && (layoutMode !== "play" || !player)) actionPanel.setEditing(false);
   if (!drawNow) { requestAnimationFrame(gameLoop); return; }

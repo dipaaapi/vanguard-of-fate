@@ -7,6 +7,7 @@ import { PLATFORMS, PLATFORM_ORDER } from "../world/platforms.js";
 import { Sound } from "../audio.js";
 import { getLang } from "../i18n.js";
 import { GFX } from "../settings.js";
+import { totalMaxHp } from "../monsterTiers.js";
 
 // ==================== NPCs IN THE WORLD ====================
 // An NPC's position (x, y) is the middle of its feet, like the Avatar's anchor.
@@ -276,7 +277,7 @@ class NPC {
         let element = "physical";
         let sparkColor = "#ffffff";
         // A share of the target's max HP: NPC allies help at any level but rarely take the last hit
-        let dmg = Math.max(3, Math.round(threatEnemy.maxHp * (0.1 + Math.random() * 0.06)));
+        let dmg = Math.max(3, Math.round(totalMaxHp(threatEnemy) * (0.1 + Math.random() * 0.06)));
         let knockback = 14;
 
         switch (this.id) {
