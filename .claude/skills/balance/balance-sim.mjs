@@ -235,6 +235,18 @@ function angelDps(hero, em, makeTarget) {
   return total / N / (FR / 60);
 }
 
+/** HP one use of the kit's J restores to a wounded hero (the Priest's Priority Heal), with no angels out. */
+function healPerUse(hero) {
+  const hp0 = hero.hp, angels = hero.angels;
+  hero.angels = [];
+  hero.hp = 1;
+  try { hero.heroData.onAttack(hero, null, () => {}); } catch { /* visual-only state */ }
+  const gain = hero.hp - 1;
+  hero.hp = hp0;
+  hero.angels = angels;
+  return gain;
+}
+
 function fight(hero, area, em, key, level, boss = false) {
   em.night = 0;
   const spawn = () => {
@@ -261,8 +273,8 @@ function fight(hero, area, em, key, level, boss = false) {
   const taken = hitOnHero(em, sample, hero);
   const ttk = dps > 0 ? hp / dps : Infinity;
   const hitsToDie = Math.ceil(hero.maxHp / Math.max(1, taken));
-  // Priest J = Priority Heal (10% max HP): survival is the HP pool over intake minus healing
-  const healPerSec = priest ? (0.1 * hero.maxHp * (hero.healMult || 1) * 60) / fr.J : 0;
+  // Priest J = Priority Heal, measured through the kit: survival is the HP pool over intake minus healing
+  const healPerSec = priest ? (60 * healPerUse(hero)) / fr.J : 0;
   const intakePerSec = (taken * 60) / MONSTER_CYCLE;
   const ttd = priest ? (intakePerSec > healPerSec ? hero.maxHp / (intakePerSec - healPerSec) : Infinity) : (hitsToDie * MONSTER_CYCLE) / 60;
   return { key, level, hp, dmgJ: dmg.J, dps, ttk, monDmg: sample.damage, taken, hitsToDie, ttd, ratio: ttd / ttk, element: sample.element };
@@ -380,9 +392,8 @@ function economyReport() {
       }
     }
     const per = (id) => (mats[id] || 0) / KILLS;
-    // the set the area's drops build: the highest tier whose ore actually drops here
-    const dropped = CRAFT_TIERS.filter((t) => per(t.ore) > 0);
-    const c = dropped.length ? dropped[dropped.length - 1] : CRAFT_TIERS[0];
+    // the set the area's drops build: the tier whose ore drops most here (elites' next-tier bonus is a trickle)
+    const c = CRAFT_TIERS.reduce((b, t) => (per(t.ore) > per(b.ore) ? t : b), CRAFT_TIERS[0]);
     const fighters = samples.filter((x) => !x.priest);
     // upkeep: HP lost per kill (TTK × intake) and wear on the worn gear
     const hpCost = fighters.reduce((n, x) => n + x.ttk * x.intake * potionGFor(x.hero.maxHp), 0) / fighters.length;

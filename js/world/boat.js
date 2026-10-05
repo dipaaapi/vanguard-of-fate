@@ -7,15 +7,36 @@ import { getLang, t as tr } from "../i18n.js";
 // placing all four Seal Stones then awakens it and opens the only portal to the Dark Continent.
 // Pier, boat, monolith and portal positions come from the platform's def.boat (js/world/platforms.js).
 //
-// The ship is about 90 px long. The hero stands at the helm (stern) and the bow points the way it
-// sails (dir = 1 east, -1 west). Ship-local coordinates: u along the deck from the helm toward the
-// bow, v down the screen from the hero's feet. The crew (mercenaries, summons, pets, familiars:
+// The ship is about 90 px long and faces the way it sails: east or west (side view, the hero at the
+// helm in the stern, the bow ahead), north (seen from astern, the hero at the helm nearest the camera)
+// or south (seen from ahead, the hero at the bow nearest the camera). Moving diagonally keeps the
+// current heading if it is one of the two. Side-view ship-local coordinates: u along the deck from the
+// helm toward the bow, v down the screen from the hero's feet. Facing north or south the hull lies
+// above the hero's feet, so (x, y) offsets are used. The crew (mercenaries, summons, pets, familiars:
 // anything with x / y, optional flying, footX / footY) take the posts below while the hero sails.
 
 const HULL_SAMPLES = [-12, 10, 32, 54, 74];                       // u of the hull points that must float
 const DECK_POSTS = [[20, -3], [36, -1], [52, -3], [12, -1], [62, -1], [28, -4], [44, -4], [6, -4]];
 const AIR_POSTS = [[28, -57], [-8, -30], [60, -26], [12, -44]];   // crow's nest, over the stern, over the bow, yard
 const LAND_SPOTS = [[-16, 6], [16, 6], [-8, 14], [8, 14], [-24, -2], [24, -2], [0, 18], [-28, 12]];
+
+// Facing north / south: hull sample points, deck and air posts as (x, y) from the hero's feet
+const UPRIGHT = {
+  N: {
+    hull: [[-10, 6], [10, 6], [-11, -14], [11, -14], [-11, -34], [11, -34], [-6, -52], [6, -52], [0, -62]],
+    deck: [[-8, -6], [8, -6], [-8, -13], [8, -13], [-8, -20], [8, -20], [0, -24], [0, -14]],
+    air: [[0, -66], [-16, -34], [16, -34], [0, -86]]
+  },
+  S: {
+    hull: [[-6, 10], [6, 10], [-11, -6], [11, -6], [-11, -26], [11, -26], [-10, -46], [10, -46], [0, -52]],
+    deck: [[-6, -10], [6, -10], [-8, -17], [8, -17], [-8, -24], [8, -24], [0, -20], [0, -27]],
+    air: [[0, -60], [-16, -30], [16, -30], [0, -80]]
+  }
+};
+const HEADINGS = ["E", "W", "N", "S"];
+const sideOf = (h) => (h === "E" ? 1 : h === "W" ? -1 : 0);
+const headingOf = (b) => (HEADINGS.includes(b.heading) ? b.heading : b.dir === 1 ? "E" : "W");
+const TURN_GAP = 10;     // frames between two turns, so a diagonal course doesn't flicker
 
 export class BoatSystem {
   constructor(stage, spots) {
@@ -25,7 +46,10 @@ export class BoatSystem {
     // Pier and the moored boat
     this.pier = { w: 26, h: 18, ...spots.pier };
     this.dockedBoat = { dir: -1, ...spots.dockedBoat };
-    this.dir = this.dockedBoat.dir;     // the sailing ship's heading
+    this.dockedBoat.heading = headingOf(this.dockedBoat);
+    this.home = { ...this.dockedBoat };        // its berth at the pier
+    this.heading = this.dockedBoat.heading;    // the sailing ship's heading: E, W, N or S
+    this.turnWait = 0;
     this.landing = null;                // where E steps ashore while sailing (refreshed by carry)
     this.crewCount = 0;
 
@@ -44,13 +68,14 @@ export class BoatSystem {
     this.wakes = [];
   }
 
-  // Whether a position is on water
+  // Whether a position is on open water the ship can sail (not the fog or smoke at the map's edge)
   isWaterAt(px, py) {
     const tm = this.stage && this.stage.tilemap;
     if (!tm || !tm.liquid) return false;
     const tx = Math.floor(px / 16), ty = Math.floor(py / 16);
     if (tx < 0 || ty < 0 || tx >= tm.cols || ty >= tm.rows) return false;
-    return Boolean(tm.liquid[ty * tm.cols + tx]);
+    const i = ty * tm.cols + tx;
+    return Boolean(tm.liquid[i]) && !(tm.edge && tm.edge[i]);
   }
 
   // Dry ground the hero can stand on (not water, not a wall)
@@ -63,28 +88,67 @@ export class BoatSystem {
     return !tm.liquid[i] && !(tm.solid && tm.solid[i]);
   }
 
-  // The whole hull floats: samples from the stern to the bow along the deck and the waterline,
-  // with the hero's feet (fx, fy) at the helm
-  hullWet(fx, fy, dir) {
-    return HULL_SAMPLES.every((u) => this.isWaterAt(fx + dir * u, fy - 5) && this.isWaterAt(fx + dir * u, fy + 8));
+  // The points of the hull that must be on water, with the hero's feet (fx, fy) at the helm
+  hullPoints(fx, fy, heading) {
+    const d = sideOf(heading);
+    if (d) return HULL_SAMPLES.flatMap((u) => [[fx + d * u, fy - 5], [fx + d * u, fy + 8]]);
+    return UPRIGHT[heading].hull.map(([x, y]) => [fx + x, fy + y]);
   }
 
-  // The ship only floats on water: running aground it slides along the shore or is put back at its
-  // last position on water. It turns to face the way it sails when there is room to swing the bow.
-  keepAfloat(p) {
+  hullWet(fx, fy, heading) {
+    return this.hullPoints(fx, fy, heading).every(([x, y]) => this.isWaterAt(x, y));
+  }
+
+  // Middle of the hull (the ship turns about it when it can't turn about the helm)
+  hullCenter(fx, fy, heading) {
+    const d = sideOf(heading);
+    return d ? [fx + d * 31, fy + 1] : [fx, fy - 24];
+  }
+
+  // The heading the hero is steering: the axis they move along (a diagonal keeps the current heading)
+  wantedHeading(dx, dy) {
+    const h = Math.abs(dx) > 0.2 ? (dx > 0 ? "E" : "W") : null;
+    const v = Math.abs(dy) > 0.2 ? (dy > 0 ? "S" : "N") : null;
+    if (!h && !v) return this.heading;
+    if (this.heading === h || this.heading === v) return this.heading;
+    if (!h) return v;
+    if (!v) return h;
+    return Math.abs(dy) > Math.abs(dx) ? v : h;
+  }
+
+  // Turn to a new heading: about the helm if the hull fits there, otherwise about the middle of the
+  // hull (the hero walks to the new helm). Returns false when there is no room to swing the ship.
+  turn(p, want) {
     const fx = p.x + 10, fy = p.y + 21;
-    const last = this.lastWet || { x: p.x, y: p.y };
-    const dx = p.x - last.x;
-    if (Math.abs(dx) > 0.2) {
-      const want = dx > 0 ? 1 : -1;
-      if (want !== this.dir && this.hullWet(fx, fy, want)) this.dir = want;
+    if (this.hullWet(fx, fy, want)) { this.heading = want; return true; }
+    const [cx, cy] = this.hullCenter(fx, fy, this.heading);
+    const [nx, ny] = this.hullCenter(0, 0, want);
+    for (const [ox, oy] of [[0, 0], [0, -8], [0, 8], [-8, 0], [8, 0]]) {
+      const hx = cx - nx + ox, hy = cy - ny + oy;
+      if (this.hullWet(hx, hy, want)) {
+        p.x = hx - 10;
+        p.y = hy - 21;
+        this.heading = want;
+        return true;
+      }
     }
-    if (this.hullWet(fx, fy, this.dir)) {
+    return false;
+  }
+
+  // The ship only floats on water: it turns to face the way it sails when there is room to swing,
+  // and running aground it slides along the shore or is put back at its last position on water.
+  keepAfloat(p) {
+    const last = this.lastWet || { x: p.x, y: p.y };
+    if (this.turnWait > 0) this.turnWait--;
+    const want = this.wantedHeading(p.x - last.x, p.y - last.y);
+    if (want !== this.heading && !this.turnWait && this.turn(p, want)) this.turnWait = TURN_GAP;
+    const fx = p.x + 10, fy = p.y + 21;
+    if (this.hullWet(fx, fy, this.heading)) {
       this.lastWet = { x: p.x, y: p.y };
       return;
     }
-    if (this.hullWet(fx, last.y + 21, this.dir)) p.y = last.y;
-    else if (this.hullWet(last.x + 10, fy, this.dir)) p.x = last.x;
+    if (this.hullWet(fx, last.y + 21, this.heading)) p.y = last.y;
+    else if (this.hullWet(last.x + 10, fy, this.heading)) p.x = last.x;
     else { p.x = last.x; p.y = last.y; }
   }
 
@@ -99,14 +163,24 @@ export class BoatSystem {
       }
       return { x: pier.x + 8 - 10, y: pier.y + 8 - 21 };
     }
-    for (const r of [20, 30, 42]) {
-      for (let k = 0; k < 16; k++) {
-        const a = (k / 16) * Math.PI * 2;
-        const x = fx + Math.cos(a) * r, y = fy + Math.sin(a) * r * 0.8;
-        if (this.isLandAt(x, y) && this.isLandAt(x, y - 6)) return { x: x - 10, y: y - 21 };
+    // Around the helm first, then along the whole hull
+    const [cx, cy] = this.hullCenter(fx, fy, this.heading);
+    for (const [ax, ay] of [[fx, fy], [cx, cy]]) {
+      for (const r of [20, 30, 42]) {
+        for (let k = 0; k < 16; k++) {
+          const a = (k / 16) * Math.PI * 2;
+          const x = ax + Math.cos(a) * r, y = ay + Math.sin(a) * r * 0.8;
+          if (this.isLandAt(x, y) && this.isLandAt(x, y - 6)) return { x: x - 10, y: y - 21 };
+        }
       }
     }
     return null;
+  }
+
+  // Land the hero can walk from (not a pocket cut off by water or cliffs); true when unknown
+  reachable(x, y) {
+    const tm = this.stage && this.stage.tilemap;
+    return !tm || !tm.isReachable || tm.isReachable(x, y);
   }
 
   // E works next to the moored ship or the pier (boarding), or near any shore while sailing (landing)
@@ -119,10 +193,37 @@ export class BoatSystem {
   }
 
   nearDockedShip(fx, fy) {
-    const b = this.dockedBoat, sx = b.x + 10, sy = b.y + 21, dir = b.dir || -1;
+    const b = this.dockedBoat, sx = b.x + 10, sy = b.y + 21, h = headingOf(b), d = sideOf(h);
+    if (!d) {
+      // Facing north / south: distance to the keel line above the helm
+      const y = Math.max(sy - 62, Math.min(sy + 10, fy));
+      return Math.hypot(fx - sx, fy - y) < 26;
+    }
     // distance to the deck line from the stern to the bow
-    const u = Math.max(-14, Math.min(76, (fx - sx) * dir));
-    return Math.hypot(fx - (sx + u * dir), fy - sy) < 30;
+    const u = Math.max(-14, Math.min(76, (fx - sx) * d));
+    return Math.hypot(fx - (sx + u * d), fy - sy) < 30;
+  }
+
+  // The ship goes back to the pier (after the hero leaves the Cerulean Abyss by the sea portal, or when
+  // it is moored somewhere the hero can no longer walk to)
+  returnToPier() {
+    this.dockedBoat = { ...this.home };
+    this.heading = headingOf(this.dockedBoat);
+  }
+
+  // Arriving on foot (main.js travelTo): a ship moored where no shore can be walked to sails home
+  checkMooring() {
+    const b = this.dockedBoat;
+    if (b.x === this.home.x && b.y === this.home.y) return;
+    const fx = b.x + 10, fy = b.y + 21;
+    for (const r of [20, 30, 42]) {
+      for (let k = 0; k < 16; k++) {
+        const a = (k / 16) * Math.PI * 2;
+        const x = fx + Math.cos(a) * r, y = fy + Math.sin(a) * r * 0.8;
+        if (this.isLandAt(x, y) && this.reachable(x, y)) return;
+      }
+    }
+    this.returnToPier();
   }
 
   // Board or leave the ship. crew = every companion travelling with the hero (mercenaries, summons,
@@ -137,7 +238,7 @@ export class BoatSystem {
       const spot = this.landing || this.findLanding(player);
       if (!spot) return;
       // The ship stays moored where the hero left it
-      this.dockedBoat = { x: player.x, y: player.y, dir: this.dir };
+      this.dockedBoat = { x: player.x, y: player.y, heading: this.heading };
       player.inBoat = false;
       player.x = spot.x;
       player.y = spot.y;
@@ -146,15 +247,37 @@ export class BoatSystem {
       if (Sound && Sound.playSelectMove) Sound.playSelectMove();
       pop("boatAshore", "#38bdf8");
     } else {
-      player.inBoat = true;
-      player.x = this.dockedBoat.x;
-      player.y = this.dockedBoat.y;
-      this.dir = this.dockedBoat.dir || -1;
-      this.lastWet = { x: player.x, y: player.y };
-      this.carry(player, crew);
+      this.embark(player, crew);
       if (Sound && Sound.playHolyBurst) Sound.playHolyBurst();
       pop("boatSetSail", "#00f0ff");
     }
+  }
+
+  // The hero takes the helm of the moored ship (boarding, or a save made at sea)
+  embark(player, crew = []) {
+    player.inBoat = true;
+    player.x = this.dockedBoat.x;
+    player.y = this.dockedBoat.y;
+    this.heading = headingOf(this.dockedBoat);
+    this.lastWet = { x: player.x, y: player.y };
+    this.turnWait = 0;
+    this.carry(player, crew);
+  }
+
+  // Ship state for the save: where it is moored (or sailing) and its heading
+  serialize(player) {
+    const b = player && player.inBoat ? { x: player.x, y: player.y, heading: this.heading } : this.dockedBoat;
+    return { x: Math.round(b.x), y: Math.round(b.y), heading: headingOf(b), aboard: Boolean(player && player.inBoat) };
+  }
+
+  // From a save: only a spot on open water inside the map is accepted (the pier otherwise)
+  load(data) {
+    if (!data || !Number.isFinite(data.x) || !Number.isFinite(data.y)) return false;
+    const heading = HEADINGS.includes(data.heading) ? data.heading : "W";
+    if (!this.hullWet(data.x + 10, data.y + 21, heading)) { this.returnToPier(); return false; }
+    this.dockedBoat = { x: data.x, y: data.y, heading };
+    this.heading = heading;
+    return true;
   }
 
   // Crew step off around the hero; flyers are free again
@@ -174,18 +297,30 @@ export class BoatSystem {
     c.y = wy - (c.footY ?? 15);
   }
 
+  // A crew post (deck or rigging) as a point on the map, for the current heading
+  post(fx, fy, k, flying) {
+    const d = sideOf(this.heading);
+    if (d) {
+      const [u, v] = flying ? AIR_POSTS[k % AIR_POSTS.length] : DECK_POSTS[k % DECK_POSTS.length];
+      return [fx + d * u, fy + v];
+    }
+    const set = UPRIGHT[this.heading][flying ? "air" : "deck"];
+    const [x, y] = set[k % set.length];
+    return [fx + x, fy + y];
+  }
+
   // Every frame while sailing (after everyone has moved): the ship stays afloat and the crew keep
   // their posts on deck. Flyers perch on the rigging: they can't leave the ship while the crew is aboard.
   carry(player, crew = []) {
     if (!player || !player.inBoat) return;
     this.keepAfloat(player);
-    const fx = player.x + 10, fy = player.y + 21, dir = this.dir;
+    const fx = player.x + 10, fy = player.y + 21;
     let g = 0, a = 0;
     crew.forEach((c) => {
       if (!c) return;
-      const [u, v] = c.flying ? AIR_POSTS[a++ % AIR_POSTS.length] : DECK_POSTS[g++ % DECK_POSTS.length];
+      const [wx, wy] = c.flying ? this.post(fx, fy, a++, true) : this.post(fx, fy, g++, false);
       c.aboard = true;
-      this.place(c, fx + dir * u, fy + v);
+      this.place(c, wx, wy);
       if ("vx" in c) { c.vx = 0; c.vy = 0; }
     });
     this.crewCount = crew.length;
@@ -244,8 +379,16 @@ export class BoatSystem {
       // Wake behind the stern and spray off the bow while under way
       if (speed > 0.3 && this.tick % 3 === 0) {
         const fx = player.x + 10, fy = player.y + 21;
-        this.wakes.push({ x: fx - this.dir * 14, y: fy + 12, radius: 3, alpha: 0.7, life: 30 });
-        this.wakes.push({ x: fx + this.dir * (70 + Math.random() * 6), y: fy + 8 + Math.random() * 4, radius: 1.5, alpha: 0.6, life: 14 });
+        const d = sideOf(this.heading), r = Math.random();
+        if (d) {
+          this.wakes.push({ x: fx - d * 14, y: fy + 12, radius: 3, alpha: 0.7, life: 30 });
+          this.wakes.push({ x: fx + d * (70 + r * 6), y: fy + 8 + r * 4, radius: 1.5, alpha: 0.6, life: 14 });
+        } else {
+          // Wake off the stern and spray at the bow: astern is nearest the camera facing north
+          const [stern, bow] = this.heading === "N" ? [fy + 16, fy - 64] : [fy - 56, fy + 18];
+          this.wakes.push({ x: fx - 4 + r * 8, y: stern, radius: 3, alpha: 0.7, life: 30 });
+          this.wakes.push({ x: fx - 3 + r * 6, y: bow, radius: 1.5, alpha: 0.6, life: 14 });
+        }
       }
 
       // Sea Portal Collision
@@ -388,13 +531,15 @@ export class BoatSystem {
 
   // Where the ship is: at the hero's feet while sailing, otherwise where it is moored
   shipPose(player) {
-    if (player && player.inBoat) return { fx: player.x + 10, fy: player.y + 21, dir: this.dir, sailing: true };
-    const b = this.dockedBoat;
-    return { fx: b.x + 10, fy: b.y + 21, dir: b.dir || -1, sailing: false };
+    if (player && player.inBoat) return { fx: player.x + 10, fy: player.y + 21, heading: this.heading, dir: sideOf(this.heading), sailing: true };
+    const b = this.dockedBoat, heading = headingOf(b);
+    return { fx: b.x + 10, fy: b.y + 21, heading, dir: sideOf(heading), sailing: false };
   }
 
   // Far bulwark, deck, stern cabin, helm, mast, rigging and sails (behind the crew)
-  drawShipBack(ctx, { fx, fy, dir, sailing }) {
+  drawShipBack(ctx, pose) {
+    if (!pose.dir) { this.drawUprightBack(ctx, pose); return; }
+    const { fx, fy, dir, sailing } = pose;
     const t = this.tick;
     ctx.save();
     ctx.translate(Math.round(fx), Math.round(fy));
@@ -530,7 +675,23 @@ export class BoatSystem {
 
   // Near bulwark, hull side and waterline over the crew's feet, then the prompts
   drawFront(ctx, player) {
-    const { fx, fy, dir, sailing } = this.shipPose(player);
+    const pose = this.shipPose(player);
+    if (pose.dir) this.drawSideFront(ctx, pose);
+    else this.drawUprightFront(ctx, pose);
+    const { fx, fy } = pose;
+
+    // Prompts
+    if (!player) return;
+    if (player.inBoat) {
+      if (this.landing) this.prompt(ctx, fx, fy - (pose.dir ? 46 : 96), `[E] ${tr("boatGoAshore")}`, "#ffd166");
+    } else if (this.canToggle(player)) {
+      const [cx] = this.hullCenter(fx, fy, pose.heading);
+      this.prompt(ctx, cx, fy - (pose.dir ? 80 : 98), `[E] ${tr("boatBoard")}`, "#00f0ff");
+    }
+  }
+
+  // Side view (east / west): near bulwark, hull side and waterline over the crew's feet
+  drawSideFront(ctx, { fx, fy, dir, sailing }) {
     const t = this.tick;
     ctx.save();
     ctx.translate(Math.round(fx), Math.round(fy));
@@ -574,15 +735,175 @@ export class BoatSystem {
       }
     }
     ctx.restore();
+  }
 
-    // Prompts
-    if (!player) return;
-    if (player.inBoat) {
-      if (this.landing) this.prompt(ctx, fx, fy - 46, `[E] ${tr("boatGoAshore")}`, "#ffd166");
-    } else if (this.canToggle(player)) {
-      const p = this.dockedBoat, sx = p.x + 10 + (p.dir || -1) * 30;
-      this.prompt(ctx, sx, p.y + 21 - 80, `[E] ${tr("boatBoard")}`, "#00f0ff");
+  // Facing north (seen from astern) or south (seen from ahead): deck, far end, mast and sail behind
+  // the crew. The hull lies above the hero's feet, so the hero at the near end is never hidden.
+  drawUprightBack(ctx, { fx, fy, heading, sailing }) {
+    const t = this.tick, north = heading === "N";
+    ctx.save();
+    ctx.translate(Math.round(fx), Math.round(fy));
+    const R = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); };
+    const poly = (pts, c) => { ctx.fillStyle = c; tracePath(ctx, pts); ctx.fill(); };
+    const rim = north
+      ? [[-12, 8], [12, 8], [14, -6], [14, -34], [10, -52], [0, -66], [-10, -52], [-14, -34], [-14, -6]]
+      : [[-12, -54], [12, -54], [14, -40], [14, -14], [10, 2], [0, 16], [-10, 2], [-14, -14], [-14, -40]];
+    const deck = north
+      ? [[-10, 6], [10, 6], [12, -6], [12, -34], [8, -50], [0, -62], [-8, -50], [-12, -34], [-12, -6]]
+      : [[-10, -52], [10, -52], [12, -40], [12, -14], [8, 0], [0, 12], [-8, 0], [-12, -14], [-12, -40]];
+
+    // Shadow on the water, then the bulwark seen from above with its gilded rail
+    ctx.fillStyle = "rgba(0, 18, 40, 0.38)";
+    ctx.beginPath();
+    ctx.ellipse(0, -22, 19, 44, 0, 0, Math.PI * 2);
+    ctx.fill();
+    poly(rim, "#6b4428");
+    ctx.strokeStyle = "#c08a58";
+    ctx.lineWidth = 1;
+    tracePath(ctx, rim);
+    ctx.stroke();
+
+    // Deck planks along the keel
+    poly(deck, "#9a7350");
+    ctx.save();
+    tracePath(ctx, deck);
+    ctx.clip();
+    for (let x = -12, col = 0; x < 13; x += 3, col++) {
+      R(x, -66, 1, 84, "#86613f");
+      for (let y = -64 + (col % 2) * 7; y < 16; y += 14) R(x - 1, y, 2, 1, "#73502f");
     }
+    ctx.restore();
+    // Cargo hatch ahead of the mast
+    const hy = north ? -44 : -12;
+    R(-5, hy, 10, 6, "#5c3d24");
+    R(-4, hy + 1, 8, 4, "#2e1d10");
+    for (let x = -3; x < 4; x += 3) R(x, hy + 1, 1, 4, "#5c3d24");
+
+    if (north) {
+      // Bowsprit and figurehead far ahead
+      R(-1, -76, 2, 12, "#5a3a22");
+      R(-1, -66, 2, 3, "#e0b44c");
+    } else {
+      // Stern cabin at the far end, its lit windows and door facing the camera
+      R(-10, -66, 20, 2, "#3e2716");
+      R(-9, -64, 18, 12, "#6b4428");
+      R(-9, -64, 18, 1, "#8a5a34");
+      const lit = 0.75 + 0.25 * Math.sin(t * 0.13);
+      ctx.globalAlpha = lit;
+      R(-7, -61, 3, 3, "#ffd166");
+      R(4, -61, 3, 3, "#ffd166");
+      ctx.globalAlpha = 1;
+      R(-2, -59, 4, 7, "#2e1d10");
+      // Stern lantern on its post
+      R(11, -70, 1, 12, "#3e2716");
+      R(9, -72, 5, 5, "#8a6a2a");
+      R(10, -71, 3, 3, "#ffe9a8");
+    }
+
+    // Ship's wheel just ahead of the helm, seen face-on
+    R(-1, -10, 2, 6, "#4a2c1a");
+    ctx.strokeStyle = "#7a5232";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(0, -12, 3.5, 0, Math.PI * 2);
+    ctx.stroke();
+    R(0, -17, 1, 10, "#7a5232");
+    R(-5, -12, 10, 1, "#7a5232");
+
+    // Mast, yard and crow's nest
+    const base = north ? -30 : -26, top = base - 52, yard = base - 30;
+    R(-1, top, 3, base - top, "#5a3a22");
+    R(-1, top, 1, base - top, "#7a5232");
+    R(-20, yard, 40, 2, "#4a2c1a");
+    if (sailing) {
+      // The main sail: from astern its shaded back bellies away; from ahead its face shows the crest
+      const b = 2 + Math.sin(t * 0.08) * 1.5;
+      const sail = new Path2D();
+      sail.moveTo(-19, yard + 1);
+      sail.lineTo(19, yard + 1);
+      sail.lineTo(18, yard + 20);
+      sail.quadraticCurveTo(0, yard + 20 + (north ? -b : b), -18, yard + 20);
+      sail.closePath();
+      ctx.fillStyle = north ? "#d9cfb4" : "#efe6cf";
+      ctx.fill(sail);
+      ctx.save();
+      ctx.clip(sail);
+      for (let x = -15; x < 19; x += 6) R(x, yard, 1, 24, north ? "#c4b896" : "#ddd0ae");
+      R(-20, yard + 1, 40, 2, "rgba(255, 255, 255, 0.35)");
+      ctx.restore();
+      if (!north) {
+        const cy = yard + 5;
+        poly([[-5, cy], [6, cy], [6, cy + 8], [0.5, cy + 13], [-5, cy + 8]], "#e0b44c");
+        poly([[-4, cy + 1], [5, cy + 1], [5, cy + 7.5], [0.5, cy + 11.5], [-4, cy + 7.5]], "#1e3a8a");
+        R(0, cy + 2, 1, 7, "#ffd166");
+        R(-3, cy + 4, 7, 1, "#ffd166");
+      }
+    } else {
+      // Sails furled on the yard
+      R(-18, yard - 2, 36, 4, "#e0d6bc");
+      R(-18, yard + 1, 36, 1, "#c4b48c");
+      for (let x = -14; x < 18; x += 7) R(x, yard - 2, 1, 4, "#8a6a40");
+    }
+    R(-5, top + 8, 11, 4, "#6b4428");
+    R(-5, top + 8, 11, 1, "#b07d4f");
+
+    // Pennant at the masthead, streaming to one side
+    const wave = Math.round(Math.sin(t * (sailing ? 0.22 : 0.08)) * 1.5);
+    poly([[2, top - 5], [2, top], [12, top - 1 + wave], [15, top - 2 + wave]], "#dc2626");
+    poly([[2, top - 5], [2, top - 3], [12, top - 2 + wave]], "#ffd166");
+    R(0, top - 6, 2, 2, "#e0b44c");
+    ctx.restore();
+  }
+
+  // Facing north / south: the near end of the hull (the stern transom, or the bow and its figurehead)
+  // and the waterline, drawn over the crew's feet
+  drawUprightFront(ctx, { fx, fy, heading, sailing }) {
+    const t = this.tick, north = heading === "N";
+    ctx.save();
+    ctx.translate(Math.round(fx), Math.round(fy));
+    const R = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); };
+    const poly = (pts, c) => { ctx.fillStyle = c; tracePath(ctx, pts); ctx.fill(); };
+    const moving = sailing && this.speed > 0.3;
+    if (north) {
+      // Stern transom: gilded rail, painted band, lit stern windows and a lantern at each quarter
+      poly([[-13, 18], [13, 18], [12, 22], [-12, 22]], "rgba(30, 90, 160, 0.5)");
+      poly([[-12, 8], [12, 8], [11, 18], [-11, 18]], "#5a3820");
+      R(-12, 8, 24, 1, "#e0b44c");
+      R(-12, 10, 24, 2, "#1e3a5f");
+      const lit = 0.75 + 0.25 * Math.sin(t * 0.13);
+      ctx.globalAlpha = lit;
+      R(-8, 13, 3, 2, "#ffd166");
+      R(-1, 13, 3, 2, "#ffd166");
+      R(5, 13, 3, 2, "#ffd166");
+      ctx.globalAlpha = 1;
+      for (const x of [-13, 12]) { R(x, 0, 1, 8, "#3e2716"); R(x - 1, -2, 3, 3, "#ffe9a8"); }
+      for (let x = -11; x < 12; x += 4) {
+        const k = Math.floor(t / 6 + x / 4) % 4;
+        if (k) R(x + (k === 2 ? 1 : 0), 18 + (k === 3 ? 1 : 0), 3, 1, "rgba(220, 240, 255, 0.65)");
+      }
+    } else {
+      // The bow seen from ahead: the hull narrowing to the stem, a gilded figurehead and the bowsprit
+      poly([[-11, 4], [11, 4], [3, 24], [-3, 24]], "rgba(30, 90, 160, 0.5)");
+      poly([[-10, 2], [10, 2], [8, 10], [0, 22], [-8, 10]], "#5a3820");
+      poly([[-10, 2], [10, 2], [9.5, 4], [-9.5, 4]], "#e0b44c");
+      R(-8, 6, 16, 2, "#1e3a5f");
+      R(-1, 10, 2, 16, "#5a3a22");
+      R(-2, 12, 4, 4, "#e0b44c");
+      R(-1, 11, 2, 1, "#fde68a");
+      for (let x = -9; x < 10; x += 4) {
+        const k = Math.floor(t / 6 + x / 4) % 4;
+        if (k) R(x + (k === 2 ? 1 : 0), 20 - Math.abs(x) / 2 + (k === 3 ? 1 : 0), 3, 1, "rgba(220, 240, 255, 0.65)");
+      }
+    }
+    if (moving) {
+      // Bow wave: at the far end facing north, under the stem facing south
+      for (let k = 0; k < 4; k++) {
+        const s = (t + k * 5) % 20, side = k % 2 ? 1 : -1;
+        const y = north ? -64 + s * 0.4 : 22 + s * 0.3;
+        R(side * (3 + s * 0.5), y, 2, 1, `rgba(235, 248, 255, ${0.8 - s / 25})`);
+      }
+    }
+    ctx.restore();
   }
 
   prompt(ctx, x, y, text, color) {

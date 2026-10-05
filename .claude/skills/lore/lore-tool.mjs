@@ -8,7 +8,7 @@
  *   node .claude/skills/lore/lore-tool.mjs section <n|heading>     # one LORE Act, EN + FIL
  *   node .claude/skills/lore/lore-tool.mjs find <term> [--max 40]  # text strings mentioning <term>, file:line
  *   node .claude/skills/lore/lore-tool.mjs entity <name>           # one entity's text fields only (monsters, items, platforms…)
- *   node .claude/skills/lore/lore-tool.mjs check                   # EN/FIL gaps and Act mismatches
+ *   node .claude/skills/lore/lore-tool.mjs check                   # EN/FIL gaps, Act mismatches, borrowed names
  *
  * Plain Node, no dependencies.
  */
@@ -215,7 +215,23 @@ function cmdCheck() {
     });
   }
 
-  console.log(issues ? `${issues} issue(s)` : 'EN/FIL text looks consistent');
+  // 5. Borrowed names (other games, anime, books) in player-facing text — see borrowed-names.json
+  const banned = JSON.parse(read(path.join(path.dirname(fileURLToPath(import.meta.url)), 'borrowed-names.json'))).terms;
+  const res = banned.map((t) => [t, new RegExp(`\\b${t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`)]);
+  const extra = ['README.md', 'index.html'].map((f) => path.join(ROOT, f)).filter((f) => fs.existsSync(f));
+  for (const f of [...SOURCES, ...walk('js', /\.js$/).filter((x) => !SOURCES.includes(x)), ...extra]) {
+    read(f).split('\n').forEach((l, i) => {
+      for (const [t, re] of res) {
+        if (!re.test(l)) continue;
+        const visible = isMarkdown(f) || f.endsWith('.json') || f.endsWith('.html')
+          ? !/^\s*(\/\/|<!--)/.test(l)
+          : inString(l.replace(/\/\/.*$/, ''), t.toLowerCase());
+        if (visible) warn(`${rel(f)}:${i + 1} borrowed name "${t}"`);
+      }
+    });
+  }
+
+  console.log(issues ? `${issues} issue(s)` : 'EN/FIL text looks consistent, no borrowed names');
   if (issues) process.exitCode = 1;
 }
 

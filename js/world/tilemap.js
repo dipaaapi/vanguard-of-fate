@@ -2,6 +2,7 @@ import {
   TILE, ATLAS_COLS, T, THEMES,
   buildTileset, drawTreeSplit, drawRock, drawBush, mulberry32
 } from "./tileset.js";
+import { markEdges, paintLandEdges, bakeHaze, drawHaze } from "./edges.js";
 
 // ---------- noise ----------
 function hash2(x, y, seed) {
@@ -41,6 +42,9 @@ export class TileMap {
     this.debug = false;
 
     this.liquid = new Uint8Array(this.cols * this.rows);  // sea / lava / void (impassable)
+    this.edge = null;                                     // platforms: the barrier band at the map's edge (js/world/edges.js)
+    this.seed = seed;
+    this.tick = 0;
     this.atlas = buildTileset(this.theme);
     this.generate(stage, seed);
     this.computeReach(stage);
@@ -211,6 +215,9 @@ export class TileMap {
       }
     }
 
+    // ----- Barrier along the map's edge (Act platforms and frontier maps) -----
+    if (stage.terrain) markEdges(this);
+
     // ----- Ground tiles -----
     const hasPath = (tx, ty) => this.inBounds(tx, ty) && path[this.idx(tx, ty)] === 1;
     const hasLiquid = (tx, ty) => !this.inBounds(tx, ty) || this.liquid[this.idx(tx, ty)] === 1;
@@ -320,6 +327,9 @@ export class TileMap {
       else if (ob.type === "rock") drawRock(g.ctx, ob.tx * TILE, ob.ty * TILE, ob.seed, th.rock);
       else if (ob.type === "bush") drawBush(g.ctx, ob.tx * TILE, ob.ty * TILE, ob.seed, th.bush);
     });
+    // The edge barrier: boulders and trees on land, a bank of haze over water
+    paintLandEdges(this, g.ctx, o.ctx, this.theme, this.seed);
+    this.haze = bakeHaze(this, this.theme, this.seed);
   }
 
   // ---------- DRAW: only the visible part is shown ----------
@@ -346,6 +356,7 @@ export class TileMap {
   // Tree canopy: drawn ABOVE the characters
   drawOverlay(ctx) {
     this.blit(ctx, this.overlayCanvas);
+    drawHaze(ctx, this.haze, this, this.tick++);
     if (this.debug) this.drawDebug(ctx);
   }
 

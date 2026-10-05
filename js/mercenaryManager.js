@@ -7,6 +7,9 @@ import { Sound } from "./audio.js";
 import { Avatar } from "./avatar/avatar.js";
 import { facingFrom } from "./avatar/creature.js";
 import { GFX } from "./settings.js";
+import { confine, steer, footBlocked } from "./world/nav.js";
+
+const FOOT_X = 8, FOOT_Y = 15;   // a mercenary's feet from its x / y
 
 // One Avatar per mercenary type (frames are cached)
 const AVATARS = {};
@@ -151,6 +154,7 @@ export class MercenaryManager {
 
       const ox = m.x, oy = m.y;
       this.step(m, pX, pY, enemyManager, lootManager, fx, spawnProj, stage);
+      if (!m.aboard) this.keepOnGround(m, player, stage, ox, oy);
       this.animate(m, m.x - ox, m.y - oy);
     }
   }
@@ -199,6 +203,30 @@ export class MercenaryManager {
     return (q) => spawnProj && spawnProj({ ...q, merc: true, power: m.power || 1 });
   }
 
+  // A step toward (gx, gy) (where the feet should go): around obstacles when heading for the hero
+  walk(m, gx, gy, speed, stage, towardHero) {
+    const [ux, uy] = steer(stage, m.x + FOOT_X, m.y + FOOT_Y, gx, gy, towardHero);
+    m.x += ux * speed;
+    m.y += uy * speed;
+  }
+
+  // Mercenaries walk: no crossing trees, rocks, water or the map's edge. One that can't get past an
+  // obstacle to the hero for two seconds rejoins at the hero's side.
+  keepOnGround(m, player, stage, ox, oy) {
+    if (!stage) return;
+    confine(stage, m, FOOT_X, FOOT_Y);
+    const far = Math.hypot(player.x - m.x, player.y - m.y) > 60;
+    m.stuck = far && Math.hypot(m.x - ox, m.y - oy) < 0.2 ? (m.stuck || 0) + 1 : 0;
+    if (m.stuck < 120) return;
+    m.stuck = 0;
+    for (const [sx, sy] of [[-16, 10], [16, 10], [0, 16], [-22, 0], [22, 0], [0, -14]]) {
+      const x = player.x + 10 + sx - FOOT_X, y = player.y + 21 + sy - FOOT_Y;
+      if (footBlocked(stage, x + FOOT_X, y + FOOT_Y)) continue;
+      m.x = x; m.y = y; m.navX = x; m.navY = y;
+      return;
+    }
+  }
+
   // One mercenary's AI per frame (follow, pick up loot, fight)
   step(m, pX, pY, enemyManager, lootManager, fx, spawnProj, stage) {
       // Aboard the ship: hold the deck post (the ship carries it) and fight what comes in reach
@@ -223,9 +251,7 @@ export class MercenaryManager {
       // ========================================================
       if (distToPlayer > 80) {
         const dx = pX - m.x;
-        const dy = pY - m.y;
-        m.x += (dx / distToPlayer) * baseSpeed;
-        m.y += (dy / distToPlayer) * baseSpeed;
+        this.walk(m, pX + 10, pY + 21, baseSpeed, stage, true);
         m.facing = dx >= 0 ? "right" : "left";
         return; // Skip loot and combat for now so it isn't left behind
       }
@@ -264,10 +290,7 @@ export class MercenaryManager {
         const dx = targetLoot.x - m.x;
         const dy = targetLoot.y - m.y;
         const d = Math.hypot(dx, dy);
-        if (d > 4) {
-          m.x += (dx / d) * baseSpeed;
-          m.y += (dy / d) * baseSpeed;
-        }
+        if (d > 4) this.walk(m, targetLoot.x, targetLoot.y, baseSpeed, stage, false);
       } else if (closestEnemy && !(stage && stage.isInsideSafeZone(m.x, m.y))) {
         // Fight the foe
         const dx = closestEnemy.x - m.x;
@@ -276,8 +299,7 @@ export class MercenaryManager {
         m.aimAngle = Math.atan2(dy, dx);
 
         if (closestDist > m.data.attackRange) {
-          m.x += (dx / closestDist) * baseSpeed;
-          m.y += (dy / closestDist) * baseSpeed;
+          this.walk(m, closestEnemy.x + 10, closestEnemy.y + 20, baseSpeed, stage, false);
         } else {
           this.strike(m, closestEnemy, enemies, enemyManager, fx, spawnProj);
         }
@@ -285,9 +307,7 @@ export class MercenaryManager {
         // NATURAL FLANKING: follow and stand beside the player (24–32px allowance)
         if (distToPlayer > 30) {
           const dx = pX - m.x;
-          const dy = pY - m.y;
-          m.x += (dx / distToPlayer) * baseSpeed;
-          m.y += (dy / distToPlayer) * baseSpeed;
+          this.walk(m, pX + 10, pY + 21, baseSpeed, stage, true);
           m.facing = dx >= 0 ? "right" : "left";
         }
       }

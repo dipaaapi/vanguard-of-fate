@@ -1,5 +1,6 @@
 import { Sound } from "../audio.js";
 import { SlimeSprite, WolfSprite, FalconSprite, facingFrom } from "../avatar/creature.js";
+import { confine, steer } from "../world/nav.js";
 
 // ==================== FAMILIARS (pets for heroes with no summon of their own) ====================
 // Learned in the skill tree (js/skills.js, kind "summon"): the Novice's Pocket Slime, the Knight's
@@ -81,7 +82,7 @@ export class Familiar {
     this.target = null;
   }
 
-  update(player, enemyManager, fx, lootManager, safe = false) {
+  update(player, enemyManager, fx, lootManager, safe = false, stage = null) {
     const k = this.k;
     this.t++;
     if (this.cd > 0) this.cd--;
@@ -119,8 +120,11 @@ export class Familiar {
     let mx = 0, my = 0;
     if (dist > stop) {
       const sp = Math.min(dist - stop, k.speed * (e ? 1 : dist > 60 ? 1.3 : 0.8));
-      mx = (dx / dist) * sp; my = (dy / dist) * sp;
+      // A walking pet goes around trees, rocks and water to rejoin the hero (js/world/nav.js)
+      const [ux, uy] = k.fly ? [dx / dist, dy / dist] : steer(stage, this.x + 8, this.y + 15, gx + 8, gy + 15, !e);
+      mx = ux * sp; my = uy * sp;
       this.x += mx; this.y += my;
+      if (!k.fly) confine(stage, this, 8, 15);
     }
     this.face = facingFrom(e && dist <= stop ? e.x - this.x : mx, e && dist <= stop ? e.y - this.y : my, this.face);
     const moving = Math.hypot(mx, my) > 0.2;
