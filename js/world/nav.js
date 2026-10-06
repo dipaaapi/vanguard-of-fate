@@ -112,7 +112,8 @@ export function steer(stage, px, py, gx, gy, towardHero) {
 }
 
 // After a walker has moved (or been knocked back): keep it inside the map's bounds and out of every
-// obstacle, sliding along it. e.navX / e.navY remember its last clear spot. Flyers only keep to the bounds.
+// obstacle, sliding along it. e.navX / e.navY remember its last clear spot. flying = only keep to the bounds
+// (bosses); ordinary flyers keep to reachable ground too, so they never hover over a wall or cliff.
 export function confine(stage, e, ox = 10, oy = 20, flying = false) {
   if (!stage) return;
   const b = stage.bounds;

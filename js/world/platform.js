@@ -60,6 +60,19 @@ export class Platform {
     this.miningUnlocked = false;
   }
 
+  // Free the baked map canvases when the hero leaves (main.js teardownPlatform); setting a
+  // canvas to 0×0 releases its backing store at once instead of waiting for garbage collection
+  destroy() {
+    const free = (c) => { if (c && c.getContext) { c.width = 0; c.height = 0; } };
+    const tm = this.tilemap;
+    if (tm) {
+      [tm.groundCanvas, tm.overlayCanvas, tm.atlas, tm.haze, tm.haze && tm.haze.canvas].forEach(free);
+      tm.groundCanvas = tm.overlayCanvas = tm.haze = null;
+    }
+    this.navGrid = null;
+    this.destroyed = true;
+  }
+
   name() {
     return this.def.name[getLang() === "fil" ? "fil" : "en"];
   }

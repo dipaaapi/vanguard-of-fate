@@ -246,7 +246,9 @@ export class ProjectileManager {
   }
 
   draw(ctx) {
+    const cam = this.camera;   // set by main.js: off-screen shots are not drawn
     this.projectiles.forEach((p) => {
+      if (cam && p.type !== "meteor" && !cam.isVisible(p.x - 16, p.y - 16, 32, 32)) return;
       ctx.save();
       // Each effect uses its Aseprite sprite when loaded (drawFx), else the code-drawn shape below
       const age = p.age || 0;

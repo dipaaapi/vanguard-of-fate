@@ -246,7 +246,9 @@ export class LootManager {
   }
 
   draw(ctx) {
+    const cam = this.camera;   // set by main.js: off-screen drops are not drawn
     this.items.forEach((item) => {
+      if (cam && !cam.isVisible(item.x - 8, item.y - 8, 16, 16)) return;
       const hoverY = item.y + Math.sin(item.bobTimer) * 3;
 
       if (GFX.shadows) { ctx.fillStyle = "rgba(10, 14, 20, 0.35)"; ctx.beginPath(); ctx.ellipse(item.x, item.y + 6, 4, 1.5, 0, 0, Math.PI * 2); ctx.fill(); }

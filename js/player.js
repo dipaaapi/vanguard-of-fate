@@ -65,6 +65,7 @@ export class Player {
     this.defense = 0;
     this.attack = 0;          // extra damage (stat points + equipment)
     this.crit = 0;            // critical chance (0..1)
+    this.critDmg = 1.8;       // critical damage multiplier (LUK raises it)
     this.cdr = 0;             // cooldown reduction (0..0.5)
 
     // Stamina / pagod
@@ -168,7 +169,8 @@ export class Player {
     this.defense = this.bonusDefense + g.def + Math.floor(S.vit / 2) + (sk.def || 0);
     this.speed = (this.baseSpeed + this.bonusSpeed + g.spd + S.agi * 0.004) * (1 + (sk.move || 0) / 100);
     this.attack = Math.round(this.bonusDamage + g.atk + primary * 1.5 + secondary * 0.3 + (sk.atk || 0));
-    this.crit = Math.min(0.75, this.bonusCrit + (g.crit + S.luk * 0.3 + S.dex * 0.1 + (sk.crit || 0)) / 100);
+    this.crit = Math.min(0.75, this.bonusCrit + (g.crit + S.luk * 0.5 + S.dex * 0.1 + (sk.crit || 0)) / 100);
+    this.critDmg = Math.min(2.5, 1.8 + Math.max(0, S.luk - 1) * 0.01);   // LUK: +1% crit damage per point
     this.cdr = Math.min(0.5, (g.cdr + S.int * 0.25 + (sk.cdr || 0)) / 100);
     this.aspd = Math.min(0.5, (g.aspd + S.agi * 0.6 + S.dex * 0.2 + (sk.aspd || 0)) / 100);
     this.dmgMult = 1 + (sk.dmg || 0) / 100;

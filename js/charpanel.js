@@ -161,7 +161,7 @@ export class CharacterPanel {
     const right = add(grid, "div", "ch-col");
     add(right, "div", "inv-head", T.derived);
     const pct = (v) => `${Math.round(v * 100)}%`;
-    [[T.atk, `+${p.attack}`], [T.def, p.defense], [T.hp, p.maxHp], [T.aspd, `+${pct(p.aspd)}`], [T.crit, pct(p.crit)],
+    [[T.atk, `+${p.attack}`], [T.def, p.defense], [T.hp, p.maxHp], [T.aspd, `+${pct(p.aspd)}`], [T.crit, `${pct(p.crit)} · ×${(p.critDmg || 1.8).toFixed(2)}`],
       [T.cdr, pct(p.cdr)], [T.move, p.speed.toFixed(2)], [T.stamina, p.maxStamina], [T.dmg, `+${Math.round((p.dmgMult - 1) * 100)}%`],
       [T.reduce, pct(p.dmgReduce)]].forEach(([k, v]) => {
       const row = add(right, "div", "inv-row");

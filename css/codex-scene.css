@@ -1,0 +1,237 @@
+/* ==================== CODEX SCENE (js/scenes/codexScene.js) ====================
+   Character Creator · Job Awakening · Codex (N). A full-screen overlay: the turntable stage on the
+   left, vertical category tabs, the side panel (list, dossier, lore ticker) and a control deck.
+   Uses the title palette (--gold, --sky, --ink, --ui-font from title.css). */
+
+#codexScene { display: none; }
+#codexScene.open {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--ink, #030611);
+  color: #e2e8f0;
+  font-family: var(--ui-font, "Consolas", monospace);
+}
+body[data-mode="create"] #app { display: none; }
+
+.cxs-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right, rgba(3, 6, 17, 0.15), rgba(3, 6, 17, 0.55) 55%, rgba(3, 6, 17, 0.9)),
+    url("../assets/bg/portal_bg.png") center / cover no-repeat;
+  filter: saturate(0.85);
+}
+
+.cxs-main {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(320px, 440px);
+  gap: 0;
+  padding: 18px 20px 6px;
+}
+
+/* ---- Stage: stances + turntable ---- */
+.cxs-stage { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0; }
+.cxs-stances { display: flex; gap: 6px; margin-bottom: 8px; }
+.cxs-stance {
+  min-width: 92px;
+  padding: 7px 14px;
+  font: bold 14px var(--ui-font, monospace);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #cbd5e1;
+  background: linear-gradient(#1e293b, #0f172a);
+  border: 2px solid #334155;
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+}
+.cxs-stance:hover { border-color: #64748b; color: #fff; }
+.cxs-stance.on { color: #fff; border-color: var(--sky, #38bdf8); box-shadow: 0 0 10px rgba(56, 189, 248, 0.45) inset; }
+.cxs-pedestal {
+  width: min(100%, 660px);
+  aspect-ratio: 220 / 170;
+  max-height: calc(100vh - 210px);
+  object-fit: contain;
+  image-rendering: pixelated;
+  background: transparent;
+  cursor: grab;
+  touch-action: none;
+}
+.cxs-pedestal.dragging { cursor: grabbing; }
+.cxs-facing { margin-top: 4px; font-size: 13px; letter-spacing: 0.16em; color: #7dd3fc; text-transform: uppercase; }
+
+/* ---- Vertical category tabs ---- */
+.cxs-tabs { display: flex; flex-direction: column; justify-content: center; gap: 6px; padding: 0 0 0 10px; }
+.cxs-tab {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  padding: 16px 7px;
+  font: bold 14px var(--ui-font, monospace);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  background: linear-gradient(to left, #1e293b, #0f172a);
+  border: 2px solid #334155;
+  border-left: 0;
+  border-radius: 0 6px 6px 0;
+  cursor: pointer;
+}
+.cxs-tab:hover { color: #fff; border-color: #64748b; }
+.cxs-tab.on { color: var(--gold, #ffd166); border-color: var(--gold, #ffd166); background: linear-gradient(to left, #3b2f12, #111827); }
+
+/* ---- Side panel ---- */
+.cxs-side {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) 150px;
+  gap: 8px;
+  min-height: 0;
+  min-width: 0;          /* a grid item may not grow past its track (wide pixel fonts) */
+  overflow: hidden;
+  padding: 10px;
+  background: rgba(8, 12, 24, 0.88);
+  border: 2px solid #475569;
+  border-radius: 6px;
+  box-shadow: 0 0 0 1px #0b1020, 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+.cxs-side > * { min-width: 0; overflow-wrap: anywhere; }
+.cxs-list { display: flex; flex-wrap: wrap; gap: 4px; max-height: 118px; overflow-y: auto; padding-bottom: 2px; }
+.cxs-group { flex-basis: 100%; margin-top: 2px; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #38bdf8; }
+.cxs-entry {
+  padding: 3px 8px;
+  font: 12px var(--ui-font, monospace);
+  color: #cbd5e1;
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.cxs-entry:hover { border-color: #64748b; }
+.cxs-entry.sel { border-color: var(--gold, #ffd166); color: #fff; background: #2a2210; }
+.cxs-entry.unknown { color: #475569; }
+
+.cxs-dossier { overflow-y: auto; min-height: 0; padding: 8px 10px; border: 1px solid #334155; border-radius: 4px; background: #0b1120; font-size: 14px; }
+.cxs-head {
+  margin: 0 0 8px;
+  font: bold 15px "Cinzel", Georgia, serif;
+  letter-spacing: 0.1em;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--gold, #ffd166);
+}
+.cxs-sub { margin: 10px 0 2px; color: #38bdf8; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; }
+.cxs-mentor { color: var(--gold, #ffd166); }
+#codexScene .cx-name { font-family: "Cinzel", Georgia, serif; font-size: 17px; color: #f8fafc; text-align: center; margin: 0 0 2px; }
+#codexScene .cx-name.mvp { color: #f59e0b; }
+#codexScene .cx-meta { text-align: center; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+#codexScene .cx-sub { margin-top: 8px; color: #38bdf8; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; }
+#codexScene .cx-row { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; border-top: 1px solid #1e293b; font-size: 13px; }
+#codexScene .cx-k { color: #94a3b8; flex: none; text-transform: uppercase; letter-spacing: 0.04em; }
+#codexScene .cx-v { text-align: right; color: #e2e8f0; }
+#codexScene .cx-desc { margin-top: 6px; font-family: Georgia, serif; color: #94a3b8; line-height: 1.4; font-size: 13px; }
+#codexScene .c-green { color: #4ade80; }
+#codexScene .c-gold { color: #ffd166; }
+#codexScene .c-red { color: #f87171; }
+#codexScene .c-sky { color: #7dd3fc; }
+#codexScene .c-white { color: #fff; }
+
+/* Customizer (create mode) */
+.cxs-name { display: flex; align-items: center; gap: 10px; padding: 3px 0 6px; }
+.cxs-name input {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 8px;
+  font: 14px var(--ui-font, monospace);
+  color: #fff;
+  background: #020617;
+  border: 1px solid #334155;
+  border-radius: 3px;
+  outline: none;
+}
+.cxs-name input:focus { border-color: var(--gold, #ffd166); }
+.cxs-rows { margin-top: 6px; }
+.cxs-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 3px 4px; border-top: 1px solid #1e293b; font-size: 13px; }
+.cxs-row.selected { background: rgba(255, 209, 102, 0.08); box-shadow: inset 2px 0 0 var(--gold, #ffd166); }
+.cxs-cycle { display: flex; align-items: center; gap: 6px; }
+.cxs-cycle span { min-width: 92px; text-align: center; color: #fff; text-transform: uppercase; }
+.cxs-cycle button { padding: 0 6px; font-size: 12px; color: #cbd5e1; background: #0f172a; border: 1px solid #334155; border-radius: 3px; cursor: pointer; }
+.cxs-swatches { display: flex; flex-wrap: wrap; gap: 3px; justify-content: flex-end; }
+.cxs-swatch { width: 18px; height: 18px; border: 2px solid #0b1020; border-radius: 2px; cursor: pointer; }
+.cxs-swatch.on { border-color: #fff; box-shadow: 0 0 0 1px var(--gold, #ffd166); }
+.cxs-actions { display: flex; justify-content: flex-end; margin-top: 8px; }
+.cxs-btn { padding: 4px 12px; font: 13px var(--ui-font, monospace); color: #e2e8f0; background: #1e293b; border: 1px solid #475569; border-radius: 3px; cursor: pointer; }
+.cxs-summoner { margin: 8px 0 0; font-size: 12px; color: #94a3b8; text-align: center; }
+
+/* Lore ticker */
+.cxs-ticker {
+  overflow-y: hidden;
+  padding: 8px 12px;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  background: #050914;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #cbd5e1;
+  cursor: ns-resize;
+  user-select: none;
+  touch-action: none;
+}
+.cxs-ticker h4 { margin: 8px 0 2px; font: bold 12px var(--ui-font, monospace); color: var(--gold, #ffd166); letter-spacing: 0.08em; text-transform: uppercase; }
+.cxs-ticker p { margin: 0 0 6px; }
+
+/* ---- Hint line and control deck ---- */
+.cxs-hint { position: relative; margin: 0; padding: 2px 20px; font-size: 12px; color: #64748b; text-align: center; }
+.cxs-hint span { color: #cbd5e1; }
+.cxs-deck {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px 12px;
+  background: linear-gradient(#1a1408, #0b0904);
+  border-top: 2px solid #8a6a24;
+}
+.cxs-deckbtn {
+  flex: 0 1 150px;
+  min-height: 44px;
+  padding: 4px 10px;
+  font: bold 13px var(--ui-font, monospace);
+  letter-spacing: 0.06em;
+  line-height: 1.15;
+  text-transform: uppercase;
+  color: #f1f5f9;
+  background: linear-gradient(#273246, #151c2b);
+  border: 2px solid #b08a3a;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.cxs-deckbtn:hover:not(:disabled) { border-color: var(--gold, #ffd166); color: #fff; }
+.cxs-deckbtn.primary { background: linear-gradient(#0f5e66, #0b3b45); border-color: #5eead4; box-shadow: 0 0 10px rgba(94, 234, 212, 0.35); }
+.cxs-deckbtn:disabled { opacity: 0.4; cursor: default; }
+.cxs-deckbtn kbd { margin-right: 6px; padding: 0 4px; font-size: 11px; color: #0b1020; background: #cbd5e1; border-radius: 2px; }
+
+/* Clean view: only the stage and the deck */
+#codexScene.clean .cxs-tabs, #codexScene.clean .cxs-side, #codexScene.clean .cxs-hint { display: none; }
+#codexScene.clean .cxs-main { grid-template-columns: 1fr; }
+
+/* Narrow and short screens */
+@media (max-width: 900px) {
+  #codexScene.open { overflow-y: auto; }
+  .cxs-main { grid-template-columns: 1fr; padding: 10px 16px 4px; }
+  .cxs-tabs { flex-direction: row; padding: 6px 0; }
+  .cxs-tab { writing-mode: horizontal-tb; transform: none; border: 2px solid #334155; border-radius: 4px; padding: 6px 10px; }
+  .cxs-side { grid-template-rows: auto auto 120px; }
+  .cxs-pedestal { max-height: 38vh; }
+  .cxs-deck { flex-wrap: wrap; }
+  .cxs-deckbtn { flex: 1 1 120px; }
+  .cxs-hint { display: none; }
+}
+@media (max-height: 620px) {
+  .cxs-side { grid-template-rows: auto minmax(0, 1fr) 90px; }
+  .cxs-deckbtn { min-height: 34px; }
+}

@@ -1,5 +1,7 @@
 // Character Creator choices. Every colour is a base; shade and highlight
 // are derived automatically in avatar.js.
+// The creator dresses the soul as they were on Earth (2026): no weapon, no armour. The summoning
+// gives the Novice their Aethelgard garb, dagger and buckler in the same colours (summonedGarb).
 
 const BODIES = ["male", "female"];
 
@@ -14,20 +16,22 @@ const HAIR_COLORS = [
   "#b8332b", "#3b4a8a", "#6a3fa0", "#dfe6ee", "#2f6b4f", "#d9679b"
 ];
 
-const OUTFITS = ["tunic", "vest", "robe"];
+const OUTFITS = ["hoodie", "tee", "shirt", "jacket"];           // Earth clothes
+const GARB_OUTFITS = ["tunic", "vest", "robe"];                 // Aethelgard (after the summoning)
 
 const CLOTH = [
   "#7d5a3c", "#8a2c2c", "#2c4f8a", "#2f6b3f", "#5a3d91",
-  "#c9a063", "#3b3f4a", "#e8e2d0", "#2a7a80"
+  "#c9a063", "#3b3f4a", "#e8e2d0", "#2a7a80",
+  "#1f2937", "#9ca3af", "#f8fafc", "#3b5b8c"
 ];
 
 const GLOVES = ["none", "leather", "wraps"];
 
-const LEGS = ["pants", "shorts", "skirt"];
+const LEGS = ["jeans", "pants", "shorts", "skirt"];
 
-const BOOTS = ["boots", "shoes", "sandals"];
+const BOOTS = ["sneakers", "shoes", "sandals", "boots"];
 
-const BOOT_COLORS = ["#3a2616", "#5e3b1a", "#2b2b33", "#7d2b2b", "#c9a063", "#e8e2d0"];
+const BOOT_COLORS = ["#3a2616", "#5e3b1a", "#2b2b33", "#7d2b2b", "#c9a063", "#e8e2d0", "#f8fafc", "#2c4f8a"];
 
 // Order of the creator rows (key → list of choices)
 export const FIELDS = [
@@ -38,7 +42,6 @@ export const FIELDS = [
   { key: "hairColor",   section: "crHair",   type: "swatch", options: HAIR_COLORS },
   { key: "outfit",      section: "crOutfit", type: "cycle",  options: OUTFITS },
   { key: "outfitColor", section: "crOutfit", type: "swatch", options: CLOTH },
-  { key: "gloves",      section: "crOutfit", type: "cycle",  options: GLOVES },
   { key: "legs",        section: "crLegs",   type: "cycle",  options: LEGS },
   { key: "legColor",    section: "crLegs",   type: "swatch", options: CLOTH },
   { key: "boots",       section: "crLegs",   type: "cycle",  options: BOOTS },
@@ -51,19 +54,35 @@ export const DEFAULT_CONFIG = {
   eyes: EYES[0],
   hairStyle: "short",
   hairColor: HAIR_COLORS[1],
-  outfit: "tunic",
-  outfitColor: CLOTH[0],
-  gloves: "leather",
-  legs: "pants",
-  legColor: CLOTH[6],
-  boots: "boots",
-  bootColor: BOOT_COLORS[0],
-  weapon: "novice"
+  outfit: "hoodie",
+  outfitColor: CLOTH[2],
+  gloves: "none",
+  legs: "jeans",
+  legColor: CLOTH[12],
+  boots: "sneakers",
+  bootColor: BOOT_COLORS[6],
+  weapon: "none"
 };
 
+// The summoning (Act I → II): Earth clothes become the Novice's Aethelgard garb in the same
+// colours, with leather gloves, boots, the Novice's dagger and buckler. Class gear (js/classes/job.js)
+// is built on top of this.
+const TO_GARB = { hoodie: "tunic", tee: "tunic", shirt: "vest", jacket: "vest" };
+export function summonedGarb(cfg) {
+  return {
+    ...cfg,
+    outfit: TO_GARB[cfg.outfit] || cfg.outfit,
+    gloves: cfg.gloves && cfg.gloves !== "none" ? cfg.gloves : "leather",
+    legs: cfg.legs === "jeans" ? "pants" : cfg.legs,
+    boots: cfg.boots === "sneakers" ? "boots" : cfg.boots,
+    weapon: !cfg.weapon || cfg.weapon === "none" ? "novice" : cfg.weapon
+  };
+}
+
 // Parts for NPCs only (not in the Character Creator)
-const NPC_OUTFITS = ["gown", "armor", "coat"];
+const NPC_OUTFITS = ["gown", "armor", "coat", ...GARB_OUTFITS];
 const EXTRA = {
+  gloves: GLOVES,
   headgear: ["crown", "tiara", "helmet", "headband", "hat", "hood", "halo", "horns"],
   ears: ["elf"],
   weapon: ["novice", "staff", "lance", "scepter", "bow", "sword", "flask", "book", "axe", "greatsword", "crossbow", "wand", "none"],

@@ -358,6 +358,7 @@ export class MercenaryManager {
     this.mercenaries.forEach((m) => {
       if (m.downed > 0) { this.drawDowned(ctx, m); return; }
       if (!m.isAlive) return;
+      if (this.camera && !this.camera.isVisible(m.x - 8, m.y - 16, 32, 40)) return;   // off-screen
 
       // Contact Shadow
       if (GFX.shadows) { ctx.fillStyle = "rgba(0, 0, 0, 0.28)"; ctx.beginPath(); ctx.ellipse(m.x + 8, m.y + 14, 7, 2.5, 0, 0, Math.PI * 2); ctx.fill(); }

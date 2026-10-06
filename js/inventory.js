@@ -567,6 +567,7 @@ export class InventoryPanel {
           actBtn(`${T.doUpgrade} +${it.plus + 1} · ${ch}% ${T.chance} (Shard ${c.shards}${c.crystals ? ` · Void Crystal ${c.crystals}` : ""} · ${c.gold}G)`, "upgrade");
         }
       }
+      if (inBag && it.effect && it.effect.jobScroll) actBtn(T.doUse, "use");
       if (it.type === "consume" && inBag) {
         actBtn(it.effect && it.effect.respec && this.confirmUse ? T.confirmRespec : T.doUse, "use");
         // Assign to quick slot 1–4

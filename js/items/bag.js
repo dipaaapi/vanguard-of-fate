@@ -260,7 +260,10 @@ export class Bag {
   // Use the consumable at index i
   use(i, player, fx) {
     const item = this.itemAt(i);
-    if (!item || item.type !== "consume" || !item.effect) return "";
+    if (!item || !item.effect) return "";
+    // Scroll of Callings: opens the job change (main.js sets onJobScroll); not used up
+    if (item.effect.jobScroll) { if (this.onJobScroll) this.onJobScroll(); return ""; }
+    if (item.type !== "consume") return "";
     const e = item.effect;
     const pop = (text, color) => { if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(player.x + 10, player.y - 6, text, true, color); };
     if (e.cure && !(player.hasAnyDebuff && player.hasAnyDebuff())) { pop("NO BLIGHT", "#94a3b8"); return ""; }

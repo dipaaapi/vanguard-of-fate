@@ -1,0 +1,65 @@
+{
+  "_comment": "Codex scene data (js/scenes/codexScene.js): Earthbound dossiers for the hero classes (the class mentors, Act III) and the summons that are not familiars. Familiar summons take their name and text from js/skills.js.",
+  "heroes": {
+    "novice": {
+      "realName": null,
+      "earthRole": { "en": "Your own past life", "fil": "Ang sarili mong nakaraang buhay" },
+      "origin": { "en": "Earth, 2026", "fil": "Daigdig, 2026" },
+      "catalyst": { "en": "Called by the Pentagram Seal to the heart of the star.", "fil": "Tinawag ng Pentagram Seal sa puso ng bituin." },
+      "trait": { "en": "Second-Life Luck", "fil": "Suwerte ng Ikalawang Buhay" },
+      "lore": { "en": "The sixth soul of the Pentagram Prophecy, summoned as a Novice. At Lv 10 the Imperial Citadel's dais awakens one of five callings.", "fil": "Ang ikaanim na kaluluwa ng Propesiya ng Pentagram, tinawag bilang Novice. Sa Lv 10, gigisingin ng dais ng Imperial Citadel ang isa sa limang tungkulin." }
+    },
+    "knight": {
+      "realName": "Arthur 'Art' Ramirez",
+      "earthRole": { "en": "Demolition Supervisor & Site Engineer", "fil": "Superbisor ng Demolisyon at Site Engineer" },
+      "origin": { "en": "Manila, Philippines", "fil": "Maynila, Pilipinas" },
+      "catalyst": { "en": "Crushed while shielding a rookie from falling steel beams.", "fil": "Nadaganan habang sinasangga ang isang baguhan mula sa nahuhulog na bakal." },
+      "trait": { "en": "Impenetrable Work Ethics", "fil": "Di-Matinag na Sipag" },
+      "lore": { "en": "Used to hauling steel and protecting his crew. His engineer's mind became a Bastion Forcefield that nothing can break.", "fil": "Sanay sa pagbuhat ng bakal at pagprotekta sa tauhan. Ang kanyang pagka-engineer ay naging Bastion Forcefield na walang kayang tumibag." }
+    },
+    "archer": {
+      "realName": "Lyra Vance",
+      "earthRole": { "en": "Wildlife Biologist & Olympic Archer", "fil": "Biyologo ng Kalikasan at Olympic Archer" },
+      "origin": { "en": "Vancouver, Canada", "fil": "Vancouver, Canada" },
+      "catalyst": { "en": "Froze in a blizzard while sheltering an injured alpine falcon.", "fil": "Nanigas sa bagyong niyebe habang kinakanlong ang sugatang alpine falcon." },
+      "trait": { "en": "Predator's Eye & Empathy", "fil": "Mata ng Mangangaso at Malasakit" },
+      "lore": { "en": "A quiet guardian of the woods, reborn in an elven body together with the soul of the alpine falcon she sheltered.", "fil": "Tahimik na tagapagtanggol ng kakahuyan. Muling nabuhay sa katawan ng Elf kasama ang kaluluwa ng alpine falcon na kanyang kinanlong." }
+    },
+    "priest": {
+      "realName": "Dr. Julian Alcantara",
+      "earthRole": { "en": "ER Trauma Head Surgeon", "fil": "Punong Siruhano ng ER Trauma" },
+      "origin": { "en": "Public General Hospital", "fil": "Pampublikong Pangkalahatang Ospital" },
+      "catalyst": { "en": "Heart failure after a grueling 36-hour surgical triage shift.", "fil": "Atake sa puso matapos ang 36 na oras na triage sa operasyon." },
+      "trait": { "en": "Death-Defying Triage", "fil": "Triage na Lumalaban sa Kamatayan" },
+      "lore": { "en": "A doctor who swore no patient would die in front of him. His triage became Holy Magic.", "fil": "Isang doktor na sumumpang walang pasyenteng mamamatay sa kanyang harapan. Ang kanyang triage ay naging Banal na Salamangka." }
+    },
+    "mage": {
+      "realName": "Samantha 'Sam' Chen",
+      "earthRole": { "en": "Astrophysicist & Satellite Radar Analyst", "fil": "Astropisiko at Analyst ng Satellite Radar" },
+      "origin": { "en": "Atacama Observatory", "fil": "Obserbatoryo ng Atacama" },
+      "catalyst": { "en": "Enveloped by an anomalous cosmic gamma pulse during a sky scan.", "fil": "Nabalot ng kakaibang cosmic gamma pulse habang sinusuri ang langit." },
+      "trait": { "en": "Orbital Mechanics Mastery", "fil": "Kadalubhasaan sa Orbital Mechanics" },
+      "lore": { "en": "She knows celestial mechanics and orbital trajectories by heart. Her old meteor equations became the burning Meteor Fall.", "fil": "Kabisado ang celestial mechanics at orbital trajectories. Ang dating equations ng mga bulalakaw ay naging nagliliyab na Meteor Fall." }
+    },
+    "fighter": {
+      "realName": "Renzo 'Striker' Cruz",
+      "earthRole": { "en": "Undefeated Underground MMA Champion", "fil": "Di-Natatalong Kampeon ng Underground MMA" },
+      "origin": { "en": "Concrete Street Arenas", "fil": "Mga Arena sa Kalsada" },
+      "catalyst": { "en": "Killed defending a helpless pedestrian from armed robbers.", "fil": "Napatay habang ipinagtatanggol ang isang walang-laban na naglalakad mula sa armadong holdaper." },
+      "trait": { "en": "Indomitable Ki Mastery", "fil": "Di-Malupig na Kadalubhasaan sa Ki" },
+      "lore": { "en": "Raised on rough streets where fists were the only shield. He brought that discipline across to prove a punch can crush a monster.", "fil": "Lumaki sa magulong lansangan kung saan tanging kamao ang panangga. Dinala ang kanyang disiplina upang patunayang kayang durugin ng suntok ang halimaw." }
+    }
+  },
+  "summons": {
+    "falcon": {
+      "name": { "en": "Alpine Falcon", "fil": "Alpine Falcon" },
+      "owner": "archer",
+      "desc": { "en": "The falcon Lyra sheltered in the blizzard, crossed over with her soul. It hovers at the Archer's shoulder and dives on marked foes (Falcon Dive, K).", "fil": "Ang falcon na kinanlong ni Lyra sa bagyong niyebe, tumawid kasama ng kanyang kaluluwa. Lumilipad ito sa balikat ng Archer at sumisisid sa minarkahang kalaban (Falcon Dive, K)." }
+    },
+    "angel": {
+      "name": { "en": "Guardian Angel", "fil": "Guardian Angel" },
+      "owner": "priest",
+      "desc": { "en": "Winged wardens of Astraea called by the Priest's prayer (K). They strike nearby foes and fade after a while; healing extends their stay.", "fil": "Mga may-pakpak na bantay ni Astraea na tinawag ng panalangin ng Priest (K). Tinatamaan nila ang kalapit na kalaban at naglalaho pagkaraan; pinahahaba ng paggaling ang kanilang pananatili." }
+    }
+  }
+}

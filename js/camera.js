@@ -8,6 +8,12 @@ export class Camera {
         this.y = 0;
     }
 
+    // Frustum culling: is a box (world pixels) on screen, with a margin for big sprites and glows?
+    isVisible(x, y, w = 48, h = 48, margin = 64) {
+        return x + w >= this.x - margin && x <= this.x + this.viewWidth + margin &&
+            y + h >= this.y - margin && y <= this.y + this.viewHeight + margin;
+    }
+
     update(targetX, targetY) {
         this.x = targetX - this.viewWidth / 2;
         this.y = targetY - this.viewHeight / 2;

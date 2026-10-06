@@ -25,7 +25,7 @@ export const STAT_INFO = {
   vit: N("Vitality — max HP, DEF and stamina.", "Sigla — max HP, DEF at stamina."),
   int: N("Intelligence — spell ATK for Mage and Priest, cooldown reduction.", "Talino — ATK ng spell ng Mage at Priest, bawas sa cooldown."),
   dex: N("Dexterity — ranged ATK for Archer, attack speed and crit.", "Galing — ATK ng Archer, bilis ng atake at crit."),
-  luk: N("Luck — critical hits. Fortune favors the summoned.", "Suwerte — critical hit. Pinapaboran ng tadhana ang tinawag.")
+  luk: N("Luck — critical chance and critical damage. Fortune favors the summoned.", "Suwerte — tsansa at lakas ng critical hit. Pinapaboran ng tadhana ang tinawag.")
 };
 
 // Cost of raising a stat from its current value

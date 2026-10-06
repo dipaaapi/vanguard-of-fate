@@ -9,6 +9,7 @@ import { around, mix, hitPose, attackPose, windupPose, breathPose, spawnPose, RE
 import { GFX } from "./settings.js";
 import { drawFx } from "./fxsprites.js";
 import { HUB_KINDS, HUB_ELITES } from "./world/areas.js";
+import { enemyMult } from "./regression.js";
 import { confine, steer, trackGoal } from "./world/nav.js";
 
 // ========================================================
@@ -69,6 +70,14 @@ function drawLifeBar(ctx, e, x, y, w, h, color) {
 
 const lang = () => (getLang() === "fil" ? "fil" : "en");
 const rint = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+
+// Regression difficulty: +20% HP and damage per difficulty above Easy (js/regression.js)
+function scaleForDifficulty(e) {
+  const m = enemyMult();
+  if (m === 1) return;
+  e.maxHp = e.hp = Math.round(e.maxHp * m);
+  e.damage = Math.round(e.damage * m);
+}
 
 function levelColor(diff, boss = false) {
   if (boss) return "#c084fc";
@@ -187,16 +196,8 @@ export class EnemyManager {
       }
     }
 
-    // Flyers (Sky): may hover anywhere, even over water or cliffs
-    if (forKind && (forKind.flying || forKind.medium === "sky")) {
-      for (let k = 0; k < 35; k++) {
-        const x = b.minX + 30 + Math.random() * (b.maxX - b.minX - 60);
-        const y = b.minY + 30 + Math.random() * (b.maxY - b.minY - 60);
-        if (st && st.safeZoneAt && st.safeZoneAt(x + 10, y + 17)) continue;
-        if (this.player && Math.hypot(x - this.player.x, y - this.player.y) < 140) continue;
-        return { x, y };
-      }
-    }
+    // Flyers (Sky) spawn over reachable ground like walkers: one parked over a cliff or a wall
+    // could never be reached by melee heroes.
 
     // Land creatures: solid, walkable ground
     for (let k = 0; k < 45; k++) {
@@ -233,7 +234,7 @@ export class EnemyManager {
     const lvl = Math.max(1, fixedLevel ?? this.rollLevel() + (levelOffset || 0));
     const hp = Math.round((35 + lvl * 12) * kind.hpMult);
     const e = {
-      id: Math.random(), key, type: key, kind, level: lvl,
+      id: Math.random(), uid: rint(0, 3), key, type: key, kind, level: lvl,
       maxHp: hp, hp, speed: kind.speed, damage: Math.round(kind.dmg + lvl * 1.6), reach: kind.reach || 16,
       x, y, homeX: x, homeY: y, isAlive: true, facing: "left",
       anim: "idle", dir: "down", flip: false, animTimer: 0, strikeTimer: 0,
@@ -246,6 +247,7 @@ export class EnemyManager {
     if (v && v !== e.element) { e.variant = v; e.element = v; }
     // An elite kind is always an Elite; a regular kind is never forced into one by accident
     applyTier(e, kind.elite ? (forceTier === "normal" ? "elite" : forceTier || "elite") : forceTier || rollTier());
+    scaleForDifficulty(e);
     applyLives(e);     // stacked HP bars by level and tier (js/monsterTiers.js)
     this.enemies.push(e);
     // Elites bring minions: an elite kind brings one regular of its medium, a lucky regular Elite two of its own kind
@@ -278,6 +280,7 @@ export class EnemyManager {
       hitTimer: 0, stunTimer: 0, windupTimer: 0, spawnT: 0, provoked: true, engaged: false,
       bossTimer: 60, pattern: 0, castTimer: 0, enraged: false, element: def.element || "neutral"
     };
+    scaleForDifficulty(e);
     applyLives(e);
     this.enemies.push(e);
     if (Sound && Sound.playBossRoar) Sound.playBossRoar();
@@ -334,6 +337,10 @@ export class EnemyManager {
         return;
       }
 
+      // Far off-screen and idle: think every 4th step only (they are wandering where nobody sees)
+      const cam = this.camera;
+      if (cam && !e.boss && !e.engaged && !e.provoked && ((this.spawnTimer + (e.uid || 0)) & 3) &&
+          !cam.isVisible(e.x, e.y, 20, 20, 160)) return;
       if (e.boss) this.updateBoss(e, player, fx);
       else this.updateMonster(e, player, fx);
 
@@ -354,7 +361,7 @@ export class EnemyManager {
 
     // Nobody leaves the map or ends up inside a tree, a rock, water or a wall (knockback, separation,
     // teleports included); flyers and bosses only keep to the map's bounds
-    this.enemies.forEach((e) => { if (e.isAlive) confine(this.stage, e, 10, 20, Boolean(e.boss || e.kind.flying)); });
+    this.enemies.forEach((e) => { if (e.isAlive) confine(this.stage, e, 10, 20, Boolean(e.boss)); });
 
     this.updateHazards(player, fx);
     this.enemies = this.enemies.filter((e) => e.isAlive);
@@ -444,7 +451,7 @@ export class EnemyManager {
     if (aggressive && (e.engaged ? dist < 320 : dist < aggroR) && !(this.stage && this.stage.isInsideSafeZone(player.x + 10, player.y + 17))) {
       e.engaged = true;
       if (dist > e.reach * 0.6) {
-        const [ux, uy] = steer(this.stage, e.x + 10, e.y + 20, target.x + 10, target.y + 20, target === player && !e.kind.flying);
+        const [ux, uy] = steer(this.stage, e.x + 10, e.y + 20, target.x + 10, target.y + 20, target === player);
         mx = ux * spd; my = uy * spd;
       }
     } else {
@@ -885,7 +892,8 @@ export class EnemyManager {
       amount = (amount + player.attack) * (player.dmgMult || 1) * (player.buffs && player.buffs.damage > 0 ? 1.5 : 1) * (d.curse > 0 ? 0.75 : 1);
       // No criticals while blind or cursed
       const canCrit = !(d.blind > 0 || d.curse > 0);
-      if (!isCrit && canCrit && Math.random() < (player.crit || 0)) { isCrit = true; amount *= 1.8; }
+      // Forced crits (isCrit passed in) are already scaled by their skill; rolled crits use the hero's crit damage (LUK)
+      if (!isCrit && canCrit && Math.random() < (player.crit || 0)) { isCrit = true; amount *= player.critDmg || 1.8; }
       amount = Math.round(amount);
       if (!this.hitSource && player.noteHit) player.noteHit(enemy, isCrit);   // play style (js/skillpaths.js)
     } else amount = Math.round(amount);   // allies and familiars: whole numbers after element/tier
@@ -993,6 +1001,7 @@ export class EnemyManager {
 
   // ---------- DRAW ----------
   draw(ctx) {
+    const cam = this.camera;   // set by main.js: off-screen monsters are not drawn
     // Boss warnings (on the ground, before the characters)
     this.hazards.forEach((h) => {
       if (h.shape) return this.drawShapedHazard(ctx, h);
@@ -1061,7 +1070,7 @@ export class EnemyManager {
 
     const pl = this.player;
     // Y-sort so they overlap correctly
-    [...this.enemies].filter((e) => e.isAlive).sort((a, b) => a.y - b.y).forEach((e) => {
+    [...this.enemies].filter((e) => e.isAlive && (!cam || e.boss || cam.isVisible(e.x - 16, e.y - 24, 52, 56))).sort((a, b) => a.y - b.y).forEach((e) => {
       const k = e.kind;
       const scale = k.scale || 1;
       const fy = e.y + 17;

@@ -86,7 +86,7 @@ function palette(cfg) {
     hair: cfg.hairColor, hairD: shade(cfg.hairColor, -0.32), hairL: shade(cfg.hairColor, 0.3),
     eye: cfg.eyes, eyeD: shade(cfg.eyes, -0.35), lash: "#1b1b2f",
     cloth: cfg.outfitColor, clothD: shade(cfg.outfitColor, -0.28), clothL: shade(cfg.outfitColor, 0.22),
-    legs: cfg.legColor, legsD: shade(cfg.legColor, -0.28), legsDD: shade(cfg.legColor, -0.45),
+    legs: cfg.legColor, legsD: shade(cfg.legColor, -0.28), legsDD: shade(cfg.legColor, -0.45), legsL: shade(cfg.legColor, 0.22),
     boot: cfg.bootColor, bootD: shade(cfg.bootColor, -0.35), bootL: shade(cfg.bootColor, 0.25),
     glove, gloveD: shade(glove, -0.25),
     shirtD: shade(FIXED.shirt, -0.2),
@@ -268,7 +268,7 @@ function gait(anim, i) {
 
 // ---- FEET and LEGS ----
 function footHeight(style) {
-  return style === "boots" ? 5 : 2;
+  return style === "boots" ? 5 : style === "sneakers" ? 3 : 2;
 }
 
 function drawFoot(p, c, cfg, x, bottom, w, dark) {
@@ -280,6 +280,13 @@ function drawFoot(p, c, cfg, x, bottom, w, dark) {
     p.rect(x, bottom, w, 1, c.bootD);                       // sole
     return top;
   }
+  if (cfg.boots === "sneakers") {
+    // Earth trainers: coloured upper, white rubber sole
+    p.rect(x, top, w, h - 1, dark ? c.bootD : c.boot);
+    p.set(x + 1, top, dark ? c.boot : c.bootL);              // laces
+    p.rect(x, bottom, w, 1, dark ? "#cbd5e1" : "#f8fafc");
+    return top;
+  }
   p.rect(x, top, w, h, dark ? c.bootD : c.boot);
   if (h > 2) p.rect(x, top, w, 1, dark ? c.boot : c.bootL); // boot cuff
   p.rect(x, bottom, w, 1, dark ? shade(c.boot, -0.5) : c.bootD);
@@ -288,7 +295,7 @@ function drawFoot(p, c, cfg, x, bottom, w, dark) {
 
 // Leg colour for one row (trousers / shorts / skin)
 function legColorAt(c, cfg, y, dark) {
-  if (cfg.legs === "pants") return dark ? c.legsD : c.legs;
+  if (cfg.legs === "pants" || cfg.legs === "jeans") return dark ? c.legsD : c.legs;
   if (cfg.legs === "shorts" && y <= 27) return dark ? c.legsD : c.legs;
   return dark ? c.skinD : c.skin;
 }
@@ -301,6 +308,7 @@ function drawLegFront(p, c, cfg, x0, lift) {
     p.set(x0 + 1, y, legColorAt(c, cfg, y, false));
     p.set(x0 + 2, y, legColorAt(c, cfg, y, true));
   }
+  if (cfg.legs === "jeans") p.rect(x0, footTop - 1, 3, 1, c.legsL);   // rolled cuff
   drawFoot(p, c, cfg, x0 - (x0 < 16 ? 1 : 0), bottom, 4, false);
 }
 
@@ -312,6 +320,7 @@ function drawLegSide(p, c, cfg, x0, lift, dark) {
     p.set(x0 + 1, y, legColorAt(c, cfg, y, dark));
     p.set(x0 + 2, y, legColorAt(c, cfg, y, dark));
   }
+  if (cfg.legs === "jeans") p.rect(x0, footTop - 1, 3, 1, dark ? c.legs : c.legsL);
   drawFoot(p, c, cfg, x0, bottom, 5, dark);  // the foot reaches further forward
 }
 
@@ -415,7 +424,7 @@ function drawTorso(p, c, cfg, dy, view) {
   rows.forEach(([y, x0, x1]) => {
     for (let x = x0; x <= x1; x++) {
       let col = c.cloth;
-      if (cfg.outfit === "vest" && !back) {
+      if ((cfg.outfit === "vest" || cfg.outfit === "jacket") && !back) {
         // Open vest: a shirt in the middle (front) or on the front side (side view)
         const open = side ? x >= x1 - 2 : x >= 14 && x <= 17;
         if (open) col = x === (side ? x1 : 17) ? c.shirtD : c.shirt;
@@ -438,6 +447,33 @@ function drawTorso(p, c, cfg, dy, view) {
     }
   }
 
+  // Earth clothes (Character Creator): hoodie, T-shirt, collared shirt, open jacket
+  if (cfg.outfit === "hoodie") {
+    if (back) p.rows([[14, 13, 18], [15, 12, 19], [16, 13, 18]], c.clothD, dy);          // hood down the back
+    else if (side) p.rows([[14, 12, 13], [15, 11, 13], [16, 12, 13]], c.clothD, dy);
+    else {
+      p.rows([[15, 13, 18]], c.clothD, dy);                                               // hood around the neck
+      p.set(15, 15 + dy, c.skin); p.set(16, 15 + dy, c.skin);
+      for (let y = 16; y <= 18; y++) { p.set(14, y + dy, c.shirt); p.set(17, y + dy, c.shirt); }   // drawstrings
+      p.rows([[20, 13, 18]], c.clothD, dy);                                               // kangaroo pocket
+      p.set(13, 21 + dy, c.clothD); p.set(18, 21 + dy, c.clothD);
+    }
+  } else if (cfg.outfit === "tee" && view === "down") {
+    p.rows([[15, 15, 16]], c.skin, dy);
+    p.set(14, 15 + dy, c.clothD); p.set(17, 15 + dy, c.clothD);                         // crew neck
+    p.rows([[18, 13, 14], [19, 13, 14]], c.clothL, dy);                                   // chest print
+  } else if (cfg.outfit === "shirt" && !back) {
+    if (side) p.rows([[15, 16, 18]], c.shirt, dy);
+    else {
+      p.rows([[15, 14, 17]], c.shirt, dy);                                                // white collar
+      p.set(15, 16 + dy, c.skin); p.set(16, 16 + dy, c.skin);
+      for (let y = 17; y <= 23; y++) p.set(15, y + dy, y % 2 ? c.shirt : c.clothD);       // buttons
+    }
+  } else if (cfg.outfit === "jacket" && view === "down") {
+    p.rows([[15, 15, 16]], c.skin, dy);
+    for (let y = 16; y <= 23; y++) { p.set(13, y + dy, c.clothD); p.set(18, y + dy, c.clothD); }   // open zip edges
+  }
+
   // Neck + neckline (front only)
   if (view === "down") {
     if (cfg.outfit === "tunic") {
@@ -457,15 +493,16 @@ function drawTorso(p, c, cfg, dy, view) {
   // Belt
   const beltY = 21 + dy;
   const plainBelt = cfg.outfit === "robe" || cfg.outfit === "gown";
+  const untucked = cfg.outfit === "hoodie" || cfg.outfit === "tee" || cfg.outfit === "jacket";   // no belt showing
   rows.forEach(([y, x0, x1]) => {
-    if (y + dy !== beltY) return;
+    if (untucked || y + dy !== beltY) return;
     for (let x = x0; x <= x1; x++) p.set(x, beltY, cfg.outfit === "gown" ? c.gold : plainBelt ? c.clothD : c.belt);
     if (view === "down" && !plainBelt) { p.set(15, beltY, c.buckle); p.set(16, beltY, c.buckle); }
     if (side && !plainBelt) p.set(x1 - 1, beltY, c.buckle);
   });
 
   // Hem of the tunic/armor (covers the top of the legs)
-  if (cfg.outfit === "tunic" || cfg.outfit === "armor") {
+  if (cfg.outfit === "tunic" || cfg.outfit === "armor" || untucked) {
     const hem = side ? [[24, 12, 19]] : [[24, 11, 20]];
     hem.forEach(([y, x0, x1]) => { for (let x = x0; x <= x1; x++) p.set(x, y + dy, x >= x1 - 1 ? c.clothD : c.cloth); });
   }
@@ -485,6 +522,8 @@ function sleeveColor(c, cfg, rowFromShoulder, dark) {
     return dark ? c.clothD : c.cloth;
   }
   if (cfg.outfit === "vest") return dark ? c.shirtD : c.shirt;
+  if (cfg.outfit === "hoodie" || cfg.outfit === "jacket") return rowFromShoulder >= 6 ? c.clothD : dark ? c.clothD : c.cloth;   // long sleeves, cuffs
+  if (cfg.outfit === "shirt") return rowFromShoulder >= 6 ? c.shirt : dark ? c.clothD : c.cloth;      // long sleeves, white cuffs
   if (rowFromShoulder <= 2) return dark ? c.clothD : c.cloth;   // short tunic sleeves
   return dark ? c.skinD : c.skin;
 }
