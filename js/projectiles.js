@@ -1,4 +1,6 @@
 import { Sound } from "./audio.js";
+import { glowAt } from "./settings.js";
+import { drawFx } from "./fxsprites.js";
 
 // Centre and extra hitbox size of an enemy (a boss's body is bigger and taller)
 const cx = (e) => e.x + 12;
@@ -28,6 +30,7 @@ export class ProjectileManager {
 
     for (let i = this.projectiles.length - 1; i >= 0; i--) {
       const p = this.projectiles[i];
+      p.age = (p.age || 0) + 1;   // drives the effect sprites' frames (js/fxsprites.js)
 
       // 1. Meteor Logic (Mage J + BURN EFFECT)
       if (p.type === "meteor") {
@@ -140,7 +143,7 @@ export class ProjectileManager {
           continue;
         }
       }
-      // 8. Bolt (Throw Stone, Holy Light, Frost Diver) — a flying shot with an element
+      // 8. Bolt (Throw Stone, Holy Light, Glacial Lance, path actives) — a flying shot with an element; crit: always critical
       else if (p.type === "bolt") {
         p.x += p.vx;
         p.y += p.vy;
@@ -149,7 +152,7 @@ export class ProjectileManager {
         for (let e of enemies) {
           if (e.isAlive && Math.hypot(cx(e) - p.x, cy(e) - p.y) <= 12 + hr(e)) {
             hit = true;
-            enemyManager.damage(e, p.damage, Math.atan2(p.vy, p.vx), false, fx, lootManager, 6, false, player, p.elem);
+            enemyManager.damage(e, p.crit ? Math.round(p.damage * 1.8) : p.damage, Math.atan2(p.vy, p.vx), Boolean(p.crit), fx, lootManager, 6, false, player, p.elem);
             if (p.freeze && !e.boss) { e.stunTimer = Math.max(e.stunTimer, p.freeze); e.frozen = p.freeze; }
             if (fx) fx.spawnHitSparks(cx(e), cy(e), p.color, 10);
             break;
@@ -160,7 +163,7 @@ export class ProjectileManager {
           continue;
         }
       }
-      // 9. Rain (Arrow Shower) — several waves of hits on one spot
+      // 9. Rain (Skyfall Volley) — several waves of hits on one spot
       else if (p.type === "rain") {
         p.timer++;
         if (p.timer % p.every === 1) {
@@ -227,7 +230,7 @@ export class ProjectileManager {
               }
 
               if (p.merc) enemyManager.damage(e, Math.round((p.damage || 22) * p.power), hitAngle, false, fx, lootManager, pushDist, isStun, null);
-              else enemyManager.damage(e, 22, hitAngle, false, fx, lootManager, pushDist, isStun, player);
+              else enemyManager.damage(e, p.damage || 22, hitAngle, false, fx, lootManager, pushDist, isStun, player);   // the kit's arrow damage (was a fixed 22)
             }
             break;
           }
@@ -245,13 +248,18 @@ export class ProjectileManager {
   draw(ctx) {
     this.projectiles.forEach((p) => {
       ctx.save();
+      // Each effect uses its Aseprite sprite when loaded (drawFx), else the code-drawn shape below
+      const age = p.age || 0;
       if (p.type === "meteor") {
         if (!p.exploded) {
-          ctx.fillStyle = "#ff7700";
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
-          ctx.fill();
-        } else {
+          glowAt(ctx, p.x, p.y, 22, "#ff7700", 0.6);
+          if (!drawFx(ctx, "meteor", age >> 2, p.x, p.y, { rot: Math.atan2(p.speedY, p.speedX), scale: 1.4, ax: 0.7 })) {
+            ctx.fillStyle = "#ff7700";
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        } else if (!drawFx(ctx, "blast", (p.explosionRadius / p.maxExplosionRadius) * 6, p.targetX, p.targetY, { w: p.explosionRadius * 2.2 + 8, once: true })) {
           ctx.strokeStyle = "#ff3300";
           ctx.lineWidth = 2.5;
           ctx.beginPath();
@@ -266,6 +274,8 @@ export class ProjectileManager {
         ctx.stroke();
 
         p.activeBolts.forEach((b) => {
+          glowAt(ctx, b.x, b.y - 12, 16, "#7dd3fc", 0.5);
+          if (drawFx(ctx, "lightning", (10 - b.life) / 2.5, b.x, b.y + 2, { ay: 1, once: true })) return;
           ctx.strokeStyle = "#ffffff";
           ctx.lineWidth = 2;
           ctx.beginPath();
@@ -274,6 +284,8 @@ export class ProjectileManager {
           ctx.lineTo(b.x, b.y);
           ctx.stroke();
         });
+      } else if (p.type === "holy_burst" && drawFx(ctx, "holy", age >> 2, p.x, p.y, { w: p.radius * 2.2, h: p.radius * 1.5, alpha: p.alpha, tint: p.color && p.color !== "#ffd166" ? p.color : null })) {
+        // drawn by the sprite
       } else if (p.type === "holy_burst") {
         ctx.strokeStyle = p.color || "#ffd166";
         ctx.globalAlpha = Math.max(0, p.alpha);
@@ -282,6 +294,8 @@ export class ProjectileManager {
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.stroke();
       } else if (p.type === "force_sphere") {
+        glowAt(ctx, p.x, p.y, 13, "#00f0ff", 0.55);
+        if (drawFx(ctx, "sphere", age >> 2, p.x, p.y)) { ctx.restore(); return; }
         ctx.fillStyle = "#00f0ff";
         ctx.beginPath();
         ctx.arc(p.x, p.y, 5, 0, Math.PI * 2);
@@ -290,6 +304,9 @@ export class ProjectileManager {
         ctx.beginPath();
         ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
         ctx.fill();
+      } else if (p.type === "dagger_slash" && drawFx(ctx, "slash", (8 - p.life) / 2, p.x - Math.cos(p.angle) * 6, p.y - Math.sin(p.angle) * 6,
+        { rot: p.angle, scale: p.radius / 14, ax: 8 / 32, tint: "#e2e8f0", once: true })) {
+        // drawn by the sprite
       } else if (p.type === "dagger_slash") {
         ctx.globalAlpha = Math.max(0, p.life / 8);
         ctx.strokeStyle = "#e2e8f0";
@@ -297,6 +314,8 @@ export class ProjectileManager {
         ctx.beginPath();
         ctx.arc(p.x - Math.cos(p.angle) * 6, p.y - Math.sin(p.angle) * 6, p.radius, p.angle - 0.9, p.angle + 0.9);
         ctx.stroke();
+      } else if (p.type === "shockwave" && drawFx(ctx, "wave", (p.r / p.max) * 4, p.x, p.y, { w: p.r * 2.15, h: p.r * 1.45, alpha: 1.2 - p.r / p.max, tint: p.color || "#5ee7ff", once: true })) {
+        // drawn by the sprite
       } else if (p.type === "shockwave") {
         ctx.globalAlpha = Math.max(0, 1 - p.r / p.max);
         ctx.strokeStyle = p.color || "#5ee7ff";
@@ -305,6 +324,8 @@ export class ProjectileManager {
         ctx.ellipse(p.x, p.y, p.r, p.r * 0.7, 0, 0, Math.PI * 2);
         ctx.stroke();
       } else if (p.type === "bolt") {
+        if (p.elem !== "earth") glowAt(ctx, p.x, p.y, (p.size || 3) * 3.5, p.color, 0.5);
+        if (drawFx(ctx, "bolt", age >> 1, p.x, p.y, { rot: Math.atan2(p.vy, p.vx), scale: (p.size || 3) / 3, ax: 13 / 18, tint: p.color })) { ctx.restore(); return; }
         ctx.fillStyle = p.color;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size || 3, 0, Math.PI * 2);
@@ -328,11 +349,15 @@ export class ProjectileManager {
           const ax = p.x + Math.cos(k * 2.4 + p.timer) * p.radius * 0.8 * ((k % 3) / 3 + 0.3);
           const ay = p.y + Math.sin(k * 1.7 + p.timer) * p.radius * 0.5 * ((k % 3) / 3 + 0.3);
           const fall = (p.timer * 4 + k * 7) % 20;
+          if (drawFx(ctx, "arrowfall", 0, ax, ay - 20 + fall, { ay: 1 })) continue;
           ctx.beginPath();
           ctx.moveTo(ax, ay - 20 + fall);
           ctx.lineTo(ax + 1, ay - 14 + fall);
           ctx.stroke();
         }
+      } else if (p.type === "follow" && drawFx(ctx, "slash", (1 - p.life / (p.life0 || (p.life0 = p.life + 1))) * 4, p.x, p.y,
+        { rot: p.angle, scale: (p.radius * 0.9) / 14, ax: 8 / 32, tint: p.color || "#ffd166", once: true })) {
+        // drawn by the sprite
       } else if (p.type === "follow") {
         ctx.globalAlpha = 0.5;
         ctx.strokeStyle = p.color || "#ffd166";
@@ -340,6 +365,8 @@ export class ProjectileManager {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius * 0.7, p.angle - 1, p.angle + 1);
         ctx.stroke();
+      } else if (p.type === "arrow" && drawFx(ctx, "arrow", 0, p.x + 3, p.y + 1, { rot: Math.atan2(p.vy || 0, p.vx || 1) })) {
+        // drawn by the sprite
       } else if (p.type === "arrow") {
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(p.x, p.y, 6, 2);

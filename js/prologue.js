@@ -7,7 +7,7 @@ import { npcName } from "./dialogue.js";
 // ==================== ACT I PROLOGUE CUTSCENE ====================
 // An animated pixel-art cutscene (480x270, the game's own style) explaining how the hero
 // reached Aethelgard: the golden age → the Eclipse and Satan → the Seven Blights →
-// the King and the summoner decide → Earth (2026), swallowed by the rift → the crossing → the ritual beneath
+// the King and the summoner decide (the Lantern Knight, the Pentagram Prophecy) → Earth (2026), swallowed by the rift → the crossing → the ritual beneath
 // the Citadel → waking in the Barracks Sanctuary with the summoner.
 // The hero is the one made in the Character Creator; the summoner is Aurelia or Kenneth.
 // Enter/Space/E: finish the line or continue · Esc: skip everything.
@@ -280,7 +280,11 @@ const SCENES = [
       { speaker: "king", en: "Steel alone can no longer hold back the dark. Our garrisons are ash.",
         fil: "Hindi na kaya ng bakal lamang ang dilim. Abo na ang ating mga garison." },
       { speaker: "summoner", en: "Then we invoke the forbidden covenant, Father. We reach across the veil — and call a soul from Earth.",
-        fil: "Kung gayon, gamitin natin ang ipinagbabawal na tipan, Ama. Tatawirin natin ang tabing — at tatawag tayo ng kaluluwa mula sa Daigdig." }
+        fil: "Kung gayon, gamitin natin ang ipinagbabawal na tipan, Ama. Tatawirin natin ang tabing — at tatawag tayo ng kaluluwa mula sa Daigdig." },
+      { speaker: "king", en: "The last soul this crown called was the Lantern Knight. They sealed the demon with their own life, and never went home.",
+        fil: "Ang huling kaluluwang tinawag ng koronang ito ay ang Lantern Knight. Ibinuklod nila ang demonyo gamit ang sariling buhay, at hindi na nakauwi." },
+      { speaker: "summoner", en: "Five souls have already answered the Pentagram Seal. The prophecy asks for one more: a sixth, to stand at the heart of the star. And this time, we bring them all home.",
+        fil: "Lima nang kaluluwa ang tumugon sa Pentagram Seal. Isa pa ang hinihingi ng propesiya: ang ikaanim, na tatayo sa puso ng bituin. At ngayon, iuuwi natin silang lahat." }
     ],
     draw(ctx, p, f, s) {
       fillGrad(ctx, [[0, "#1b1626"], [1, "#2a2336"]], 0, 190);
@@ -503,6 +507,8 @@ const SCENES = [
     lines: [
       { en: "Three days later — the Barracks Sanctuary, a consecrated haven the Void can never cross.",
         fil: "Makalipas ang tatlong araw — ang Barracks Sanctuary, isang banal na kanlungang hindi kailanman matatawid ng Void." },
+      { en: "A pale gold panel flickered before {h}'s eyes, a page only they could read: Level 1 · Job: none. Then it faded.",
+        fil: "Isang maputlang gintong panel ang kumislap sa harap ng mga mata ni {h}, isang pahinang siya lamang ang makababasa: Level 1 · Job: wala. Saka ito naglaho." },
       { speaker: "summoner", en: "You're awake. Welcome to Aethelgard, {h}. I'm the one who called you here — and I owe you the truth.",
         fil: "Gising ka na. Maligayang pagdating sa Aethelgard, {h}. Ako ang tumawag sa iyo rito — at utang ko sa iyo ang katotohanan." }
     ],
@@ -630,12 +636,14 @@ export class PrologueScene {
   // Largest integer scale that fits the screen (pixel-perfect)
   fit() {
     const s = Math.max(1, Math.floor(Math.min(window.innerWidth / W, window.innerHeight / H)));
-    this.canvas.width = W * s;
-    this.canvas.height = H * s;
+    // draw at up to 2× and let the browser enlarge it pixel-perfect (full-screen 4× drawing cost frame rate)
+    const r = Math.min(s, 2);
+    this.canvas.width = W * r;
+    this.canvas.height = H * r;
     this.canvas.style.width = `${W * s}px`;
     this.canvas.style.height = `${H * s}px`;
     this.stageEl.style.setProperty("--s", s);
-    this.scale = s;
+    this.scale = r;      // drawing scale (--s above stays the screen scale for the HTML text)
   }
 
   goTo(i) {

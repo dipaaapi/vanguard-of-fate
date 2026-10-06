@@ -1,11 +1,13 @@
 import { getLang } from "./i18n.js";
+import { PATH_TREES, PATH_TREE_IDS, RESONANCE, styleOf } from "./skillpaths.js";
 
 // ==================== STAT BUILDER + SKILL TREE (Ragnarok Online style, with an isekai twist) ====================
 // STATS: STR AGI VIT INT DEX LUK — start at 1. Raising one costs more as it grows
 // (Ragnarok): from x → x+1 costs floor((x − 1) / 10) + 2 stat points.
 // Primary stat per class (extra ATK): Novice/Knight/Fighter = STR, Archer = DEX, Mage/Priest = INT.
 //
-// SKILL TREE: the Novice and every job have their own tree. One skill point per level.
+// SKILL TREE: the Novice and every job have their own tree, and every hero can also learn the
+// Might / Finesse / Arcana paths (js/skillpaths.js). One skill point per level.
 // Novice skills stay after the Job Awakening (as in Ragnarok).
 // Each skill has a max level, a required skill (req) and an effect per level:
 //   dmg (+% damage) · kcd (−% K cooldown) · atk · def · hpPct · dmgReduce (%) · crit (%) · move (%)
@@ -44,11 +46,13 @@ export const TREES = {
       desc: N("Regenerate 1 HP every 3s per level.", "Nagbabalik ng 1 HP bawat 3s bawat level."), fx: (l) => ({ regen: l }) },
     { id: "grit", icon: "🧱", max: 5, row: 3, col: 0, req: { firstaid: 1 }, name: N("Earthly Grit", "Tibay mula sa Daigdig"),
       desc: N("Memories of a hard life on Earth: +3% max HP per level.", "Alaala ng mahirap na buhay sa Daigdig: +3% max HP bawat level."), fx: (l) => ({ hpPct: 3 * l }) },
-    { id: "truck", icon: "🚚", max: 1, row: 3, col: 2, req: { grit: 3, jab: 3 }, name: N("Truck-kun's Blessing", "Basbas ni Truck-kun"),
-      desc: N("The truck that sent you here still watches over you: +5% crit and +5% move speed.", "Ang trak na nagpadala sa iyo rito ay nagbabantay pa rin: +5% crit at +5% bilis."),
+    { id: "truck", icon: "🍀", max: 1, row: 3, col: 2, req: { grit: 3, jab: 3 }, name: N("Second-Life Luck", "Suwerte ng Ikalawang Buhay"),
+      desc: N("The luck that carried you across the veil still follows you: +5% crit and +5% move speed.", "Ang suwerteng nagdala sa iyo patawid sa tabing ay sumusunod pa rin sa iyo: +5% crit at +5% bilis."),
       fx: (l) => ({ crit: 5 * l, move: 5 * l }) },
     { id: "stone", icon: "🪨", max: 5, row: 4, col: 1, req: { jab: 1 }, name: N("Throw Stone", "Paghagis ng Bato"),
-      desc: N("L: −8% cooldown per level.", "L: −8% cooldown bawat level."), fx: (l) => ({ lcd: 8 * l }) }
+      desc: N("L: −8% cooldown per level.", "L: −8% cooldown bawat level."), fx: (l) => ({ lcd: 8 * l }) },
+    { id: "petpal", icon: "🟢", max: 5, row: 4, col: 2, req: { adapt: 2 }, kind: "summon", fx: () => ({}), familiar: "slime", name: N("Pocket Slime", "Alagang Slime"),
+      desc: N("Summon: a pet slime follows you and bites nearby foes; stronger per level. For heroes with no summon of their own (Novice, Knight, Mage, Fighter).", "Summon: may alagang slime na sumusunod at kumakagat sa kalapit na kalaban; lumalakas bawat level. Para sa walang sariling summon (Novice, Knight, Mage, Fighter).") }
   ],
   knight: [
     { id: "bastion", icon: "🛡️", max: 10, row: 0, col: 0, name: N("Bastion Forcefield", "Bastion Forcefield"),
@@ -63,23 +67,25 @@ export const TREES = {
       desc: N("Art's site-engineer instincts: −2% damage taken per level.", "Likas na galing ni Art bilang inhinyero: −2% pinsalang natatanggap bawat level."), fx: (l) => ({ dmgReduce: 2 * l }) },
     { id: "demolition", icon: "💥", max: 5, row: 2, col: 0, req: { spear: 5, lancecharge: 5 }, name: N("Demolition Expert", "Dalubhasa sa Demolisyon"),
       desc: N("+3% crit per level.", "+3% crit bawat level."), fx: (l) => ({ crit: 3 * l }) },
-    { id: "brandish", icon: "🌙", max: 10, row: 3, col: 1, req: { bastion: 3, lancecharge: 3 }, name: N("Brandish Spear", "Brandish Spear"),
-      desc: N("L: −4% cooldown per level.", "L: −4% cooldown bawat level."), fx: (l) => ({ lcd: 4 * l }) }
+    { id: "brandish", icon: "🌙", max: 10, row: 3, col: 1, req: { bastion: 3, lancecharge: 3 }, name: N("Crescent Sweep", "Hagupit ng Gasuklay"),
+      desc: N("L: −4% cooldown per level.", "L: −4% cooldown bawat level."), fx: (l) => ({ lcd: 4 * l }) },
+    { id: "hound", icon: "🐺", max: 10, row: 4, col: 1, req: { faith: 3 }, kind: "summon", fx: () => ({}), familiar: "hound", name: N("War Hound", "Asong Pandigma"),
+      desc: N("Summon: an armoured hound fights beside you; every fourth bite stuns. Replaces the Pocket Slime.", "Summon: asong may baluti na lumalaban sa tabi mo; nakakatulala ang bawat ikaapat na kagat. Papalit sa Alagang Slime.") }
   ],
   archer: [
     { id: "quiver", icon: "🏹", max: 10, row: 0, col: 0, name: N("Quiver Shot", "Quiver Shot"),
       desc: N("J: +4% damage per level.", "J: +4% pinsala bawat level."), fx: (l) => ({ dmg: 4 * l }) },
     { id: "falcon", icon: "🦅", max: 10, row: 0, col: 2, name: N("Falcon Dive", "Falcon Dive"),
       desc: N("K: −4% cooldown per level.", "K: −4% cooldown bawat level."), fx: (l) => ({ kcd: 4 * l }) },
-    { id: "owl", icon: "🦉", max: 10, row: 1, col: 0, req: { quiver: 1 }, name: N("Owl's Eye", "Mata ng Kuwago"),
+    { id: "owl", icon: "🦉", max: 10, row: 1, col: 0, req: { quiver: 1 }, name: N("Steady Aim", "Matatag na Asinta"),
       desc: N("+1 DEX per level.", "+1 DEX bawat level."), fx: (l) => ({ dex: l }) },
-    { id: "vulture", icon: "👁️", max: 10, row: 1, col: 2, name: N("Vulture's Eye", "Mata ng Buwitre"),
+    { id: "vulture", icon: "👁️", max: 10, row: 1, col: 2, name: N("Falconer's Sight", "Paningin ng Falconer"),
       desc: N("+1% crit and +1% damage per level.", "+1% crit at +1% pinsala bawat level."), fx: (l) => ({ crit: l, dmg: l }) },
     { id: "biologist", icon: "🌿", max: 5, row: 2, col: 0, req: { owl: 5 }, name: N("Biologist's Instinct", "Kutob ng Biyologo"),
       desc: N("Lyra's field-research legs: +3% move speed per level.", "Mga paang sanay sa field research ni Lyra: +3% bilis bawat level."), fx: (l) => ({ move: 3 * l }) },
     { id: "olympian", icon: "🥇", max: 5, row: 2, col: 2, req: { vulture: 5, falcon: 5 }, name: N("Olympic Form", "Anyong Olympian"),
       desc: N("+3% attack speed per level.", "+3% bilis ng atake bawat level."), fx: (l) => ({ aspd: 3 * l }) },
-    { id: "shower", icon: "🌧️", max: 10, row: 3, col: 1, req: { quiver: 3, falcon: 3 }, name: N("Arrow Shower", "Ulan ng Palaso"),
+    { id: "shower", icon: "🌧️", max: 10, row: 3, col: 1, req: { quiver: 3, falcon: 3 }, name: N("Skyfall Volley", "Palasong Mula sa Langit"),
       desc: N("L: −4% cooldown per level.", "L: −4% cooldown bawat level."), fx: (l) => ({ lcd: 4 * l }) }
   ],
   priest: [
@@ -105,14 +111,16 @@ export const TREES = {
       desc: N("K: −4% cooldown per level.", "K: −4% cooldown bawat level."), fx: (l) => ({ kcd: 4 * l }) },
     { id: "orbital", icon: "🛰️", max: 10, row: 1, col: 0, req: { meteor: 1 }, name: N("Orbital Calculus", "Orbital Calculus"),
       desc: N("Sam's astrophysics: +1 INT per level.", "Astrophysics ni Sam: +1 INT bawat level."), fx: (l) => ({ int: l }) },
-    { id: "energycoat", icon: "🔮", max: 10, row: 1, col: 2, name: N("Energy Coat", "Energy Coat"),
+    { id: "energycoat", icon: "🔮", max: 10, row: 1, col: 2, name: N("Mana Veil", "Tabing ng Mana"),
       desc: N("−1.5% damage taken per level.", "−1.5% pinsalang natatanggap bawat level."), fx: (l) => ({ dmgReduce: 1.5 * l }) },
     { id: "telemetry", icon: "📡", max: 5, row: 2, col: 0, req: { orbital: 5 }, name: N("Telemetry Lock", "Telemetry Lock"),
       desc: N("+3% crit per level.", "+3% crit bawat level."), fx: (l) => ({ crit: 3 * l }) },
     { id: "gamma", icon: "✴️", max: 5, row: 2, col: 2, req: { meteor: 5, storm: 5 }, name: N("Gamma Burst", "Gamma Burst"),
       desc: N("The anomaly that took you from Earth: +4% damage per level.", "Ang anomalyang kumuha sa iyo mula sa Daigdig: +4% pinsala bawat level."), fx: (l) => ({ dmg: 4 * l }) },
-    { id: "frostdiver", icon: "🧊", max: 10, row: 3, col: 1, req: { meteor: 3, storm: 3 }, name: N("Frost Diver", "Frost Diver"),
-      desc: N("L: −4% cooldown per level.", "L: −4% cooldown bawat level."), fx: (l) => ({ lcd: 4 * l }) }
+    { id: "frostdiver", icon: "🧊", max: 10, row: 3, col: 1, req: { meteor: 3, storm: 3 }, name: N("Glacial Lance", "Sibat ng Yelo"),
+      desc: N("L: −4% cooldown per level.", "L: −4% cooldown bawat level."), fx: (l) => ({ lcd: 4 * l }) },
+    { id: "starowl", icon: "🦉", max: 10, row: 4, col: 1, req: { energycoat: 3 }, kind: "summon", fx: () => ({}), familiar: "owl", name: N("Arcane Owl", "Kuwagong Arkano"),
+      desc: N("Summon: a star owl circles you and fires arcane bolts at foes in range. Replaces the Pocket Slime.", "Summon: kuwagong bituin na umiikot sa iyo at bumabaril ng kidlat na arkano. Papalit sa Alagang Slime.") }
   ],
   fighter: [
     { id: "sphere", icon: "🔵", max: 10, row: 0, col: 0, name: N("Force Sphere", "Force Sphere"),
@@ -128,8 +136,11 @@ export const TREES = {
     { id: "champion", icon: "🏆", max: 5, row: 2, col: 0, req: { ironfist: 5, dropkick: 5 }, name: N("Undefeated Champion", "Kampeong Walang Talo"),
       desc: N("+3% attack speed and +2% crit per level.", "+3% bilis ng atake at +2% crit bawat level."), fx: (l) => ({ aspd: 3 * l, crit: 2 * l }) },
     { id: "kiexplosion", icon: "💢", max: 10, row: 3, col: 1, req: { sphere: 3, dropkick: 3 }, name: N("Ki Explosion", "Pagsabog ng Ki"),
-      desc: N("L: −4% cooldown per level.", "L: −4% cooldown bawat level."), fx: (l) => ({ lcd: 4 * l }) }
-  ]
+      desc: N("L: −4% cooldown per level.", "L: −4% cooldown bawat level."), fx: (l) => ({ lcd: 4 * l }) },
+    { id: "spiritfox", icon: "🦊", max: 10, row: 4, col: 1, req: { kibody: 3 }, kind: "summon", fx: () => ({}), familiar: "fox", name: N("Spirit Fox", "Espiritung Soro"),
+      desc: N("Summon: a quick ki fox darts between foes; each bite restores a little stamina. Replaces the Pocket Slime.", "Summon: mabilis na sorong ki na lumilipat-lipat sa mga kalaban; bawat kagat ay nagbabalik ng kaunting stamina. Papalit sa Alagang Slime.") }
+  ],
+  ...PATH_TREES
 };
 
 export const skillText = (s) => {
@@ -142,8 +153,24 @@ export function treesFor(cls) {
   return cls === "novice" ? ["novice"] : ["novice", cls];
 }
 
+// Every tree whose skills count for the hero: class trees plus the Might / Finesse / Arcana paths
+export const allTreesFor = (cls) => treesFor(cls).concat(PATH_TREE_IDS);
+
+// Classes with a summon of their own (Guardian Angels, the falcon) don't get a familiar
+export const OWN_SUMMON = ["priest", "archer"];
+
 export function findSkill(id) {
   for (const t of Object.values(TREES)) { const s = t.find((x) => x.id === id); if (s) return s; }
+  return null;
+}
+
+// Why a skill can't be raised (other than points): "lv" (hero level), "style" (path must resonate),
+// "summon" (class has its own summon), "req" (required skills) — or null
+export function learnBlock(player, s) {
+  if (s.minLv && player.level < s.minLv) return "lv";
+  if (s.familiar && OWN_SUMMON.includes(player.heroData.id)) return "summon";
+  if (!Object.entries(s.req || {}).every(([id, need]) => (player.skillLevels[id] || 0) >= need)) return "req";
+  if (s.style && !(player.skillLevels[s.id] > 0) && styleOf(player) !== s.path) return "style";
   return null;
 }
 
@@ -151,16 +178,53 @@ export function findSkill(id) {
 export function canLearn(player, s) {
   const lv = player.skillLevels[s.id] || 0;
   if (player.skillPoints <= 0 || lv >= s.max) return false;
-  return Object.entries(s.req || {}).every(([id, need]) => (player.skillLevels[id] || 0) >= need);
+  return !learnBlock(player, s);
 }
 
-// Combined effect of every learned skill
+// Combined effect of every learned skill. The resonant path's passives are RESONANCE (20%) stronger.
 export function skillBonus(player) {
   const out = {};
-  treesFor(player.heroData.id).forEach((t) => TREES[t].forEach((s) => {
+  const style = styleOf(player);
+  allTreesFor(player.heroData.id).forEach((t) => TREES[t].forEach((s) => {
     const lv = player.skillLevels[s.id] || 0;
     if (!lv) return;
-    Object.entries(s.fx(lv)).forEach(([k, v]) => { out[k] = (out[k] || 0) + v; });
+    const m = s.path && s.path === style ? 1 + RESONANCE : 1;
+    Object.entries(s.fx(lv)).forEach(([k, v]) => { out[k] = (out[k] || 0) + v * m; });
   }));
+  // Whole stat points only (STR/AGI/…)
+  STATS.forEach((k) => { if (out[k]) out[k] = Math.floor(out[k]); });
   return out;
+}
+
+// ==================== AUTO STAT PATH ====================
+// player.autoStat: "off" | "str" | "dex" | "int" | "style" (follows the resonant path, or the class's
+// main stat while undecided). Points are spent towards a ratio per path; the cheapest stat behind its
+// share goes first, so costs rising every 10 points keep the build in shape.
+export const AUTO_RATIOS = {
+  str: { str: 3, vit: 2, agi: 1 },
+  dex: { dex: 3, vit: 1, agi: 1, luk: 1 },
+  int: { int: 3, vit: 2, dex: 1 }
+};
+export const AUTO_MODES = ["off", "str", "dex", "int", "style"];
+
+export function autoPathFor(player) {
+  const m = player.autoStat;
+  if (!m || m === "off") return null;
+  if (m !== "style") return AUTO_RATIOS[m] ? m : null;
+  return styleOf(player) || PRIMARY[player.heroData.id] || "str";
+}
+
+// Spends stat points by the auto path (or `path`). Returns the points spent.
+export function autoAllocate(player, path = autoPathFor(player)) {
+  const ratio = AUTO_RATIOS[path];
+  if (!ratio) return 0;
+  const start = player.statPoints;
+  for (;;) {
+    const k = Object.keys(ratio)
+      .filter((s) => player.stats[s] < STAT_MAX)
+      .sort((a, b) => (player.stats[a] - 1) / ratio[a] - (player.stats[b] - 1) / ratio[b])[0];
+    if (!k || statCost(player.stats[k]) > player.statPoints) break;
+    if (!player.raiseStat(k)) break;
+  }
+  return start - player.statPoints;
 }

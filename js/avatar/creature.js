@@ -1,4 +1,5 @@
 import { Pix, shade, whiteOf } from "./avatar.js";
+import { sheetCount, sheetFrame, sheetsVersion } from "./sheets.js";
 
 // ==================== CREATURES (non-human) ====================
 // Same style as the modular Avatar: pixel buffer, selective outline, shade/highlight from the base
@@ -7,6 +8,8 @@ import { Pix, shade, whiteOf } from "./avatar.js";
 //   Slime  — idle (breathing), walk (hop: squash → stretch → airborne → land), attack (squash → pounce)
 //   Wolf   — idle (breathing + tail wag), walk (four legs, alternating), attack (crouch → leap)
 //   Falcon — fly (wing beats), dive (folded wings), taunt (spread wings + cry)
+
+const BUILT = { run: 6, skill: 6 };   // frames of the animations built from walk / attack
 
 export class CreatureSprite {
   // anchor (ax, ay) = point on the ground (or the body centre for flyers)
@@ -19,21 +22,61 @@ export class CreatureSprite {
     this.cache = new Map();
   }
 
+  // Frames in an animation: the Aseprite sheet's tag when there is one, else the code sprite's,
+  // else a built one ("run" from the walk, "skill" from the attack)
+  count(dir, anim) {
+    return (this.sheetKey && sheetCount(this.sheetKey, dir, anim)) || this.frames[anim] || (this.built(anim) ? BUILT[anim] : 1);
+  }
+
+  built(anim) {
+    return (anim === "run" && this.frames.walk) || (anim === "skill" && this.frames.attack);
+  }
+
+  // Whether this creature has an animation (drawn, built from another one, or from a sheet)
+  has(anim, dir = "down") {
+    return !!(this.frames[anim] || this.built(anim) || (this.sheetKey && sheetCount(this.sheetKey, dir, anim)));
+  }
+
   frame(dir, anim, i) {
-    const n = this.frames[anim] || 1;
+    const n = this.count(dir, anim);
     const idx = ((i % n) + n) % n;
+    // Aseprite sheet (js/avatar/sheets.js) first; the code-drawn frame below is the fallback
+    const img = this.sheetKey && sheetFrame(this.sheetKey, dir, anim, idx);
+    if (img) return img;
     const key = `${dir}|${anim}|${idx}`;
     if (!this.cache.has(key)) {
       const p = new Pix(this.w, this.h);
-      this.render(p, dir, anim, idx);
-      p.outline();
+      if (!this.frames[anim] && this.built(anim)) this.build(p, dir, anim, idx);
+      else {
+        this.render(p, dir, anim, idx);
+        p.detail();
+        p.outline();
+      }
       this.cache.set(key, p.toCanvas());
     }
     return this.cache.get(key);
   }
 
+  // "run": the walk cycle faster, bouncing higher, leaning forward, kicking up dust.
+  // "skill": the attack's ready pose with a growing aura, then the strike with a burst.
+  build(p, dir, anim, i) {
+    const base = (a, k) => { this.render(p, dir, a, k); p.detail(); p.outline(); };
+    if (anim === "run") {
+      const n = this.frames.walk;
+      base("walk", Math.floor((i * n) / BUILT.run));
+      p.shift(0, -[0, 1, 1, 0, 1, 1][i], dir === "side" ? 1 : 0, Math.round(this.ay * 0.6));
+      if (i === 0 || i === 3) { p.set(dir === "side" ? 1 : 2, this.ay - 1, "#a8a29e"); p.set(dir === "side" ? 3 : this.w - 3, this.ay - 2, "#d6d3d1"); }
+    } else {
+      const last = i >= BUILT.skill - 1;
+      base("attack", last ? Math.min(1, this.frames.attack - 1) : 0);
+      const col = (this.c && (this.c.eye || this.c.core || this.c.fire)) || "#ffd166";
+      if (i > 0) p.aura(col, Math.min(4, i));
+      p.motes(i % 2 ? "#ffffff" : col, last ? 10 : 1 + i, i);
+    }
+  }
+
   flashFrame(dir, anim, i) {
-    const key = `w|${dir}|${anim}|${i}`;
+    const key = `w${sheetsVersion()}|${dir}|${anim}|${i}`;
     if (!this.cache.has(key)) this.cache.set(key, whiteOf(this.frame(dir, anim, i)));
     return this.cache.get(key);
   }
@@ -45,7 +88,9 @@ export class CreatureSprite {
     ctx.translate(Math.round(x), Math.round(y));
     if (rot) ctx.rotate(rot);
     if (flip && dir === "side") ctx.scale(-1, 1);
-    ctx.drawImage(img, -this.ax * scale, -this.ay * scale, this.w * scale, this.h * scale);
+    // A larger (sheet) frame keeps the same feet: extra width split left/right, extra height on top
+    const ax = this.ax + Math.floor((img.width - this.w) / 2), ay = this.ay + (img.height - this.h);
+    ctx.drawImage(img, -ax * scale, -ay * scale, img.width * scale, img.height * scale);
     ctx.restore();
   }
 }
@@ -57,6 +102,42 @@ export function ellipse(p, cx, cy, rx, ry, fn) {
       const nx = (x + 0.5 - cx) / rx, ny = (y + 0.5 - cy) / ry;
       if (nx * nx + ny * ny <= 1) p.set(x, y, fn(nx, ny));
     }
+  }
+}
+
+// ==================== SHEET BOSS ====================
+// A boss whose real art is an Aseprite sheet painted at full size (aseprite/boss/<key>.aseprite).
+// Until the sheet loads (or without it) the code sprite `base` is drawn k× larger in its place,
+// so the boss keeps its size, feet and animations either way.
+export class SheetBossSprite extends CreatureSprite {
+  constructor(base, k = 2) {
+    super(base.w * k, base.h * k, base.ax * k, base.ay * k, base.frames);
+    this.base = base;
+    this.k = k;
+    this.c = base.c;
+  }
+
+  has(anim, dir = "down") {
+    return super.has(anim, dir) || this.base.has(anim, dir);
+  }
+
+  frame(dir, anim, i) {
+    const n = this.count(dir, anim);
+    const idx = ((i % n) + n) % n;
+    const img = this.sheetKey && sheetFrame(this.sheetKey, dir, anim, idx);
+    if (img) return img;
+    const key = `${dir}|${anim}|${idx}`;
+    if (!this.cache.has(key)) {
+      const src = this.base.frame(dir, anim, idx);
+      const c = document.createElement("canvas");
+      c.width = src.width * this.k;
+      c.height = src.height * this.k;
+      const g = c.getContext("2d");
+      g.imageSmoothingEnabled = false;
+      g.drawImage(src, 0, 0, c.width, c.height);
+      this.cache.set(key, c);
+    }
+    return this.cache.get(key);
   }
 }
 
@@ -248,9 +329,9 @@ const FALCON_WING = [
 ];
 
 export class FalconSprite extends CreatureSprite {
-  constructor() {
+  constructor(colors = {}) {
     super(28, 20, 14, 10, { fly: 4, dive: 1, taunt: 2 });
-    this.c = FALCON;
+    this.c = { ...FALCON, ...colors };
   }
 
   wing(p, rows, col, colD, dx = 0) {

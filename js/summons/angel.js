@@ -9,6 +9,7 @@ const ANGEL = new Avatar({
   outfit: "gown", outfitColor: "#ffffff", legColor: "#ffffff", gloves: "none", legs: "pants",
   boots: "sandals", bootColor: "#e0b44c", headgear: "halo", wings: "#ffffff", weapon: "sword"
 });
+ANGEL.sheetKey = "summon/angel";   // aseprite/summon/angel.aseprite when exported
 
 export class GuardianAngelCompanion {
   constructor(x, y, maxHp) {
@@ -35,6 +36,11 @@ export class GuardianAngelCompanion {
     this.moving = false;
     this.aimX = 0;
     this.aimY = 0;
+    // Ship crew: hovers over the deck (feet at the post) and can't leave the ship while the crew is aboard
+    this.flying = true;
+    this.footX = 16;
+    this.footY = 29;
+    this.aboard = false;
   }
 
   update(player, enemyManager, fx, lootManager, idx, isInBarracks) {
@@ -86,7 +92,9 @@ export class GuardianAngelCompanion {
       const tdy = enemyTarget.y - this.y;
       const dist = Math.hypot(tdx, tdy);
 
-      if (dist > 20) {
+      if (this.aboard && dist > 36) {
+        // Aboard: holds its post and strikes only what comes alongside
+      } else if (dist > 20 && !this.aboard) {
         this.x += (tdx / dist) * 1.8;
         this.y += (tdy / dist) * 1.8;
         this.state = "HOVERING";
@@ -101,11 +109,14 @@ export class GuardianAngelCompanion {
         if (Sound && Sound.playSlash) Sound.playSlash(this.x, this.y);
         enemyManager.damage(enemyTarget, this.damage, Math.atan2(tdy, tdx), false, fx, lootManager, 12, false, player, "holy");
         if (fx && fx.spawnHitSparks) fx.spawnHitSparks(enemyTarget.x + 10, enemyTarget.y + 10, "#ffd166", 14);
+        if (fx && fx.spawnSprite) fx.spawnSprite("slash", enemyTarget.x + 10, enemyTarget.y + 10, { tint: "#ffd166", rot: Math.atan2(tdy, tdx), every: 2 });
       }
     } else {
-      // Back beside the Priest
-      this.x += (flankX - this.x) * 0.1;
-      this.y += (flankY - this.y) * 0.1;
+      // Back beside the Priest (aboard, the ship keeps it at its post)
+      if (!this.aboard) {
+        this.x += (flankX - this.x) * 0.1;
+        this.y += (flankY - this.y) * 0.1;
+      }
 
       // Random taunt check while standing still
       this.tauntCooldown--;
@@ -128,17 +139,26 @@ export class GuardianAngelCompanion {
     const ax = Math.floor(this.x);
     const ay = Math.floor(this.y);
 
-    // Holy Mist Contact Shadow
-    ctx.fillStyle = "rgba(0, 240, 255, 0.25)";
-    ctx.beginPath();
-    ctx.ellipse(ax + 16, ay + 36, 16, 5, 0, 0, Math.PI * 2);
-    ctx.fill();
+    // Holy Mist Contact Shadow (not over the ship's sails)
+    if (!this.aboard) {
+      ctx.fillStyle = "rgba(0, 240, 255, 0.25)";
+      ctx.beginPath();
+      ctx.ellipse(ax + 16, ay + 36, 16, 5, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
     // Floating: the feet hover above the shadow, bobbing slightly
     const hover = Math.round(Math.sin(this.animTimer / 12) * 1.5);
     let anim = "idle", frame = Math.floor(this.animTimer / 10);   // idle: slow wing beats
-    if (this.state === "ATTACKING") { anim = "attack"; frame = this.stateTimer < 6 ? 0 : 1; }
-    else if (this.state === "TAUNTING") { anim = "attack"; frame = 0; }          // sword raised
+    if (this.state === "ATTACKING") {
+      anim = "attack";
+      const n = ANGEL.count(this.dir, "attack");
+      frame = n <= 2 ? (this.stateTimer < 6 ? 0 : 1) : Math.min(n - 1, Math.floor(this.stateTimer / 5));
+    } else if (this.state === "TAUNTING") {
+      // sword raised; a sheet's "skill" plays the prayer glow over the 80-frame taunt
+      if (ANGEL.has("skill", this.dir)) { anim = "skill"; frame = Math.min(ANGEL.count(this.dir, "skill") - 1, Math.floor(this.stateTimer / 12)); }
+      else { anim = "attack"; frame = 0; }
+    }
     else if (this.moving) { anim = "walk"; frame = Math.floor(this.animTimer / 5); }
     // The blow lands on the first frame, so the pose starts at the strike and follows through
     const len = Math.hypot(this.aimX || 0, this.aimY || 0) || 1;

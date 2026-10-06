@@ -3,18 +3,22 @@ import { Ambient } from "./ambient.js";
 import { drawGateway } from "./portal.js";
 import { BoatSystem } from "./boat.js";
 import { OreVeins } from "./mining.js";
+import { veinsFor } from "../items/craftsets.js";
 import { PLATFORMS, PLATFORM_SIZE } from "./platforms.js";
+import { FRONTIERS } from "./frontiers.js";
 import { getLang } from "../i18n.js";
+import { drawZoneArt, hasZoneArt, zoneSolids, pushOutOf } from "./zonesprites.js";
 
 // ==================== PLATFORM (one Act of the campaign) ====================
 // Same interface as Stage (js/stage.js), so the camera, enemies, NPCs and world map can use it:
 //   width/height, bounds, safeZone(s), safeZoneAt(), isInsideSafeZone(), resolveTileCollision(),
 //   update(player, onPortal), draw(ctx), drawOverlay(ctx), tilemap.
-// The camp is a sanctuary with a Return Gateway back to Aethelgard.
+// The camp is a sanctuary with a Return Gateway back to Aethelgard (from a frontier map: back to the
+// platform it was reached from). A platform with a `trail` has a second gateway to its frontier map.
 
 export class Platform {
   constructor(id) {
-    const def = PLATFORMS[id];
+    const def = PLATFORMS[id] || FRONTIERS[id];
     this.def = def;
     this.id = id;
     this.theme = def.theme;
@@ -27,22 +31,32 @@ export class Platform {
     this.safeZone = def.camp;
     this.safeZones = [def.camp];
     this.clearAreas = [def.camp, def.arena];
-    this.pathTargets = def.pathTargets;
-    this.gate = { id: "RETURN", dir: def.gate.dir || "horizontal", x: def.gate.x, y: def.gate.y, w: def.gate.dir === "vertical" ? 22 : 58, h: def.gate.dir === "vertical" ? 58 : 22, color: "#ffd166", dest: "hub" };
+    const gateOf = (g, id, dest, color) => ({ id, dir: g.dir || "horizontal", x: g.x, y: g.y, w: g.dir === "vertical" ? 22 : 58, h: g.dir === "vertical" ? 58 : 22, color, dest });
+    this.gate = gateOf(def.gate, "RETURN", def.from || "hub", "#ffd166");
+    // Trail to the frontier map beside this platform (sealed until its Act; set by main.js)
+    this.trail = def.trail ? gateOf(def.trail, "TRAIL", def.trail.dest, (FRONTIERS[def.trail.dest] || {}).color || "#ffd166") : null;
+    this.trailSealed = false;
+    if (this.trail) this.clearAreas.push({ x: this.trail.x - 34, y: this.trail.y - 34, w: 68, h: 68 });
+    // Paths reach the arena, the edges, every site to scout and the trail gate
+    this.pathTargets = [...(def.pathTargets || []), ...(def.sites || []).map((s) => [s.x, s.y]), ...(this.trail ? [[this.trail.x, this.trail.y]] : [])];
     this.castle = null;
     this.tick = 0;
     this.cleared = false;     // the boss has been defeated (set by main.js from the quest)
     this.riftOpen = false;    // Siege: the rift to the Maw is open
 
     this.terrain = (...a) => def.terrain.apply(def, a);
-    // The camp is "coverage", so no trees or rocks grow inside it
-    this.coverageSystems = [{ draw: (c) => this.drawCamp(c) }];
+    // The camp is "coverage", so no trees or rocks grow inside it (the code-drawn camp's footprint,
+    // so the map is the same whether or not the Aseprite art has loaded)
+    this.coverageSystems = [{ draw: (c) => this.drawCampCode(c) }];
+    // Tents and village buildings in the Aseprite art are solid (js/world/zonesprites.js)
+    this.campSolids = zoneSolids(id, def.camp.x, def.camp.y, def.camp, def.gate);
     this.ambient = new Ambient(def.ambient);
     this.tilemap = new TileMap(this, def.seed);
     // Boat and the Celestial Monolith (Cerulean Abyss only)
     this.boatSystem = def.boat ? new BoatSystem(this, def.boat) : null;
-    // Ore veins (Ashfall and the Siege only); miningUnlocked is synced from the quest by main.js
-    this.ore = def.ore ? new OreVeins(this, def.ore) : null;
+    // Ore veins on every platform (crafting ore; the Ashfall and the Siege add the dwarven minerals,
+    // which need the pickaxe: miningUnlocked is synced from the quest by main.js)
+    this.ore = new OreVeins(this, veinsFor(def));
     this.miningUnlocked = false;
   }
 
@@ -54,6 +68,7 @@ export class Platform {
     // While in the boat: sail freely on water, don't block on the liquid mask
     if (entity && entity.inBoat) return;
     this.tilemap.resolveCollision(entity);
+    if (hasZoneArt(this.id)) pushOutOf(entity, this.campSolids);
   }
 
   safeZoneAt(px, py) {
@@ -64,10 +79,19 @@ export class Platform {
     return Boolean(this.safeZoneAt(px, py));
   }
 
-  // Point beside the Return Gateway (arrival on the platform)
+  // Point beside the Return Gateway (arrival on the platform), on the inland side of the gate
   arrival() {
-    const g = this.gate;
-    return g.dir === "vertical" ? { x: g.x - 60, y: g.y - 12 } : { x: g.x - 10, y: g.y - 58 };
+    return this.besideGate(this.gate);
+  }
+
+  // Coming back from the frontier map: beside the trail gate
+  arrivalFrom(fromId) {
+    return this.trail && this.trail.dest === fromId ? this.besideGate(this.trail) : this.arrival();
+  }
+
+  besideGate(g) {
+    if (g.dir === "vertical") return { x: g.x < this.width / 2 ? g.x + 40 : g.x - 60, y: g.y - 12 };
+    return { x: g.x - 10, y: g.y < this.height / 2 ? g.y + 30 : g.y - 58 };
   }
 
   update(player, onPortal) {
@@ -80,7 +104,13 @@ export class Platform {
     const g = this.gate;
     if (Math.abs(fx - g.x) < g.w / 2 + 4 && Math.abs(fy - g.y) < g.h / 2 + 6) {
       player.portalCooldown = 75;
-      if (onPortal) onPortal({ id: "RETURN", dest: "hub", from: this.id });
+      if (onPortal) onPortal({ id: "RETURN", dest: g.dest, from: this.id });
+      return;
+    }
+    const tr = this.trail;
+    if (tr && Math.abs(fx - tr.x) < tr.w / 2 + 4 && Math.abs(fy - tr.y) < tr.h / 2 + 6) {
+      player.portalCooldown = 75;
+      if (onPortal) onPortal({ id: "TRAIL", dest: tr.dest, from: this.id });
       return;
     }
     const rift = this.def.rift;
@@ -194,20 +224,38 @@ export class Platform {
       block(X(bx + 2), Y(by - 3), 2, 2, "#ffd166");
     });
 
-    // sign above the gate
+    ctx.restore();
+    this.drawVillageSign(ctx);
+  }
+
+  // Village name above the gate (text, so it follows the language)
+  drawVillageSign(ctx) {
+    const v = this.camp;
+    ctx.save();
     const L = getLang() === "fil" ? "fil" : "en";
     const label = `⚒ ${this.def.village}${L === "fil" ? " · Nayon ng mga Dwarf" : " · Dwarven Village"}`;
     ctx.font = "bold 6px monospace";
     ctx.textAlign = "center";
     const tw = ctx.measureText(label).width + 8;
-    block(this.gate.x - tw / 2, Y(v.h - 30), tw, 9, "rgba(28, 25, 23, 0.9)");
+    ctx.fillStyle = "rgba(28, 25, 23, 0.9)";
+    ctx.fillRect(Math.round(this.gate.x - tw / 2), Math.round(v.y + v.h - 30), tw, 9);
     ctx.fillStyle = "#fb923c";
-    ctx.fillText(label, this.gate.x, Y(v.h - 23));
+    ctx.fillText(label, this.gate.x, v.y + v.h - 23);
     ctx.restore();
   }
 
-  // Slaying Corps camp: runic circle, four braziers, a tent and a banner
+  // The camp from its Aseprite art (aseprite/zone/<map id>.aseprite) when exported, else from code
   drawCamp(ctx) {
+    const c = this.camp;
+    if (drawZoneArt(ctx, this.id, c.x, c.y, this.tick, c, this.def.gate)) {
+      if (this.def.village) this.drawVillageSign(ctx);
+      return;
+    }
+    this.drawCampCode(ctx);
+  }
+
+  // Fated Vanguard camp: runic circle, four braziers, a tent and a banner
+  drawCampCode(ctx) {
     if (this.def.village) return this.drawVillage(ctx);
     const c = this.camp, cx = c.x + c.w / 2, cy = c.y + c.h / 2;
     const t = this.tick / 10;
@@ -228,7 +276,7 @@ export class Platform {
     ctx.beginPath(); ctx.moveTo(cx - 44, cy - 4); ctx.lineTo(cx - 28, cy - 30); ctx.lineTo(cx - 12, cy - 4); ctx.closePath(); ctx.fill();
     ctx.fillStyle = "#5a1a1a"; ctx.fillRect(cx - 31, cy - 14, 6, 10);
     ctx.fillStyle = "#ffd166"; ctx.fillRect(cx - 29, cy - 32, 2, 4);
-    // Slaying Corps banner
+    // Fated Vanguard banner
     ctx.fillStyle = "#5e3b1a"; ctx.fillRect(cx + 30, cy - 34, 2, 30);
     ctx.fillStyle = "#8a2c2c"; ctx.fillRect(cx + 32, cy - 34, 12, 8);
     ctx.fillStyle = "#ffd166"; ctx.fillRect(cx + 36, cy - 32, 3, 3);
@@ -248,10 +296,17 @@ export class Platform {
     if (this.boatSystem) this.boatSystem.draw(ctx, player);
     if (this.ore) this.ore.draw(ctx, player, this.miningUnlocked);
     const L = getLang() === "fil" ? "fil" : "en";
-    drawGateway(ctx, this.gate, this.tick * 0.08, false, L === "fil" ? "PABALIK SA AETHELGARD" : "RETURN TO AETHELGARD");
+    const back = this.gate.dest === "hub" ? "AETHELGARD" : (PLATFORMS[this.gate.dest] ? PLATFORMS[this.gate.dest].name[L].toUpperCase() : "");
+    drawGateway(ctx, this.gate, this.tick * 0.08, false, L === "fil" ? `PABALIK SA ${back}` : `RETURN TO ${back}`);
+    if (this.trail) {
+      const f = FRONTIERS[this.trail.dest];
+      drawGateway(ctx, this.trail, this.tick * 0.08, this.trailSealed, f ? `${this.trailSealed ? "" : "→ "}${f.name[L].toUpperCase()}` : "");
+    }
   }
 
-  drawOverlay(ctx) {
+  drawOverlay(ctx, player = null) {
+    // The ship's near side goes over the crew standing on its deck
+    if (this.boatSystem) this.boatSystem.drawFront(ctx, player);
     this.tilemap.drawOverlay(ctx);
     this.ambient.draw(ctx);
   }

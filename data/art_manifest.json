@@ -1,0 +1,624 @@
+{
+  "_about": "Every image in assets/, generated procedurally by tools/art (node tools/art/render.mjs). No third-party art. kind = banner | background | vista | portrait | relic; usedBy lists the code that loads it today (vistas, portraits and relics are ready for future story work).",
+  "files": {
+    "assets/banner/act-1.png": {
+      "kind": "banner",
+      "caption": {
+        "en": "The Eclipse of the Abyss splits the plains while the King and the Crown Heir watch from the ridge.",
+        "fil": "Hinati ng Eklipse ng Kalaliman ang kapatagan habang nakamasid ang Hari at ang Tagapagmana mula sa gulod."
+      },
+      "usedBy": [
+        "js/lore.js",
+        "js/title.js",
+        "js/actreader.js",
+        "js/actintro.js",
+        "js/ui.js"
+      ]
+    },
+    "assets/banner/act-2.png": {
+      "kind": "banner",
+      "caption": {
+        "en": "The Pentagram Seal blazes beneath the Citadel as a soul from Earth takes form in the beam of light.",
+        "fil": "Nagliliyab ang Pentagram Seal sa ilalim ng Citadel habang nabubuo ang isang kaluluwa mula sa Earth sa sinag ng liwanag."
+      },
+      "usedBy": [
+        "js/lore.js",
+        "js/title.js",
+        "js/actreader.js",
+        "js/actintro.js",
+        "js/ui.js"
+      ]
+    },
+    "assets/banner/act-3.png": {
+      "kind": "banner",
+      "caption": {
+        "en": "The five Earthbound veterans stand on the glowing points of the star, the Novice at its heart.",
+        "fil": "Nakatayo ang limang beteranong Earthbound sa nagliliwanag na mga dulo ng bituin, at ang Novice sa gitna nito."
+      },
+      "usedBy": [
+        "js/lore.js",
+        "js/title.js",
+        "js/actreader.js",
+        "js/actintro.js",
+        "js/ui.js"
+      ]
+    },
+    "assets/banner/act-4.png": {
+      "kind": "banner",
+      "caption": {
+        "en": "Before Astraea's altar the empty Job line fills and the five callings hover in the light.",
+        "fil": "Sa harap ng altar ni Astraea, napupuno ang bakanteng linya ng Job at lumulutang sa liwanag ang limang tawag."
+      },
+      "usedBy": [
+        "js/lore.js",
+        "js/title.js",
+        "js/actreader.js",
+        "js/actintro.js",
+        "js/ui.js"
+      ]
+    },
+    "assets/banner/act-5.png": {
+      "kind": "banner",
+      "caption": {
+        "en": "The Barracks armory: two-handed arms on one wall, one-hand and offhand pairs on the other.",
+        "fil": "Ang armeriya ng Barracks: mga sandatang dalawang-kamay sa isang dingding, magkapares na isang-kamay at offhand sa kabila."
+      },
+      "usedBy": [
+        "js/lore.js",
+        "js/title.js",
+        "js/actreader.js",
+        "js/actintro.js",
+        "js/ui.js"
+      ]
+    },
+    "assets/banner/act-6.png": {
+      "kind": "banner",
+      "caption": {
+        "en": "Night on the Citadel observatory, over the sleeping lowlands and the Vanguard's campfires.",
+        "fil": "Gabi sa obserbatoryo ng Citadel, tanaw ang tulog na kapatagan at ang mga siga ng Vanguard."
+      },
+      "usedBy": [
+        "js/lore.js",
+        "js/title.js",
+        "js/actreader.js",
+        "js/actintro.js",
+        "js/ui.js"
+      ]
+    },
+    "assets/banner/act-7.png": {
+      "kind": "banner",
+      "caption": {
+        "en": "Malakor the Blight Herald rises over the heartwood grove of the Whispering Canopy.",
+        "fil": "Bumangon si Malakor, ang Herald ng Pagkabulok, sa gitna ng kakahuyan ng Whispering Canopy."
+      },
+      "usedBy": [
+        "js/lore.js",
+        "js/title.js",
+        "js/actreader.js",
+        "js/actintro.js",
+        "js/ui.js"
+      ]
+    },
+    "assets/banner/act-8.png": {
+      "kind": "banner",
+      "caption": {
+        "en": "The Leviathan Regent coils in the maelstrom around the Celestial Monolith.",
+        "fil": "Nakapulupot ang Leviathan Regent sa ipuipo sa paligid ng Celestial Monolith."
+      },
+      "usedBy": [
+        "js/lore.js",
+        "js/title.js",
+        "js/actreader.js",
+        "js/actintro.js",
+        "js/ui.js"
+      ]
+    },
+    "assets/banner/act-9.png": {
+      "kind": "banner",
+      "caption": {
+        "en": "Frost Empress Cryonix waits below the ice spire of Glacial Crest as the blizzard howls.",
+        "fil": "Naghihintay si Frost Empress Cryonix sa paanan ng yelong tore ng Glacial Crest habang umaatungal ang bagyo ng niyebe."
+      },
+      "usedBy": [
+        "js/lore.js",
+        "js/title.js",
+        "js/actreader.js",
+        "js/actintro.js",
+        "js/ui.js"
+      ]
+    },
+    "assets/banner/act-10.png": {
+      "kind": "banner",
+      "caption": {
+        "en": "Ignis the Iron Lord guards the Hellforge above a lake of brimstone.",
+        "fil": "Binabantayan ni Ignis, ang Panginoong Bakal, ang Hellforge sa ibabaw ng lawa ng asupre."
+      },
+      "usedBy": [
+        "js/lore.js",
+        "js/title.js",
+        "js/actreader.js",
+        "js/actintro.js",
+        "js/ui.js"
+      ]
+    },
+    "assets/banner/act-11.png": {
+      "kind": "banner",
+      "caption": {
+        "en": "On the black sands of the Lamenting Strand, beside the wreck of the Dawnstar, the Vanguard lands as Dolora, the Weeping Matron, rises over the tide pools of black tears.",
+        "fil": "Sa itim na buhangin ng Dalampasigan ng Panaghoy, sa tabi ng wasak na Dawnstar, dumaong ang Vanguard habang umaangat si Dolora, ang Lumuluhang Matrona, sa ibabaw ng mga lawa ng itim na luha."
+      },
+      "usedBy": [
+        "js/lore.js",
+        "js/title.js",
+        "js/actreader.js",
+        "js/actintro.js",
+        "js/ui.js"
+      ]
+    },
+    "assets/banner/act-12.png": {
+      "kind": "banner",
+      "caption": {
+        "en": "The Ossuary Fields: bones of every race beneath a pale sky, the Lantern Knight's Cairn in vigil, and Morgrave, the Ossuary Warlord, raising lances of bone.",
+        "fil": "Ang Kaparangan ng mga Buto: mga buto ng bawat lahi sa ilalim ng maputlang langit, ang Puntod ng Lantern Knight na binabantayan, at si Morgrave, ang Panginoong-Digma ng mga Buto, na nagpapausbong ng mga sibat na buto."
+      },
+      "usedBy": [
+        "js/lore.js",
+        "js/title.js",
+        "js/actreader.js",
+        "js/actintro.js",
+        "js/ui.js"
+      ]
+    },
+    "assets/banner/act-13.png": {
+      "kind": "banner",
+      "caption": {
+        "en": "The Vanguard breaches the gates of the Obsidian Citadel under a blood-red sky.",
+        "fil": "Nilusob ng Vanguard ang mga tarangkahan ng Obsidian Citadel sa ilalim ng langit na kulay-dugo."
+      },
+      "usedBy": [
+        "js/lore.js",
+        "js/title.js",
+        "js/actreader.js",
+        "js/actintro.js",
+        "js/ui.js"
+      ]
+    },
+    "assets/banner/act-14.png": {
+      "kind": "banner",
+      "caption": {
+        "en": "The Chainspire Descent: a spire of black chains spirals into the abyss, chained souls glowing along it, and Vorgath, the Chained Warden, bars the way.",
+        "fil": "Ang Pagbaba sa Toreng Kadena: isang tore ng itim na kadena ang paikot na bumababa sa kalaliman, nagliliwanag ang mga nakakadenang kaluluwa, at hinaharangan ni Vorgath, ang Nakakadenang Bantay, ang daan."
+      },
+      "usedBy": [
+        "js/lore.js",
+        "js/title.js",
+        "js/actreader.js",
+        "js/actintro.js",
+        "js/ui.js"
+      ]
+    },
+    "assets/banner/act-15.png": {
+      "kind": "banner",
+      "caption": {
+        "en": "Satan's true form crumbles in the Maw, the Lantern Knight's light rises home, and the first dawn breaks over the champion and the Sovereign.",
+        "fil": "Gumuguho sa Bunganga ang tunay na anyo ni Satan, umaakyat pauwi ang liwanag ng Lantern Knight, at sumisikat ang unang bukang-liwayway sa kampeon at sa Soberano."
+      },
+      "usedBy": [
+        "js/lore.js",
+        "js/title.js",
+        "js/actreader.js",
+        "js/actintro.js",
+        "js/ui.js"
+      ]
+    },
+    "assets/banner/prophecy.png": {
+      "kind": "banner",
+      "caption": {
+        "en": "The Lantern Knight's verse cut around the carved star in the Citadel's foundation.",
+        "fil": "Ang taludtod ng Lantern Knight na inukit sa paligid ng bituin sa pundasyon ng Citadel."
+      },
+      "usedBy": [
+        "js/title.js"
+      ]
+    },
+    "assets/banner/ledger.png": {
+      "kind": "banner",
+      "caption": {
+        "en": "The Covenant Ledger unfolds before the hero: six attributes, skills and an empty Job line.",
+        "fil": "Bumukas sa harap ng bayani ang Covenant Ledger: anim na katangian, mga kasanayan at bakanteng linya ng Job."
+      },
+      "usedBy": [
+        "js/title.js"
+      ]
+    },
+    "assets/banner/heralds.png": {
+      "kind": "banner",
+      "caption": {
+        "en": "The five Heralds on the points of the inverted star, Satan at its heart.",
+        "fil": "Ang limang Herald sa mga dulo ng baligtad na bituin, si Satan sa gitna."
+      },
+      "usedBy": [
+        "js/title.js"
+      ]
+    },
+    "assets/bg/title_bg.png": {
+      "kind": "background",
+      "caption": {
+        "en": "The Lantern Knight's sword in the seal altar above the sea, a lantern on its hilt.",
+        "fil": "Ang espada ng Lantern Knight sa altar ng selyo sa itaas ng dagat, may parol sa puluhan."
+      },
+      "usedBy": [
+        "css/title.css",
+        "js/title.js"
+      ]
+    },
+    "assets/bg/portal_bg.png": {
+      "kind": "background",
+      "caption": {
+        "en": "The Pentagram Gate in the ruined sanctum, open across the veil.",
+        "fil": "Ang Pentagram Gate sa gibang santuwaryo, bukas sa kabila ng tabing."
+      },
+      "usedBy": [
+        "css/creator.css",
+        "js/select.js"
+      ]
+    },
+    "assets/art/vistas/earth-2026.png": {
+      "kind": "vista",
+      "caption": {
+        "en": "Earth, 2026: a city under the noon eclipse as rift fissures open in the sky.",
+        "fil": "Earth, 2026: isang lungsod sa ilalim ng eklipse sa tanghali habang bumubukas ang mga lamat sa langit."
+      }
+    },
+    "assets/art/vistas/lantern-knight.png": {
+      "kind": "vista",
+      "caption": {
+        "en": "Three centuries ago: the Lantern Knight seals the demon lord with the four Seal Stones.",
+        "fil": "Tatlong siglo na ang nakaraan: sinelyuhan ng Lantern Knight ang panginoon ng demonyo gamit ang apat na Seal Stone."
+      }
+    },
+    "assets/art/vistas/barracks-sanctuary.png": {
+      "kind": "vista",
+      "caption": {
+        "en": "The Barracks Sanctuary by day: braziers, runic cobblestones, Edgar's stall and Ronald's drills.",
+        "fil": "Ang Barracks Sanctuary sa umaga: mga sulo, batong may runa, puwesto ni Edgar at pagsasanay ni Ronald."
+      }
+    },
+    "assets/art/vistas/emberhold-forge.png": {
+      "kind": "vista",
+      "caption": {
+        "en": "The Emberhold Forge, where Brakka mends and tempers gear.",
+        "fil": "Ang Emberhold Forge, kung saan inaayos at pinatitibay ni Brakka ang mga gamit."
+      }
+    },
+    "assets/art/vistas/elven-sanctuary.png": {
+      "kind": "vista",
+      "caption": {
+        "en": "The restored Elven Sanctuary at night, by the moon pool.",
+        "fil": "Ang naibalik na Elven Sanctuary sa gabi, sa tabi ng lawa ng buwan."
+      }
+    },
+    "assets/art/vistas/obsidian-harbor.png": {
+      "kind": "vista",
+      "caption": {
+        "en": "The Celestial Monolith opens and the fleet sails for the Dark Continent.",
+        "fil": "Bumukas ang Celestial Monolith at naglayag ang plota patungong Madilim na Kontinente."
+      }
+    },
+    "assets/art/vistas/sovereign-dawn.png": {
+      "kind": "vista",
+      "caption": {
+        "en": "The Sovereign Dawn: the champion and the Sovereign stay as the portal home opens.",
+        "fil": "Ang Bukang-Liwayway ng Soberano: nanatili ang kampeon at ang Soberano habang bumubukas ang portal pauwi."
+      }
+    },
+    "assets/art/vistas/world-map.png": {
+      "kind": "vista",
+      "caption": {
+        "en": "Parchment map of Aethelgard and the Dark Continent with every Act's region.",
+        "fil": "Mapang pergamino ng Aethelgard at ng Madilim na Kontinente kasama ang rehiyon ng bawat Act."
+      }
+    },
+    "assets/art/portraits/aurelia.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Princess Aurelia",
+        "fil": "Prinsesa Aurelia"
+      }
+    },
+    "assets/art/portraits/kenneth.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Prince Kenneth",
+        "fil": "Prinsipe Kenneth"
+      }
+    },
+    "assets/art/portraits/king.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "The King",
+        "fil": "Ang Hari"
+      }
+    },
+    "assets/art/portraits/lanternKnight.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "The Lantern Knight",
+        "fil": "Ang Lantern Knight"
+      }
+    },
+    "assets/art/portraits/arthur.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Arthur \"Art\" Ramirez",
+        "fil": "Arthur \"Art\" Ramirez"
+      }
+    },
+    "assets/art/portraits/lyra.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Lyra Vance",
+        "fil": "Lyra Vance"
+      }
+    },
+    "assets/art/portraits/julian.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Dr. Julian Alcantara",
+        "fil": "Dr. Julian Alcantara"
+      }
+    },
+    "assets/art/portraits/sam.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Samantha \"Sam\" Chen",
+        "fil": "Samantha \"Sam\" Chen"
+      }
+    },
+    "assets/art/portraits/renzo.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Renzo \"Striker\" Cruz",
+        "fil": "Renzo \"Striker\" Cruz"
+      }
+    },
+    "assets/art/portraits/ronald.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Captain Ronald",
+        "fil": "Kapitan Ronald"
+      }
+    },
+    "assets/art/portraits/edgar.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Edgar the Apothecary",
+        "fil": "Edgar ang Apotekaryo"
+      }
+    },
+    "assets/art/portraits/brakka.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Brakka of Emberhold",
+        "fil": "Brakka ng Emberhold"
+      }
+    },
+    "assets/art/portraits/elvenMatriarch.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "The Elven Matriarch",
+        "fil": "Ang Matriyarka ng mga Duwende"
+      }
+    },
+    "assets/art/portraits/maren.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Archivist Maren",
+        "fil": "Arkibista Maren"
+      }
+    },
+    "assets/art/portraits/isolde.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Captain Isolde Wavecrest",
+        "fil": "Kapitana Isolde Wavecrest"
+      }
+    },
+    "assets/art/portraits/veyra.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Veyra the Ashen Scout",
+        "fil": "Veyra, ang Abuhing Tagamanman"
+      }
+    },
+    "assets/art/portraits/aldric.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Brother Aldric of the Lantern",
+        "fil": "Kapatid na Aldric ng Parol"
+      }
+    },
+    "assets/art/portraits/malakor.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Malakor the Blight Herald",
+        "fil": "Malakor, ang Herald ng Pagkabulok"
+      }
+    },
+    "assets/art/portraits/leviathan.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "The Leviathan Regent",
+        "fil": "Ang Leviathan Regent"
+      }
+    },
+    "assets/art/portraits/cryonix.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Frost Empress Cryonix",
+        "fil": "Frost Empress Cryonix"
+      }
+    },
+    "assets/art/portraits/ignis.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Ignis the Iron Lord",
+        "fil": "Ignis, ang Panginoong Bakal"
+      }
+    },
+    "assets/art/portraits/commander.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "The Demon Commander",
+        "fil": "Ang Demon Commander"
+      }
+    },
+    "assets/art/portraits/satan.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Demon Lord Satan",
+        "fil": "Panginoon ng Demonyo na si Satan"
+      }
+    },
+    "assets/art/portraits/dolora.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Dolora, the Weeping Matron",
+        "fil": "Dolora, ang Lumuluhang Matrona"
+      }
+    },
+    "assets/art/portraits/morgrave.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Morgrave, the Ossuary Warlord",
+        "fil": "Morgrave, ang Panginoong-Digma ng mga Buto"
+      }
+    },
+    "assets/art/portraits/vorgath.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Vorgath, the Chained Warden",
+        "fil": "Vorgath, ang Nakakadenang Bantay"
+      }
+    },
+    "assets/art/relics/sylvanStone.png": {
+      "kind": "relic",
+      "caption": {
+        "en": "Sylvan Seal Stone",
+        "fil": "Sylvan Seal Stone"
+      }
+    },
+    "assets/art/relics/tideStone.png": {
+      "kind": "relic",
+      "caption": {
+        "en": "Tide Seal Stone",
+        "fil": "Tide Seal Stone"
+      }
+    },
+    "assets/art/relics/frostStone.png": {
+      "kind": "relic",
+      "caption": {
+        "en": "Frost Seal Stone",
+        "fil": "Frost Seal Stone"
+      }
+    },
+    "assets/art/relics/emberStone.png": {
+      "kind": "relic",
+      "caption": {
+        "en": "Ember Seal Stone",
+        "fil": "Ember Seal Stone"
+      }
+    },
+    "assets/art/relics/lantern.png": {
+      "kind": "relic",
+      "caption": {
+        "en": "The Lantern Knight's lantern",
+        "fil": "Ang parol ng Lantern Knight"
+      }
+    },
+    "assets/art/relics/imperialCrest.png": {
+      "kind": "relic",
+      "caption": {
+        "en": "The Imperial Crest",
+        "fil": "Ang Imperial Crest"
+      }
+    },
+    "assets/art/relics/covenantLedger.png": {
+      "kind": "relic",
+      "caption": {
+        "en": "The Covenant Ledger",
+        "fil": "Ang Covenant Ledger"
+      }
+    },
+    "assets/art/relics/oblivionMushroom.png": {
+      "kind": "relic",
+      "caption": {
+        "en": "Oblivion Mushroom",
+        "fil": "Oblivion Mushroom"
+      }
+    },
+    "assets/art/relics/sigilShield.png": {
+      "kind": "relic",
+      "caption": {
+        "en": "Sigil of the Shield (Knight)",
+        "fil": "Sagisag ng Kalasag (Knight)"
+      }
+    },
+    "assets/art/relics/sigilBow.png": {
+      "kind": "relic",
+      "caption": {
+        "en": "Sigil of the Bow (Archer)",
+        "fil": "Sagisag ng Pana (Archer)"
+      }
+    },
+    "assets/art/relics/sigilPrayer.png": {
+      "kind": "relic",
+      "caption": {
+        "en": "Sigil of the Prayer (Priest)",
+        "fil": "Sagisag ng Panalangin (Priest)"
+      }
+    },
+    "assets/art/relics/sigilStar.png": {
+      "kind": "relic",
+      "caption": {
+        "en": "Sigil of the Star (Mage)",
+        "fil": "Sagisag ng Bituin (Mage)"
+      }
+    },
+    "assets/art/relics/sigilFist.png": {
+      "kind": "relic",
+      "caption": {
+        "en": "Sigil of the Fist (Fighter)",
+        "fil": "Sagisag ng Kamao (Fighter)"
+      }
+    },
+    "assets/art/relics/invertedStar.png": {
+      "kind": "relic",
+      "caption": {
+        "en": "The Heralds' inverted star",
+        "fil": "Ang baligtad na bituin ng mga Herald"
+      }
+    },
+    "assets/art/relics/tearUrn.png": {
+      "kind": "relic",
+      "caption": {
+        "en": "Urn of Black Tears",
+        "fil": "Urna ng Itim na Luha"
+      }
+    },
+    "assets/art/relics/lanternVisor.png": {
+      "kind": "relic",
+      "caption": {
+        "en": "Lantern Knight's Visor",
+        "fil": "Visor ng Lantern Knight"
+      }
+    },
+    "assets/art/relics/wardensKey.png": {
+      "kind": "relic",
+      "caption": {
+        "en": "Warden's Key",
+        "fil": "Susi ng Bantay"
+      }
+    }
+  }
+}

@@ -40,6 +40,10 @@
       {
         "en": "Earth feels so far away... but protecting this world gives my second life meaning.",
         "fil": "Napakalayo na ng Daigdig... ngunit ang pagtatanggol dito ang nagbibigay-buhay sa akin."
+      },
+      {
+        "en": "Five points on the Barracks floor, one for each of us. The middle one stayed dark until you arrived.",
+        "fil": "Limang dulo sa sahig ng Barracks, isa sa bawat isa sa amin. Nanatiling madilim ang gitna hanggang dumating ka."
       }
     ],
 
@@ -83,6 +87,10 @@
       {
         "en": "Breathe with the bowstring, release on the heartbeat. Precision over panic.",
         "fil": "Sumabay sa hininga ng pisi, bitawan sa tibok ng puso. Asinta bago takot."
+      },
+      {
+        "en": "Natives can't see the Ledger. To them we just get stronger overnight. It unsettles them a little.",
+        "fil": "Hindi nakikita ng mga katutubo ang Ledger. Para sa kanila, bigla na lang tayong lumalakas. Medyo nakakakaba iyon sa kanila."
       }
     ],
 
@@ -126,6 +134,10 @@
       {
         "en": "I prayed for the power to heal without limits... and Astraea answered my final breath.",
         "fil": "Nanalangin akong magpagaling nang walang hangganan... at dininig ni Astraea ang aking huling hininga."
+      },
+      {
+        "en": "The anchor brings us back when we fall. The soldiers beside us have no such mercy. Remember that out there.",
+        "fil": "Ibinabalik tayo ng angkla kapag bumagsak tayo. Walang ganoong awa ang mga sundalong katabi natin. Tandaan mo iyan sa labas."
       }
     ],
 
@@ -169,6 +181,10 @@
       {
         "en": "With proper telemetry, even an immortal demon lord obeys the laws of thermal destruction.",
         "fil": "Sa tamang kalkulasyon, maging ang demon lord ay sakop pa rin ng batas ng thermodynamics."
+      },
+      {
+        "en": "The Lantern Knight's prophecy is carved in a script only we can read. That's not magic. That's a message.",
+        "fil": "Nakaukit ang propesiya ng Lantern Knight sa sulat na tayo lang ang nakababasa. Hindi iyon mahika. Mensahe iyon."
       }
     ],
 
@@ -212,6 +228,10 @@
       {
         "en": "Adrenaline is your ally, but discipline keeps you alive when stamina runs low.",
         "fil": "Kaibigan mo ang adrenaline, ngunit disiplina ang bubuhay sa iyo kapag kapos ka sa hangin."
+      },
+      {
+        "en": "The Ledger only counts the last hit. Same as the ring: nobody remembers who threw the setup punch.",
+        "fil": "Huling tama lang ang binibilang ng Ledger. Parang sa ring: walang nakakaalala kung sino ang nagbigay ng setup na suntok."
       }
     ],
 
@@ -237,8 +257,8 @@
         "fil": "Ang pagpapanday at pagbebenta ay sa loob lamang ng banal na santuwaryo pinapayagan."
       },
       {
-        "en": "The King placed his trust in the Grand Slaying Corps. We will not let Aethelgard fall.",
-        "fil": "Ipinagkatiwala ng Hari ang kaharian sa Slaying Corps. Hindi natin hahayaang bumagsak ito."
+        "en": "The King placed his trust in the Fated Vanguard. We will not let Aethelgard fall.",
+        "fil": "Ipinagkatiwala ng Hari ang kaharian sa Fated Vanguard. Hindi natin hahayaang bumagsak ito."
       },
       {
         "en": "Rest at the braziers when wounded. Astraea's flame restores vitality in seconds.",
@@ -298,6 +318,10 @@
       {
         "en": "Don't let your stamina bar deplete completely—exhaustion leaves you wide open to critical hits.",
         "fil": "Huwag hayaang maubos ang stamina—ang labis na pagod ay nagdudulot ng garantisadong kritikal."
+      },
+      {
+        "en": "They say the Lantern Knight's seal still hums under the Citadel. I keep my best flasks away from that wall.",
+        "fil": "Sabi nila, umuugong pa rin ang selyo ng Lantern Knight sa ilalim ng Citadel. Inilalayo ko ang pinakamahusay kong prasko sa pader na iyon."
       }
     ],
 
@@ -319,8 +343,8 @@
         "fil": "Ipagkakaloob ng Altar ni Astraea ang mga sandatang sadyang pinanday para sa iyong tungkulin."
       },
       {
-        "en": "Twelve corrupted platforms surround the realm. Defeat each boss to unseal the path.",
-        "fil": "Labindalawang plataporma ang bumabalot sa kaharian. Talunin ang bawat boss para sumulong."
+        "en": "Five Heralds hold the corners of the realm. Defeat each one to unseal the path.",
+        "fil": "Limang Herald ang may hawak sa mga sulok ng kaharian. Talunin ang bawat isa upang mabuksan ang daan."
       },
       {
         "en": "My Magic & Research Corps will provide telemetry and arcane support throughout your campaign.",
@@ -358,8 +382,8 @@
         "fil": "Pinasan ko ang bigat ng pagkuha sa iyo, ngunit sumusumpa akong sasamahan kita hanggang dulo."
       },
       {
-        "en": "Satan's legions occupy twelve platforms. Reclaim each territory step by step.",
-        "fil": "Sinasakop ng hukbo ni Satan ang 12 plataporma. Bawiin ang bawat teritoryo nang paisa-isa."
+        "en": "Satan's legions hold the platforms of Aethelgard and the whole Dark Continent. Reclaim each territory step by step.",
+        "fil": "Sinasakop ng hukbo ni Satan ang mga plataporma ng Aethelgard at ang buong Dark Continent. Bawiin ang bawat teritoryo nang paisa-isa."
       },
       {
         "en": "The Imperial Citadel stands fortified, but our garrison relies on your vanguard leadership.",
@@ -397,8 +421,8 @@
         "fil": "Banta ni Demon Lord Satan na lamunin ang ating daigdig at maging ang mundo ng Daigdig."
       },
       {
-        "en": "The Altar of Astraea on our dais awaits you once you prove your mettle on the first platform.",
-        "fil": "Naghihintay ang Altar ni Astraea sa aming dais kapag napatunayan mo ang sarili sa unang laban."
+        "en": "The Altar of Astraea on our dais awaits you once you have grown strong in the grassland.",
+        "fil": "Naghihintay ang Altar ni Astraea sa aming dais kapag lumakas ka na sa kaparangan."
       },
       {
         "en": "My Royal Guards defend this citadel with their lives, but you spearhead our counter-offensive.",
@@ -417,7 +441,7 @@
         "fil": "Nawa'y gabayan ng liwanag ni Astraea ang iyong sandata sa madidilim na kuweba ng Kalaliman."
       },
       {
-        "en": "Even in my advancing years, my spirit burns with hope when I look upon our Grand Slaying Corps.",
+        "en": "Even in my advancing years, my spirit burns with hope when I look upon our Fated Vanguard.",
         "fil": "Kahit matanda na ako, nag-aalab ang aking pag-asa tuwing pinagmamasdan ang ating hukbo."
       },
       {
@@ -470,6 +494,110 @@
       {
         "en": "For the Crown, for the Citadel, and for the glory of Aethelgard!",
         "fil": "Para sa Korona, para sa Citadel, at para sa karangalan ng Aethelgard!"
+      }
+    ],
+
+    "maren": [
+      {
+        "en": "Every deed you do is written in the Chronicles. Come read where you've been, and I'll tell you where to go next.",
+        "fil": "Bawat gawa mo ay nakasulat sa Chronicles. Halika't basahin kung saan ka na nanggaling, at sasabihin ko kung saan ka susunod."
+      },
+      {
+        "en": "The Lantern Knight left one prophecy and no diary. I have spent thirty years wishing it were the other way round.",
+        "fil": "Isang propesiya at walang talaarawan ang iniwan ng Lantern Knight. Tatlumpung taon ko nang hinihiling na baligtad sana."
+      },
+      {
+        "en": "Lost your way? Check your quest log first. If it still makes no sense, ask me. That's what archivists are for.",
+        "fil": "Naligaw ka? Tingnan mo muna ang quest log mo. Kung wala pa ring saysay, magtanong ka sa akin. Iyan ang silbi ng archivist."
+      },
+      {
+        "en": "Ink on my sleeves again. The war writes faster than I do.",
+        "fil": "May tinta na naman ang manggas ko. Mas mabilis sumulat ang digmaan kaysa sa akin."
+      },
+      {
+        "en": "Four Seal Stones, five Heralds, one star. Keep the numbers straight and the story keeps itself.",
+        "fil": "Apat na Seal Stone, limang Herald, isang bituin. Ayusin mo ang bilang at aayos ang kuwento."
+      },
+      {
+        "en": "Side quests are not distractions, dear. The war camps won't open the next road until you've helped them.",
+        "fil": "Hindi sagabal ang mga side quest, anak. Hindi bubuksan ng mga kampo ang susunod na daan hangga't hindi mo sila natutulungan."
+      }
+    ],
+
+    "isolde": [
+      {
+        "en": "Steer her like you walk, WASD or the arrows, and she'll turn true: bow up, bow down, any heading you like.",
+        "fil": "Imaniobra mo siya gaya ng paglakad mo, WASD o arrow keys, at susunod siya: pataas, pababa, kahit anong direksyon."
+      },
+      {
+        "en": "The Monolith won't wake for one stone. Bring me all four Seal Stones and I'll sail you through the void itself.",
+        "fil": "Hindi gigising ang Monolith sa iisang bato. Dalhin mo sa akin ang apat na Seal Stone at ilalayag kita sa mismong kawalan."
+      },
+      {
+        "en": "Stay off the deep water at night. The Abyss has more teeth than it shows.",
+        "fil": "Umiwas sa malalim na tubig sa gabi. Mas marami ang pangil ng Abyss kaysa sa ipinapakita nito."
+      },
+      {
+        "en": "Thirty years at sea and I've never seen black sand weep. This Strand is no harbour.",
+        "fil": "Tatlumpung taon sa dagat at ngayon lang ako nakakita ng itim na buhanging lumuluha. Hindi daungan ang Dalampasigang ito."
+      },
+      {
+        "en": "Those wrecks are the Dawnstar. The Lantern Knight's own flagship. I take my hat off every time I pass her.",
+        "fil": "Ang Dawnstar ang mga labíng iyan. Ang mismong barko ng Lantern Knight. Hinuhubad ko ang sumbrero ko tuwing dadaan ako."
+      },
+      {
+        "en": "The fleet stays anchored here until you say otherwise. A ship that waits is a ship that brings you home.",
+        "fil": "Nakadaong dito ang plota hanggang sabihin mo. Ang barkong naghihintay ang barkong mag-uuwi sa iyo."
+      }
+    ],
+
+    "veyra": [
+      {
+        "en": "Dolora blinks between the pools. Watch where the water ripples and you'll know where she lands.",
+        "fil": "Kumikislap si Dolora sa pagitan ng mga lawa. Bantayan ang pag-alon ng tubig at malalaman mo kung saan siya lalapag."
+      },
+      {
+        "en": "When the Matron wails, your spells go quiet. Strike before it, or carry something for Silence.",
+        "fil": "Kapag pumanaghoy ang Matrona, tatahimik ang mga spell mo. Umatake bago iyon, o magdala ng lunas sa Silence."
+      },
+      {
+        "en": "Morgrave tears bone lances out of the ground in straight lines. Step sideways, never back.",
+        "fil": "Pinauusbong ni Morgrave ang mga sibat na buto sa tuwid na hanay. Umiwas patagilid, huwag paatras."
+      },
+      {
+        "en": "Vorgath's chain grab pulls you in. When he drops to half, he breaks loose and charges. Don't be in front of him.",
+        "fil": "Hinihila ka palapit ng chain grab ni Vorgath. Kapag nangalahati na siya, kakawala siya at susugod. Huwag kang nasa harapan niya."
+      },
+      {
+        "en": "I marched for the legion once. I know every road on this continent, and every one of them is cursed.",
+        "fil": "Minsan akong nagmartsa para sa hukbo. Alam ko ang bawat daan sa kontinenteng ito, at sinumpa ang bawat isa."
+      },
+      {
+        "en": "Don't drink from the black pools. Whatever you hear in them, it isn't really there.",
+        "fil": "Huwag kang iinom sa mga itim na lawa. Anuman ang marinig mo roon, hindi iyon totoo."
+      }
+    ],
+
+    "aldric": [
+      {
+        "en": "Forty years I've kept this lantern lit. The dead of the First War deserve one light that doesn't go out.",
+        "fil": "Apatnapung taon kong pinanatiling may sindi ang lamparang ito. Karapat-dapat sa isang ilaw na hindi namamatay ang mga namatay sa Unang Digmaan."
+      },
+      {
+        "en": "Humans, elves, dwarves, beastfolk. They all fell side by side here. Morgrave makes them fight each other now.",
+        "fil": "Mga tao, elf, dwarf, beastfolk. Magkakatabi silang bumagsak dito. Ngayon ay pinaglalaban sila ni Morgrave sa isa't isa."
+      },
+      {
+        "en": "The Order of the Lantern was founded by the Knight's own squires. I am the last of it, and not much of a fighter.",
+        "fil": "Itinatag ang Orden ng Lampara ng mismong mga eskudero ng Lantern Knight. Ako na ang huli, at hindi ako gaanong mandirigma."
+      },
+      {
+        "en": "The oldest carvings on the cairn are worn smooth. A queen of sorrows, sealed below. The hero's name is gone.",
+        "fil": "Pudpod na ang pinakamatatandang ukit sa bunton. Isang reyna ng mga dalamhati, nakaselyo sa ilalim. Nabura na ang pangalan ng bayani."
+      },
+      {
+        "en": "If you find the Knight's Visor, bring it to me. Old steel remembers more than old men.",
+        "fil": "Kung makita mo ang Visor ng Lantern Knight, dalhin mo sa akin. Mas maraming naaalala ang lumang bakal kaysa sa matatandang lalaki."
       }
     ]
   },
@@ -529,6 +657,34 @@
       "lines": [
         { "speaker": "sam", "en": "Edgar, the crystalline structure of these monster shards is fascinating.", "fil": "Edgar, kamangha-mangha ang anyo ng mga kristal ng halimaw." },
         { "speaker": "edgar", "en": "Indeed! When distilled properly, they amplify our healing tinctures.", "fil": "Tumpak! Kapag napakuluan nang maayos, pinalalakas nito ang gamot." }
+      ]
+    },
+    {
+      "pair": ["maren", "edgar"],
+      "lines": [
+        { "speaker": "maren", "en": "Edgar, you've labelled that jar 'probably healing' again.", "fil": "Edgar, 'malamang pampagaling' na naman ang etiketa mo sa garapong iyan." },
+        { "speaker": "edgar", "en": "And it probably is! I'll write it in your Chronicles when I'm sure.", "fil": "At malamang nga! Isusulat ko sa Chronicles mo kapag sigurado na ako." }
+      ]
+    },
+    {
+      "pair": ["maren", "ronald"],
+      "lines": [
+        { "speaker": "ronald", "en": "Archivist, put my mercenaries in the Chronicles. They earned it.", "fil": "Archivist, isulat mo ang mga mersenaryo ko sa Chronicles. Pinaghirapan nila iyon." },
+        { "speaker": "maren", "en": "Already done, Captain. Spelled every name right, which is more than your payroll does.", "fil": "Tapos na, Kapitan. Tama ang baybay ng bawat pangalan, na hindi kaya ng talaan ng sahod mo." }
+      ]
+    },
+    {
+      "pair": ["isolde", "veyra"],
+      "lines": [
+        { "speaker": "isolde", "en": "You know these waters, half-demon. Where does the legion keep its ships?", "fil": "Kilala mo ang mga tubig na ito, kalahating-demonyo. Saan itinatago ng hukbo ang mga barko nito?" },
+        { "speaker": "veyra", "en": "Obsidian Harbor, east of here. Sail past it at night and keep your lanterns dark, Captain.", "fil": "Sa Obsidian Harbor, sa silangan. Lampasan mo ito sa gabi at patayin ang mga lampara, Kapitana." }
+      ]
+    },
+    {
+      "pair": ["veyra", "aldric"],
+      "lines": [
+        { "speaker": "veyra", "en": "You pray for demons too, monk?", "fil": "Ipinagdarasal mo rin ba ang mga demonyo, monghe?" },
+        { "speaker": "aldric", "en": "For everyone the miasma used, child. That includes you.", "fil": "Para sa lahat ng ginamit ng miasma, anak. Kasama ka roon." }
       ]
     }
   ]

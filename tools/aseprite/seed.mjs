@@ -1,0 +1,60 @@
+#!/usr/bin/env node
+/**
+ * seed — start an Aseprite file from a creature's current code-drawn frames, so it can be repainted
+ * in Aseprite instead of drawn from scratch.
+ *
+ *   node tools/aseprite/seed.mjs monster/slime          # → aseprite/monster/slime.aseprite
+ *   node tools/aseprite/seed.mjs boss/malakor --force   # overwrite an existing file
+ *
+ * One tag per direction + animation ("down-idle", "side-walk", "up-attack", …), canvas = the code
+ * sprite's size. Edit it in Aseprite, then run tools/aseprite/export.mjs.
+ */
+import { SRC_DIR, codeSprite, tryAseprite, writePng } from "./lib.mjs";
+import { writeAse } from "./asefile.mjs";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+
+const [key] = process.argv.slice(2).filter((a) => !a.startsWith("--"));
+const force = process.argv.includes("--force");
+if (!key) {
+  console.error("usage: node tools/aseprite/seed.mjs <monster|boss>/<key> [--force]");
+  process.exit(1);
+}
+const sprite = await codeSprite(key);
+if (!sprite) {
+  console.error(`"${key}" has no sprite to seed from (monster/<key>, boss/<key> or summon/<slime|hound|owl|fox|falcon|angel>)`);
+  process.exit(1);
+}
+const out = path.join(SRC_DIR, `${key}.aseprite`);
+if (fs.existsSync(out) && !force) {
+  console.error(`${path.relative(process.cwd(), out)} already exists (--force to overwrite)`);
+  process.exit(1);
+}
+
+const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "vof-seed-"));
+const tags = [], node = [];   // node: frames for the Node writer when Aseprite isn't installed
+let n = 0;
+for (const dir of ["down", "side", "up"]) {
+  for (const [anim, count] of Object.entries(sprite.frames)) {
+    const from = n;
+    for (let i = 0; i < count; i++) {
+      const c = sprite.frame(dir, anim, i);
+      const rgba = c._rgba || new Uint8ClampedArray(c.width * c.height * 4);
+      writePng(path.join(tmp, `f${n++}.png`), c.width, c.height, rgba);
+      node.push({ rgba, duration: 0.15 });
+    }
+    tags.push(`${dir}-${anim}:${from}:${n - 1}`);
+  }
+}
+
+fs.mkdirSync(path.dirname(out), { recursive: true });
+const params = { dir: tmp, n, w: sprite.w, h: sprite.h, tags: tags.join(";"), out };
+const exe = tryAseprite();
+if (exe) execFileSync(exe, ["-b", ...Object.entries(params).flatMap(([k, v]) => ["--script-param", `${k}=${v}`]),
+  "--script", fileURLToPath(new URL("seed.lua", import.meta.url))], { stdio: "inherit" });
+else writeAse(out, { w: sprite.w, h: sprite.h, frames: node, tags: tags.map((t) => { const [name, from, to] = t.split(":"); return { name, from: +from, to: +to }; }) });
+fs.rmSync(tmp, { recursive: true, force: true });
+console.log(`${path.relative(process.cwd(), out)}  (${sprite.w}×${sprite.h}, ${n} frames, ${tags.length} tags)`);

@@ -1,4 +1,5 @@
 import { normalizeConfig } from "./options.js";
+import { sheetCount, sheetFrame, sheetsVersion } from "./sheets.js";
 
 // ==================== MODULAR AVATAR RENDERER ====================
 // A character is built from separate parts (layers):
@@ -25,6 +26,7 @@ const ANCHOR_X = 16;
 const ANCHOR_Y = 34;
 export const DIRS = ["down", "side", "up"];
 const FRAMES = { idle: 2, walk: 4, run: 4, attack: 2 };
+const SKILL_FRAMES = 6;   // "skill": the attack's ready pose with a growing aura (built from the attack frames)
 
 // ---------- COLOURS ----------
 function hexToRgb(hex) {
@@ -41,6 +43,13 @@ function mix(a, b, t) {
 // Shade: toward a cool violet; highlight: toward a warm cream (hue shift, livelier)
 export function shade(hex, amt) {
   return amt < 0 ? mix(hex, "#1a1030", -amt) : mix(hex, "#fff4d6", amt);
+}
+const SHADES = new Map();
+function shadeCached(hex, amt) {
+  const k = hex + amt;
+  let v = SHADES.get(k);
+  if (!v) { v = shade(hex, amt); SHADES.set(k, v); }
+  return v;
 }
 
 const FIXED = {
@@ -115,15 +124,102 @@ export class Pix {
   rows(list, c, dy = 0) {
     list.forEach(([y, x0, x1]) => { for (let x = x0; x <= x1; x++) this.set(x, y + dy, c); });
   }
+  // Light from the upper left: edge pixels facing the sky catch a highlight, edge pixels facing the
+  // ground fall into shade, so every figure reads as round on any terrain (runs before the outline)
+  light() {
+    const src = this.d.slice();
+    const at = (x, y) => (x >= 0 && y >= 0 && x < this.w && y < this.h ? src[y * this.w + x] : null);
+    for (let y = 0; y < this.h; y++) {
+      for (let x = 0; x < this.w; x++) {
+        const c = src[y * this.w + x];
+        if (!c) continue;
+        const up = !at(x, y - 1), left = !at(x - 1, y), down = !at(x, y + 1), right = !at(x + 1, y);
+        if (up && !down) this.d[y * this.w + x] = shade(c, left ? 0.2 : 0.12);
+        else if (left && !right && !up) this.d[y * this.w + x] = shade(c, 0.07);
+        else if (down && !up) this.d[y * this.w + x] = shade(c, -0.12);
+        else if (right && !left) this.d[y * this.w + x] = shade(c, -0.07);
+      }
+    }
+  }
+  // Volume and texture inside the figure (runs before light/outline): each pixel's depth is its distance
+  // from the silhouette edge; the slope of that depth, lit from the upper left, lightens the near-top-left
+  // and shades the lower-right in dithered steps, so bodies, heads and limbs read as round. A sparse
+  // hash pattern adds fur/cloth texture to large flat areas. Single-pixel details (eyes, studs) keep
+  // their colour.
+  detail() {
+    const { w, h } = this, src = this.d.slice();
+    const dist = new Int8Array(w * h).fill(-1);
+    const q = [];
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const i = y * w + x;
+      if (!src[i]) continue;
+      if (x === 0 || y === 0 || x === w - 1 || y === h - 1 || !src[i - 1] || !src[i + 1] || !src[i - w] || !src[i + w]) { dist[i] = 1; q.push(i); }
+    }
+    for (let k = 0; k < q.length; k++) {
+      const i = q[k], x = i % w, y = (i - x) / w, d = dist[i];
+      if (d >= 5) continue;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nx = x + dx, ny = y + dy, j = ny * w + nx;
+        if (nx < 0 || ny < 0 || nx >= w || ny >= h || !src[j] || dist[j] !== -1) continue;
+        dist[j] = d + 1; q.push(j);
+      }
+    }
+    const D = (x, y) => (x < 0 || y < 0 || x >= w || y >= h || dist[y * w + x] < 0 ? 0 : dist[y * w + x]);
+    const count = new Map();
+    src.forEach((c) => { if (c) count.set(c, (count.get(c) || 0) + 1); });
+    const B = [[0, 2], [3, 1]];
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const i = y * w + x, c = src[i];
+      if (!c || dist[i] < 2 || count.get(c) < 4) continue;
+      // outward normal = minus the depth gradient; light comes from the upper left
+      const gx = D(x + 1, y) - D(x - 1, y), gy = D(x, y + 1) - D(x, y - 1);
+      const lum = (gx * 0.6 + gy * 0.8) * -1 / 2;          // > 0 = slope facing the light
+      const t = (B[y & 1][x & 1] + 0.5) / 4 * 0.5;
+      if (lum > 0.25 + t) this.d[i] = shadeCached(c, 0.13);
+      else if (lum < -0.25 - t) this.d[i] = shadeCached(c, -0.15);
+      else if (dist[i] >= 3 && ((x * 7 + y * 13 + ((x * y) & 3)) % 11 === 0)) this.d[i] = shadeCached(c, -0.07);   // texture
+    }
+  }
+  // Move everything by (dx, dy); rows above `pivot` lean forward by `lean` pixels (running, side view)
+  shift(dx, dy, lean = 0, pivot = this.h) {
+    const src = this.d.slice();
+    this.d.fill(null);
+    for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) {
+      const c = src[y * this.w + x];
+      if (c) this.set(x + dx + (y < pivot ? lean : 0), y + dy, c);
+    }
+  }
+  // Glow around the silhouette (after the outline) for charge level 1–4: sparse and close at first,
+  // denser and two pixels deep at the top, dithered by the level so it shimmers between frames
+  aura(col, level, t = level) {
+    const rings = level >= 3 ? 2 : 1, step = [4, 4, 3, 3, 2][Math.min(4, level)];
+    const src = this.d.slice(), { w, h } = this;
+    const near = (x, y, r) => { for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) { const X = x + dx, Y = y + dy; if (X >= 0 && Y >= 0 && X < w && Y < h && src[Y * w + X]) return true; } return false; };
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      if (src[y * w + x]) continue;
+      if (near(x, y, 1)) { if ((x + y * 2 + t) % step === 0) this.d[y * w + x] = col; }
+      else if (rings > 1 && near(x, y, 2) && (x * 3 + y + t) % (step * 2) === 0) this.d[y * w + x] = col;
+    }
+  }
+  // Sparkles in empty space, placed by a hash of `seed` (skill charge, dust)
+  motes(col, n, seed, y0 = 0, y1 = this.h) {
+    for (let k = 0; k < n; k++) {
+      const x = (seed * 7 + k * 13 + ((k * k * 5) % 7)) % this.w, y = y0 + ((seed * 3 + k * 11) % Math.max(1, y1 - y0));
+      if (!this.get(x, y)) this.set(x, y, col);
+    }
+  }
   // Selective outline: every empty pixel next to a colour becomes a darker version of it
+  // (darker under the figure so it sits on the ground)
   outline() {
+    this.light();
     const src = this.d.slice();
     const at = (x, y) => (x >= 0 && y >= 0 && x < this.w && y < this.h ? src[y * this.w + x] : null);
     for (let y = 0; y < this.h; y++) {
       for (let x = 0; x < this.w; x++) {
         if (src[y * this.w + x]) continue;
-        const n = at(x, y - 1) || at(x, y + 1) || at(x - 1, y) || at(x + 1, y);
-        if (n) this.d[y * this.w + x] = shade(n, -0.62);
+        const above = at(x, y - 1);
+        const n = above || at(x, y + 1) || at(x - 1, y) || at(x + 1, y);
+        if (n) this.d[y * this.w + x] = shade(n, above && !at(x, y + 1) ? -0.72 : -0.62);
       }
     }
   }
@@ -1048,6 +1144,18 @@ function drawQuiver(p, c, dy, view) {
 
 // ==================== BUONG FRAME ====================
 function renderFrame(cfg, dir, anim, i) {
+  if (anim === "skill") {   // charge: ready pose with a growing aura, then the strike with a burst
+    const p = renderPix(cfg, dir, "attack", i >= SKILL_FRAMES - 1 ? 1 : 0);
+    const e = cfg.eyes ? hexToRgb(cfg.eyes) : [0, 0, 0];
+    const col = e[0] + e[1] + e[2] > 300 ? cfg.eyes : "#ffd166";   // glowing eyes tint it, else gold
+    if (i > 0) p.aura(col, Math.min(4, i));
+    p.motes(i % 2 ? "#ffffff" : col, i >= SKILL_FRAMES - 1 ? 10 : 1 + i, i);
+    return p.toCanvas();
+  }
+  return renderPix(cfg, dir, anim, i).toCanvas();
+}
+
+function renderPix(cfg, dir, anim, i) {
   const p = new Pix(FRAME_W, FRAME_H);
   const c = palette(cfg);
   const g = gait(anim, i);
@@ -1153,8 +1261,9 @@ function renderFrame(cfg, dir, anim, i) {
     drawHeadgear(p, c, cfg, dy, "side");
   }
 
+  p.detail();
   p.outline();
-  return p.toCanvas();
+  return p;
 }
 
 // White silhouette (for the hit flash)
@@ -1177,16 +1286,28 @@ export class Avatar {
     this.cache = new Map();
   }
 
+  // Frames in an animation: the Aseprite sheet's tag when there is one (sheetKey, js/avatar/sheets.js)
+  count(dir, anim) {
+    return (this.sheetKey && sheetCount(this.sheetKey, dir, anim)) || FRAMES[anim] || (anim === "skill" ? SKILL_FRAMES : 1);
+  }
+
+  // Whether this Avatar has the animation: drawn ones, "skill" (built from the attack) or a sheet's
+  has(anim, dir = "down") {
+    return !!(FRAMES[anim] || anim === "skill" || (this.sheetKey && sheetCount(this.sheetKey, dir, anim)));
+  }
+
   frame(dir, anim, i) {
-    const n = FRAMES[anim] || 1;
+    const n = this.count(dir, anim);
     const idx = ((i % n) + n) % n;
+    const img = this.sheetKey && sheetFrame(this.sheetKey, dir, anim, idx);
+    if (img) return img;
     const key = `${dir}|${anim}|${idx}`;
     if (!this.cache.has(key)) this.cache.set(key, renderFrame(this.config, dir, anim, idx));
     return this.cache.get(key);
   }
 
   flashFrame(dir, anim, i) {
-    const key = `w|${dir}|${anim}|${i}`;
+    const key = `w${sheetsVersion()}|${dir}|${anim}|${i}`;
     if (!this.cache.has(key)) this.cache.set(key, whiteOf(this.frame(dir, anim, i)));
     return this.cache.get(key);
   }
@@ -1198,7 +1319,9 @@ export class Avatar {
     ctx.save();
     ctx.translate(Math.round(x), Math.round(y));
     if (flip && dir === "side") ctx.scale(-1, 1);
-    ctx.drawImage(img, -ANCHOR_X * scale, -ANCHOR_Y * scale * squash, FRAME_W * scale, FRAME_H * scale * squash);
+    // A larger (sheet) frame keeps the same feet: extra width split left/right, extra height on top
+    const ax = ANCHOR_X + Math.floor((img.width - FRAME_W) / 2), ay = ANCHOR_Y + (img.height - FRAME_H);
+    ctx.drawImage(img, -ax * scale, -ay * scale * squash, img.width * scale, img.height * scale * squash);
     ctx.restore();
   }
 

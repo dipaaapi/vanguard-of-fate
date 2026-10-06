@@ -46,7 +46,7 @@ export function forgePiece(player, setId, slot) {
 }
 
 // ---------- Tempering ----------
-// weapon → +ATK with Emberite · armor pieces → +DEF/HP with Obsidian Ore · accessories → +CRIT/CDR with Mythril
+// weapon → +ATK with Emberite · armor pieces → +DEF/HP with Obsidian Ore · accessories → +CRIT/CDR with Aethersilver
 const TEMPER = {
   weapon: { mineral: "emberite", qty: 4, gold: 150, add: [["atk", 4]] },
   armor: { mineral: "obsidianOre", qty: 3, gold: 150, add: [["def", 3], ["hp", 15]] },

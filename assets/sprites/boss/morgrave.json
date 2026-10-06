@@ -1,0 +1,1838 @@
+{
+ "frames": [
+  {
+   "filename": "morgrave 0.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 220
+  },
+  {
+   "filename": "morgrave 1.aseprite",
+   "frame": {
+    "x": 96,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 220
+  },
+  {
+   "filename": "morgrave 2.aseprite",
+   "frame": {
+    "x": 192,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 220
+  },
+  {
+   "filename": "morgrave 3.aseprite",
+   "frame": {
+    "x": 288,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 220
+  },
+  {
+   "filename": "morgrave 4.aseprite",
+   "frame": {
+    "x": 384,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 130
+  },
+  {
+   "filename": "morgrave 5.aseprite",
+   "frame": {
+    "x": 480,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 130
+  },
+  {
+   "filename": "morgrave 6.aseprite",
+   "frame": {
+    "x": 576,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 130
+  },
+  {
+   "filename": "morgrave 7.aseprite",
+   "frame": {
+    "x": 672,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 130
+  },
+  {
+   "filename": "morgrave 8.aseprite",
+   "frame": {
+    "x": 768,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 130
+  },
+  {
+   "filename": "morgrave 9.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 104,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 130
+  },
+  {
+   "filename": "morgrave 10.aseprite",
+   "frame": {
+    "x": 96,
+    "y": 104,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 80
+  },
+  {
+   "filename": "morgrave 11.aseprite",
+   "frame": {
+    "x": 192,
+    "y": 104,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 80
+  },
+  {
+   "filename": "morgrave 12.aseprite",
+   "frame": {
+    "x": 288,
+    "y": 104,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 80
+  },
+  {
+   "filename": "morgrave 13.aseprite",
+   "frame": {
+    "x": 384,
+    "y": 104,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 80
+  },
+  {
+   "filename": "morgrave 14.aseprite",
+   "frame": {
+    "x": 480,
+    "y": 104,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 80
+  },
+  {
+   "filename": "morgrave 15.aseprite",
+   "frame": {
+    "x": 576,
+    "y": 104,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 80
+  },
+  {
+   "filename": "morgrave 16.aseprite",
+   "frame": {
+    "x": 672,
+    "y": 104,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 17.aseprite",
+   "frame": {
+    "x": 768,
+    "y": 104,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 18.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 208,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 19.aseprite",
+   "frame": {
+    "x": 96,
+    "y": 208,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 20.aseprite",
+   "frame": {
+    "x": 192,
+    "y": 208,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 21.aseprite",
+   "frame": {
+    "x": 288,
+    "y": 208,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 22.aseprite",
+   "frame": {
+    "x": 384,
+    "y": 208,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 23.aseprite",
+   "frame": {
+    "x": 480,
+    "y": 208,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 24.aseprite",
+   "frame": {
+    "x": 576,
+    "y": 208,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 25.aseprite",
+   "frame": {
+    "x": 672,
+    "y": 208,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 26.aseprite",
+   "frame": {
+    "x": 768,
+    "y": 208,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 220
+  },
+  {
+   "filename": "morgrave 27.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 312,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 220
+  },
+  {
+   "filename": "morgrave 28.aseprite",
+   "frame": {
+    "x": 96,
+    "y": 312,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 220
+  },
+  {
+   "filename": "morgrave 29.aseprite",
+   "frame": {
+    "x": 192,
+    "y": 312,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 220
+  },
+  {
+   "filename": "morgrave 30.aseprite",
+   "frame": {
+    "x": 288,
+    "y": 312,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 130
+  },
+  {
+   "filename": "morgrave 31.aseprite",
+   "frame": {
+    "x": 384,
+    "y": 312,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 130
+  },
+  {
+   "filename": "morgrave 32.aseprite",
+   "frame": {
+    "x": 480,
+    "y": 312,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 130
+  },
+  {
+   "filename": "morgrave 33.aseprite",
+   "frame": {
+    "x": 576,
+    "y": 312,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 130
+  },
+  {
+   "filename": "morgrave 34.aseprite",
+   "frame": {
+    "x": 672,
+    "y": 312,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 130
+  },
+  {
+   "filename": "morgrave 35.aseprite",
+   "frame": {
+    "x": 768,
+    "y": 312,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 130
+  },
+  {
+   "filename": "morgrave 36.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 416,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 80
+  },
+  {
+   "filename": "morgrave 37.aseprite",
+   "frame": {
+    "x": 96,
+    "y": 416,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 80
+  },
+  {
+   "filename": "morgrave 38.aseprite",
+   "frame": {
+    "x": 192,
+    "y": 416,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 80
+  },
+  {
+   "filename": "morgrave 39.aseprite",
+   "frame": {
+    "x": 288,
+    "y": 416,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 80
+  },
+  {
+   "filename": "morgrave 40.aseprite",
+   "frame": {
+    "x": 384,
+    "y": 416,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 80
+  },
+  {
+   "filename": "morgrave 41.aseprite",
+   "frame": {
+    "x": 480,
+    "y": 416,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 80
+  },
+  {
+   "filename": "morgrave 42.aseprite",
+   "frame": {
+    "x": 576,
+    "y": 416,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 43.aseprite",
+   "frame": {
+    "x": 672,
+    "y": 416,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 44.aseprite",
+   "frame": {
+    "x": 768,
+    "y": 416,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 45.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 520,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 46.aseprite",
+   "frame": {
+    "x": 96,
+    "y": 520,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 47.aseprite",
+   "frame": {
+    "x": 192,
+    "y": 520,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 48.aseprite",
+   "frame": {
+    "x": 288,
+    "y": 520,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 49.aseprite",
+   "frame": {
+    "x": 384,
+    "y": 520,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 50.aseprite",
+   "frame": {
+    "x": 480,
+    "y": 520,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 51.aseprite",
+   "frame": {
+    "x": 576,
+    "y": 520,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 52.aseprite",
+   "frame": {
+    "x": 672,
+    "y": 520,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 220
+  },
+  {
+   "filename": "morgrave 53.aseprite",
+   "frame": {
+    "x": 768,
+    "y": 520,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 220
+  },
+  {
+   "filename": "morgrave 54.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 624,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 220
+  },
+  {
+   "filename": "morgrave 55.aseprite",
+   "frame": {
+    "x": 96,
+    "y": 624,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 220
+  },
+  {
+   "filename": "morgrave 56.aseprite",
+   "frame": {
+    "x": 192,
+    "y": 624,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 130
+  },
+  {
+   "filename": "morgrave 57.aseprite",
+   "frame": {
+    "x": 288,
+    "y": 624,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 130
+  },
+  {
+   "filename": "morgrave 58.aseprite",
+   "frame": {
+    "x": 384,
+    "y": 624,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 130
+  },
+  {
+   "filename": "morgrave 59.aseprite",
+   "frame": {
+    "x": 480,
+    "y": 624,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 130
+  },
+  {
+   "filename": "morgrave 60.aseprite",
+   "frame": {
+    "x": 576,
+    "y": 624,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 130
+  },
+  {
+   "filename": "morgrave 61.aseprite",
+   "frame": {
+    "x": 672,
+    "y": 624,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 130
+  },
+  {
+   "filename": "morgrave 62.aseprite",
+   "frame": {
+    "x": 768,
+    "y": 624,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 80
+  },
+  {
+   "filename": "morgrave 63.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 728,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 80
+  },
+  {
+   "filename": "morgrave 64.aseprite",
+   "frame": {
+    "x": 96,
+    "y": 728,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 80
+  },
+  {
+   "filename": "morgrave 65.aseprite",
+   "frame": {
+    "x": 192,
+    "y": 728,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 80
+  },
+  {
+   "filename": "morgrave 66.aseprite",
+   "frame": {
+    "x": 288,
+    "y": 728,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 80
+  },
+  {
+   "filename": "morgrave 67.aseprite",
+   "frame": {
+    "x": 384,
+    "y": 728,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 80
+  },
+  {
+   "filename": "morgrave 68.aseprite",
+   "frame": {
+    "x": 480,
+    "y": 728,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 69.aseprite",
+   "frame": {
+    "x": 576,
+    "y": 728,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 70.aseprite",
+   "frame": {
+    "x": 672,
+    "y": 728,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 71.aseprite",
+   "frame": {
+    "x": 768,
+    "y": 728,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 72.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 832,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 73.aseprite",
+   "frame": {
+    "x": 96,
+    "y": 832,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 74.aseprite",
+   "frame": {
+    "x": 192,
+    "y": 832,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 75.aseprite",
+   "frame": {
+    "x": 288,
+    "y": 832,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 76.aseprite",
+   "frame": {
+    "x": 384,
+    "y": 832,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  },
+  {
+   "filename": "morgrave 77.aseprite",
+   "frame": {
+    "x": 480,
+    "y": 832,
+    "w": 96,
+    "h": 104
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 96,
+    "h": 104
+   },
+   "sourceSize": {
+    "w": 96,
+    "h": 104
+   },
+   "duration": 110
+  }
+ ],
+ "meta": {
+  "app": "tools/aseprite/asefile.mjs",
+  "version": "1",
+  "image": "morgrave.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 864,
+   "h": 936
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "down-idle",
+    "from": 0,
+    "to": 3,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "down-walk",
+    "from": 4,
+    "to": 9,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "down-run",
+    "from": 10,
+    "to": 15,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "down-attack",
+    "from": 16,
+    "to": 19,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "down-skill",
+    "from": 20,
+    "to": 25,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-idle",
+    "from": 26,
+    "to": 29,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-walk",
+    "from": 30,
+    "to": 35,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-run",
+    "from": 36,
+    "to": 41,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-attack",
+    "from": 42,
+    "to": 45,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-skill",
+    "from": 46,
+    "to": 51,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-idle",
+    "from": 52,
+    "to": 55,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-walk",
+    "from": 56,
+    "to": 61,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-run",
+    "from": 62,
+    "to": 67,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-attack",
+    "from": 68,
+    "to": 71,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-skill",
+    "from": 72,
+    "to": 77,
+    "direction": "forward",
+    "color": "#000000ff"
+   }
+  ]
+ }
+}

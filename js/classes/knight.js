@@ -20,7 +20,7 @@ export const KnightClass = {
   onAttack(player, target, spawnProjectile) {
     spawnProjectile({ type: "shockwave", x: player.x + 10, y: player.y + 14, r: 6, max: 38, grow: 3, damage: 18, hit: new Set(), color: "#5ee7ff", push: 14, elem: "wind" });
     player.guardTimer = 36;       // −35% damage while active (js/player.js takeDamage)
-    if (Sound.playHolyBurst) Sound.playHolyBurst();
+    if (Sound.playForcefield) Sound.playForcefield();
     return true;
   },
 
@@ -35,7 +35,7 @@ export const KnightClass = {
     return true;
   },
 
-  // KEY L: Brandish Spear — a wide sweep in front (strong, slow)
+  // KEY L: Crescent Sweep — a wide sweep in front (strong, slow)
   cooldown2: 240,
   onSkill2(player, target, spawnProjectile) {
     const angle = player.aimAngle;

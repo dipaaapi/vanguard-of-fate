@@ -10,8 +10,8 @@ import { FXManager } from "./fx.js";
 import { EnemyManager } from "./enemy.js";
 import { ProjectileManager } from "./projectiles.js";
 import { UIManager } from "./ui.js";
-import { LootManager } from "./loot.js";
-import { MercenaryManager } from "./mercenaryManager.js";
+import { LootManager, findNearestWalkableSpot } from "./loot.js";
+import { MercenaryManager, MERC_CLASSES } from "./mercenaryManager.js";
 import { Sound } from "./audio.js";
 import { Stage } from "./stage.js";
 import { TitleScene } from "./title.js";
@@ -22,7 +22,10 @@ import { getNovice } from "./classes/novice.js";
 import { DevTools, devEnabled } from "./devtools.js";
 import { equipJob, refreshLook } from "./classes/job.js";
 import { Platform } from "./world/platform.js";
-import { PLATFORMS, PLATFORM_ORDER, SEAL_STONES } from "./world/platforms.js";
+import { PLATFORMS, PLATFORM_ORDER, SEAL_STONES, DARK_CONTINENT } from "./world/platforms.js";
+import { FRONTIERS } from "./world/frontiers.js";
+import { areaDef, areaName } from "./world/areas.js";
+import { drawSites } from "./sidequest.js";
 import { QuestManager, MENTOR_BY_CLASS, FINAL_STEP } from "./quest.js";
 import { NPCManager } from "./npc/npcs.js";
 import { NPC_DEFS, MENTOR_OF, summonerIdFor } from "./npc/roster.js";
@@ -34,7 +37,14 @@ import { Codex } from "./codex.js";
 import { getItem, SETS } from "./items/itemdb.js";
 import { SET_SLOTS, recipeCost, forgePiece } from "./items/forge.js";
 import { wear, WEAR_WEAPON, WEAR_ARMOR, ARMOR_SLOTS } from "./items/durability.js";
+import { needsPick } from "./world/mining.js";
+import { Fishing } from "./world/fishing.js";
+import { Workshop } from "./workshop.js";
+import { SHOPS, buyPrice, Market as EconMarket } from "./items/economy.js";
+import { hasRunnerKind, isAway, updateErrand, serializeErrand, loadErrand, errandText, runnerName } from "./errand.js";
 import { Avatar } from "./avatar/avatar.js";
+import { loadSpriteSheets } from "./avatar/sheets.js";
+import { ActIntro } from "./actintro.js";
 import { createLorePanel } from "./lore.js";
 import { HudBar } from "./hudbar.js";
 import { ActionPanel } from "./actionpanel.js";
@@ -44,13 +54,33 @@ import { InventoryPanel } from "./inventory.js";
 import { DayNight } from "./daynight.js";
 import { CharacterPanel } from "./charpanel.js";
 import { t, onLangChange, getLang } from "./i18n.js";
+import { loadConfig, GFX, SettingsPanel, toggleFullscreen } from "./settings.js";
+import { Market, marketText } from "./market.js";
+import { SkillSlots } from "./skillslots.js";
 
 import { FalconCompanion } from "./summons/falcon.js";
 import { GuardianAngelCompanion } from "./summons/angel.js";
+import { syncFamiliar } from "./summons/familiar.js";
+import { PATH_IDS, SLOT_KEYS, assignSlot } from "./skillpaths.js";
+import { AUTO_MODES } from "./skills.js";
 import "./saveSecurity.js";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+// Labels (names, prompts, gateways) measure the same text every frame: remember the widths per font
+{
+  const measure = ctx.measureText.bind(ctx), widths = new Map();
+  ctx.measureText = (text) => {
+    const key = `${ctx.font}|${text}`;
+    let m = widths.get(key);
+    if (!m) {
+      if (widths.size > 4000) widths.clear();
+      m = measure(text);
+      widths.set(key, m);
+    }
+    return m;
+  };
+}
 
 // ==================== DISPLAY / RESOLUTION ====================
 // Logical game size (16:9). All game code works in these units.
@@ -63,8 +93,8 @@ const stageEl = document.getElementById("stage");
 const viewportEl = document.getElementById("viewport");
 const barEl = document.getElementById("bar");
 
-// While playing: room below for the bottom tray (adventure log)
-const TRAY_RESERVE = 104;
+// While playing: room below for the bottom tray (hotbar + adventure log)
+const TRAY_RESERVE = 150;
 const chatLogEl = document.getElementById("chatLog");
 
 function fitCanvas() {
@@ -72,17 +102,20 @@ function fitCanvas() {
   const availH = window.innerHeight - barEl.offsetHeight - (layoutMode === "play" ? TRAY_RESERVE : 0);
   const raw = Math.min(availW / VIEW_W, availH / VIEW_H);
   const scale = Math.max(1, Math.floor(raw));
+  // Drawing resolution: on big screens the canvas draws at up to 2× (Balanced) and the browser
+  // enlarges it pixel-perfect; drawing every pixel at 3–4× cost up to half the frame rate (perf.mjs)
+  const render = Math.min(scale, RENDER_CAP[gameConfig.quality] || scale);
 
-  canvas.width = VIEW_W * scale;
-  canvas.height = VIEW_H * scale;
-  canvas.style.width = canvas.width + "px";
-  canvas.style.height = canvas.height + "px";
-  barEl.style.width = canvas.width + "px";   // the menu is as wide as the canvas
-  chatLogEl.style.width = canvas.width + "px";
+  canvas.width = VIEW_W * render;
+  canvas.height = VIEW_H * render;
+  canvas.style.width = VIEW_W * scale + "px";
+  canvas.style.height = VIEW_H * scale + "px";
+  barEl.style.width = VIEW_W * scale + "px";   // the menu is as wide as the canvas
+  chatLogEl.style.width = VIEW_W * scale + "px";
   viewportEl.style.setProperty("--s", scale);  // size of the HTML overlays (dialogue, quest)
 
   // Reset whenever canvas.width changes, so set it again here
-  ctx.setTransform(scale, 0, 0, scale, 0, 0);
+  ctx.setTransform(render, 0, 0, render, 0, 0);
   ctx.imageSmoothingEnabled = false;
 }
 
@@ -115,36 +148,47 @@ const hudText = document.getElementById("hudText");
 const fileInput = document.getElementById("saveFileInput");
 const ROSTER = [KnightClass, MageClass, PriestClass, ArcherClass, FighterClass];
 
-const CONFIG_KEY = "vanguard_config";
-function loadGameConfig() {
-  try {
-    const raw = localStorage.getItem(CONFIG_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      return {
-        music: parsed.music !== undefined ? Boolean(parsed.music) : true,
-        sfx: parsed.sfx !== undefined ? Boolean(parsed.sfx) : true,
-        blood: parsed.blood !== undefined ? Boolean(parsed.blood) : true,
-        weather: parsed.weather !== undefined ? Boolean(parsed.weather) : true
-      };
-    }
-  } catch (_) {}
-  return { music: true, sfx: true, blood: true, weather: true };
-}
+// Options → Quality: the largest drawing scale (0 = always the full screen scale)
+const RENDER_CAP = { sharp: 0, balanced: 2, fast: 1 };
 
-const gameConfig = loadGameConfig();
+// Settings (js/settings.js): title Options and the in-game Settings panel (O) share this object
+const gameConfig = loadConfig();
 Sound.musicEnabled = gameConfig.music;
 Sound.sfxEnabled = gameConfig.sfx;
 
-// The plains of Aethelgard (hub) and the Act VII–XII platforms (built on first entry).
+// Applies a changed setting (key) or all of them (no key)
+function applyConfig(key) {
+  const all = !key;
+  if (all || key === "quality") fitCanvas();
+  if (all || key === "musicVol" || key === "sfxVol") Sound.setVolumes(gameConfig.musicVol, gameConfig.sfxVol);
+  if (all || key === "brightness") canvas.style.filter = gameConfig.brightness === 100 ? "" : `brightness(${gameConfig.brightness / 100})`;
+  GFX.shadows = gameConfig.shadows;
+  GFX.glow = gameConfig.glow;
+  if (key === "music" && layoutMode === "play") {
+    Sound.musicEnabled = gameConfig.music;
+    if (gameConfig.music && gameState === "PLAYING") Sound.startGameplayBGM();
+  }
+  if (key === "sfx") Sound.sfxEnabled = gameConfig.sfx;
+}
+
+// The plains of Aethelgard (hub) and the Act VII–XV platforms (built on first entry).
 // Same size (1280x960), so one camera, enemy and projectile manager serve all of them.
 const hub = new Stage(1280, 960);
 let stage = hub;
 const platformCache = {};
 function platformById(id) {
-  if (id === "hub" || !PLATFORMS[id]) return hub;
-  if (!platformCache[id]) platformCache[id] = new Platform(id);
+  if (id === "hub" || !(PLATFORMS[id] || FRONTIERS[id])) return hub;
+  if (!platformCache[id]) {
+    platformCache[id] = new Platform(id);
+    if (savedShip && platformCache[id].boatSystem) platformCache[id].boatSystem.load(savedShip);
+  }
   return platformCache[id];
+}
+// The Cerulean Abyss ship from the save (where it is moored, or sailing with the hero aboard)
+let savedShip = null;
+function shipState() {
+  const p = Object.values(platformCache).find((c) => c.boatSystem);
+  return p ? p.boatSystem.serialize(stage === p ? player : null) : savedShip;
 }
 
 const camera = new Camera(VIEW_W, VIEW_H, hub.width, hub.height);
@@ -214,7 +258,93 @@ function openService(service, opts) {
 // NPC service menus. Ronald: mercenaries, safe refines up to +4, and field repairs at double the dwarves' price.
 const serviceMenu = new ServiceMenu(document.getElementById("serviceMenu"));
 
+// Workshop (G, safe zones only): craft gear from materials, auto-craft, cook, transmute (js/workshop.js)
+const workshop = new Workshop({
+  menu: serviceMenu, fx, sound: Sound,
+  log: (kind, text, color) => chatLog.event(kind, text, dayNight.label(), null, color),
+  onChange: () => { inventory.dirty = true; }
+});
+function openWorkshop() {
+  if (!player || gameState !== "PLAYING" || dialog.open || serviceMenu.open || showShopModal || showMercModal) return;
+  if (!stage.isInsideSafeZone(player.x + 10, player.y + 17)) {
+    fx.spawnDamagePopup(player.x + 10, player.y - 10, lang() === "fil" ? "Sa ligtas na lugar lang ang talyer" : "Workshop: safe zones only", false, "#94a3b8");
+    return;
+  }
+  controller.clearAll();
+  inventory.close();
+  charPanel.close();
+  worldMap.close();
+  workshop.open(player);
+}
+
+// Fishing (E at the water's edge): what bites depends on the place (js/world/fishing.js)
+const fishing = new Fishing();
+fishing.onCatch = (id) => {
+  const it = getItem(id), fil = lang() === "fil";
+  if (!player.bag.add(id, 1)) lootManager.drop({ x: player.x + 10, y: player.y + 22 }, { id, qty: 1 });
+  fx.spawnDamagePopup(player.x + 10, player.y - 18, `+1 ${it.name}`, true, it.tint);
+  if (Sound.playLootPickup) Sound.playLootPickup();
+  chatLog.event("loot", "", dayNight.label(), { key: `fish:${id}`, value: 1, format: (n, total) => (fil ? `Nakahuli ng ${it.name} ×${total}` : `Caught ${it.name} ×${total}`) }, it.tint);
+};
+fishing.onMiss = () => fx.spawnDamagePopup(player.x + 10, player.y - 18, lang() === "fil" ? "Nakatakas!" : "It got away!", false, "#94a3b8");
+
 // Codex (N): encyclopedia of NPCs, monsters, MVPs and items; progress is saved with the game
+// Safe-zone Market (B) and Settings (O): HTML overlays; the game waits while one is open.
+// Prices come from js/items/economy.js (safe-zone markup, sell rates, market saturation); the Market
+// pays the gold itself, so it records the sale instead of calling sell(). Outside a safe zone B opens
+// the same panel as a summon errand order (js/errand.js).
+const market = new Market(document.getElementById("market"), {
+  stock: () => SHOPS.safezone.stock,
+  buyPrice: (id, it) => buyPrice("safezone", id, it),
+  sellQuote: (it, n) => (player.market ||= new EconMarket()).quote(it, n),
+  onSold: (it, n) => player.market.record(it, n),
+  tabs: [{ id: "workshop", label: () => (lang() === "fil" ? "Talyer" : "Workshop"), open: () => openWorkshop() }],
+  onTrade: (text) => {
+    chatLog.event("loot", text, dayNight.label());
+    if (Sound.playCoin) Sound.playCoin();
+  },
+  onErrand: (text) => {
+    chatLog.event("info", text, dayNight.label());
+    if (fx.spawnHitSparks) fx.spawnHitSparks(player.x - 10, player.y + 10, "#ffd166", 14);
+    if (Sound.playPortal) Sound.playPortal(player.x, player.y);
+    inventory.dirty = true;
+  },
+  onFail: () => { if (Sound.playUiClose) Sound.playUiClose(); }
+});
+function toggleMarket() {
+  if (!player || gameState !== "PLAYING" || dialog.open || actReader.open) return;
+  if (market.open) { market.close(); panelSound(false); return; }
+  // Outside a safe zone: send the summon on an errand instead (if the hero has one)
+  const errand = !stage.isInsideSafeZone(player.x + 10, player.y + 17);
+  if (errand && !hasRunnerKind(player)) {
+    fx.spawnDamagePopup(player.x + 10, player.y - 8, "⚖ ✖", false, "#f87171");
+    chatLog.event("info", marketText("closed"), dayNight.label());
+    return;
+  }
+  closeOverlays();
+  market.show(player, errand ? "errand" : "shop");
+  panelSound(true);
+}
+const settingsPanel = new SettingsPanel(document.getElementById("settings"), gameConfig, (key) => applyConfig(key));
+function toggleSettings() {
+  if (!player || (gameState !== "PLAYING" && gameState !== "PAUSED") || dialog.open || actReader.open) return;
+  if (!settingsPanel.open) closeOverlays();
+  settingsPanel.toggle();
+  panelSound(settingsPanel.open);
+}
+// Closes the side panels (inventory, character, quest log, map, shops) before another opens
+function closeOverlays() {
+  controller.clearAll();
+  if (questHud.logOpen) questHud.closeLog();
+  inventory.close();
+  charPanel.close();
+  if (codex.open) codex.close();
+  worldMap.close();
+  market.close();
+  settingsPanel.close();
+  showShopModal = false;
+  showMercModal = false;
+}
 const codex = new Codex(document.getElementById("codex"));
 function toggleCodex() {
   if (!player || gameState !== "PLAYING" || dialog.open || serviceMenu.open) return;
@@ -240,7 +370,7 @@ function openRonaldMenu() {
 function openSmithMenu() {
   const fil = lang() === "fil", who = npcName("brakka");
   serviceMenu.show(who, [
-    { label: fil ? "Mag-refine (hanggang +10)" : "Refine gear (up to +10)", hint: fil ? "Phracon, Oridecon at ginto" : "Phracon, Oridecon and gold",
+    { label: fil ? "Mag-refine (hanggang +10)" : "Refine gear (up to +10)", hint: fil ? "Monster Shard, Kristal ng Void at ginto" : "Monster Shards, Void Crystals and gold",
       onPick: () => openService("refine", { serviceName: who }) },
     { label: fil ? "Mag-forge ng set" : "Forge a set piece", hint: fil ? "Mga mineral mula sa minahan" : "From mined minerals", onPick: openForgeSets },
     { label: fil ? "Patibayin gamit ang mineral" : "Temper with minerals", hint: fil ? "Hanggang 3 beses bawat hindi-set na gamit" : "Up to 3 times on any non-set gear",
@@ -252,7 +382,7 @@ function openSmithMenu() {
 const costText = (cost) => Object.entries(cost).map(([id, n]) => (id === "gold" ? `${n}G` : `${getItem(id).name} ${player.bag.count(id)}/${n}`)).join(" · ");
 function openForgeSets() {
   const fil = lang() === "fil";
-  serviceMenu.show(fil ? "Pumili ng set" : "Choose a set", Object.entries(SETS).map(([id, set]) => ({
+  serviceMenu.show(fil ? "Pumili ng set" : "Choose a set", Object.entries(SETS).filter(([, set]) => set.mineral).map(([id, set]) => ({
     label: `${set.name[lang()]} · ${fil ? "Grado" : "Grade"} ${set.grade}`,
     hint: `5: ${set.passive[lang()]}`,
     onPick: () => openForgeSlots(id)
@@ -315,7 +445,7 @@ function openNobleMenu() {
   } else {
     serviceMenu.show(who, [{
       label: fil ? "Tungkol sa pagmimina" : "About mining",
-      hint: fil ? "Emberite at Obsidian sa Ashfall · Mythril at Starsteel sa Siege · dalhin kay Brakka" : "Emberite & Obsidian in the Ashfall · Mythril & Starsteel in the Siege · take them to Brakka",
+      hint: fil ? "Emberite at Obsidian sa Ashfall · Aethersilver at Starsteel sa Siege · dalhin kay Brakka" : "Emberite & Obsidian in the Ashfall · Aethersilver & Starsteel in the Siege · take them to Brakka",
       onPick: () => {}
     }]);
   }
@@ -324,7 +454,7 @@ function openNobleMenu() {
 // Mining: one pickaxe strike on the vein beside the hero
 function mineVein(v) {
   const fil = lang() === "fil";
-  if (quest.mining !== 2) {
+  if (quest.mining !== 2 && needsPick(v.kind)) {
     fx.spawnDamagePopup(player.x + 10, player.y - 10, fil ? "Kailangan ang piko ni Thane Durgrim" : "Needs Thane Durgrim's pickaxe", false, "#94a3b8");
     return;
   }
@@ -332,6 +462,7 @@ function mineVein(v) {
   fx.spawnHitSparks(v.x, v.y - 8, getItem(v.kind).tint, r.broke ? 20 : 8);
   if (Sound.playSlash) Sound.playSlash();
   if (!r.broke) return;
+  if (r.salt && !player.bag.add("rockSalt", r.salt)) lootManager.drop({ x: v.x + 8, y: v.y + 6 }, { id: "rockSalt", qty: r.salt });
   if (!player.bag.add(r.id, r.qty)) {
     lootManager.drop({ x: v.x, y: v.y + 6 }, { id: r.id, qty: r.qty });   // bag full: leave it on the ground
   } else {
@@ -498,6 +629,8 @@ function autoPotion() {
   if (a.stamina && p.exhausted) use("tonic");
 }
 document.getElementById("loreMore").addEventListener("mousedown", (e) => e.preventDefault());
+// Mouse wheel zooms the world map while it is open
+canvas.addEventListener("wheel", (e) => { if (worldMap.open) { e.preventDefault(); worldMap.wheel(e.deltaY); } }, { passive: false });
 document.getElementById("loreMore").addEventListener("click", () => { Sound.init(); openActReader(); });
 
 // Pause / resume (Esc or the side-panel button)
@@ -536,6 +669,8 @@ function exitToTitle() {
   charPanel.close();
   showShopModal = false;
   showMercModal = false;
+  actIntro.close();
+  actIntroShown = null;
   gameState = "TITLE";
   player = null;
   syncLoreAct();
@@ -553,8 +688,8 @@ const actionPanel = new ActionPanel({
       questHud.toggleLog(quest, player, summonerName(), mentorName());
     }
   },
-  inventory: () => { Sound.init(); toggleInventory(); },
-  character: () => { Sound.init(); toggleCharacter(); },
+  inventory: () => { Sound.init(); toggleInventory(); panelSound(inventory.open); },
+  character: () => { Sound.init(); toggleCharacter(); panelSound(charPanel.open); },
   quick: (i) => { Sound.init(); if (gameState === "PLAYING" && !dialog.open) quickUse(i); },
   pause: () => {
     Sound.init();
@@ -569,20 +704,51 @@ const actionPanel = new ActionPanel({
     worldMap.close();
     exitToTitle();
   },
-  map: () => { Sound.init(); toggleMap(); },
-  codex: () => { Sound.init(); toggleCodex(); }
+  map: () => { Sound.init(); toggleMap(); panelSound(worldMap.open); },
+  codex: () => { Sound.init(); toggleCodex(); panelSound(codex.open); },
+  workshop: () => { Sound.init(); openWorkshop(); },
+  settings: () => { Sound.init(); toggleSettings(); },
+  market: () => { Sound.init(); toggleMarket(); },
+  fullscreen: () => { Sound.init(); toggleFullscreen(); },
+  slotsChanged: () => { if (Sound.playSelectMove) Sound.playSelectMove(); saveGame(); }
 });
 
+// Soft page-turn when a side panel opens or closes
+function panelSound(open) {
+  if (open) { if (Sound.playUiOpen) Sound.playUiOpen(); } else if (Sound.playUiClose) Sound.playUiClose();
+}
+
+// Act intro cinematic: plays when the story moves on to a new Act during play (not on loading a save)
+const actIntro = new ActIntro();
+let actIntroShown = null;
+let pendingToast = null;
+function maybeActIntro() {
+  if (!player) return;
+  const a = quest.act();
+  if (actIntroShown !== null && a > actIntroShown) {
+    const label = quest.text(player, summonerName(), mentorName()).act || "";
+    actIntro.start(a, label.includes("·") ? label.split("·").slice(1).join("·").trim() : label);
+    controller.clearAll();
+  }
+  actIntroShown = a;
+}
+
 quest.onChange = () => {
+  maybeActIntro();
   npcManager.applyQuest(quest, playerClass());
   syncLoreAct();
   syncPlatformFlags();
   syncBoss();
-  if (player) questHud.toast(quest.text(player, summonerName(), mentorName()).goal);
+  if (player) {
+    const goal = quest.text(player, summonerName(), mentorName()).goal;
+    if (actIntro.open) pendingToast = goal;   // shown when the Act intro ends
+    else questHud.toast(goal);
+    if (Sound.playQuest) Sound.playQuest();
+  }
   saveGame();
 };
 
-// ==================== TRAVELLING BETWEEN PLATFORMS (Acts VII–XII) ====================
+// ==================== TRAVELLING BETWEEN PLATFORMS (Acts VII–XV) ====================
 const lang = () => (getLang() === "fil" ? "fil" : "en");
 const fillNames = (lines) => lines.map((s) => s.replace(/\{s\}/g, summonerName()).replace(/\{h\}/g, (player && player.heroName) || "Champion"));
 
@@ -592,6 +758,7 @@ function syncPlatformFlags() {
     p.cleared = quest.cleared(p.id);
     if (p.def.rift) p.riftOpen = quest.unlocked(p.def.rift.dest);
     p.miningUnlocked = quest.mining === 2;
+    if (p.trail) p.trailSealed = !quest.unlocked(p.trail.dest);
     // Celestial Monolith: chained until the Leviathan Regent falls; awakened once the Seal Stones are placed
     if (p.boatSystem) {
       p.boatSystem.chained = !p.cleared;
@@ -619,13 +786,34 @@ function syncBoss() {
   enemyManager.spawnBoss(def.boss, def.bossSpawn.x, def.bossSpawn.y, player.level);
 }
 
+// Everyone travelling with the hero, who boards the ship with them: mercenaries, summons, and any
+// pet or familiar listed in player.companions (entities with x / y; flying: true perches in the rigging)
+function crewOf() {
+  if (!player) return [];
+  const away = (c) => (c === player.falconCompanion && isAway(player, "falcon")) || (c === player.familiar && isAway(player, "familiar"));
+  return [...mercManager.mercenaries, player.falconCompanion, ...(player.angelCompanions || []), ...(player.companions || [])].filter((c) => c && !away(c));
+}
+
 // Move to another place. at = { x, y } (player pixels) or nothing for the default arrival.
 function travelTo(id, at = null) {
   const from = stage.id;
   lockedTarget = null;
+  // Leaving at sea (the Celestial Monolith's portal): the hero crosses alone and the ship sails
+  // itself back to its berth at the pier, where the hero can walk to it on the way back
+  if (player.inBoat && stage.boatSystem) stage.boatSystem.returnToPier();
   stage = platformById(id);
   syncPlatformFlags();
-  const spot = at || (stage === hub ? hub.arrivalFrom(from) : stage.arrival());
+  let spot = at || (stage === hub ? hub.arrivalFrom(from) : stage.arrivalFrom(from));
+  // Arriving on foot: the ship stays behind in the Cerulean Abyss
+  player.inBoat = false;
+  crewOf().forEach((c) => { c.aboard = false; });
+  // A saved spot in the water or inside an obstacle (an old save made at sea): the nearest dry ground
+  if (at) {
+    const dry = findNearestWalkableSpot(spot.x + 10, spot.y + 20, stage);
+    spot = { x: dry.x - 10, y: dry.y - 20 };
+  }
+  // A ship moored where no shore can be walked to sails back to the pier
+  if (stage.boatSystem) stage.boatSystem.checkMooring();
   player.x = spot.x;
   player.y = spot.y;
   player.portalCooldown = 75;
@@ -637,20 +825,26 @@ function travelTo(id, at = null) {
   worldMap.stage = stage;
   worldMap.close();
   const def = stage === hub ? null : stage.def;
-  enemyManager.setArea(stage, def ? def.monsters : undefined, def ? def.tier : 0);
+  enemyManager.setArea(stage, def ? def.monsters : undefined, def ? def.tier : 0, def ? def.elites : undefined, def ? def.levels : null);
   enemyManager.init(player.level);
   projectileManager.clear();
   lootManager.clear();
   // Mercenaries and summons follow
   mercManager.mercenaries.forEach((m, k) => { m.x = player.x - 16 + k * 10; m.y = player.y + 14; });
   if (player.falconCompanion) { player.falconCompanion.x = player.x - 22; player.falconCompanion.y = player.y - 18; }
+  if (player.familiar) player.familiar.place(player);
   (player.angelCompanions || []).forEach((a, k) => { a.x = player.x + (k ? 30 : -30); a.y = player.y - 16; });
 
   if (fx.spawnHitSparks) fx.spawnHitSparks(player.x + 10, player.y + 10, def ? def.color : "#ffd166", 22);
-  if (Sound.playHolyBurst) Sound.playHolyBurst();
+  if (Sound.playPortal) Sound.playPortal();
 
+  // A frontier map: its name and level band in the log
+  if (def && def.frontier) {
+    fx.spawnDamagePopup(player.x + 10, player.y - 14, def.name[lang()].toUpperCase(), true, def.color);
+    chatLog.event("info", def.text[lang()].arrive, dayNight.label());
+  }
   // First arrival on the current Act's platform: the summoner greets the hero
-  if (def && quest.step === quest.baseStep(id)) {
+  if (def && !def.frontier && quest.step === quest.baseStep(id)) {
     quest.onArrive(id);
     const s = npcManager.find(npcManager.summonerId);
     dialog.start(npcManager.summonerId, s && s.avatar, fillNames(def.text[lang()].arrive));
@@ -665,14 +859,16 @@ function travelTo(id, at = null) {
 function handlePortal(portal) {
   if (!player) return;
   const dest = portal.dest;
-  if (portal.id === "RETURN") return travelTo("hub");
+  if (portal.id === "RETURN") return travelTo(portal.dest || "hub");
   if (portal.id === "DARK_CONTINENT_PORTAL" || dest === "dark_continent") {
-    // The Celestial Monolith portal is the only way to the Dark Continent (Acts XI–XII)
-    if (!quest.unlocked("siege")) {
+    // The Celestial Monolith portal is the only way to the Dark Continent (Acts XI–XV); it opens onto
+    // the furthest Dark Continent Act reached so far
+    const open = DARK_CONTINENT.filter((pid) => quest.unlocked(pid));
+    if (!open.length) {
       fx.spawnDamagePopup(player.x + 10, player.y - 10, lang() === "fil" ? "SELYADO · ACT XI" : "SEALED · ACT XI", false, "#94a3b8");
       return;
     }
-    travelTo("siege");
+    travelTo(open[open.length - 1]);
     if (fx && fx.spawnDamagePopup) {
       fx.spawnDamagePopup(player.x + 10, player.y - 12, lang() === "fil" ? "🌌 DARK CONTINENT" : "🌌 THE DARK CONTINENT", true, "#9d4edd");
     }
@@ -683,12 +879,12 @@ function handlePortal(portal) {
     player.x = hub.safeZone.x + hub.safeZone.w / 2 - 10;
     player.y = hub.safeZone.y + hub.safeZone.h - 30;
     if (fx.spawnHitSparks) fx.spawnHitSparks(player.x + 10, player.y + 10, "#38bdf8", 16);
-    if (Sound.playHolyBurst) Sound.playHolyBurst();
+    if (Sound.playPortal) Sound.playPortal();
     return;
   }
-  if (dest && PLATFORMS[dest]) {
+  if (dest && dest !== "hub" && areaDef(dest)) {
     if (!quest.unlocked(dest)) {
-      const act = PLATFORMS[dest].act;
+      const act = FRONTIERS[dest] ? FRONTIERS[dest].unlockAct : PLATFORMS[dest].act;
       fx.spawnDamagePopup(player.x + 10, player.y - 10, lang() === "fil" ? `SELYADO · ACT ${act}` : `SEALED · ACT ${act}`, false, "#94a3b8");
       return;
     }
@@ -696,11 +892,56 @@ function handlePortal(portal) {
   }
 }
 
-// Labels of the hub's 4 Warp Gateways: the platform name, sealed until its Act
+// Labels of the hub's Warp Gateways (and the Wayfarer's Gate): the place's name, sealed until its Act
 hub.portals.stateOf = (p) => ({
   sealed: !quest.unlocked(p.dest),
-  label: PLATFORMS[p.dest] ? PLATFORMS[p.dest].name[lang()].toUpperCase() : ""
+  label: areaDef(p.dest) ? areaName(p.dest, lang()).toUpperCase() : ""
 });
+
+// ==================== SIDE QUESTS (Book I, js/sidequest.js) ====================
+// Progress messages, rewards, and the main quest resuming once the Act's side quests are all done
+function sideProgress(results) {
+  if (!results.length || !player) return;
+  const side = quest.side;
+  let finished = false;
+  results.forEach(({ q, trophy, finished: done }) => {
+    if (trophy && !done) {
+      chatLog.event("loot", side.message("trophyGot", { monster: side.monsterName(q), have: q.have, n: q.n }), dayNight.label());
+    }
+    if (!done) return;
+    finished = true;
+    const r = side.reward(q);
+    player.addExp(r.exp);
+    player.gold += r.gold;
+    questHud.toast(`${side.message("done")}: ${side.text(q, false)}`);
+    chatLog.event("exp", `${side.message("done")} · ${side.message("reward", r)}`, dayNight.label());
+    if (Sound.playJingle) Sound.playJingle("quest");
+  });
+  if (!finished) return;
+  if (side.complete()) {
+    questHud.toast(side.message("all"));
+    npcManager.applyQuest(quest, playerClass());
+    syncBoss();
+  }
+  saveGame();
+}
+
+// Where the arrow points while the main quest waits: the site to scout, or the gate toward the side quest's map
+function sideQuestPoint() {
+  const q = quest.side.current();
+  if (!q) return null;
+  if (q.area === stage.id) {
+    const s = quest.side.site(q);
+    return s ? { x: s.x, y: s.y } : null;
+  }
+  if (stage === hub) {
+    const f = FRONTIERS[q.area];
+    const g = hub.portals.portals.find((p) => p.dest === q.area) || (f && hub.portals.portals.find((p) => p.dest === f.from));
+    return g ? { x: g.x, y: g.y } : null;
+  }
+  if (stage.trail && stage.trail.dest === q.area) return { x: stage.trail.x, y: stage.trail.y };
+  return { x: stage.gate.x, y: stage.gate.y };
+}
 
 // Boss defeated: pick up the quest item
 enemyManager.onBossDefeated = (e) => {
@@ -715,6 +956,7 @@ lootManager.onQuestItem = (id) => quest.onQuestItem(id);
 // Bottom tray: EXP from the hero's kills (merged while chaining kills), or a note when an ally took the last hit
 enemyManager.onKill = (e, byPlayer, exp) => {
   codex.recordKill(e.key);
+  sideProgress(quest.side.onKill(e, stage.id));
   const fil = lang() === "fil";
   const name = enemyManager.displayName(e);
   if (!byPlayer) {
@@ -811,14 +1053,28 @@ function getSavePayload() {
     stats: { ...player.stats },             // STR/AGI/VIT/INT/DEX/LUK
     skills: { ...player.skillLevels },
     skillPoints: player.skillPoints,
+    pathSlots: [...(player.pathSlots || [])],   // path actives on T / Y / U
+    style: { ...player.style },                    // play-style affinity (js/skillpaths.js)
+    autoStat: player.autoStat || "off",
     belt: [...player.belt],
+    skillKeys: SkillSlots.serialize(),      // J/K/L arrangement on the hotbar (skill book, P)
     autoPot: { ...player.autoPot },
+    life: Workshop.serialize(player),       // craft target, active meal, market saturation
+    errand: serializeErrand(player),        // a summon away on a market errand (js/errand.js)
     codex: codex.serialize(),
     dayTick: dayNight.serialize(),
     platform: stage.id,                     // "hub" or an Act platform
+    ship: shipState(),                      // the Cerulean Abyss ship: mooring, heading, hero aboard
     x: player.x,
     y: player.y
   };
+}
+
+// Skill paths from a save: slots only take learned actives, style values must be finite numbers
+function loadPaths(p, data) {
+  if (data.style) PATH_IDS.forEach((k) => { const v = Number(data.style[k]); p.style[k] = Number.isFinite(v) && v > 0 ? Math.min(v, 1e4) : 0; });
+  if (Array.isArray(data.pathSlots)) SLOT_KEYS.forEach((_, i) => assignSlot(p, i, typeof data.pathSlots[i] === "string" ? data.pathSlots[i] : null));
+  p.autoStat = AUTO_MODES.includes(data.autoStat) ? data.autoStat : "off";
 }
 
 function saveGame() {
@@ -933,6 +1189,7 @@ function loadGame() {
       Object.keys(player.stats).forEach((k) => { player.stats[k] = Math.max(1, Math.min(99, data.stats[k] | 0 || 1)); });
       player.skillLevels = { ...(data.skills || {}) };
       player.skillPoints = data.skillPoints || 0;
+      loadPaths(player, data);
     } else {
       player.statPoints = (data.statPoints || 0) + 10 + (player.level - 1) * 3;
       player.skillPoints = player.level - 1;
@@ -940,11 +1197,14 @@ function loadGame() {
     dayNight.load(data.dayTick);
     codex.load(data.codex);
     if (Array.isArray(data.belt)) player.belt = data.belt.slice(0, 4).map((x) => x || null);
+    SkillSlots.load(data.skillKeys);
     if (data.autoPot) player.autoPot = { hp: data.autoPot.hp | 0, cure: Boolean(data.autoPot.cure), stamina: Boolean(data.autoPot.stamina) };
     // Bag: an old save without a bag → the class's default gear
     if (data.bag) player.bag.load(data.bag);
     else starterKit(player);
     attachBag(player);
+    Workshop.load(player, data.life);
+    loadErrand(player, data.errand);
     player.hp = Math.min(player.maxHp, data.hp || player.maxHp);
     quest.load(data.quest, player);
 
@@ -954,8 +1214,12 @@ function loadGame() {
 
     beginPlaying();
     // Return to the platform where the game was saved (if the quest still allows it)
-    const saved = data.platform && PLATFORMS[data.platform] && quest.unlocked(data.platform) ? data.platform : null;
+    const saved = data.platform && data.platform !== "hub" && areaDef(data.platform) && quest.unlocked(data.platform) ? data.platform : null;
+    savedShip = data.ship && typeof data.ship === "object" ? data.ship : null;
+    Object.values(platformCache).forEach((c) => { if (c.boatSystem && !c.boatSystem.load(savedShip)) c.boatSystem.returnToPier(); });
     if (saved) travelTo(saved, { x: player.x, y: player.y });
+    // Saved at sea: back at the helm where the ship was
+    if (saved && stage.boatSystem && savedShip && savedShip.aboard === true && stage.boatSystem.load(savedShip)) stage.boatSystem.embark(player, crewOf());
     return true;
   } catch (e) {
     console.error(e);
@@ -998,6 +1262,8 @@ function beginPlaying() {
 
 function backToTitle() {
   controller.clearAll();
+  actIntro.close();
+  actIntroShown = null;
   gameState = "TITLE";
   player = null;
   syncLoreAct();
@@ -1009,7 +1275,7 @@ function backToTitle() {
 // ==================== JOB AWAKENING (Act IV: the Imperial Citadel's audience dais) ====================
 // Starts after talking to the summoner at the Citadel (quest step 4).
 function canAwaken(p) {
-  return p && p.heroData.id === "novice" && quest.step === 4;
+  return p && p.heroData.id === "novice" && quest.step === 4 && quest.gateOpen();
 }
 
 function startAwakening() {
@@ -1022,18 +1288,20 @@ function startAwakening() {
   if (Sound.playHolyBurst) Sound.playHolyBurst();
 }
 
-// Replaces the Novice with the chosen class; keeps level, exp, gold, stats and name
+// Replaces the Novice with the chosen class; keeps level, exp, gold and name.
+// Stats and skills are reset with every point refunded, so the new job is built from scratch.
 function awaken(chosenHero) {
   const old = player;
   // Same look from the Character Creator; the class provides the new gear
   const p = new Player(old.x, old.y, equipJob(chosenHero, old.avatarConfig));
   ["level", "exp", "expNext", "gold", "statPoints", "bonusHp", "bonusDamage",
     "bonusDefense", "bonusSpeed", "bonusCrit", "bonusCooldown", "heroName", "avatarConfig",
-    "stats", "skillLevels", "skillPoints", "belt", "autoPot"].forEach((k) => { p[k] = old[k]; });
+    "stats", "skillLevels", "skillPoints", "belt", "autoPot", "style", "pathSlots", "autoStat"].forEach((k) => { p[k] = old[k]; });
   // Keeps the bag; the summoner hands over the class's custom-forged weapon (LORE Act IV)
   p.bag = old.bag;
   p.bag.giveKit(chosenHero.id, 1);
   attachBag(p);
+  p.respec();
   p.hp = p.maxHp;
   if (chosenHero.id === "archer") p.falconCompanion = new FalconCompanion(p.x, p.y);
   player = p;
@@ -1041,7 +1309,7 @@ function awaken(chosenHero) {
   controller.clearAll();
   gameState = "PLAYING";
   if (fx.spawnHitSparks) fx.spawnHitSparks(p.x + 10, p.y + 10, "#ffd166", 28);
-  if (Sound.playHolyBurst) Sound.playHolyBurst();
+  if (Sound.playAwakening) Sound.playAwakening();
   if (gameConfig.music) Sound.startGameplayBGM();
   quest.advance(5);   // Act V: Dual Equipment Matrix
 
@@ -1057,8 +1325,15 @@ function awaken(chosenHero) {
 function talkTo(npc) {
   codex.meet(npc.id);
   if (npc.tag === "field") return talkField(npc);
-  const d = getDialogue(npc.id, { step: quest.step, cls: playerClass(), met: quest.met, summoner: npcManager.summonerId });
-  dialog.start(npc.id, npc.avatar, d.lines, () => {
+  const place = npc.platform, pdef = PLATFORMS[place];
+  const d = getDialogue(npc.id, {
+    step: quest.step, cls: playerClass(), met: quest.met, summoner: npcManager.summonerId,
+    // for the guides: Maren's recap, Isolde's sea advice, Veyra's and Aldric's camp lines
+    act: quest.act(), goal: quest.text(player, summonerName(), mentorName()).goal, done: quest.step >= FINAL_STEP,
+    place, boss: pdef && pdef.boss, cleared: Boolean(pdef && quest.cleared(place)),
+    sealsReady: quest.monolith || SEAL_STONES.every((s) => player.bag.has(s))
+  });
+  dialog.start(npc.id, npc.avatar, fillNames(d.lines), () => {
     quest.onTalk(npc.id, npcManager.summonerId, playerClass());
     npcManager.applyQuest(quest, playerClass());
     saveGame();   // records who has been spoken to
@@ -1090,6 +1365,8 @@ const titleScene = new TitleScene(
   gameConfig,
   document.getElementById("title")
 );
+// Options → Quality changes the drawing scale right away
+titleScene.onConfigChange = (key) => applyConfig(key);
 
 // New expedition: Character Creator → Act I Prologue → Novice in the Barracks
 const prologueScene = new PrologueScene(
@@ -1108,6 +1385,7 @@ const creatorScene = new CreatorScene(
     player.heroName = name;
     player.avatarConfig = player.heroData.avatarConfig;
     starterKit(player);
+    SkillSlots.reset();
     attachBag(player);
     quest.reset();
     codex.reset();
@@ -1133,6 +1411,7 @@ selectScene.mentorAvatars = Object.fromEntries(
 );
 
 setLayoutMode("title");
+loadSpriteSheets();   // Aseprite art over the code-drawn sprites, when exported
 lorePanel = createLorePanel(document.getElementById("lore"));
 
 // Play the title BGM right away, before any key press, if enabled in the settings
@@ -1158,7 +1437,9 @@ window.addEventListener("keydown", (e) => {
   if (devTools && devTools.handleKey(e)) return;   // F9 panel: its keys never reach the game
   if (e.code === "F2") { stage.tilemap.debug = !stage.tilemap.debug; e.preventDefault(); }
 
-  if (prologueScene.open) {
+  if (actIntro.open && gameState === "PLAYING") {
+    actIntro.handleInput(e);
+  } else if (prologueScene.open) {
     prologueScene.handleInput(e);
   } else if (gameState === "TITLE") {
     titleScene.handleInput(e);
@@ -1171,9 +1452,15 @@ window.addEventListener("keydown", (e) => {
     backToTitle();
   } else if (actReader.open) {
     actReader.handleInput(e);
+  } else if (settingsPanel.open) {
+    settingsPanel.handleInput(e);
+    if (!settingsPanel.open) panelSound(false);
+  } else if (gameState === "PLAYING" && market.open) {
+    market.handleInput(e);
+    if (!market.open) panelSound(false);
   } else if (worldMap.open) {
     if (e.code === "KeyM" || e.code === "Escape") worldMap.close();
-    else if (e.code === "Tab") worldMap.toggleView();         // Kontinente / Rehiyon
+    else worldMap.handleKey(e);                              // Tab: Kontinente / Rehiyon · zoom, pan, panel
     e.preventDefault();
   } else if (gameState === "PLAYING" && dialog.open) {
     dialog.handleInput(e);
@@ -1209,6 +1496,24 @@ window.addEventListener("keydown", (e) => {
       return;
     }
 
+    // B = Market (inside a safe zone), O = Settings, F = full screen, P = arrange the skill slots
+    if (e.code === "KeyB" && gameState === "PLAYING" && !showShopModal && !showMercModal && !e.repeat) {
+      toggleMarket();
+      return;
+    }
+    if (e.code === "KeyO" && !e.repeat) {
+      toggleSettings();
+      return;
+    }
+    if (e.code === "KeyF" && !e.repeat) {
+      toggleFullscreen();
+      return;
+    }
+    if (e.code === "KeyP" && gameState === "PLAYING" && !e.repeat) {
+      actionPanel.setEditing(!actionPanel.editing);
+      return;
+    }
+
     if (e.code === "KeyQ" && gameState === "PLAYING" && !showShopModal && !showMercModal) {
       questHud.toggleLog(quest, player, summonerName(), mentorName());
       return;
@@ -1226,23 +1531,29 @@ window.addEventListener("keydown", (e) => {
         showShopModal = false;
       } else if (showMercModal) {
         showMercModal = false;
-      } else if (stage.boatSystem && (
-        (player.inBoat && Math.hypot(player.x + 10 - stage.boatSystem.pier.x, player.y + 18 - stage.boatSystem.pier.y) < 55) ||
-        (!player.inBoat && Math.hypot(player.x + 10 - stage.boatSystem.pier.x, player.y + 18 - stage.boatSystem.pier.y) < 45) ||
-        (!player.inBoat && Math.hypot(player.x - stage.boatSystem.dockedBoat.x, player.y - stage.boatSystem.dockedBoat.y) < 45)
-      )) {
-        stage.boatSystem.toggleBoard(player, fx);
+      } else if (stage.boatSystem && stage.boatSystem.canToggle(player)) {
+        stage.boatSystem.toggleBoard(player, fx, crewOf());
       } else if (stage.boatSystem && Math.hypot(player.x - stage.boatSystem.monolith.x, player.y - stage.boatSystem.monolith.y) < 65) {
         stage.boatSystem.activateMonolith(player, fx, () => {
           quest.monolith = true;
           saveGame();
           questHud.toast(lang() === "fil" ? "Bukas na ang lagusan patungo sa Dark Continent!" : "Celestial Portal to the Dark Continent is open!");
         });
+      } else if (gameState === "PLAYING" && fishing.active) {
+        fishing.press(player, stage);
       } else if (gameState === "PLAYING" && stage.ore && stage.ore.nearest(player)) {
         mineVein(stage.ore.nearest(player));
       } else if (gameState === "PLAYING" && npcManager.nearest) {
         talkTo(npcManager.nearest);
+      } else if (gameState === "PLAYING") {
+        fishing.press(player, stage);
       }
+      return;
+    }
+
+    // G = the safe-zone Workshop (B is the Market) (craft, cook, transmute)
+    if (e.code === "KeyG" && gameState === "PLAYING") {
+      openWorkshop();
       return;
     }
 
@@ -1257,6 +1568,9 @@ window.addEventListener("keydown", (e) => {
       exitToTitle();
       return;
     }
+
+    // J/K/L read as the ability placed in that hotbar slot
+    const skillCode = SkillSlots.logical(e.code);
 
     // Space: hold = sprint; tap = lock/unlock the sprint (see the keyup below)
     if (e.code === "Space" && !e.repeat && gameState === "PLAYING") {
@@ -1292,10 +1606,11 @@ window.addEventListener("keydown", (e) => {
       }
     }
 
-    if (e.code === "KeyK" && player.heroData.id === "priest" && !stage.isInsideSafeZone(player.x, player.y)) {
+    if (skillCode === "KeyK" && player.heroData.id === "priest" && !stage.isInsideSafeZone(player.x, player.y)) {
       if (!player.angelCompanions) player.angelCompanions = [];
       player.angelCompanions = player.angelCompanions.filter(a => a.isAlive);
-      if (player.angelCompanions.length < 2 && player.skillCooldownTimer <= 0) {
+      // One Angel fewer while another is away on a market errand
+      if (player.angelCompanions.length < (isAway(player, "angel") ? 1 : 2) && player.skillCooldownTimer <= 0) {
         const angelHp = Math.round(player.maxHp * 0.5);
         player.angelCompanions.push(new GuardianAngelCompanion(player.x + (player.angelCompanions.length === 0 ? -30 : 30), player.y - 16, angelHp));
         player.skillCooldownTimer = 180;
@@ -1303,7 +1618,12 @@ window.addEventListener("keydown", (e) => {
       }
     }
 
-    if (e.code === "KeyK" && player.heroData.id === "archer" && player.falconCompanion && player.skillCooldownTimer <= 0 && !stage.isInsideSafeZone(player.x, player.y)) {
+    if (e.code === "KeyK" && player.heroData.id === "archer" && player.falconCompanion && isAway(player, "falcon")) {
+      if (fx.spawnDamagePopup) fx.spawnDamagePopup(player.x + 10, player.y - 14, errandText("busy", { name: runnerName("falcon") }), false, "#ffd166");
+    } else if (e.code === "KeyK" && player.heroData.id === "archer" && player.falconCompanion && player.falconCompanion.aboard) {
+      // Flyers can't leave the ship while the crew is aboard
+      if (fx.spawnDamagePopup) fx.spawnDamagePopup(player.x + 10, player.y - 14, t("falconAboard"), false, "#38bdf8");
+    } else if (e.code === "KeyK" && player.heroData.id === "archer" && player.falconCompanion && player.skillCooldownTimer <= 0 && !stage.isInsideSafeZone(player.x, player.y)) {
       // Falcon reach: 240px
       const closestEnemy = enemyManager.enemies
         .filter((en) => en.isAlive && Math.hypot(en.x - player.x, en.y - player.y) <= 240)
@@ -1338,11 +1658,13 @@ window.addEventListener("keyup", (e) => {
 });
 
 function updateGame() {
-  if (gameState !== "PLAYING" || !player || (devTools && devTools.open) || showShopModal || showMercModal || dialog.open || serviceMenu.open || codex.open || questHud.logOpen || inventory.open || charPanel.open || actReader.open || worldMap.open) return;
+  if (player && actIntroShown === null) actIntroShown = quest.act();
+  if (gameState !== "PLAYING" || !player || (devTools && devTools.open) || actIntro.open || showShopModal || showMercModal || dialog.open || serviceMenu.open || codex.open || questHud.logOpen || inventory.open || charPanel.open || actReader.open || worldMap.open || market.open || settingsPanel.open) return;
 
   if (player.hp <= 0) {
     gameState = "GAMEOVER";
     Sound.stopGameplayBGM();
+    if (Sound.playGameOver) Sound.playGameOver();
     return;
   }
 
@@ -1368,6 +1690,8 @@ function updateGame() {
   if (player && Sound && Sound.setListener) {
     Sound.setListener(player.x + 10, player.y + 21);
   }
+  // Music follows the place, the night and an engaged boss (switches only when one of them changes)
+  if (Sound.setScene) Sound.setScene(stage.id, dayNight.night() > 0.5, player.bossFight ? activeBoss.key : null);
 
   // Warp Gateway, Citadel gate, Return Gateway, rift or sea portal (may change platform)
   const before = stage;
@@ -1402,9 +1726,19 @@ function updateGame() {
   autoPotion();
   summonerHeal();
 
-  if (player.falconCompanion) {
+  // A summon away on a market errand doesn't fight until it's back (js/errand.js)
+  updateErrand(player, {
+    fx, sound: Sound,
+    log: (text) => { chatLog.event("loot", text, dayNight.label()); inventory.dirty = true; },
+    drop: (inst) => lootManager.drop({ x: player.x + 10, y: player.y + 22 }, inst)
+  });
+
+  if (player.falconCompanion && !isAway(player, "falcon")) {
     player.falconCompanion.update(player, enemyManager, fx, lootManager);
   }
+
+  const familiar = syncFamiliar(player);   // pet / familiar from the skill tree
+  if (familiar && !isAway(player, "familiar")) familiar.update(player, enemyManager, fx, lootManager, isInBarracks, stage);
 
   if (player.angelCompanions && player.angelCompanions.length > 0) {
     player.angelCompanions.forEach((angel, idx) => {
@@ -1423,15 +1757,20 @@ function updateGame() {
     });
   }
   enemyManager.enemies.forEach((enemy) => {
-    if (enemy.isAlive) stage.resolveTileCollision(enemy);
+    if (enemy.isAlive && !enemy.kind.flying) stage.resolveTileCollision(enemy);
   });
 
   quest.update(player);
+  sideProgress(quest.side.onMove(stage.id, player.x + 10, player.y + 18));
   npcManager.update(player, enemyManager, fx);
 
   mercManager.update(player, enemyManager, lootManager, fx, (proj) => projectileManager.add(proj), stage);
+  // At sea the crew keep their posts on the ship
+  if (stage.boatSystem) stage.boatSystem.carry(player, crewOf());
   projectileManager.update(enemyManager.enemies, enemyManager, fx, lootManager, player);
   lootManager.update(player, fx);
+  workshop.update(player, stage.isInsideSafeZone(player.x + 10, player.y + 17));
+  fishing.update(player);
 }
 
 // The summoner (Prince/Princess) heals the hero, but only inside a sanctuary and only when they are
@@ -1480,6 +1819,7 @@ function drawHealBeam() {
 // Golden arrow at the screen edge pointing to the quest objective (when off screen)
 // Where the objective is in the current place: an NPC, a boss, or the way to the next platform
 function objectivePoint() {
+  if (quest.gated()) return sideQuestPoint();
   const npc = npcManager.find(quest.targetNpc(npcManager.summonerId, playerClass()));
   if (npc) return { x: npc.x, y: npc.y - 18 };
   const boss = enemyManager.boss();
@@ -1492,7 +1832,8 @@ function objectivePoint() {
   }
   // The next platform must be reached
   // Act XI: first fetch any missing Seal Stone (it waits in its boss arena), then the monolith
-  const missingSeal = next === "siege" && !quest.monolith
+  const dark = PLATFORMS[next].dark;
+  const missingSeal = dark && !quest.monolith
     ? PLATFORM_ORDER.find((pid) => PLATFORMS[pid].seal && !player.bag.has(PLATFORMS[pid].seal)) : null;
   if (missingSeal) {
     if (stage === hub) {
@@ -1504,12 +1845,13 @@ function objectivePoint() {
   }
   if (stage === hub) {
     // Act XI is reached through the Cerulean Abyss (WEST gateway), where the monolith stands
-    const gate = hub.portals.portals.find((p) => p.dest === (next === "siege" ? "coast" : next));
+    const gate = hub.portals.portals.find((p) => p.dest === (dark ? "coast" : next));
     return gate ? { x: gate.x, y: gate.y } : null;
   }
-  if (stage.def.rift && stage.def.rift.dest === next) return { x: stage.def.rift.x, y: stage.def.rift.y };
+  // the road / rift onward (on the Dark Continent it leads on towards the current Act)
+  if (stage.def.rift && stage.riftOpen && (stage.def.rift.dest === next || stage.def.dark)) return { x: stage.def.rift.x, y: stage.def.rift.y };
   // On the coast, Act XI points at the monolith (or its open portal)
-  if (next === "siege" && stage.boatSystem) {
+  if (dark && stage.boatSystem) {
     const b = stage.boatSystem;
     return b.seaPortal.active ? { x: b.seaPortal.x, y: b.seaPortal.y } : { x: b.monolith.x, y: b.monolith.y - 20 };
   }
@@ -1538,12 +1880,23 @@ function drawObjectiveArrow() {
   ctx.restore();
 }
 
+// Mercenary Guild cards: each class's data and a portrait Avatar (built once)
+let mercCardList = null;
+function mercCards() {
+  if (!mercCardList) mercCardList = ["axe", "wand", "crossbow", "greatsword"].map((key) => ({ key, data: MERC_CLASSES[key], sprite: new Avatar(MERC_CLASSES[key].look) }));
+  return mercCardList;
+}
+
 function renderGameWorld() {
   const { offsetX, offsetY } = fx.getShakeOffsets();
   ctx.save();
   ctx.translate(Math.round(-camera.x + offsetX), Math.round(-camera.y + offsetY));
 
   stage.draw(ctx, player);
+  if (player) {
+    const cur = quest.side.current();
+    drawSites(ctx, quest.side.pendingSites(stage.id), performance.now() / 16, cur && cur.area === stage.id ? quest.side.site(cur) : null);
+  }
   const footY = player ? player.y + 21 : 0;
   npcManager.drawLayer(ctx, footY, false);   // NPCs behind the player
   lootManager.draw(ctx);
@@ -1555,9 +1908,10 @@ function renderGameWorld() {
   if (player && player.hp > 0) {
     player.draw(ctx);
 
-    if (player.falconCompanion) {
+    if (player.falconCompanion && !isAway(player, "falcon")) {
       player.falconCompanion.draw(ctx, player.facing === "right");
     }
+    if (player.familiar && !isAway(player, "familiar")) player.familiar.draw(ctx);
 
     if (player.angelCompanions) {
       player.angelCompanions.forEach((angel) => {
@@ -1567,6 +1921,7 @@ function renderGameWorld() {
 
     ui.drawInWorldUI(ctx, player);
     drawHealBeam();
+    fishing.draw(ctx, player, stage, gameState === "PLAYING" && !npcManager.nearest && !(stage.ore && stage.ore.nearest(player)));
   }
   npcManager.drawLayer(ctx, footY, true);    // NPCs in front of the player
 
@@ -1591,12 +1946,6 @@ function renderGameWorld() {
   }
   enemyManager.drawBossBar(ctx, VIEW_W);
 
-  const isInBarracks = player ? stage.isInsideSafeZone(player.x, player.y) : false;
-  ui.drawHUD(
-    ctx, player, enemyManager, lootManager, stage,
-    VIEW_W, gameState === "PAUSED",
-    fx.timeOfDay, fx.weatherType, isInBarracks
-  );
 
   if (gameState === "PLAYING" && !worldMap.open) drawObjectiveArrow();
 
@@ -1611,7 +1960,9 @@ function renderGameWorld() {
       act: tq.act,
       goal: tq.goal,
       quest,
-      stageId: stage.id
+      stageId: stage.id,
+      objective: objectivePoint(),
+      sites: quest.side.pendingSites(stage.id)
     });
   }
 
@@ -1620,41 +1971,70 @@ function renderGameWorld() {
   }
 
   if (showMercModal && player) {
-    ctx.fillStyle = "rgba(10, 14, 20, 0.85)";
-    ctx.fillRect(40, 40, VIEW_W - 80, VIEW_H - 80);
-    ctx.strokeStyle = "#ffd166";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(40, 40, VIEW_W - 80, VIEW_H - 80);
-
-    ctx.fillStyle = "#ffd166";
-    ctx.font = "bold 9px monospace";
-    ctx.textAlign = "center";
-    const mercCost = MercenaryManager.cost(player.level);
-    ctx.fillText(`⚔️ BARRACKS MERCENARY GUILD (${mercCost}G EACH - 10 MINS) ⚔️`, VIEW_W / 2, 60);
-
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "7px monospace";
-    ctx.fillText(`[1] AXEMAN - Whirlwind · War Cry · Bloodlust`, VIEW_W / 2, 85);
-    ctx.fillText(`[2] MAGE APPRENTICE - Arcane Surge · Heal Ally · Frost Nova`, VIEW_W / 2, 105);
-    ctx.fillText(`[3] CROSSBOWMAN - 3-Way Volley · Snare Trap · Eagle Eye`, VIEW_W / 2, 125);
-    ctx.fillText(`[4] VANGUARD KNIGHT - Earthshatter · Provoke · Guardian Aura`, VIEW_W / 2, 145);
-    ctx.fillStyle = "#94a3b8";
-    ctx.fillText(`${mercCost}G each · power scales with your level (Lv ${player.level})`, VIEW_W / 2, 160);
-    ctx.fillText("Press 1-4 to Hire | ESC to Close", VIEW_W / 2, 175);
+    ui.drawMercModal(ctx, player, VIEW_W, VIEW_H, mercCards(), MercenaryManager.cost(player.level));
   }
 
   if (gameState === "PAUSED" && !showShopModal && !showMercModal) {
-    ui.drawPause(ctx, VIEW_W, VIEW_H);
-    // Shortcut hint for Export
-    ctx.fillStyle = "#ffd166";
-    ctx.font = "bold 6px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText("[ X ]   EXPORT SECURE SAVE (.VOF)", VIEW_W / 2, VIEW_H / 2 + 32);
+    ui.drawPause(ctx, VIEW_W, VIEW_H, { act: quest.act(), actTitle: player ? quest.text(player, summonerName(), mentorName()).act : "" });
   }
 
   if (gameState === "GAMEOVER") {
-    ui.drawGameOver(ctx, VIEW_W, VIEW_H);
+    ui.drawGameOver(ctx, VIEW_W, VIEW_H, { act: quest.act(), level: player ? player.level : 0 });
   }
+}
+
+// Right panel World Map: the live minimap, drawn in the side panel instead of over the game screen.
+// 180×100 map pixels on a 360×200 canvas; redrawn every other frame. Click (or M) opens the full map.
+const sideMapEl = document.getElementById("sideMap");
+const sideMapCtx = sideMapEl.getContext("2d");
+const SIDE_MAP = { X: 4, Y: 5, W: 172, H: 84, view: 900 };
+let sideMapTick = 0;
+document.getElementById("sideMapBox").addEventListener("click", () => { Sound.init(); toggleMap(); panelSound(worldMap.open); });
+function drawSideMap() {
+  if (!player || (sideMapTick++ & 1)) return;
+  const c = sideMapCtx;
+  c.setTransform(2, 0, 0, 2, 0, 0);
+  c.imageSmoothingEnabled = false;
+  c.fillStyle = "#070c16";
+  c.fillRect(0, 0, 180, 100);
+  ui.drawHUD(
+    c, player, enemyManager, lootManager, stage,
+    180, gameState === "PAUSED",
+    fx.timeOfDay, fx.weatherType, stage.isInsideSafeZone(player.x, player.y),
+    {
+      objective: objectivePoint(),
+      npcs: npcManager.npcs.filter((n) => npcManager.shown(n)),
+      placeName: stage === hub ? t("placeHub") : stage.def.name[lang()],
+      night: dayNight.night(),
+      rect: SIDE_MAP
+    }
+  );
+}
+const sideMapLabel = document.getElementById("sideMapLabel");
+const syncSideMapLabel = () => { sideMapLabel.textContent = t("set_worldMap"); };
+syncSideMapLabel();
+onLangChange(syncSideMapLabel);
+
+// Options → FPS Counter: frames the screen received in the last second (top left of the canvas)
+const fpsMeter = { frames: 0, since: 0, fps: 0 };
+function drawFpsMeter(now) {
+  fpsMeter.frames++;
+  if (now - fpsMeter.since >= 1000) {
+    fpsMeter.fps = Math.round((fpsMeter.frames * 1000) / (now - fpsMeter.since));
+    fpsMeter.frames = 0;
+    fpsMeter.since = now;
+  }
+  if (!gameConfig.fps) return;
+  const f = fpsMeter.fps;
+  ctx.save();
+  ctx.fillStyle = "rgba(3, 6, 17, 0.75)";
+  ctx.fillRect(3, 3, 30, 9);
+  ctx.font = "bold 6px monospace";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = f >= 55 ? "#4ade80" : f >= 40 ? "#facc15" : "#ef4444";
+  ctx.fillText(`${f} FPS`, 5, 8);
+  ctx.restore();
 }
 
 // Fixed timestep: always 60 updates per second even on 120/144 Hz monitors
@@ -1663,9 +2043,13 @@ const STEP = 1000 / 60;
 let lastTime = performance.now();
 let acc = 0;
 
+let lastDraw = 0;
 function gameLoop(now = performance.now()) {
   acc += Math.min(250, now - lastTime);      // don't catch up too much after a tab switch
   lastTime = now;
+  // Options → FPS Limit: the simulation keeps its 60 steps; only drawing skips frames
+  const cap = gameConfig.fpsCap;
+  const drawNow = !cap || now - lastDraw >= 1000 / cap - 1;
   while (acc >= STEP) {
     // Hit-stop: a heavy blow freezes the fight for a few steps (drawing carries on)
     if (!(gameState === "PLAYING" && fx.consumeHitStop())) updateGame();
@@ -1674,7 +2058,7 @@ function gameLoop(now = performance.now()) {
   const MODES = { TITLE: "title", SELECT: "select", CREATE: "create" };
   setLayoutMode(MODES[gameState] || "play");
   dialog.update();
-  questHud.setVisible(layoutMode === "play" && Boolean(player) && gameState !== "GAMEOVER");
+  questHud.setVisible(layoutMode === "play" && Boolean(player) && gameState !== "GAMEOVER" && !actIntro.open);
   if (player && layoutMode === "play") {
     questHud.update(quest, player, summonerName(), mentorName());
     hudBar.update({
@@ -1691,10 +2075,13 @@ function gameLoop(now = performance.now()) {
       inSanctuary: stage.isInsideSafeZone(player.x, player.y),
       paused: gameState === "PAUSED",
       canTalk: Boolean(npcManager.nearest),
+      canErrand: hasRunnerKind(player) && !player.errand,   // B outside a safe zone sends the summon
       sprinting: Boolean(player.sprinting || player.sprintLock),
       mapOpen: worldMap.open,
       inventoryOpen: inventory.open,
       charOpen: charPanel.open,
+      marketOpen: market.open,
+      settingsOpen: settingsPanel.open,
       pointsAvailable: player.statPoints > 0 || player.skillPoints > 0
     });
   }
@@ -1705,6 +2092,11 @@ function gameLoop(now = performance.now()) {
   if (worldMap.open && (gameState !== "PLAYING" || !player)) worldMap.close();
   if (serviceMenu.open && (gameState !== "PLAYING" || !player)) serviceMenu.close();
   if (codex.open && (gameState !== "PLAYING" || !player)) codex.close();
+  if (market.open && (gameState !== "PLAYING" || !player || (market.mode === "shop" && !stage.isInsideSafeZone(player.x + 10, player.y + 17)))) market.close();
+  if (settingsPanel.open && (layoutMode !== "play" || !player || gameState === "GAMEOVER")) settingsPanel.close();
+  if (actionPanel.editing && (layoutMode !== "play" || !player)) actionPanel.setEditing(false);
+  if (!drawNow) { requestAnimationFrame(gameLoop); return; }
+  lastDraw = now;
   if (gameState === "TITLE") {
     titleScene.draw();
   } else if (gameState === "CREATE") {
@@ -1714,9 +2106,14 @@ function gameLoop(now = performance.now()) {
   } else {
     renderGameWorld();
   }
+  if (actIntro.open && gameState === "PLAYING") actIntro.draw(ctx, VIEW_W, VIEW_H);
+  if (pendingToast && !actIntro.open) { questHud.toast(pendingToast); pendingToast = null; }
+  if (layoutMode === "play") drawSideMap();
+  drawFpsMeter(now);
   requestAnimationFrame(gameLoop);
 }
 
+applyConfig();
 requestAnimationFrame(gameLoop);
 // Developer tools (admin panel): only with ?dev in the URL — F9 opens it
 const devTools = devEnabled() ? new DevTools({
@@ -1728,6 +2125,7 @@ const devTools = devEnabled() ? new DevTools({
 if (new URLSearchParams(location.search).has("debug")) {
   window.__vof = {
     get player() { return player; }, get stage() { return stage; }, get state() { return gameState; },
-    quest, enemyManager, lootManager, projectileManager, mercManager, npcManager, inventory, charPanel, travelTo, saveGame, awaken, ROSTER
+    quest, enemyManager, lootManager, projectileManager, mercManager, npcManager, inventory, charPanel, travelTo, saveGame, awaken, ROSTER, dayNight, dialog,
+    openShop() { showShopModal = true; }, openMerc() { showMercModal = true; }, actIntro, market, settingsPanel, actionPanel, gameConfig, SkillSlots, fishing, workshop
   };
 }

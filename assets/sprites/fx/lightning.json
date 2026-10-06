@@ -1,0 +1,50 @@
+{ "frames": [
+   {
+    "filename": "lightning 0.aseprite",
+    "frame": { "x": 0, "y": 0, "w": 18, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 18, "h": 44 },
+    "sourceSize": { "w": 18, "h": 44 },
+    "duration": 50
+   },
+   {
+    "filename": "lightning 1.aseprite",
+    "frame": { "x": 18, "y": 0, "w": 18, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 18, "h": 44 },
+    "sourceSize": { "w": 18, "h": 44 },
+    "duration": 50
+   },
+   {
+    "filename": "lightning 2.aseprite",
+    "frame": { "x": 0, "y": 44, "w": 18, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 18, "h": 44 },
+    "sourceSize": { "w": 18, "h": 44 },
+    "duration": 50
+   },
+   {
+    "filename": "lightning 3.aseprite",
+    "frame": { "x": 18, "y": 44, "w": 18, "h": 44 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 18, "h": 44 },
+    "sourceSize": { "w": 18, "h": 44 },
+    "duration": 50
+   }
+ ],
+ "meta": {
+  "app": "https://www.aseprite.org/",
+  "version": "1.3.18.6-x64",
+  "image": "lightning.png",
+  "format": "RGBA8888",
+  "size": { "w": 36, "h": 88 },
+  "scale": "1",
+  "frameTags": [
+   { "name": "down-play", "from": 0, "to": 3, "direction": "forward", "color": "#000000ff" }
+  ]
+ }
+}

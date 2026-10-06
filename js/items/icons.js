@@ -67,6 +67,16 @@ const DRAW = {
   heart(p, t) { disc(p, 6, 6, 3, t, shade(t, -0.35), shade(t, 0.5)); disc(p, 10, 6, 3, t, shade(t, -0.35), shade(t, 0.5)); for (let y = 7; y < 14; y++) for (let x = 3 + (y - 7); x <= 13 - (y - 7); x++) p.set(x, y, x > 8 ? shade(t, -0.25) : t); p.set(5, 5, "#ffffff"); },
   shell(p, t) { for (let y = 4; y < 13; y++) { const w = Math.round((y - 3) * 0.7); for (let x = 8 - w; x <= 8 + w; x++) p.set(x, y, (x + 8) % 3 === 0 ? shade(t, -0.35) : t); } p.rect(6, 13, 5, 1, shade(t, -0.4)); },
   crest(p, t) { disc(p, 8, 8, 6, t, shade(t, -0.35), shade(t, 0.4)); line(p, 5, 5, 11, 11, "#8a2c2c"); line(p, 11, 5, 5, 11, "#8a2c2c"); disc(p, 8, 8, 1, "#ffffff", "#e2e8f0", "#ffffff"); },
+  // crafting materials and cooking (js/items/craftsets.js, js/items/cooking.js)
+  core(p, t) { disc(p, 8, 8, 5, shade(t, -0.25), shade(t, -0.5), t); disc(p, 8, 8, 2, "#ffffff", t, "#ffffff"); [[8, 1], [8, 15], [1, 8], [15, 8]].forEach(([x, y]) => p.set(x, y, t)); },
+  essence(p, t) { p.rect(7, 1, 2, 2, "#e2e8f0"); p.rect(6, 3, 4, 1, WOOD); for (let y = 4; y < 15; y++) { const w = y < 7 ? 1 : y < 13 ? 3 : 2; for (let x = 8 - w; x < 8 + w; x++) p.set(x, y, y > 8 ? t : "#cbd5e1"); } p.set(6, 10, "#ffffff"); p.set(9, 12, shade(t, -0.4)); },
+  fish(p, t) { for (let x = 3; x < 13; x++) { const h = Math.round(Math.sin(((x - 2) / 10) * Math.PI) * 3); for (let y = 8 - h; y <= 8 + h; y++) p.set(x, y, y > 8 ? shade(t, -0.3) : y < 8 ? shade(t, 0.3) : t); } [[13, 5], [13, 6], [14, 5], [13, 10], [13, 11], [14, 11], [13, 8]].forEach(([x, y]) => p.set(x, y, shade(t, -0.2))); p.set(4, 7, "#0f172a"); },
+  meat(p, t) { disc(p, 7, 7, 5, t, shade(t, -0.35), shade(t, 0.3)); disc(p, 7, 7, 2, "#fca5a5", t, "#fecaca"); line(p, 10, 10, 14, 14, "#f5f5f4"); p.set(14, 13, "#f5f5f4"); p.set(13, 14, "#f5f5f4"); },
+  spice(p, t) { line(p, 4, 14, 9, 4, "#84cc16"); line(p, 9, 14, 12, 6, t); disc(p, 11, 5, 2, "#dc2626", "#991b1b", "#f87171"); disc(p, 5, 11, 2, "#ca8a04", "#a16207", "#fde047"); },
+  salt(p, t) { [[5, 10, 3], [10, 9, 3], [8, 5, 2]].forEach(([x, y, r]) => { for (let dy = -r; dy <= r; dy++) for (let dx = -r + Math.abs(dy); dx <= r - Math.abs(dy); dx++) p.set(x + dx, y + dy, dx + dy > 0 ? "#cbd5e1" : t); }); },
+  dish(p, t) { for (let x = 2; x < 14; x++) p.set(x, 9, "#e2e8f0"); for (let y = 10; y < 14; y++) for (let x = 3 + (y - 10); x < 13 - (y - 10); x++) p.set(x, y, y === 10 ? "#f8fafc" : "#94a3b8"); disc(p, 8, 7, 4, t, shade(t, -0.3), shade(t, 0.4)); [[6, 2], [9, 1], [11, 3]].forEach(([x, y]) => p.set(x, y, "#f1f5f9")); },
+  urn(p, t) { for (let y = 4; y < 15; y++) { const w = y < 6 ? 2 : y < 12 ? 5 - Math.abs(y - 9) * 0.6 : 3; for (let x = Math.round(8 - w); x <= Math.round(7 + w); x++) p.set(x, y, x > 9 ? shade(t, -0.35) : x < 6 ? shade(t, 0.3) : t); } p.rect(5, 3, 6, 1, "#94a3b8"); p.rect(6, 2, 4, 1, "#cbd5e1"); p.set(7, 8, "#7dd3fc"); p.set(7, 9, "#0f172a"); },
+  key(p, t) { disc(p, 5, 5, 3, t, shade(t, -0.35), shade(t, 0.4)); p.set(5, 5, "#18181b"); line(p, 7, 7, 13, 13, METAL); line(p, 8, 7, 14, 13, METAL_D); p.rect(11, 12, 1, 3, METAL); p.rect(13, 10, 2, 1, METAL); },
   ash(p, t) { [[5, 10], [8, 7], [11, 10], [7, 12], [10, 5]].forEach(([x, y], k) => disc(p, x, y, k % 2 ? 1 : 2, t, shade(t, -0.3), "#ffffff")); }
 };
 

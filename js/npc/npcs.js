@@ -6,6 +6,8 @@ import { qt } from "../quest.js";
 import { PLATFORMS, PLATFORM_ORDER } from "../world/platforms.js";
 import { Sound } from "../audio.js";
 import { getLang } from "../i18n.js";
+import { GFX } from "../settings.js";
+import { totalMaxHp } from "../monsterTiers.js";
 
 // ==================== NPCs IN THE WORLD ====================
 // An NPC's position (x, y) is the middle of its feet, like the Avatar's anchor.
@@ -72,7 +74,7 @@ const AMBIENT_CHATS = [
       { en: "Astraea protect our realm.", fil: "Nawa'y gabayan tayo ni Astraea." },
       { en: "The wind carries a strange chill.", fil: "Malamig ang simoy ng hangin ngayon." },
       { en: "Check your potion pouches!", fil: "Suriin ang inyong mga gamot!" },
-      { en: "The Grand Slaying Corps will prevail.", fil: "Magtatagumpay ang ating hukbo." },
+      { en: "The Fated Vanguard will prevail.", fil: "Magtatagumpay ang ating hukbo." },
       { en: "Keep your weapons sharp.", fil: "Panatilihing matalim ang inyong sandata." },
       { en: "The skies feel ominous today.", fil: "Kakaiba ang dilim ng ulap ngayon." }
     ]
@@ -148,6 +150,7 @@ class NPC {
     this.flip = false;
     this.visible = true;
     this.avatar = new Avatar(NPC_DEFS[id].look);
+    this.avatar.sheetKey = `npc/${id}`;   // aseprite/npc/<id>.aseprite when exported
     this.squash = NPC_DEFS[id].dwarf ? 0.8 : 1;   // dwarves stand shorter
     this.tick = Math.floor(Math.random() * 120);
 
@@ -274,7 +277,7 @@ class NPC {
         let element = "physical";
         let sparkColor = "#ffffff";
         // A share of the target's max HP: NPC allies help at any level but rarely take the last hit
-        let dmg = Math.max(3, Math.round(threatEnemy.maxHp * (0.1 + Math.random() * 0.06)));
+        let dmg = Math.max(3, Math.round(totalMaxHp(threatEnemy) * (0.1 + Math.random() * 0.06)));
         let knockback = 14;
 
         switch (this.id) {
@@ -437,10 +440,7 @@ class NPC {
   }
 
   draw(ctx) {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
-    ctx.beginPath();
-    ctx.ellipse(this.x, this.y - 1, 8, 3, 0, 0, Math.PI * 2);
-    ctx.fill();
+    if (GFX.shadows) { ctx.fillStyle = "rgba(0, 0, 0, 0.28)"; ctx.beginPath(); ctx.ellipse(this.x, this.y - 1, 8, 3, 0, 0, Math.PI * 2); ctx.fill(); }
 
     if (this.attackAnimTimer > 0) {
       const frame = this.attackAnimTimer > 7 ? 0 : 1;
@@ -509,7 +509,7 @@ export class NPCManager {
       new NPC("royalGuard", gx + 62, gy + 36, "down", "hub", { guard: true, wanderRadius: 16, speed: 0.30 })
     ];
 
-    // Acts VII–XII: the summoner accompanies the hero at each platform's camp
+    // Acts VII–XV: the summoner accompanies the hero at each platform's camp
     PLATFORM_ORDER.forEach((pid) => {
       const c = PLATFORMS[pid].camp;
       this.npcs.push(Object.assign(new NPC(summonerId, c.x + c.w / 2 + 18, c.y + c.h / 2 + 8, "down", pid, { wanderRadius: 30, speed: 0.32 }), { tag: "field" }));
@@ -518,7 +518,23 @@ export class NPCManager {
         this.npcs.push(new NPC(id, x, y, "down", pid, { guard: true, wanderRadius: 10, speed: 0.22 }));
       });
     });
-    // Act XI: Captain Ronald and the Royal Guard help hold the breach
+    // Guides and allies posted along the campaign (each place's camp; see js/npc/roster.js for their jobs)
+    const at = (pid, dx, dy) => { const c = PLATFORMS[pid].camp; return [c.x + c.w / 2 + dx, c.y + c.h / 2 + dy]; };
+    const post = (id, pid, dx, dy, o = { wanderRadius: 22, speed: 0.3 }) => this.npcs.push(new NPC(id, ...at(pid, dx, dy), "down", pid, o));
+    this.npcs.push(new NPC("maren", bx + 280, by + 112, "down", "hub", { wanderRadius: 20, speed: 0.25 }));   // the Chronicles desk
+    post("elvenMatriarch", "canopy", -50, -10);
+    post("lyra", "canopy", 50, 14);
+    post("isolde", "coast", -46, -12);
+    post("sam", "frost", -48, 10);
+    // the Dark Continent: Veyra scouts every camp; Isolde's fleet and Edgar's field apothecary hold the beachhead
+    ["strand", "ossuary", "siege", "chainspire", "maw"].forEach((pid) => post("veyra", pid, -52, -8));
+    post("isolde", "strand", 52, -12);
+    post("edgar", "strand", 40, 22, { guard: true, wanderRadius: 10, speed: 0.25 });
+    post("aldric", "ossuary", 50, -14, { guard: true, wanderRadius: 12, speed: 0.22 });
+    post("julian", "ossuary", 30, 26);
+    post("arthur", "siege", 54, 18);
+    post("renzo", "chainspire", 50, 16);
+    // Act XIII: Captain Ronald and the Royal Guard help hold the breach
     const sc = PLATFORMS.siege.camp;
     this.npcs.push(new NPC("ronald", sc.x + 36, sc.y + sc.h / 2 + 10, "up", "siege", { wanderRadius: 28, speed: 0.35 }));
     this.npcs.push(new NPC("royalGuard", sc.x + sc.w - 30, sc.y + 30, "up", "siege", { guard: true, wanderRadius: 16, speed: 0.30 }));
@@ -580,12 +596,12 @@ export class NPCManager {
                 (p.pair[1] === n1.id && p.pair[0] === n2.id)
               )
             );
-            if (pairData && Array.isArray(pairData.conversations) && pairData.conversations.length > 0) {
-              const conv = pairData.conversations[Math.floor(Math.random() * pairData.conversations.length)];
-              if (conv && conv.length >= 2) {
-                line1 = conv[0];
-                line2 = conv[1];
-              }
+            // each pair has `lines` (one exchange); `conversations` (several exchanges) is also accepted
+            const conv = pairData && (Array.isArray(pairData.conversations) && pairData.conversations.length
+              ? pairData.conversations[Math.floor(Math.random() * pairData.conversations.length)] : pairData.lines);
+            if (Array.isArray(conv) && conv.length >= 2) {
+              line1 = conv[0];
+              line2 = conv[1];
             }
           }
 

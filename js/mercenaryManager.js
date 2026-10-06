@@ -6,15 +6,20 @@ import { GreatswordMercenary } from "./mercenary/greatsword.js";
 import { Sound } from "./audio.js";
 import { Avatar } from "./avatar/avatar.js";
 import { facingFrom } from "./avatar/creature.js";
+import { GFX } from "./settings.js";
+import { confine, steer, footBlocked } from "./world/nav.js";
+
+const FOOT_X = 8, FOOT_Y = 15;   // a mercenary's feet from its x / y
 
 // One Avatar per mercenary type (frames are cached)
 const AVATARS = {};
-const avatarOf = (data) => AVATARS[data.type] || (AVATARS[data.type] = new Avatar(data.look));
+// aseprite/merc/<type>.aseprite replaces the code-drawn look when exported
+const avatarOf = (data) => AVATARS[data.type] || (AVATARS[data.type] = Object.assign(new Avatar(data.look), { sheetKey: `merc/${data.type}` }));
 
 // How long a mercenary stays dazed before getting back up (15 seconds at 60 fps)
 const KO_TIME = 900;
 
-const MERC_CLASSES = {
+export const MERC_CLASSES = {
   axe: AxeMercenary,
   wand: WandMercenary,
   crossbow: CrossbowMercenary,
@@ -46,7 +51,8 @@ export class MercenaryManager {
     // Scales with same-level monster HP (35 + 12 × level): a basic hit stays ~17% of a foe at every level,
     // so mercenaries neither steal every kill early nor fade out late.
     const power = ((35 + 12 * player.level) / 47) * 0.35 * (mercData.powerBonus || 1);
-    const maxHp = Math.round(mercData.maxHp * (1 + (player.level - 1) * 0.1));
+    // fairness pass: was +10%/Lv, which fell behind monster damage in the late Acts (balance-sim --units)
+    const maxHp = Math.round(mercData.maxHp * (1 + (player.level - 1) * 0.13));
     if (Sound && Sound.playSelectConfirm) Sound.playSelectConfirm();
 
     const merc = {
@@ -148,7 +154,21 @@ export class MercenaryManager {
 
       const ox = m.x, oy = m.y;
       this.step(m, pX, pY, enemyManager, lootManager, fx, spawnProj, stage);
+      if (!m.aboard) this.keepOnGround(m, player, stage, ox, oy);
       this.animate(m, m.x - ox, m.y - oy);
+    }
+  }
+
+  // Normal attack and special skill, each on its own cooldown
+  strike(m, foe, enemies, enemyManager, fx, spawnProj) {
+    if (m.attackCooldown <= 0) {
+      m.attackCooldown = m.data.attackCooldownMax;
+      m.attackAnim = 16;
+      m.data.onAttack(m, foe, this.scaled(m, enemyManager), fx, this.ownShots(m, spawnProj));
+    }
+    if (m.skillCooldown <= 0) {
+      m.skillCooldown = m.data.skillCooldownMax;
+      m.data.onSkill(m, enemies, this.scaled(m, enemyManager), fx, this.ownShots(m, spawnProj));
     }
   }
 
@@ -183,8 +203,43 @@ export class MercenaryManager {
     return (q) => spawnProj && spawnProj({ ...q, merc: true, power: m.power || 1 });
   }
 
+  // A step toward (gx, gy) (where the feet should go): around obstacles when heading for the hero
+  walk(m, gx, gy, speed, stage, towardHero) {
+    const [ux, uy] = steer(stage, m.x + FOOT_X, m.y + FOOT_Y, gx, gy, towardHero);
+    m.x += ux * speed;
+    m.y += uy * speed;
+  }
+
+  // Mercenaries walk: no crossing trees, rocks, water or the map's edge. One that can't get past an
+  // obstacle to the hero for two seconds rejoins at the hero's side.
+  keepOnGround(m, player, stage, ox, oy) {
+    if (!stage) return;
+    confine(stage, m, FOOT_X, FOOT_Y);
+    const far = Math.hypot(player.x - m.x, player.y - m.y) > 60;
+    m.stuck = far && Math.hypot(m.x - ox, m.y - oy) < 0.2 ? (m.stuck || 0) + 1 : 0;
+    if (m.stuck < 120) return;
+    m.stuck = 0;
+    for (const [sx, sy] of [[-16, 10], [16, 10], [0, 16], [-22, 0], [22, 0], [0, -14]]) {
+      const x = player.x + 10 + sx - FOOT_X, y = player.y + 21 + sy - FOOT_Y;
+      if (footBlocked(stage, x + FOOT_X, y + FOOT_Y)) continue;
+      m.x = x; m.y = y; m.navX = x; m.navY = y;
+      return;
+    }
+  }
+
   // One mercenary's AI per frame (follow, pick up loot, fight)
   step(m, pX, pY, enemyManager, lootManager, fx, spawnProj, stage) {
+      // Aboard the ship: hold the deck post (the ship carries it) and fight what comes in reach
+      if (m.aboard) {
+        const enemies = enemyManager ? enemyManager.enemies.filter((e) => e.isAlive) : [];
+        const foe = enemies.find((e) => Math.hypot(e.x - m.x, e.y - m.y) <= m.data.attackRange);
+        if (foe) {
+          m.facing = foe.x >= m.x ? "right" : "left";
+          m.aimAngle = Math.atan2(foe.y - m.y, foe.x - m.x);
+          this.strike(m, foe, enemies, enemyManager, fx, spawnProj);
+        }
+        return;
+      }
       const distToPlayer = Math.hypot(pX - m.x, pY - m.y);
 
       // SPRINT CHECK: sprint to keep up when the player moves away
@@ -196,9 +251,7 @@ export class MercenaryManager {
       // ========================================================
       if (distToPlayer > 80) {
         const dx = pX - m.x;
-        const dy = pY - m.y;
-        m.x += (dx / distToPlayer) * baseSpeed;
-        m.y += (dy / distToPlayer) * baseSpeed;
+        this.walk(m, pX + 10, pY + 21, baseSpeed, stage, true);
         m.facing = dx >= 0 ? "right" : "left";
         return; // Skip loot and combat for now so it isn't left behind
       }
@@ -237,10 +290,7 @@ export class MercenaryManager {
         const dx = targetLoot.x - m.x;
         const dy = targetLoot.y - m.y;
         const d = Math.hypot(dx, dy);
-        if (d > 4) {
-          m.x += (dx / d) * baseSpeed;
-          m.y += (dy / d) * baseSpeed;
-        }
+        if (d > 4) this.walk(m, targetLoot.x, targetLoot.y, baseSpeed, stage, false);
       } else if (closestEnemy && !(stage && stage.isInsideSafeZone(m.x, m.y))) {
         // Fight the foe
         const dx = closestEnemy.x - m.x;
@@ -249,28 +299,15 @@ export class MercenaryManager {
         m.aimAngle = Math.atan2(dy, dx);
 
         if (closestDist > m.data.attackRange) {
-          m.x += (dx / closestDist) * baseSpeed;
-          m.y += (dy / closestDist) * baseSpeed;
+          this.walk(m, closestEnemy.x + 10, closestEnemy.y + 20, baseSpeed, stage, false);
         } else {
-          // Normal Attack Trigger
-          if (m.attackCooldown <= 0) {
-            m.attackCooldown = m.data.attackCooldownMax;
-            m.attackAnim = 16;
-            m.data.onAttack(m, closestEnemy, this.scaled(m, enemyManager), fx, this.ownShots(m, spawnProj));
-          }
-          // Special Skill Trigger
-          if (m.skillCooldown <= 0) {
-            m.skillCooldown = m.data.skillCooldownMax;
-            m.data.onSkill(m, enemies, this.scaled(m, enemyManager), fx, this.ownShots(m, spawnProj));
-          }
+          this.strike(m, closestEnemy, enemies, enemyManager, fx, spawnProj);
         }
       } else {
         // NATURAL FLANKING: follow and stand beside the player (24–32px allowance)
         if (distToPlayer > 30) {
           const dx = pX - m.x;
-          const dy = pY - m.y;
-          m.x += (dx / distToPlayer) * baseSpeed;
-          m.y += (dy / distToPlayer) * baseSpeed;
+          this.walk(m, pX + 10, pY + 21, baseSpeed, stage, true);
           m.facing = dx >= 0 ? "right" : "left";
         }
       }
@@ -280,10 +317,7 @@ export class MercenaryManager {
   drawDowned(ctx, m) {
     const t = m.animTimer;
     const fx = m.x + 8, fy = m.y + 15;
-    ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
-    ctx.beginPath();
-    ctx.ellipse(fx, m.y + 14, 7, 2.5, 0, 0, Math.PI * 2);
-    ctx.fill();
+    if (GFX.shadows) { ctx.fillStyle = "rgba(0, 0, 0, 0.28)"; ctx.beginPath(); ctx.ellipse(fx, m.y + 14, 7, 2.5, 0, 0, Math.PI * 2); ctx.fill(); }
     ctx.save();
     ctx.translate(fx, fy);
     ctx.rotate(Math.sin(t / 14) * 0.18);
@@ -326,10 +360,7 @@ export class MercenaryManager {
       if (!m.isAlive) return;
 
       // Contact Shadow
-      ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
-      ctx.beginPath();
-      ctx.ellipse(m.x + 8, m.y + 14, 7, 2.5, 0, 0, Math.PI * 2);
-      ctx.fill();
+      if (GFX.shadows) { ctx.fillStyle = "rgba(0, 0, 0, 0.28)"; ctx.beginPath(); ctx.ellipse(m.x + 8, m.y + 14, 7, 2.5, 0, 0, Math.PI * 2); ctx.fill(); }
 
       // Modular Avatar: the feet are at (x + 8, y + 15)
       // Squash & stretch: lean into each swing, recoil when struck, breathe when idle

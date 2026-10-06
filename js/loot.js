@@ -1,6 +1,8 @@
 import { Sound } from "./audio.js";
 import { describe, rollDrop } from "./items/itemdb.js";
 import { iconCanvas } from "./items/icons.js";
+import { TILE } from "./world/tileset.js";
+import { GFX } from "./settings.js";
 
 // ==================== SAMSAM (LOOT) ====================
 // Every slain monster drops gold and sometimes an item (potion, shard, material,
@@ -42,38 +44,55 @@ function isObstacle(x, y, stage) {
   return false;
 }
 
-// Finds the nearest safe spot the player can stand on
-function findNearestWalkableSpot(startX, startY, stage) {
-  if (!isObstacle(startX, startY, stage)) {
-    return { x: startX, y: startY };
-  }
+// A spot is walkable when it and a small margin around it are clear, so an item never ends up
+// half inside a wall, a tree or the shoreline where the hero can't reach it
+const MARGIN = 5;
+function clearAround(x, y, stage) {
+  return !isObstacle(x, y, stage) &&
+    !isObstacle(x - MARGIN, y, stage) && !isObstacle(x + MARGIN, y, stage) &&
+    !isObstacle(x, y - MARGIN, stage) && !isObstacle(x, y + MARGIN, stage);
+}
 
-  // Radial spiral search outward
-  for (let r = 8; r <= 220; r += 8) {
-    const angles = [
-      Math.PI / 2,          // Down (South)
-      Math.PI / 2 + 0.45,
-      Math.PI / 2 - 0.45,
-      Math.PI / 2 + 0.9,
-      Math.PI / 2 - 0.9,
-      0,                    // Right (East)
-      Math.PI,              // Left (West)
-      -Math.PI / 2,         // Up (North)
-      Math.PI / 4,
-      (3 * Math.PI) / 4,
-      -Math.PI / 4,
-      -(3 * Math.PI) / 4
-    ];
-
-    for (const ang of angles) {
-      const tx = startX + Math.cos(ang) * r;
-      const ty = startY + Math.sin(ang) * r;
-      if (!isObstacle(tx, ty, stage)) {
-        return { x: tx, y: ty };
+// Nearest walkable spot to (x, y): a breadth-first search over the tile grid outward from the drop
+// point (through walls, water and cliffs) that stops at the first ring holding a clear, reachable tile
+// and takes the closest one. Every blocked drop (monster loot, a dropped item, a full-bag bounce,
+// a boss's quest item) lands where the hero can walk to it.
+export function findNearestWalkableSpot(startX, startY, stage) {
+  if (!stage || clearAround(startX, startY, stage)) return { x: startX, y: startY };
+  const tm = stage.tilemap;
+  if (tm && tm.cols && tm.rows) {
+    const cols = tm.cols, rows = tm.rows;
+    const sx = Math.max(0, Math.min(cols - 1, Math.floor(startX / TILE)));
+    const sy = Math.max(0, Math.min(rows - 1, Math.floor(startY / TILE)));
+    const seen = new Uint8Array(cols * rows);
+    let ring = [[sx, sy]];
+    seen[sy * cols + sx] = 1;
+    while (ring.length) {
+      let best = null, bestD = Infinity;
+      const next = [];
+      for (const [tx, ty] of ring) {
+        const cx = tx * TILE + TILE / 2, cy = ty * TILE + TILE / 2;
+        if (clearAround(cx, cy, stage)) {
+          const d = (cx - startX) ** 2 + (cy - startY) ** 2;
+          if (d < bestD) { bestD = d; best = { x: cx, y: cy }; }
+        }
+        for (let dy = -1; dy <= 1; dy++) {
+          for (let dx = -1; dx <= 1; dx++) {
+            const nx = tx + dx, ny = ty + dy;
+            if (nx < 0 || ny < 0 || nx >= cols || ny >= rows || seen[ny * cols + nx]) continue;
+            seen[ny * cols + nx] = 1;
+            next.push([nx, ny]);
+          }
+        }
       }
+      if (best) return best;
+      ring = next;
     }
   }
-  return { x: startX, y: startY + 40 };
+  // No tile grid (or nothing clear on it): the nearest safe zone's centre is always walkable
+  const z = stage.safeZone || (stage.safeZones && stage.safeZones[0]);
+  if (z) return { x: z.x + z.w / 2, y: z.y + z.h / 2 };
+  return { x: startX, y: startY };
 }
 
 export class LootManager {
@@ -82,6 +101,7 @@ export class LootManager {
     this.onQuestItem = null;   // (id) => void — a quest item was picked up
     this.onCollect = null;     // ({ gold } | { id, name, qty, color }) => void — for the bottom tray log
     this.fullWarn = 0;
+    this.stage = null;         // current place (set by update), used when a caller passes none
   }
 
   clear() {
@@ -90,11 +110,12 @@ export class LootManager {
 
   // info: { tier, level, cls, boss, drop }
   spawnLoot(x, y, info = {}, stage = null) {
+    stage = stage || this.stage;
     const level = info.level || 1;
     const scatter = () => {
       const sx = x + (Math.random() * 16 - 8);
       const sy = y + (Math.random() * 12 - 6);
-      if (stage && isObstacle(sx, sy, stage)) {
+      if (stage && !clearAround(sx, sy, stage)) {
         const safe = findNearestWalkableSpot(sx, sy, stage);
         return { x: sx, y: sy, targetSlideX: safe.x, targetSlideY: safe.y };
       }
@@ -103,22 +124,24 @@ export class LootManager {
 
     // gold
     const GOLD_MULT = { normal: 1, champion: 2, elite: 4, mvp: 12 };
-    const gold = Math.round((2 + level * 0.8) * (0.7 + Math.random() * 0.6) * (GOLD_MULT[info.tier] || (info.boss ? 12 : 1)));
+    // economy pass: was 2 + level × 0.8 — late Acts could not pay for their own potions (balance-sim --economy)
+    const gold = Math.round((3 + level * 1.1) * (0.7 + Math.random() * 0.6) * (GOLD_MULT[info.tier] || (info.boss ? 12 : 1)));
     this.items.push({ ...scatter(), type: "gold", amount: gold, color: "#ffd166", bobTimer: Math.random() * 6 });
 
     // item
     const grade = info.grade ?? info.tierGrade ?? 0;
-    rollDrop(grade, info.cls || "novice", { key: info.key, tier: info.tier, boss: info.boss, diff: info.diff, extra: info.extra })
+    rollDrop(grade, info.cls || "novice", { key: info.key, tier: info.tier, boss: info.boss, diff: info.diff, extra: info.extra, level, element: info.element, race: info.race })
       .forEach((inst) => this.drop(scatter(), inst));
     if (info.drop) this.drop({ x, y }, { id: info.drop, qty: 1 }, true, stage);
   }
 
   // inst = { id, qty, ... } (see js/items/itemdb.js)
   drop(pos, inst, quest = false, stage = null) {
+    stage = stage || this.stage;
     const it = describe(inst);
     if (!it) return;
     let finalPos = pos;
-    if (stage && isObstacle(pos.x, pos.y, stage)) {
+    if (stage && !clearAround(pos.x, pos.y, stage)) {
       const safe = findNearestWalkableSpot(pos.x, pos.y, stage);
       finalPos = { ...pos, targetSlideX: safe.x, targetSlideY: safe.y };
     }
@@ -131,6 +154,8 @@ export class LootManager {
   }
 
   update(player, fx, stage = null) {
+    if (stage) this.stage = stage;
+    stage = this.stage;
     if (!player || player.hp <= 0) return;
     if (this.fullWarn > 0) this.fullWarn--;
 
@@ -158,10 +183,11 @@ export class LootManager {
           } else {
             item.x = item.targetSlideX;
             item.y = item.targetSlideY;
+            item.settledAt = `${item.x}|${item.y}`;     // searched once from here; don't search again in place
             delete item.targetSlideX;
             delete item.targetSlideY;
           }
-        } else if (isObstacle(item.x, item.y, stage)) {
+        } else if (item.settledAt !== `${item.x}|${item.y}` && isObstacle(item.x, item.y, stage)) {
           const safe = findNearestWalkableSpot(item.x, item.y, stage);
           item.targetSlideX = safe.x;
           item.targetSlideY = safe.y;
@@ -174,9 +200,13 @@ export class LootManager {
       const dist = Math.hypot(dx, dy);
 
       if (dist < pickupMagnetRadius) {
+        // Pulled toward the hero, but never through a tree, a rock, water or a wall: it slides
+        // along the obstacle, or waits on its side until the hero walks around
         const pullSpeed = Math.min(6.5, 2.5 + (1 - dist / pickupMagnetRadius) * 5.0);
-        item.x += (dx / dist) * pullSpeed;
-        item.y += (dy / dist) * pullSpeed;
+        const nx = item.x + (dx / dist) * pullSpeed, ny = item.y + (dy / dist) * pullSpeed;
+        if (dist < collectRadius + pullSpeed || !isObstacle(nx, ny, stage)) { item.x = nx; item.y = ny; }
+        else if (!isObstacle(nx, item.y, stage)) item.x = nx;
+        else if (!isObstacle(item.x, ny, stage)) item.y = ny;
       }
 
       if (dist < collectRadius) {
@@ -187,7 +217,7 @@ export class LootManager {
           item.y -= (dy / (dist || 1)) * 14;
           continue;
         }
-        if (Sound && Sound.playLootPickup) Sound.playLootPickup();
+        if (Sound) { if (item.type === "gold") { if (Sound.playCoin) Sound.playCoin(); } else if (Sound.playLootPickup) Sound.playLootPickup(); }
         if (fx && fx.spawnHitSparks) fx.spawnHitSparks(item.x, item.y, item.color, item.quest ? 24 : 10);
         this.items.splice(i, 1);
       }
@@ -219,10 +249,7 @@ export class LootManager {
     this.items.forEach((item) => {
       const hoverY = item.y + Math.sin(item.bobTimer) * 3;
 
-      ctx.fillStyle = "rgba(10, 14, 20, 0.35)";
-      ctx.beginPath();
-      ctx.ellipse(item.x, item.y + 6, 4, 1.5, 0, 0, Math.PI * 2);
-      ctx.fill();
+      if (GFX.shadows) { ctx.fillStyle = "rgba(10, 14, 20, 0.35)"; ctx.beginPath(); ctx.ellipse(item.x, item.y + 6, 4, 1.5, 0, 0, Math.PI * 2); ctx.fill(); }
 
       ctx.fillStyle = item.color;
       ctx.globalAlpha = item.quest ? 0.35 + Math.sin(item.bobTimer * 2) * 0.15 : 0.22;

@@ -2,12 +2,13 @@ import { getLang } from "./i18n.js";
 import { npcName } from "./dialogue.js";
 import { NPC_DEFS } from "./npc/roster.js";
 import { MONSTERS, BOSSES, NIGHT_KINDS } from "./bestiary.js";
-import { HUB_KINDS } from "./enemy.js";
+import { BOOK_ONE_AREAS, areaDef } from "./world/areas.js";
 import { PLATFORMS, PLATFORM_ORDER } from "./world/platforms.js";
-import { codexItems, getItem, statText, slotName, SETS, SET_THRESHOLDS, RARITY } from "./items/itemdb.js";
+import { codexItems, getItem, statText, skillText, slotName, SETS, setThresholds, RARITY } from "./items/itemdb.js";
 import { iconURL } from "./items/icons.js";
 import { elementName, raceName, sizeName, ELEMENTS } from "./elements.js";
 import { statusName } from "./status.js";
+import { livesFor } from "./monsterTiers.js";
 import { Avatar } from "./avatar/avatar.js";
 
 // ==================== CODEX (N) ====================
@@ -20,19 +21,21 @@ const L = () => (getLang() === "fil" ? "fil" : "en");
 const TEXT = {
   en: {
     title: "Codex", unknown: "???", undiscovered: "Not yet discovered.", kills: "Defeated", habitat: "Habitat",
-    element: "Element", race: "Race", size: "Size", hp: "HP", dmg: "Damage", blight: "Inflicts", drop: "Drops", arena: "Lair",
+    element: "Element", race: "Race", size: "Size", hp: "HP", lives: "Life bars", dmg: "Damage", blight: "Inflicts", drop: "Drops", arena: "Lair",
     night: "Night only", role: "Role", where: "Found at", classes: "Classes", any: "Any class", hands2: "Two-handed",
     stats: "Base stats", grows: "Stats grow with grade (Aethelgard → Sovereign) and refining.", price: "Value", setBonus: "Set bonuses",
-    pieces: "Pieces: weapon, head, armor, gloves, boots (built for your class)", mvp: "MVP", close: "N / Esc — close · ←/→ tabs · ↑/↓ entries",
+    pieces: "Pieces: weapon, head, armor, gloves, boots (built for your class)",
+    craftedPieces: (lv) => `Crafted at any safe zone (G). Requires Lv ${lv}. Pieces: weapon, off-hand, head, armor, garment, gloves, boots, amulet, rings (built for your class)`, mvp: "MVP", close: "N / Esc — close · ←/→ tabs · ↑/↓ entries",
     tabs: { npc: "NPCs", monsters: "Monsters & MVP", weapons: "Weapons", equipment: "Equipment", accessories: "Accessories", others: "Others" },
     groups: { consume: "Consumables", material: "Upgrade Materials", card: "Cards", quest: "Quest Items", unique: "Unique", set: "Set", mvp: "MVP Bosses", monsters: "Monsters" }
   },
   fil: {
     title: "Codex", unknown: "???", undiscovered: "Hindi pa natutuklasan.", kills: "Natalo", habitat: "Tirahan",
-    element: "Elemento", race: "Lahi", size: "Laki", hp: "HP", dmg: "Pinsala", blight: "Nagdudulot", drop: "Nahuhulog", arena: "Pugad",
+    element: "Elemento", race: "Lahi", size: "Laki", hp: "HP", lives: "Bilang ng buhay", dmg: "Pinsala", blight: "Nagdudulot", drop: "Nahuhulog", arena: "Pugad",
     night: "Gabi lamang", role: "Tungkulin", where: "Matatagpuan sa", classes: "Mga class", any: "Kahit anong class", hands2: "Dalawang kamay",
     stats: "Batayang stats", grows: "Lumalaki ang stats ayon sa grado (Aethelgard → Sovereign) at pag-refine.", price: "Halaga", setBonus: "Bonus ng set",
-    pieces: "Piyesa: sandata, ulo, baluti, guwantes, bota (ginawa para sa iyong class)", mvp: "MVP", close: "N / Esc — isara · ←/→ tab · ↑/↓ entry",
+    pieces: "Piyesa: sandata, ulo, baluti, guwantes, bota (ginawa para sa iyong class)",
+    craftedPieces: (lv) => `Ginagawa sa anumang ligtas na lugar (G). Kailangan ang Lv ${lv}. Piyesa: sandata, kabilang kamay, ulo, baluti, balabal, guwantes, bota, kuwintas, singsing (ginawa para sa iyong class)`, mvp: "MVP", close: "N / Esc — isara · ←/→ tab · ↑/↓ entry",
     tabs: { npc: "Mga NPC", monsters: "Halimaw at MVP", weapons: "Sandata", equipment: "Kagamitan", accessories: "Aksesorya", others: "Iba pa" },
     groups: { consume: "Nagagamit", material: "Pang-upgrade", card: "Card", quest: "Quest Item", unique: "Unique", set: "Set", mvp: "MVP Boss", monsters: "Halimaw" }
   }
@@ -46,7 +49,7 @@ const NPCS = {
   king: { en: ["King of Aethelgard", "Audience dais of the Imperial Citadel"], fil: ["Hari ng Aethelgard", "Audience dais ng Imperial Citadel"] },
   royalGuard: { en: ["Guards the King", "Audience dais of the Imperial Citadel"], fil: ["Bantay ng Hari", "Audience dais ng Imperial Citadel"] },
   ronald: { en: ["Mercenary Commander · hires mercenaries, refines to +4, field repairs", "Barracks Sanctuary"], fil: ["Kumander ng Mercenary · umuupa ng mercenary, nagre-refine hanggang +4, field repair", "Barracks Sanctuary"] },
-  edgar: { en: ["Apothecary · potions and cures", "Barracks Sanctuary"], fil: ["Apothecary · mga potion at lunas", "Barracks Sanctuary"] },
+  edgar: { en: ["Apothecary · potions and cures", "Barracks Sanctuary, and a field apothecary on the Lamenting Strand"], fil: ["Apothecary · mga potion at lunas", "Barracks Sanctuary, at may pansamantalang botika sa Dalampasigan ng Panaghoy"] },
   arthur: { en: ["Earthbound soul · Knight mentor", "Barracks Sanctuary"], fil: ["Kaluluwang taga-Daigdig · mentor ng Knight", "Barracks Sanctuary"] },
   lyra: { en: ["Earthbound soul · Archer mentor", "Barracks Sanctuary"], fil: ["Kaluluwang taga-Daigdig · mentor ng Archer", "Barracks Sanctuary"] },
   julian: { en: ["Earthbound soul · Priest mentor", "Barracks Sanctuary"], fil: ["Kaluluwang taga-Daigdig · mentor ng Priest", "Barracks Sanctuary"] },
@@ -55,7 +58,12 @@ const NPCS = {
   brakka: { en: ["Master smith · refines to +10, forges mineral sets, tempers gear", "Emberhold, Ashfall Wastelands"], fil: ["Punong panday · refine hanggang +10, forge ng set, pagpapatibay", "Emberhold, Ashfall Wastelands"] },
   hilde: { en: ["Repairs weapons and armor", "Emberhold, Ashfall Wastelands"], fil: ["Nag-aayos ng sandata at baluti", "Emberhold, Ashfall Wastelands"] },
   durgrim: { en: ["Thane of Emberhold · grants the right to mine", "Emberhold, Ashfall Wastelands"], fil: ["Thane ng Emberhold · nagbibigay ng karapatang magmina", "Emberhold, Ashfall Wastelands"] },
-  pip: { en: ["Shopkeeper · materials and potions", "Emberhold, Ashfall Wastelands"], fil: ["Tindero · mga materyales at potion", "Emberhold, Ashfall Wastelands"] }
+  pip: { en: ["Shopkeeper · materials and potions", "Emberhold, Ashfall Wastelands"], fil: ["Tindero · mga materyales at potion", "Emberhold, Ashfall Wastelands"] },
+  elvenMatriarch: { en: ["Elder of the elves · tells how to fight Malakor", "Camp of the Whispering Canopy"], fil: ["Nakatatanda ng mga elf · nagtuturo kung paano labanan si Malakor", "Kampo ng Whispering Canopy"] },
+  maren: { en: ["Archivist of the Chronicles · recaps your story and tells you where to go next", "Barracks Sanctuary"], fil: ["Arkibista ng mga Kronika · nagbubuod ng iyong kuwento at nagsasabi kung saan susunod", "Barracks Sanctuary"] },
+  isolde: { en: ["Ship's captain · advice on the sea, the Seal Stones and the Monolith", "Cerulean Abyss camp, Lamenting Strand camp"], fil: ["Kapitana ng barko · payo tungkol sa dagat, mga Seal Stone at Monolith", "Kampo ng Cerulean Abyss, kampo ng Dalampasigan ng Panaghoy"] },
+  veyra: { en: ["Half-demon scout · briefs you on each Dark Continent boss", "Every camp on the Dark Continent"], fil: ["Kalahating-demonyong batyaw · nagpapaliwanag ng bawat boss ng Dark Continent", "Bawat kampo sa Dark Continent"] },
+  aldric: { en: ["Last monk of the Order of the Lantern · the Lantern Knight and the First War", "Camp of the Ossuary Fields"], fil: ["Huling monghe ng Orden ng Lantern · ang Lantern Knight at ang Unang Digmaan", "Kampo ng Kaparangan ng mga Buto"] }
 };
 
 const WEAPON_SLOTS = ["weapon"];
@@ -238,22 +246,30 @@ export class Codex {
       if (k.debuff) row(T.blight, k.debuff.type === "all" ? "★" : `${statusName(k.debuff.type)} (${Math.round(k.debuff.chance * 100)}%)`);
       if (e.kind === "boss") {
         const plat = PLATFORM_ORDER.map((id) => PLATFORMS[id]).find((p) => p.boss === e.id);
-        if (plat) row(T.arena, `Act ${plat.act} · ${plat.arenaName[Lg]}`);
+        if (plat) {
+          row(T.arena, `Act ${plat.act} · ${plat.arenaName[Lg]}`);
+          const lv = (plat.levels ? plat.levels[1] : plat.tier * 5 + 7) + 2;   // EnemyManager.spawnBoss
+          row(T.lives, `×${livesFor({ boss: true, level: lv })}`);
+        }
         if (k.drop) row(T.drop, getItem(k.drop).name);
       } else {
-        const where = PLATFORM_ORDER.filter((id) => PLATFORMS[id].monsters.includes(e.id)).map((id) => PLATFORMS[id].name[Lg]);
-        if (HUB_KINDS.includes(e.id)) where.unshift("Aethelgard");
-        if (NIGHT_KINDS.includes(e.id)) where.push(`Aethelgard (${T.night})`);
+        // Every map that has it as a regular or an elite kind ("Elite" is the tier name in both languages)
+        const where = BOOK_ONE_AREAS.map(areaDef).filter((d) => d.monsters.includes(e.id) || (d.elites || []).includes(e.id))
+          .map((d) => `${d.name[Lg]}${(d.elites || []).includes(e.id) ? " (Elite)" : ""}`);
+        if (NIGHT_KINDS.includes(e.id)) where.push(`${areaDef("hub").name[Lg]} (${T.night})`);
         row(T.habitat, where.join(" · ") || "—");
       }
       row(T.kills, String(this.kills[e.id] || 0));
     } else if (e.kind === "set") {
       const set = SETS[e.id];
       add(det, "div", "cx-name", set.name[Lg]).style.color = set.color;
-      add(det, "div", "cx-desc", T.pieces);
+      add(det, "div", "cx-desc", set.crafted ? T.craftedPieces(set.level) : T.pieces);
       row(T.stats, Object.entries(set.piece).map(([s, v]) => statText(s, v)).join("  "));
       add(det, "div", "cx-sub", T.setBonus);
-      SET_THRESHOLDS.forEach((n) => row(`(${n})`, `${n === 5 ? `${set.passive[Lg]}: ` : ""}${Object.entries(set.bonus[n]).map(([s, v]) => statText(s, v)).join("  ")}`));
+      const steps = setThresholds(set), top = steps[steps.length - 1];
+      steps.forEach((n) => row(`(${n})`, `${n === top ? `${set.passive[Lg]}: ` : ""}${[
+        ...Object.entries(set.bonus[n]).map(([s, v]) => statText(s, v)),
+        ...Object.entries((set.skill && set.skill[n]) || {}).map(([s, v]) => skillText(s, v))].join("  ")}`));
     } else {
       const it = e.item;
       this.portrait(det, add, (c, w, h) => { const img = new Image(); img.onload = () => c.drawImage(img, 12, 12, w - 24, h - 24); img.src = iconURL(it); });

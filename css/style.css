@@ -112,7 +112,7 @@ body[data-mode="select"] #lore { border-color: #38bdf8; }
   border-bottom: 1px solid #22304d;
 }
 
-/* Banner of the current Act (assets/banner/act-N.jpeg), follows the quest */
+/* Banner of the current Act (assets/banner/act-N.png), follows the quest */
 .lore-banner {
   display: none;
   position: relative;
@@ -428,6 +428,7 @@ body[data-mode="play"] .lore-head { padding: 7px 12px; font-size: 11px; }
   touch-action: none;
 }
 .sa-btn:hover { border-color: #ffd166; }
+.sa-btn.empty { opacity: 0.45; }
 .sa-btn.held, .sa-btn:active { background: rgba(255, 209, 102, 0.22); border-color: #ffd166; }
 .sa-icon { font-size: 15px; text-align: center; line-height: 1; }
 .sa-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

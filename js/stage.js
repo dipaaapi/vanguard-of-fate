@@ -4,10 +4,14 @@ import { CastleSystem } from "./world/castle.js";
 import { PortalSystem } from "./world/portal.js";
 import { WeatherSystem } from "./world/weather.js";
 import { TileMap } from "./world/tilemap.js";
+import { GFX } from "./settings.js";
+import { HUB_AREA } from "./world/areas.js";
+import { DARK_CONTINENT } from "./world/platforms.js";
+import { hasZoneArt, pushOutOf } from "./world/zonesprites.js";
 
 // The plains of Aethelgard (Acts I–VI): Barracks, Citadel and the 4 Warp Gateways.
 // The boat and the sea are in the Cerulean Abyss (the "coast" platform).
-// The platforms of Acts VII–XII live in js/world/platform.js (same interface).
+// The platforms of Acts VII–XV live in js/world/platform.js (same interface).
 export class Stage {
   constructor(width = 1280, height = 960) {
     this.id = "hub";
@@ -40,14 +44,19 @@ export class Stage {
     // Sacred places monsters cannot enter: the Barracks and the Citadel's audience dais
     this.safeZones = [this.safeZone, this.dais];
 
+    // Dirt paths from the Barracks: the four gateways (as before), the Wayfarer's Gate and every site to scout
+    this.sites = HUB_AREA.sites;
+    this.pathTargets = [[640, 32], [640, 896], [32, 480], [1216, 480], [HUB_AREA.trail.x, HUB_AREA.trail.y - 24], ...this.sites.map((s) => [s.x, s.y])];
+
     // Tile-based ground (grass, paths, trees, rocks). Built last because it reads
     // where the castle, barracks and portals are drawn.
     this.tilemap = new TileMap(this);
   }
 
-  // Impassable tiles (trees, rocks)
+  // Impassable tiles (trees, rocks) and the Barracks longhouses (when their Aseprite art is shown)
   resolveTileCollision(entity) {
     if (this.tilemap) this.tilemap.resolveCollision(entity);
+    if (hasZoneArt("barracks")) pushOutOf(entity, this.barracks.solids);
   }
 
   // Tree canopy: drawn ABOVE the characters
@@ -70,7 +79,8 @@ export class Stage {
 
   // Where the player comes out when returning from a platform
   arrivalFrom(platformId) {
-    if (platformId === "siege") return { x: this.castle.gatePortal.x - 10, y: this.castle.gatePortal.y + 40 };
+    // Back from the Dark Continent: at the Citadel gate
+    if (DARK_CONTINENT.includes(platformId)) return { x: this.castle.gatePortal.x - 10, y: this.castle.gatePortal.y + 40 };
     const gate = this.portals.portals.find((p) => p.dest === platformId);
     return gate ? this.portals.exitPoint(gate.id) : { x: this.safeZone.x + this.safeZone.w / 2 - 10, y: this.safeZone.y + this.safeZone.h - 30 };
   }
@@ -111,6 +121,6 @@ export class Stage {
     this.portals.draw(ctx);
 
     // 5. Cloud shadows on the ground (the clouds themselves are drawn above the characters)
-    this.weather.drawCloudShadows(ctx);
+    if (GFX.shadows) this.weather.drawCloudShadows(ctx);
   }
 }

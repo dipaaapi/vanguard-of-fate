@@ -9,7 +9,7 @@ Long before the skies bled amethyst and obsidian, the continent of Aethelgard fl
 
 Then the Eclipse of the Abyss came, and Demon Lord Satan woke from his slumber.
 
-The Crown Heir and the King ratified an ancient, forbidden doctrine: to draw forth resilient souls from Earth and form the Grand Slaying Corps.`;
+The Crown Heir and the King ratified an ancient, forbidden doctrine: to draw forth resilient souls from Earth and form the Fated Vanguard.`;
 
 function cleanInline(s) {
   return s.replace(/\*\*(.+?)\*\*/g, "$1").replace(/\*(.+?)\*/g, "$1").replace(/`(.+?)`/g, "$1");
@@ -89,7 +89,7 @@ function buildCopy(md) {
   return copy;
 }
 
-// "Act II" → 2 (to match a chapter with the quest's Act number and the act-N.jpeg banner)
+// "Act II" → 2 (to match a chapter with the quest's Act number and the act-N.png banner)
 const ROMAN = { I: 1, V: 5, X: 10, L: 50 };
 export function actNumber(tab) {
   const m = /Act\s+([IVXL]+)/i.exec(tab || "");
@@ -103,10 +103,22 @@ export function actNumber(tab) {
   return n;
 }
 
-// Accepts .jpeg, .jpg, .png and .webp (tried in this order)
-export const BANNER_EXTS = ["jpeg", "jpg", "png", "webp"];
+// Banner key of a chapter heading: the Act number, or "prophecy" / "ledger" / "heralds" for the
+// three reference chapters (EN and FIL headings), or 0 when the chapter has no banner
+export function chapterKey(tab) {
+  const act = actNumber(tab);
+  if (act) return act;
+  if (/Prophecy|Propesiya/i.test(tab || "")) return "prophecy";
+  if (/Ledger/i.test(tab || "")) return "ledger";
+  if (/Herald/i.test(tab || "")) return "heralds";
+  return 0;
+}
+
+// Banners are the procedural pixel art from tools/art (PNG); other formats are still accepted
+// in this order, so a hand-made act-N.webp or .jpeg can replace one without code changes
+export const BANNER_EXTS = ["png", "webp", "jpeg", "jpg"];
 export function bannerSrc(act, i = 0) {
-  return `assets/banner/act-${act}.${BANNER_EXTS[i]}`;
+  return `assets/banner/${typeof act === "number" ? `act-${act}` : act}.${BANNER_EXTS[i]}`;
 }
 
 // A single chapter (the quest's current Act)
@@ -124,7 +136,7 @@ function buildChapterCopy(ch) {
 
 // Lore panel on the right. setAct(n): shows the banner and text of Act n from LORE.md
 // (follows the quest). setAct(0): the whole LORE.md (no game in progress).
-// When an Act has no banner yet (e.g. act-10.jpeg), only the text and title show.
+// When an Act has no banner, only the text and title show.
 export function createLorePanel(panelEl, speed = 0.45) {
   const view = panelEl.querySelector(".lore-view");
   const track = panelEl.querySelector(".lore-track");
@@ -204,9 +216,15 @@ export function createLorePanel(panelEl, speed = 0.45) {
     y += e.deltaY;
   }, { passive: false });
 
+  // Height of one copy and whether the panel is shown, re-read only when they change: reading
+  // offsetHeight every frame forced a page layout per frame next to the HUD updates
+  let h = 0, shown = false;
+  const measure = () => { h = first ? first.offsetHeight : 0; shown = view.offsetParent !== null; };
+  if (window.ResizeObserver) new ResizeObserver(measure).observe(track);
+  let lastFirst = null, frames = 0;
   function step() {
-    const h = first ? first.offsetHeight : 0;
-    if (h > 0 && view.offsetParent !== null) {
+    if (first !== lastFirst || !window.ResizeObserver || ++frames % 30 === 0) { lastFirst = first; measure(); }
+    if (h > 0 && shown) {
       if (!paused) y += speed;
       y = ((y % h) + h) % h;
       track.style.transform = `translateY(${-y}px)`;

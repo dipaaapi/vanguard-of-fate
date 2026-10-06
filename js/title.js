@@ -1,9 +1,10 @@
 import { Sound } from "./audio.js";
 import { t, getLang, setLang, toggleLang, onLangChange } from "./i18n.js";
-import { loadLore, parseChapters, actNumber, bannerSrc, BANNER_EXTS } from "./lore.js";
+import { loadLore, parseChapters, chapterKey, bannerSrc, BANNER_EXTS } from "./lore.js";
+import { SETTINGS, settingLabel, settingValue, stepSetting, toggleFullscreen } from "./settings.js";
 
 // Title screen (full window). The logo, menu and Chronicles are HTML/CSS;
-// the canvas (#titleFx) only draws the embers and the sword's glow.
+// the canvas (#titleFx) animates the painting: stars, eclipse, sea, a passing ship, the sword and embers.
 //
 // Steps (data-step on #title):
 //   press      → "Press any key" (music also starts here, since browsers need user input)
@@ -12,7 +13,7 @@ import { loadLore, parseChapters, actNumber, bannerSrc, BANNER_EXTS } from "./lo
 //   chronicles → lore, split by Act
 
 const SAVE_KEY = "vanguard_savegame";
-const BG_SRC = "assets/bg/title_bg.gif";
+const BG_SRC = "assets/bg/title_bg.png";
 const SWORD = { x: 0.5, y: 0.42 };   // position of the sword in the picture (0–1)
 const FX_PIXEL = 3;                  // size of one ember "pixel" on screen
 
@@ -88,11 +89,9 @@ export class TitleScene {
     const save = this.readSave();
 
     if (this.step === "options") {
+      // Settings come from js/settings.js (shared with the in-game Settings panel, O)
       return [
-        { id: "music",   label: t("music"),   toggle: "music" },
-        { id: "sfx",     label: t("sfx"),     toggle: "sfx" },
-        { id: "blood",   label: t("blood"),   toggle: "blood" },
-        { id: "weather", label: t("weather"), toggle: "weather" },
+        ...SETTINGS.map((s) => ({ id: s.id, label: settingLabel(s.id), [s.toggle ? "toggle" : "choice"]: s.id })),
         { id: "lang",    label: t("language"), lang: true },
         { id: "export",  label: t("exportSave"), disabled: !save, section: t("saveData") },
         { id: "import",  label: t("importSave") },
@@ -140,8 +139,7 @@ export class TitleScene {
       });
     });
     this.langBtn.querySelector("#screenItem").addEventListener("click", () => {
-      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-      else document.documentElement.requestFullscreen().catch(() => {});
+      toggleFullscreen();
       setMenu(false);
       if (Sound.playSelectMove) Sound.playSelectMove();
     });
@@ -226,6 +224,14 @@ export class TitleScene {
         btn.appendChild(v);
       }
 
+      if (item.choice) {
+        // a setting with several values (Quality, volume, FPS limit, brightness): ← → steps it
+        const v = document.createElement("span");
+        v.className = "t-value on";
+        v.textContent = `◀ ${settingValue(item.choice, this.config)} ▶`;
+        btn.appendChild(v);
+      }
+
       if (item.lang) {
         const v = document.createElement("span");
         v.className = "t-value";
@@ -252,6 +258,7 @@ export class TitleScene {
   syncSelection() {
     this.menuEl.querySelectorAll(".t-item").forEach((el, i) => {
       el.classList.toggle("selected", i === this.index);
+      if (i === this.index && this.step === "options" && el.scrollIntoView) el.scrollIntoView({ block: "nearest" });
     });
   }
 
@@ -301,8 +308,8 @@ export class TitleScene {
     if (!item || item.disabled) return;
 
     if (this.step === "options") {
-      if (item.toggle || item.lang) {
-        this.change(item);
+      if (item.toggle || item.lang || item.choice) {
+        this.change(item, 0);
         return;
       }
       if (Sound.playSelectConfirm) Sound.playSelectConfirm();
@@ -329,17 +336,14 @@ export class TitleScene {
   }
 
   // Toggle a setting or the language (Enter or ← →)
-  change(item) {
+  change(item, dir = 1) {
     if (Sound.playSelectMove) Sound.playSelectMove();
     if (item.lang) {
       toggleLang(); // onLangChange calls render()
       return;
     }
-    const key = item.toggle;
-    this.config[key] = !this.config[key];
-    try {
-      localStorage.setItem("vanguard_config", JSON.stringify(this.config));
-    } catch (_) {}
+    const key = item.toggle || item.choice;
+    stepSetting(this.config, key, dir || 1, !dir);   // Enter / click cycles round; ← → stops at the ends
 
     if (key === "music") {
       Sound.musicEnabled = Boolean(this.config.music);
@@ -348,6 +352,7 @@ export class TitleScene {
     } else if (key === "sfx") {
       Sound.sfxEnabled = Boolean(this.config.sfx);
     }
+    if (this.onConfigChange) this.onConfigChange(key);
     this.renderMenu();
   }
 
@@ -406,11 +411,13 @@ export class TitleScene {
 
     add("h4", "", t("credInspired"));
     const ins = add("ul");
-    ["Ragnarok Online", "Diablo II", t("credIsekai")].forEach((name) => {
+    [t("credMmo"), t("credArpg"), t("credIsekai")].forEach((name) => {
       const li = document.createElement("li");
       li.textContent = name;
       ins.appendChild(li);
     });
+
+    add("p", "cr-role", t("credDisclaimer"));
 
     add("h4", "", t("credLang"));
     add("p", "cr-role", "English · Filipino");
@@ -461,8 +468,8 @@ export class TitleScene {
     const ch = this.chapters[this.chapter];
     this.chronBody.innerHTML = "";
     if (!ch) return;
-    // Act picture (assets/banner/act-N.*); tries other extensions, hidden when missing
-    const act = actNumber(ch.tab);
+    // Chapter picture (assets/banner/act-N.* or prophecy/ledger/heralds.*); tries other extensions, hidden when missing
+    const act = chapterKey(ch.tab);
     if (act) {
       const fig = document.createElement("figure");
       fig.className = "c-banner";
@@ -533,15 +540,18 @@ export class TitleScene {
     else if (ok && !e.repeat) this.confirm();
     else if ((left || right) && this.step === "options") {
       const item = this.items[this.index];
-      if (item.toggle || item.lang) this.change(item);
+      if (item.toggle || item.lang || item.choice) this.change(item, left ? -1 : 1);
     } else if (back && this.step === "options") {
       if (Sound.playSelectMove) Sound.playSelectMove();
       this.goTo("menu", "options");
     }
   }
 
-  // ---------- EMBERS (canvas) ----------
-  // Low-res canvas scaled by FX_PIXEL so the embers are chunky, matching the pixel art.
+  // ---------- LIVING BACKGROUND (canvas) ----------
+  // Low-res canvas scaled by FX_PIXEL so the effects are chunky, matching the pixel art. Positions are
+  // in the painting's own 480×270 art pixels (tools/art/scenes/title.js) and follow its "cover" fit:
+  // twinkling stars, shooting stars, the eclipse's corona, a ship sailing the horizon, moonlight glints
+  // on the sea, the pentagram circle pulsing under the sword, the lantern's flicker and the embers.
   draw() {
     this.tick++;
     const W = Math.ceil(window.innerWidth / FX_PIXEL);
@@ -553,28 +563,140 @@ export class TitleScene {
     const ctx = this.fxCtx;
     ctx.clearRect(0, 0, W, H);
 
-    // Same "cover" fit as the CSS background, so it lines up with the sword
-    const iw = this.bg.naturalWidth || 1024;
-    const ih = this.bg.naturalHeight || 571;
+    // Same "cover" fit as the CSS background
+    const iw = this.bg.naturalWidth || 1920;
+    const ih = this.bg.naturalHeight || 1080;
     const s = Math.max(W / iw, H / ih);
-    const k = (ih * s) / 270;   // scale compared to the old 480x270 title
-    const sx = (W - iw * s) / 2 + iw * s * SWORD.x;
-    const sy = (H - ih * s) / 2 + ih * s * SWORD.y;
+    const k = (iw * s) / 480;                         // canvas pixels per art pixel
+    const ox = (W - iw * s) / 2, oy = (H - ih * s) / 2;
+    const A = (ax, ay) => [ox + ax * k, oy + ay * k];
+    const t = this.tick;
+    const calm = this.reducedMotion;
 
-    // Pulsing glow
-    const pulse = 1 + Math.sin(this.tick / 16) * 0.12;
-    const r = 60 * k * pulse;
+    if (!this.stars) this.seedScene();
+
     ctx.save();
     ctx.globalCompositeOperation = "lighter";
-    const glow = ctx.createRadialGradient(sx, sy, 2, sx, sy, r);
-    glow.addColorStop(0, "rgba(255, 170, 70, 0.30)");
-    glow.addColorStop(0.5, "rgba(56, 160, 248, 0.10)");
-    glow.addColorStop(1, "rgba(0, 0, 0, 0)");
-    ctx.fillStyle = glow;
-    ctx.fillRect(sx - r, sy - r, r * 2, r * 2);
+
+    // Twinkling stars: each one flares into a small cross now and then
+    this.stars.forEach((st) => {
+      const tw = Math.sin(t * st.speed + st.phase);
+      if (tw < 0.55) return;
+      const [x, y] = A(st.x, st.y);
+      const a = (tw - 0.55) / 0.45;
+      ctx.fillStyle = `rgba(${st.warm ? "255, 236, 190" : "205, 225, 255"}, ${0.85 * a})`;
+      ctx.fillRect(Math.round(x), Math.round(y), 1, 1);
+      if (a > 0.7 && k > 0.9) {
+        ctx.globalAlpha = (a - 0.7) * 2;
+        ctx.fillRect(Math.round(x) - 1, Math.round(y), 3, 1);
+        ctx.fillRect(Math.round(x), Math.round(y) - 1, 1, 3);
+        ctx.globalAlpha = 1;
+      }
+    });
+
+    // Shooting stars every few seconds
+    if (!calm && t >= this.nextMeteor) {
+      this.nextMeteor = t + 240 + Math.floor(Math.random() * 360);
+      this.meteors.push({ x: 120 + Math.random() * 300, y: 10 + Math.random() * 50, vx: -(1.6 + Math.random()), vy: 0.7 + Math.random() * 0.4, life: 46 });
+    }
+    this.meteors = this.meteors.filter((m) => m.life > 0);
+    this.meteors.forEach((m) => {
+      m.x += m.vx; m.y += m.vy; m.life--;
+      const fade = Math.min(1, m.life / 20);
+      for (let i = 0; i < 9; i++) {
+        const [x, y] = A(m.x - m.vx * i * 1.4, m.y - m.vy * i * 1.4);
+        ctx.fillStyle = `rgba(220, 235, 255, ${fade * (1 - i / 9) * 0.9})`;
+        ctx.fillRect(Math.round(x), Math.round(y), 1, 1);
+      }
+    });
+
+    // Eclipse: a slow violet corona breathing around the dark disc, rays turning
+    {
+      const [ex, ey] = A(392, 52);
+      const pulse = 1 + Math.sin(t / 40) * 0.08;
+      const r = 26 * k * pulse;
+      const g = ctx.createRadialGradient(ex, ey, 12 * k, ex, ey, r);
+      g.addColorStop(0, "rgba(253, 230, 138, 0.22)");
+      g.addColorStop(0.35, "rgba(139, 92, 246, 0.16)");
+      g.addColorStop(1, "rgba(139, 92, 246, 0)");
+      ctx.fillStyle = g;
+      ctx.fillRect(ex - r, ey - r, r * 2, r * 2);
+      for (let i = 0; i < 12; i++) {
+        const ang = (i / 12) * Math.PI * 2 + t / 600;
+        const len = (15 + ((i * 7) % 5) + Math.sin(t / 30 + i) * 2) * k;
+        const [x, y] = [ex + Math.cos(ang) * len, ey + Math.sin(ang) * len];
+        ctx.fillStyle = `rgba(253, 230, 138, ${0.25 + 0.2 * Math.sin(t / 25 + i * 1.7)})`;
+        ctx.fillRect(Math.round(x), Math.round(y), 1, 1);
+      }
+    }
+
+    // Moonlight on the sea: glints dancing in the eclipse's reflection and across the water
+    this.glints.forEach((gl) => {
+      const life = (t + gl.phase) % gl.period;
+      if (life > 30) return;
+      const [x, y] = A(gl.x + Math.sin((t + gl.phase) / 20) * 2, gl.y);
+      const a = Math.sin((life / 30) * Math.PI);
+      ctx.fillStyle = `rgba(196, 181, 253, ${0.7 * a})`;
+      ctx.fillRect(Math.round(x), Math.round(y), Math.max(1, Math.round(gl.w * k)), 1);
+    });
     ctx.restore();
 
-    // Flying embers
+    // A ship crossing the horizon, from the east toward the cliff (fades out before it)
+    if (!calm) this.drawHorizonShip(ctx, A, k, t);
+
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    // Pentagram circle under the sword: its five points light up one after another
+    {
+      const [cx, cy] = A(240, 158);
+      const colors = ["255, 99, 99", "96, 165, 250", "74, 222, 128", "250, 204, 21", "192, 132, 252"];
+      for (let i = 0; i < 5; i++) {
+        const ang = -Math.PI / 2 + (i / 5) * Math.PI * 2 + t / 900;
+        const x = cx + Math.cos(ang) * 30 * k, y = cy + Math.sin(ang) * 7 * k;
+        const lit = Math.max(0, Math.sin(t / 22 - i * 1.25));
+        const r = (4 + lit * 5) * k;
+        const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+        g.addColorStop(0, `rgba(${colors[i]}, ${0.15 + lit * 0.45})`);
+        g.addColorStop(1, `rgba(${colors[i]}, 0)`);
+        ctx.fillStyle = g;
+        ctx.fillRect(x - r, y - r, r * 2, r * 2);
+      }
+      // a ring of light sweeping round the circle
+      const sweep = t / 50;
+      for (let i = 0; i < 14; i++) {
+        const ang = sweep - i * 0.08;
+        ctx.fillStyle = `rgba(103, 232, 249, ${0.5 * (1 - i / 14)})`;
+        ctx.fillRect(Math.round(cx + Math.cos(ang) * 30 * k), Math.round(cy + Math.sin(ang) * 7 * k), 1, 1);
+      }
+    }
+
+    // The sword's pulsing glow
+    const [sx, sy] = A(SWORD.x * 480, SWORD.y * 270);
+    {
+      const pulse = 1 + Math.sin(t / 16) * 0.12;
+      const r = 60 * k * pulse;
+      const glow = ctx.createRadialGradient(sx, sy, 2, sx, sy, r);
+      glow.addColorStop(0, "rgba(255, 170, 70, 0.30)");
+      glow.addColorStop(0.5, "rgba(56, 160, 248, 0.10)");
+      glow.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = glow;
+      ctx.fillRect(sx - r, sy - r, r * 2, r * 2);
+    }
+
+    // The lantern on the hilt flickers like a real flame
+    {
+      const [lx, ly] = A(259, 84);
+      const f = 0.55 + 0.25 * Math.sin(t / 7) + 0.2 * Math.sin(t / 2.3 + Math.sin(t / 11));
+      const r = 22 * k;
+      const g = ctx.createRadialGradient(lx, ly, 0, lx, ly, r);
+      g.addColorStop(0, `rgba(255, 214, 130, ${0.28 * f})`);
+      g.addColorStop(1, "rgba(255, 214, 130, 0)");
+      ctx.fillStyle = g;
+      ctx.fillRect(lx - r, ly - r, r * 2, r * 2);
+    }
+    ctx.restore();
+
+    // Embers rising from the sword and fireflies drifting over the cliff
     if (this.tick % 3 === 0) {
       const colors = ["#ffb347", "#ff8a3d", "#ffd166", "#38bdf8", "#a5f3fc"];
       this.particles.push({
@@ -588,15 +710,70 @@ export class TitleScene {
         color: colors[Math.floor(Math.random() * colors.length)]
       });
     }
+    if (this.tick % 20 === 0 && this.particles.length < 160) {
+      const [fx0, fy0] = A(150 + Math.random() * 180, 175 + Math.random() * 60);
+      this.particles.push({ x: fx0, y: fy0, vx: (Math.random() - 0.5) * 0.2 * k, vy: -0.05 * k, life: 200, max: 200, size: 1, color: "#d9f99d", firefly: true });
+    }
     this.particles = this.particles.filter((p) => p.life > 0);
     this.particles.forEach((p) => {
-      p.x += p.vx + Math.sin((p.y + this.tick) / 14) * 0.08 * k;
+      p.x += p.vx + Math.sin((p.y + this.tick) / 14) * (p.firefly ? 0.15 : 0.08) * k;
       p.y += p.vy;
       p.life--;
-      ctx.globalAlpha = Math.max(0, p.life / p.max);
+      const blink = p.firefly ? Math.max(0, Math.sin(p.life / 9)) : 1;
+      ctx.globalAlpha = Math.max(0, p.life / p.max) * blink;
       ctx.fillStyle = p.color;
       ctx.fillRect(Math.round(p.x), Math.round(p.y), p.size, p.size);
     });
     ctx.globalAlpha = 1;
+  }
+
+  // Fixed star field, sea glints and timers (art pixels), made once
+  seedScene() {
+    let seed = 1337;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    this.stars = Array.from({ length: 70 }, () => ({
+      x: rnd() * 480, y: rnd() * 140, speed: 0.02 + rnd() * 0.05, phase: rnd() * 6.3, warm: rnd() < 0.3
+    })).filter((st) => Math.hypot(st.x - 392, st.y - 52) > 22 && Math.hypot(st.x - 240, st.y - 90) > 40);
+    this.glints = Array.from({ length: 34 }, (_, i) => {
+      const reflect = i < 14;   // the eclipse's column of light on the water
+      return {
+        x: reflect ? 386 + rnd() * 12 : 330 + rnd() * 150,
+        y: reflect ? 152 + rnd() * 40 : 152 + rnd() * 26,
+        w: 2 + Math.floor(rnd() * 4),
+        period: 70 + Math.floor(rnd() * 120),
+        phase: Math.floor(rnd() * 200)
+      };
+    });
+    this.meteors = [];
+    this.nextMeteor = 120;
+    this.reducedMotion = Boolean(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  }
+
+  // A small galleon in silhouette with a lit stern lantern, sailing west along the horizon
+  drawHorizonShip(ctx, A, k, t) {
+    const span = 3600;                                  // frames for one crossing
+    const p = (t % span) / span;
+    const ax = 500 - p * 175;                           // from beyond the right edge to x 325
+    const fade = Math.min(1, (ax - 330) / 20);
+    if (fade <= 0) return;
+    const bob = Math.sin(t / 30) * 0.4;
+    const [x0, y0] = A(ax, 160 + bob);
+    const u = Math.max(1, k * 0.8);
+    const R = (dx, dy, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(Math.round(x0 + dx * u), Math.round(y0 + dy * u), Math.max(1, Math.round(w * u)), Math.max(1, Math.round(h * u))); };
+    ctx.save();
+    ctx.globalAlpha = 0.9 * fade;
+    R(-9, -1, 20, 2, "#04060d");               // hull
+    R(-8, 1, 17, 1, "#0b1024");
+    R(8, -4, 4, 3, "#0b1024");                 // raised stern (east: it sails west)
+    R(0, -14, 1, 13, "#141a36");               // mast
+    R(-5, -12, 9, 5, "#5664a0");               // sails catching the moonlight
+    R(-4, -6, 8, 4, "#46528c");
+    R(1, -13, 6, 1, "#141a36");
+    R(-13, -2, 4, 1, "#141a36");               // bowsprit
+    ctx.globalAlpha = fade * (0.6 + 0.4 * Math.sin(t / 9));
+    R(11, -5, 1, 1, "#ffd27a");                // stern lantern
+    ctx.globalAlpha = 0.35 * fade;
+    R(-10, 2, 22, 1, "#8aa0d8");               // its reflection
+    ctx.restore();
   }
 }

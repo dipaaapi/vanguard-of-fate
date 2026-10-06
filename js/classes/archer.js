@@ -7,15 +7,15 @@ export const ArcherClass = {
   name: "Archer",
   title: "Elven Windstrider",
   speed: 1.6,
-  maxHp: 95,
+  maxHp: 125,
   attackCooldown: 20,
   cooldown: 220,
-  reloadDuration: 75,
+  reloadDuration: 40,  // frames to refill the quiver (it used to tick twice per frame from 75)
   range: 220,          // arrow reach
 
   onInit(player) {
-    player.arrowCount = 5;
-    player.maxArrows = 5;
+    player.arrowCount = 6;
+    player.maxArrows = 6;
     player.isReloading = false;
     player.reloadTimer = 0;
 
@@ -76,7 +76,7 @@ export const ArcherClass = {
       vx: Math.cos(angle) * speed,
       vy: Math.sin(angle) * speed,
       angle: angle,
-      damage: 24,
+      damage: 37,          // fairness pass: arrows used a fixed 22 (projectiles.js); the weakest class once the quiver reload was counted
       isHeavyKnockback: Math.random() < 0.45,
       isStun: Math.random() < 0.25
     });
@@ -102,13 +102,13 @@ export const ArcherClass = {
     }
   },
 
-  // KEY L: Arrow Shower — three volleys of arrows on the target's area (wind element)
+  // KEY L: Skyfall Volley — three volleys of arrows on the target's area (wind element)
   cooldown2: 300,
   onSkill2(player, target, spawnProjectile) {
     const a = player.aimAngle;
     const x = target ? target.x + 12 : player.x + 10 + Math.cos(a) * 110;
     const y = target ? target.y + 12 : player.y + 12 + Math.sin(a) * 110;
-    spawnProjectile({ type: "rain", x, y, radius: 42, waves: 3, every: 15, timer: 0, damage: 18, elem: "wind", color: "#a3e635" });
+    spawnProjectile({ type: "rain", x, y, radius: 42, waves: 3, every: 15, timer: 0, damage: 22, elem: "wind", color: "#a3e635" });
     if (Sound && Sound.playArrowShoot) Sound.playArrowShoot();
     return true;
   },

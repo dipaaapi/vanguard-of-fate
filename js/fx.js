@@ -1,3 +1,5 @@
+import { drawFx, fxFrames } from "./fxsprites.js";
+
 export class FXManager {
   constructor() {
     this.screenShake = 0;
@@ -9,6 +11,7 @@ export class FXManager {
     this.bloodSplats = [];
     this.burnFlames = [];
     this.freezeShards = [];
+    this.sprites = [];        // one-shot effect animations (js/fxsprites.js): bites, claws, slashes
 
     // Environment & Weather
     this.timeOfDay = "DAY";
@@ -71,6 +74,14 @@ export class FXManager {
       const sp = (1 + Math.random() * 2.2) * Math.min(1.6, size);
       this.hitParticles.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 1.2, g: 0.12, color: i % 3 ? color : "#ffffff", life: 18 + Math.floor(Math.random() * 12), size: Math.random() > 0.4 ? 2 : 1 });
     }
+  }
+
+  // One-shot effect animation at (x, y); o = { tint, rot, scale, every (frames per step) }.
+  // Returns false when that effect's sheet isn't loaded (the caller's sparks still show).
+  spawnSprite(name, x, y, o = {}) {
+    if (!fxFrames(name)) return false;
+    this.sprites.push({ name, x, y, t: 0, every: o.every || 3, n: fxFrames(name), o });
+    return true;
   }
 
   spawnHitSparks(x, y, color = "#ffdd00", count = 6) {
@@ -197,6 +208,13 @@ export class FXManager {
       ctx.fillStyle = pt.color;
       ctx.fillRect(Math.round(pt.x), Math.round(pt.y), pt.size, pt.size);
       if (pt.life <= 0) this.hitParticles.splice(s, 1);
+    }
+
+    // 2a. Effect animations (bites, claws, slashes)
+    for (let k = this.sprites.length - 1; k >= 0; k--) {
+      const sp = this.sprites[k];
+      drawFx(ctx, sp.name, Math.floor(sp.t / sp.every), sp.x, sp.y, { ...sp.o, once: true });
+      if (++sp.t >= sp.n * sp.every) this.sprites.splice(k, 1);
     }
 
     // 2b. Shockwave rings (deaths, heavy blows)
@@ -451,5 +469,6 @@ export class FXManager {
     this.bloodSplats = [];
     this.burnFlames = [];
     this.freezeShards = [];
+    this.sprites = [];
   }
 }

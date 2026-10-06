@@ -1,3 +1,5 @@
+import { Sound } from "../audio.js";
+
 // ==================== MAGE (Arcane Sage) ====================
 // The look is the player's Avatar with a robe, hat and staff (js/classes/job.js).
 
@@ -8,7 +10,7 @@ export const MageClass = {
   maxHp: 85,
   speed: 1.3,
   attackCooldown: 100, // Meteor cooldown
-  cooldown: 340,       // Thunderstorm cooldown
+  cooldown: 440,       // Thunderstorm cooldown (fairness pass: was 340, so with CDR the storm never stopped — balance-sim)
   range: 200,          // reach of Meteor and Thunderstorm
 
   onAttack(player, target, spawnSpell) {
@@ -28,14 +30,16 @@ export const MageClass = {
       maxExplosionRadius: 42,
       damageDealt: false
     });
+    if (Sound.playMeteorCast) Sound.playMeteorCast();
     return true;
   },
 
-  // KEY L: Frost Diver — an ice spear that freezes the target (water element)
+  // KEY L: Glacial Lance — an ice spear that freezes the target (water element)
   cooldown2: 90,
   onSkill2(player, target, spawnSpell) {
     const a = player.aimAngle;
     spawnSpell({ type: "bolt", x: player.x + 10, y: player.y + 8, vx: Math.cos(a) * 4.2, vy: Math.sin(a) * 4.2, damage: 30, elem: "water", color: "#7dd3fc", size: 3, range: 200, freeze: 150 });
+    if (Sound.playDarkCast) Sound.playDarkCast();
     return true;
   },
 
@@ -53,6 +57,7 @@ export const MageClass = {
       strikeTimer: 0,
       activeBolts: []
     });
+    if (Sound.playThunder) Sound.playThunder();
     return true;
   }
 };

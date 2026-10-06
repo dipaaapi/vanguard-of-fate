@@ -1,7 +1,9 @@
 import { FalconSprite } from "../avatar/creature.js";
+import { GFX } from "../settings.js";
 
 // One sprite for every falcon (frames are cached)
 const SPRITE = new FalconSprite();
+SPRITE.sheetKey = "summon/falcon";   // aseprite/summon/falcon.aseprite when exported
 
 export class FalconCompanion {
   constructor(ownerX, ownerY) {
@@ -21,6 +23,11 @@ export class FalconCompanion {
     this.targetY = 0;
     this.speed = 6.8;
     this.damageDealt = false;
+    // Ship crew: perches in the crow's nest (its body centre at the perch point) and can't leave it
+    this.flying = true;
+    this.footX = 16;
+    this.footY = 18;
+    this.aboard = false;
   }
 
   triggerStrike(target, targetX, targetY) {
@@ -29,6 +36,7 @@ export class FalconCompanion {
     this.targetX = targetX;
     this.targetY = targetY;
     this.damageDealt = false;
+    this.stateTimer = 0;       // dive frames play from the start of the strike
   }
 
   update(player, enemyManager, fx, lootManager) {
@@ -45,6 +53,11 @@ export class FalconCompanion {
   step(player, enemyManager, fx, lootManager) {
     this.wingTimer++;
     this.stateTimer++;
+    // Aboard the ship: no dives until the crew goes ashore
+    if (this.aboard) {
+      if (this.state !== "TAUNTING") this.state = "HOVERING";
+      this.trail = [];
+    }
 
     // 1. ATTACKING / DIVE STANCE
     if (this.state === "ATTACKING") {
@@ -63,6 +76,7 @@ export class FalconCompanion {
           if (this.target && this.target.isAlive) {
             enemyManager.damage(this.target, 38, Math.atan2(dy, dx), true, fx, lootManager, 14, false, player, "wind");
             if (fx && fx.spawnHitSparks) fx.spawnHitSparks(this.x + 12, this.y + 12, "#ffd166", 16);
+            if (fx && fx.spawnSprite) fx.spawnSprite("claw", this.x + 12, this.y + 12, { every: 2 });
           }
         }
         this.state = "RETURNING";
@@ -118,11 +132,13 @@ export class FalconCompanion {
     const cx = Math.floor(this.x) + 16;
     const cy = Math.floor(this.y) + 14;
 
-    // Shadow on the ground
-    ctx.fillStyle = "rgba(0, 0, 0, 0.32)";
-    ctx.beginPath();
-    ctx.ellipse(cx, Math.floor(this.y) + 36, 10, 3.5, 0, 0, Math.PI * 2);
-    ctx.fill();
+    // Shadow on the ground (none while perched on the ship's rigging)
+    if (!this.aboard) {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.32)";
+      ctx.beginPath();
+      ctx.ellipse(cx, Math.floor(this.y) + 36, 10, 3.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
     // Face the direction of flight; when hovering, the player's direction
     const flying = Math.abs(this.vx) > 0.35;
@@ -144,10 +160,10 @@ export class FalconCompanion {
       ctx.scale(1.2, 0.85);
       ctx.rotate(-Math.atan2(this.vy, this.vx));
       ctx.translate(-cx, -cy);
-      SPRITE.draw(ctx, cx, cy, "side", "dive", 0, left, false, 1, rot);
+      SPRITE.draw(ctx, cx, cy, "side", "dive", Math.min(SPRITE.count("side", "dive") - 1, Math.floor(this.stateTimer / 2)), left, false, 1, rot);   // a dive is short
       ctx.restore();
     } else if (this.state === "TAUNTING") {
-      SPRITE.draw(ctx, cx, cy, "side", "taunt", Math.floor(this.stateTimer / 10), left);
+      SPRITE.draw(ctx, cx, cy, "side", "taunt", Math.floor(this.stateTimer / (SPRITE.count("side", "taunt") > 2 ? 13 : 10)), left);
     } else {
       // Faster wing beats when flying back quickly
       const rate = this.state === "RETURNING" ? 3 : 5;

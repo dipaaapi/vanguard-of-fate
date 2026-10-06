@@ -56,7 +56,7 @@ export class SelectScene {
     this.jobAvatars = null;     // set by main.js before the Job Awakening
     this.selectedIndex = 0;
     this.animTick = 0;
-    this.bg = loadImage("assets/bg/portal_bg.jpg");
+    this.bg = loadImage("assets/bg/portal_bg.png");
 
     this.pickerEl = dom.picker || null;
     this.dossierEl = dom.dossier || null;

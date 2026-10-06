@@ -1,4 +1,6 @@
 import { getLang } from "../i18n.js";
+import { CRAFT_ITEMS, CRAFT_SETS, rollMaterials } from "./craftsets.js";
+import { FOOD_ITEMS } from "./cooking.js";
 
 // ==================== ITEM DATABASE ====================
 // Inspired by Ragnarok Online and Diablo II, with an isekai twist (LORE Acts IV–V: Dual Equipment Matrix).
@@ -10,7 +12,9 @@ import { getLang } from "../i18n.js";
 // SOCKETS and CARDS (Ragnarok): equipment has 0–3 sockets; monster cards are inserted into them.
 // REFINE (Ragnarok): +1 to +10. Safe up to +4; from +5 it may fail
 //   (the materials are lost but not the item — an isekai mercy).
-// GRADE (tier 0–7): where it dropped; stats grow with every grade.
+// GRADE (tier 0–12): how strong the base is; stats grow with every grade. Crafted sets use grades 3–12.
+// DROPS: monsters no longer drop equipment. They drop crafting materials, and gear is crafted at a
+//   safe zone (js/items/craftsets.js, js/items/crafting.js).
 //
 // An item in the bag or worn is an "instance": { id, qty, plus, rarity, affixes: [{k, v}], sockets, cards: [] }
 // Equipment ids are "base@grade" (e.g. "lance@3"); uniques are "u:key".
@@ -29,28 +33,33 @@ export const RARITY = {
 // ---------- MINERAL SETS (forged by Brakka in Emberhold from mined minerals) ----------
 // Every piece is a class-appropriate base item at a high grade plus a per-piece bonus; wearing several
 // pieces of the same set adds the bonuses at 2, 4 and 5 pieces (5 = the set's named passive).
+// The crafted sets (Lv 10–100, js/items/craftsets.js) are merged in below; they count 2 / 4 / 6 pieces.
 export const SETS = {
   ember: {
-    grade: 5, color: "#f97316", name: { en: "Emberforged", fil: "Emberforged" },
+    mineral: true, grade: 5, color: "#f97316", name: { en: "Emberforged", fil: "Emberforged" },
     piece: { def: 3, hp: 12 },
     bonus: { 2: { def: 12 }, 4: { hp: 120, atk: 10 }, 5: { crit: 8, aspd: 8 } },
     passive: { en: "Forge Heart", fil: "Puso ng Pandayan" }
   },
   mythril: {
-    grade: 6, color: "#93c5fd", name: { en: "Mythril Vanguard", fil: "Mythril Vanguard" },
+    mineral: true, grade: 6, color: "#93c5fd", name: { en: "Aethersilver Vanguard", fil: "Aethersilver Vanguard" },
     piece: { def: 4, cdr: 1 },
     bonus: { 2: { cdr: 6 }, 4: { def: 20, hp: 150 }, 5: { atk: 25, spd: 0.1 } },
     passive: { en: "Unbroken Line", fil: "Hindi Nasisirang Hanay" }
   },
   star: {
-    grade: 7, color: "#fde68a", name: { en: "Starforged", fil: "Starforged" },
+    mineral: true, grade: 7, color: "#fde68a", name: { en: "Starforged", fil: "Starforged" },
     piece: { atk: 4, crit: 1 },
     bonus: { 2: { crit: 6, luk: 6 }, 4: { atk: 30, aspd: 10 }, 5: { str: 8, agi: 8, vit: 8, int: 8, dex: 8, luk: 8, cdr: 10 } },
     passive: { en: "Sovereign Star", fil: "Soberanong Bituin" }
   }
 };
-export const SET_THRESHOLDS = [2, 4, 5];
-export const GRADE_NAMES = ["Aethelgard", "Iron", "Sylvan", "Tidal", "Frostforged", "Hellforged", "Imperial", "Sovereign"];
+Object.assign(SETS, CRAFT_SETS);
+export const SET_THRESHOLDS = [2, 4, 5];   // mineral sets; use setThresholds(set) for any set
+export const setThresholds = (set) => Object.keys((set && set.bonus) || {}).map(Number).sort((a, b) => a - b);
+export const GRADE_NAMES = ["Aethelgard", "Iron", "Sylvan", "Tidal", "Frostforged", "Hellforged", "Imperial", "Sovereign",
+  "Runic", "Abyssal", "Demonforged", "Celestial", "Divine"];
+const MAX_GRADE = GRADE_NAMES.length - 1;
 
 const lang = () => (getLang() === "fil" ? "fil" : "en");
 const N = (en, fil = en) => ({ en, fil });
@@ -90,7 +99,7 @@ const EQUIP = {
   helm:       { slot: "head", cls: ["knight", "fighter", "archer", "novice"], icon: "helm", stats: { def: 4, hp: 10 }, sockets: 1, name: N("Helm", "Helmet") },
   wizhat:     { slot: "head", cls: ["mage", "priest"], icon: "hat", stats: { def: 1, int: 2 }, sockets: 1, name: N("Wizard Hat", "Sombrero ng Salamangkero") },
   circlet:    { slot: "head", icon: "circlet", stats: { crit: 2, cdr: 2 }, sockets: 1, name: N("Astral Circlet", "Astral na Korona") },
-  bunny:      { slot: "head", icon: "bunny", stats: { luk: 3, def: 1 }, sockets: 1, name: N("Bunny Band", "Bunny Band") },
+  bunny:      { slot: "head", icon: "bunny", stats: { luk: 3, def: 1 }, sockets: 1, name: N("Rabbit-Ear Band", "Banda ng Tainga ng Kuneho") },
   // ---- Baluti ----
   tunic:      { slot: "armor", icon: "tunic", stats: { def: 2, hp: 10 }, sockets: 1, name: N("Adventurer's Suit", "Kasuotan ng Adventurer") },
   mail:       { slot: "armor", cls: ["knight", "fighter", "archer"], icon: "mail", stats: { def: 5, hp: 20 }, sockets: 1, name: N("Chain Mail", "Chain Mail") },
@@ -123,7 +132,7 @@ const UNIQUES = {
   scalpel:    { base: "mace", name: N("Scalpel of Triage", "Scalpel ng Triage"), stats: { int: 6, cdr: 10, hp: 20 } },
   atacama:    { base: "greatstaff", name: N("Atacama Array Rod", "Tungkod ng Atacama Array"), stats: { atk: 14, int: 8 } },
   streetking: { base: "knuckle", name: N("Street King's Wraps", "Balot ng Hari ng Lansangan"), stats: { atk: 10, str: 6, crit: 6 } },
-  headlight:  { base: "circlet", name: N("Truck-kun's Headlight", "Headlight ni Truck-kun"), stats: { luk: 10, spd: 0.1 } },
+  headlight:  { base: "circlet", name: N("Night-Shift Headlamp", "Headlamp ng Night Shift"), stats: { luk: 10, spd: 0.1 } },
   necktie:    { base: "clip", name: N("Salaryman's Last Necktie", "Huling Kurbata ng Salaryman"), stats: { vit: 6, hp: 40 } },
   eclipse:    { base: "ring", name: N("Eclipse Band", "Singsing ng Eklipse"), stats: { str: 2, agi: 2, vit: 2, int: 2, dex: 2, luk: 2 } },
   pentagram:  { base: "manteau", name: N("Pentagram Seal Manteau", "Manteau ng Pentagram Seal"), stats: { def: 6, agi: 5 } },
@@ -131,48 +140,31 @@ const UNIQUES = {
 };
 
 // ---------- AFFIX (Diablo II) ----------
-// base = value at grade 0 (grows ×(1 + grade × 0.5))
-const PREFIXES = [
-  { k: "atk", base: 4, name: N("Mighty", "Makapangyarihang") },
-  { k: "def", base: 3, name: N("Sturdy", "Matibay na") },
-  { k: "hp", base: 15, name: N("Vital", "Masiglang") },
-  { k: "crit", base: 3, name: N("Keen", "Matalas na") },
-  { k: "cdr", base: 3, name: N("Arcane", "Arkanong") },
-  { k: "aspd", base: 4, name: N("Swift", "Mabilis na") }
-];
-const SUFFIXES = [
-  { k: "str", base: 2, name: N("of Strength", "ng Lakas") },
-  { k: "agi", base: 2, name: N("of Agility", "ng Liksi") },
-  { k: "vit", base: 2, name: N("of Vitality", "ng Sigla") },
-  { k: "int", base: 2, name: N("of the Mind", "ng Isip") },
-  { k: "dex", base: 2, name: N("of Precision", "ng Katumpakan") },
-  { k: "luk", base: 2, name: N("of Fortune", "ng Suwerte") },
-  { k: "spd", base: 0.04, name: N("of the Wind", "ng Hangin") }
-];
-const RARE_A = ["Doom", "Storm", "Eclipse", "Grave", "Dawn", "Void", "Ember", "Frost", "Blood", "Star", "Rune", "Ashen"];
-const RARE_B = ["Bite", "Song", "Ward", "Fang", "Veil", "Spire", "Mark", "Wreath", "Coil", "Shroud", "Edge", "Heart"];
+// Magic and rare pieces from older saves keep their affixes (with their names) on the instance;
+// new gear is crafted, so no affixes are rolled any more.
 
 // ---------- CONSUMABLES, MATERIALS, QUEST ITEMS ----------
 const OTHER = {
   // Minerals: mined in the Ashfall Wastelands (emberite, obsidian) and the Siege (mythril, starsteel)
   emberite:    { type: "material", icon: "ore", tint: "#f97316", price: 30, name: N("Emberite", "Emberite"), desc: N("Ore still warm from the Hellforge. Forges Emberforged gear and tempers weapons.", "Mineral na mainit pa mula sa Hellforge. Pang-forge ng Emberforged at pampatibay ng sandata.") },
   obsidianOre: { type: "material", icon: "crystal", tint: "#818cf8", price: 40, name: N("Obsidian Ore", "Obsidian Ore"), desc: N("Glassy volcanic ore. Used in set forging and to temper armor.", "Makinang na bulkanikong mineral. Pang-forge ng set at pampatibay ng baluti.") },
-  mythril:     { type: "material", icon: "ore", tint: "#93c5fd", price: 80, name: N("Mythril", "Mythril"), desc: N("Light, unbreakable silver from the Obsidian Citadel's buried veins. Forges Mythril Vanguard and tempers accessories.", "Magaan at matibay na pilak mula sa ilalim ng Obsidian Citadel. Pang-forge ng Mythril Vanguard at pampatibay ng aksesorya.") },
+  mythril:     { type: "material", icon: "ore", tint: "#93c5fd", price: 80, name: N("Aethersilver", "Aethersilver"), desc: N("Light, unbreakable silver from the Obsidian Citadel's buried veins. Forges Aethersilver Vanguard and tempers accessories.", "Magaan at matibay na pilak mula sa ilalim ng Obsidian Citadel. Pang-forge ng Aethersilver Vanguard at pampatibay ng aksesorya.") },
   starsteel:   { type: "material", icon: "crystal", tint: "#fde68a", price: 200, name: N("Starsteel", "Starsteel"), desc: N("A rare fallen-star alloy. Needed for Starforged gear.", "Bihirang haluang metal mula sa bumagsak na bituin. Kailangan sa Starforged.") },
   dwarvenPickaxe: { type: "quest", icon: "ore", tint: "#a8a29e", name: N("Dwarven Pickaxe", "Piko ng Dwarf"), desc: N("Thane Durgrim's gift. Lets you mine ore veins in the Ashfall Wastelands and the Siege.", "Regalo ni Thane Durgrim. Nagbibigay-daan sa pagmimina sa Ashfall Wastelands at sa Siege.") },
-  salve:    { type: "consume", icon: "potion", tint: "#ef4444", price: 10, effect: { heal: 40 }, name: N("Red Potion", "Pulang Potion"), desc: N("Restores 40 HP.", "Nagbabalik ng 40 HP.") },
-  elixir:   { type: "consume", icon: "potion", tint: "#f8fafc", price: 30, effect: { heal: 150 }, name: N("White Potion", "Puting Potion"), desc: N("Restores 150 HP.", "Nagbabalik ng 150 HP.") },
+  // healPct: potions keep up with the hero — they restore the HP or that share of max HP, whichever is more
+  salve:    { type: "consume", icon: "potion", tint: "#ef4444", price: 10, effect: { heal: 40, healPct: 0.06 }, name: N("Red Potion", "Pulang Potion"), desc: N("Restores 40 HP or 6% of max HP, whichever is more.", "Nagbabalik ng 40 HP o 6% ng max HP, alinman ang mas marami.") },
+  elixir:   { type: "consume", icon: "potion", tint: "#f8fafc", price: 30, effect: { heal: 150, healPct: 0.2 }, name: N("White Potion", "Puting Potion"), desc: N("Restores 150 HP or 20% of max HP, whichever is more.", "Nagbabalik ng 150 HP o 20% ng max HP, alinman ang mas marami.") },
   tonic:    { type: "consume", icon: "potion", tint: "#facc15", price: 12, effect: { stamina: 100, fresh: 600 }, name: N("Stamina Tonic", "Tonic ng Lakas"), desc: N("Refills stamina; no fatigue for 10s.", "Puno ang stamina; walang pagod sa 10s.") },
   panacea:  { type: "consume", icon: "potion", tint: "#4ade80", price: 15, effect: { cure: true }, name: N("Edgar's Panacea", "Panacea ni Edgar"), desc: N("Purges all seven miasmic blights.", "Inaalis ang pitong sumpa ng miasma.") },
   // Rare respec item: drops very seldom, sometimes sold by Pip in Emberhold at a steep price
   mushroom: { type: "consume", icon: "herb", tint: "#c026d3", price: 1200, effect: { respec: true }, name: N("Oblivion Mushroom", "Kabuti ng Paglimot"), desc: N("Forget every stat and skill: all points are refunded to spend again. Cannot be undone.", "Kalimutan ang lahat ng stat at skill: ibinabalik ang lahat ng puntos para gastusin muli. Hindi na maibabalik.") },
-  herb:     { type: "consume", icon: "herb", price: 25, effect: { heal: 30, resetSkill: true }, name: N("Yggdrasil Leaf", "Dahon ng Yggdrasil"), desc: N("+30 HP and resets your skill cooldown (not during boss fights).", "+30 HP at nire-reset ang cooldown ng skill (hindi sa laban sa boss).") },
+  herb:     { type: "consume", icon: "herb", price: 25, effect: { heal: 30, resetSkill: true }, name: N("Astraea's Leaf", "Dahon ni Astraea"), desc: N("+30 HP and resets your skill cooldown (not during boss fights).", "+30 HP at nire-reset ang cooldown ng skill (hindi sa laban sa boss).") },
   shardPower: { type: "consume", icon: "shard", tint: "#ef4444", price: 8, effect: { buff: "damage", time: 420 }, name: N("Power Shard", "Shard ng Lakas"), desc: N("+50% damage for 7s.", "+50% pinsala sa 7s.") },
   shardRapid: { type: "consume", icon: "shard", tint: "#facc15", price: 8, effect: { buff: "atkSpeed", time: 420 }, name: N("Rapid Shard", "Shard ng Bilis ng Atake"), desc: N("Double attack speed for 7s.", "Dobleng bilis ng atake sa 7s.") },
   shardSwift: { type: "consume", icon: "shard", tint: "#38bdf8", price: 8, effect: { buff: "moveSpeed", time: 420 }, name: N("Swift Shard", "Shard ng Takbo"), desc: N("+50% move speed for 7s.", "+50% bilis ng lakad sa 7s.") },
   shardGhost: { type: "consume", icon: "shard", tint: "#a855f7", price: 8, effect: { buff: "invis", time: 360 }, name: N("Ghost Shard", "Shard ng Multo"), desc: N("Near-invisible for 6s.", "Halos di-makita sa 6s.") },
-  monsterShard: { type: "material", icon: "ore", tint: "#94a3b8", price: 4, name: N("Phracon Shard", "Phracon Shard"), desc: N("Refine material (+1 to +5).", "Pang-refine (+1 hanggang +5).") },
-  voidCrystal:  { type: "material", icon: "crystal", tint: "#a855f7", price: 20, name: N("Void Oridecon", "Void Oridecon"), desc: N("Purified miasma ore. Needed from +6 to +10.", "Nilinis na mineral ng miasma. Kailangan mula +6 hanggang +10.") },
+  monsterShard: { type: "material", icon: "ore", tint: "#94a3b8", price: 4, name: N("Monster Shard", "Monster Shard"), desc: N("Refine material (+1 to +5).", "Pang-refine (+1 hanggang +5).") },
+  voidCrystal:  { type: "material", icon: "crystal", tint: "#a855f7", price: 20, name: N("Void Crystal", "Kristal ng Void"), desc: N("Purified miasma ore. Needed from +6 to +10.", "Nilinis na mineral ng miasma. Kailangan mula +6 hanggang +10.") },
   heartstone:   { type: "quest", icon: "heart", tint: "#ef4444", name: N("Blighted Heartstone", "Bulok na Heartstone"), desc: N("Malakor's shattered heart. Bring it to your summoner.", "Ang basag na puso ni Malakor. Dalhin sa tagapagtawag.") },
   abyssHelm:    { type: "quest", icon: "shell", tint: "#38bdf8", name: N("Abyssal Helm Shard", "Piraso ng Abyssal Helm"), desc: N("Broken from the Leviathan Regent's crown.", "Nabasag mula sa korona ng Leviathan Regent.") },
   cryoCore:     { type: "quest", icon: "crystal", tint: "#bfe9ff", name: N("Cryonix Core", "Core ni Cryonix"), desc: N("The fractured heart of the Frost Empress.", "Ang basag na puso ng Frost Empress.") },
@@ -183,8 +175,13 @@ const OTHER = {
   emberSeal:    { type: "quest", icon: "crystal", tint: "#ff7a1a", name: N("Ember Seal Stone", "Ember Seal Stone"), desc: N("One of four Seal Stones. Place all four on the Celestial Monolith in the Cerulean Abyss.", "Isa sa apat na Seal Stone. Ilagay ang lahat ng apat sa Celestial Monolith sa Cerulean Abyss.") },
   forgeCore:    { type: "quest", icon: "heart", tint: "#ff7a1a", name: N("Hellforge Reactor Core", "Reactor Core ng Hellforge"), desc: N("Torn from Ignis the Iron Lord.", "Hinugot mula kay Ignis the Iron Lord.") },
   imperialCrest:{ type: "quest", icon: "crest", tint: "#ffd166", name: N("Imperial Crest", "Imperial Crest"), desc: N("The King's last gift, for the new Sovereign.", "Huling handog ng Hari para sa bagong Sovereign.") },
+  tearUrn:      { type: "quest", icon: "urn", tint: "#334155", name: N("Urn of Black Tears", "Urna ng Itim na Luha"), desc: N("Dolora's urn, heavy with the grief of the dead. It hums like a voice far away.", "Ang urna ni Dolora, mabigat sa dalamhati ng mga patay. Umuugong ito na parang tinig mula sa malayo.") },
+  lanternVisor: { type: "quest", icon: "helm", tint: "#ffd166", name: N("Lantern Knight's Visor", "Visor ng Lantern Knight"), desc: N("Morgrave's trophy. The Knight's last words are still bound in the steel.", "Tropeo ni Morgrave. Nakatali pa sa bakal ang huling salita ng Knight.") },
+  wardensKey:   { type: "quest", icon: "key", tint: "#f43f5e", name: N("Warden's Key", "Susi ng Bantay"), desc: N("Vorgath's key to the last gate of the Maw. Every chain on the spire answers to it.", "Ang susi ni Vorgath sa huling tarangkahan ng Maw. Sumusunod dito ang bawat kadena sa tore.") },
   astralAsh:    { type: "quest", icon: "ash", tint: "#fde68a", name: N("Astral Ash of Satan", "Astral na Abo ni Satan"), desc: N("All that remains of the Demon Lord.", "Ang natira sa Demon Lord.") }
 };
+// Crafting materials (ores, cores, essences) and cooking (fish, ingredients, the 15 dishes)
+Object.assign(OTHER, CRAFT_ITEMS, FOOD_ITEMS);
 
 // ---------- CARDS (Ragnarok) — one per monster and boss ----------
 const CARDS = {
@@ -209,11 +206,139 @@ const CARDS = {
   shockTrooper: { n: N("Shock Trooper", "Shock Trooper"), stats: { crit: 6 } },
   voidSpider: { n: N("Miasma Spider", "Gagamba ng Miasma"), stats: { dex: 5 } },
   specter: { n: N("Spectral Horror", "Multong Kakila-kilabot"), stats: { luk: 6 } },
+  // Every other monster, by the first map it appears on. One stat from its element (fire ATK, water HP,
+  // earth DEF, wind AGI, poison DEX, shadow CRIT, ghost LUK, undead/holy INT, neutral VIT), sized to the
+  // map's level band; elite kinds add a second stat from their race.
+  // Plains of Aethelgard
+  goblinScout: { n: N("Goblin Raider", "Gobling Mananalakay"), stats: { def: 3 } },
+  forestBear: { n: N("Plains Ursath", "Ursath ng Kapatagan"), stats: { def: 3 } },
+  windFalcon: { n: N("Sky Storm Harrier", "Lawin ng Bagyo"), stats: { agi: 2 } },
+  bloodBat: { n: N("Dusk Bat", "Paniki ng Takipsilim"), stats: { crit: 3 } },
+  goblinWarchief: { n: N("Goblin Warchief", "Pinunong Goblin"), stats: { def: 3, dex: 2 } },   // elite
+  ironpeltAlpha: { n: N("Ironpelt Alpha", "Alphang Bakal-Balahibo"), stats: { def: 3, str: 2 } },   // elite
+  thunderRoc: { n: N("Thunderbeak Roc", "Roc ng Kulog"), stats: { agi: 2, str: 2 } },   // elite
+  bramblecrownSlime: { n: N("Bramblecrown Slime", "Slime na Koronang-Tinik"), stats: { def: 3, vit: 2 } },   // elite
+  // Greyhorn Badlands (rocky)
+  skyGargoyle: { n: N("Granite Gargoyle", "Gargoyle na Bato"), stats: { agi: 2 } },
+  rubbleCrawler: { n: N("Rubble Crawler", "Gumagapang na Guho"), stats: { def: 4 } },
+  badlandBrigand: { n: N("Badland Brigand", "Tulisan ng Kabatuhan"), stats: { vit: 2 } },
+  dustJackal: { n: N("Dust Jackal", "Asong-Ligaw ng Alikabok"), stats: { def: 4 } },
+  quarryColossus: { n: N("Quarry Colossus", "Higante ng Tibagan"), stats: { def: 4, vit: 2 } },   // elite
+  brigandWarlord: { n: N("Brigand Warlord", "Panginoon ng mga Tulisan"), stats: { vit: 2, dex: 2 } },   // elite
+  boneMarshal: { n: N("Bone Marshal", "Kalansay na Mariskal"), stats: { int: 2, hp: 25 } },   // elite
+  cliffWyvern: { n: N("Cliffcrest Wyvern", "Wyvern ng Bangin"), stats: { agi: 2, str: 2 } },   // elite
+  // Whispering Canopy (canopy)
+  mossTreant: { n: N("Briar Ancient", "Sinaunang Tinik"), stats: { def: 5 } },
+  blightHarpy: { n: N("Blight Harpy", "Harpy ng Salot"), stats: { agi: 3 } },
+  sporeHornet: { n: N("Miasma Hornet", "Pukyutan ng Miasma"), stats: { dex: 3 } },
+  rotheartDryad: { n: N("Rotheart Dryad", "Dryad na Bulok ang Puso"), stats: { dex: 3, vit: 3 } },   // elite
+  beastmanChieftain: { n: N("Beastman Chieftain", "Pinuno ng mga Beastman"), stats: { def: 5, dex: 3 } },   // elite
+  thornbackBehemoth: { n: N("Thornback Behemoth", "Behemoth na Tinik ang Likod"), stats: { def: 5, vit: 3 } },   // elite
+  miasmaHiveQueen: { n: N("Miasma Hive Queen", "Reyna ng Pugad ng Miasma"), stats: { dex: 3, agi: 3 } },   // elite
+  // Gloomwater Fens (swamp)
+  bogSerpent: { n: N("Venom Mire Serpent", "Serpent ng Lusak"), stats: { dex: 3 } },
+  swampCrab: { n: N("Bog Shell Crab", "Alimango ng Putikan"), stats: { dex: 3 } },
+  mireGhoul: { n: N("Mire Ghoul", "Ghoul ng Lusak"), stats: { dex: 3 } },
+  peatHulk: { n: N("Peat Hulk", "Halimaw na Pit"), stats: { def: 6 } },
+  fenMoth: { n: N("Gloom Moth", "Gamugamo ng Dilim"), stats: { agi: 3 } },
+  gloomwaterHag: { n: N("Gloomwater Hag", "Mangkukulam ng Gloomwater"), stats: { crit: 5, dex: 3 } },   // elite
+  mireHydra: { n: N("Mire Hydra", "Hydra ng Lusak"), stats: { dex: 3, str: 3 } },   // elite
+  bogTitan: { n: N("Bog Titan", "Titan ng Putikan"), stats: { hp: 35, vit: 3 } },   // elite
+  plagueMothMatriarch: { n: N("Plague Moth Matriarch", "Inang Gamugamo ng Salot"), stats: { dex: 3, agi: 3 } },   // elite
+  // Cerulean Abyss (coast)
+  coralGolem: { n: N("Coral Golem", "Golem na Bahura"), stats: { hp: 40 } },
+  stormPetrel: { n: N("Thunder Skimmer", "Wyvern ng Bagyo"), stats: { agi: 3 } },
+  drownedSpecter: { n: N("Abyssal Banshee", "Banshee ng Kailaliman"), stats: { hp: 40, int: 3 } },   // elite
+  siren: { n: N("Tidecaller Siren", "Sirena ng Taob"), stats: { hp: 40, agi: 3 } },   // elite
+  drownedCaptain: { n: N("Drowned Captain", "Nalunod na Kapitan"), stats: { hp: 40, int: 3 } },   // elite
+  abyssalKraken: { n: N("Abyssal Kraken", "Kraken ng Kailaliman"), stats: { hp: 40, agi: 3 } },   // elite
+  // Maw of Damnation (maw)
+  deepKraken: { n: N("Kraken Hatchling", "Munting Kraken"), stats: { hp: 65 } },
+  voidSerpent: { n: N("Void Serpent", "Serpent ng Void"), stats: { hp: 65 } },
+  voidHusk: { n: N("Void Husk", "Hungkag ng Void"), stats: { crit: 7 } },
+  fallenSeraph: { n: N("Fallen Seraph", "Nahulog na Seraph"), stats: { int: 6, str: 6 } },   // elite
+  abyssBehemoth: { n: N("Abyss Behemoth", "Behemoth ng Kalaliman"), stats: { crit: 7, str: 6 } },   // elite
+  abyssWyrm: { n: N("Abyssal Wyrm", "Wyrm ng Kalaliman"), stats: { crit: 7, str: 6 } },   // elite
+  wraithLord: { n: N("Wraith Lord", "Panginoon ng mga Wraith"), stats: { luk: 6, int: 6 } },   // elite
+  // Frostfang Precipice (frost)
+  frostStalker: { n: N("Glacier Wolf", "Lobo ng Glosyer"), stats: { hp: 45 } },
+  frostGargoyle: { n: N("Permafrost Gargoyle", "Gargoyle ng Yelo"), stats: { hp: 45, vit: 4 } },   // elite
+  frostSerpent: { n: N("Glacial Serpent", "Serpent ng Glosyer"), stats: { hp: 45, agi: 4 } },   // elite
+  frozenCrab: { n: N("Icebound Scuttler", "Alimangong Yelo"), stats: { hp: 45 } },
+  rimeJotun: { n: N("Rime Jotun", "Jotun ng Hamog-Yelo"), stats: { hp: 45, str: 4 } },   // elite
+  glacierWitch: { n: N("Glacier Witch", "Bruha ng Glosyer"), stats: { hp: 45, dex: 4 } },   // elite
+  // Stormcrown Highlands (mountain)
+  blizzardHawk: { n: N("Ice Griffin", "Griffin ng Niyebe"), stats: { agi: 4 } },
+  highlandLynx: { n: N("Highland Lynx", "Lynx ng Kabundukan"), stats: { def: 8 } },
+  graniteTroll: { n: N("Granite Troll", "Trolong Granite"), stats: { def: 8 } },
+  galeHarpy: { n: N("Gale Harpy", "Harpy ng Unos"), stats: { agi: 4 } },
+  highlandRaider: { n: N("Highland Raider", "Mananalakay ng Kabundukan"), stats: { vit: 4 } },
+  stormcrownGriffin: { n: N("Stormcrown Griffin", "Griffin ng Stormcrown"), stats: { agi: 4, str: 4 } },   // elite
+  avalancheGolem: { n: N("Avalanche Golem", "Golem ng Guho-Niyebe"), stats: { hp: 50, vit: 4 } },   // elite
+  peakShaman: { n: N("Peak Shaman", "Shaman ng Tuktok"), stats: { agi: 4, dex: 4 } },   // elite
+  elderTroll: { n: N("Elder Troll", "Matandang Trolo"), stats: { def: 8, str: 4 } },   // elite
+  // Ashfall Wastelands (ash)
+  hellHound: { n: N("Hellforge Hound", "Aso ng Hellforge"), stats: { atk: 12 } },
+  fireGargoyle: { n: N("Brimstone Gargoyle", "Gargoyle ng Asupre"), stats: { atk: 12, str: 5 } },   // elite
+  lavaSerpent: { n: N("Magma Serpent", "Serpent ng Magma"), stats: { atk: 12, str: 5 } },   // elite
+  lavaCrab: { n: N("Cinder Crab", "Alimangong Baga"), stats: { atk: 12 } },
+  hellforgeOverseer: { n: N("Hellforge Overseer", "Tagabantay ng Hellforge"), stats: { atk: 12, str: 5 } },   // elite
+  cinderBehemoth: { n: N("Cinder Behemoth", "Behemoth ng Baga"), stats: { atk: 12, str: 5 } },   // elite
+  // Siege of the Obsidian Citadel (siege)
+  abyssalJuggernaut: { n: N("Siege Dreadnought", "Kuta ng Pagkawasak"), stats: { crit: 6, str: 5 } },   // elite
+  chaosGargoyle: { n: N("Chaos Gargoyle", "Gargoyle ng Kaguluhan"), stats: { crit: 6 } },
+  corruptedCrab: { n: N("Corrupted Moat Crab", "Bulok na Alimango"), stats: { hp: 60 } },
+  hellfireWarlock: { n: N("Hellfire Warlock", "Warlock ng Apoy-Impiyerno"), stats: { atk: 14, str: 5 } },   // elite
+  obsidianSentinel: { n: N("Obsidian Sentinel", "Bantay na Obsidian"), stats: { crit: 6, str: 5 } },   // elite
+  infernalWyvern: { n: N("Infernal Wyvern", "Wyvern ng Impiyerno"), stats: { atk: 14, str: 5 } },   // elite
+  // Sunscorch Dunes (desert)
+  duneScarab: { n: N("Dune Scarab", "Salagubang ng Buhangin"), stats: { def: 9 } },
+  duneHyena: { n: N("Dune Hyena", "Hyena ng Buhangin"), stats: { def: 9 } },
+  sunDriedRevenant: { n: N("Sun-Dried Revenant", "Tuyong Revenant"), stats: { int: 5 } },
+  sandWyrm: { n: N("Sand Wyrm", "Wyrm ng Buhangin"), stats: { def: 9 } },
+  carrionVulture: { n: N("Carrion Vulture", "Buwitre ng Bangkay"), stats: { agi: 5 } },
+  scarabMonarch: { n: N("Scarab Monarch", "Haring Salagubang"), stats: { def: 9, agi: 5 } },   // elite
+  tombKing: { n: N("Sunken Tomb King", "Hari ng Lubog na Libingan"), stats: { int: 5, hp: 55 } },   // elite
+  sandstormWraith: { n: N("Sandstorm Wraith", "Wraith ng Bagyong Buhangin"), stats: { agi: 5, int: 5 } },   // elite
+  duneColossus: { n: N("Dune Colossus", "Higante ng Buhangin"), stats: { def: 9, vit: 5 } },   // elite
+  // Lamenting Strand (strand)
+  tearSlime: { n: N("Black Tear Slime", "Slime ng Itim na Luha"), stats: { hp: 50 } },
+  sorrowWisp: { n: N("Sorrow Wisp", "Kaluluwang Nagdadalamhati"), stats: { int: 4 } },
+  strandCrab: { n: N("Black-Sand Pincher", "Alimango ng Itim na Buhangin"), stats: { def: 7 } },
+  mourningEel: { n: N("Mourning Eel", "Igat ng Pagluluksa"), stats: { agi: 4 } },
+  keeningBanshee: { n: N("Keening Banshee", "Banshee na Umaatungal"), stats: { int: 5, cdr: 4 } },   // elite
+  hollowPaladin: { n: N("Hollow Paladin of the Dawnstar", "Hungkag na Paladin ng Dawnstar"), stats: { def: 7, vit: 4 } },   // elite
+  brinewingDrake: { n: N("Brinewing Drake", "Drake ng Maalat na Pakpak"), stats: { agi: 5, dex: 4 } },   // elite
+  weepingColossus: { n: N("Weeping Colossus", "Higanteng Lumuluha"), stats: { hp: 50, vit: 4 } },   // elite
+  // Ossuary Fields (ossuary)
+  barrowHound: { n: N("Barrow Hound", "Asong-Libingan"), stats: { atk: 12 } },
+  cryptGhoul: { n: N("Mass-Grave Ghoul", "Ghoul ng Libingang Pangmaramihan"), stats: { hp: 55 } },
+  graveCrow: { n: N("Grave Crow", "Uwak ng Libingan"), stats: { dex: 5 } },
+  ossuaryCrawler: { n: N("Ossuary Crawler", "Gumagapang na Buto"), stats: { def: 8 } },
+  bannerWraith: { n: N("Banner Wraith", "Wraith ng Bandila"), stats: { luk: 5, int: 5 } },   // elite
+  boneColossus: { n: N("Bone Colossus", "Higanteng Buto"), stats: { def: 8, vit: 5 } },   // elite
+  lichAdjutant: { n: N("Lich Adjutant", "Lich na Ayudante"), stats: { int: 5, cdr: 5 } },   // elite
+  boneDrake: { n: N("Bone Drake", "Drake na Buto"), stats: { str: 5, agi: 5 } },   // elite
+  // Chainspire Descent (chainspire)
+  shackledSoul: { n: N("Shackled Soul", "Kaluluwang Nakagapos"), stats: { hp: 60 } },
+  chainImp: { n: N("Chain Imp", "Imp ng Kadena"), stats: { aspd: 6 } },
+  hookCrawler: { n: N("Hook Crawler", "Gumagapang na Kawit"), stats: { crit: 6 } },
+  miseryLeech: { n: N("Misery Leech", "Lintang Pighati"), stats: { vit: 6 } },
+  tormentGolem: { n: N("Torment Golem", "Golem ng Pahirap"), stats: { def: 9, vit: 6 } },   // elite
+  hollowExecutioner: { n: N("Hollow Executioner", "Hungkag na Berdugo"), stats: { str: 6, crit: 6 } },   // elite
+  shackleDrake: { n: N("Shackle Drake", "Drake na Nakagapos"), stats: { agi: 6, dex: 6 } },   // elite
+  chainWraith: { n: N("Chain Wraith", "Wraith ng Kadena"), stats: { int: 6, luk: 6 } },   // elite
   malakor: { n: N("Malakor", "Malakor"), stats: { vit: 6, hp: 60 }, boss: true },
   leviathan: { n: N("Leviathan Regent", "Leviathan Regent"), stats: { int: 6, cdr: 6 }, boss: true },
   cryonix: { n: N("Cryonix", "Cryonix"), stats: { agi: 6, aspd: 8 }, boss: true },
   ignis: { n: N("Ignis", "Ignis"), stats: { str: 7, atk: 15 }, boss: true },
   commander: { n: N("Demon Commander", "Heneral ng mga Demonyo"), stats: { crit: 10, dex: 5 }, boss: true },
+  wreckGhoul: { n: N("Wreck Ghoul", "Ghoul ng Wasak na Barko"), stats: { hp: 60 } },
+  boneLegionnaire: { n: N("Bone Legionnaire", "Kalansay na Lehiyonaryo"), stats: { def: 9 } },
+  ironGaoler: { n: N("Iron Gaoler", "Bakal na Bantay-Bilangguan"), stats: { atk: 16 } },
+  dolora: { n: N("Dolora", "Dolora"), stats: { int: 7, cdr: 8 }, boss: true },
+  morgrave: { n: N("Morgrave", "Morgrave"), stats: { str: 7, def: 12 }, boss: true },
+  vorgath: { n: N("Vorgath", "Vorgath"), stats: { vit: 8, hp: 90 }, boss: true },
   satan: { n: N("Satan", "Satan"), stats: { str: 5, agi: 5, vit: 5, int: 5, dex: 5, luk: 5 }, boss: true }
 };
 
@@ -233,10 +358,21 @@ export function statText(k, v) {
   return `${STAT_LABEL[k] || k.toUpperCase()} ${sign}${k === "spd" ? v.toFixed(2) : v}`;
 }
 
+// Skill boosts from crafted sets and meals (same keys as the skill-tree bonuses in js/skills.js)
+const SKILL_LABEL = {
+  en: { dmg: "Skill DMG +{v}%", kcd: "K cooldown −{v}%", lcd: "L cooldown −{v}%", heal: "Healing +{v}%", dmgReduce: "Damage taken −{v}%",
+    aspd: "Attack speed +{v}%", crit: "Crit +{v}%", move: "Move speed +{v}%", regen: "Regen +{v} HP / 3s", cdr: "Cooldowns −{v}%" },
+  fil: { dmg: "Pinsala ng skill +{v}%", kcd: "Cooldown ng K −{v}%", lcd: "Cooldown ng L −{v}%", heal: "Paggaling +{v}%", dmgReduce: "Natatanggap na pinsala −{v}%",
+    aspd: "Bilis ng atake +{v}%", crit: "Crit +{v}%", move: "Bilis ng lakad +{v}%", regen: "Regen +{v} HP / 3s", cdr: "Cooldown −{v}%" }
+};
+export function skillText(k, v) {
+  return (SKILL_LABEL[lang()][k] || `${k} +{v}`).replace("{v}", v);
+}
+
 // "lance@3" → { base: "lance", grade: 3 }
 function parseId(id) {
   const [base, g] = String(id).split("@");
-  return { base, grade: g === undefined ? 0 : Math.max(0, Math.min(7, parseInt(g, 10) || 0)) };
+  return { base, grade: g === undefined ? 0 : Math.max(0, Math.min(MAX_GRADE, parseInt(g, 10) || 0)) };
 }
 
 const scaleStats = (stats, mult, spdMult) => {
@@ -272,7 +408,7 @@ export function describe(inst) {
     unique = UNIQUES[key];
     if (!unique) return null;
     base = unique.base;
-    grade = g === undefined ? 0 : Math.max(0, Math.min(7, parseInt(g, 10) || 0));
+    grade = g === undefined ? 0 : Math.max(0, Math.min(MAX_GRADE, parseInt(g, 10) || 0));
   } else ({ base, grade } = parseId(id));
 
   const e = EQUIP[base];
@@ -301,6 +437,8 @@ export function describe(inst) {
       id, base, grade, plus, type: "equip", slot: e.slot, hands: e.hands || 1, cls: e.cls || null,
       icon: e.icon, look: e.look || null, stats, rarity, color: RARITY[rarity].color,
       baseName: e.name[L], sockets: slots, cards: inst.cards || [], set: set ? inst.set : null, temper: inst.temper || 0,
+      reqLevel: set && set.level ? set.level : 0,
+      // value by grade and rarity (shops pay a share of it, js/items/economy.js; repairs cost a share too)
       price: Math.round(12 * (1 + grade) * (1 + plus * 0.3) * (rarity === "set" ? 8 : rarity === "unique" ? 6 : rarity === "rare" ? 3 : rarity === "magic" ? 1.6 : 1)),
       name: `${plus ? `+${plus} ` : ""}${name}${slots ? ` [${slots}]` : ""}`,
       desc: e.hands === 2 ? (L === "fil" ? "Dalawang kamay: ila-lock ang offhand." : "Two-handed: locks the off-hand slot.") : ""
@@ -337,8 +475,9 @@ export function slotsFor(item) {
   return item.slot === "ring" ? ["ring1", "ring2"] : [item.slot];
 }
 
-export function canEquip(item, cls) {
-  return Boolean(item && item.type === "equip" && (!item.cls || item.cls.includes(cls)));
+// level: the hero's level (crafted sets need their tier's level); omitted = not checked
+export function canEquip(item, cls, level = Infinity) {
+  return Boolean(item && item.type === "equip" && (!item.cls || item.cls.includes(cls)) && level >= (item.reqLevel || 0));
 }
 
 // ---------- REFINE ----------
@@ -361,59 +500,15 @@ export function refineChance(plus) {
 // ---------- DROP ----------
 const pick = (arr, rnd) => arr[Math.floor(rnd() * arr.length)];
 
-// Builds equipment with rarity, affixes and sockets
-const RARITY_ORDER = ["normal", "magic", "rare"];
-
-// minRarity: the lowest quality (e.g. Elites always drop magic or better)
-function makeEquip(grade, cls, rnd = Math.random, forceBase = null, minRarity = "normal") {
-  const pool = Object.entries(EQUIP).filter(([, e]) => !e.cls || e.cls.includes(cls)).map(([k]) => k);
-  const base = forceBase || pick(pool, rnd);
-  const e = EQUIP[base];
-  // Rarity (Diablo II): 60% karaniwan · 30% magic · 10% rare
-  const r = rnd();
-  let rarity = r < 0.6 ? "normal" : r < 0.9 ? "magic" : "rare";
-  if (RARITY_ORDER.indexOf(rarity) < RARITY_ORDER.indexOf(minRarity)) rarity = minRarity;
-  const affixes = [];
-  const roll = (list, pre) => {
-    const a = pick(list, rnd);
-    if (affixes.some((x) => x.k === a.k)) return;
-    const v = a.k === "spd" ? +(a.base * (1 + grade * 0.25) * (0.6 + rnd() * 0.4)).toFixed(2) : Math.max(1, Math.round(a.base * (1 + grade * 0.5) * (0.6 + rnd() * 0.4)));
-    affixes.push({ k: a.k, v, pre, name: a.name });
-  };
-  if (rarity === "magic") {
-    if (rnd() < 0.7) roll(PREFIXES, true);
-    if (rnd() < 0.7 || !affixes.length) roll(SUFFIXES, false);
-  } else if (rarity === "rare") {
-    const n = 3 + (rnd() < 0.4 ? 1 : 0);
-    for (let k = 0; k < n * 2 && affixes.length < n; k++) roll(rnd() < 0.5 ? PREFIXES : SUFFIXES, false);
-  }
-  const maxS = e.sockets || 0;
-  const sockets = maxS ? Math.floor(rnd() * (maxS + 1) * (rarity === "normal" ? 1 : 0.7)) : 0;
-  const inst = { id: `${base}@${grade}`, qty: 1, plus: 0, rarity, affixes, sockets: Math.min(maxS, sockets), cards: [] };
-  if (rarity === "rare") inst.rareName = `${pick(RARE_A, rnd)} ${pick(RARE_B, rnd)}`;
-  return inst;
-}
-
-function makeUnique(grade, cls, rnd = Math.random) {
-  const keys = Object.keys(UNIQUES).filter((k) => { const e = EQUIP[UNIQUES[k].base]; return !e.cls || e.cls.includes(cls); });
-  if (!keys.length) return null;
-  const key = pick(keys, rnd);
-  return { id: `u:${key}@${grade}`, qty: 1, plus: 0, rarity: "unique", affixes: [], sockets: EQUIP[UNIQUES[key].base].sockets || 0, cards: [] };
-}
-
-// Drop after a monster dies. info: { key (monster kind), boss }
-// Returns a list of instances
 // ---------- LOOT BY MONSTER TIER ----------
-// rolls      = how many draws from the potion/material table
-// equip      = equipment chance · minRarity = the lowest quality · rareBoost = chance to upgrade to rare
-// unique/card = chance of a unique item and of the monster's card
-// Checked with a simulator (per 100 normal kills at grade 2): ~5 equipment (60/30/10),
-// ~0.25 unique, ~0.8 cards, ~36 Phracon, ~8 Oridecon, ~30 potions/shards.
+// rolls = how many draws from the potion/material table · unique/card = chance of the monster's card
+// Equipment is no longer dropped (it is crafted at a safe zone): the equipment roll became crafting
+// materials (js/items/craftsets.js rollMaterials: ores, cores, path essences, cooking ingredients).
 const LOOT_TIERS = {
-  normal:   { rolls: 1, equip: 0.05, minRarity: "normal", rareBoost: 0,    unique: 0.0025, card: 0.008, crystals: 0, shards: 0 },
-  champion: { rolls: 2, equip: 0.25, minRarity: "normal", rareBoost: 0.15, unique: 0.01,   card: 0.03,  crystals: 0, shards: 1 },
-  elite:    { rolls: 3, equip: 1,    minRarity: "magic",  rareBoost: 0.3,  unique: 0.04,   card: 0.08,  crystals: 1, shards: 2 },
-  mvp:      { rolls: 4, equip: 1,    minRarity: "rare",   rareBoost: 1,    unique: 0.25,   card: 0.35,  crystals: 3, shards: 4, bonusEquip: 1 }
+  normal:   { rolls: 1, card: 0.008, crystals: 0, shards: 0 },
+  champion: { rolls: 2, card: 0.03,  crystals: 0, shards: 1 },
+  elite:    { rolls: 3, card: 0.08,  crystals: 1, shards: 2 },
+  mvp:      { rolls: 4, card: 0.35,  crystals: 3, shards: 4 }
 };
 
 // Level difference: less from weak monsters (grey), more from strong ones (red)
@@ -433,7 +528,9 @@ function rollConsumable(grade, rnd) {
   return null;
 }
 
-// info: { key (monster kind), tier ("normal" | "champion" | "elite" | "mvp"), diff (monster level − player level) }
+// Drop after a monster dies; returns a list of instances.
+// info: { key (monster kind), tier ("normal" | "champion" | "elite" | "mvp"), boss, diff (monster level − hero level),
+//         level (monster level), element, race, extra (night bonus draws) }
 export function rollDrop(grade, cls, info = {}, rnd = Math.random) {
   const T = LOOT_TIERS[info.tier] || (info.boss ? LOOT_TIERS.mvp : LOOT_TIERS.normal);
   const dm = info.tier === "mvp" ? 1 : diffMult(info.diff);
@@ -443,14 +540,7 @@ export function rollDrop(grade, cls, info = {}, rnd = Math.random) {
   }
   if (T.shards) out.push({ id: "monsterShard", qty: T.shards });
   if (T.crystals) out.push({ id: "voidCrystal", qty: T.crystals });
-
-  const equipCount = (rnd() < T.equip * dm ? 1 : 0) + (T.bonusEquip || 0);
-  for (let k = 0; k < equipCount; k++) {
-    const g = Math.min(7, grade + (rnd() < 0.2 ? 1 : 0));
-    const min = rnd() < T.rareBoost ? "rare" : T.minRarity;
-    out.push(makeEquip(g, cls, rnd, null, k === 0 ? min : T.minRarity === "rare" ? "magic" : T.minRarity));
-  }
-  if (rnd() < T.unique * dm) { const u = makeUnique(grade, cls, rnd); if (u) out.push(u); }
+  out.push(...rollMaterials({ ...info, tier: info.tier || (info.boss ? "mvp" : "normal") }, dm, rnd));
   // Oblivion Mushroom: a very rare drop (tougher monsters drop it more often)
   const MUSHROOM = { normal: 0.003, champion: 0.008, elite: 0.02, mvp: 0.05 };
   if (rnd() < (MUSHROOM[info.tier] || (info.boss ? MUSHROOM.mvp : MUSHROOM.normal))) out.push({ id: "mushroom", qty: 1 });

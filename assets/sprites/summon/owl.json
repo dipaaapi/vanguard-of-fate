@@ -1,0 +1,160 @@
+{ "frames": [
+   {
+    "filename": "owl 0.aseprite",
+    "frame": { "x": 0, "y": 0, "w": 36, "h": 28 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 28 },
+    "sourceSize": { "w": 36, "h": 28 },
+    "duration": 80
+   },
+   {
+    "filename": "owl 1.aseprite",
+    "frame": { "x": 36, "y": 0, "w": 36, "h": 28 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 28 },
+    "sourceSize": { "w": 36, "h": 28 },
+    "duration": 80
+   },
+   {
+    "filename": "owl 2.aseprite",
+    "frame": { "x": 72, "y": 0, "w": 36, "h": 28 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 28 },
+    "sourceSize": { "w": 36, "h": 28 },
+    "duration": 80
+   },
+   {
+    "filename": "owl 3.aseprite",
+    "frame": { "x": 108, "y": 0, "w": 36, "h": 28 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 28 },
+    "sourceSize": { "w": 36, "h": 28 },
+    "duration": 80
+   },
+   {
+    "filename": "owl 4.aseprite",
+    "frame": { "x": 0, "y": 28, "w": 36, "h": 28 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 28 },
+    "sourceSize": { "w": 36, "h": 28 },
+    "duration": 80
+   },
+   {
+    "filename": "owl 5.aseprite",
+    "frame": { "x": 36, "y": 28, "w": 36, "h": 28 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 28 },
+    "sourceSize": { "w": 36, "h": 28 },
+    "duration": 80
+   },
+   {
+    "filename": "owl 6.aseprite",
+    "frame": { "x": 72, "y": 28, "w": 36, "h": 28 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 28 },
+    "sourceSize": { "w": 36, "h": 28 },
+    "duration": 80
+   },
+   {
+    "filename": "owl 7.aseprite",
+    "frame": { "x": 108, "y": 28, "w": 36, "h": 28 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 28 },
+    "sourceSize": { "w": 36, "h": 28 },
+    "duration": 80
+   },
+   {
+    "filename": "owl 8.aseprite",
+    "frame": { "x": 0, "y": 56, "w": 36, "h": 28 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 28 },
+    "sourceSize": { "w": 36, "h": 28 },
+    "duration": 80
+   },
+   {
+    "filename": "owl 9.aseprite",
+    "frame": { "x": 36, "y": 56, "w": 36, "h": 28 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 28 },
+    "sourceSize": { "w": 36, "h": 28 },
+    "duration": 80
+   },
+   {
+    "filename": "owl 10.aseprite",
+    "frame": { "x": 72, "y": 56, "w": 36, "h": 28 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 28 },
+    "sourceSize": { "w": 36, "h": 28 },
+    "duration": 100
+   },
+   {
+    "filename": "owl 11.aseprite",
+    "frame": { "x": 108, "y": 56, "w": 36, "h": 28 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 28 },
+    "sourceSize": { "w": 36, "h": 28 },
+    "duration": 100
+   },
+   {
+    "filename": "owl 12.aseprite",
+    "frame": { "x": 0, "y": 84, "w": 36, "h": 28 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 28 },
+    "sourceSize": { "w": 36, "h": 28 },
+    "duration": 100
+   },
+   {
+    "filename": "owl 13.aseprite",
+    "frame": { "x": 36, "y": 84, "w": 36, "h": 28 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 28 },
+    "sourceSize": { "w": 36, "h": 28 },
+    "duration": 100
+   },
+   {
+    "filename": "owl 14.aseprite",
+    "frame": { "x": 72, "y": 84, "w": 36, "h": 28 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 28 },
+    "sourceSize": { "w": 36, "h": 28 },
+    "duration": 100
+   },
+   {
+    "filename": "owl 15.aseprite",
+    "frame": { "x": 108, "y": 84, "w": 36, "h": 28 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 28 },
+    "sourceSize": { "w": 36, "h": 28 },
+    "duration": 100
+   }
+ ],
+ "meta": {
+  "app": "https://www.aseprite.org/",
+  "version": "1.3.18.6-x64",
+  "image": "owl.png",
+  "format": "RGBA8888",
+  "size": { "w": 144, "h": 112 },
+  "scale": "1",
+  "frameTags": [
+   { "name": "side-fly", "from": 0, "to": 5, "direction": "forward", "color": "#000000ff" },
+   { "name": "side-dive", "from": 6, "to": 9, "direction": "forward", "color": "#000000ff" },
+   { "name": "side-taunt", "from": 10, "to": 15, "direction": "forward", "color": "#000000ff" }
+  ]
+ }
+}

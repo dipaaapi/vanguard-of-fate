@@ -1,0 +1,155 @@
+{
+ "frames": [
+  {
+   "filename": "siege 0.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 176,
+    "h": 140
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 176,
+    "h": 140
+   },
+   "sourceSize": {
+    "w": 176,
+    "h": 140
+   },
+   "duration": 120
+  },
+  {
+   "filename": "siege 1.aseprite",
+   "frame": {
+    "x": 176,
+    "y": 0,
+    "w": 176,
+    "h": 140
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 176,
+    "h": 140
+   },
+   "sourceSize": {
+    "w": 176,
+    "h": 140
+   },
+   "duration": 120
+  },
+  {
+   "filename": "siege 2.aseprite",
+   "frame": {
+    "x": 352,
+    "y": 0,
+    "w": 176,
+    "h": 140
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 176,
+    "h": 140
+   },
+   "sourceSize": {
+    "w": 176,
+    "h": 140
+   },
+   "duration": 120
+  },
+  {
+   "filename": "siege 3.aseprite",
+   "frame": {
+    "x": 528,
+    "y": 0,
+    "w": 176,
+    "h": 140
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 176,
+    "h": 140
+   },
+   "sourceSize": {
+    "w": 176,
+    "h": 140
+   },
+   "duration": 120
+  },
+  {
+   "filename": "siege 4.aseprite",
+   "frame": {
+    "x": 704,
+    "y": 0,
+    "w": 176,
+    "h": 140
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 176,
+    "h": 140
+   },
+   "sourceSize": {
+    "w": 176,
+    "h": 140
+   },
+   "duration": 120
+  },
+  {
+   "filename": "siege 5.aseprite",
+   "frame": {
+    "x": 880,
+    "y": 0,
+    "w": 176,
+    "h": 140
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 176,
+    "h": 140
+   },
+   "sourceSize": {
+    "w": 176,
+    "h": 140
+   },
+   "duration": 120
+  }
+ ],
+ "meta": {
+  "app": "tools/aseprite/asefile.mjs",
+  "image": "siege.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 1056,
+   "h": 140
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "down-idle",
+    "from": 0,
+    "to": 5,
+    "direction": "forward",
+    "color": "#000000ff"
+   }
+  ]
+ }
+}
