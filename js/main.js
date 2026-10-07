@@ -1489,6 +1489,10 @@ const unlockAudio = () => {
 });
 
 window.addEventListener("keydown", (e) => {
+  if (e.code === "Escape") {
+    e.preventDefault();
+    if (e.repeat) return;
+  }
   Sound.init();
   if (devTools && devTools.handleKey(e)) return;   // F9 panel: its keys never reach the game
   if (e.code === "F2") { stage.tilemap.debug = !stage.tilemap.debug; e.preventDefault(); }
@@ -1529,6 +1533,8 @@ window.addEventListener("keydown", (e) => {
     if (e.code === "KeyI" || e.code === "Escape") inventory.close();
   } else if (gameState === "PLAYING" && charPanel.open) {
     if (e.code === "KeyC" || e.code === "Escape") charPanel.close();
+  } else if (gameState === "PLAYING" && actionPanel.editing && e.code === "Escape") {
+    actionPanel.setEditing(false);
   } else if (gameState === "PLAYING" || gameState === "PAUSED") {
     // R = the lore panel's "Read more" (keyboard shortcut)
     if (e.code === "KeyR" && gameState === "PLAYING" && !showShopModal && !showMercModal) {

@@ -896,7 +896,9 @@ export class EnemyManager {
       if (!isCrit && canCrit && Math.random() < (player.crit || 0)) { isCrit = true; amount *= player.critDmg || 1.8; }
       amount = Math.round(amount);
       if (!this.hitSource && player.noteHit) player.noteHit(enemy, isCrit);   // play style (js/skillpaths.js)
-    } else amount = Math.round(amount);   // allies and familiars: whole numbers after element/tier
+    }
+    if (isCrit) amount *= 1.8;
+    amount = Math.round(amount);   // whole numbers after modifiers, including critical damage
 
     enemy.hp -= amount;
     // Last-hit rule: only a kill landed by the hero (or the hero's summons) earns EXP and loot.

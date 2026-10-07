@@ -13,9 +13,12 @@ import { MageClass } from "../../../js/classes/mage.js";
 import { PriestClass } from "../../../js/classes/priest.js";
 import { ArcherClass } from "../../../js/classes/archer.js";
 import { FighterClass } from "../../../js/classes/fighter.js";
+import { describe } from "../../../js/items/itemdb.js";
+import { iconCanvas } from "../../../js/items/icons.js";
 
 const CLASSES = { knight: KnightClass, mage: MageClass, priest: PriestClass, archer: ArcherClass, fighter: FighterClass };
 const cache = new Map();
+const zoneCache = new Map();
 
 // Reference looks for Book I NPCs added with Acts XI–XV, used when js/npc/roster.js has no entry
 // for them yet (the roster wins once it does). Copy these into NPC_DEFS to keep the art in step.
@@ -63,8 +66,36 @@ export function boss(key, dir = "down", anim = "idle", i = 0) { return BOSSES[ke
 
 export const DEFAULT_LOOK = DEFAULT_CONFIG;
 
-import { describe } from "../../../js/items/itemdb.js";
-import { iconCanvas } from "../../../js/items/icons.js";
+/** A frame of an exported zone illustration (e.g. the Imperial Citadel). */
+export async function zone(key, i = 0, cropHeight = null) {
+  const cacheKey = `${key}:${cropHeight || "full"}`;
+  if (!zoneCache.has(cacheKey)) {
+    zoneCache.set(cacheKey, (async () => {
+      const base = new URL(`../../../assets/sprites/zone/${key}`, import.meta.url);
+      const response = await fetch(new URL(`${base.href}.json`));
+      if (!response.ok) throw new Error(`could not load ${base.href}.json`);
+      const data = await response.json();
+      const image = await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error(`could not load ${base.href}.png`));
+        img.src = `${base.href}.png`;
+      });
+      const frames = Array.isArray(data.frames) ? data.frames : Object.values(data.frames);
+      return frames.map(({ frame }) => {
+        const canvas = document.createElement("canvas");
+        const h = cropHeight ? Math.min(cropHeight, frame.h) : frame.h;
+        canvas.width = frame.w;
+        canvas.height = h;
+        canvas.getContext("2d").drawImage(image, frame.x, frame.y, frame.w, h, 0, 0, frame.w, h);
+        return canvas;
+      });
+    })());
+  }
+  const frames = await zoneCache.get(cacheKey);
+  if (!frames.length) throw new Error(`zone sprite ${key} has no frames`);
+  return frames[((i % frames.length) + frames.length) % frames.length];
+}
 /** 16×16 item icon by item id (e.g. lance, tower, greatstaff, grimoire, longbow, claws) */
 export function icon(id) { return iconCanvas(describe({ id })); }
 
