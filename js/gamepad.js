@@ -61,14 +61,20 @@ function loadBinds() {
   } catch (_) { return { binds: out, seen: false }; }
 }
 
-function send(type, code) {
-  window.dispatchEvent(new KeyboardEvent(type, { code, key: code, bubbles: true, cancelable: true }));
+function send(type, code, opts = {}) {
+  window.dispatchEvent(new KeyboardEvent(type, { code, key: code, bubbles: true, cancelable: true, ...opts }));
 }
+function tap(code, opts) { send("keydown", code, opts); send("keyup", code, opts); }
 
 export class GamepadInput {
   // isGameplay(): true while the hero is free to move (no menu or overlay open), supplied by main.js
-  constructor(isGameplay = () => false) {
+  // canInteract(): true while something can be talked to / used (NPC, ore, boat): then A talks instead of attacking
+  constructor(isGameplay = () => false, canInteract = () => false) {
     this.isGameplay = isGameplay;
+    this.canInteract = canInteract;
+    this.locked = new Set();     // buttons held across a menu ↔ gameplay switch: ignored until released
+    this.wasGameplay = false;
+    this.talkHold = false;       // A is held after it was used to talk (so it doesn't also attack)
     const saved = loadBinds();
     this.binds = saved.binds;
     this.seen = saved.seen;
@@ -175,20 +181,45 @@ export class GamepadInput {
     }
 
     const dirs = this.directions(gp, btn);
-    if (this.isGameplay()) {
-      // held keys: directions and every bound action
-      for (const [code, on] of Object.entries(dirs)) on ? this.press(code) : this.release(code);
-      for (const a of PAD_ACTIONS) if (a.code) btn[this.binds[a.id]] ? this.press(a.code) : this.release(a.code);
-    } else {
-      // menus: taps with auto-repeat, south = Enter, east = Esc
+    const gameplay = this.isGameplay();
+    if (gameplay !== this.wasGameplay) {
+      // switching between a menu and the field: buttons still held (e.g. the A that closed a dialogue)
+      // must be released first, so they don't attack or re-open the NPC
       this.releaseAll();
-      for (const [code, on] of Object.entries(dirs)) if (this.step(code, on)) { send("keydown", code); send("keyup", code); }
-      if (down(0)) { send("keydown", "Enter"); send("keyup", "Enter"); }
-      if (down(1) || down(this.binds.pause)) { send("keydown", "Escape"); send("keyup", "Escape"); }
+      this.locked = new Set(btn.map((b, i) => (b ? i : -1)).filter((i) => i >= 0));
+      this.wasGameplay = gameplay;
+      this.talkHold = false;
+    }
+    for (const i of [...this.locked]) if (!btn[i]) this.locked.delete(i);
+    const on = (i) => btn[i] && !this.locked.has(i);
+    const tapDown = (i) => down(i) && !this.locked.has(i);
+
+    if (gameplay) {
+      // A (attack) talks / uses instead when an NPC, ore vein or boat is in reach
+      const atk = this.binds.attack;
+      if (tapDown(atk) && this.canInteract()) { this.talkHold = true; tap("KeyE"); }
+      if (!btn[atk]) this.talkHold = false;
+      // held keys: directions and every bound action
+      for (const [code, v] of Object.entries(dirs)) v ? this.press(code) : this.release(code);
+      for (const a of PAD_ACTIONS) {
+        if (!a.code) continue;
+        const held = on(this.binds[a.id]) && !(a.id === "attack" && this.talkHold);
+        held ? this.press(a.code) : this.release(a.code);
+      }
+    } else {
+      // menus: taps with auto-repeat, A = Enter, B = Esc, X = Space, Y = Shift+Enter (max), RB = next tab
+      this.releaseAll();
+      for (const [code, v] of Object.entries(dirs)) if (this.step(code, v)) tap(code);
+      if (tapDown(0)) tap("Enter");
+      if (tapDown(1) || tapDown(this.binds.pause)) tap("Escape");
+      if (tapDown(2)) tap("Space");
+      if (tapDown(3)) tap("Enter", { shiftKey: true });
+      if (tapDown(5)) tap("Tab");
       // the same button that opened a panel closes it again
       for (const id of ["inventory", "map", "quest", "character"]) {
         const a = PAD_ACTIONS.find((x) => x.id === id);
-        if (down(this.binds[id]) && this.binds[id] !== 0 && this.binds[id] !== 1) { send("keydown", a.code); send("keyup", a.code); }
+        const b = this.binds[id];
+        if (tapDown(b) && ![0, 1, 2, 3, 5].includes(b)) tap(a.code);
       }
     }
     this.prev = btn;

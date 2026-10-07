@@ -6,6 +6,7 @@ import { FighterClass } from "./classes/fighter.js";
 import { Player, expFor } from "./player.js";
 import { InputController } from "./controller.js";
 import { GamepadInput } from "./gamepad.js";
+import { PanelNav } from "./padnav.js";
 import { Camera } from "./camera.js";
 import { LoadingScreen } from "./loading.js";
 import { regression, RegressionModal, serializeRegression, loadRegression, resetRegression, markCleared, jobAllowance, difficultyName, DIFFICULTIES } from "./regression.js";
@@ -209,7 +210,15 @@ const gamepad = new GamepadInput(() => {
       !showShopModal && !showMercModal && !inventory.open && !worldMap.open && !charPanel.open &&
       !questHud.logOpen && !market.open && !settingsPanel.open && !codexScene.open && !regressionModal.open;
   } catch (_) { return false; }   // still booting
+}, () => {
+  // something in reach of E: an NPC, an ore vein or the boat → the pad's A button talks / uses
+  try {
+    return Boolean(player) && (Boolean(npcManager.nearest) ||
+      Boolean(stage.ore && stage.ore.nearest(player)) ||
+      Boolean(stage.boatSystem && stage.boatSystem.canToggle(player)));
+  } catch (_) { return false; }
 });
+const panelNav = new PanelNav();   // arrows / D-pad + Enter inside the Inventory and Character panels (js/padnav.js)
 onLangChange(() => gamepad.refresh());
 enemyManager.loot = lootManager;
 // Day and night (js/daynight.js): affects monsters and the hero
@@ -1530,12 +1539,33 @@ window.addEventListener("keydown", (e) => {
   } else if (gameState === "PLAYING" && questHud.logOpen) {
     if (e.code === "KeyQ" || e.code === "Escape") questHud.closeLog();
   } else if (gameState === "PLAYING" && inventory.open) {
-    if (e.code === "KeyI" || e.code === "Escape") inventory.close();
+    if (e.code === "KeyI" || e.code === "Escape") { inventory.close(); panelNav.reset(); }
+    else panelNav.handle(document.getElementById("inventory"), e);
   } else if (gameState === "PLAYING" && charPanel.open) {
-    if (e.code === "KeyC" || e.code === "Escape") charPanel.close();
+    if (e.code === "KeyC" || e.code === "Escape") { charPanel.close(); panelNav.reset(); }
+    else panelNav.handle(document.getElementById("character"), e);
   } else if (gameState === "PLAYING" && actionPanel.editing && e.code === "Escape") {
     actionPanel.setEditing(false);
   } else if (gameState === "PLAYING" || gameState === "PAUSED") {
+    // Shop / Mercenary modals: arrows (D-pad) choose, Enter (pad A) buys / hires
+    if (gameState === "PLAYING" && (showShopModal || showMercModal)) {
+      const prevK = showShopModal ? ["ArrowUp", "KeyW"] : ["ArrowLeft", "KeyA"];
+      const nextK = showShopModal ? ["ArrowDown", "KeyS"] : ["ArrowRight", "KeyD"];
+      const key = showShopModal ? "shopSel" : "mercSel";
+      if (prevK.includes(e.code) || nextK.includes(e.code)) {
+        ui[key] = ((ui[key] || 0) + (nextK.includes(e.code) ? 1 : -1) + 4) % 4;
+        if (Sound.playSelectMove) Sound.playSelectMove();
+        e.preventDefault();
+        return;
+      }
+      if (e.code === "Enter" && !e.repeat) {
+        const n = (ui[key] || 0) + 1;
+        if (showShopModal) ui.buyShopItem(String(n), player, fx);
+        else { mercManager.hire(["axe", "wand", "crossbow", "greatsword"][n - 1], player, fx); showMercModal = false; }
+        e.preventDefault();
+        return;
+      }
+    }
     // R = the lore panel's "Read more" (keyboard shortcut)
     if (e.code === "KeyR" && gameState === "PLAYING" && !showShopModal && !showMercModal) {
       openActReader();
@@ -2030,6 +2060,11 @@ function renderGameWorld() {
   if (showShopModal && player) {
     ui.drawShopModal(ctx, player, VIEW_W, VIEW_H);
   }
+
+  // Inventory / Character panel cursor (arrows / D-pad): re-attach after each re-render
+  if (inventory.open) panelNav.mark(document.getElementById("inventory"));
+  else if (charPanel.open) panelNav.mark(document.getElementById("character"));
+  else if (panelNav.root) panelNav.reset();
 
   if (showMercModal && player) {
     ui.drawMercModal(ctx, player, VIEW_W, VIEW_H, mercCards(), MercenaryManager.cost(player.level));

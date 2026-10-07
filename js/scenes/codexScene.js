@@ -579,6 +579,33 @@ export class CodexScene {
       if (this.mode === "create") this.begin();
       else if (this.mode === "awaken") this.awaken();
     } else if (c === "Escape" || (c === "KeyN" && this.mode === "codex")) this.back();
+    // ---- gamepad-only codes (see padKeys) ----
+    else if (c === "PadConfirm" && !e.repeat) {
+      // A: on the customizer it steps the selected look option; elsewhere it confirms
+      if (custom) this.change(1);
+      else if (this.mode === "awaken") this.awaken();
+    } else if (c === "PadBegin" && !e.repeat) {
+      if (this.mode === "create") this.begin();
+      else if (this.mode === "awaken") this.awaken();
+      else this.back();
+    } else if (c === "PadName" && !e.repeat && custom) {
+      this.nameValue = randomName(this.config.body);
+      if (Sound.playSelectMove) Sound.playSelectMove();
+      this.renderDossier();
+    } else if (c === "PadStance" && !e.repeat) this.setStance(this.action >= 0 ? 0 : (this.stance + 1) % 3);
+  }
+
+  // Gamepad layout while this scene is open (pad button index → key code), used by js/gamepad.js.
+  // D-pad / stick: ↑↓ rows and list, ←→ change the option (or turn the entity)
+  //   A  step the option / confirm      Menu (Start)  New Expedition / Awaken
+  //   X  Random look                    Y  Random name
+  //   LB / RB  previous / next tab      LT / RT  turn the entity
+  //   LS click  cycle Idle / Walk / Action          RS click  Clean view          B  Back
+  padKeys() {
+    return {
+      0: "PadConfirm", 9: "PadBegin", 2: "KeyR", 3: "PadName",
+      4: "KeyQ", 5: "KeyE", 6: "KeyA", 7: "KeyD", 10: "PadStance", 11: "KeyH"
+    };
   }
 
   // ---------- every frame while open ----------

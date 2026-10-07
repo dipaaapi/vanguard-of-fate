@@ -296,6 +296,11 @@ export class UIManager {
       const ry = by + 14 + i * 26;
       ctx.fillStyle = i % 2 ? "rgba(148, 163, 184, 0.05)" : "rgba(148, 163, 184, 0.09)";
       ctx.fillRect(bx + 8, ry, bw - 16, 23);
+      if (i === (this.shopSel || 0)) {   // pad / arrow cursor
+        ctx.strokeStyle = "#ffd166";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(bx + 8.5, ry + 0.5, bw - 17, 22);
+      }
       // key, icon, name and effect
       keyChip(ctx, bx + 12, ry + 11.5, String(i + 1), "");
       const ic = iconCanvas(it);
@@ -322,7 +327,7 @@ export class UIManager {
     ctx.textAlign = "right";
     ctx.font = "5px monospace";
     ctx.fillStyle = "#64748b";
-    ctx.fillText(`${t("shopNote")} · 1-4 ${t("shopBuy")} · ESC ${t("close")}`, bx + bw - 10, by + bh - 5);
+    ctx.fillText(`${t("shopNote")} · 1-4 / ↑↓ Enter ${t("shopBuy")} · ESC ${t("close")}`, bx + bw - 10, by + bh - 5);
     ctx.restore();
   }
 
@@ -340,6 +345,11 @@ export class UIManager {
       const cx = Math.round(bx + 8 + i * (cw + 3)), cy = by + 12;
       ctx.fillStyle = "rgba(148, 163, 184, 0.08)";
       ctx.fillRect(cx, cy, cw, 100);
+      if (i === (this.mercSel || 0)) {   // pad / arrow cursor
+        ctx.strokeStyle = "#ffd166";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(cx + 0.5, cy + 0.5, cw - 1, 99);
+      }
       ctx.fillStyle = data.color || "#ffd166";
       ctx.fillRect(cx, cy, cw, 2);
       // portrait on a small spotlight
@@ -386,7 +396,7 @@ export class UIManager {
     ctx.fillText(t("mercScale", player.level), bx + 10, by + bh - 6);
     ctx.textAlign = "right";
     ctx.fillStyle = "#64748b";
-    ctx.fillText(`1-4 ${t("mercHire")} · ESC ${t("close")}`, bx + bw - 10, by + bh - 6);
+    ctx.fillText(`1-4 / ←→ Enter ${t("mercHire")} · ESC ${t("close")}`, bx + bw - 10, by + bh - 6);
     ctx.restore();
   }
 

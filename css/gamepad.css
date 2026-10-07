@@ -56,3 +56,7 @@
 .pad-btn.primary { background: #7c5d12; border-color: #c9a227; color: #fff7d6; }
 .pad-btn:hover, .pad-btn:focus { border-color: #ffd166; outline: none; }
 
+
+/* Arrow / D-pad cursor inside HTML panels (js/padnav.js) */
+.pad-focus { outline: 2px solid #ffd166 !important; outline-offset: 1px; box-shadow: 0 0 8px rgba(255, 209, 102, 0.55) !important; }
+
