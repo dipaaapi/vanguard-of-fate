@@ -885,10 +885,12 @@ export class EnemyManager {
       amount = (amount + player.attack) * (player.dmgMult || 1) * (player.buffs && player.buffs.damage > 0 ? 1.5 : 1) * (d.curse > 0 ? 0.75 : 1);
       // No criticals while blind or cursed
       const canCrit = !(d.blind > 0 || d.curse > 0);
-      if (!isCrit && canCrit && Math.random() < (player.crit || 0)) { isCrit = true; amount *= 1.8; }
-      amount = Math.round(amount);
+      if (!canCrit) isCrit = false;
+      else if (!isCrit && Math.random() < (player.crit || 0)) isCrit = true;
       if (!this.hitSource && player.noteHit) player.noteHit(enemy, isCrit);   // play style (js/skillpaths.js)
-    } else amount = Math.round(amount);   // allies and familiars: whole numbers after element/tier
+    }
+    if (isCrit) amount *= 1.8;
+    amount = Math.round(amount);   // whole numbers after modifiers, including critical damage
 
     enemy.hp -= amount;
     // Last-hit rule: only a kill landed by the hero (or the hero's summons) earns EXP and loot.

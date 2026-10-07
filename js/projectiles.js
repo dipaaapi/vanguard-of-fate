@@ -152,7 +152,7 @@ export class ProjectileManager {
         for (let e of enemies) {
           if (e.isAlive && Math.hypot(cx(e) - p.x, cy(e) - p.y) <= 12 + hr(e)) {
             hit = true;
-            enemyManager.damage(e, p.crit ? Math.round(p.damage * 1.8) : p.damage, Math.atan2(p.vy, p.vx), Boolean(p.crit), fx, lootManager, 6, false, player, p.elem);
+            enemyManager.damage(e, p.damage, Math.atan2(p.vy, p.vx), Boolean(p.crit), fx, lootManager, 6, false, player, p.elem);
             if (p.freeze && !e.boss) { e.stunTimer = Math.max(e.stunTimer, p.freeze); e.frozen = p.freeze; }
             if (fx) fx.spawnHitSparks(cx(e), cy(e), p.color, 10);
             break;
@@ -188,7 +188,7 @@ export class ProjectileManager {
           if (e.isAlive && !p.hit.has(e) && Math.hypot(cx(e) - p.x, cy(e) - p.y) <= p.radius + hr(e)) {
             p.hit.add(e);
             const bonus = p.markBonus && e.isMarkedCritical ? p.markBonus : 1;   // Fighter: bonus against a marked foe
-            enemyManager.damage(e, Math.round(p.damage * bonus), p.angle, bonus > 1, fx, lootManager, p.push || 16, false, player, p.elem || null);
+            enemyManager.damage(e, Math.round(p.damage * bonus), p.angle, false, fx, lootManager, p.push || 16, false, player, p.elem || null);
             if (bonus > 1) e.isMarkedCritical = false;
             if (fx) fx.spawnHitSparks(cx(e), cy(e), p.color || "#ffd166", 10);
           }
