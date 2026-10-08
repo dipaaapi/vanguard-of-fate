@@ -1,13 +1,17 @@
 import { GFX } from "../settings.js";
 
-// ==================== CAMPAIGN PLATFORMS (LORE Acts VII–XII) ====================
-// Each Act has its own place, expanded regular-monster pools, 4 elite kinds, sites, boss and quest item:
+// ==================== CAMPAIGN PLATFORMS (LORE Acts VII–XV) ====================
+// Each Act has its own place, monsters (5 regular + 4 elite kinds), sites to scout, boss and quest item:
 //   canopy  VII  Whispering Canopy        (EAST gateway)   boss: Malakor      → Blighted Heartstone
 //   coast   VIII Cerulean Abyss            (WEST gateway)   boss: Leviathan    → Abyssal Helm Shard
 //   frost   IX   Frostfang Precipice       (NORTH gateway)  boss: Cryonix      → Cryonix Core
 //   ash     X    Ashfall Wastelands        (SOUTH gateway)  boss: Ignis        → Hellforge Reactor Core
-//   siege   XI   Siege of the Obsidian Citadel (Dark Continent, via the Celestial Monolith) boss: Commander   → Imperial Crest
-//   maw     XII  Maw of Damnation          (rift behind the Obsidian Citadel's throne) boss: Satan → Astral Ash
+//   strand  XI   The Lamenting Strand      (Dark Continent, via the Celestial Monolith) boss: Dolora → Urn of Black Tears
+//   ossuary XII  The Ossuary Fields        (road east from the Strand)       boss: Morgrave    → Lantern Knight's Visor
+//   siege   XIII Siege of the Obsidian Citadel (war road north from the Ossuary) boss: Commander → Imperial Crest
+//   chainspire XIV The Chainspire Descent  (rift behind the Obsidian throne) boss: Vorgath     → Warden's Key
+//   maw     XV   Maw of Damnation          (the last gate at the foot of the Chainspire) boss: Satan → Astral Ash
+// A `rift` (dest = the next platform) opens once the next Act is unlocked; `road: true` draws it as a road.
 // The map is 1280x960 (80x60 tiles). Camp, arena and gate (x, y) are in pixels.
 // In dialogue: {s} = the summoner's name, {h} = the hero's name.
 
@@ -50,7 +54,7 @@ export const PLATFORMS = {
     camp: { x: 560, y: 780, w: 160, h: 110 }, gate: { x: 640, y: 878 },
     arena: { x: 470, y: 100, w: 340, h: 230 }, bossSpawn: { x: 630, y: 190 }, boss: "malakor", item: "heartstone",
     arenaName: { en: "Heartwood Grove", fil: "Heartwood Grove" },
-    monsters: ["sporeling", "beastman", "mossTreant", "blightHarpy", "sporeHornet", "rootstalker", "thornwing"],
+    monsters: ["sporeling", "beastman", "mossTreant", "blightHarpy", "sporeHornet"],
     elites: ["rotheartDryad", "beastmanChieftain", "thornbackBehemoth", "miasmaHiveQueen"],
     sites: [{ x: 180, y: 300, name: { en: "Hollow Ironwood", fil: "Hungkag na Ironwood" } }, { x: 1080, y: 280, name: { en: "Dryad Ring", fil: "Bilog ng mga Dryad" } }, { x: 1000, y: 700, name: { en: "Spore Hollow", fil: "Lungga ng mga Spore" } }],
     trail: { x: 1196, y: 470, dir: "vertical", dest: "swamp" },   // gate to the frontier map (js/world/frontiers.js)
@@ -101,11 +105,10 @@ export const PLATFORMS = {
     camp: { x: 990, y: 410, w: 170, h: 120 }, gate: { x: 1196, y: 470, dir: "vertical" },
     arena: { x: 290, y: 370, w: 270, h: 220 }, bossSpawn: { x: 300, y: 470 }, boss: "leviathan", item: "abyssHelm",
     arenaName: { en: "Sunken Altar", fil: "Lubog na Altar" },
-    monsters: ["reefCrab", "mariner", "coralGolem", "stormPetrel", "tideSlime", "stormroclet", "glassray", "tideback"],
+    monsters: ["reefCrab", "mariner", "coralGolem", "stormPetrel", "tideSlime"],
     elites: ["siren", "drownedSpecter", "drownedCaptain", "abyssalKraken"],
     sites: [{ x: 820, y: 200, name: { en: "Wrecked Galleon", fil: "Nawasak na Galyon" } }, { x: 1100, y: 120, name: { en: "Lighthouse Ruin", fil: "Guho ng Parola" } }, { x: 760, y: 720, name: { en: "Pearl Shoals", fil: "Bahura ng Perlas" } }],
-    pathTargets: [[425, 480], [700, 60], [700, 900], [1180, 470]],
-    trail: { x: 1180, y: 470, dir: "vertical", dest: "port" },
+    pathTargets: [[425, 480], [700, 60], [700, 900]],
     // The boat waits at the end of the stone causeway heading south (path to [700, 900]).
     // The boat's monolith is the landmark's Celestial Monolith itself (x 120, y 210) in the western sea.
     boat: {
@@ -247,7 +250,7 @@ export const PLATFORMS = {
     camp: { x: 100, y: 760, w: 180, h: 110 }, gate: { x: 190, y: 878 },
     arena: { x: 880, y: 90, w: 300, h: 210 }, bossSpawn: { x: 1020, y: 170 }, boss: "cryonix", item: "cryoCore",
     arenaName: { en: "Glacial Crest", fil: "Glacial Crest" },
-    monsters: ["yeti", "iceGolem", "frostStalker", "wyvern", "frozenCrab", "rimefang", "blizzardroc", "glacialeel"],
+    monsters: ["yeti", "iceGolem", "frostStalker", "wyvern", "frozenCrab"],
     elites: ["frostGargoyle", "frostSerpent", "rimeJotun", "glacierWitch"],
     sites: [{ x: 300, y: 240, name: { en: "Frozen Shrine", fil: "Nagyelong Dambana" } }, { x: 640, y: 640, name: { en: "Mammoth Graveyard", fil: "Libingan ng mga Mammoth" } }, { x: 900, y: 520, name: { en: "Icefall Bridge", fil: "Tulay ng Talong-Yelo" } }],
     trail: { x: 1196, y: 820, dir: "vertical", dest: "mountain" },   // gate to the frontier map (js/world/frontiers.js)
@@ -306,7 +309,7 @@ export const PLATFORMS = {
     ore: { count: 10, kinds: [["emberite", 0.6], ["obsidianOre", 0.4]] },   // mining (js/world/mining.js)
     arena: { x: 110, y: 110, w: 330, h: 220 }, bossSpawn: { x: 260, y: 200 }, boss: "ignis", item: "forgeCore",
     arenaName: { en: "Hellforge", fil: "Hellforge" },
-    monsters: ["obsidianGolem", "hellHound", "imp", "magmaDrake", "lavaCrab", "cindermauler", "emberkite"],
+    monsters: ["obsidianGolem", "hellHound", "imp", "magmaDrake", "lavaCrab"],
     elites: ["fireGargoyle", "lavaSerpent", "hellforgeOverseer", "cinderBehemoth"],
     sites: [{ x: 700, y: 220, name: { en: "Slag Heaps", fil: "Bunton ng Slag" } }, { x: 520, y: 600, name: { en: "Brimstone Vent", fil: "Butas ng Asupre" } }, { x: 1150, y: 300, name: { en: "Charred Watchpost", fil: "Sunog na Bantayan" } }],
     trail: { x: 300, y: 878, dest: "desert" },   // gate to the frontier map (js/world/frontiers.js)
@@ -354,19 +357,155 @@ export const PLATFORMS = {
   },
 
   // ==================== ACT XI ====================
+  strand: {
+    id: "strand", act: 11, tier: 6, theme: "strand", ambient: "lament", seed: 11311, hubGate: "MONOLITH", color: "#7dd3fc", dark: true,
+    name: { en: "The Lamenting Strand", fil: "Dalampasigan ng Panaghoy" },
+    camp: { x: 600, y: 770, w: 170, h: 110 }, gate: { x: 685, y: 870 },
+    arena: { x: 470, y: 90, w: 340, h: 220 }, bossSpawn: { x: 630, y: 180 }, boss: "dolora", item: "tearUrn",
+    arenaName: { en: "Cradle of Tears", fil: "Duyan ng mga Luha" },
+    monsters: ["tearSlime", "wreckGhoul", "sorrowWisp", "strandCrab", "mourningEel"],
+    elites: ["keeningBanshee", "hollowPaladin", "brinewingDrake", "weepingColossus"],
+    sites: [{ x: 330, y: 640, name: { en: "Wreck of the Dawnstar", fil: "Wasak na Dawnstar" } }, { x: 1010, y: 300, name: { en: "Bone Willow Grove", fil: "Kakahuyan ng Butong Willow" } }, { x: 930, y: 640, name: { en: "The Tear Pools", fil: "Mga Lawa ng Luha" } }],
+    pathTargets: [[640, 200], [1186, 470], [640, 900]],
+    // Road east to the Ossuary Fields (opens once Dolora's urn is delivered)
+    rift: { x: 1186, y: 470, dest: "ossuary", road: true },
+    terrain(tx, ty, cols, rows, noise) {
+      if (tx < 12 + noise(0, ty * 0.1) * 6) return "liquid";                     // the black sea to the west
+      if (ty > rows - 6 - noise(tx * 0.1, 0, 3) * 3 && tx < 30) return "liquid"; // south-west shallows
+      if (noise(tx * 0.16, ty * 0.16, 7) > 0.79) return "liquid";                // pools of black tears
+      return null;
+    },
+    landmark(ctx, t, cleared, riftOpen) {
+      const a = this.arena, cx = a.x + a.w / 2, cy = a.y + a.h / 2;
+      // the Cradle of Tears: a ring of weeping stones round a black pool
+      ctx.fillStyle = "rgba(15, 23, 42, 0.7)";
+      ctx.beginPath(); ctx.ellipse(cx, cy, 70, 40, 0, 0, Math.PI * 2); ctx.fill();
+      ring(ctx, cx, cy, 70, 40, `rgba(125, 211, 252, ${0.35 + Math.sin(t) * 0.1})`, 1);
+      for (let k = 0; k < 8; k++) {
+        const ang = (k / 8) * Math.PI * 2, sx = cx + Math.cos(ang) * 120, sy = cy + Math.sin(ang) * 72;
+        ctx.fillStyle = "#3f3f46"; ctx.fillRect(sx - 4, sy - 16, 8, 18);
+        ctx.fillStyle = "#71717a"; ctx.fillRect(sx - 4, sy - 16, 3, 18);
+        const drop = (t * 12 + k * 7) % 16;
+        ctx.fillStyle = "#0f172a"; ctx.fillRect(sx, sy - 10 + drop, 1, 2);
+      }
+      // the Dawnstar's broken hull on the shore
+      const wx = this.sites[0].x, wy = this.sites[0].y;
+      ctx.fillStyle = "#3b2a1d"; ctx.beginPath(); ctx.moveTo(wx - 40, wy); ctx.lineTo(wx + 34, wy - 6); ctx.lineTo(wx + 24, wy + 12); ctx.lineTo(wx - 30, wy + 14); ctx.fill();
+      ctx.fillStyle = "#5e3b1a"; ctx.fillRect(wx - 4, wy - 40, 3, 38);
+      ctx.fillStyle = "#e2e8f0"; ctx.fillRect(wx - 1, wy - 36, 14, 10);
+      ctx.fillStyle = "#ffd166"; ctx.fillRect(wx + 4, wy - 33, 3, 3);
+      if (riftOpen) {
+        const r = this.rift;
+        glow(ctx, r.x, r.y, 46, "rgb(125, 211, 252)", 0.4);
+        ctx.fillStyle = "#57534e"; ctx.fillRect(r.x - 30, r.y - 10, 60, 20);
+        ctx.fillStyle = "#e7e5e4"; ctx.fillRect(r.x - 2, r.y - 26, 4, 18);
+        ctx.fillStyle = "#7dd3fc"; ctx.fillRect(r.x - 8, r.y - 26, 16, 5);
+      }
+      if (cleared) glow(ctx, cx, cy, 90, "rgb(186, 230, 253)", 0.25);
+    },
+    text: {
+      en: {
+        arrive: ["The Dark Continent... black sand, and the sea behind us is quiet as a funeral.",
+          "Father would not wait. He has sailed on along the coast toward the Obsidian Citadel with Captain Ronald and the Royal Guard. We hold this beach, {h}, and then we follow.",
+          "Those pools are not seawater. Veyra says they are tears, and that something called the Weeping Matron gathers them in the Cradle to the north."],
+        hint: ["Dolora, the Weeping Matron, drifts above the Cradle of Tears to the north. She blinks out of reach, rains black tears in rings around you and her wail silences spells. Keep moving, {h}."],
+        deliver: ["The urn is sealed. Listen... the tide pools have gone quiet.",
+          "She said she only gathers the grief, and that someone who drinks it is still asleep. I don't like that, {h}.",
+          "Veyra has found the road east. It runs inland to the old battlefield: the Ossuary Fields. Father's trail goes the same way."]
+      },
+      fil: {
+        arrive: ["Ang Dark Continent... itim na buhangin, at kasingtahimik ng libing ang dagat sa likod natin.",
+          "Hindi naghintay si Ama. Naglayag na siya sa baybayin patungong Obsidian Citadel kasama si Kapitan Ronald at ang Royal Guard. Hawakan natin ang dalampasigang ito, {h}, saka tayo susunod.",
+          "Hindi tubig-dagat ang mga lawang iyan. Sabi ni Veyra, mga luha iyan, at may tinatawag na Lumuluhang Matrona na nag-iipon ng mga iyon sa Duyan sa hilaga."],
+        hint: ["Lumulutang si Dolora, ang Lumuluhang Matrona, sa itaas ng Duyan ng mga Luha sa hilaga. Bigla siyang naglalaho, nagpapaulan ng itim na luha nang paikot sa iyo at pinatatahimik ng kanyang panaghoy ang mga spell. Huwag kang titigil sa paggalaw, {h}."],
+        deliver: ["Selyado na ang urna. Pakinggan mo... tumahimik na ang mga lawa.",
+          "Sabi niya, nag-iipon lang daw siya ng dalamhati, at may umiinom nito na natutulog pa. Hindi ko iyon gusto, {h}.",
+          "Nakita na ni Veyra ang daan pasilangan. Papasok ito sa lumang larangan ng digmaan: ang Kaparangan ng mga Buto. Doon din dumaan si Ama."]
+      }
+    }
+  },
+
+  // ==================== ACT XII ====================
+  ossuary: {
+    id: "ossuary", act: 12, tier: 7, theme: "ossuary", ambient: "grave", seed: 12412, hubGate: "ROAD", color: "#e7e5e4", dark: true,
+    name: { en: "The Ossuary Fields", fil: "Kaparangan ng mga Buto" },
+    camp: { x: 70, y: 420, w: 170, h: 120 }, gate: { x: 84, y: 480, dir: "vertical" },
+    arena: { x: 860, y: 340, w: 330, h: 260 }, bossSpawn: { x: 1020, y: 460 }, boss: "morgrave", item: "lanternVisor",
+    arenaName: { en: "The Warlord's Barrow", fil: "Puntod ng Panginoong-Digma" },
+    monsters: ["boneLegionnaire", "barrowHound", "cryptGhoul", "graveCrow", "ossuaryCrawler"],
+    elites: ["bannerWraith", "boneColossus", "lichAdjutant", "boneDrake"],
+    sites: [{ x: 420, y: 220, name: { en: "The Lantern Knight's Cairn", fil: "Bunton ng Lantern Knight" } }, { x: 560, y: 760, name: { en: "Field of Broken Banners", fil: "Parang ng mga Baling Bandila" } }, { x: 700, y: 420, name: { en: "The Charnel Well", fil: "Balon ng mga Bangkay" } }],
+    pathTargets: [[1025, 470], [640, 70], [640, 890]],
+    // The war road north to the Obsidian Citadel (opens once the Visor is delivered)
+    rift: { x: 640, y: 70, dest: "siege", road: true },
+    terrain(tx, ty, cols, rows, noise) {
+      if (noise(tx * 0.14, ty * 0.14, 11) > 0.8) return "wall";                 // heaps of bones
+      if (noise(tx * 0.1, ty * 0.1, 13) > 0.83) return "liquid";                // flooded grave pits
+      return null;
+    },
+    landmark(ctx, t, cleared, riftOpen) {
+      const a = this.arena, cx = a.x + a.w / 2, cy = a.y + a.h / 2;
+      // the barrow: a ring of bone spears around a mound
+      ctx.fillStyle = "#57534e"; ctx.beginPath(); ctx.ellipse(cx, cy, 60, 34, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#78716c"; ctx.beginPath(); ctx.ellipse(cx, cy - 4, 46, 24, 0, 0, Math.PI * 2); ctx.fill();
+      for (let k = 0; k < 12; k++) {
+        const ang = (k / 12) * Math.PI * 2, sx = cx + Math.cos(ang) * 130, sy = cy + Math.sin(ang) * 90;
+        ctx.fillStyle = "#e7e5e4"; ctx.fillRect(sx - 1, sy - 18, 2, 18);
+        ctx.fillStyle = "#fafaf9"; ctx.fillRect(sx - 2, sy - 20, 4, 3);
+      }
+      // the Lantern Knight's cairn with its lantern still burning
+      const s = this.sites[0];
+      ctx.fillStyle = "#a8a29e"; ctx.beginPath(); ctx.moveTo(s.x - 16, s.y + 8); ctx.lineTo(s.x, s.y - 18); ctx.lineTo(s.x + 16, s.y + 8); ctx.fill();
+      glow(ctx, s.x, s.y - 22, 22, "rgb(255, 209, 102)", 0.5 + Math.sin(t * 2) * 0.15);
+      ctx.fillStyle = "#ffd166"; ctx.fillRect(s.x - 2, s.y - 25, 4, 5);
+      // torn banners on the field
+      [[540, 740], [590, 780], [520, 790]].forEach(([x, y], k) => {
+        ctx.fillStyle = "#44403c"; ctx.fillRect(x, y - 24, 2, 24);
+        ctx.fillStyle = k % 2 ? "#7f1d1d" : "#1e3a8a"; ctx.fillRect(x + 2, y - 24 + Math.round(Math.sin(t + k)), 9, 7);
+      });
+      if (riftOpen) {
+        const r = this.rift;
+        glow(ctx, r.x, r.y, 46, "rgb(239, 68, 68)", 0.35);
+        ctx.fillStyle = "#57534e"; ctx.fillRect(r.x - 30, r.y - 10, 60, 20);
+        ctx.fillStyle = "#e7e5e4"; ctx.fillRect(r.x - 2, r.y - 26, 4, 18);
+        ctx.fillStyle = "#ef4444"; ctx.fillRect(r.x - 8, r.y - 26, 16, 5);
+      }
+      if (cleared) glow(ctx, cx, cy, 90, "rgb(255, 220, 140)", 0.25);
+    },
+    text: {
+      en: {
+        arrive: ["The Ossuary Fields... humans, elves, dwarves, beastfolk. Every race that stood with the Lantern Knight three hundred years ago is buried here.",
+          "Brother Aldric keeps vigil at the Lantern Knight's Cairn. He says the dead have been walking again since the Eclipse, and that their old enemy walks with them."],
+        hint: ["Morgrave, the Ossuary Warlord, holds his barrow on the east side of the field. He marches, then charges in a straight line, and bone lances erupt toward you. Step aside from the line, {h}."],
+        deliver: ["The Lantern Knight's Visor... Aldric says it still holds the Knight's last words.",
+          "'The way home opens once, at the first dawn after the star is whole, and only for that dawn.' {h}... that means you could go home, when this is over.",
+          "...We'll talk about it after. The war road north leads to the Obsidian Citadel. Father is already there."]
+      },
+      fil: {
+        arrive: ["Ang Kaparangan ng mga Buto... mga tao, elf, dwarf at beastfolk. Nakalibing dito ang bawat lahing tumayo kasama ng Lantern Knight tatlong daang taon na ang nakararaan.",
+          "Nagbabantay si Kapatid na Aldric sa Bunton ng Lantern Knight. Sabi niya, naglalakad muli ang mga patay mula nang dumating ang Eclipse, at kasama nilang naglalakad ang dati nilang kaaway."],
+        hint: ["Hawak ni Morgrave, ang Panginoong-Digma ng mga Buto, ang kanyang puntod sa silangang bahagi ng parang. Nagmamartsa siya, saka sumusugod nang tuwid, at may mga sibat na buto na sumisibol patungo sa iyo. Umiwas ka sa linya, {h}."],
+        deliver: ["Ang Visor ng Lantern Knight... sabi ni Aldric, taglay pa nito ang huling salita ng Knight.",
+          "'Minsan lang bubukas ang daan pauwi, sa unang bukang-liwayway matapos mabuo ang bituin, at sa liwayway lamang na iyon.' {h}... ibig sabihin, makauuwi ka kapag natapos na ito.",
+          "...Saka na natin pag-usapan. Patungo sa Obsidian Citadel ang daan ng digmaan sa hilaga. Naroon na si Ama."]
+      }
+    }
+  },
+
+  // ==================== ACT XIII ====================
   siege: {
     ore: { count: 8, kinds: [["mythril", 0.7], ["obsidianOre", 0.15], ["starsteel", 0.15]] },
-    id: "siege", act: 11, tier: 6, theme: "siege", ambient: "siege", seed: 11111, hubGate: "MONOLITH", color: "#ef4444",
+    id: "siege", act: 13, tier: 8, theme: "siege", ambient: "siege", seed: 11111, hubGate: "MARCH", color: "#ef4444", dark: true,
     name: { en: "Siege of the Obsidian Citadel", fil: "Pagkubkob sa Obsidian Citadel" },
     camp: { x: 560, y: 790, w: 160, h: 110 }, gate: { x: 640, y: 878 },
     arena: { x: 470, y: 90, w: 340, h: 210 }, bossSpawn: { x: 630, y: 170 }, boss: "commander", item: "imperialCrest",
     arenaName: { en: "Obsidian Throne Hall", fil: "Bulwagan ng Obsidian na Trono" },
-    monsters: ["shockTrooper", "voidSpider", "demonKnight", "chaosGargoyle", "corruptedCrab", "ironback", "abysscrab"],
+    monsters: ["shockTrooper", "voidSpider", "demonKnight", "chaosGargoyle", "corruptedCrab"],
     elites: ["abyssalJuggernaut", "hellfireWarlock", "obsidianSentinel", "infernalWyvern"],
     sites: [{ x: 300, y: 600, name: { en: "Broken Ballista", fil: "Sirang Ballista" } }, { x: 980, y: 600, name: { en: "Fallen Banner", fil: "Bumagsak na Bandila" } }, { x: 640, y: 420, name: { en: "Gatehouse Rubble", fil: "Guho ng Bantayang-Pinto" } }],
     pathTargets: [[640, 200], [170, 500], [1110, 500]],
-    // Rift to the Maw of Damnation (opens once the Commander is defeated)
-    rift: { x: 640, y: 150, dest: "maw" },
+    // Rift behind the throne, down the Chainspire (opens once the Crest is delivered)
+    rift: { x: 640, y: 150, dest: "chainspire" },
     terrain(tx, ty, cols) {
       const breach = (tx >= 37 && tx <= 42) || (tx >= 17 && tx <= 20) || (tx >= 58 && tx <= 61);
       if ((ty === 21 || ty === 22) && tx >= 8 && tx <= cols - 9 && !breach) return "wall";        // outer wall
@@ -401,36 +540,100 @@ export const PLATFORMS = {
     },
     text: {
       en: {
-        arrive: ["The Dark Continent... and there it stands, the Obsidian Citadel. Every siege engine that burned our lands was forged behind those walls.",
-          "My father crossed ahead of us with Captain Ronald and the Royal Guard. The Demon Commander holds the Obsidian Throne Hall — and my father is still fighting in there!"],
+        arrive: ["There it stands at the end of the war road, the Obsidian Citadel. Every siege engine that burned our lands was forged behind those walls.",
+          "My father sailed ahead of us with Captain Ronald and the Royal Guard. The Demon Commander holds the Obsidian Throne Hall — and my father is still fighting in there!"],
         hint: ["The Demon Commander is in the Obsidian Throne Hall, north past the breached gates. Hurry, {h}!"],
         deliver: ["Father... he held the Throne Hall until we came. His last words passed the Imperial Crest to me.",
           "Then let it be done. Before the nobles, the generals and every survivor of the Vanguard, I name you Supreme Sovereign Champion — and true partner of the throne.",
-          "A rift has torn open behind the throne. It leads to the Maw of Damnation. Satan awaits us there."]
+          "A rift has torn open behind the throne, and a cold wind rattles up out of it like chains. Veyra says it leads down the Chainspire to the Maw of Damnation."]
       },
       fil: {
-        arrive: ["Ang Dark Continent... at naroon ang Obsidian Citadel. Bawat siege engine na sumunog sa ating lupain ay hinubog sa likod ng mga pader na iyan.",
-          "Nauna nang tumawid ang aking ama kasama si Kapitan Ronald at ang Royal Guard. Hawak ng Heneral ng mga Demonyo ang Bulwagan ng Obsidian na Trono — at lumalaban pa roon ang aking ama!"],
+        arrive: ["Naroon sa dulo ng daan ng digmaan ang Obsidian Citadel. Bawat siege engine na sumunog sa ating lupain ay hinubog sa likod ng mga pader na iyan.",
+          "Nauna nang naglayag ang aking ama kasama si Kapitan Ronald at ang Royal Guard. Hawak ng Heneral ng mga Demonyo ang Bulwagan ng Obsidian na Trono — at lumalaban pa roon ang aking ama!"],
         hint: ["Nasa Bulwagan ng Obsidian na Trono ang Heneral ng mga Demonyo, sa hilaga lampas sa nabutas na gate. Bilisan mo, {h}!"],
         deliver: ["Ama... hinawakan niya ang Bulwagan ng Trono hanggang sa dumating tayo. Sa kanyang huling salita, ipinasa niya sa akin ang Imperial Crest.",
           "Kung gayon, gawin na natin. Sa harap ng mga maharlika, heneral at lahat ng nakaligtas sa Vanguard, itinatalaga kitang Supreme Sovereign Champion — at tunay na katuwang ng trono.",
-          "May lamat na bumukas sa likod ng trono. Patungo ito sa Maw of Damnation. Naghihintay doon si Satan."]
+          "May lamat na bumukas sa likod ng trono, at umiihip mula rito ang malamig na hanging kumakalansing na parang kadena. Sabi ni Veyra, pababa ito sa Toreng Kadena patungong Maw of Damnation."]
       }
     }
   },
 
-  // ==================== ACT XII ====================
+  // ==================== ACT XIV ====================
+  chainspire: {
+    id: "chainspire", act: 14, tier: 9, theme: "chainspire", ambient: "chains", seed: 14414, hubGate: "RIFT", color: "#f43f5e", dark: true,
+    name: { en: "The Chainspire Descent", fil: "Ang Pagbaba sa Toreng Kadena" },
+    camp: { x: 560, y: 790, w: 160, h: 100 }, gate: { x: 640, y: 874 },
+    arena: { x: 460, y: 110, w: 360, h: 240 }, bossSpawn: { x: 630, y: 200 }, boss: "vorgath", item: "wardensKey",
+    arenaName: { en: "The Warden's Landing", fil: "Plataporma ng Bantay" },
+    monsters: ["shackledSoul", "chainImp", "ironGaoler", "hookCrawler", "miseryLeech"],
+    elites: ["tormentGolem", "hollowExecutioner", "shackleDrake", "chainWraith"],
+    sites: [{ x: 250, y: 520, name: { en: "The Hanging Cages", fil: "Mga Nakabiting Kulungan" } }, { x: 1030, y: 520, name: { en: "The Anvil of Oaths", fil: "Palihan ng mga Sumpa" } }, { x: 640, y: 560, name: { en: "The Weeping Chains", fil: "Mga Lumuluhang Kadena" } }],
+    pathTargets: [[640, 230], [250, 520], [1030, 520], [640, 560], [640, 70]],
+    // The last gate, at the foot of the spire, down into the Maw (opens with the Warden's Key)
+    rift: { x: 640, y: 70, dest: "maw" },
+    // a spiral of iron landings over the abyss
+    islands: [[640, 840, 160, 90], [640, 230, 280, 190], [250, 520, 160, 110], [1030, 520, 160, 110], [640, 560, 150, 90], [640, 70, 70, 40]],
+    terrain(tx, ty, cols, rows, noise) {
+      const x = tx * 16 + 8, y = ty * 16 + 8;
+      const wob = (noise(tx * 0.25, ty * 0.25) - 0.5) * 0.4;
+      const land = this.islands.some(([cx, cy, rx, ry]) => inEllipse(x, y, cx, cy, rx * (1 + wob), ry * (1 + wob)));
+      // chain bridges between the landings
+      const bridge = (Math.abs(x - 640) < 22 && y > 90 && y < 820) || (Math.abs(y - 520) < 20 && x > 250 && x < 1030);
+      return land || bridge ? null : "liquid";                                  // the abyss
+    },
+    landmark(ctx, t, cleared, riftOpen) {
+      const a = this.arena, cx = a.x + a.w / 2, cy = a.y + a.h / 2;
+      // the Warden's anchor: four great chain posts round the landing
+      [[-130, -60], [130, -60], [-130, 70], [130, 70]].forEach(([dx, dy], k) => {
+        const x = cx + dx, y = cy + dy;
+        ctx.fillStyle = "#27272a"; ctx.fillRect(x - 6, y - 26, 12, 30);
+        ctx.fillStyle = "#52525b"; ctx.fillRect(x - 6, y - 26, 3, 30);
+        if (!cleared) {
+          ctx.strokeStyle = "#71717a"; ctx.lineWidth = 2; ctx.setLineDash([3, 2]);
+          ctx.beginPath(); ctx.moveTo(x, y - 20); ctx.quadraticCurveTo((x + cx) / 2, (y + cy) / 2 + 12 + Math.sin(t + k) * 3, cx, cy - 10); ctx.stroke();
+          ctx.setLineDash([]);
+        }
+      });
+      // glowing chains over the bridges
+      for (let y = 120; y < 800; y += 24) { ctx.fillStyle = (y / 24 + Math.floor(t * 2)) % 4 ? "#3f3f46" : "#f43f5e"; ctx.fillRect(626, y, 3, 8); ctx.fillRect(651, y + 12, 3, 8); }
+      if (riftOpen) {
+        const r = this.rift, rr = 14 + Math.sin(t * 2) * 2;
+        glow(ctx, r.x, r.y, 60, "rgb(157, 78, 221)", 0.5);
+        ring(ctx, r.x, r.y, rr, rr * 1.4, "#c77dff", 2);
+        ring(ctx, r.x, r.y, rr * 0.5, rr * 0.8, "#ffffff", 1, [2, 2]);
+      }
+      if (cleared) glow(ctx, cx, cy, 120, "rgb(254, 205, 211)", 0.25);
+    },
+    text: {
+      en: {
+        arrive: ["Chains... a whole spire of them, down and down into the dark. And there are people on them, {h}. Souls of every race.",
+          "Father would have known what to do. I keep reaching for his voice and finding only mine.",
+          "...Thank you for staying beside me. The Warden waits on the great landing above. Veyra says he guards the last gate to the Maw."],
+        hint: ["Vorgath, the Chained Warden, is anchored on the great landing to the north. His chains sweep wide and pull you in, and his slams send out rings: cross them as they pass. At half strength he breaks free, {h}."],
+        deliver: ["The Warden's Key... look, the chains are falling. The souls are rising out of the dark.",
+          "You looked strange on the bridge, {h}. As if you saw something in the chains. ...You don't have to tell me.",
+          "The last gate is open at the foot of the spire. Satan waits below, in the Maw of Damnation."]
+      },
+      fil: {
+        arrive: ["Mga kadena... isang buong tore ng mga ito, pababa nang pababa sa dilim. At may mga tao sa mga ito, {h}. Mga kaluluwa ng bawat lahi.",
+          "Alam sana ni Ama ang gagawin. Hinahanap ko ang kanyang tinig pero sarili ko lang ang naririnig ko.",
+          "...Salamat sa pananatili sa tabi ko. Naghihintay ang Bantay sa malaking plataporma sa itaas. Sabi ni Veyra, siya ang nagbabantay sa huling tarangkahan patungong Maw."],
+        hint: ["Nakakadena si Vorgath, ang Nakakadenang Bantay, sa malaking plataporma sa hilaga. Malawak ang hampas ng kanyang mga kadena at hinihila ka nito palapit, at naglalabas ng mga singsing ang kanyang mga bagsak: tawirin mo ang mga ito habang dumaraan. Sa kalahati ng lakas, makakawala siya, {h}."],
+        deliver: ["Ang Susi ng Bantay... tingnan mo, nahuhulog ang mga kadena. Umaakyat ang mga kaluluwa mula sa dilim.",
+          "Kakaiba ang tingin mo sa tulay kanina, {h}. Para bang may nakita ka sa mga kadena. ...Hindi mo kailangang sabihin sa akin.",
+          "Bukas na ang huling tarangkahan sa paanan ng tore. Naghihintay si Satan sa ibaba, sa Maw of Damnation."]
+      }
+    }
+  },
+
+  // ==================== ACT XV ====================
   maw: {
-    id: "maw", act: 12, tier: 7, theme: "maw", ambient: "void", seed: 12121, hubGate: "RIFT", color: "#9d4edd",
+    id: "maw", act: 15, tier: 10, theme: "maw", ambient: "void", seed: 12121, hubGate: "DEPTHS", color: "#9d4edd", dark: true,
     name: { en: "Maw of Damnation", fil: "Maw of Damnation" },
     camp: { x: 560, y: 790, w: 160, h: 100 }, gate: { x: 640, y: 874 },
-    arena: { x: 460, y: 170, w: 360, h: 230 }, bossSpawn: { x: 630, y: 270 }, boss: "vaelthir", item: "astralAsh",
-    bossSequence: [
-      { key: "vharok", drop: "vharokSigil" }, { key: "nyxara", drop: "nyxaraSigil" },
-      { key: "gorvath", drop: "gorvathSigil" }, { key: "vaelthir", drop: "astralAsh" }
-    ],
+    arena: { x: 460, y: 170, w: 360, h: 230 }, bossSpawn: { x: 630, y: 270 }, boss: "satan", item: "astralAsh",
     arenaName: { en: "Obsidian Dais", fil: "Obsidian Dais" },
-    monsters: ["voidHusk", "specter", "magmaDrake", "voidSerpent", "deepKraken", "voidhulk", "voidmanta", "voidnautilus"],
+    monsters: ["voidHusk", "specter", "magmaDrake", "voidSerpent", "deepKraken"],
     elites: ["fallenSeraph", "abyssBehemoth", "abyssWyrm", "wraithLord"],
     sites: [{ x: 240, y: 560, name: { en: "Shattered Altar", fil: "Basag na Altar" } }, { x: 1040, y: 560, name: { en: "Ember Isle", fil: "Pulo ng Baga" } }, { x: 640, y: 600, name: { en: "Weeping Spire", fil: "Umiiyak na Tore" } }],
     pathTargets: [[640, 290], [240, 560], [1040, 560], [640, 600]],
@@ -454,23 +657,27 @@ export const PLATFORMS = {
     text: {
       en: {
         arrive: ["The Maw of Damnation... the sky has ceased to exist.",
-          "The four Pillars have gathered around a soul-forging rite. Satan is nowhere to be seen. We must stop them, {h} — I am at your side."],
-        hint: ["The four Pillars guard the ritual. Each is an MVP in its own right. Defeat them one by one before the Stone is complete!"],
-        deliver: ["The four Pillars are down... but their souls are pouring into the Philosopher's Stone! The crater is breaking apart!",
-          "A lightning storm is swallowing the Maw. {h}, you can barely stand—someone is reaching you through the rain!",
-          "The Necromancer carried you to Aethelgard. The heir ordered the guards to arrest them, and Satan still lives beyond the storm."]
+          "Demon Lord Satan waits upon the obsidian dais at the heart of the vortex. Whatever happens, {h} — I am at your side."],
+        hint: ["Satan waits on the great obsidian dais to the north. He will unleash all seven blights. I will chant for you — go!"],
+        deliver: ["It's over... the miasma is unraveling. Look — a true dawn over Aethelgard.",
+          "The Celestial Portals chime... it's the dawn the Visor promised, {h}. The way back to Earth is open, but only until the sun is up. Your family is on the other side.",
+          "...You're staying? Then take my hand. Together we will lead Aethelgard into an age of unbroken peace.",
+          "The portals are dimming... they're only a flicker now. {h}, are you all right? ...You're smiling. Good. Then so am I."]
       },
       fil: {
         arrive: ["Ang Maw of Damnation... wala na ang langit.",
-          "Nagtipon ang apat na Haligi para sa ritwal na humuhubog ng kaluluwa. Wala si Satan. Kailangan natin silang pigilan, {h} — nasa tabi mo ako."],
-        hint: ["Binabantayan ng apat na Haligi ang ritwal. Bawat isa ay MVP sa sariling lakas. Talunin sila nang sunod-sunod bago mabuo ang Bato!"],
-        deliver: ["Bumagsak na ang apat na Haligi... ngunit dumadaloy ang kanilang mga kaluluwa sa Philosopher's Stone! Nabibiyak ang bunganga!",
-          "Nilalamon ng unos ng kidlat ang Maw. {h}, halos hindi ka na makatayo—may lumalapit sa iyo sa gitna ng ulan!",
-          "Dinala ka ng Necromancer sa Aethelgard. Iniutos ng tagapagmana na arestuhin siya, at buhay pa si Satan sa kabila ng unos."]
+          "Naghihintay si Demon Lord Satan sa obsidian dais sa puso ng ipu-ipo. Anuman ang mangyari, {h} — nasa tabi mo ako."],
+        hint: ["Naghihintay si Satan sa malaking obsidian dais sa hilaga. Ilalabas niya ang pitong sumpa. Aawit ako para sa iyo — humayo ka!"],
+        deliver: ["Tapos na... nalulusaw na ang miasma. Tingnan mo — isang tunay na bukang-liwayway sa Aethelgard.",
+          "Tumutunog ang mga Celestial Portal... ito ang liwayway na ipinangako ng Visor, {h}. Bukas ang daan pabalik sa Daigdig, pero hanggang sa pagsikat lang ng araw. Nasa kabila ang iyong pamilya.",
+          "...Mananatili ka? Kung gayon, hawakan mo ang aking kamay. Magkasama nating pamumunuan ang Aethelgard sa panahon ng walang patid na kapayapaan.",
+          "Lumalabo na ang mga portal... kisap na lang sila ngayon. {h}, ayos ka lang ba? ...Nakangiti ka. Mabuti. Kung gayon, ako rin."]
       }
     }
   }
 };
 
-export const PLATFORM_ORDER = ["canopy", "coast", "frost", "ash", "siege", "maw"];
+export const PLATFORM_ORDER = ["canopy", "coast", "frost", "ash", "strand", "ossuary", "siege", "chainspire", "maw"];
+// The Dark Continent, reached through the Celestial Monolith (Acts XI–XV)
+export const DARK_CONTINENT = PLATFORM_ORDER.filter((id) => PLATFORMS[id].dark);
 export const PLATFORM_SIZE = { w: W, h: H };

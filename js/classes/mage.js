@@ -10,7 +10,7 @@ export const MageClass = {
   maxHp: 85,
   speed: 1.3,
   attackCooldown: 100, // Meteor cooldown
-  cooldown: 340,       // Thunderstorm cooldown
+  cooldown: 440,       // Thunderstorm cooldown (fairness pass: was 340, so with CDR the storm never stopped — balance-sim)
   range: 200,          // reach of Meteor and Thunderstorm
 
   onAttack(player, target, spawnSpell) {
@@ -34,7 +34,7 @@ export const MageClass = {
     return true;
   },
 
-  // KEY L: Frost Diver — an ice spear that freezes the target (water element)
+  // KEY L: Glacial Lance — an ice spear that freezes the target (water element)
   cooldown2: 90,
   onSkill2(player, target, spawnSpell) {
     const a = player.aimAngle;

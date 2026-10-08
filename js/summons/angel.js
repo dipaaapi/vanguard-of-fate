@@ -4,7 +4,7 @@ import { Avatar } from "../avatar/avatar.js";
 import { facingFrom } from "../avatar/creature.js";
 
 // Angel: modular Avatar with wings, halo, white gown and a sword
-const ANGEL = new Avatar({
+export const ANGEL = new Avatar({
   body: "female", skin: "#ffe8d6", eyes: "#2f6db5", hairStyle: "long", hairColor: "#ece0b8",
   outfit: "gown", outfitColor: "#ffffff", legColor: "#ffffff", gloves: "none", legs: "pants",
   boots: "sandals", bootColor: "#e0b44c", headgear: "halo", wings: "#ffffff", weapon: "sword"

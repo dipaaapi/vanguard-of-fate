@@ -16,16 +16,11 @@ import { skillText } from "./skills.js";
 
 const SKILLS = {
   novice:  { J: ["🗡️", "Dagger Jab"],        K: ["🌀", "Dodge Roll"],            L: ["🪨", "Throw Stone"] },
-  knight:  { J: ["🛡️", "Bastion Forcefield"], K: ["⚡", "Piercing Lance Charge"], L: ["🌙", "Brandish Spear"] },
-  archer:  { J: ["🏹", "Quiver Shot"],        K: ["🦅", "Falcon Dive"],           L: ["🌧️", "Arrow Shower"] },
+  knight:  { J: ["🛡️", "Bastion Forcefield"], K: ["⚡", "Piercing Lance Charge"], L: ["🌙", "Crescent Sweep"] },
+  archer:  { J: ["🏹", "Quiver Shot"],        K: ["🦅", "Falcon Dive"],           L: ["🌧️", "Skyfall Volley"] },
   priest:  { J: ["✚", "Priority Heal"],       K: ["👼", "Guardian Angels"],       L: ["🌟", "Holy Light"] },
-  mage:    { J: ["☄️", "Meteor Fall"],        K: ["🌩️", "Thunderstorm"],          L: ["🧊", "Frost Diver"] },
-  fighter: { J: ["🔵", "Force Sphere"],       K: ["🦶", "Flying Dropkick"],       L: ["💢", "Ki Explosion"] },
-  cerynVoss: { J: ["✦", "Oathmark"], K: ["🛡️", "Royal Intercession"], L: ["⚔️", "Crownward Edict"] },
-  vaelThorn: { J: ["◈", "Umbral Anchor"], K: ["🌑", "Nightfold Step"], L: ["⛓️", "Gravetide Snare"] },
-  nimaFen: { J: ["❧", "Bogcraft"], K: ["🌿", "Reed Decoy"], L: ["☘️", "Fenburst"] },
-  eirene: { J: ["⚙️", "Maintenance Pulse"], K: ["🪽", "Aerial Lift"], L: ["⛨", "Sanctuary Array"] },
-  templar: { J: ["✧", "Last Vow"], K: ["⚔️", "Oathbreaker Pursuit"], L: ["⛨", "Heir's Sanctuary"] }
+  mage:    { J: ["☄️", "Meteor Fall"],        K: ["🌩️", "Thunderstorm"],          L: ["🧊", "Glacial Lance"] },
+  fighter: { J: ["🔵", "Force Sphere"],       K: ["🦶", "Flying Dropkick"],       L: ["💢", "Ki Explosion"] }
 };
 
 const TEXT = {
@@ -35,7 +30,8 @@ const TEXT = {
     pause: "Pause", resume: "Resume", menu: "Main Menu", map: "World Map", codex: "Codex", workshop: "Workshop", safe: "Safe zone", nobody: "No one nearby",
     settings: "Settings", market: "Market", full: "Full Screen", window: "Window", tools: "Shortcuts",
     edit: "Arrange skills", book: "Drag a skill onto J, K or L · drag slot to slot to swap · P to finish",
-    marketShut: "Markets open in a safe zone", switchCharacter: "Switch character", switchCharacterHint: "Switch roster: V · Shift+1–6 · controller LB/RB"
+    marketShut: "Markets open in a safe zone",
+    errand: "Summon errand"
   },
   fil: {
     skills: "Mga Skill", options: "Mga Opsyon", attack: "Atake", skill: "Skill", belt: "Mabilisang gamit", auto: "AUTO",
@@ -43,7 +39,8 @@ const TEXT = {
     pause: "Pause", resume: "Ituloy", menu: "Main Menu", map: "Mapa ng Mundo", codex: "Codex", workshop: "Talyer", safe: "Ligtas na lugar", nobody: "Walang malapit",
     settings: "Settings", market: "Palengke", full: "Full Screen", window: "Window", tools: "Shortcut",
     edit: "Ayusin ang skill", book: "I-drag ang skill sa J, K o L · i-drag ang slot sa slot para magpalit · P para matapos",
-    marketShut: "Bukas ang palengke sa ligtas na lugar", switchCharacter: "Magpalit ng karakter", switchCharacterHint: "Palit-pangkat: V · Shift+1–6 · LB/RB ng controller"
+    marketShut: "Bukas ang palengke sa ligtas na lugar",
+    errand: "Utos sa summon"
   }
 };
 const tx = (k) => (TEXT[getLang()] || TEXT.en)[k];
@@ -236,13 +233,10 @@ export class ActionPanel {
       this.utilLabel.textContent = tx("tools");
       this.util = {
         market: this.clickButton("market", "KeyB", h.market),
-        full: this.clickButton("full", "KeyF", h.fullscreen),
-        party: this.clickButton("party", "KeyV", h.switchCharacter)
+        full: this.clickButton("full", "KeyF", h.fullscreen)
       };
       this.set(this.util.market, "⚖️", tx("market"));
       this.set(this.util.full, "⛶", document.fullscreenElement ? tx("window") : tx("full"));
-      this.set(this.util.party, "♙", tx("switchCharacter"));
-      this.util.party.title = tx("switchCharacterHint");
       Object.values(this.util).forEach((b) => this.utilEl.appendChild(b));
       if (!this.fsBound) {
         this.fsBound = true;
@@ -419,8 +413,8 @@ export class ActionPanel {
       g.buttons.forEach((b, i) => this.setCooldown(b, `cd${g.id}${i}`, cur[i] ? g.cooldown(p, cur[i]) : 0));
     });
     if (this.util) {
-      this.toggle(this.util.market, "marketOff", "off", !s.inSanctuary);
-      this.util.market.title = s.inSanctuary ? tx("market") : tx("marketShut");
+      this.toggle(this.util.market, "marketOff", "off", !s.inSanctuary && !s.canErrand);
+      this.util.market.title = s.inSanctuary ? tx("market") : s.canErrand ? tx("errand") : tx("marketShut");
       this.toggle(this.util.market, "marketOn", "on", Boolean(s.marketOpen));
     }
 

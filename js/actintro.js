@@ -5,14 +5,15 @@
 // fade in. About six seconds; Enter / Esc / Space / J skip it. The game waits while it plays.
 import { getLang } from "./i18n.js";
 
-const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV"];
 const LENGTH = 390;            // frames (6.5 s)
 const FADE_OUT = 36;
 // Mote colours per Act (follow each banner's light)
 const MOTES = {
   1: ["#c084fc", "#e9d5ff"], 2: ["#5ee7ff", "#e0f2fe"], 3: ["#fde68a", "#c084fc"], 4: ["#fde68a", "#ffffff"],
   5: ["#5ee7ff", "#fde68a"], 6: ["#e0e7ff", "#a5b4fc"], 7: ["#86efac", "#c084fc"], 8: ["#7dd3fc", "#e0f2fe"],
-  9: ["#ffffff", "#bae6fd"], 10: ["#fb923c", "#fde047"], 11: ["#f87171", "#fb923c"], 12: ["#c084fc", "#f0abfc"]
+  9: ["#ffffff", "#bae6fd"], 10: ["#fb923c", "#fde047"], 11: ["#7dd3fc", "#cbd5e1"], 12: ["#e7e5e4", "#fb923c"],
+  13: ["#f87171", "#fb923c"], 14: ["#f43f5e", "#a1a1aa"], 15: ["#c084fc", "#f0abfc"]
 };
 const SKIP = new Set(["Enter", "Escape", "Space", "KeyJ", "NumpadEnter"]);
 

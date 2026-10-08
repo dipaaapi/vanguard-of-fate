@@ -1,5 +1,5 @@
 import { Avatar } from "./avatar/avatar.js";
-import { SlimeSprite, WolfSprite } from "./avatar/creature.js";
+import { SlimeSprite, WolfSprite, SheetBossSprite } from "./avatar/creature.js";
 import {
   SporelingSprite, DrakeSprite, CrabSprite, SerpentSprite, BruteSprite,
   ImpSprite, SpecterSprite, TreantSprite, LeviathanSprite
@@ -160,7 +160,7 @@ export const MONSTERS = {
     sprite: new CrabSprite({ shell: "#9a3412", shellD: "#431407", shellL: "#ea580c", leg: "#291004", eye: "#fbbf24" }),
     speed: 0.62, hpMult: 1.45, dmg: 18, barY: -4, aquatic: true, medium: "sea", debuff: { type: "burn", chance: 0.35, time: 240 } },
 
-  // ==================== ACT XI: SIEGE OF THE IMPERIAL CITADEL ====================
+  // ==================== ACT XIII: SIEGE OF THE OBSIDIAN CITADEL ====================
   // Land
   shockTrooper: { name: { en: "Demon Shock Trooper", fil: "Demonyong Shock Trooper" },
     sprite: new Avatar({ body: "male", skin: "#8a2c2c", eyes: "#ffd166", hairStyle: "none", outfit: "vest", outfitColor: "#2b1a1a", legColor: "#1f1414",
@@ -184,6 +184,100 @@ export const MONSTERS = {
   corruptedCrab: { name: { en: "Corrupted Moat Crab", fil: "Bulok na Alimango" },
     sprite: new CrabSprite({ shell: "#3730a3", shellD: "#1e1b4b", shellL: "#6366f1", leg: "#1e1b4b", eye: "#ef4444" }),
     speed: 0.64, hpMult: 1.45, dmg: 18, barY: -4, aquatic: true, medium: "sea", debuff: { type: "curse", chance: 0.25, time: 220 } },
+
+  // ==================== ACT XI: THE LAMENTING STRAND (Dark Continent landing) ====================
+  tearSlime: { name: { en: "Black Tear Slime", fil: "Slime ng Itim na Luha" },
+    sprite: new SlimeSprite({ base: "#334155", dark: "#1e293b", deep: "#0f172a", light: "#94a3b8", core: "#cbd5e1", eye: "#e0f2fe" }),
+    speed: 0.56, hpMult: 1.3, dmg: 18, barY: -2, medium: "land", debuff: { type: "silence", chance: 0.25, time: 200 } },
+  wreckGhoul: { name: { en: "Dawnstar Wreck Ghoul", fil: "Ghoul ng Wasak na Dawnstar" },
+    sprite: new Avatar({ ...skeletonLook, skin: "#b8c4c2", eyes: "#7dd3fc", outfit: "coat", outfitColor: "#1e3a5f", legColor: "#334155", headgear: "hat", weapon: "sword" }),
+    speed: 0.6, hpMult: 1.5, dmg: 20, barY: -21, medium: "land", debuff: { type: "bleeding", chance: 0.25, time: 220 } },
+  sorrowWisp: { name: { en: "Sorrow Wisp", fil: "Kaluluwang Nagdadalamhati" },
+    sprite: new SpecterSprite({ robe: "#475569", robeD: "#1e293b", robeL: "#94a3b8", eye: "#e0f2fe", claw: "#cbd5e1" }),
+    speed: 0.74, hpMult: 1.25, dmg: 19, barY: -16, flying: true, medium: "sky", debuff: { type: "silence", chance: 0.3, time: 220 } },
+  strandCrab: { name: { en: "Black-Sand Pincher", fil: "Alimango ng Itim na Buhangin" },
+    sprite: new CrabSprite({ shell: "#27272a", shellD: "#09090b", shellL: "#52525b", leg: "#18181b", eye: "#7dd3fc" }),
+    speed: 0.64, hpMult: 1.45, dmg: 19, barY: -4, aquatic: true, medium: "sea", debuff: { type: "bleeding", chance: 0.25, time: 220 } },
+  mourningEel: { name: { en: "Mourning Eel", fil: "Igat ng Pagluluksa" },
+    sprite: new SerpentSprite({ body: "#1e293b", bodyD: "#0f172a", bodyL: "#475569", belly: "#cbd5e1", fin: "#7dd3fc", eye: "#e0f2fe" }),
+    speed: 0.76, hpMult: 1.5, dmg: 21, barY: -8, aquatic: true, medium: "sea", debuff: { type: "electrified", chance: 0.25, time: 160 } },
+  // elites
+  keeningBanshee: { name: { en: "Keening Banshee", fil: "Banshee na Umaatungal" },
+    sprite: new SpecterSprite({ robe: "#e2e8f0", robeD: "#64748b", robeL: "#ffffff", eye: "#0ea5e9", claw: "#f8fafc" }),
+    speed: 0.78, hpMult: 1.65, dmg: 24, barY: -16, flying: true, medium: "sky", elite: true, debuff: { type: "silence", chance: 0.4, time: 260 } },
+  hollowPaladin: { name: { en: "Hollow Paladin of the Dawnstar", fil: "Hungkag na Paladin ng Dawnstar" },
+    sprite: new Avatar({ ...skeletonLook, skin: "#cbd5e1", eyes: "#38bdf8", outfit: "armor", outfitColor: "#3f4a5a", legColor: "#334155", boots: "boots", bootColor: "#1e293b",
+      headgear: "helmet", weapon: "lance", shield: "tower", cape: "#1e3a5f" }),
+    speed: 0.54, hpMult: 1.9, dmg: 24, reach: 20, barY: -21, medium: "land", elite: true, debuff: { type: "bleeding", chance: 0.3, time: 240 } },
+  brinewingDrake: { name: { en: "Brinewing Drake", fil: "Drake ng Maalat na Pakpak" },
+    sprite: new DrakeSprite({ body: "#164e63", bodyD: "#083344", bodyL: "#0e7490", belly: "#a5f3fc", wing: "#0f172a", wingD: "#020617", eye: "#e0f2fe", horn: "#cbd5e1" }, true),
+    speed: 0.84, hpMult: 1.65, dmg: 23, barY: -22, flying: true, medium: "sky", elite: true, debuff: { type: "electrified", chance: 0.3, time: 180 } },
+  weepingColossus: { name: { en: "Weeping Colossus", fil: "Higanteng Lumuluha" },
+    sprite: new BruteSprite({ fur: "#3f3f46", furD: "#18181b", furL: "#71717a", face: "#27272a", eye: "#7dd3fc", crack: "#38bdf8" }, { cracks: true }),
+    speed: 0.44, hpMult: 2.2, dmg: 25, reach: 24, barY: -32, medium: "land", elite: true, debuff: { type: "silence", chance: 0.3, time: 240 } },
+
+  // ==================== ACT XII: THE OSSUARY FIELDS (battlefield of the First War) ====================
+  boneLegionnaire: { name: { en: "Bone Legionnaire", fil: "Kalansay na Lehiyonaryo" },
+    sprite: new Avatar({ ...skeletonLook, skin: "#e7e5e4", eyes: "#f97316", outfit: "armor", outfitColor: "#57534e", legColor: "#44403c", headgear: "helmet", weapon: "sword", shield: "buckler" }),
+    speed: 0.6, hpMult: 1.55, dmg: 21, barY: -21, medium: "land", debuff: { type: "bleeding", chance: 0.25, time: 220 } },
+  barrowHound: { name: { en: "Barrow Hound", fil: "Asong-Libingan" },
+    sprite: new WolfSprite({ fur: "#a8a29e", furD: "#78716c", furDD: "#44403c", furL: "#d6d3d1", belly: "#e7e5e4", eye: "#f97316", fang: "#fafaf9", nose: "#1c1917" }),
+    speed: 0.78, hpMult: 1.35, dmg: 20, barY: -8, medium: "land", debuff: { type: "bleeding", chance: 0.3, time: 240 } },
+  cryptGhoul: { name: { en: "Mass-Grave Ghoul", fil: "Ghoul ng Libingang Pangmaramihan" },
+    sprite: new Avatar({ body: "male", skin: "#8b9a7a", eyes: "#facc15", hairStyle: "long", hairColor: "#3f3f46", outfit: "tunic", outfitColor: "#44403c", legs: "shorts", legColor: "#292524",
+      boots: "sandals", bootColor: "#292524", gloves: "wraps", weapon: "axe" }),
+    speed: 0.62, hpMult: 1.6, dmg: 22, barY: -21, medium: "land", debuff: { type: "poison", chance: 0.3, time: 260 } },
+  graveCrow: { name: { en: "Grave Crow", fil: "Uwak ng Libingan" },
+    sprite: new ImpSprite({ body: "#292524", bodyD: "#0c0a09", bodyL: "#57534e", wing: "#1c1917", wingD: "#0c0a09", eye: "#f97316" }),
+    speed: 0.84, hpMult: 1.2, dmg: 19, barY: -10, flying: true, medium: "sky", debuff: { type: "blind", chance: 0.3, time: 200 } },
+  ossuaryCrawler: { name: { en: "Ossuary Crawler", fil: "Gumagapang na Buto" },
+    sprite: new CrabSprite({ shell: "#d6d3d1", shellD: "#78716c", shellL: "#fafaf9", leg: "#a8a29e", eye: "#f97316" }, true),
+    speed: 0.74, hpMult: 1.3, dmg: 20, barY: -4, medium: "land", debuff: { type: "poison", chance: 0.3, time: 220 } },
+  // elites
+  bannerWraith: { name: { en: "Banner Wraith", fil: "Wraith ng Bandila" },
+    sprite: new SpecterSprite({ robe: "#7f1d1d", robeD: "#450a0a", robeL: "#b91c1c", eye: "#fde68a", claw: "#e7e5e4" }),
+    speed: 0.78, hpMult: 1.7, dmg: 25, barY: -16, flying: true, medium: "sky", elite: true, debuff: { type: "curse", chance: 0.4, time: 280 } },
+  boneColossus: { name: { en: "Bone Colossus", fil: "Higanteng Buto" },
+    sprite: new BruteSprite({ fur: "#e7e5e4", furD: "#a8a29e", furL: "#fafaf9", face: "#78716c", eye: "#f97316", horn: "#d6d3d1", hammer: "#57534e", hammerL: "#a8a29e" }, { horns: true, hammer: true }),
+    speed: 0.44, hpMult: 2.3, dmg: 26, reach: 24, barY: -32, medium: "land", elite: true, debuff: { type: "bleeding", chance: 0.35, time: 260 } },
+  lichAdjutant: { name: { en: "Lich Adjutant", fil: "Lich na Ayudante" },
+    sprite: new Avatar({ ...skeletonLook, skin: "#d6d3d1", eyes: "#a3e635", outfit: "robe", outfitColor: "#1c1917", legColor: "#0c0a09", headgear: "hood", weapon: "book", cape: "#3f6212" }),
+    speed: 0.58, hpMult: 1.75, dmg: 25, barY: -21, medium: "land", elite: true, debuff: { type: "curse", chance: 0.4, time: 280 } },
+  boneDrake: { name: { en: "Bone Drake", fil: "Drake na Buto" },
+    sprite: new DrakeSprite({ body: "#d6d3d1", bodyD: "#78716c", bodyL: "#fafaf9", belly: "#a8a29e", wing: "#57534e", wingD: "#292524", eye: "#f97316", horn: "#fafaf9" }, true),
+    speed: 0.82, hpMult: 1.75, dmg: 25, barY: -22, flying: true, medium: "sky", elite: true, debuff: { type: "curse", chance: 0.3, time: 240 } },
+
+  // ==================== ACT XIV: THE CHAINSPIRE DESCENT ====================
+  shackledSoul: { name: { en: "Shackled Soul", fil: "Kaluluwang Nakagapos" },
+    sprite: new SpecterSprite({ robe: "#57534e", robeD: "#292524", robeL: "#a8a29e", eye: "#fb7185", claw: "#d6d3d1" }),
+    speed: 0.72, hpMult: 1.45, dmg: 23, barY: -16, flying: true, medium: "sky", debuff: { type: "curse", chance: 0.3, time: 260 } },
+  chainImp: { name: { en: "Chain Imp", fil: "Imp ng Kadena" },
+    sprite: new ImpSprite({ body: "#9f1239", bodyD: "#4c0519", bodyL: "#e11d48", wing: "#27272a", wingD: "#09090b", eye: "#fde047" }),
+    speed: 0.86, hpMult: 1.3, dmg: 22, barY: -10, flying: true, medium: "sky", debuff: { type: "burn", chance: 0.3, time: 220 } },
+  ironGaoler: { name: { en: "Iron Gaoler", fil: "Bakal na Bantay-Bilangguan" },
+    sprite: new Avatar({ body: "male", skin: "#6b2a2a", eyes: "#fde047", hairStyle: "none", outfit: "armor", outfitColor: "#27272a", legColor: "#18181b", boots: "boots", bootColor: "#09090b",
+      gloves: "leather", headgear: "horns", weapon: "axe" }),
+    speed: 0.6, hpMult: 1.65, dmg: 24, barY: -21, medium: "land", debuff: { type: "bleeding", chance: 0.3, time: 240 } },
+  hookCrawler: { name: { en: "Hook Crawler", fil: "Gumagapang na Kawit" },
+    sprite: new CrabSprite({ shell: "#3f3f46", shellD: "#18181b", shellL: "#a1a1aa", leg: "#27272a", eye: "#f43f5e" }, true),
+    speed: 0.78, hpMult: 1.4, dmg: 22, barY: -4, medium: "land", debuff: { type: "bleeding", chance: 0.35, time: 220 } },
+  miseryLeech: { name: { en: "Misery Leech", fil: "Lintang Pighati" },
+    sprite: new SerpentSprite({ body: "#4c0519", bodyD: "#1c0209", bodyL: "#9f1239", belly: "#fecdd3", fin: "#a855f7", eye: "#fde047" }),
+    speed: 0.76, hpMult: 1.55, dmg: 23, barY: -8, aquatic: true, medium: "sea", debuff: { type: "poison", chance: 0.3, time: 240 } },
+  // elites
+  tormentGolem: { name: { en: "Torment Golem", fil: "Golem ng Pahirap" },
+    sprite: new BruteSprite({ fur: "#27272a", furD: "#09090b", furL: "#52525b", face: "#18181b", eye: "#f43f5e", horn: "#71717a", crack: "#f43f5e", hammer: "#3f3f46", hammerL: "#a1a1aa" }, { horns: true, hammer: true, cracks: true }),
+    speed: 0.46, hpMult: 2.35, dmg: 28, reach: 24, barY: -32, medium: "land", elite: true, debuff: { type: "bleeding", chance: 0.35, time: 260 } },
+  hollowExecutioner: { name: { en: "Hollow Executioner", fil: "Hungkag na Berdugo" },
+    sprite: new Avatar({ body: "male", skin: "#3f3f46", eyes: "#f43f5e", hairStyle: "none", outfit: "armor", outfitColor: "#18181b", legColor: "#09090b", boots: "boots", bootColor: "#09090b",
+      headgear: "hood", weapon: "greatsword", cape: "#4c0519" }),
+    speed: 0.6, hpMult: 1.9, dmg: 28, reach: 22, barY: -21, medium: "land", elite: true, debuff: { type: "bleeding", chance: 0.4, time: 280 } },
+  shackleDrake: { name: { en: "Shackle Drake", fil: "Drake na Nakagapos" },
+    sprite: new DrakeSprite({ body: "#3f3f46", bodyD: "#18181b", bodyL: "#71717a", belly: "#fda4af", wing: "#27272a", wingD: "#09090b", eye: "#f43f5e", horn: "#a1a1aa", fire: "#f43f5e" }, true),
+    speed: 0.84, hpMult: 1.8, dmg: 27, barY: -22, flying: true, medium: "sky", elite: true, debuff: { type: "burn", chance: 0.35, time: 240 } },
+  chainWraith: { name: { en: "Chain Wraith", fil: "Wraith ng Kadena" },
+    sprite: new SpecterSprite({ robe: "#1c1917", robeD: "#0c0a09", robeL: "#44403c", eye: "#f43f5e", claw: "#a1a1aa" }),
+    speed: 0.8, hpMult: 1.75, dmg: 27, barY: -16, flying: true, medium: "sky", elite: true, debuff: { type: "freeze", chance: 0.3, time: 160 } },
 
   // ==================== MAP ROSTERS: 5 REGULAR + 4 ELITE KINDS PER MAP ====================
   // elite: true → the kind only appears as an Elite (gold ✦, its own name, a regular minion), never at random.
@@ -369,51 +463,6 @@ export const MONSTERS = {
   voidHusk: { name: { en: "Void Husk", fil: "Hungkag ng Void" },
     sprite: new Avatar({ ...skeletonLook, skin: "#b9a5d6", eyes: "#ff7a1a", outfit: "robe", outfitColor: "#2a1f40", legColor: "#171026", weapon: "greatsword" }),
     speed: 0.6, hpMult: 1.65, dmg: 23, barY: -21, medium: "land", debuff: { type: "curse", chance: 0.3, time: 260 } },
-  rootstalker: { name: { en: "Rootstalker", fil: "Tagasubaybay ng Ugat" },
-    sprite: new WolfSprite({ body: "#37593b", bodyD: "#1c3324", bodyL: "#72a65c", eye: "#d7f171" }),
-    speed: 0.76, hpMult: 1.45, dmg: 21, barY: -8, medium: "land", debuff: { type: "poison", chance: 0.2, time: 180 } },
-  rimefang: { name: { en: "Rimefang Stalker", fil: "Mandaragit ng Yelo" },
-    sprite: new WolfSprite({ body: "#a9c7d8", bodyD: "#526b82", bodyL: "#e4f6ff", eye: "#48d9ff" }),
-    speed: 0.82, hpMult: 1.35, dmg: 21, barY: -8, medium: "land", debuff: { type: "freeze", chance: 0.18, time: 120 } },
-  cindermauler: { name: { en: "Cindermauler", fil: "Durog-Baga" },
-    sprite: new BruteSprite({ fur: "#713c32", furD: "#3e201e", furL: "#c46c3e", face: "#271817", eye: "#ffcf45", crack: "#ff7a1a" }, { horns: true, cracks: true }),
-    speed: 0.49, hpMult: 1.9, dmg: 24, reach: 20, barY: -32, medium: "land", debuff: { type: "burn", chance: 0.2, time: 180 } },
-  ironback: { name: { en: "Ironback Ravager", fil: "Mapaminsalang Bakal-Likod" },
-    sprite: new BruteSprite({ fur: "#59616b", furD: "#292f3a", furL: "#b6a77d", face: "#34313a", eye: "#ffd166", crystal: "#e1a94f" }, { crystals: true, hammer: true }),
-    speed: 0.45, hpMult: 2.05, dmg: 26, reach: 22, barY: -32, medium: "land", debuff: { type: "bleeding", chance: 0.2, time: 200 } },
-  voidhulk: { name: { en: "Void Hulk", fil: "Higante ng Void" },
-    sprite: new BruteSprite({ fur: "#35254d", furD: "#181222", furL: "#7952a3", face: "#21162f", eye: "#ee72ff", crack: "#c77dff" }, { horns: true, cracks: true, hammer: true }),
-    speed: 0.42, hpMult: 2.1, dmg: 26, reach: 24, barY: -34, medium: "land", debuff: { type: "curse", chance: 0.25, time: 200 } },
-  thornwing: { name: { en: "Thornwing Drake", fil: "Drake na May Tinik na Pakpak" },
-    sprite: new DrakeSprite({ body: "#49613a", bodyD: "#273624", bodyL: "#9aa94d", belly: "#d7d594", wing: "#2e422e", wingD: "#18241d", eye: "#ffbd50", horn: "#dfd6a8" }, true),
-    speed: 0.82, hpMult: 1.5, dmg: 22, barY: -22, flying: true, medium: "sky", debuff: { type: "bleeding", chance: 0.18, time: 160 } },
-  stormroclet: { name: { en: "Storm Roclet", fil: "Batang Ibon ng Bagyo" },
-    sprite: new DrakeSprite({ body: "#376b82", bodyD: "#173747", bodyL: "#6fd0d8", belly: "#d0f5e8", wing: "#234e67", wingD: "#132a3c", eye: "#fff07a", horn: "#b9f5ed" }, true),
-    speed: 0.9, hpMult: 1.35, dmg: 21, barY: -22, flying: true, medium: "sky", debuff: { type: "electrified", chance: 0.18, time: 120 } },
-  blizzardroc: { name: { en: "Blizzard Roc", fil: "Ibon ng Blizard" },
-    sprite: new DrakeSprite({ body: "#9bb7d1", bodyD: "#405a78", bodyL: "#e8f6ff", belly: "#ffffff", wing: "#577392", wingD: "#2f435e", eye: "#55dcff", horn: "#e4f8ff" }, true),
-    speed: 0.86, hpMult: 1.55, dmg: 23, barY: -22, flying: true, medium: "sky", debuff: { type: "freeze", chance: 0.2, time: 120 } },
-  emberkite: { name: { en: "Emberkite", fil: "Saranggola ng Baga" },
-    sprite: new DrakeSprite({ body: "#9d482a", bodyD: "#522417", bodyL: "#f29347", belly: "#ffd166", wing: "#6e2d1c", wingD: "#35170f", eye: "#fff08a", horn: "#f6c36a", fire: "#ff7a1a" }, true),
-    speed: 0.88, hpMult: 1.45, dmg: 23, barY: -22, flying: true, medium: "sky", debuff: { type: "burn", chance: 0.2, time: 180 } },
-  voidmanta: { name: { en: "Void Manta", fil: "Manta ng Void" },
-    sprite: new DrakeSprite({ body: "#46315f", bodyD: "#211632", bodyL: "#9b70c5", belly: "#d8b4fe", wing: "#312044", wingD: "#160d22", eye: "#f5cbff", horn: "#c5a6df" }, true),
-    speed: 0.76, hpMult: 1.7, dmg: 24, barY: -22, flying: true, medium: "sky", debuff: { type: "curse", chance: 0.24, time: 210 } },
-  glassray: { name: { en: "Glassfin Ray", fil: "Raya na Palikpik-Bubog" },
-    sprite: new SerpentSprite({ body: "#3d8793", bodyD: "#20505e", bodyL: "#a5ebdf", belly: "#dcfff1", fin: "#82d9d0", eye: "#fff08a" }),
-    speed: 0.78, hpMult: 1.4, dmg: 20, barY: -8, aquatic: true, medium: "sea", debuff: { type: "blind", chance: 0.18, time: 160 } },
-  tideback: { name: { en: "Tideback Snapper", fil: "Pagong na Alon" },
-    sprite: new CrabSprite({ shell: "#287d91", shellD: "#174653", shellL: "#70c6ca", leg: "#244d56", eye: "#ffe28a" }),
-    speed: 0.54, hpMult: 1.8, dmg: 22, reach: 18, barY: -4, aquatic: true, medium: "sea", debuff: { type: "electrified", chance: 0.15, time: 120 } },
-  glacialeel: { name: { en: "Glacier Eel", fil: "Igat ng Yelo" },
-    sprite: new SerpentSprite({ body: "#598cae", bodyD: "#284e70", bodyL: "#a7e4ff", belly: "#eafaff", fin: "#b5edff", eye: "#ffffff" }),
-    speed: 0.84, hpMult: 1.3, dmg: 21, barY: -8, aquatic: true, medium: "sea", debuff: { type: "freeze", chance: 0.18, time: 120 } },
-  abysscrab: { name: { en: "Abyss Lantern Crab", fil: "Alimangong Ilawan ng Kalaliman" },
-    sprite: new CrabSprite({ shell: "#4d456f", shellD: "#211d3a", shellL: "#a68ad3", leg: "#322b4d", eye: "#7fffe1" }),
-    speed: 0.58, hpMult: 1.75, dmg: 23, barY: -4, aquatic: true, medium: "sea", debuff: { type: "curse", chance: 0.18, time: 180 } },
-  voidnautilus: { name: { en: "Void Nautilus", fil: "Nautilus ng Void" },
-    sprite: new CrabSprite({ shell: "#49345f", shellD: "#21152f", shellL: "#b98bd8", leg: "#2b1d3a", eye: "#ff83e0" }),
-    speed: 0.5, hpMult: 1.9, dmg: 24, barY: -4, aquatic: true, medium: "sea", debuff: { type: "curse", chance: 0.2, time: 180 } },
   fallenSeraph: { name: { en: "Fallen Seraph", fil: "Nahulog na Seraph" },
     sprite: new Avatar({ body: "female", skin: "#c4b5fd", eyes: "#ff7a1a", hairStyle: "long", hairColor: "#171026", outfit: "gown", outfitColor: "#2a1f40",
       legColor: "#171026", headgear: "halo", weapon: "sword", wings: "#3f3650" }),
@@ -474,35 +523,32 @@ export const BOSSES = {
     debuff: { type: "all", chance: 0.5, time: 240 }, drop: "astralAsh",
     attacks: { slam: { radius: 64, color: "#c77dff" }, hazard: { color: "#9d4edd", label: "miasma", radius: 26 }, orb: { color: "#ff7a1a", speed: 2.4 }, summon: ["specter", "imp"] }
   },
-  vharok: {
-    name: { en: "Vharok, the Grave Crown", fil: "Vharok, ang Koronang Libingan" },
-    sprite: new Avatar({ body: "male", skin: "#8b6f73", eyes: "#ff6b45", hairStyle: "none", outfit: "armor", outfitColor: "#352231",
-      legColor: "#211820", boots: "boots", bootColor: "#17131b", gloves: "leather", headgear: "horns", weapon: "greatsword", cape: "#692b36" }),
-    scale: 2, hpBase: 6, dmg: 24, speed: 0.42, reach: 34, barY: -58, hitR: 18, hitUp: 32,
-    debuff: { type: "bleeding", chance: 0.32, time: 240 }, drop: "vharokSigil", element: "shadow",
-    attacks: { slam: { radius: 58, color: "#a63d5a" }, hazard: { color: "#712b48", label: "grave seal", radius: 24 }, orb: { color: "#ed6b77", speed: 2.1 }, summon: ["voidHusk", "demonKnight"] }
+  // ---- Book I expansion: Satan's servants outside the inverted star (Aseprite sheets in aseprite/boss/) ----
+  // move: "drift" hovers at a distance and blinks · "charge" marches and charges in straight lines ·
+  // "chained" stays anchored until it breaks its chains at half HP. Attacks: js/enemy.js bossAttack.
+  dolora: {
+    name: { en: "Dolora, the Weeping Matron", fil: "Dolora, ang Lumuluhang Matrona" },
+    sprite: new SheetBossSprite(new SpecterSprite({ robe: "#cbd5e1", robeD: "#64748b", robeL: "#f8fafc", eye: "#38bdf8", claw: "#e2e8f0" })),
+    scale: 1, hpBase: 22, dmg: 30, speed: 0.5, reach: 26, barY: -66, hitR: 18, hitUp: 30, move: "drift",
+    debuff: { type: "silence", chance: 0.4, time: 240 }, drop: "tearUrn",
+    attacks: { rain: { color: "#334155", radius: 16 }, wail: { color: "#bae6fd", range: 130, arc: 0.9, debuff: { type: "silence", chance: 0.75, time: 260 } },
+      blink: { color: "#7dd3fc" }, orb: { color: "#7dd3fc", speed: 2.1 }, summon: ["sorrowWisp", "sorrowWisp"] }
   },
-  nyxara: {
-    name: { en: "Nyxara, the Soul Weaver", fil: "Nyxara, Tagahabi ng Kaluluwa" },
-    sprite: new Avatar({ body: "female", skin: "#bda9cc", eyes: "#f39bff", hairStyle: "long", hairColor: "#291a3d", outfit: "gown", outfitColor: "#49275e",
-      legColor: "#241632", headgear: "halo", weapon: "staff", cape: "#6c3b87", wings: "#352143" }),
-    scale: 2, hpBase: 6, dmg: 24, speed: 0.48, reach: 30, barY: -60, hitR: 16, hitUp: 30,
-    debuff: { type: "silence", chance: 0.3, time: 210 }, drop: "nyxaraSigil", element: "ghost",
-    attacks: { hazard: { color: "#c26fe0", label: "soul snare", radius: 27 }, orb: { color: "#ff9cf2", speed: 2.35 }, summon: ["specter", "fallenSeraph"] }
+  morgrave: {
+    name: { en: "Morgrave, the Ossuary Warlord", fil: "Morgrave, ang Panginoong-Digma ng mga Buto" },
+    sprite: new SheetBossSprite(new BruteSprite({ fur: "#e7e5e4", furD: "#a8a29e", furL: "#fafaf9", face: "#57534e", eye: "#f97316", horn: "#44403c", hammer: "#57534e", hammerL: "#d6d3d1", crack: "#f97316" }, { horns: true, hammer: true })),
+    scale: 1, hpBase: 23, dmg: 31, speed: 0.42, reach: 34, barY: -96, hitR: 24, hitUp: 40, move: "charge",
+    debuff: { type: "bleeding", chance: 0.5, time: 300 }, drop: "lanternVisor",
+    attacks: { lances: { color: "#e7e5e4", radius: 13, count: 7, spacing: 22 }, charge: { color: "#f97316", speed: 4.2 },
+      slam: { radius: 58, color: "#f97316" }, summon: ["boneLegionnaire", "boneLegionnaire"] }
   },
-  gorvath: {
-    name: { en: "Gorvath, the Hollow Titan", fil: "Gorvath, ang Hungkag na Higante" },
-    sprite: new BruteSprite({ fur: "#565361", furD: "#292632", furL: "#aaa0ad", face: "#37313e", eye: "#f9c85d", horn: "#c2a77a", crack: "#e9a44f", crystal: "#ffd37a" }, { horns: true, crystals: true, cracks: true, hammer: true }),
-    scale: 2, hpBase: 7, dmg: 26, speed: 0.32, reach: 40, barY: -86, hitR: 28, hitUp: 44,
-    debuff: { type: "confusion", chance: 0.24, time: 90 }, drop: "gorvathSigil", element: "earth",
-    attacks: { slam: { radius: 76, color: "#d18b47" }, hazard: { color: "#9b704b", label: "rift quake", radius: 30 }, orb: { color: "#ffd37a", speed: 1.7 }, summon: ["abyssBehemoth"] }
-  },
-  vaelthir: {
-    name: { en: "Vaelthir, the Stormbound", fil: "Vaelthir, Gapós ng Bagyo" },
-    sprite: new DrakeSprite({ body: "#3c5677", bodyD: "#1b2c46", bodyL: "#8ed5e7", belly: "#d8f7ef", wing: "#283d61", wingD: "#121e36", eye: "#fff181", horn: "#c7eff0" }, true),
-    scale: 2, hpBase: 8, dmg: 25, speed: 0.68, reach: 34, barY: -66, hitR: 23, hitUp: 38,
-    debuff: { type: "electrified", chance: 0.34, time: 180 }, drop: "astralAsh", element: "wind",
-    attacks: { hazard: { color: "#53cde6", label: "storm cage", radius: 28 }, orb: { color: "#fff181", speed: 2.7 }, summon: ["blizzardroc", "voidmanta"] }
+  vorgath: {
+    name: { en: "Vorgath, the Chained Warden", fil: "Vorgath, ang Nakakadenang Bantay" },
+    sprite: new SheetBossSprite(new BruteSprite({ fur: "#3f3f46", furD: "#18181b", furL: "#71717a", face: "#27272a", eye: "#f43f5e", horn: "#a1a1aa", crack: "#f43f5e" }, { horns: true, cracks: true })),
+    scale: 1, hpBase: 26, dmg: 34, speed: 0.48, reach: 38, barY: -104, hitR: 26, hitUp: 40, move: "chained",
+    debuff: { type: "bleeding", chance: 0.5, time: 300 }, drop: "wardensKey",
+    attacks: { sweep: { color: "#a1a1aa", range: 100, arc: 2.0 }, ring: { color: "#f97316", speed: 2.2, max: 170 },
+      grab: { color: "#a1a1aa", range: 170 }, slam: { radius: 62, color: "#f43f5e" } }
   }
 };
 
@@ -540,7 +586,7 @@ const TRAITS = {
   corruptedCrab: ["undead", "water", "small"],
 
   // Bosses
-  // Map rosters (expanded regular pools + 4 elite kinds per map)
+  // map rosters (5 regular + 4 elite kinds per map)
   goblinWarchief: ["demihuman", "earth", "medium"], ironpeltAlpha: ["brute", "earth", "medium"], thunderRoc: ["brute", "wind", "large"],
   bramblecrownSlime: ["formless", "earth", "medium"],
   rubbleCrawler: ["formless", "earth", "small"], badlandBrigand: ["demihuman", "neutral", "medium"], dustJackal: ["brute", "earth", "small"],
@@ -563,16 +609,21 @@ const TRAITS = {
   hellfireWarlock: ["demon", "fire", "medium"], obsidianSentinel: ["demon", "shadow", "medium"], infernalWyvern: ["dragon", "fire", "medium"],
   voidHusk: ["undead", "shadow", "medium"], fallenSeraph: ["demon", "holy", "medium"], abyssBehemoth: ["demon", "shadow", "large"],
   abyssWyrm: ["dragon", "shadow", "large"], wraithLord: ["undead", "ghost", "medium"],
-  rootstalker: ["brute", "earth", "medium"], rimefang: ["brute", "water", "medium"], cindermauler: ["demon", "fire", "large"],
-  ironback: ["brute", "earth", "large"], voidhulk: ["demon", "shadow", "large"],
-  thornwing: ["dragon", "wind", "medium"], stormroclet: ["brute", "wind", "small"], blizzardroc: ["brute", "wind", "medium"],
-  emberkite: ["dragon", "fire", "medium"], voidmanta: ["demon", "shadow", "large"],
-  glassray: ["fish", "water", "medium"], tideback: ["fish", "water", "large"], glacialeel: ["fish", "water", "medium"],
-  abysscrab: ["fish", "water", "small"], voidnautilus: ["fish", "shadow", "medium"],
+
+  // Strand, Ossuary, Chainspire
+  tearSlime: ["formless", "water", "small"], wreckGhoul: ["undead", "water", "medium"], sorrowWisp: ["undead", "ghost", "small"],
+  strandCrab: ["fish", "shadow", "small"], mourningEel: ["fish", "water", "medium"], keeningBanshee: ["undead", "ghost", "medium"],
+  hollowPaladin: ["undead", "holy", "medium"], brinewingDrake: ["dragon", "water", "medium"], weepingColossus: ["formless", "water", "large"],
+  boneLegionnaire: ["undead", "undead", "medium"], barrowHound: ["undead", "earth", "medium"], cryptGhoul: ["undead", "poison", "medium"],
+  graveCrow: ["brute", "shadow", "small"], ossuaryCrawler: ["undead", "earth", "small"], bannerWraith: ["undead", "ghost", "medium"],
+  boneColossus: ["undead", "earth", "large"], lichAdjutant: ["undead", "shadow", "medium"], boneDrake: ["dragon", "undead", "large"],
+  shackledSoul: ["undead", "ghost", "medium"], chainImp: ["demon", "fire", "small"], ironGaoler: ["demon", "shadow", "medium"],
+  hookCrawler: ["insect", "shadow", "small"], miseryLeech: ["fish", "shadow", "medium"], tormentGolem: ["formless", "shadow", "large"],
+  hollowExecutioner: ["demon", "shadow", "medium"], shackleDrake: ["dragon", "fire", "medium"], chainWraith: ["undead", "ghost", "medium"],
 
   malakor: ["plant", "earth", "large"], leviathan: ["fish", "water", "large"], cryonix: ["demon", "water", "large"],
   ignis: ["demon", "fire", "large"], commander: ["demon", "shadow", "large"], satan: ["demon", "shadow", "large"],
-  vharok: ["demon", "shadow", "large"], nyxara: ["demon", "ghost", "medium"], gorvath: ["brute", "earth", "large"], vaelthir: ["dragon", "wind", "large"]
+  dolora: ["undead", "ghost", "large"], morgrave: ["undead", "undead", "large"], vorgath: ["demon", "earth", "large"]
 };
 Object.entries(TRAITS).forEach(([k, [race, element, size]]) => Object.assign(MONSTERS[k] || BOSSES[k], { race, element, size }));
 

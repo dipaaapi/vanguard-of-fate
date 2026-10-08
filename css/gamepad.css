@@ -1,0 +1,62 @@
+/* ==================== GAMEPAD: corner badge, toast, guide modal (js/gamepad.js) ==================== */
+.pad-badge {
+  position: fixed; left: 10px; bottom: 10px; z-index: 900;
+  font: 700 11px "Silkscreen", monospace; color: #94a3b8;
+  background: rgba(10, 16, 28, 0.85); border: 1px solid #334155; border-radius: 4px;
+  padding: 4px 8px; cursor: pointer; opacity: 0.6; transition: opacity 0.2s, border-color 0.2s;
+}
+.pad-badge:hover { opacity: 1; }
+.pad-badge.on { color: #4ade80; border-color: #22c55e; opacity: 0.9; }
+
+.pad-toast {
+  position: fixed; left: 50%; top: 16px; z-index: 1001; transform: translate(-50%, -30px);
+  font: 700 12px "Silkscreen", monospace; color: #dcfce7;
+  background: rgba(20, 83, 45, 0.95); border: 1px solid #22c55e; border-radius: 4px;
+  padding: 8px 14px; opacity: 0; pointer-events: none; transition: opacity 0.25s, transform 0.25s;
+}
+.pad-toast.bad { color: #fee2e2; background: rgba(127, 29, 29, 0.95); border-color: #ef4444; }
+.pad-toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+.pad-modal {
+  position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center;
+  background: rgba(2, 6, 14, 0.75);
+}
+.pad-modal[hidden] { display: none; }
+.pad-box {
+  width: min(520px, 92vw); max-height: 88vh; overflow-y: auto;
+  background: #0b1220; border: 2px solid #c9a227; border-radius: 6px; padding: 18px 20px;
+  color: #e2e8f0; font: 12px/1.5 "Silkscreen", monospace; box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+}
+.pad-box h2 { margin: 0 0 10px; font: 900 18px "Cinzel", serif; color: #ffd166; text-align: center; letter-spacing: 1px; }
+.pad-status {
+  text-align: center; padding: 6px; margin-bottom: 10px; border-radius: 4px;
+  color: #fbbf24; background: rgba(251, 191, 36, 0.08); border: 1px dashed #92400e;
+  animation: pad-blink 1.4s ease-in-out infinite;
+}
+.pad-status.on { color: #4ade80; background: rgba(34, 197, 94, 0.1); border: 1px solid #22c55e; animation: none; }
+@keyframes pad-blink { 50% { opacity: 0.55; } }
+.pad-steps { margin: 0 0 12px; padding-left: 20px; color: #cbd5e1; font-size: 11px; }
+.pad-steps li { margin-bottom: 4px; }
+.pad-binds { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.pad-row {
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  font: 11px "Silkscreen", monospace; color: #e2e8f0; cursor: pointer;
+  background: #111c30; border: 1px solid #334155; border-radius: 4px; padding: 6px 8px; text-align: left;
+}
+.pad-row b { color: #ffd166; white-space: nowrap; }
+.pad-row:hover, .pad-row:focus { border-color: #c9a227; outline: none; }
+.pad-row.lit { background: #14532d; border-color: #4ade80; }
+.pad-row.wait { border-color: #38bdf8; animation: pad-blink 0.8s infinite; }
+.pad-row.wait b { color: #38bdf8; }
+.pad-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+.pad-btn {
+  font: 700 11px "Silkscreen", monospace; color: #e2e8f0; cursor: pointer;
+  background: #1e293b; border: 1px solid #475569; border-radius: 4px; padding: 6px 12px;
+}
+.pad-btn.primary { background: #7c5d12; border-color: #c9a227; color: #fff7d6; }
+.pad-btn:hover, .pad-btn:focus { border-color: #ffd166; outline: none; }
+
+
+/* Arrow / D-pad cursor inside HTML panels (js/padnav.js) */
+.pad-focus { outline: 2px solid #ffd166 !important; outline-offset: 1px; box-shadow: 0 0 8px rgba(255, 209, 102, 0.55) !important; }
+

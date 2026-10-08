@@ -2,8 +2,8 @@
 // Night on the cliff above the Imperial Citadel: the sword the Lantern Knight left behind stands in
 // the seal altar, a lantern hanging from its hilt, while the eclipse rises over the sea.
 // The sword's glow sits at (0.5, 0.42) of the picture: js/title.js draws its animated glow there.
-export function paint(P, { R, K }) {
-  const { hex, sky, stars, eclipse, clouds, ridgeFn, ridge, castle, water, fogBand, runeCircle, POINT_COLORS, groundTex, rock, sparks, moon } = K;
+export async function paint(P, { R, K, S }) {
+  const { hex, sky, stars, eclipse, clouds, ridgeFn, ridge, water, fogBand, runeCircle, POINT_COLORS, groundTex, rock, sparks, moon } = K;
 
   sky(P, [[0, hex("#04060f")], [0.5, hex("#121a3a")], [0.85, hex("#2c2a5a")], [1, hex("#4a3a6a")]], 0, 170, 3);
   stars(P, R, 220, { y1: 150, big: 0.07 });
@@ -14,9 +14,7 @@ export function paint(P, { R, K }) {
   water(P, 150, 210, { deep: "#060a1a", mid: "#0f1a3a", light: "#2a3a6a", foam: "#8aa0d8", seed: 2, reflect: "#c4b5fd", reflectX: 392, reflectW: 10 });
   const shore = ridgeFn({ base: 152, amp: 22, freq: 0.02, seed: 4, sharp: 0.5 });
   ridge(P, (x) => (x < 170 ? shore(x) : 400), "#141838", { light: "#262c58" });
-  // Give the Imperial Citadel enough scale for its ashlar, lit windows and crowned towers to read
-  // clearly behind the title foreground, while preserving the sword as the visual focal point.
-  castle(P, 106, shore(106) + 5, { scale: 0.62, style: "imperial", seed: 3, glow: true });
+  P.blit(await S.zone("castle", 0, 210), 84 - 45, shore(84) + 4 - 59, { scale: 0.28 });
   fogBand(P, 168, 10, "#2c3466", 0.5, 5);
 
   // the cliff and the altar steps

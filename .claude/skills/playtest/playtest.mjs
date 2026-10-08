@@ -4,7 +4,7 @@
  * plus screenshots. Use it instead of asking the user to "open the browser and check".
  *
  *   node .claude/skills/playtest/playtest.mjs                       # title screen boot: errors + screenshot
- *   node .claude/skills/playtest/playtest.mjs --flow newgame        # title → New Expedition → prologue → creator → summoned into the world
+ *   node .claude/skills/playtest/playtest.mjs --flow newgame        # title → New Expedition → creator (codex scene) → prologue → summoned into the world
  *   node .claude/skills/playtest/playtest.mjs --keys "Enter,wait:500,KeyD*30,shot"   # your own key script
  *   node .claude/skills/playtest/playtest.mjs --save my.json        # put a save in localStorage first, then Continue
  *   node .claude/skills/playtest/playtest.mjs --lang fil            # Filipino UI
@@ -52,7 +52,7 @@ await new Promise((r) => server.listen(0, "127.0.0.1", r));
 const base = `http://127.0.0.1:${server.address().port}/`;
 
 // ── Flows ────────────────────────────────────────────────────────────────────
-// Kept as key scripts so they are easy to adjust when menus change (see js/title.js, prologue.js, creator.js).
+// Kept as key scripts so they are easy to adjust when menus change (see js/title.js, prologue.js, scenes/codexScene.js).
 const FLOWS = {
   boot: "wait:1500,shot:title",
   newgame: "wait:1200,Enter,wait:400,Enter,wait:1500,shot:creator,Enter,wait:1500,shot:prologue,Escape,wait:2500,shot:arrival,Enter,wait:400,Enter,wait:400,Enter,wait:400,Enter,wait:400,Enter,wait:400,KeyD*45,wait:300,shot:world",

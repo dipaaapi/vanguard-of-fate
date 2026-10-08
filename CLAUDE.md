@@ -13,7 +13,7 @@
 
 ## Project overview
 
-Vanguard of Fate is a browser action RPG / isekai adventure in plain HTML5 Canvas + vanilla JavaScript ES modules. The player creates a hero in the Character Creator, is summoned from Earth to Aethelgard as a Novice, awakens one of five classes (Knight, Mage, Priest, Archer, Fighter) at Lv 10, and follows twelve Acts from the hub plains through six campaign platforms to Satan. See [README.md](README.md) for features and controls (its project-structure section is out of date; CODEMAP is current) and [LORE.md](LORE.md) / [LORE_FIL.md](LORE_FIL.md) for the setting. Both LORE files are fetched at runtime and split on `##` Acts by `js/lore.js`; keep them in sync.
+Vanguard of Fate is a browser action RPG / isekai adventure in plain HTML5 Canvas + vanilla JavaScript ES modules. The player creates a hero in the Character Creator, is summoned from Earth to Aethelgard as a Novice, awakens one of five classes (Knight, Mage, Priest, Archer, Fighter) at Lv 10, and follows fifteen Acts from the hub plains through nine campaign platforms (four in Aethelgard, five on the Dark Continent) to Satan. See [README.md](README.md) for features and controls (its project-structure section is out of date; CODEMAP is current) and [LORE.md](LORE.md) / [LORE_FIL.md](LORE_FIL.md) for the setting. Both LORE files are fetched at runtime and split on `##` Acts by `js/lore.js`; keep them in sync.
 
 No backend and no build step: the game is static files. State persists in `localStorage` (`vanguard_savegame`, `vanguard_config`, language), with `.vof` save export/import through `js/saveSecurity.js`.
 
@@ -55,5 +55,6 @@ No backend and no build step: the game is static files. State persists in `local
 - Put text into the DOM with `textContent`; use `innerHTML` only for static templates or `t()` strings that carry markup, never for names or other values that can come from a save.
 - Characters are drawn with the modular Avatar (or a `CreatureSprite`) and cached frames; new humanoids reuse Avatar parts rather than new sprite code.
 - Creature art can come from Aseprite: `aseprite/<monster|boss>/<key>.aseprite`, exported to `assets/sprites/` and loaded by `js/avatar/sheets.js`; the code-drawn sprite stays as the fallback for anything without a sheet (or a missing tag). Sheets may add `run` (chasing) and `skill` (charging) animations and use a larger canvas on the same feet. Edit the `.aseprite` and re-export instead of editing the exported PNG.
+- Safe-zone art (Barracks + longhouses, Citadel + dais, every camp, Emberhold) is Aseprite too: `aseprite/zone/<key>.aseprite`, placed and made solid by `js/world/zonesprites.js`, painted by `node tools/aseprite/paint/paint.mjs zone` (a new map needs a theme in `tools/aseprite/paint/zones.mjs`). The tools write and read `.aseprite` in Node, so this works without the app.
 - Commit messages use Conventional Commit prefixes (`feat:`, `fix:`, `docs:`).
 - Some code comments are in Filipino/Taglish; keep them as-is.

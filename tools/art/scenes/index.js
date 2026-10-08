@@ -9,7 +9,7 @@ import * as S from "../lib/sprites.js";
 const banner = (n, mod) => ({ out: `assets/banner/act-${n}.png`, w: 480, h: 270, scale: 4, mod });
 const chapter = (key, mod) => ({ out: `assets/banner/${key}.png`, w: 480, h: 270, scale: 4, mod });
 const vista = (key, mod) => ({ out: `assets/art/vistas/${key}.png`, w: 480, h: 270, scale: 4, mod });
-const BOSS_KEYS = ["malakor", "leviathan", "cryonix", "ignis", "commander", "satan"];
+const BOSS_KEYS = ["malakor", "leviathan", "cryonix", "ignis", "commander", "satan", "dolora", "morgrave", "vorgath"];
 const BIG_BOSSES = ["malakor", "leviathan"];
 const portrait = (key) => (BOSS_KEYS.includes(key)
   ? { out: `assets/art/portraits/${key}.png`, ...(BIG_BOSSES.includes(key) ? { w: 96, h: 96, scale: 4 } : { w: 64, h: 64, scale: 6 }), mod: "portraits", arg: key }
@@ -27,8 +27,11 @@ export const SCENES = {
   "act-8": banner(8, "act08"),
   "act-9": banner(9, "act09"),
   "act-10": banner(10, "act10"),
-  "act-11": banner(11, "act11"),
-  "act-12": banner(12, "act12"),
+  "act-11": banner(11, "actStrand"),
+  "act-12": banner(12, "actOssuary"),
+  "act-13": banner(13, "actSiege"),
+  "act-14": banner(14, "actChainspire"),
+  "act-15": banner(15, "actMaw"),
   "prophecy": chapter("prophecy", "prophecy"),
   "ledger": chapter("ledger", "ledger"),
   "heralds": chapter("heralds", "heralds"),
@@ -45,10 +48,12 @@ export const SCENES = {
 };
 
 const PORTRAITS = ["aurelia", "kenneth", "king", "lanternKnight", "arthur", "lyra", "julian", "sam", "renzo", "ronald", "edgar", "brakka", "elvenMatriarch",
-  "malakor", "leviathan", "cryonix", "ignis", "commander", "satan"];
+  "maren", "isolde", "veyra", "aldric",
+  "malakor", "leviathan", "cryonix", "ignis", "commander", "satan", "dolora", "morgrave", "vorgath"];
 for (const p of PORTRAITS) SCENES[`portrait-${p}`] = portrait(p);
 const RELICS = ["sylvanStone", "tideStone", "frostStone", "emberStone", "lantern", "imperialCrest", "covenantLedger", "oblivionMushroom",
-  "sigilShield", "sigilBow", "sigilPrayer", "sigilStar", "sigilFist", "invertedStar"];
+  "sigilShield", "sigilBow", "sigilPrayer", "sigilStar", "sigilFist", "invertedStar",
+  "tearUrn", "lanternVisor", "wardensKey"];
 for (const r of RELICS) SCENES[`relic-${r}`] = relic(r);
 
 const mods = new Map();

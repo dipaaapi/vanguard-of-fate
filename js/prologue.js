@@ -1,6 +1,7 @@
 import { getLang } from "./i18n.js";
 import { Sound } from "./audio.js";
 import { Avatar } from "./avatar/avatar.js";
+import { sheetCount, sheetDurations, sheetFrame } from "./avatar/sheets.js";
 import { NPC_DEFS, summonerIdFor } from "./npc/roster.js";
 import { npcName } from "./dialogue.js";
 
@@ -61,6 +62,20 @@ function ridge(ctx, baseY, amp, step, color, seed, shift = 0) {
 
 // Silhouette of the Imperial Citadel (used in scenes 1 and 2)
 function citadel(ctx, cx, baseY, stone, shade, t, bannerA = "#8a2c2c", bannerB = "#ffd166") {
+  const key = "zone/castle", frames = sheetCount(key, "down", "idle");
+  const durations = sheetDurations(key, "down", "idle");
+  const total = durations.reduce((sum, duration) => sum + duration, 0) || frames * 100;
+  let elapsed = total ? ((t * 1000 / 60) % total) : 0, index = 0;
+  while (index < frames - 1 && elapsed >= (durations[index] || 100)) elapsed -= durations[index++] || 100;
+  const frame = frames ? sheetFrame(key, "down", "idle", index) : null;
+  if (frame) {
+    const w = 176, h = 187;
+    const prev = ctx.imageSmoothingEnabled;
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(frame, Math.round(cx - w / 2), Math.round(baseY - h), w, h);
+    ctx.imageSmoothingEnabled = prev;
+    return;
+  }
   const towers = [[-58, 46, 10], [-34, 62, 12], [-8, 84, 16], [20, 62, 12], [44, 46, 10]];
   ctx.fillStyle = stone;
   ctx.fillRect(cx - 64, baseY - 30, 128, 30);                    // pader

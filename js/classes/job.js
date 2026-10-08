@@ -1,4 +1,5 @@
 import { Avatar } from "../avatar/avatar.js";
+import { summonedGarb } from "../avatar/options.js";
 
 // ==================== JOB LOOK (after the Job Awakening) ====================
 // The hero keeps the same body, skin, eyes and hair from the Character Creator;
@@ -28,7 +29,8 @@ const ANIM_MAP = { bash: "attack" };
 
 // Look = body from the Character Creator + class outfit + held gear (bag)
 function lookFor(classId, baseConfig, gearLook = {}) {
-  return { ...(baseConfig || {}), ...(JOB_GEAR[classId] || {}), ...gearLook };
+  // Earth clothes (a Character Creator preview) are first turned into Aethelgard garb
+  return { ...summonedGarb(baseConfig || {}), ...(JOB_GEAR[classId] || {}), ...gearLook };
 }
 
 // Replaces the player's Avatar when the worn gear changes (called by Bag.onChange)

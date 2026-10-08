@@ -108,10 +108,22 @@ export function glowAt(ctx, x, y, r, color, alpha = 0.5) {
   ctx.globalAlpha = a;
 }
 
-// Full screen on/off (F in game, the creator's tray and the title's language menu)
+// Full screen on/off (F in game, the Codex scene's deck and the title's language menu)
 export function toggleFullscreen() {
   if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
   else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
+}
+
+// Esc closes the game's menus, so in full screen the page claims it (Keyboard Lock API, Chromium):
+// a tap of Esc reaches the game and the browser's full screen stays on; holding Esc still exits.
+// Other browsers keep their default (Esc leaves full screen).
+if (typeof document !== "undefined") {
+  document.addEventListener("fullscreenchange", () => {
+    const kb = navigator.keyboard;
+    if (!kb || !kb.lock) return;
+    if (document.fullscreenElement) kb.lock(["Escape"]).catch(() => {});
+    else kb.unlock();
+  });
 }
 
 // ==================== IN-GAME SETTINGS PANEL (O) ====================

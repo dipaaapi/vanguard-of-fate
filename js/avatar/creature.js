@@ -105,6 +105,42 @@ export function ellipse(p, cx, cy, rx, ry, fn) {
   }
 }
 
+// ==================== SHEET BOSS ====================
+// A boss whose real art is an Aseprite sheet painted at full size (aseprite/boss/<key>.aseprite).
+// Until the sheet loads (or without it) the code sprite `base` is drawn k× larger in its place,
+// so the boss keeps its size, feet and animations either way.
+export class SheetBossSprite extends CreatureSprite {
+  constructor(base, k = 2) {
+    super(base.w * k, base.h * k, base.ax * k, base.ay * k, base.frames);
+    this.base = base;
+    this.k = k;
+    this.c = base.c;
+  }
+
+  has(anim, dir = "down") {
+    return super.has(anim, dir) || this.base.has(anim, dir);
+  }
+
+  frame(dir, anim, i) {
+    const n = this.count(dir, anim);
+    const idx = ((i % n) + n) % n;
+    const img = this.sheetKey && sheetFrame(this.sheetKey, dir, anim, idx);
+    if (img) return img;
+    const key = `${dir}|${anim}|${idx}`;
+    if (!this.cache.has(key)) {
+      const src = this.base.frame(dir, anim, idx);
+      const c = document.createElement("canvas");
+      c.width = src.width * this.k;
+      c.height = src.height * this.k;
+      const g = c.getContext("2d");
+      g.imageSmoothingEnabled = false;
+      g.drawImage(src, 0, 0, c.width, c.height);
+      this.cache.set(key, c);
+    }
+    return this.cache.get(key);
+  }
+}
+
 // ==================== SLIME ====================
 const SLIME = { base: "#70e000", dark: "#38b000", deep: "#007200", light: "#ccff33", core: "#9ef01a", eye: "#10240a" };
 

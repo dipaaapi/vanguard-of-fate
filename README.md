@@ -8,7 +8,7 @@ A browser-based, pure-coded retro 32-bit Action RPG / Adventure game powered by 
 
 When the Eclipse of the Abyss cracks the old seal beneath Aethelgard, Demon Lord Satan wakes and his five Heralds carry off the Seal Stones that once held him. Three centuries ago the crown summoned one soul from Earth, the Lantern Knight, who sealed the demon with their own life and never went home. Now the Crown Heir draws the forbidden Pentagram Seal again: five souls from Earth light the points of the star, and you arrive as the sixth, a Novice with an empty Job line in the Covenant Ledger (the status screen only the summoned can see), free to walk any of the five paths.
 
-The full story lives in [LORE.md](LORE.md) (Filipino: [LORE_FIL.md](LORE_FIL.md)), which the game loads into the Chronicles screen: twelve Acts that follow the main quest, plus three reference chapters on the Pentagram Prophecy, the rules of the Covenant Ledger and Satan's Heralds. The setting borrows only broad isekai genre tropes (summoning, a status screen, job awakening, a demon lord); every name, character and place is original.
+The full story lives in [LORE.md](LORE.md) (Filipino: [LORE_FIL.md](LORE_FIL.md)), which the game loads into the Chronicles screen: fifteen Acts that follow the main quest, plus three reference chapters on the Pentagram Prophecy, the rules of the Covenant Ledger and Satan's Heralds. The setting borrows only broad isekai genre tropes (summoning, a status screen, job awakening, a demon lord); every name, character and place is original.
 
 ---
 
@@ -68,6 +68,20 @@ The full story lives in [LORE.md](LORE.md) (Filipino: [LORE_FIL.md](LORE_FIL.md)
 | **Enter** | Confirm / Start Game / Resurrect after Game Over |
 | **Esc / P** | Pause / Resume Game |
 | **M** | Return to Hero Selection (from Pause Menu) |
+
+---
+
+## 🛠️ Developer Tools (admins & developers)
+
+Open the game with `?dev` at the end of the address (for example `http://localhost/vanguard-of-fate/index.html?dev`), then press **F9** or click the **DEV** badge. The game pauses while the panel is open, and keys typed into it never reach the hero.
+
+| Tab | What it does |
+| :--- | :--- |
+| **Save** | Shows the save as editable JSON. **Apply & reload** validates it, backs up the current save (the last 8 are kept) and reloads the game from the edited save, so the running game and the stored save always match. Download as `.json` or a signed `.vof`, open either kind of file, view or restore backups. |
+| **Cheats** | Set level, gold, stat and skill points; full heal; god mode; one-hit kills; give any item by id; travel to any Act; spawn a Normal, Champion or Elite monster at any level; kill all monsters; save now. |
+| **Balance** | Live hero numbers, session analytics (EXP/min, damage dealt and taken per minute, kills by tier, deaths, items used) and a table of this area's monsters at the bottom and top of its level range (HP, your hits to kill, hits to KO you, EXP, kills per level). Write design notes and export everything as a `.json` report. |
+
+Without `?dev` none of this is loaded. Note: `?dev` only hides the tools; it is not a password. Real admin accounts need a server.
 
 ---
 

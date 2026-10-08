@@ -82,7 +82,25 @@ export const NPC_DEFS = {
       outfit: "vest", outfitColor: "#c73e3a", legColor: "#2b2b33", legs: "pants", bootColor: "#2b2b33", gloves: "wraps", weapon: "none" }
   },
 
-  // ---- Act VII (for the next platform) ----
+  // ---- Guides of the campaign (each has a job: recaps, the sea, boss briefings, the Lantern's lore) ----
+  maren: {    // Archivist of the Chronicles (Barracks): recaps the story and says where to go next
+    look: { gloves: "none", legs: "skirt", boots: "shoes", body: "female", skin: "#f1c27d", eyes: "#4a3222", hairStyle: "bob", hairColor: "#c8ccd4", glasses: true,
+      outfit: "robe", outfitColor: "#2a4a5a", legColor: "#1e293b", bootColor: "#3a2616", weapon: "book" }
+  },
+  isolde: {   // Captain of the crewed ship (Cerulean Abyss, Lamenting Strand): the sea, the Seal Stones, the Monolith
+    look: { gloves: "leather", legs: "pants", boots: "boots", body: "female", skin: "#c68642", eyes: "#2f6db5", hairStyle: "ponytail", hairColor: "#2b1d14",
+      outfit: "coat", outfitColor: "#1e3a6a", legColor: "#e8e2d0", bootColor: "#2b1d14", headgear: "hat", weapon: "sword" }
+  },
+  veyra: {    // Half-demon scout (Dark Continent camps): briefs the hero on each boss before the fight
+    look: { gloves: "leather", legs: "pants", boots: "boots", body: "female", skin: "#9aa0a8", eyes: "#b3312b", hairStyle: "long", hairColor: "#1f1a24",
+      outfit: "vest", outfitColor: "#2b2b33", legColor: "#1f1a24", bootColor: "#141018", headgear: "horns", weapon: "bow", quiver: true }
+  },
+  aldric: {   // Last monk of the Order of the Lantern (Ossuary Fields): the Lantern Knight and the First War
+    look: { gloves: "none", legs: "pants", boots: "sandals", body: "male", skin: "#e0ac69", eyes: "#4a3222", hairStyle: "none", hairColor: "#c8ccd4", beard: true,
+      outfit: "robe", outfitColor: "#c9963a", legColor: "#8a6a2a", bootColor: "#5e3b1a", weapon: "staff" }
+  },
+
+  // ---- Act VII: the Whispering Canopy camp ----
   elvenMatriarch: {
     look: { ...base, body: "female", skin: "#f7d9c4", eyes: "#7a3fb0", hairStyle: "long", hairColor: "#dfe6ee", ears: "elf",
       outfit: "gown", outfitColor: "#2f6b4f", legColor: "#2f6b4f", headgear: "tiara", cape: "#e8e2d0", weapon: "staff" }

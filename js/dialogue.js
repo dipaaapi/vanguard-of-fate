@@ -15,8 +15,7 @@ const NAMES = {
     arthur: "Arthur \"Art\" Ramirez", lyra: "Lyra Vance", julian: "Dr. Julian Alcantara",
     sam: "Samantha \"Sam\" Chen", renzo: "Renzo \"Striker\" Cruz", elvenMatriarch: "Elven Matriarch",
     brakka: "Brakka Emberforge", hilde: "Hilde Rivetmend", durgrim: "Thane Durgrim Ashenhelm", pip: "Pip Gildbarrow",
-    eirene: "Eirene", cerynVoss: "Ceryn Voss", vaelThorn: "Vael Thorn", nimaFen: "Nima Fen", templar: "Dame Serelle", tidemarkTrader: "Mara of Tidemark",
-    selaMoss: "Sela Moss", taviReed: "Tavi Reed"
+    maren: "Archivist Maren", isolde: "Captain Isolde Wavecrest", veyra: "Veyra the Ashen Scout", aldric: "Brother Aldric of the Lantern"
   },
   fil: {
     aurelia: "Prinsesa Aurelia", kenneth: "Prinsipe Kenneth", king: "Ang Hari", royalGuard: "Bantay ng Hari",
@@ -24,8 +23,7 @@ const NAMES = {
     arthur: "Arthur \"Art\" Ramirez", lyra: "Lyra Vance", julian: "Dr. Julian Alcantara",
     sam: "Samantha \"Sam\" Chen", renzo: "Renzo \"Striker\" Cruz", elvenMatriarch: "Matriarka ng mga Elf",
     brakka: "Brakka Emberforge", hilde: "Hilde Rivetmend", durgrim: "Thane Durgrim Ashenhelm", pip: "Pip Gildbarrow",
-    eirene: "Eirene", cerynVoss: "Ceryn Voss", vaelThorn: "Vael Thorn", nimaFen: "Nima Fen", templar: "Dame Serelle", tidemarkTrader: "Mara ng Tidemark",
-    selaMoss: "Sela Moss", taviReed: "Tavi Reed"
+    maren: "Arkibista Maren", isolde: "Kapitana Isolde Wavecrest", veyra: "Veyra ang Abong Batyaw", aldric: "Kapatid na Aldric ng Lantern"
   }
 };
 
@@ -121,7 +119,7 @@ const LINES = {
     ],
     durgrimAgain: ["Emberhold stands. So long as it does, you have a home in the wastes."],
     pip: [
-      "Pip Gildbarrow, finest stall this side of the lava river! Shards, Oridecon, potions — fair prices, mostly.",
+      "Pip Gildbarrow, finest stall this side of the lava river! Shards, Void Crystals, potions — fair prices, mostly.",
       "Everything's hauled in by cart past the magma drakes, so don't haggle too hard."
     ],
     pipAgain: ["Back for more? Coin first, then goods!"],
@@ -180,7 +178,59 @@ const LINES = {
     mentorMine: ["You chose my path. Make it count, Commander."],
     mentorOther: ["Every path leads to the same enemy. Good luck, Commander."],
 
-    elvenMatriarch: ["The Whispering Canopy weeps black sap. When you come, come quickly."]
+    elvenMatriarch: ["The Whispering Canopy weeps black sap. Malakor was our eldest; now his roots drink the forest dry.",
+      "Strike his heartwood in the Heartwood Grove to the north, and the Sylvan Seal Stone will fall from it."],
+
+    // Archivist Maren: a recap of the current Act ({goal} = the objective right now)
+    marenHello: ["The Chronicles are open, champion of the Crown. Let me read you where your story stands."],
+    marenAct: [
+      "", "", "Act II: you woke on the summoning seal. The Barracks is your haven; Captain Ronald and Edgar keep it.",
+      "Act III: five souls crossed before you, one for each point of the Pentagram Seal. Meet them all.",
+      "Act IV: the Novice's Path. Grow strong on the plains, then kneel at the Citadel's altar for your Awakening.",
+      "Act V: the Dual Equipment Matrix. Your mentor will help you choose two hands or one and a shield.",
+      "Act VI: the Royal Covenant. The heir walks with you now, and the four Warp Gateways are open.",
+      "Act VII: the Whispering Canopy. Malakor the Blight Herald holds the Sylvan Seal Stone.",
+      "Act VIII: the Cerulean Abyss. The Leviathan Regent chains the Celestial Monolith.",
+      "Act IX: the Frostfang Precipice. Frost Empress Cryonix guards the Frost Seal Stone.",
+      "Act X: the Ashfall Wastelands. Ignis forges the Ember Seal Stone into the legion's armour.",
+      "Act XI: the Lamenting Strand. Across the Monolith's portal, Dolora gathers the grief of the dead.",
+      "Act XII: the Ossuary Fields, where the Lantern Knight fought three hundred years ago. Morgrave wears the Knight's Visor.",
+      "Act XIII: the Siege of the Obsidian Citadel. The King went ahead; the Demon Commander holds the throne.",
+      "Act XIV: the Chainspire Descent. Vorgath, the Chained Warden, keeps the key to the Maw.",
+      "Act XV: the Maw of Damnation. Satan waits at the heart of the inverted star."
+    ],
+    marenGoal: ["What the Chronicles ask of you now: {goal}."],
+    marenDone: ["The last page is written. The dawn is real. ...And yet I keep a blank book on my desk, champion. Stories like this rarely end where we think."],
+
+    // Captain Isolde: the ship, the Seal Stones and the Monolith
+    isoldeSeals: ["The Monolith out west won't wake for a ship's bell. It wants the four Seal Stones: Malakor's, the Leviathan's, Cryonix's and Ignis's.",
+      "Bring them aboard and I'll sail you right up to its face. Board at the pier on the south causeway."],
+    isoldeReady: ["All four stones? Then we sail. Steer for the Monolith in the western sea and set them on its runes.",
+      "When the portal opens, it'll carry you across to the Dark Continent. My fleet follows."],
+    isoldeStrand: ["My fleet's anchored off this black beach, and not one of my sailors will touch the tide pools.",
+      "Need to get home? The Return Gateway at the camp takes you to the Citadel. The Monolith's portal brings you back to the furthest shore you've reached."],
+
+    // Veyra: boss briefings on the Dark Continent
+    veyraDolora: ["Dolora never touches the ground. She drifts out of reach and blinks behind you, then throws cold fire.",
+      "When black drops fall around you, move before they land. Her wail is a cone: step out of it or lose your spells.",
+      "She took my mother's tears into one of those urns. Break her for me, {h}."],
+    veyraMorgrave: ["Morgrave marches like a siege tower, then lowers his head and charges in a straight line. You'll see the line first: get off it.",
+      "Bone lances rise in rows toward you. Sidestep, don't run backwards. Kill his legionnaires fast or they'll pin you."],
+    veyraCommander: ["The Commander fights like a soldier: a slam when you're close, fire when you're far, and troopers to fill the gaps.",
+      "The King is in that hall. Go."],
+    veyraVorgath: ["Vorgath can't leave the landing while his chains hold. His sweep is wide, his grab drags you in, and his slams send rings across the floor.",
+      "Cross the rings as they pass, don't outrun them. At half strength he tears the chains off. Then he hunts."],
+    veyraSatan: ["Satan uses everything: all seven blights, slams, miasma, fire, and his horrors.",
+      "I have nothing left to teach you, {h}. Only this: whatever he shows you down there, it's a lie."],
+    veyraDone: ["That one's finished. I've scouted the way ahead. When you're ready, so am I."],
+
+    // Brother Aldric: the Lantern Knight and the First War
+    aldric: ["Three hundred years I and my brothers have kept this cairn. I am the last.",
+      "Every race fought here. The Lantern Knight held them together, and when the seal was made, he did not walk away from it.",
+      "Morgrave was their warlord. Now the miasma has stood him up again, and he wears the Knight's Visor like a prize."],
+    aldricAfter: ["The Visor spoke. One dawn, one door home. The Knight never lived to see it.",
+      "And look at these carvings, older than the cairn, older than the Knight. A queen of sorrows, sealed beneath the world by a hero whose name has worn away.",
+      "Pray she sleeps, champion. Grief is a terrible thing to leave lying in the dark."]
   },
 
 
@@ -271,7 +321,7 @@ const LINES = {
     ],
     durgrimAgain: ["Nakatayo pa ang Emberhold. Hangga't nakatayo ito, may tahanan ka sa disyerto ng abo."],
     pip: [
-      "Pip Gildbarrow, pinakamagandang puwesto sa tabi ng ilog ng lava! Shard, Oridecon, potion — patas ang presyo, kadalasan.",
+      "Pip Gildbarrow, pinakamagandang puwesto sa tabi ng ilog ng lava! Shard, Kristal ng Void, potion — patas ang presyo, kadalasan.",
       "Lahat ay hinahakot sakay ng kariton, lampas sa mga magma drake, kaya huwag masyadong tumawad."
     ],
     pipAgain: ["Bumalik ka? Bayad muna, saka paninda!"],
@@ -330,7 +380,55 @@ const LINES = {
     mentorMine: ["Pinili mo ang aking landas. Pagbutihin mo, Commander."],
     mentorOther: ["Iisa lang ang kalaban sa dulo ng bawat landas. Good luck, Commander."],
 
-    elvenMatriarch: ["Lumuluha ng itim na dagta ang Whispering Canopy. Kapag darating ka, bilisan mo."]
+    elvenMatriarch: ["Lumuluha ng itim na dagta ang Whispering Canopy. Si Malakor ang aming pinakamatanda; ngayon, sinisipsip ng kanyang mga ugat ang buhay ng gubat.",
+      "Tamaan mo ang kanyang heartwood sa Heartwood Grove sa hilaga, at mahuhulog mula rito ang Sylvan Seal Stone."],
+
+    marenHello: ["Bukas ang mga Kronika, kampeon ng Korona. Hayaan mong basahin ko kung nasaan na ang iyong kuwento."],
+    marenAct: [
+      "", "", "Act II: nagising ka sa selyo ng pagtawag. Ang Barracks ang iyong kanlungan; binabantayan ito nina Kapitan Ronald at Edgar.",
+      "Act III: limang kaluluwa ang tumawid bago ka, isa sa bawat dulo ng Pentagram Seal. Kilalanin mo silang lahat.",
+      "Act IV: ang Landas ng Novice. Magpalakas ka sa kaparangan, saka lumuhod sa altar ng Citadel para sa iyong Awakening.",
+      "Act V: ang Dual Equipment Matrix. Tutulungan ka ng iyong mentor na pumili: dalawang kamay, o isa at kalasag.",
+      "Act VI: ang Maharlikang Tipan. Kasama mo na ang tagapagmana, at bukas na ang apat na Warp Gateway.",
+      "Act VII: ang Whispering Canopy. Hawak ni Malakor, ang Tagapagbalita ng Salot, ang Sylvan Seal Stone.",
+      "Act VIII: ang Cerulean Abyss. Ikinakadena ng Leviathan Regent ang Celestial Monolith.",
+      "Act IX: ang Gulod ng Frostfang. Binabantayan ni Frost Empress Cryonix ang Frost Seal Stone.",
+      "Act X: ang Ashfall Wastelands. Hinuhubog ni Ignis ang Ember Seal Stone sa baluti ng hukbo.",
+      "Act XI: ang Dalampasigan ng Panaghoy. Sa kabila ng lagusan ng Monolith, iniipon ni Dolora ang dalamhati ng mga patay.",
+      "Act XII: ang Kaparangan ng mga Buto, kung saan lumaban ang Lantern Knight tatlong daang taon na ang nakararaan. Suot ni Morgrave ang Visor ng Knight.",
+      "Act XIII: ang Pagkubkob sa Obsidian Citadel. Nauna ang Hari; hawak ng Heneral ng mga Demonyo ang trono.",
+      "Act XIV: ang Pagbaba sa Toreng Kadena. Nasa kay Vorgath, ang Nakakadenang Bantay, ang susi patungong Maw.",
+      "Act XV: ang Maw of Damnation. Naghihintay si Satan sa puso ng baligtad na bituin."
+    ],
+    marenGoal: ["Ang hinihingi sa iyo ngayon ng mga Kronika: {goal}."],
+    marenDone: ["Naisulat na ang huling pahina. Totoo ang bukang-liwayway. ...Pero may blangkong aklat pa rin sa aking mesa, kampeon. Bihirang magtapos ang ganitong kuwento kung saan natin inaakala."],
+
+    isoldeSeals: ["Hindi magigising ang Monolith sa kanluran sa kampana lang ng barko. Kailangan nito ang apat na Seal Stone: kay Malakor, sa Leviathan, kay Cryonix at kay Ignis.",
+      "Dalhin mo sila sa barko at ihahatid kita mismo sa harap nito. Sumakay ka sa pier sa timog na daanang bato."],
+    isoldeReady: ["Kumpleto na ang apat? Kung gayon, maglalayag tayo. Itimon mo sa Monolith sa kanlurang dagat at ilagay ang mga bato sa mga rune nito.",
+      "Pagbukas ng lagusan, dadalhin ka nito sa Dark Continent. Susunod ang aking plota."],
+    isoldeStrand: ["Nakadaong ang aking plota sa itim na dalampasigang ito, at walang marinerong gustong humawak sa mga lawa ng luha.",
+      "Gusto mong umuwi? Dadalhin ka ng Return Gateway sa kampo sa Citadel. Ibabalik ka naman ng lagusan ng Monolith sa pinakamalayong baybaying naabot mo."],
+
+    veyraDolora: ["Hindi kailanman tumatapak sa lupa si Dolora. Lumalayo siya, bigla siyang lumilitaw sa likod mo, saka nagbabato ng malamig na apoy.",
+      "Kapag may itim na patak na bumabagsak sa paligid mo, gumalaw ka bago lumapag. Hugis-pamaypay ang kanyang panaghoy: lumabas ka roon o mawawala ang iyong mga spell.",
+      "Kinuha niya ang mga luha ng aking ina at isinilid sa isa sa mga urnang iyon. Durugin mo siya para sa akin, {h}."],
+    veyraMorgrave: ["Nagmamartsa si Morgrave na parang siege tower, saka yumuyuko at sumusugod nang tuwid. Makikita mo muna ang linya: umalis ka roon.",
+      "Sumisibol nang pahanay ang mga sibat na buto patungo sa iyo. Umilag sa gilid, huwag umatras. Patayin agad ang kanyang mga lehiyonaryo o kukulungin ka nila."],
+    veyraCommander: ["Parang sundalo lumaban ang Heneral: bagsak kapag malapit ka, apoy kapag malayo, at mga trooper na pumupuno sa puwang.",
+      "Nasa bulwagang iyon ang Hari. Humayo ka."],
+    veyraVorgath: ["Hindi makaalis si Vorgath sa plataporma habang nakakadena siya. Malawak ang hampas niya, hinihila ka ng kanyang dakma, at naglalabas ng mga singsing sa sahig ang kanyang mga bagsak.",
+      "Tawirin ang mga singsing habang dumaraan, huwag takasan. Sa kalahati ng lakas, pinupunit niya ang mga kadena. Saka siya nangangaso."],
+    veyraSatan: ["Gagamitin ni Satan ang lahat: ang pitong sumpa, mga bagsak, miasma, apoy, at ang kanyang mga halimaw.",
+      "Wala na akong maituturo sa iyo, {h}. Ito na lang: anuman ang ipakita niya sa iyo roon, kasinungalingan iyon."],
+    veyraDone: ["Tapos na ang isang iyon. Nasuri ko na ang daan sa unahan. Kapag handa ka na, handa na rin ako."],
+
+    aldric: ["Tatlong daang taon naming binantayan ng aking mga kapatid ang buntong ito. Ako na lang ang natitira.",
+      "Lumaban dito ang bawat lahi. Pinagbuklod sila ng Lantern Knight, at nang mabuo ang selyo, hindi siya umalis dito.",
+      "Si Morgrave ang kanilang panginoong-digma. Ngayon, muli siyang itinayo ng miasma, at suot niya ang Visor ng Knight na parang gantimpala."],
+    aldricAfter: ["Nagsalita ang Visor. Isang liwayway, isang pinto pauwi. Hindi na iyon inabot ng Knight.",
+      "At tingnan mo ang mga ukit na ito, mas matanda pa sa bunton, mas matanda pa sa Knight. Isang reyna ng pighati, ikinulong sa ilalim ng mundo ng isang bayaning nabura na ang pangalan.",
+      "Ipagdasal mong natutulog pa siya, kampeon. Kakila-kilabot ang dalamhating iniiwan sa dilim."]
   }
 };
 
@@ -376,6 +474,18 @@ export function getDialogue(id, ctx) {
     return { lines: step >= 5 ? L("kingLater", ctx) : L("kingEarly", ctx), action: null };
   }
   if (id === "royalGuard") return { lines: step >= 5 ? L("guardLater", ctx) : L("guardEarly", ctx), action: null };
+
+  // Archivist Maren: a recap of the current Act and the objective right now (ctx.act, ctx.goal from main.js)
+  if (id === "maren") {
+    if (ctx.done) return { lines: L("marenDone", ctx), action: null };
+    const acts = L("marenAct", ctx);
+    return { lines: [...L("marenHello", ctx), acts[ctx.act] || acts[acts.length - 1], ...L("marenGoal", ctx).map((s) => s.replace("{goal}", ctx.goal || ""))].filter(Boolean), action: null };
+  }
+  // Captain Isolde: the Seal Stones and the Monolith, then the Dark Continent shore
+  if (id === "isolde") return { lines: L(ctx.place === "strand" ? "isoldeStrand" : ctx.sealsReady ? "isoldeReady" : "isoldeSeals", ctx), action: null };
+  // Veyra: briefs the hero on the boss of the camp she stands in
+  if (id === "veyra") return { lines: L(ctx.cleared ? "veyraDone" : `veyra${(ctx.boss || "").replace(/^./, (c) => c.toUpperCase())}`, ctx), action: null };
+  if (id === "aldric") return { lines: L(ctx.cleared ? "aldricAfter" : "aldric", ctx), action: null };
 
   if (id === "ronald") return { lines: ctx.met.ronald ? L("ronaldAgain", ctx) : L("ronaldFirst", ctx), action: "merc" };
   if (id === "edgar") return { lines: ctx.met.edgar ? L("edgarAgain", ctx) : L("edgarFirst", ctx), action: "shop" };

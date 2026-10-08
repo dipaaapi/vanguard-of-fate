@@ -260,14 +260,17 @@ export class Bag {
   // Use the consumable at index i
   use(i, player, fx) {
     const item = this.itemAt(i);
-    if (!item || item.type !== "consume" || !item.effect) return "";
+    if (!item || !item.effect) return "";
+    // Scroll of Callings: opens the job change (main.js sets onJobScroll); not used up
+    if (item.effect.jobScroll) { if (this.onJobScroll) this.onJobScroll(); return ""; }
+    if (item.type !== "consume") return "";
     const e = item.effect;
     const pop = (text, color) => { if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(player.x + 10, player.y - 6, text, true, color); };
     if (e.cure && !(player.hasAnyDebuff && player.hasAnyDebuff())) { pop("NO BLIGHT", "#94a3b8"); return ""; }
     if (e.heal && !e.resetSkill && player.hp >= player.maxHp) { pop("HP FULL", "#94a3b8"); return ""; }
     // Every healing item shares one cooldown (2.5s), auto-potion included
     if (e.heal && player.potionCd > 0) { pop("WAIT", "#94a3b8"); return ""; }
-    // The Yggdrasil Leaf cannot refresh a skill while a boss is engaged
+    // Astraea's Leaf cannot refresh a skill while a boss is engaged
     if (e.resetSkill && player.bossFight && player.hp >= player.maxHp) { pop("STIFLED", "#a855f7"); return ""; }
 
     if (e.heal) { player.hp = Math.min(player.maxHp, player.hp + Math.max(e.heal, Math.round(player.maxHp * (e.healPct || 0)))); player.potionCd = POTION_CD; }

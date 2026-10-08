@@ -1,8 +1,8 @@
 // Act I — The Sundered Dominion of Aethelgard
 // The King and the Crown Heir watch the Eclipse of the Abyss from a ridge above the plains: the
 // white Imperial Citadel still stands, but the valley floor has split and Void Miasma pours out.
-export function paint(P, { R, K, S }) {
-  const { hex, eclipse, clouds, ridgeFn, ridge, castle, fogBand, oak, stars, mixC, dith, fbm, clamp, groundTex, stand, rimLight } = K;
+export async function paint(P, { R, K, S }) {
+  const { hex, eclipse, clouds, ridgeFn, ridge, fogBand, oak, stars, mixC, dith, fbm, clamp, groundTex, stand, rimLight } = K;
 
   // Sky: azure on the left giving way to amethyst and black under the eclipse
   const skyStops = [[0, hex("#8cc0ec")], [0.3, hex("#5f7cc8")], [0.55, hex("#5b3e9a")], [0.78, hex("#2c1650")], [1, hex("#0d0618")]];
@@ -22,7 +22,7 @@ export function paint(P, { R, K, S }) {
   ridge(P, mid, groundTex(["#9bc46a", "#6fa452", "#5a8f48", "#4a7a40", "#3d6838"], { seed: 3, depth: 40, strokes: false }));
   const hillTop = (x) => mid(x) - Math.max(0, 22 - Math.abs(x - 132) * 0.28);
   ridge(P, hillTop, groundTex(["#a9d074", "#7cb257", "#64994b", "#527f42", "#466f3b"], { seed: 8, depth: 30, strokes: false }));
-  castle(P, 132, hillTop(132) + 2, { scale: 0.58, style: "imperial", seed: 9, glow: true });
+  P.blit(await S.zone("castle", 0, 210), 132 - 56, hillTop(132) + 2 - 74, { scale: 0.35 });
 
   // Valley floor: green on the left, blighted to grey-violet toward the eclipse
   const valley = (x) => 166 + K.fbm1(x * 0.02, 8) * 3;

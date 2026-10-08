@@ -1,4 +1,4 @@
-// Act XI — The Siege of the Obsidian Citadel & The Broken Gates
+// Act XIII — The Siege of the Obsidian Citadel & The Broken Gates (was Act XI before Book I grew to 15 Acts)
 // The Dark Continent: Satan's black basalt fortress under a blood-red sky. The Vanguard's ships
 // crowd the Obsidian Harbor, the outer gates are breached, and shock troopers pour into the gap.
 export function paint(P, { R, K, S }) {

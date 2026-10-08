@@ -97,7 +97,7 @@ const PIECE = {
 };
 const BONUS = {
   str: (t) => ({ 2: { str: t + 1, def: 3 * t }, 4: { atk: 2 * t, hp: 20 * t }, 6: { str: 2 * t + 1, vit: 2 * t } }),
-  dex: (t) => ({ 2: { dex: t + 1, atk: 3 * t, def: 2 * t }, 4: { atk: 2 * t, crit: 2 + t }, 6: { dex: 2 * t + 1, agi: 2 * t, spd: 0.05 } }),
+  dex: (t) => ({ 2: { dex: t + 1, atk: 3 * t, def: 2 * t }, 4: { atk: 2 * t, crit: 2 + t, hp: 15 * t }, 6: { dex: 2 * t + 1, agi: 2 * t, spd: 0.05 } }),
   int: (t) => ({ 2: { int: t + 1, cdr: 1 + t, def: 2 * t }, 4: { atk: 2 * t, hp: 15 * t }, 6: { int: 2 * t + 1, luk: 2 * t } })
 };
 const SKILL = {

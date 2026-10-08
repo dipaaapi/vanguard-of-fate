@@ -1,0 +1,15 @@
+{
+  "_comment": "Lore tips shown on the portal loading screen (js/loading.js). Canon: .claude/skills/lore/SKILL.md.",
+  "entering": { "en": "ENTERING", "fil": "PAPASOK SA" },
+  "tips": [
+    { "en": "The Pentagram Prophecy calls five souls to the points of the star, and a sixth to its heart.", "fil": "Tinatawag ng Propesiya ng Pentagram ang limang kaluluwa sa mga dulo ng bituin, at ang ikaanim sa puso nito." },
+    { "en": "Three centuries ago the Lantern Knight sealed Satan with four Seal Stones and their own life.", "fil": "Tatlong siglo na ang nakaraan, ikinulong ng Lantern Knight si Satan gamit ang apat na Seal Stone at ang sarili nilang buhay." },
+    { "en": "The bosses of Acts VII to X guard the Seal Stones that wake the Celestial Monolith.", "fil": "Binabantayan ng mga boss ng Act VII hanggang X ang mga Seal Stone na gigising sa Celestial Monolith." },
+    { "en": "Only summoned souls can read the Covenant Ledger. Press C to open it.", "fil": "Ang mga tinawag na kaluluwa lamang ang nakababasa ng Covenant Ledger. Pindutin ang C para buksan ito." },
+    { "en": "Satan's Void Miasma spreads the Seven Anomaly Blights. Edgar the Apothecary sells the cures.", "fil": "Ikinakalat ng Void Miasma ni Satan ang Pitong Anomaly Blight. Nagbebenta ng lunas si Edgar na Apothecary." },
+    { "en": "Luck favors the summoned: LUK raises both your critical chance and critical damage.", "fil": "Pinapaboran ng suwerte ang tinawag: itinataas ng LUK ang tsansa at lakas ng iyong critical hit." },
+    { "en": "Night thickens the Miasma: more monsters prowl, and they hunt in larger numbers.", "fil": "Lumalapot ang Miasma sa gabi: mas maraming halimaw ang gumagala at mas marami silang nangangaso." },
+    { "en": "Satan's five bosses are his Heralds, an inverted star set against the Prophecy.", "fil": "Ang limang boss ni Satan ay ang kanyang mga Herald, isang baligtad na bituin laban sa Propesiya." },
+    { "en": "Your progress saves itself every half minute, and whenever you travel.", "fil": "Kusang nai-save ang iyong progreso bawat kalahating minuto, at tuwing ikaw ay maglalakbay." }
+  ]
+}

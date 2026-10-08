@@ -57,7 +57,8 @@ export class FXManager {
       x: x + (Math.random() * 8 - 4),
       y: y - 4,
       text: text,
-      color: color || (isCrit ? "#ffea00" : "#ffffff"),
+      color: color || (isCrit ? "#ff9f1c" : "#ffffff"),
+      label: isCrit && typeof text === "number" ? "CRIT!" : null,
       alpha: 1.0,
       vy: isCrit ? -1.3 : -0.85,
       scale: isCrit ? 1.8 : 1.25,  // pops in big, then settles
@@ -279,6 +280,13 @@ export class FXManager {
       ctx.fillText(pop.text, pop.x - 1, pop.y - 1);
       ctx.fillStyle = pop.color;
       ctx.fillText(pop.text, pop.x, pop.y);
+      if (pop.label) {
+        ctx.font = "bold 6px monospace";
+        ctx.fillStyle = "#000000";
+        ctx.fillText(pop.label, pop.x + 1, pop.y - 8);
+        ctx.fillStyle = "#ffea00";
+        ctx.fillText(pop.label, pop.x, pop.y - 9);
+      }
       ctx.restore();
 
       if (pop.alpha <= 0) this.damagePopups.splice(d, 1);

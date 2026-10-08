@@ -1,6 +1,7 @@
 // Relics and sigils — 32×32 item art for story objects that have no in-game icon yet: the four
 // Seal Stones, the Lantern, the Imperial Crest, the Covenant Ledger, the Oblivion Mushroom, the five
-// discipline sigils and the Heralds' inverted star. Transparent background, 1-px dark outline.
+// discipline sigils, the Heralds' inverted star, and the Dark Continent quest items (Urn of Black Tears,
+// Lantern Knight's Visor, Warden's Key). Transparent background, 1-px dark outline.
 export function paint(P, { K, arg }) {
   const { hex, shadeC, mixC, outlined, starShape, DISCIPLINE } = K;
   const gem = (L, base, rune) => {
@@ -46,7 +47,25 @@ export function paint(P, { K, arg }) {
       L.disc(16, 16, 13, hex("#2a0408")); L.ring(16, 16, 13, 13, hex("#ff3b3b"));
       const pts = []; for (let i = 0; i < 5; i++) { const a = Math.PI / 2 + (i * Math.PI * 2) / 5; pts.push([16 + Math.cos(a) * 11, 16 + Math.sin(a) * 11]); }
       for (let i = 0; i < 5; i++) L.line(pts[i][0], pts[i][1], pts[(i + 2) % 5][0], pts[(i + 2) % 5][1], hex("#ff5a3a"));
-      L.disc(16, 16, 2, hex("#c084fc")); }); }
+      L.disc(16, 16, 2, hex("#c084fc")); }); },
+    tearUrn: () => { outlined(P, (L) => {   // Act XI: black urn of gathered grief, silver bands, a tear welling at the lip
+      L.poly([[11, 9], [21, 9], [25, 16], [24, 23], [20, 28], [12, 28], [8, 23], [7, 16]], (x) => (x < 12 ? hex("#3a3450") : x > 21 ? hex("#0c0a14") : hex("#1c1828")));
+      L.rect(12, 5, 8, 4, hex("#1c1828")); L.rect(10, 4, 12, 2, hex("#c8cde0")); L.hline(11, 20, 9, hex("#9aa0b8"));
+      L.hline(8, 24, 15, hex("#c8cde0")); L.hline(8, 24, 23, hex("#9aa0b8")); L.rect(12, 28, 8, 2, hex("#9aa0b8"));
+      for (const [x, y] of [[12, 18], [16, 19], [20, 18]]) { L.set(x, y, hex("#a5b4fc")); L.set(x, y + 1, hex("#6366f1")); }
+      L.disc(16, 2, 1.5, hex("#05030a")); L.set(16, 1, hex("#a5b4fc")); L.set(9, 17, hex("#8a84a8")); L.set(9, 18, hex("#8a84a8")); }); },
+    lanternVisor: () => { outlined(P, (L) => {   // Act XII: the Lantern Knight's gilded visor, its slits shaped like a lantern's window
+      L.poly([[6, 10], [16, 4], [26, 10], [27, 20], [22, 27], [10, 27], [5, 20]], (x, y) => (x < 13 ? hex("#f0c860") : x > 21 ? hex("#8a6420") : hex("#d4a73a")));
+      L.rect(9, 13, 14, 6, hex("#2a1a08")); L.vline(16, 13, 18, hex("#d4a73a")); L.hline(9, 22, 15, hex("#d4a73a"));
+      L.rect(10, 14, 5, 1, hex("#fff1c4")); L.rect(17, 14, 5, 1, hex("#fff1c4")); L.rect(10, 16, 5, 2, hex("#ffb347")); L.rect(17, 16, 5, 2, hex("#ffb347"));
+      L.ring(16, 4, 2, 2, hex("#8a6420")); L.hline(7, 25, 10, hex("#fde68a"));
+      for (let x = 11; x <= 21; x += 2) L.set(x, 23, hex("#8a6420")); L.vline(16, 20, 26, hex("#fde68a")); }); },
+    wardensKey: () => { outlined(P, (L) => {   // Act XIV: Vorgath's iron key, a broken chain link and a furnace-red gem in the bow
+      L.ring(11, 10, 7, 7, hex("#5a5462"), 3); L.ring(11, 10, 7, 7, hex("#9a94a6"), 1);
+      L.disc(11, 10, 2, hex("#e11d48")); L.set(10, 9, hex("#ffb3c1"));
+      L.thick(15, 14, 27, 26, 3, hex("#4e4858")); L.line(15, 13, 27, 25, hex("#9a94a6"));
+      L.rect(21, 25, 3, 4, hex("#4e4858")); L.rect(24, 22, 4, 3, hex("#4e4858")); L.set(22, 27, hex("#9a94a6"));
+      L.ring(4, 24, 2, 3, hex("#6b6470"), 1); L.ring(7, 28, 2, 2, hex("#6b6470"), 1); L.line(5, 18, 4, 21, hex("#6b6470")); }); }
   };
   draws[arg]();
   void mixC;

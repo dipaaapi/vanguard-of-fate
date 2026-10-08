@@ -410,11 +410,13 @@ export class TitleScene {
 
     add("h4", "", t("credInspired"));
     const ins = add("ul");
-    ["Ragnarok Online", "Diablo II", t("credIsekai")].forEach((name) => {
+    [t("credMmo"), t("credArpg"), t("credIsekai")].forEach((name) => {
       const li = document.createElement("li");
       li.textContent = name;
       ins.appendChild(li);
     });
+
+    add("p", "cr-role", t("credDisclaimer"));
 
     add("h4", "", t("credLang"));
     add("p", "cr-role", "English · Filipino");

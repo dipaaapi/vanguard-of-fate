@@ -1,0 +1,155 @@
+{
+ "frames": [
+  {
+   "filename": "ash 0.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 220
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 220
+   },
+   "sourceSize": {
+    "w": 320,
+    "h": 220
+   },
+   "duration": 120
+  },
+  {
+   "filename": "ash 1.aseprite",
+   "frame": {
+    "x": 320,
+    "y": 0,
+    "w": 320,
+    "h": 220
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 220
+   },
+   "sourceSize": {
+    "w": 320,
+    "h": 220
+   },
+   "duration": 120
+  },
+  {
+   "filename": "ash 2.aseprite",
+   "frame": {
+    "x": 640,
+    "y": 0,
+    "w": 320,
+    "h": 220
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 220
+   },
+   "sourceSize": {
+    "w": 320,
+    "h": 220
+   },
+   "duration": 120
+  },
+  {
+   "filename": "ash 3.aseprite",
+   "frame": {
+    "x": 960,
+    "y": 0,
+    "w": 320,
+    "h": 220
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 220
+   },
+   "sourceSize": {
+    "w": 320,
+    "h": 220
+   },
+   "duration": 120
+  },
+  {
+   "filename": "ash 4.aseprite",
+   "frame": {
+    "x": 1280,
+    "y": 0,
+    "w": 320,
+    "h": 220
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 220
+   },
+   "sourceSize": {
+    "w": 320,
+    "h": 220
+   },
+   "duration": 120
+  },
+  {
+   "filename": "ash 5.aseprite",
+   "frame": {
+    "x": 1600,
+    "y": 0,
+    "w": 320,
+    "h": 220
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 320,
+    "h": 220
+   },
+   "sourceSize": {
+    "w": 320,
+    "h": 220
+   },
+   "duration": 120
+  }
+ ],
+ "meta": {
+  "app": "tools/aseprite/asefile.mjs",
+  "image": "ash.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 1920,
+   "h": 220
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "down-idle",
+    "from": 0,
+    "to": 5,
+    "direction": "forward",
+    "color": "#000000ff"
+   }
+  ]
+ }
+}

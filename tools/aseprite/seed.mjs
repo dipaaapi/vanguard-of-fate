@@ -9,7 +9,8 @@
  * One tag per direction + animation ("down-idle", "side-walk", "up-attack", …), canvas = the code
  * sprite's size. Edit it in Aseprite, then run tools/aseprite/export.mjs.
  */
-import { SRC_DIR, codeSprite, findAseprite, writePng } from "./lib.mjs";
+import { SRC_DIR, codeSprite, tryAseprite, writePng } from "./lib.mjs";
+import { writeAse } from "./asefile.mjs";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -34,14 +35,16 @@ if (fs.existsSync(out) && !force) {
 }
 
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "vof-seed-"));
-const tags = [];
+const tags = [], node = [];   // node: frames for the Node writer when Aseprite isn't installed
 let n = 0;
 for (const dir of ["down", "side", "up"]) {
   for (const [anim, count] of Object.entries(sprite.frames)) {
     const from = n;
     for (let i = 0; i < count; i++) {
       const c = sprite.frame(dir, anim, i);
-      writePng(path.join(tmp, `f${n++}.png`), c.width, c.height, c._rgba || new Uint8ClampedArray(c.width * c.height * 4));
+      const rgba = c._rgba || new Uint8ClampedArray(c.width * c.height * 4);
+      writePng(path.join(tmp, `f${n++}.png`), c.width, c.height, rgba);
+      node.push({ rgba, duration: 0.15 });
     }
     tags.push(`${dir}-${anim}:${from}:${n - 1}`);
   }
@@ -49,7 +52,9 @@ for (const dir of ["down", "side", "up"]) {
 
 fs.mkdirSync(path.dirname(out), { recursive: true });
 const params = { dir: tmp, n, w: sprite.w, h: sprite.h, tags: tags.join(";"), out };
-execFileSync(findAseprite(), ["-b", ...Object.entries(params).flatMap(([k, v]) => ["--script-param", `${k}=${v}`]),
+const exe = tryAseprite();
+if (exe) execFileSync(exe, ["-b", ...Object.entries(params).flatMap(([k, v]) => ["--script-param", `${k}=${v}`]),
   "--script", fileURLToPath(new URL("seed.lua", import.meta.url))], { stdio: "inherit" });
+else writeAse(out, { w: sprite.w, h: sprite.h, frames: node, tags: tags.map((t) => { const [name, from, to] = t.split(":"); return { name, from: +from, to: +to }; }) });
 fs.rmSync(tmp, { recursive: true, force: true });
 console.log(`${path.relative(process.cwd(), out)}  (${sprite.w}×${sprite.h}, ${n} frames, ${tags.length} tags)`);

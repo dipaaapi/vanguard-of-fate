@@ -10,11 +10,11 @@ export const PriestClass = {
   title: "Holy Shepherd",
   speed: 1.4,
   maxHp: 110,
-  attackCooldown: 25,
+  attackCooldown: 120,
   cooldown: 180, // Cooldown of K (Summon)
   range: 200,
 
-  // KEY J: PRIORITY HEAL (Priest: 10% HP | Angel: +5 HP at +180 ticks Lifespan)
+  // KEY J: PRIORITY HEAL, once every 2 s (Priest: 8% HP | Angel: +5 HP at +180 ticks Lifespan)
   onAttack(player, target, spawnSpell) {
     if (!player.angels) player.angels = [];
 
@@ -32,7 +32,7 @@ export const PriestClass = {
     candidates.sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp));
     const chosen = candidates[0];
 
-    const healAmount = Math.round((chosen.isAngel ? 5 : player.maxHp * 0.10) * (player.healMult || 1) * ((player.timeMods && player.timeMods.heal) || 1));
+    const healAmount = Math.round((chosen.isAngel ? 5 : player.maxHp * 0.08) * (player.healMult || 1) * ((player.timeMods && player.timeMods.heal) || 1));
     chosen.entity.hp = Math.min(chosen.maxHp, chosen.entity.hp + healAmount);
 
     if (chosen.isAngel) {

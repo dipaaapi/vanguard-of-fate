@@ -200,9 +200,13 @@ export class LootManager {
       const dist = Math.hypot(dx, dy);
 
       if (dist < pickupMagnetRadius) {
+        // Pulled toward the hero, but never through a tree, a rock, water or a wall: it slides
+        // along the obstacle, or waits on its side until the hero walks around
         const pullSpeed = Math.min(6.5, 2.5 + (1 - dist / pickupMagnetRadius) * 5.0);
-        item.x += (dx / dist) * pullSpeed;
-        item.y += (dy / dist) * pullSpeed;
+        const nx = item.x + (dx / dist) * pullSpeed, ny = item.y + (dy / dist) * pullSpeed;
+        if (dist < collectRadius + pullSpeed || !isObstacle(nx, ny, stage)) { item.x = nx; item.y = ny; }
+        else if (!isObstacle(nx, item.y, stage)) item.x = nx;
+        else if (!isObstacle(item.x, ny, stage)) item.y = ny;
       }
 
       if (dist < collectRadius) {
@@ -242,7 +246,9 @@ export class LootManager {
   }
 
   draw(ctx) {
+    const cam = this.camera;   // set by main.js: off-screen drops are not drawn
     this.items.forEach((item) => {
+      if (cam && !cam.isVisible(item.x - 8, item.y - 8, 16, 16)) return;
       const hoverY = item.y + Math.sin(item.bobTimer) * 3;
 
       if (GFX.shadows) { ctx.fillStyle = "rgba(10, 14, 20, 0.35)"; ctx.beginPath(); ctx.ellipse(item.x, item.y + 6, 4, 1.5, 0, 0, Math.PI * 2); ctx.fill(); }

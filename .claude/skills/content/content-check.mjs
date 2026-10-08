@@ -146,7 +146,7 @@ setLang("en");
 const placedSrc = fs.readFileSync(path.join(ROOT, "js/npc/npcs.js"), "utf8");
 const villagers = new Set(Object.values(PLATFORMS).flatMap((p) => Object.keys(p.villagers || {})));
 for (const id of Object.keys(NPC_DEFS)) {
-  if (!villagers.has(id) && !new RegExp(`new NPC\\("${id}"`).test(placedSrc) && !["aurelia", "kenneth"].includes(id)) note(`NPC ${id}: never placed in the world (NPCManager.build or a platform's villagers)`);
+  if (!villagers.has(id) && !new RegExp(`(new NPC|post)\\("${id}"`).test(placedSrc) && !["aurelia", "kenneth"].includes(id)) note(`NPC ${id}: never placed in the world (NPCManager.build or a platform's villagers)`);
 }
 for (const [cls, id] of Object.entries(MENTOR_BY_CLASS)) if (!NPC_DEFS[id]) bad(`MENTOR_BY_CLASS.${cls}: unknown NPC "${id}"`);
 

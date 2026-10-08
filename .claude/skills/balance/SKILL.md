@@ -31,6 +31,7 @@ Areas: `hub`, `canopy`, `coast`, `frost`, `ash`, `siege`, `maw`.
 - **Fights/life**: TTD ÷ TTK. Above ~3 is comfortable; under 1 the hero loses a straight 1 v 1. The **class spread** line under each table is the fairness number: how many times safer the best class is than the worst.
 - **Kills/Lv**: same-level normal kills for the next level (`expFor` vs `EnemyManager.kill`).
 - **Boss TTK / hits to die**: the Act boss 1 v 1 (patterns, hazards and summons not simulated).
+- **Life bars** (line under each heading): how many stacked HP bars normal / champion / elite / boss monsters have in that band (`livesFor` in `js/monsterTiers.js`). Bars split the same total HP (bosses +6% per extra bar, `BOSS_HP_PER_BAR`), so TTK counts every bar; regen only refills the current bar, and each broken bar staggers a non-boss for 12 frames (not simulated).
 
 Modelled: Priest guardian angels (DPS) and J heal (survival; TTD ∞ when heals outpace damage), Archer quiver reload and the falcon dive, crafted sets with their skill boosts, familiars with `--familiar`.
 

@@ -1,0 +1,44 @@
+/* ==================== REGRESSION MODAL (js/regression.js) ====================
+   End of Book I: Continue, or Regress one difficulty harder (save + download first). */
+#regression { display: none; }
+#regression.open {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: radial-gradient(circle at 50% 40%, rgba(88, 28, 135, 0.45), rgba(3, 6, 17, 0.92) 70%);
+  font-family: var(--ui-font, "Consolas", monospace);
+  color: #e2e8f0;
+}
+.rg-box {
+  width: min(620px, 100%);
+  padding: 26px 28px 22px;
+  text-align: center;
+  background: linear-gradient(#141a2b, #0a0e1a);
+  border: 2px solid #c9a063;
+  border-radius: 8px;
+  box-shadow: 0 0 40px rgba(201, 160, 99, 0.35), 0 0 0 1px #0b1020 inset;
+}
+.rg-box h2 { margin: 6px 0 10px; font: bold 26px "Cinzel", Georgia, serif; color: #ffd166; letter-spacing: 0.06em; }
+.rg-box p { margin: 0 0 18px; font-size: 15px; line-height: 1.55; color: #cbd5e1; }
+.rg-crest { font-size: 40px; color: #fde68a; text-shadow: 0 0 18px #c084fc; }
+.rg-crest.spin { display: inline-block; animation: rg-spin 1.2s linear infinite; margin-bottom: 10px; }
+@keyframes rg-spin { to { transform: rotate(360deg); } }
+.rg-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.rg-btn {
+  min-height: 44px;
+  padding: 8px 16px;
+  font: bold 14px var(--ui-font, monospace);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #f1f5f9;
+  background: linear-gradient(#273246, #151c2b);
+  border: 2px solid #b08a3a;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.rg-btn:hover { border-color: #ffd166; }
+.rg-btn.primary { background: linear-gradient(#5b2a86, #34175a); border-color: #c084fc; box-shadow: 0 0 12px rgba(192, 132, 252, 0.45); }
+.rg-note { color: #fde68a; }

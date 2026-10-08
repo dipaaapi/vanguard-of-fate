@@ -2,7 +2,7 @@ import { PLATFORMS, PLATFORM_ORDER } from "./platforms.js";
 import { FRONTIERS, FRONTIER_ORDER } from "./frontiers.js";
 
 // ==================== AREAS: every map of Book I in one table ====================
-// hub (the plains of Aethelgard), the six campaign platforms (Acts VII–XII) and the four frontier maps.
+// hub (the plains of Aethelgard), the nine campaign platforms (Acts VII–XV) and the four frontier maps.
 // Each has: name, monsters (5 regular kinds), elites (4 elite-only kinds), sites (places to scout),
 // a level band and the Acts whose side quests can send the hero there (js/sidequest.js).
 

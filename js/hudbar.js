@@ -14,7 +14,7 @@ export class HudBar {
     const $ = (id) => document.getElementById(id);
     this.el = {
       initial: $("hbInitial"), name: $("hbName"), cls: $("hbClass"), level: $("hbLevel"),
-      hp: $("hbHp"), hpText: $("hbHpText"), xp: $("hbXp"), gold: $("hbGold"),
+      hp: $("hbHp"), hpTrail: $("hbHpTrail"), hpText: $("hbHpText"), xp: $("hbXp"), xpText: $("hbXpText"), gold: $("hbGold"),
       st: $("hbSt"), stBox: $("hbStBox"), status: $("hbStatus"),
       foesK: $("hbFoesK"), foes: $("hbFoes"), lootK: $("hbLootK"), loot: $("hbLoot"),
       weather: $("hbWeather"), zone: $("hbZone"),
@@ -63,16 +63,20 @@ export class HudBar {
     const displayName = (p.heroName || p.heroData.name || "").toUpperCase();
     this.set("initial", e.initial, (displayName[0] || "?"));
     this.set("name", e.name, displayName);
-    this.set("cls", e.cls, p.heroData.name);
+    // A Novice's heroData.name is the hero's own name, so show the class instead
+    const cls = p.heroData.id === "novice" ? "Novice" : p.heroData.name;
+    this.set("cls", e.cls, s.difficulty ? `${cls} · ${s.difficulty}` : cls);   // Regression difficulty (above Easy)
     this.set("level", e.level, `LV.${p.level}`);
 
     const hpRatio = Math.max(0, Math.min(1, p.hp / p.maxHp));
-    this.set("hp", e.hp, `${Math.round(hpRatio * 100)}%`, "width");
+    const hpW = `${(hpRatio * 100).toFixed(1)}%`;
+    this.set("hp", e.hp, hpW, "width");
+    this.set("hpTrail", e.hpTrail, hpW, "width");   // CSS delays the trail, so lost HP flashes white
     this.set("hpCls", e.hp, hpRatio > 0.5 ? "" : hpRatio > 0.25 ? "mid" : "low", "className");
     this.set("hpText", e.hpText, `${Math.max(0, Math.ceil(p.hp))} / ${p.maxHp}`);
     // Stamina (sprint); flashes red when exhausted
     const stRatio = Math.max(0, Math.min(1, p.stamina / p.maxStamina));
-    this.set("st", e.st, `${Math.round(stRatio * 100)}%`, "width");
+    this.set("st", e.st, `${(stRatio * 100).toFixed(1)}%`, "width");
     this.set("stCls", e.stBox, p.exhausted ? "hb-meter st tired" : "hb-meter st", "className");
     // Active blights with the seconds left
     const active = STATUS_KEYS.filter((k) => p.debuffs[k] > 0);
@@ -88,7 +92,8 @@ export class HudBar {
       });
     }
     const xpRatio = Math.max(0, Math.min(1, p.exp / p.expNext));
-    this.set("xp", e.xp, `${Math.round(xpRatio * 100)}%`, "width");
+    this.set("xp", e.xp, `${(xpRatio * 100).toFixed(1)}%`, "width");
+    this.set("xpText", e.xpText, `EXP ${(xpRatio * 100).toFixed(1)}%`);
     this.set("gold", e.gold, `🪙 ${p.gold}G`);
 
     this.set("foes", e.foes, String(s.foes));

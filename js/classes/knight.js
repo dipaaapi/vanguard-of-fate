@@ -35,7 +35,7 @@ export const KnightClass = {
     return true;
   },
 
-  // KEY L: Brandish Spear — a wide sweep in front (strong, slow)
+  // KEY L: Crescent Sweep — a wide sweep in front (strong, slow)
   cooldown2: 240,
   onSkill2(player, target, spawnProjectile) {
     const angle = player.aimAngle;

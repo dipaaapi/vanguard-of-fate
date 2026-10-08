@@ -8,37 +8,36 @@ import { codexItems, getItem, statText, skillText, slotName, SETS, setThresholds
 import { iconURL } from "./items/icons.js";
 import { elementName, raceName, sizeName, ELEMENTS } from "./elements.js";
 import { statusName } from "./status.js";
+import { livesFor } from "./monsterTiers.js";
 import { Avatar } from "./avatar/avatar.js";
-import { PLAYABLES, PLAYABLE_IDS } from "./playables.js";
 
-// ==================== CODEX (N) ====================
-// An in-game encyclopedia: NPCs · Monsters & MVPs · Weapons · Equipment · Accessories · Others
+// ==================== CODEX (N): data and detail panels ====================
+// The encyclopedia's content: NPCs · Monsters & MVPs · Weapons · Equipment · Accessories · Others
 // (consumables, upgrade materials, cards, quest items). NPCs are revealed once met and monsters once
 // defeated (the rest show as "???", so later Acts are not spoiled); the item lists are a full reference.
-// Progress (kills per monster, NPCs met) is saved with the game. The game is paused while it is open.
+// Progress (kills per monster, NPCs met) is saved with the game. It is shown by the Codex scene
+// (js/scenes/codexScene.js), which also serves the Character Creator and the Job Awakening.
 
 const L = () => (getLang() === "fil" ? "fil" : "en");
 const TEXT = {
   en: {
     title: "Codex", unknown: "???", undiscovered: "Not yet discovered.", kills: "Defeated", habitat: "Habitat",
-    element: "Element", race: "Race", size: "Size", hp: "HP", dmg: "Damage", blight: "Inflicts", drop: "Drops", arena: "Lair",
+    element: "Element", race: "Race", size: "Size", hp: "HP", lives: "Life bars", dmg: "Damage", blight: "Inflicts", drop: "Drops", arena: "Lair",
     night: "Night only", role: "Role", where: "Found at", classes: "Classes", any: "Any class", hands2: "Two-handed",
     stats: "Base stats", grows: "Stats grow with grade (Aethelgard → Sovereign) and refining.", price: "Value", setBonus: "Set bonuses",
     pieces: "Pieces: weapon, head, armor, gloves, boots (built for your class)",
-    craftedPieces: (lv) => `Crafted at any safe zone (G). Requires Lv ${lv}. Pieces: weapon, off-hand, head, armor, garment, gloves, boots, amulet, rings (built for your class)`, mvp: "MVP", close: "N / Esc — close · ←/→ tabs · ↑/↓ entries",
-    tabs: { npc: "NPCs", playables: "Player NPCs", monsters: "Monsters & MVP", weapons: "Weapons", equipment: "Equipment", accessories: "Accessories", others: "Others" },
-    questStatus: "Recruitment quest", unknownQuest: "Not yet met", questOpen: "Quest not started", questActive: "In progress", recruited: "Recruited", uniqueSkills: "Unique skills",
+    craftedPieces: (lv) => `Crafted at any safe zone (G). Requires Lv ${lv}. Pieces: weapon, off-hand, head, armor, garment, gloves, boots, amulet, rings (built for your class)`, mvp: "MVP", threat: "Threat", normal: "Common", elite: "Elite", close: "N / Esc — close · ←/→ tabs · ↑/↓ entries",
+    tabs: { npc: "NPCs", monsters: "Monsters & MVP", weapons: "Weapons", equipment: "Equipment", accessories: "Accessories", others: "Others" },
     groups: { consume: "Consumables", material: "Upgrade Materials", card: "Cards", quest: "Quest Items", unique: "Unique", set: "Set", mvp: "MVP Bosses", monsters: "Monsters" }
   },
   fil: {
     title: "Codex", unknown: "???", undiscovered: "Hindi pa natutuklasan.", kills: "Natalo", habitat: "Tirahan",
-    element: "Elemento", race: "Lahi", size: "Laki", hp: "HP", dmg: "Pinsala", blight: "Nagdudulot", drop: "Nahuhulog", arena: "Pugad",
+    element: "Elemento", race: "Lahi", size: "Laki", hp: "HP", lives: "Bilang ng buhay", dmg: "Pinsala", blight: "Nagdudulot", drop: "Nahuhulog", arena: "Pugad",
     night: "Gabi lamang", role: "Tungkulin", where: "Matatagpuan sa", classes: "Mga class", any: "Kahit anong class", hands2: "Dalawang kamay",
     stats: "Batayang stats", grows: "Lumalaki ang stats ayon sa grado (Aethelgard → Sovereign) at pag-refine.", price: "Halaga", setBonus: "Bonus ng set",
     pieces: "Piyesa: sandata, ulo, baluti, guwantes, bota (ginawa para sa iyong class)",
-    craftedPieces: (lv) => `Ginagawa sa anumang ligtas na lugar (G). Kailangan ang Lv ${lv}. Piyesa: sandata, kabilang kamay, ulo, baluti, balabal, guwantes, bota, kuwintas, singsing (ginawa para sa iyong class)`, mvp: "MVP", close: "N / Esc — isara · ←/→ tab · ↑/↓ entry",
-    tabs: { npc: "Mga NPC", playables: "NPC na Puwedeng Laruin", monsters: "Halimaw at MVP", weapons: "Sandata", equipment: "Kagamitan", accessories: "Aksesorya", others: "Iba pa" },
-    questStatus: "Quest sa pagre-recruit", unknownQuest: "Hindi pa nakikilala", questOpen: "Hindi pa nasisimulan", questActive: "Isinasagawa", recruited: "Narecruit na", uniqueSkills: "Mga natatanging skill",
+    craftedPieces: (lv) => `Ginagawa sa anumang ligtas na lugar (G). Kailangan ang Lv ${lv}. Piyesa: sandata, kabilang kamay, ulo, baluti, balabal, guwantes, bota, kuwintas, singsing (ginawa para sa iyong class)`, mvp: "MVP", threat: "Banta", normal: "Karaniwan", elite: "Elite", close: "N / Esc — isara · ←/→ tab · ↑/↓ entry",
+    tabs: { npc: "Mga NPC", monsters: "Halimaw at MVP", weapons: "Sandata", equipment: "Kagamitan", accessories: "Aksesorya", others: "Iba pa" },
     groups: { consume: "Nagagamit", material: "Pang-upgrade", card: "Card", quest: "Quest Item", unique: "Unique", set: "Set", mvp: "MVP Boss", monsters: "Halimaw" }
   }
 };
@@ -49,10 +48,9 @@ const NPCS = {
   aurelia: { en: ["Crown Princess · your summoner", "Barracks Sanctuary, and at the camp of every campaign platform"], fil: ["Prinsesang Tagapagmana · iyong tagapagtawag", "Barracks Sanctuary, at sa kampo ng bawat platform"] },
   kenneth: { en: ["Crown Prince · your summoner", "Barracks Sanctuary, and at the camp of every campaign platform"], fil: ["Prinsipeng Tagapagmana · iyong tagapagtawag", "Barracks Sanctuary, at sa kampo ng bawat platform"] },
   king: { en: ["King of Aethelgard", "Audience dais of the Imperial Citadel"], fil: ["Hari ng Aethelgard", "Audience dais ng Imperial Citadel"] },
-  templar: { en: ["Royal Templar · sworn protector of the heir", "At the heir's side in Aethelgard and on campaign"], fil: ["Templar ng kaharian · sinumpaang tagapagtanggol ng tagapagmana", "Nasa tabi ng tagapagmana sa Aethelgard at sa kampanya"] },
   royalGuard: { en: ["Guards the King", "Audience dais of the Imperial Citadel"], fil: ["Bantay ng Hari", "Audience dais ng Imperial Citadel"] },
   ronald: { en: ["Mercenary Commander · hires mercenaries, refines to +4, field repairs", "Barracks Sanctuary"], fil: ["Kumander ng Mercenary · umuupa ng mercenary, nagre-refine hanggang +4, field repair", "Barracks Sanctuary"] },
-  edgar: { en: ["Apothecary · potions and cures", "Barracks Sanctuary"], fil: ["Apothecary · mga potion at lunas", "Barracks Sanctuary"] },
+  edgar: { en: ["Apothecary · potions and cures", "Barracks Sanctuary, and a field apothecary on the Lamenting Strand"], fil: ["Apothecary · mga potion at lunas", "Barracks Sanctuary, at may pansamantalang botika sa Dalampasigan ng Panaghoy"] },
   arthur: { en: ["Earthbound soul · Knight mentor", "Barracks Sanctuary"], fil: ["Kaluluwang taga-Daigdig · mentor ng Knight", "Barracks Sanctuary"] },
   lyra: { en: ["Earthbound soul · Archer mentor", "Barracks Sanctuary"], fil: ["Kaluluwang taga-Daigdig · mentor ng Archer", "Barracks Sanctuary"] },
   julian: { en: ["Earthbound soul · Priest mentor", "Barracks Sanctuary"], fil: ["Kaluluwang taga-Daigdig · mentor ng Priest", "Barracks Sanctuary"] },
@@ -61,20 +59,23 @@ const NPCS = {
   brakka: { en: ["Master smith · refines to +10, forges mineral sets, tempers gear", "Emberhold, Ashfall Wastelands"], fil: ["Punong panday · refine hanggang +10, forge ng set, pagpapatibay", "Emberhold, Ashfall Wastelands"] },
   hilde: { en: ["Repairs weapons and armor", "Emberhold, Ashfall Wastelands"], fil: ["Nag-aayos ng sandata at baluti", "Emberhold, Ashfall Wastelands"] },
   durgrim: { en: ["Thane of Emberhold · grants the right to mine", "Emberhold, Ashfall Wastelands"], fil: ["Thane ng Emberhold · nagbibigay ng karapatang magmina", "Emberhold, Ashfall Wastelands"] },
-  pip: { en: ["Shopkeeper · materials and potions", "Emberhold, Ashfall Wastelands"], fil: ["Tindero · mga materyales at potion", "Emberhold, Ashfall Wastelands"] }
+  pip: { en: ["Shopkeeper · materials and potions", "Emberhold, Ashfall Wastelands"], fil: ["Tindero · mga materyales at potion", "Emberhold, Ashfall Wastelands"] },
+  elvenMatriarch: { en: ["Elder of the elves · tells how to fight Malakor", "Camp of the Whispering Canopy"], fil: ["Nakatatanda ng mga elf · nagtuturo kung paano labanan si Malakor", "Kampo ng Whispering Canopy"] },
+  maren: { en: ["Archivist of the Chronicles · recaps your story and tells you where to go next", "Barracks Sanctuary"], fil: ["Arkibista ng mga Kronika · nagbubuod ng iyong kuwento at nagsasabi kung saan susunod", "Barracks Sanctuary"] },
+  isolde: { en: ["Ship's captain · advice on the sea, the Seal Stones and the Monolith", "Cerulean Abyss camp, Lamenting Strand camp"], fil: ["Kapitana ng barko · payo tungkol sa dagat, mga Seal Stone at Monolith", "Kampo ng Cerulean Abyss, kampo ng Dalampasigan ng Panaghoy"] },
+  veyra: { en: ["Half-demon scout · briefs you on each Dark Continent boss", "Every camp on the Dark Continent"], fil: ["Kalahating-demonyong batyaw · nagpapaliwanag ng bawat boss ng Dark Continent", "Bawat kampo sa Dark Continent"] },
+  aldric: { en: ["Last monk of the Order of the Lantern · the Lantern Knight and the First War", "Camp of the Ossuary Fields"], fil: ["Huling monghe ng Orden ng Lantern · ang Lantern Knight at ang Unang Digmaan", "Kampo ng Kaparangan ng mga Buto"] }
 };
 
 const WEAPON_SLOTS = ["weapon"];
 const EQUIP_SLOTS = ["offhand", "head", "armor", "garment", "gloves", "boots"];
 const ACC_SLOTS = ["amulet", "ring"];
-const TAB_KEYS = ["npc", "playables", "monsters", "weapons", "equipment", "accessories", "others"];
+export const TAB_KEYS = ["npc", "monsters", "weapons", "equipment", "accessories", "others"];
+export const ITEM_TABS = ["weapons", "equipment", "accessories", "others"];
+export const codexText = () => tx();
 
 export class Codex {
-  constructor(root) {
-    this.el = root;
-    this.open = false;
-    this.tab = "npc";
-    this.index = 0;
+  constructor() {
     this.reset();
     this.avatars = {};
   }
@@ -93,28 +94,26 @@ export class Codex {
     this.reset();
     if (!data) return;
     Object.entries(data.k || {}).forEach(([k, v]) => { if (MONSTERS[k] || BOSSES[k]) this.kills[k] = v | 0; });
-    (data.n || []).forEach((id) => { if (NPCS[id] || PLAYABLES[id]) this.met.add(id); });
+    (data.n || []).forEach((id) => { if (NPCS[id]) this.met.add(id); });
   }
 
   recordKill(key) { this.kills[key] = (this.kills[key] || 0) + 1; }
-  meet(id) { if (NPCS[id] || PLAYABLES[id]) this.met.add(id); }
+  meet(id) { if (NPCS[id]) this.met.add(id); }
 
   // ---------- entries per tab ----------
-  entries() {
+  entries(tab = "npc") {
     const T = tx(), out = [];
     const head = (label) => out.push({ header: label });
-    if (this.tab === "npc") {
+    if (tab === "npc") {
       Object.keys(NPCS).forEach((id) => out.push({ kind: "npc", id, known: this.met.has(id), name: npcName(id) }));
-    } else if (this.tab === "playables") {
-      PLAYABLE_IDS.forEach(id => out.push({ kind: "playable", id, known: this.met.has(id), name: npcName(id) }));
-    } else if (this.tab === "monsters") {
+    } else if (tab === "monsters") {
       head(T.groups.mvp);
       Object.keys(BOSSES).forEach((id) => out.push({ kind: "boss", id, known: Boolean(this.kills[id]), name: BOSSES[id].name[L()] }));
       head(T.groups.monsters);
       Object.keys(MONSTERS).forEach((id) => out.push({ kind: "monster", id, known: Boolean(this.kills[id]), name: MONSTERS[id].name[L()] }));
     } else {
       const items = codexItems();
-      const slots = { weapons: WEAPON_SLOTS, equipment: EQUIP_SLOTS, accessories: ACC_SLOTS }[this.tab];
+      const slots = { weapons: WEAPON_SLOTS, equipment: EQUIP_SLOTS, accessories: ACC_SLOTS }[tab];
       if (slots) {
         slots.forEach((slot) => {
           const list = items.equip.filter((it) => it.slot === slot);
@@ -124,7 +123,7 @@ export class Codex {
         });
         const uniq = items.uniques.filter((it) => slots.includes(it.slot));
         if (uniq.length) { head(T.groups.unique); uniq.forEach((it) => out.push({ kind: "item", item: it, known: true, name: it.name })); }
-        if (this.tab !== "accessories") { head(T.groups.set); items.sets.forEach((id) => out.push({ kind: "set", id, known: true, name: SETS[id].name[L()] })); }
+        if (tab !== "accessories") { head(T.groups.set); items.sets.forEach((id) => out.push({ kind: "set", id, known: true, name: SETS[id].name[L()] })); }
       } else {
         ["consume", "material", "quest"].forEach((type) => {
           head(T.groups[type]);
@@ -138,76 +137,8 @@ export class Codex {
 
   selectable(list) { return list.map((e, i) => (e.header ? -1 : i)).filter((i) => i >= 0); }
 
-  // ---------- open / input ----------
-  toggle() { if (this.open) this.close(); else this.show(); }
-  show() { this.open = true; this.el.classList.add("open"); this.index = 0; this.render(); }
-  close() { this.open = false; this.el.classList.remove("open"); }
-
-  setTab(tab) { this.tab = tab; this.index = 0; this.render(); }
-
-  handleInput(e) {
-    const c = e.code;
-    e.preventDefault();
-    if (c === "Escape" || c === "KeyN") this.close();
-    else if (c === "ArrowLeft" || c === "ArrowRight") {
-      const k = TAB_KEYS.indexOf(this.tab) + (c === "ArrowLeft" ? -1 : 1);
-      this.setTab(TAB_KEYS[(k + TAB_KEYS.length) % TAB_KEYS.length]);
-    } else if (c === "ArrowUp" || c === "ArrowDown" || c === "KeyW" || c === "KeyS") {
-      const sel = this.selectable(this.entries()), pos = Math.max(0, sel.indexOf(this.index));
-      const next = sel[Math.max(0, Math.min(sel.length - 1, pos + (c === "ArrowUp" || c === "KeyW" ? -1 : 1)))];
-      if (next !== undefined) { this.index = next; this.render(); }
-    }
-  }
-
-  // ---------- render ----------
-  render() {
-    const T = tx(), el = this.el;
-    el.innerHTML = "";
-    const add = (parent, tag, cls, text) => {
-      const n = document.createElement(tag);
-      if (cls) n.className = cls;
-      if (text !== undefined) n.textContent = text;
-      parent.appendChild(n);
-      return n;
-    };
-    add(el, "h3", "", T.title);
-    const tabs = add(el, "div", "cx-tabs");
-    TAB_KEYS.forEach((k) => {
-      const b = add(tabs, "button", "cx-tab" + (this.tab === k ? " on" : ""), T.tabs[k]);
-      b.type = "button";
-      b.tabIndex = -1;
-      b.addEventListener("mousedown", (e) => e.preventDefault());
-      b.addEventListener("click", () => this.setTab(k));
-    });
-
-    const list = this.entries();
-    const sel = this.selectable(list);
-    if (!sel.includes(this.index)) this.index = sel[0] ?? 0;
-    const known = list.filter((e) => !e.header && e.known).length, total = list.filter((e) => !e.header).length;
-
-    const body = add(el, "div", "cx-body");
-    const ul = add(body, "div", "cx-list");
-    add(ul, "div", "cx-count", `${known}/${total}`);
-    list.forEach((e, i) => {
-      if (e.header) { add(ul, "div", "cx-group", e.header); return; }
-      const b = add(ul, "button", "cx-entry" + (i === this.index ? " sel" : "") + (e.known ? "" : " unknown"));
-      b.type = "button";
-      b.tabIndex = -1;
-      b.addEventListener("mousedown", (ev) => ev.preventDefault());
-      b.addEventListener("click", () => { this.index = i; this.render(); });
-      if (e.kind === "item" && e.item) { const img = add(b, "img", "cx-ico"); img.src = iconURL(e.item); img.alt = ""; }
-      const nm = add(b, "span", "", e.known ? e.name : T.unknown);
-      if (e.kind === "item" && e.item) nm.style.color = e.item.color;
-      if (e.kind === "set") nm.style.color = SETS[e.id].color;
-    });
-    const det = add(body, "div", "cx-detail");
-    this.renderDetail(det, list[this.index], add);
-    add(el, "div", "ql-foot", T.close);
-    const selEl = ul.querySelector(".sel");
-    if (selEl) selEl.scrollIntoView({ block: "nearest" });
-  }
-
   portrait(parent, add, draw) {
+    if (this.noPortrait) return;
     const cv = add(parent, "canvas", "cx-portrait");
     cv.width = 72;
     cv.height = 72;
@@ -216,9 +147,11 @@ export class Codex {
     draw(c, cv.width, cv.height);
   }
 
-  renderDetail(det, e, add) {
+  // opts.portrait = false: the Codex scene shows the entity on its turntable instead
+  renderDetail(det, e, add, opts = {}) {
     const T = tx(), Lg = L();
     if (!e || e.header) return;
+    this.noPortrait = opts.portrait === false;
     const row = (k, v) => { const r = add(det, "div", "cx-row"); add(r, "span", "cx-k", k); add(r, "b", "cx-v", v); };
     if (!e.known) {
       this.portrait(det, add, (c, w, h) => { c.fillStyle = "#1e293b"; c.font = "bold 36px monospace"; c.textAlign = "center"; c.fillText("?", w / 2, h / 2 + 12); });
@@ -233,23 +166,11 @@ export class Codex {
       add(det, "div", "cx-name", e.name);
       row(T.role, NPCS[e.id][Lg][0]);
       row(T.where, NPCS[e.id][Lg][1]);
-    } else if (e.kind === "playable") {
-      const def = PLAYABLES[e.id];
-      const av = this.avatars[e.id] || (this.avatars[e.id] = new Avatar(NPC_DEFS[e.id].look));
-      if (e.id !== "nimaFen" && e.id !== "eirene" && e.id !== "templar") av.sheetKey = `npc/${e.id}`;
-      this.portrait(det, add, (c, w, h) => av.draw(c, w / 2, h - 4, "down", "idle", 0, false, false, 1.8));
-      add(det, "div", "cx-name", e.name);
-      row(T.role, def.role[Lg]);
-      row(T.where, areaDef(def.region)?.name[Lg] || def.region);
-      const state = this.playableQuests?.state?.[e.id];
-      row(T.questStatus, !this.met.has(e.id) ? T.unknownQuest : state?.recruited ? T.recruited : state?.started ? T.questActive : T.questOpen);
-      add(det, "div", "cx-sub", T.uniqueSkills);
-      add(det, "div", "cx-desc", def.skills.join(" · "));
-      add(det, "div", "cx-desc", def.skillLore[Lg]);
     } else if (e.kind === "monster" || e.kind === "boss") {
       const k = e.kind === "boss" ? BOSSES[e.id] : MONSTERS[e.id];
       this.portrait(det, add, (c, w, h) => k.sprite.draw(c, w / 2, h - 6, "down", "idle", 0, false, false, e.kind === "boss" ? 1 : 1.6));
       add(det, "div", "cx-name" + (e.kind === "boss" ? " mvp" : ""), `${e.kind === "boss" ? `${T.mvp} · ` : ""}${e.name}`);
+      row(T.threat, e.kind === "boss" ? T.mvp : k.elite ? T.elite : T.normal);
       const el = k.element || "neutral";
       row(T.element, `${(ELEMENTS[el] || {}).icon || ""} ${elementName(el)}`);
       if (k.race) row(T.race, raceName(k.race));
@@ -259,7 +180,11 @@ export class Codex {
       if (k.debuff) row(T.blight, k.debuff.type === "all" ? "★" : `${statusName(k.debuff.type)} (${Math.round(k.debuff.chance * 100)}%)`);
       if (e.kind === "boss") {
         const plat = PLATFORM_ORDER.map((id) => PLATFORMS[id]).find((p) => p.boss === e.id);
-        if (plat) row(T.arena, `Act ${plat.act} · ${plat.arenaName[Lg]}`);
+        if (plat) {
+          row(T.arena, `Act ${plat.act} · ${plat.arenaName[Lg]}`);
+          const lv = (plat.levels ? plat.levels[1] : plat.tier * 5 + 7) + 2;   // EnemyManager.spawnBoss
+          row(T.lives, `×${livesFor({ boss: true, level: lv })}`);
+        }
         if (k.drop) row(T.drop, getItem(k.drop).name);
       } else {
         // Every map that has it as a regular or an elite kind ("Elite" is the tier name in both languages)

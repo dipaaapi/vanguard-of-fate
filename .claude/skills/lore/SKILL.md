@@ -28,7 +28,7 @@ node $L check                    # EN/FIL gaps: LORE section/paragraph mismatche
 
 ## Canon sheet (keep in sync with LORE.md)
 
-**Premise:** The continent of **Aethelgard**, blessed by the goddess **Astraea**, falls when the **Eclipse of the Abyss** frees **Demon Lord Satan**. His **Void Miasma** mutates wildlife into night-prowling abominations and spreads the **Seven Anomaly Blights**: Bleeding, Silence, Poison, Electrified, Burn, Frost Freeze, Blindness (`js/status.js`). The aging **King** and his heir, **Princess Aurelia** or **Prince Kenneth** (the player picks; Supreme Commander of the Imperial Magic & Research Corps), summon resilient souls from **Earth (2026)** to form the **Grand Slaying Corps**.
+**Premise:** The continent of **Aethelgard**, blessed by the goddess **Astraea**, falls when the **Eclipse of the Abyss** frees **Demon Lord Satan**. His **Void Miasma** mutates wildlife into night-prowling abominations and spreads the **Seven Anomaly Blights**: Bleeding, Silence, Poison, Electrified, Burn, Frost Freeze, Blindness (`js/status.js`). The aging **King** and his heir, **Princess Aurelia** or **Prince Kenneth** (the player picks; Supreme Commander of the Imperial Magic & Research Corps), summon resilient souls from **Earth (2026)** to form the **Fated Vanguard**. Three centuries earlier the crown summoned one soul, the **Lantern Knight**, who sealed Satan with four **Seal Stones** and their own life and never went home; their **Pentagram Prophecy** calls five souls to the points of the star and a sixth (the player, a Novice) to its heart. Summoned souls see the **Covenant Ledger** (the C panel, a status screen natives can't see). Satan's five bosses are his **Heralds** (an inverted star).
 
 **The summoned (Act III), all from Earth, each died saving someone:**
 
@@ -42,9 +42,9 @@ node $L check                    # EN/FIL gaps: LORE section/paragraph mismatche
 
 **The player's path:** the hero is made in the Character Creator and starts as a **Novice** (dagger + wooden buckler). The **Job Awakening** at the Imperial Citadel's audience dais (Lv 10, Act IV) grants one of the five classes, and the summoned soul of that class becomes the mentor. The **Dual Equipment Matrix** (Act V): two-handed weapons lock the offhand; 1H + offhand pairs trade power for utility. **Act VI** is the slow-burn bond and romance between the hero and the royal summoner.
 
-**Hub (Acts I–VI):** the plains of Aethelgard: **Barracks Sanctuary** (safe zone; **Captain Ronald** drills mercenaries, **Edgar the Apothecary** sells cures), the **Imperial Citadel**, four **Celestial Warp Gateways**. Other NPCs: Royal Guards, **Brakka** (Emberhold Forge), **Hilde**, **Thane Durgrim** (mining quest), **Pip**, the **Elven Matriarch** (see `js/npc/roster.js`).
+**Hub (Acts I–VI):** the plains of Aethelgard: **Barracks Sanctuary** (safe zone; **Captain Ronald** drills mercenaries, **Edgar the Apothecary** sells cures, **Archivist Maren** (`maren`) keeps the Chronicles, recaps the story and points the hero to the next goal), the **Imperial Citadel**, four **Celestial Warp Gateways**. Other NPCs: Royal Guards, **Brakka** (Emberhold Forge), **Hilde**, **Thane Durgrim** (mining quest), **Pip**, the **Elven Matriarch** (see `js/npc/roster.js`). Campaign NPCs: **Captain Isolde Wavecrest** (`isolde`, captain of the crewed ship; Cerulean Abyss camp, then the Lamenting Strand camp; explains sailing, the Monolith and the Seal Stones), **Veyra the Ashen Scout** (`veyra`, half-demon deserter of Satan's legion; Dark Continent camps, Acts XI–XV; briefs the hero on each Dark Continent boss), **Brother Aldric of the Lantern** (`aldric`, last monk of the Order of the Lantern; Ossuary Fields camp, Act XII; the Lantern Knight, the First War and the worn carvings of a sealed "queen of sorrows", never named in Book I).
 
-**Campaign platforms (Acts VII–XII, `js/world/platforms.js`):**
+**Campaign platforms (Acts VII–XV, `js/world/platforms.js`):**
 
 | Act | Place | Reached by | Boss | Quest item |
 |---|---|---|---|---|
@@ -52,12 +52,15 @@ node $L check                    # EN/FIL gaps: LORE section/paragraph mismatche
 | VIII | Cerulean Abyss | West gateway | Leviathan Regent | Abyssal Helm Shard |
 | IX | Frostfang Precipice | North gateway | Frost Empress Cryonix | Cryonix Core |
 | X | Ashfall Wastelands | South gateway | Ignis | Hellforge Reactor Core |
-| XI | Siege of the Obsidian Citadel (Dark Continent) | Celestial Monolith, by boat | Demon Commander | Imperial Crest |
-| XII | Maw of Damnation | rift behind the Obsidian throne | Satan | Astral Ash |
+| XI | The Lamenting Strand (Dark Continent) | Celestial Monolith, by boat | Dolora, the Weeping Matron | Urn of Black Tears |
+| XII | The Ossuary Fields | road from the Strand | Morgrave, the Ossuary Warlord | Lantern Knight's Visor |
+| XIII | Siege of the Obsidian Citadel | march from the Ossuary Fields | Demon Commander | Imperial Crest |
+| XIV | The Chainspire Descent | rift behind the Obsidian throne | Vorgath, the Chained Warden | Warden's Key |
+| XV | Maw of Damnation | the last gate at the foot of the Chainspire | Satan | Astral Ash |
 
-The bosses of Acts VII–X drop the Seal Stones that open the Celestial Monolith. Ore veins exist only on Ashfall and the Obsidian Citadel.
+The bosses of Acts VII–X drop the Seal Stones that open the Celestial Monolith. FIL names: Dalampasigan ng Panaghoy / Dolora, ang Lumuluhang Matrona / Urna ng Itim na Luha; Kaparangan ng mga Buto / Morgrave, ang Panginoong-Digma ng mga Buto / Visor ng Lantern Knight; Ang Pagbaba sa Toreng Kadena / Vorgath, ang Nakakadenang Bantay / Susi ng Bantay. Dolora, Morgrave and Vorgath are Satan's servants outside the five Heralds. The Visor's message: the gate home opens once, for the first dawn after the star is whole; at the end of Act XV the hero sees home, stays with the Sovereign, hides their grief, and something beneath the Ossuary Fields stirs (Book II: The Witch of Darkness Misery's Revenge). Ore veins exist only on Ashfall and the Obsidian Citadel.
 
-**Book I and side quests:** Acts I–XII are **Book I · The Fated Vanguard** (FIL *Aklat I*); **Book II** is "coming soon". From Act II on, each Act's main quest waits at a gate step until the Act's 5–10 side quests (seeded per save; `js/sidequest.js`) are done: hunts, trophies, scouting named sites, purges, flyers, and (Act V on) elite and champion bounties posted by the war camps.
+**Book I and side quests:** Acts I–XV are **Book I · The Fated Vanguard** (FIL *Aklat I*); **Book II** is "coming soon". From Act II on, each Act's main quest waits at a gate step until the Act's 5–10 side quests (seeded per save; `js/sidequest.js`) are done: hunts, trophies, scouting named sites, purges, flyers, and (Act V on) elite and champion bounties posted by the war camps.
 
 **Frontier maps (`js/world/frontiers.js`, no boss, each with a war camp, a named arena and three scouting sites):**
 
@@ -70,13 +73,17 @@ The bosses of Acts VII–X drop the Seal Stones that open the Celestial Monolith
 
 Every map (hub, platforms, frontiers) has 5 regular kinds and 4 elite kinds (`elite: true`, always Elite tier, one of each on the map, respawning).
 
-**Systems with lore names:** monster tiers Normal / Champion / Elite / MVP; Ragnarok-style race, element and size; stats STR/AGI/VIT/INT/DEX/LUK; mercenaries (axe, crossbow, greatsword, wand) hired from Captain Ronald; day/night cycle where night monsters prowl with crimson and violet eyes.
+**Systems with lore names:** monster tiers Normal / Champion / Elite / MVP; race, element and size; stats STR/AGI/VIT/INT/DEX/LUK; mercenaries (axe, crossbow, greatsword, wand) hired from Captain Ronald; day/night cycle where night monsters prowl with crimson and violet eyes.
 
 **Tone & style**
 - Heroic isekai high fantasy, earnest and a little romantic. Earth skills reinterpreted as magic (engineering → forcefields, triage → smart heals, orbital physics → meteors).
 - LORE.md is long-form prose: each Act is `##` heading + 4 paragraphs, separated by `---`. Keep LORE_FIL.md with the **same Acts in the same order and the same paragraph count** (the Act reader and the lore panel parse `##` sections).
 - `{s}` = the summoner's name and `{h}` = the hero's name in dialogue templates.
 - Never contradict a hard fact above without changing the game too.
+
+## Originality (legal safety)
+
+Every name must be original. Use broad genre tropes (summoning, a status screen, job classes, a demon lord), never a name, character, place, item, skill or plot that another game, anime, manga or book coined. Myth and public-domain names (Satan, Titan, Behemoth, Kraken, Valkyrie) and plain words (slime, golem, potion, card, refine) are fine. Retired names and their replacements: Grand Slaying Corps → Fated Vanguard; Truck-kun's Blessing → Second-Life Luck; Oridecon → Void Crystal; Phracon → Monster Shard; Yggdrasil Leaf → Astraea's Leaf; Mythril → Aethersilver; Frost Diver → Glacial Lance; Brandish Spear → Crescent Sweep; Owl's Eye → Steady Aim; Vulture's Eye → Falconer's Sight; Arrow Shower → Skyfall Volley; Energy Coat → Mana Veil; Bunny Band → Rabbit-Ear Band. Keep item and skill **ids** unchanged when renaming (saves store ids). `check` fails on any term in `borrowed-names.json`; add to that list whenever you retire a name.
 
 ## Where text lives
 

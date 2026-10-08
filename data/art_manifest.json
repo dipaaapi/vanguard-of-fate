@@ -144,8 +144,8 @@
     "assets/banner/act-11.png": {
       "kind": "banner",
       "caption": {
-        "en": "The Vanguard breaches the gates of the Obsidian Citadel under a blood-red sky.",
-        "fil": "Nilusob ng Vanguard ang mga tarangkahan ng Obsidian Citadel sa ilalim ng langit na kulay-dugo."
+        "en": "On the black sands of the Lamenting Strand, beside the wreck of the Dawnstar, the Vanguard lands as Dolora, the Weeping Matron, rises over the tide pools of black tears.",
+        "fil": "Sa itim na buhangin ng Dalampasigan ng Panaghoy, sa tabi ng wasak na Dawnstar, dumaong ang Vanguard habang umaangat si Dolora, ang Lumuluhang Matrona, sa ibabaw ng mga lawa ng itim na luha."
       },
       "usedBy": [
         "js/lore.js",
@@ -158,8 +158,50 @@
     "assets/banner/act-12.png": {
       "kind": "banner",
       "caption": {
-        "en": "Satan's true form crumbles and the Lantern Knight's light rises out of the Maw.",
-        "fil": "Gumuguho ang tunay na anyo ni Satanas at umaakyat mula sa Bunganga ang liwanag ng Lantern Knight."
+        "en": "The Ossuary Fields: bones of every race beneath a pale sky, the Lantern Knight's Cairn in vigil, and Morgrave, the Ossuary Warlord, raising lances of bone.",
+        "fil": "Ang Kaparangan ng mga Buto: mga buto ng bawat lahi sa ilalim ng maputlang langit, ang Puntod ng Lantern Knight na binabantayan, at si Morgrave, ang Panginoong-Digma ng mga Buto, na nagpapausbong ng mga sibat na buto."
+      },
+      "usedBy": [
+        "js/lore.js",
+        "js/title.js",
+        "js/actreader.js",
+        "js/actintro.js",
+        "js/ui.js"
+      ]
+    },
+    "assets/banner/act-13.png": {
+      "kind": "banner",
+      "caption": {
+        "en": "The Vanguard breaches the gates of the Obsidian Citadel under a blood-red sky.",
+        "fil": "Nilusob ng Vanguard ang mga tarangkahan ng Obsidian Citadel sa ilalim ng langit na kulay-dugo."
+      },
+      "usedBy": [
+        "js/lore.js",
+        "js/title.js",
+        "js/actreader.js",
+        "js/actintro.js",
+        "js/ui.js"
+      ]
+    },
+    "assets/banner/act-14.png": {
+      "kind": "banner",
+      "caption": {
+        "en": "The Chainspire Descent: a spire of black chains spirals into the abyss, chained souls glowing along it, and Vorgath, the Chained Warden, bars the way.",
+        "fil": "Ang Pagbaba sa Toreng Kadena: isang tore ng itim na kadena ang paikot na bumababa sa kalaliman, nagliliwanag ang mga nakakadenang kaluluwa, at hinaharangan ni Vorgath, ang Nakakadenang Bantay, ang daan."
+      },
+      "usedBy": [
+        "js/lore.js",
+        "js/title.js",
+        "js/actreader.js",
+        "js/actintro.js",
+        "js/ui.js"
+      ]
+    },
+    "assets/banner/act-15.png": {
+      "kind": "banner",
+      "caption": {
+        "en": "Satan's true form crumbles in the Maw, the Lantern Knight's light rises home, and the first dawn breaks over the champion and the Sovereign.",
+        "fil": "Gumuguho sa Bunganga ang tunay na anyo ni Satan, umaakyat pauwi ang liwanag ng Lantern Knight, at sumisikat ang unang bukang-liwayway sa kampeon at sa Soberano."
       },
       "usedBy": [
         "js/lore.js",
@@ -193,7 +235,7 @@
       "kind": "banner",
       "caption": {
         "en": "The five Heralds on the points of the inverted star, Satan at its heart.",
-        "fil": "Ang limang Herald sa mga dulo ng baligtad na bituin, si Satanas sa gitna."
+        "fil": "Ang limang Herald sa mga dulo ng baligtad na bituin, si Satan sa gitna."
       },
       "usedBy": [
         "js/title.js"
@@ -368,6 +410,34 @@
         "fil": "Ang Matriyarka ng mga Duwende"
       }
     },
+    "assets/art/portraits/maren.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Archivist Maren",
+        "fil": "Arkibista Maren"
+      }
+    },
+    "assets/art/portraits/isolde.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Captain Isolde Wavecrest",
+        "fil": "Kapitana Isolde Wavecrest"
+      }
+    },
+    "assets/art/portraits/veyra.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Veyra the Ashen Scout",
+        "fil": "Veyra, ang Abuhing Tagamanman"
+      }
+    },
+    "assets/art/portraits/aldric.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Brother Aldric of the Lantern",
+        "fil": "Kapatid na Aldric ng Parol"
+      }
+    },
     "assets/art/portraits/malakor.png": {
       "kind": "portrait",
       "caption": {
@@ -407,7 +477,28 @@
       "kind": "portrait",
       "caption": {
         "en": "Demon Lord Satan",
-        "fil": "Panginoon ng Demonyo na si Satanas"
+        "fil": "Panginoon ng Demonyo na si Satan"
+      }
+    },
+    "assets/art/portraits/dolora.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Dolora, the Weeping Matron",
+        "fil": "Dolora, ang Lumuluhang Matrona"
+      }
+    },
+    "assets/art/portraits/morgrave.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Morgrave, the Ossuary Warlord",
+        "fil": "Morgrave, ang Panginoong-Digma ng mga Buto"
+      }
+    },
+    "assets/art/portraits/vorgath.png": {
+      "kind": "portrait",
+      "caption": {
+        "en": "Vorgath, the Chained Warden",
+        "fil": "Vorgath, ang Nakakadenang Bantay"
       }
     },
     "assets/art/relics/sylvanStone.png": {
@@ -506,6 +597,27 @@
       "caption": {
         "en": "The Heralds' inverted star",
         "fil": "Ang baligtad na bituin ng mga Herald"
+      }
+    },
+    "assets/art/relics/tearUrn.png": {
+      "kind": "relic",
+      "caption": {
+        "en": "Urn of Black Tears",
+        "fil": "Urna ng Itim na Luha"
+      }
+    },
+    "assets/art/relics/lanternVisor.png": {
+      "kind": "relic",
+      "caption": {
+        "en": "Lantern Knight's Visor",
+        "fil": "Visor ng Lantern Knight"
+      }
+    },
+    "assets/art/relics/wardensKey.png": {
+      "kind": "relic",
+      "caption": {
+        "en": "Warden's Key",
+        "fil": "Susi ng Bantay"
       }
     }
   }

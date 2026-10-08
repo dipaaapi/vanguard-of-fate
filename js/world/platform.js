@@ -7,6 +7,7 @@ import { veinsFor } from "../items/craftsets.js";
 import { PLATFORMS, PLATFORM_SIZE } from "./platforms.js";
 import { FRONTIERS } from "./frontiers.js";
 import { getLang } from "../i18n.js";
+import { drawZoneArt, hasZoneArt, zoneSolids, pushOutOf } from "./zonesprites.js";
 
 // ==================== PLATFORM (one Act of the campaign) ====================
 // Same interface as Stage (js/stage.js), so the camera, enemies, NPCs and world map can use it:
@@ -46,8 +47,11 @@ export class Platform {
     this.riftOpen = false;    // Siege: the rift to the Maw is open
 
     this.terrain = (...a) => def.terrain.apply(def, a);
-    // The camp is "coverage", so no trees or rocks grow inside it
-    this.coverageSystems = [{ draw: (c) => this.drawCamp(c) }];
+    // The camp is "coverage", so no trees or rocks grow inside it (the code-drawn camp's footprint,
+    // so the map is the same whether or not the Aseprite art has loaded)
+    this.coverageSystems = [{ draw: (c) => this.drawCampCode(c) }];
+    // Tents and village buildings in the Aseprite art are solid (js/world/zonesprites.js)
+    this.campSolids = zoneSolids(id, def.camp.x, def.camp.y, def.camp, def.gate);
     this.ambient = new Ambient(def.ambient);
     this.tilemap = new TileMap(this, def.seed);
     // Boat and the Celestial Monolith (Cerulean Abyss only)
@@ -58,6 +62,19 @@ export class Platform {
     this.miningUnlocked = false;
   }
 
+  // Free the baked map canvases when the hero leaves (main.js teardownPlatform); setting a
+  // canvas to 0×0 releases its backing store at once instead of waiting for garbage collection
+  destroy() {
+    const free = (c) => { if (c && c.getContext) { c.width = 0; c.height = 0; } };
+    const tm = this.tilemap;
+    if (tm) {
+      [tm.groundCanvas, tm.overlayCanvas, tm.atlas, tm.haze, tm.haze && tm.haze.canvas].forEach(free);
+      tm.groundCanvas = tm.overlayCanvas = tm.haze = null;
+    }
+    this.navGrid = null;
+    this.destroyed = true;
+  }
+
   name() {
     return this.def.name[getLang() === "fil" ? "fil" : "en"];
   }
@@ -66,6 +83,7 @@ export class Platform {
     // While in the boat: sail freely on water, don't block on the liquid mask
     if (entity && entity.inBoat) return;
     this.tilemap.resolveCollision(entity);
+    if (hasZoneArt(this.id)) pushOutOf(entity, this.campSolids);
   }
 
   safeZoneAt(px, py) {
@@ -228,20 +246,38 @@ export class Platform {
       block(X(bx + 2), Y(by - 3), 2, 2, "#ffd166");
     });
 
-    // sign above the gate
+    ctx.restore();
+    this.drawVillageSign(ctx);
+  }
+
+  // Village name above the gate (text, so it follows the language)
+  drawVillageSign(ctx) {
+    const v = this.camp;
+    ctx.save();
     const L = getLang() === "fil" ? "fil" : "en";
     const label = `⚒ ${this.def.village}${L === "fil" ? " · Nayon ng mga Dwarf" : " · Dwarven Village"}`;
     ctx.font = "bold 6px monospace";
     ctx.textAlign = "center";
     const tw = ctx.measureText(label).width + 8;
-    block(this.gate.x - tw / 2, Y(v.h - 30), tw, 9, "rgba(28, 25, 23, 0.9)");
+    ctx.fillStyle = "rgba(28, 25, 23, 0.9)";
+    ctx.fillRect(Math.round(this.gate.x - tw / 2), Math.round(v.y + v.h - 30), tw, 9);
     ctx.fillStyle = "#fb923c";
-    ctx.fillText(label, this.gate.x, Y(v.h - 23));
+    ctx.fillText(label, this.gate.x, v.y + v.h - 23);
     ctx.restore();
   }
 
-  // Fated Vanguard camp: runic circle, four braziers, a tent and a banner
+  // The camp from its Aseprite art (aseprite/zone/<map id>.aseprite) when exported, else from code
   drawCamp(ctx) {
+    const c = this.camp;
+    if (drawZoneArt(ctx, this.id, c.x, c.y, this.tick, c, this.def.gate)) {
+      if (this.def.village) this.drawVillageSign(ctx);
+      return;
+    }
+    this.drawCampCode(ctx);
+  }
+
+  // Fated Vanguard camp: runic circle, four braziers, a tent and a banner
+  drawCampCode(ctx) {
     if (this.def.village) return this.drawVillage(ctx);
     const c = this.camp, cx = c.x + c.w / 2, cy = c.y + c.h / 2;
     const t = this.tick / 10;

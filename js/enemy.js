@@ -1,13 +1,16 @@
 import { Sound } from "./audio.js";
 import { facingFrom } from "./avatar/creature.js";
 import { MONSTERS, BOSSES, BLIGHTS, NIGHT_KINDS } from "./bestiary.js";
-import { TIERS, MODS, rollTier, applyTier, tierName, has, modName, damageTakenMult, damageDealtMult, windupFor, modBlight } from "./monsterTiers.js";
+import { TIERS, MODS, rollTier, applyTier, tierName, has, modName, damageTakenMult, damageDealtMult, windupFor, modBlight, applyLives, totalMaxHp, hpFrac } from "./monsterTiers.js";
 import { ELEMENTS, elementMult, raceBonus, sizeMod, rollVariant, variantPrefix, elementName, raceName, sizeName } from "./elements.js";
 import { getLang } from "./i18n.js";
 import { STATUS, statusName } from "./status.js";
 import { around, mix, hitPose, attackPose, windupPose, breathPose, spawnPose, REST } from "./juice.js";
 import { GFX } from "./settings.js";
+import { drawFx } from "./fxsprites.js";
 import { HUB_KINDS, HUB_ELITES } from "./world/areas.js";
+import { enemyMult } from "./regression.js";
+import { confine, steer, trackGoal } from "./world/nav.js";
 
 // ========================================================
 // ENEMIES
@@ -15,7 +18,7 @@ import { HUB_KINDS, HUB_ELITES } from "./world/areas.js";
 // (e.x, e.y) is the top-left of the old 20px box; the feet are at (e.x + 10, e.y + 17).
 //
 // LEVEL: every place has a FIXED level band (it does not follow the hero): Aethelgard 1–8
-// (+3 at night), Act VII 10–17, VIII 15–22 … XII 35–42. Out-level a place and it becomes easy
+// (+3 at night), Act VII 10–17, VIII 15–22 … X 25–32, XI 30–37 … XV 50–57. Out-level a place and it becomes easy
 // (and gives little EXP); walk in too early and it is deadly. The name colour tells how strong
 // it is compared to you and whether it is aggressive:
 //   grey   (≤ −3)  weak, won't attack unless provoked
@@ -42,8 +45,39 @@ const REGEN_DELAY = 300;     // 5 seconds without being hit before HP regenerate
 const BOSS_ATTACK_RANGE = 260;
 const ORB_RANGE = 220;
 
+// One life bar: the current bar in front, the next one (dimmer) behind it while lives remain, and a
+// row of pips underneath, one per life (lit = left, dark = broken)
+function drawLifeBar(ctx, e, x, y, w, h, color) {
+  const lives = e.lives || 1, left = e.livesLeft || 1;
+  ctx.fillStyle = "#111";
+  ctx.fillRect(x, y, w, h);
+  if (left > 1) {
+    ctx.save();
+    ctx.globalAlpha = 0.35;
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, w, h);
+    ctx.restore();
+  }
+  ctx.fillStyle = color;
+  ctx.fillRect(x, y, Math.max(0, (e.hp / e.maxHp) * w), h);
+  if (lives < 2) return;
+  const pw = w / lives, ph = h > 3 ? 1.5 : 1, gap = h > 3 ? 1.6 : 0.6;   // the boss bar has a frame to clear
+  for (let i = 0; i < lives; i++) {
+    ctx.fillStyle = i < left ? color : "#3f3f46";
+    ctx.fillRect(x + i * pw, y + h + gap, Math.max(0.6, pw - 0.6), ph);
+  }
+}
+
 const lang = () => (getLang() === "fil" ? "fil" : "en");
 const rint = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+
+// Regression difficulty: +20% HP and damage per difficulty above Easy (js/regression.js)
+function scaleForDifficulty(e) {
+  const m = enemyMult();
+  if (m === 1) return;
+  e.maxHp = e.hp = Math.round(e.maxHp * m);
+  e.damage = Math.round(e.damage * m);
+}
 
 function levelColor(diff, boss = false) {
   if (boss) return "#c084fc";
@@ -69,6 +103,9 @@ export class EnemyManager {
     this.loot = null;              // LootManager (set by main.js)
     this.hazards = [];             // the boss's warning circles (explode afterwards)
     this.orbs = [];                // orbs thrown by the boss
+    this.rings = [];               // the boss's expanding shockwave rings
+    this.fxs = [];                 // effect sprites playing on the ground (js/fxsprites.js)
+    this.pendingOrbs = null;       // a volley fired a moment after a blink
     this.corpses = [];             // dying monsters still dissolving ({ e, t })
     this.onBossDefeated = null;    // (enemy) => void
     this.maxAlive = 16;
@@ -85,7 +122,7 @@ export class EnemyManager {
   hasWaterNearby() {
     if (!this.stage) return false;
     if (this.stage.tilemap && this.stage.tilemap.liquidTiles && this.stage.tilemap.liquidTiles.size > 0) return true;
-    if (["coast", "canopy", "frost", "ash", "maw"].includes(this.stage.theme)) return true;
+    if (["coast", "canopy", "frost", "ash", "strand", "chainspire", "maw"].includes(this.stage.theme)) return true;
     return false;
   }
 
@@ -97,13 +134,16 @@ export class EnemyManager {
     this.elites = elites || [];
     this.eliteTimer = 0;
     this.tier = tier;
-    // Act level floor: VII 10 · VIII 15 · IX 20 · X 25 · XI 30 · XII 35 (Aethelgard has none)
+    // Act level floor: VII 10 · VIII 15 · IX 20 · X 25 · XI 30 … XV 50 (Aethelgard has none)
     this.levelFloor = levels ? levels[0] : tier >= 2 ? tier * 5 : 1;
     this.levelCap = levels ? levels[1] : this.levelFloor + 7;
     this.enemies = [];
     this.corpses = [];
     this.hazards = [];
     this.orbs = [];
+    this.rings = [];
+    this.fxs = [];
+    this.pendingOrbs = null;
     this.spawnTimer = 0;
     this.maxAlive = 16;
   }
@@ -156,16 +196,8 @@ export class EnemyManager {
       }
     }
 
-    // Flyers (Sky): may hover anywhere, even over water or cliffs
-    if (forKind && (forKind.flying || forKind.medium === "sky")) {
-      for (let k = 0; k < 35; k++) {
-        const x = b.minX + 30 + Math.random() * (b.maxX - b.minX - 60);
-        const y = b.minY + 30 + Math.random() * (b.maxY - b.minY - 60);
-        if (st && st.safeZoneAt && st.safeZoneAt(x + 10, y + 17)) continue;
-        if (this.player && Math.hypot(x - this.player.x, y - this.player.y) < 140) continue;
-        return { x, y };
-      }
-    }
+    // Flyers (Sky) spawn over reachable ground like walkers: one parked over a cliff or a wall
+    // could never be reached by melee heroes.
 
     // Land creatures: solid, walkable ground
     for (let k = 0; k < 45; k++) {
@@ -202,7 +234,7 @@ export class EnemyManager {
     const lvl = Math.max(1, fixedLevel ?? this.rollLevel() + (levelOffset || 0));
     const hp = Math.round((35 + lvl * 12) * kind.hpMult);
     const e = {
-      id: Math.random(), key, type: key, kind, level: lvl,
+      id: Math.random(), uid: rint(0, 3), key, type: key, kind, level: lvl,
       maxHp: hp, hp, speed: kind.speed, damage: Math.round(kind.dmg + lvl * 1.6), reach: kind.reach || 16,
       x, y, homeX: x, homeY: y, isAlive: true, facing: "left",
       anim: "idle", dir: "down", flip: false, animTimer: 0, strikeTimer: 0,
@@ -215,6 +247,8 @@ export class EnemyManager {
     if (v && v !== e.element) { e.variant = v; e.element = v; }
     // An elite kind is always an Elite; a regular kind is never forced into one by accident
     applyTier(e, kind.elite ? (forceTier === "normal" ? "elite" : forceTier || "elite") : forceTier || rollTier());
+    scaleForDifficulty(e);
+    applyLives(e);     // stacked HP bars by level and tier (js/monsterTiers.js)
     this.enemies.push(e);
     // Elites bring minions: an elite kind brings one regular of its medium, a lucky regular Elite two of its own kind
     if (e.elite) {
@@ -246,6 +280,8 @@ export class EnemyManager {
       hitTimer: 0, stunTimer: 0, windupTimer: 0, spawnT: 0, provoked: true, engaged: false,
       bossTimer: 60, pattern: 0, castTimer: 0, enraged: false, element: def.element || "neutral"
     };
+    scaleForDifficulty(e);
+    applyLives(e);
     this.enemies.push(e);
     if (Sound && Sound.playBossRoar) Sound.playBossRoar();
     return e;
@@ -266,6 +302,8 @@ export class EnemyManager {
     this.player = player;
     this.corpses = this.corpses.filter((c) => ++c.t < DEATH_T);
     if (stage) this.stage = stage;
+    // Walkers find their way to the hero around obstacles (js/world/nav.js)
+    if (this.stage) trackGoal(this.stage, player.x + 10, player.y + 20);
     this.spawnTimer++;
     const alive = this.enemies.filter((e) => e.isAlive && !e.boss).length;
     // More of them, spawning more often, at night
@@ -299,6 +337,10 @@ export class EnemyManager {
         return;
       }
 
+      // Far off-screen and idle: think every 4th step only (they are wandering where nobody sees)
+      const cam = this.camera;
+      if (cam && !e.boss && !e.engaged && !e.provoked && ((this.spawnTimer + (e.uid || 0)) & 3) &&
+          !cam.isVisible(e.x, e.y, 20, 20, 160)) return;
       if (e.boss) this.updateBoss(e, player, fx);
       else this.updateMonster(e, player, fx);
 
@@ -316,6 +358,10 @@ export class EnemyManager {
         }
       }
     });
+
+    // Nobody leaves the map or ends up inside a tree, a rock, water or a wall (knockback, separation,
+    // teleports included); flyers and bosses only keep to the map's bounds
+    this.enemies.forEach((e) => { if (e.isAlive) confine(this.stage, e, 10, 20, Boolean(e.boss)); });
 
     this.updateHazards(player, fx);
     this.enemies = this.enemies.filter((e) => e.isAlive);
@@ -344,7 +390,7 @@ export class EnemyManager {
       }
     }
     else if (elem === "earth" && r < 0.18 && !e.boss) e.stunTimer = Math.max(e.stunTimer, 30);
-    else if (elem === "poison" && r < 0.35) { e.st.poison = 240; e.st.poisonDmg = Math.max(1, Math.round(e.maxHp * 0.01)); }
+    else if (elem === "poison" && r < 0.35) { e.st.poison = 240; e.st.poisonDmg = Math.max(1, Math.round(totalMaxHp(e) * 0.01)); }
     else if (elem === "shadow" && r < 0.3) e.st.curse = 240;
   }
 
@@ -360,18 +406,19 @@ export class EnemyManager {
   dot(e, amt, color, fx) {
     e.hp -= amt;
     if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(e.x + 10, e.y - 4, amt, false, color);
-    if (e.hp <= 0) this.kill(e, fx);
+    if (e.hp <= 0) this.fall(e, fx);
   }
 
-  // After 5 seconds without a hit, HP regenerates (1% every 0.5s; bosses 0.5%)
+  // After 5 seconds without a hit, HP regenerates (1% of all bars every 0.5s; bosses 0.5%), but only
+  // up to the top of the current bar: a broken life stays broken
   regen(e, fx) {
     e.sinceHit = (e.sinceHit || 0) + 1;
     if (e.sinceHit < REGEN_DELAY || e.hp >= e.maxHp) return;
     if (e.sinceHit % 30 === 0) {
-      const amt = Math.max(1, Math.round(e.maxHp * (e.boss ? 0.005 : 0.01)));
+      const amt = Math.min(e.maxHp - e.hp, Math.max(1, Math.round(totalMaxHp(e) * (e.boss ? 0.005 : 0.01))));
       e.hp = Math.min(e.maxHp, e.hp + amt);
       if (e.sinceHit % 90 === 0 && fx && fx.spawnDamagePopup) fx.spawnDamagePopup(e.x + 10, e.y + (e.kind.barY || 0) - 4, `+${amt * 3}`, false, "#4ade80");
-      if (e.hp >= e.maxHp && !e.boss && !e.engaged) e.provoked = false;   // it has forgotten you
+      if (e.livesLeft === e.lives && e.hp >= e.maxHp && !e.boss && !e.engaged) e.provoked = false;   // it has forgotten you
     }
   }
 
@@ -403,7 +450,10 @@ export class EnemyManager {
     const spd = e.speed * (1 + 0.15 * this.night) * (e.st && e.st.chill > 0 ? 0.5 : 1);
     if (aggressive && (e.engaged ? dist < 320 : dist < aggroR) && !(this.stage && this.stage.isInsideSafeZone(player.x + 10, player.y + 17))) {
       e.engaged = true;
-      if (dist > e.reach * 0.6) { mx = (dx / dist) * spd; my = (dy / dist) * spd; }
+      if (dist > e.reach * 0.6) {
+        const [ux, uy] = steer(this.stage, e.x + 10, e.y + 20, target.x + 10, target.y + 20, target === player);
+        mx = ux * spd; my = uy * spd;
+      }
     } else {
       e.engaged = false;
       // Wanders around its home
@@ -482,13 +532,19 @@ export class EnemyManager {
     const playerSafe = this.stage && this.stage.isInsideSafeZone(px, py);
     e.engaged = !playerSafe && dist < 360;
 
-    if (!e.enraged && e.hp < e.maxHp * 0.5) {
+    if (!e.enraged && hpFrac(e) < 0.5) {
       e.enraged = true;
-      if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(bx, by - 60, lang() === "fil" ? "NAGNGINGITNGIT!" : "ENRAGED!", true, "#ef4444");
-      if (fx && fx.addScreenShake) fx.addScreenShake(6);
+      if (def.move === "chained") {
+        // The Chained Warden tears his chains off the spire and starts hunting
+        e.speed *= 1.35;
+        if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(bx, by - 70, lang() === "fil" ? "NAPATID ANG KADENA!" : "CHAINS BROKEN!", true, "#f43f5e");
+        if (fx && fx.spawnHitSparks) fx.spawnHitSparks(bx, by - 20, "#a1a1aa", 30);
+        this.fxs.push({ name: "shockring", x: bx, y: by, t: 0, rate: 3, scale: 1.6 });
+      } else if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(bx, by - 60, lang() === "fil" ? "NAGNGINGITNGIT!" : "ENRAGED!", true, "#ef4444");
+      if (fx && fx.addScreenShake) fx.addScreenShake(def.move === "chained" ? 10 : 6);
     }
     // MVP desperation (25%): summons minions at once and attacks faster
-    if (!e.desperate && e.hp < e.maxHp * 0.25) {
+    if (!e.desperate && hpFrac(e) < 0.25) {
       e.desperate = true;
       e.speed *= 1.2;
       e.bossTimer = 20;
@@ -498,15 +554,39 @@ export class EnemyManager {
       if (fx && fx.addScreenShake) fx.addScreenShake(8);
     }
 
-    // Movement: approaches the player but never leaves the arena
+    // Movement: approaches the player but never leaves the arena. def.move: "drift" keeps a
+    // distance and circles, "chained" stays anchored until enraged, "charge" adds a dash (e.dash)
     let mx = 0, my = 0;
     const home = Math.hypot(e.x - e.homeX, e.y - e.homeY);
-    if (e.castTimer > 0) {
+    const anchored = def.static || (def.move === "chained" && !e.enraged);
+    if (e.dash) {
+      const d = e.dash;
+      if (d.wind > 0) d.wind--;
+      else {
+        mx = d.vx;
+        my = d.vy;
+        d.t--;
+        if (!d.hit && Math.hypot(px - (e.x + 10 + mx), py - (e.y + 17 + my)) < (e.hitR || 16) + 10) {
+          d.hit = true;
+          this.hitTarget(e, player, player, fx, Math.round(e.damage * 1.4));
+          if (fx && fx.addScreenShake) fx.addScreenShake(6);
+        }
+        if (d.t % 4 === 0 && fx && fx.spawnHitSparks) fx.spawnHitSparks(bx, by, d.color, 4);
+        if (d.t <= 0 || Math.hypot(e.x + mx - e.homeX, e.y + my - e.homeY) > 250) e.dash = null;
+      }
+    } else if (e.castTimer > 0) {
       e.castTimer--;
-    } else if (!def.static && e.engaged && dist > e.reach * 0.8 && home < 230) {
+    } else if (def.move === "drift" && e.engaged && home < 200) {
+      // hovers about 70px away and circles the hero
+      const ux = dx / (dist || 1), uy = dy / (dist || 1), r = dist - 70;
+      const toward = Math.max(-1, Math.min(1, r / 24));
+      const side = Math.sin(e.animTimer * 0.01 + e.id * 9) > 0 ? 1 : -1;
+      mx = (ux * toward - uy * 0.55 * side) * e.speed * (e.enraged ? 1.3 : 1);
+      my = (uy * toward + ux * 0.55 * side) * e.speed * (e.enraged ? 1.3 : 1);
+    } else if (!anchored && def.move !== "drift" && e.engaged && dist > e.reach * 0.8 && home < 230) {
       mx = (dx / dist) * e.speed * (e.enraged ? 1.3 : 1);
       my = (dy / dist) * e.speed * (e.enraged ? 1.3 : 1);
-    } else if (!def.static && (!e.engaged || home >= 230) && home > 4) {
+    } else if (!anchored && (!e.engaged || home >= (def.move === "drift" ? 200 : 230)) && home > 4) {
       mx = ((e.homeX - e.x) / home) * e.speed;
       my = ((e.homeY - e.y) / home) * e.speed;
     }
@@ -514,7 +594,7 @@ export class EnemyManager {
     e.y += my;
 
     // Punch/slam when close
-    if (e.engaged && dist <= e.reach) {
+    if (e.engaged && dist <= e.reach && !e.dash) {
       e.windupTimer++;
       if (e.windupTimer > 45) {
         e.windupTimer = 0;
@@ -524,7 +604,7 @@ export class EnemyManager {
     } else e.windupTimer = 0;
 
     // Special attacks
-    if (e.engaged && dist < BOSS_ATTACK_RANGE) {
+    if (e.engaged && dist < BOSS_ATTACK_RANGE && !e.dash) {
       e.bossTimer--;
       if (e.bossTimer <= 0) {
         e.bossTimer = e.desperate ? 75 : e.enraged ? 95 : 150;
@@ -533,7 +613,8 @@ export class EnemyManager {
     }
 
     this.animate(e, dx, dy, Math.hypot(mx, my) > 0.01);
-    if (e.castTimer > 0 && e.strikeTimer <= 0) e.anim = "attack";
+    if (e.castTimer > 0 && e.strikeTimer <= 0) e.anim = def.move ? "skill" : "attack";
+    if (e.dash) e.anim = e.dash.wind > 0 ? "skill" : "run";
   }
 
   bossAttack(e, player, fx, dist) {
@@ -562,6 +643,70 @@ export class EnemyManager {
         this.orbs.push({ x: bx, y: by - 20, vx: Math.cos(ang) * a.orb.speed, vy: Math.sin(ang) * a.orb.speed, life: Math.round(ORB_RANGE / a.orb.speed), color: a.orb.color, dmg: Math.round(e.damage * 0.7), src: e });
       }
       if (Sound && Sound.playBossCast) Sound.playBossCast(bx, by);
+    } else if (pick === "rain") {
+      // Lament Rain: black tears fall in a ring around the hero, then on the spot they stood
+      const n = e.enraged ? 8 : 6, rr = e.enraged ? 30 : 38;
+      for (let k = 0; k < n; k++) {
+        const ang = (k / n) * Math.PI * 2 + Math.random() * 0.4;
+        this.hazards.push({ x: px + Math.cos(ang) * rr, y: py + Math.sin(ang) * rr * 0.7, r: a.rain.radius, t: 48 + k * 3, max: 48 + k * 3, color: a.rain.color, dmg: e.damage, src: e, fx: "tear" });
+      }
+      this.hazards.push({ x: px, y: py, r: a.rain.radius + 4, t: 76, max: 76, color: a.rain.color, dmg: Math.round(e.damage * 1.1), src: e, fx: "tear" });
+      if (Sound && Sound.playBossCast) Sound.playBossCast(bx, by);
+    } else if (pick === "wail") {
+      // Wail: a cone of sorrow toward the hero that silences
+      const ang = Math.atan2(py - by, px - bx);
+      this.hazards.push({ shape: "cone", x: bx, y: by, ang, arc: a.wail.arc, r: a.wail.range, t: 46, max: 46, color: a.wail.color, dmg: Math.round(e.damage * 0.9), src: e, debuff: a.wail.debuff });
+      e.castTimer = 46;
+      if (Sound && Sound.playBossRoar) Sound.playBossRoar();
+    } else if (pick === "blink") {
+      // Blink: vanishes in a burst of tears and reappears on the far side of the hero, then fires
+      const ar = this.stage && this.stage.def && this.stage.def.arena;
+      const ang = Math.atan2(by - py, bx - px) + Math.PI + (Math.random() - 0.5) * 1.2;
+      let nx = px + Math.cos(ang) * 80 - 10, ny = py + Math.sin(ang) * 56 - 17;
+      if (ar) { nx = Math.max(ar.x + 10, Math.min(ar.x + ar.w - 30, nx)); ny = Math.max(ar.y + 10, Math.min(ar.y + ar.h - 30, ny)); }
+      this.fxs.push({ name: "tear", x: bx, y: by - 20, t: 0, rate: 3, scale: 2 });
+      if (fx && fx.spawnHitSparks) { fx.spawnHitSparks(bx, by - 20, a.blink.color, 18); fx.spawnHitSparks(nx + 10, ny - 3, a.blink.color, 18); }
+      e.x = nx; e.y = ny;
+      e.castTimer = 24;
+      if (a.orb) this.pendingOrbs = { e, t: 14 };
+    } else if (pick === "lances") {
+      // Grave Lances: rows of bone spikes erupt from the boss toward the hero (three rows when enraged)
+      const base = Math.atan2(py - by, px - bx);
+      const rows = e.enraged ? [-0.35, 0, 0.35] : [0];
+      rows.forEach((off) => {
+        for (let k = 1; k <= a.lances.count; k++) {
+          const ang = base + off, d = k * a.lances.spacing;
+          this.hazards.push({ x: bx + Math.cos(ang) * d, y: by + Math.sin(ang) * d * 0.8, r: a.lances.radius, t: 30 + k * 5, max: 30 + k * 5, color: a.lances.color, dmg: e.damage, src: e, fx: "bonespike", linger: 18 });
+        }
+      });
+      e.castTimer = 30;
+    } else if (pick === "charge") {
+      // Charge: a short wind-up along a telegraphed line, then a straight run through the hero
+      const ang = Math.atan2(py - by, px - bx), sp = a.charge.speed * (e.enraged ? 1.2 : 1);
+      const len = Math.min(dist + 50, 190);
+      e.dash = { wind: 34, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, t: Math.round(len / sp), hit: false, color: a.charge.color,
+        x0: bx, y0: by, x1: bx + Math.cos(ang) * len, y1: by + Math.sin(ang) * len };
+      e.castTimer = 0;
+      if (Sound && Sound.playBossRoar) Sound.playBossRoar();
+    } else if (pick === "sweep") {
+      // Chain Sweep: a wide arc of chains in front of the Warden
+      if (dist > a.sweep.range + 30) return this.bossAttack(e, player, fx, dist);
+      const ang = Math.atan2(py - by, px - bx);
+      this.hazards.push({ shape: "cone", x: bx, y: by, ang, arc: a.sweep.arc, r: a.sweep.range, t: 44, max: 44, color: a.sweep.color, dmg: Math.round(e.damage * 1.2), src: e, fx: "chain" });
+      e.castTimer = 44;
+    } else if (pick === "ring") {
+      // Shockwave: rings spread from the Warden's slam; dodge through them or stay outside
+      const n = e.enraged ? 3 : 2;
+      for (let k = 0; k < n; k++) this.rings.push({ x: bx, y: by, r: -k * 46, speed: a.ring.speed, max: a.ring.max, band: 7, color: a.ring.color, dmg: Math.round(e.damage * 0.9), src: e, hit: false });
+      this.fxs.push({ name: "shockring", x: bx, y: by, t: 0, rate: 3, scale: 1.4 });
+      if (fx && fx.addScreenShake) fx.addScreenShake(5);
+      e.castTimer = 30;
+    } else if (pick === "grab") {
+      // Chain Grab: a chain flies along a telegraphed line and drags the hero to the Warden
+      if (dist > a.grab.range) return this.bossAttack(e, player, fx, dist);
+      const ang = Math.atan2(py - by, px - bx);
+      this.hazards.push({ shape: "line", x: bx, y: by, ang, len: a.grab.range, w: 10, t: 40, max: 40, color: a.grab.color, dmg: Math.round(e.damage * 0.6), src: e, pull: true, fx: "chain" });
+      e.castTimer = 40;
     } else if (pick === "summon") {
       const adds = this.enemies.filter((x) => x.isAlive && x.summoned).length;
       if (adds >= MAX_ADDS) return;
@@ -578,12 +723,43 @@ export class EnemyManager {
     this.hazards.forEach((h) => {
       h.t--;
       if (h.t === 0) {
-        if (Math.hypot(px - h.x, (py - h.y) * 1.6) <= h.r) this.hitTarget(h.src, player, player, fx, h.dmg);
-        if (fx && fx.spawnHitSparks) fx.spawnHitSparks(h.x, h.y, h.color, 12);
+        if (this.inHazard(h, px, py)) {
+          const before = player.hp;
+          this.hitTarget(h.src, player, player, fx, h.dmg);
+          // a forced blight (Dolora's wail silences)
+          if (h.debuff && player.hp < before && Math.random() < h.debuff.chance && player.inflictDebuff(h.debuff.type, h.debuff.time) && fx && fx.spawnDamagePopup) {
+            fx.spawnDamagePopup(player.x + 10, player.y - 14, statusName(h.debuff.type).toUpperCase(), false, (STATUS[h.debuff.type] || {}).color || "#c084fc");
+          }
+          if (h.pull) this.pullTo(h, player);
+        }
+        if (fx && fx.spawnHitSparks) fx.spawnHitSparks(h.x + (h.shape ? Math.cos(h.ang) * (h.len || h.r) * 0.5 : 0), h.y + (h.shape ? Math.sin(h.ang) * (h.len || h.r) * 0.5 : 0), h.color, 12);
         if (fx && fx.addScreenShake) fx.addScreenShake(3);
       }
     });
-    this.hazards = this.hazards.filter((h) => h.t > -10);
+    this.hazards = this.hazards.filter((h) => h.t > -(h.linger || 10));
+
+    // Shockwave rings: the hero is hit once per ring when its edge passes under their feet
+    this.rings.forEach((g) => {
+      g.r += g.speed;
+      const d = Math.hypot(px - g.x, (py - g.y) * 1.6);
+      if (!g.hit && g.r > 0 && Math.abs(d - g.r) < g.band) { g.hit = true; this.hitTarget(g.src, player, player, fx, g.dmg); }
+    });
+    this.rings = this.rings.filter((g) => g.r < g.max);
+    this.fxs.forEach((f) => f.t++);
+    this.fxs = this.fxs.filter((f) => f.t < 40);
+    // the orb volley that follows a blink
+    if (this.pendingOrbs && --this.pendingOrbs.t <= 0) {
+      const { e } = this.pendingOrbs;
+      this.pendingOrbs = null;
+      if (e.isAlive) {
+        const a = e.kind.attacks.orb, bx = e.x + 10, by = e.y + 17, n = e.enraged ? 5 : 3;
+        const base = Math.atan2(py - (by - 20), px - bx);
+        for (let k = 0; k < n; k++) {
+          const ang = base + (k - (n - 1) / 2) * 0.28;
+          this.orbs.push({ x: bx, y: by - 20, vx: Math.cos(ang) * a.speed, vy: Math.sin(ang) * a.speed, life: Math.round(ORB_RANGE / a.speed), color: a.color, dmg: Math.round(e.damage * 0.7), src: e });
+        }
+      }
+    }
 
     this.orbs.forEach((o) => {
       o.x += o.vx;
@@ -601,6 +777,37 @@ export class EnemyManager {
       }
     });
     this.orbs = this.orbs.filter((o) => o.life > 0);
+  }
+
+  // Is (px, py) inside a boss warning? circle (default), cone (ang, arc, r) or line (ang, len, w)
+  inHazard(h, px, py) {
+    const dx = px - h.x, dy = py - h.y;
+    if (h.shape === "cone") {
+      const d = Math.hypot(dx, dy);
+      if (d > h.r) return false;
+      const diff = Math.abs(((Math.atan2(dy, dx) - h.ang + Math.PI * 3) % (Math.PI * 2)) - Math.PI);
+      return d < 14 || diff <= h.arc / 2;
+    }
+    if (h.shape === "line") {
+      const along = dx * Math.cos(h.ang) + dy * Math.sin(h.ang);
+      const across = -dx * Math.sin(h.ang) + dy * Math.cos(h.ang);
+      return along >= 0 && along <= h.len && Math.abs(across) <= h.w;
+    }
+    return Math.hypot(dx, dy * 1.6) <= h.r;
+  }
+
+  // Chain Grab: drag the hero to just in front of the boss (only onto walkable ground)
+  pullTo(h, player) {
+    const e = h.src;
+    if (!e || !e.isAlive) return;
+    const bx = e.x + 10, by = e.y + 17;
+    const tx = bx + Math.cos(h.ang) * ((e.hitR || 16) + 14) - 10, ty = by + Math.sin(h.ang) * ((e.hitR || 16) + 14) - 17;
+    const tm = this.stage && this.stage.tilemap;
+    const cx = Math.floor((tx + 10) / 16), cy = Math.floor((ty + 17) / 16);
+    if (tm && (!tm.inBounds(cx, cy) || tm.solid[tm.idx(cx, cy)])) return;
+    player.x = tx;
+    player.y = ty;
+    if (player.stunTimer != null) player.stunTimer = Math.max(player.stunTimer || 0, 20);
   }
 
   // Direction and animation from the enemy's actual movement
@@ -685,10 +892,13 @@ export class EnemyManager {
       amount = (amount + player.attack) * (player.dmgMult || 1) * (player.buffs && player.buffs.damage > 0 ? 1.5 : 1) * (d.curse > 0 ? 0.75 : 1);
       // No criticals while blind or cursed
       const canCrit = !(d.blind > 0 || d.curse > 0);
-      if (!isCrit && canCrit && Math.random() < (player.crit || 0)) { isCrit = true; amount *= 1.8; }
+      // Forced crits (isCrit passed in) are already scaled by their skill; rolled crits use the hero's crit damage (LUK)
+      if (!isCrit && canCrit && Math.random() < (player.crit || 0)) { isCrit = true; amount *= player.critDmg || 1.8; }
       amount = Math.round(amount);
       if (!this.hitSource && player.noteHit) player.noteHit(enemy, isCrit);   // play style (js/skillpaths.js)
-    } else amount = Math.round(amount);   // allies and familiars: whole numbers after element/tier
+    }
+    if (isCrit) amount *= 1.8;
+    amount = Math.round(amount);   // whole numbers after modifiers, including critical damage
 
     enemy.hp -= amount;
     // Last-hit rule: only a kill landed by the hero (or the hero's summons) earns EXP and loot.
@@ -713,8 +923,32 @@ export class EnemyManager {
 
     if (Sound && Sound.playHitEnemy) Sound.playHitEnemy(isCrit, enemy.x, enemy.y);
 
-    if (enemy.hp <= 0) this.kill(enemy, fx);
+    if (enemy.hp <= 0) this.fall(enemy, fx, elem, amount);
     else this.applyElement(enemy, elem, amount, fx);
+  }
+
+  // HP reached 0: break a life if any are left (the overflow carries into the next bar), else die
+  fall(e, fx, elem = null, amount = 0) {
+    let broke = 0;
+    while (e.hp <= 0 && (e.livesLeft || 1) > 1) {
+      e.livesLeft--;
+      e.hp += e.maxHp;
+      broke++;
+    }
+    if (e.hp <= 0) { this.kill(e, fx); return; }
+    this.breakLife(e, fx, broke);
+    if (elem) this.applyElement(e, elem, amount, fx);
+  }
+
+  // A life bar shattered: a stagger (not on bosses), a burst in the tier colour and "×N" lives left
+  breakLife(e, fx, broke) {
+    const col = e.boss ? "#c084fc" : e.elite ? TIERS.elite.color : e.champion ? TIERS.champion.color : "#e2e8f0";
+    const top = e.y + (e.kind.barY || 0);
+    if (!e.boss) { e.stunTimer = Math.max(e.stunTimer, 12); e.windupTimer = 0; }
+    if (fx && fx.spawnHitSparks) fx.spawnHitSparks(e.x + 10, top + 2, col, e.boss ? 18 : 8);
+    if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(e.x + 10, top - 10, `${broke > 1 ? "−" + broke + " " : ""}×${e.livesLeft}`, e.boss, col);
+    if (e.boss && fx && fx.addScreenShake) fx.addScreenShake(3);
+    if (fx && fx.hitStop) fx.hitStop(e.boss ? 4 : 2);
   }
 
   kill(e, fx) {
@@ -758,6 +992,8 @@ export class EnemyManager {
     if (e.boss) {
       this.hazards = [];
       this.orbs = [];
+      this.rings = [];
+      this.pendingOrbs = null;
       this.enemies.forEach((m) => { if (m.summoned) m.isAlive = false; });
       if (fx && fx.addScreenShake) fx.addScreenShake(10);
       if (fx && fx.spawnHitSparks) { fx.spawnHitSparks(e.x + 10, e.y - 10, "#ffd166", 40); fx.spawnHitSparks(e.x + 10, e.y - 30, "#ffffff", 30); }
@@ -767,9 +1003,15 @@ export class EnemyManager {
 
   // ---------- DRAW ----------
   draw(ctx) {
+    const cam = this.camera;   // set by main.js: off-screen monsters are not drawn
     // Boss warnings (on the ground, before the characters)
     this.hazards.forEach((h) => {
+      if (h.shape) return this.drawShapedHazard(ctx, h);
       const k = 1 - Math.max(0, h.t) / h.max;
+      // effect sprites: a tear falls onto its circle, bone spikes erupt from theirs
+      if (h.fx === "tear" && h.t > 0 && h.t <= 18) drawFx(ctx, "tear", (18 - h.t) / 4, h.x, h.y, { ay: 1, once: true });
+      if (h.fx === "bonespike" && h.t <= 0) drawFx(ctx, "bonespike", -h.t / 3, h.x, h.y + 3, { ay: 1, once: true });
+      if (h.t <= 0 && h.fx) return;
       ctx.save();
       ctx.globalAlpha = h.t > 0 ? 0.25 + k * 0.35 : 0.8;
       ctx.fillStyle = h.color;
@@ -785,6 +1027,37 @@ export class EnemyManager {
       ctx.restore();
     });
 
+    // Shockwave rings and the charge's telegraph line
+    this.rings.forEach((g) => {
+      if (g.r <= 0) return;
+      ctx.save();
+      ctx.globalAlpha = 0.85 * (1 - g.r / g.max) + 0.15;
+      ctx.strokeStyle = g.color;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.ellipse(g.x, g.y, g.r, g.r / 1.6, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.strokeStyle = "#fde68a";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.restore();
+    });
+    this.enemies.forEach((e) => {
+      const d = e.dash;
+      if (!d || d.wind <= 0) return;
+      ctx.save();
+      ctx.globalAlpha = 0.25 + 0.5 * (1 - d.wind / 34);
+      ctx.strokeStyle = d.color;
+      ctx.lineWidth = 2 * ((e.hitR || 16) / 2 + 2);
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(d.x0, d.y0);
+      ctx.lineTo(d.x1, d.y1);
+      ctx.stroke();
+      ctx.restore();
+    });
+    this.fxs.forEach((f) => drawFx(ctx, f.name, f.t / f.rate, f.x, f.y, { scale: f.scale, once: true, alpha: 1 - f.t / 40 }));
+
     // Dying: a white flash, then the body flattens and fades (flyers drop to the ground)
     this.corpses.forEach(({ e, t }) => {
       const k = t / DEATH_T;
@@ -799,7 +1072,7 @@ export class EnemyManager {
 
     const pl = this.player;
     // Y-sort so they overlap correctly
-    [...this.enemies].filter((e) => e.isAlive).sort((a, b) => a.y - b.y).forEach((e) => {
+    [...this.enemies].filter((e) => e.isAlive && (!cam || e.boss || cam.isVisible(e.x - 16, e.y - 24, 52, 56))).sort((a, b) => a.y - b.y).forEach((e) => {
       const k = e.kind;
       const scale = k.scale || 1;
       const fy = e.y + 17;
@@ -834,13 +1107,7 @@ export class EnemyManager {
       const diff = pl ? e.level - pl.level : 0;
       const color = levelColor(diff, e.boss);
       const by = e.y + k.barY;
-      if (!e.boss) {
-        const w = 20;
-        ctx.fillStyle = "#111";
-        ctx.fillRect(e.x, by, w, 2.5);
-        ctx.fillStyle = color;
-        ctx.fillRect(e.x, by, Math.max(0, (e.hp / e.maxHp) * w), 2.5);
-      }
+      if (!e.boss) drawLifeBar(ctx, e, e.x, by, 20, 2.5, color);
       ctx.font = "bold 4px monospace";
       ctx.textAlign = "center";
       const mark = e.boss ? "☠ MVP " : e.elite ? `${TIERS.elite.mark} ` : e.champion ? `${TIERS.champion.mark} ` : "";
@@ -910,6 +1177,38 @@ export class EnemyManager {
     });
   }
 
+  // Cone (wail, chain sweep) and line (chain grab) warnings: fill grows until they go off
+  drawShapedHazard(ctx, h) {
+    const k = 1 - Math.max(0, h.t) / h.max, done = h.t <= 0;
+    ctx.save();
+    ctx.translate(h.x, h.y);
+    ctx.scale(1, 1 / 1.6);
+    ctx.rotate(h.ang);
+    ctx.fillStyle = h.color;
+    ctx.strokeStyle = h.color;
+    ctx.globalAlpha = done ? 0.7 * (1 + h.t / (h.linger || 10)) : 0.18 + k * 0.32;
+    ctx.beginPath();
+    if (h.shape === "cone") {
+      ctx.moveTo(0, 0);
+      ctx.arc(0, 0, done ? h.r : h.r * (0.3 + 0.7 * k), -h.arc / 2, h.arc / 2);
+      ctx.closePath();
+    } else ctx.rect(0, -h.w, done ? h.len : h.len * k, h.w * 2);
+    ctx.fill();
+    ctx.globalAlpha = 0.9;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    if (h.shape === "cone") { ctx.moveTo(0, 0); ctx.arc(0, 0, h.r, -h.arc / 2, h.arc / 2); ctx.closePath(); } else ctx.rect(0, -h.w, h.len, h.w * 2);
+    ctx.stroke();
+    // the chains themselves as they lash out
+    if (h.fx === "chain" && h.t <= 6) {
+      const reach = h.shape === "line" ? h.len : h.r;
+      const sweep = h.shape === "cone" ? -h.arc / 2 + h.arc * Math.min(1, (6 - h.t) / 14) : 0;
+      ctx.rotate(sweep);
+      for (let d = 0; d < reach; d += 36) drawFx(ctx, "chain", (6 - h.t) / 2, d + 18, 0, { tint: "#71717a" });
+    }
+    ctx.restore();
+  }
+
   // The boss's big HP bar at the top of the screen (screen space)
   drawBossBar(ctx, W) {
     const e = this.boss();
@@ -917,14 +1216,19 @@ export class EnemyManager {
     const w = 220, x = Math.round(W / 2 - w / 2), y = 16;
     ctx.save();
     ctx.fillStyle = "rgba(3, 6, 17, 0.85)";
-    ctx.fillRect(x - 3, y - 9, w + 6, 16);
+    ctx.fillRect(x - 3, y - 9, w + 6, (e.lives || 1) > 1 ? 18 : 16);
     ctx.fillStyle = "#1f1026";
     ctx.fillRect(x, y, w, 4);
-    ctx.fillStyle = e.enraged ? "#ef4444" : "#c084fc";
-    ctx.fillRect(x, y, Math.max(0, (e.hp / e.maxHp) * w), 4);
+    drawLifeBar(ctx, e, x, y, w, 4, e.enraged ? "#ef4444" : "#c084fc");
     ctx.strokeStyle = "#ffd166";
     ctx.lineWidth = 0.6;
     ctx.strokeRect(x - 0.5, y - 0.5, w + 1, 5);
+    if ((e.lives || 1) > 1) {
+      ctx.font = "bold 5px monospace";
+      ctx.textAlign = "left";
+      ctx.fillStyle = "#ffd166";
+      ctx.fillText(`×${e.livesLeft}`, x + w + 4, y + 4);
+    }
     ctx.font = "bold 5px monospace";
     ctx.textAlign = "center";
     ctx.fillStyle = "#ffd166";

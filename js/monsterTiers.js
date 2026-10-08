@@ -85,11 +85,44 @@ export function tierName(e) {
 
 export const has = (e, m) => Boolean(e.mods && e.mods.includes(m));
 
+// ==================== LIVES: STACKED HP BARS ====================
+// A monster's HP is split into lives (stacked bars): break one and the next bar fills in behind it.
+// The count grows with level and tier; the total HP stays what the tier already gives (bosses get a
+// little more per bar, BOSS_HP_PER_BAR), but HP regeneration only refills the current bar (a broken bar stays broken).
+//   normal    1 · 2 from Lv 10 · 3 from Lv 30
+//   champion  one more than a normal of its level
+//   elite     3 + 1 per 15 levels (+1 for an elite kind), up to 6
+//   MVP       4 + 1 per 7 levels, up to 10 (Satan, Lv 44, has all ten)
+export const MAX_LIVES = 10;
+export function livesFor(e) {
+  const lv = e.level || 1;
+  if (e.boss) return Math.min(MAX_LIVES, 4 + Math.floor(lv / 7));
+  if (e.elite) return Math.min(6, 3 + Math.floor(lv / 15) + (e.kind && e.kind.elite ? 1 : 0));
+  const normal = 1 + (lv >= 10 ? 1 : 0) + (lv >= 30 ? 1 : 0);
+  return e.champion ? normal + 1 : normal;
+}
+
+// MVP bosses get +6% of their HP for every bar past the first (Malakor ×1.3 … Satan ×1.54), so a
+// ten-bar boss fight lasts longer than a six-bar one. Other tiers keep the HP their tier gives.
+export const BOSS_HP_PER_BAR = 0.06;
+
+// Split the monster's full HP into its lives: maxHp becomes one bar
+export function applyLives(e, n = livesFor(e)) {
+  const total = e.maxHp * (e.boss ? 1 + BOSS_HP_PER_BAR * (Math.max(1, n) - 1) : 1);
+  e.lives = e.livesLeft = Math.max(1, n);
+  e.maxHp = e.hp = Math.max(1, Math.ceil(total / e.lives));
+}
+
+// HP over every bar (for % rules: enrage, berserk, poison, NPC hits, the balance sim)
+export const totalMaxHp = (e) => e.maxHp * (e.lives || 1);
+export const totalHp = (e) => Math.max(0, e.hp) + e.maxHp * ((e.livesLeft || 1) - 1);
+export const hpFrac = (e) => totalHp(e) / Math.max(1, totalMaxHp(e));
+
 // Pinsalang natatanggap (Stoneskin)
 export const damageTakenMult = (e) => (has(e, "stoneskin") ? 0.6 : 1);
 
 // Damage dealt (Berserk when its HP is low)
-export const damageDealtMult = (e) => (has(e, "berserk") && e.hp < e.maxHp * 0.5 ? 1.3 : 1);
+export const damageDealtMult = (e) => (has(e, "berserk") && hpFrac(e) < 0.5 ? 1.3 : 1);
 
 // Attack speed (Swift: shorter wind-up)
 export const windupFor = (e, base) => Math.round(base * (has(e, "swift") ? 0.8 : 1));

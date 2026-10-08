@@ -2,7 +2,7 @@ import { FalconSprite } from "../avatar/creature.js";
 import { GFX } from "../settings.js";
 
 // One sprite for every falcon (frames are cached)
-const SPRITE = new FalconSprite();
+export const SPRITE = new FalconSprite();
 SPRITE.sheetKey = "summon/falcon";   // aseprite/summon/falcon.aseprite when exported
 
 export class FalconCompanion {

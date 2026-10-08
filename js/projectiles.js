@@ -143,7 +143,7 @@ export class ProjectileManager {
           continue;
         }
       }
-      // 8. Bolt (Throw Stone, Holy Light, Frost Diver, path actives) — a flying shot with an element; crit: always critical
+      // 8. Bolt (Throw Stone, Holy Light, Glacial Lance, path actives) — a flying shot with an element; crit: always critical
       else if (p.type === "bolt") {
         p.x += p.vx;
         p.y += p.vy;
@@ -152,7 +152,7 @@ export class ProjectileManager {
         for (let e of enemies) {
           if (e.isAlive && Math.hypot(cx(e) - p.x, cy(e) - p.y) <= 12 + hr(e)) {
             hit = true;
-            enemyManager.damage(e, p.crit ? Math.round(p.damage * 1.8) : p.damage, Math.atan2(p.vy, p.vx), Boolean(p.crit), fx, lootManager, 6, false, player, p.elem);
+            enemyManager.damage(e, p.damage, Math.atan2(p.vy, p.vx), Boolean(p.crit), fx, lootManager, 6, false, player, p.elem);
             if (p.freeze && !e.boss) { e.stunTimer = Math.max(e.stunTimer, p.freeze); e.frozen = p.freeze; }
             if (fx) fx.spawnHitSparks(cx(e), cy(e), p.color, 10);
             break;
@@ -163,7 +163,7 @@ export class ProjectileManager {
           continue;
         }
       }
-      // 9. Rain (Arrow Shower) — several waves of hits on one spot
+      // 9. Rain (Skyfall Volley) — several waves of hits on one spot
       else if (p.type === "rain") {
         p.timer++;
         if (p.timer % p.every === 1) {
@@ -188,7 +188,7 @@ export class ProjectileManager {
           if (e.isAlive && !p.hit.has(e) && Math.hypot(cx(e) - p.x, cy(e) - p.y) <= p.radius + hr(e)) {
             p.hit.add(e);
             const bonus = p.markBonus && e.isMarkedCritical ? p.markBonus : 1;   // Fighter: bonus against a marked foe
-            enemyManager.damage(e, Math.round(p.damage * bonus), p.angle, bonus > 1, fx, lootManager, p.push || 16, false, player, p.elem || null);
+            enemyManager.damage(e, Math.round(p.damage * bonus), p.angle, false, fx, lootManager, p.push || 16, false, player, p.elem || null);
             if (bonus > 1) e.isMarkedCritical = false;
             if (fx) fx.spawnHitSparks(cx(e), cy(e), p.color || "#ffd166", 10);
           }
@@ -246,7 +246,9 @@ export class ProjectileManager {
   }
 
   draw(ctx) {
+    const cam = this.camera;   // set by main.js: off-screen shots are not drawn
     this.projectiles.forEach((p) => {
+      if (cam && p.type !== "meteor" && !cam.isVisible(p.x - 16, p.y - 16, 32, 32)) return;
       ctx.save();
       // Each effect uses its Aseprite sprite when loaded (drawFx), else the code-drawn shape below
       const age = p.age || 0;

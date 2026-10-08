@@ -1,0 +1,155 @@
+{
+ "frames": [
+  {
+   "filename": "frost 0.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 140
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 140
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 140
+   },
+   "duration": 120
+  },
+  {
+   "filename": "frost 1.aseprite",
+   "frame": {
+    "x": 196,
+    "y": 0,
+    "w": 196,
+    "h": 140
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 140
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 140
+   },
+   "duration": 120
+  },
+  {
+   "filename": "frost 2.aseprite",
+   "frame": {
+    "x": 392,
+    "y": 0,
+    "w": 196,
+    "h": 140
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 140
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 140
+   },
+   "duration": 120
+  },
+  {
+   "filename": "frost 3.aseprite",
+   "frame": {
+    "x": 588,
+    "y": 0,
+    "w": 196,
+    "h": 140
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 140
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 140
+   },
+   "duration": 120
+  },
+  {
+   "filename": "frost 4.aseprite",
+   "frame": {
+    "x": 784,
+    "y": 0,
+    "w": 196,
+    "h": 140
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 140
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 140
+   },
+   "duration": 120
+  },
+  {
+   "filename": "frost 5.aseprite",
+   "frame": {
+    "x": 980,
+    "y": 0,
+    "w": 196,
+    "h": 140
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 196,
+    "h": 140
+   },
+   "sourceSize": {
+    "w": 196,
+    "h": 140
+   },
+   "duration": 120
+  }
+ ],
+ "meta": {
+  "app": "tools/aseprite/asefile.mjs",
+  "image": "frost.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 1176,
+   "h": 140
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "down-idle",
+    "from": 0,
+    "to": 5,
+    "direction": "forward",
+    "color": "#000000ff"
+   }
+  ]
+ }
+}

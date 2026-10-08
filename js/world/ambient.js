@@ -1,5 +1,5 @@
 // ==================== PLATFORM AMBIENCE ====================
-// Particles and sky colour per place (LORE Acts VII–XII):
+// Particles and sky colour per place (LORE Acts VII–XV):
 //   spores   — Whispering Canopy: floating spores, violet-green haze
 //   storm    — Cerulean Abyss: slanting rain, lightning, blue-grey sky
 //   blizzard — Frostfang: thick snow, white haze
@@ -10,6 +10,9 @@
 //   fenmist   — Gloomwater Fens: green will-o'-wisps, murky haze
 //   gale      — Stormcrown Highlands: fast wind streaks, the odd lightning flash
 //   sandstorm — Sunscorch Dunes: blowing sand, golden heat haze
+//   lament    — Lamenting Strand: falling black tears, cold slate haze
+//   grave     — Ossuary Fields: drifting bone dust and ember motes
+//   chains    — Chainspire Descent: rising red sparks, dark edges
 // The particles live in screen space (they follow the camera), so they stay cheap on a big map.
 
 const VIEW_W = 480, VIEW_H = 270;
@@ -24,6 +27,9 @@ const KINDS = {
   dust:     { n: 40, tint: "rgba(90, 60, 30, 0.12)", colors: ["#d6b88a", "#a8a29e", "#e7d7b0"], vy: [-0.1, 0.15], vx: [0.3, 0.8], size: [1, 1] },
   fenmist:  { n: 36, tint: "rgba(20, 40, 25, 0.24)", colors: ["#bef264", "#ecfccb", "#86efac"], vy: [-0.2, 0.1], vx: [-0.12, 0.12], size: [1, 2], swirl: true },
   gale:     { n: 70, tint: "rgba(40, 60, 80, 0.12)", colors: ["rgba(241, 245, 249, 0.7)"], vy: [0.2, 0.6], vx: [3, 4.5], size: [1, 1], streak: 5, flash: 0.002 },
+  lament:   { n: 60, tint: "rgba(10, 18, 32, 0.28)", colors: ["#94a3b8", "#0f172a", "#7dd3fc"], vy: [0.5, 1.1], vx: [-0.15, 0.1], size: [1, 2] },
+  grave:    { n: 40, tint: "rgba(60, 55, 45, 0.18)", colors: ["#e7e5e4", "#a8a29e", "#f97316"], vy: [-0.15, 0.1], vx: [0.2, 0.6], size: [1, 1] },
+  chains:   { n: 60, tint: "rgba(50, 5, 15, 0.26)", colors: ["#f43f5e", "#a1a1aa", "#fb7185"], vy: [-0.6, -0.2], vx: [-0.2, 0.2], size: [1, 2], vignette: true },
   sandstorm: { n: 110, tint: "rgba(160, 110, 40, 0.2)", colors: ["#e7c98a", "#d4a556", "#f5deb3"], vy: [0.1, 0.5], vx: [2.2, 3.6], size: [1, 2] }
 };
 

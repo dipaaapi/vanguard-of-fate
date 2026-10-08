@@ -1,3 +1,5 @@
+import { drawZoneArt, zoneSolids } from "./zonesprites.js";
+
 export class BarracksSystem {
   constructor(worldWidth, worldHeight) {
     this.bounds = {
@@ -13,13 +15,30 @@ export class BarracksSystem {
       [this.bounds.x + this.bounds.w - 14, this.bounds.y + this.bounds.h - 14]
     ];
     this.animTick = 0;
+    this.tick = 0;
+    // The longhouses behind the north edge (only in the Aseprite art, js/world/zonesprites.js)
+    this.solids = zoneSolids("barracks", this.bounds.x, this.bounds.y);
   }
 
   update() {
     this.animTick += 0.08;
+    this.tick++;
   }
 
+  // Aseprite art (aseprite/zone/barracks.aseprite) when exported, else the code-drawn plaza
   draw(ctx) {
+    if (drawZoneArt(ctx, "barracks", this.bounds.x, this.bounds.y, this.tick)) return;
+    this.drawCode(ctx);
+  }
+
+  // What the tilemap keeps clear of trees and rocks: the plaza and the longhouses' ground
+  drawCoverage(ctx) {
+    this.drawCode(ctx);
+    ctx.fillStyle = "#000";
+    this.solids.forEach((b) => ctx.fillRect(b.x, b.y - 10, b.w, b.h + 10));
+  }
+
+  drawCode(ctx) {
     const s = this.bounds;
 
     // Contact Outpost Shadow
