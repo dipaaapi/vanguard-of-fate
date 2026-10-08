@@ -90,6 +90,9 @@ export function normalizeConfig(cfg = {}) {
   if (cfg.beard) out.beard = true;
   if (cfg.glasses) out.glasses = true;
   if (cfg.quiver) out.quiver = true;
+  if (cfg.beastkin) out.beastkin = true;
+  if (cfg.robot) out.robot = true;
+  ["furColor", "earInner", "tailTip", "muzzleColor", "noseColor"].forEach((key) => { if (HEX.test(cfg[key] || "")) out[key] = cfg[key]; });
   return out;
 }
 

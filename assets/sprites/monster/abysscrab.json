@@ -1,0 +1,568 @@
+{ "frames": [
+   {
+    "filename": "abysscrab 0.aseprite",
+    "frame": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 1.aseprite",
+    "frame": { "x": 30, "y": 0, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 2.aseprite",
+    "frame": { "x": 60, "y": 0, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 3.aseprite",
+    "frame": { "x": 90, "y": 0, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 4.aseprite",
+    "frame": { "x": 60, "y": 0, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 5.aseprite",
+    "frame": { "x": 90, "y": 0, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 6.aseprite",
+    "frame": { "x": 120, "y": 0, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 7.aseprite",
+    "frame": { "x": 150, "y": 0, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 8.aseprite",
+    "frame": { "x": 180, "y": 0, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 9.aseprite",
+    "frame": { "x": 0, "y": 22, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 10.aseprite",
+    "frame": { "x": 30, "y": 22, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 11.aseprite",
+    "frame": { "x": 180, "y": 0, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 12.aseprite",
+    "frame": { "x": 0, "y": 22, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 13.aseprite",
+    "frame": { "x": 30, "y": 22, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 14.aseprite",
+    "frame": { "x": 60, "y": 22, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 15.aseprite",
+    "frame": { "x": 90, "y": 22, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 16.aseprite",
+    "frame": { "x": 120, "y": 22, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 17.aseprite",
+    "frame": { "x": 150, "y": 22, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 18.aseprite",
+    "frame": { "x": 180, "y": 22, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 19.aseprite",
+    "frame": { "x": 0, "y": 44, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 20.aseprite",
+    "frame": { "x": 30, "y": 44, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 21.aseprite",
+    "frame": { "x": 60, "y": 44, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 22.aseprite",
+    "frame": { "x": 90, "y": 44, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 23.aseprite",
+    "frame": { "x": 120, "y": 44, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 24.aseprite",
+    "frame": { "x": 90, "y": 44, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 25.aseprite",
+    "frame": { "x": 120, "y": 44, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 26.aseprite",
+    "frame": { "x": 150, "y": 44, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 27.aseprite",
+    "frame": { "x": 180, "y": 44, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 28.aseprite",
+    "frame": { "x": 0, "y": 66, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 29.aseprite",
+    "frame": { "x": 30, "y": 66, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 30.aseprite",
+    "frame": { "x": 60, "y": 66, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 31.aseprite",
+    "frame": { "x": 0, "y": 66, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 32.aseprite",
+    "frame": { "x": 30, "y": 66, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 33.aseprite",
+    "frame": { "x": 60, "y": 66, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 34.aseprite",
+    "frame": { "x": 90, "y": 66, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 35.aseprite",
+    "frame": { "x": 120, "y": 66, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 36.aseprite",
+    "frame": { "x": 150, "y": 66, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 37.aseprite",
+    "frame": { "x": 180, "y": 66, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 38.aseprite",
+    "frame": { "x": 0, "y": 88, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 39.aseprite",
+    "frame": { "x": 30, "y": 88, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 40.aseprite",
+    "frame": { "x": 60, "y": 88, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 41.aseprite",
+    "frame": { "x": 90, "y": 88, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 42.aseprite",
+    "frame": { "x": 120, "y": 88, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 43.aseprite",
+    "frame": { "x": 150, "y": 88, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 44.aseprite",
+    "frame": { "x": 120, "y": 88, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 45.aseprite",
+    "frame": { "x": 150, "y": 88, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 46.aseprite",
+    "frame": { "x": 90, "y": 88, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 47.aseprite",
+    "frame": { "x": 60, "y": 88, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 48.aseprite",
+    "frame": { "x": 180, "y": 88, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 49.aseprite",
+    "frame": { "x": 0, "y": 110, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 50.aseprite",
+    "frame": { "x": 30, "y": 110, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 51.aseprite",
+    "frame": { "x": 180, "y": 88, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 52.aseprite",
+    "frame": { "x": 0, "y": 110, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 53.aseprite",
+    "frame": { "x": 30, "y": 110, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 54.aseprite",
+    "frame": { "x": 60, "y": 110, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 55.aseprite",
+    "frame": { "x": 90, "y": 110, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 56.aseprite",
+    "frame": { "x": 120, "y": 110, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 57.aseprite",
+    "frame": { "x": 150, "y": 110, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 58.aseprite",
+    "frame": { "x": 180, "y": 110, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   },
+   {
+    "filename": "abysscrab 59.aseprite",
+    "frame": { "x": 0, "y": 132, "w": 30, "h": 22 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 30, "h": 22 },
+    "sourceSize": { "w": 30, "h": 22 },
+    "duration": 150
+   }
+ ],
+ "meta": {
+  "app": "https://www.aseprite.org/",
+  "version": "1.3.18.6-x64",
+  "image": "abysscrab.png",
+  "format": "RGBA8888",
+  "size": { "w": 210, "h": 154 },
+  "scale": "1",
+  "frameTags": [
+   { "name": "down-idle", "from": 0, "to": 1, "direction": "forward", "color": "#000000ff" },
+   { "name": "down-walk", "from": 2, "to": 5, "direction": "forward", "color": "#000000ff" },
+   { "name": "down-attack", "from": 6, "to": 7, "direction": "forward", "color": "#000000ff" },
+   { "name": "down-run", "from": 8, "to": 13, "direction": "forward", "color": "#000000ff" },
+   { "name": "down-skill", "from": 14, "to": 19, "direction": "forward", "color": "#000000ff" },
+   { "name": "side-idle", "from": 20, "to": 21, "direction": "forward", "color": "#000000ff" },
+   { "name": "side-walk", "from": 22, "to": 25, "direction": "forward", "color": "#000000ff" },
+   { "name": "side-attack", "from": 26, "to": 27, "direction": "forward", "color": "#000000ff" },
+   { "name": "side-run", "from": 28, "to": 33, "direction": "forward", "color": "#000000ff" },
+   { "name": "side-skill", "from": 34, "to": 39, "direction": "forward", "color": "#000000ff" },
+   { "name": "up-idle", "from": 40, "to": 41, "direction": "forward", "color": "#000000ff" },
+   { "name": "up-walk", "from": 42, "to": 45, "direction": "forward", "color": "#000000ff" },
+   { "name": "up-attack", "from": 46, "to": 47, "direction": "forward", "color": "#000000ff" },
+   { "name": "up-run", "from": 48, "to": 53, "direction": "forward", "color": "#000000ff" },
+   { "name": "up-skill", "from": 54, "to": 59, "direction": "forward", "color": "#000000ff" }
+  ]
+ }
+}

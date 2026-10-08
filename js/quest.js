@@ -182,6 +182,10 @@ export class QuestManager {
     this.monolith = false;   // Celestial Monolith awakened (all four Seal Stones placed)
     this.mining = 0;         // Thane Durgrim's charge: 0 not offered · 1 hunting · 2 mining unlocked
     this.miningKills = 0;    // Ashfall beasts slain for the charge
+    this.lostRoute = { started: false, surveyFound: false, marshGlassFound: false, beaconCrafted: false,
+      passageOpen: false, records: { power: false, navigation: false, safety: false }, deviceActivated: false };
+    this.regionIntros = { swamp: false, lost: false };
+    this.kingDead = false;
     this.side.reset();
     this.side.ensure(this.act());
   }
@@ -199,6 +203,15 @@ export class QuestManager {
       this.monolith = Boolean(data.monolith);
       this.mining = Math.max(0, Math.min(2, data.mining | 0));
       this.miningKills = Math.max(0, data.miningKills | 0);
+      const r = data.lostRoute || {};
+      this.lostRoute = {
+        started: Boolean(r.started), surveyFound: Boolean(r.surveyFound), marshGlassFound: Boolean(r.marshGlassFound),
+        beaconCrafted: Boolean(r.beaconCrafted), passageOpen: Boolean(r.passageOpen),
+        records: { power: Boolean(r.records?.power), navigation: Boolean(r.records?.navigation), safety: Boolean(r.records?.safety) },
+        deviceActivated: Boolean(r.deviceActivated)
+      };
+      this.regionIntros = { swamp: Boolean(data.regionIntros?.swamp), lost: Boolean(data.regionIntros?.lost) };
+      this.kingDead = Boolean(data.kingDead) || this.cleared("siege");
     } else if (!isNovice) {
       this.step = 5;
     }
@@ -210,7 +223,13 @@ export class QuestManager {
   }
 
   serialize() {
-    return { v: QUEST_VERSION, step: this.step, met: { ...this.met }, monolith: this.monolith, mining: this.mining, miningKills: this.miningKills, side: this.side.serialize() };
+    return { v: QUEST_VERSION, step: this.step, met: { ...this.met }, monolith: this.monolith, mining: this.mining, miningKills: this.miningKills, lostRoute: structuredClone(this.lostRoute), regionIntros: { ...this.regionIntros }, kingDead: this.kingDead, side: this.side.serialize() };
+  }
+
+  resolveKingFate() {
+    if (this.kingDead) return false;
+    this.kingDead = true;
+    return true;
   }
 
   // LORE.md Act number for the current step
@@ -277,10 +296,54 @@ export class QuestManager {
   }
 
   unlocked(platformId) {
+    if (platformId === "underworks") return this.lostRoute.passageOpen;
+    if (platformId === "lost") return this.lostRoute.deviceActivated;
     // Frontier maps open with their Act (and stay open)
     const f = FRONTIERS[platformId];
     if (f) return this.step >= FINAL_STEP || this.act() >= f.unlockAct;
     return PLATFORM_ORDER.includes(platformId) && this.step >= this.baseStep(platformId);
+  }
+
+  startLostRoute() {
+    if (this.act() < 8 || this.lostRoute.started) return false;
+    this.lostRoute.started = true;
+    return true;
+  }
+
+  findRoyalSurvey() {
+    if (!this.lostRoute.started || this.lostRoute.surveyFound) return false;
+    this.lostRoute.surveyFound = true;
+    return true;
+  }
+
+  findMarshGlass() {
+    if (!this.lostRoute.surveyFound || this.lostRoute.marshGlassFound) return false;
+    this.lostRoute.marshGlassFound = true;
+    return true;
+  }
+
+  craftResonanceBeacon() {
+    if (!this.lostRoute.surveyFound || !this.lostRoute.marshGlassFound || this.lostRoute.beaconCrafted) return false;
+    this.lostRoute.beaconCrafted = true;
+    return true;
+  }
+
+  revealUnderworks() {
+    if (!this.lostRoute.beaconCrafted || this.lostRoute.passageOpen) return false;
+    this.lostRoute.passageOpen = true;
+    return true;
+  }
+
+  recordFacilitySystem(id) {
+    if (!this.lostRoute.passageOpen || !Object.hasOwn(this.lostRoute.records, id) || this.lostRoute.records[id]) return false;
+    this.lostRoute.records[id] = true;
+    return true;
+  }
+
+  activateLostDevice() {
+    if (!Object.values(this.lostRoute.records).every(Boolean) || this.lostRoute.deviceActivated) return false;
+    this.lostRoute.deviceActivated = true;
+    return true;
   }
 
   // The boss is defeated (its quest item was taken)

@@ -1,0 +1,568 @@
+{ "frames": [
+   {
+    "filename": "blizzardroc 0.aseprite",
+    "frame": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 1.aseprite",
+    "frame": { "x": 36, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 2.aseprite",
+    "frame": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 3.aseprite",
+    "frame": { "x": 36, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 4.aseprite",
+    "frame": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 5.aseprite",
+    "frame": { "x": 36, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 6.aseprite",
+    "frame": { "x": 72, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 7.aseprite",
+    "frame": { "x": 108, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 8.aseprite",
+    "frame": { "x": 144, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 9.aseprite",
+    "frame": { "x": 180, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 10.aseprite",
+    "frame": { "x": 216, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 11.aseprite",
+    "frame": { "x": 144, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 12.aseprite",
+    "frame": { "x": 180, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 13.aseprite",
+    "frame": { "x": 216, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 14.aseprite",
+    "frame": { "x": 0, "y": 30, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 15.aseprite",
+    "frame": { "x": 36, "y": 30, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 16.aseprite",
+    "frame": { "x": 72, "y": 30, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 17.aseprite",
+    "frame": { "x": 108, "y": 30, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 18.aseprite",
+    "frame": { "x": 144, "y": 30, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 19.aseprite",
+    "frame": { "x": 180, "y": 30, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 20.aseprite",
+    "frame": { "x": 216, "y": 30, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 21.aseprite",
+    "frame": { "x": 0, "y": 60, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 22.aseprite",
+    "frame": { "x": 216, "y": 30, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 23.aseprite",
+    "frame": { "x": 0, "y": 60, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 24.aseprite",
+    "frame": { "x": 216, "y": 30, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 25.aseprite",
+    "frame": { "x": 0, "y": 60, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 26.aseprite",
+    "frame": { "x": 36, "y": 60, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 27.aseprite",
+    "frame": { "x": 72, "y": 60, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 28.aseprite",
+    "frame": { "x": 108, "y": 60, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 29.aseprite",
+    "frame": { "x": 144, "y": 60, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 30.aseprite",
+    "frame": { "x": 180, "y": 60, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 31.aseprite",
+    "frame": { "x": 108, "y": 60, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 32.aseprite",
+    "frame": { "x": 144, "y": 60, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 33.aseprite",
+    "frame": { "x": 180, "y": 60, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 34.aseprite",
+    "frame": { "x": 216, "y": 60, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 35.aseprite",
+    "frame": { "x": 0, "y": 90, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 36.aseprite",
+    "frame": { "x": 36, "y": 90, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 37.aseprite",
+    "frame": { "x": 72, "y": 90, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 38.aseprite",
+    "frame": { "x": 108, "y": 90, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 39.aseprite",
+    "frame": { "x": 144, "y": 90, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 40.aseprite",
+    "frame": { "x": 180, "y": 90, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 41.aseprite",
+    "frame": { "x": 216, "y": 90, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 42.aseprite",
+    "frame": { "x": 180, "y": 90, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 43.aseprite",
+    "frame": { "x": 216, "y": 90, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 44.aseprite",
+    "frame": { "x": 180, "y": 90, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 45.aseprite",
+    "frame": { "x": 216, "y": 90, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 46.aseprite",
+    "frame": { "x": 0, "y": 120, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 47.aseprite",
+    "frame": { "x": 36, "y": 120, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 48.aseprite",
+    "frame": { "x": 72, "y": 120, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 49.aseprite",
+    "frame": { "x": 108, "y": 120, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 50.aseprite",
+    "frame": { "x": 144, "y": 120, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 51.aseprite",
+    "frame": { "x": 72, "y": 120, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 52.aseprite",
+    "frame": { "x": 108, "y": 120, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 53.aseprite",
+    "frame": { "x": 144, "y": 120, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 54.aseprite",
+    "frame": { "x": 180, "y": 120, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 55.aseprite",
+    "frame": { "x": 216, "y": 120, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 56.aseprite",
+    "frame": { "x": 0, "y": 150, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 57.aseprite",
+    "frame": { "x": 36, "y": 150, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 58.aseprite",
+    "frame": { "x": 72, "y": 150, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "blizzardroc 59.aseprite",
+    "frame": { "x": 108, "y": 150, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   }
+ ],
+ "meta": {
+  "app": "https://www.aseprite.org/",
+  "version": "1.3.18.6-x64",
+  "image": "blizzardroc.png",
+  "format": "RGBA8888",
+  "size": { "w": 252, "h": 180 },
+  "scale": "1",
+  "frameTags": [
+   { "name": "down-idle", "from": 0, "to": 1, "direction": "forward", "color": "#000000ff" },
+   { "name": "down-walk", "from": 2, "to": 5, "direction": "forward", "color": "#000000ff" },
+   { "name": "down-attack", "from": 6, "to": 7, "direction": "forward", "color": "#000000ff" },
+   { "name": "down-run", "from": 8, "to": 13, "direction": "forward", "color": "#000000ff" },
+   { "name": "down-skill", "from": 14, "to": 19, "direction": "forward", "color": "#000000ff" },
+   { "name": "side-idle", "from": 20, "to": 21, "direction": "forward", "color": "#000000ff" },
+   { "name": "side-walk", "from": 22, "to": 25, "direction": "forward", "color": "#000000ff" },
+   { "name": "side-attack", "from": 26, "to": 27, "direction": "forward", "color": "#000000ff" },
+   { "name": "side-run", "from": 28, "to": 33, "direction": "forward", "color": "#000000ff" },
+   { "name": "side-skill", "from": 34, "to": 39, "direction": "forward", "color": "#000000ff" },
+   { "name": "up-idle", "from": 40, "to": 41, "direction": "forward", "color": "#000000ff" },
+   { "name": "up-walk", "from": 42, "to": 45, "direction": "forward", "color": "#000000ff" },
+   { "name": "up-attack", "from": 46, "to": 47, "direction": "forward", "color": "#000000ff" },
+   { "name": "up-run", "from": 48, "to": 53, "direction": "forward", "color": "#000000ff" },
+   { "name": "up-skill", "from": 54, "to": 59, "direction": "forward", "color": "#000000ff" }
+  ]
+ }
+}

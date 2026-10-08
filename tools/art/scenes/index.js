@@ -32,7 +32,7 @@ export const SCENES = {
   "prophecy": chapter("prophecy", "prophecy"),
   "ledger": chapter("ledger", "ledger"),
   "heralds": chapter("heralds", "heralds"),
-  "title": { out: "assets/bg/title_bg.png", w: 480, h: 270, scale: 4, mod: "title" },
+  "title": { out: "assets/bg/title_bg.png", w: 480, h: 270, scale: 6, mod: "title" },
   "portal": { out: "assets/bg/portal_bg.png", w: 480, h: 270, scale: 4, mod: "portal" },
   "vista-earth-2026": vista("earth-2026", "vistaEarth"),
   "vista-lantern-knight": vista("lantern-knight", "vistaLantern"),

@@ -59,27 +59,25 @@
     <!-- Navigation Menu (Dynamically populated) -->
     <nav class="t-menu" id="titleMenu" aria-label="Title Menu"></nav>
 
-    <!-- Chronicles Modal (Lore Chapters) -->
-    <div class="t-chron" id="chronicles" role="dialog" aria-modal="true" aria-labelledby="chronTitle">
-      <div class="c-panel">
-        <div class="c-head">
-          <h2 id="chronTitle"></h2>
-          <button type="button" class="c-close" id="chronClose" aria-label="Close Chronicles">✕</button>
-        </div>
-        <div class="c-tabs" id="chronTabs" role="tablist"></div>
-        <div class="c-body" id="chronBody" tabindex="0"></div>
-        <p class="c-note" id="chronNote"></p>
-      </div>
-    </div>
-
     <!-- Credits Modal -->
-    <div class="t-chron t-credits" id="credits" role="dialog" aria-modal="true" aria-labelledby="credTitle">
+    <div class="t-modal t-credits" id="credits" role="dialog" aria-modal="true" aria-labelledby="credTitle">
       <div class="c-panel">
         <div class="c-head">
           <h2 id="credTitle"></h2>
           <button type="button" class="c-close" id="credClose" aria-label="Close Credits">✕</button>
         </div>
         <div class="c-body cr-body" id="credBody" tabindex="0"></div>
+      </div>
+    </div>
+
+    <!-- Keyboard and controller reference -->
+    <div class="t-modal t-controls" id="controls" role="dialog" aria-modal="true" aria-labelledby="controlsTitle">
+      <div class="c-panel">
+        <div class="c-head">
+          <h2 id="controlsTitle"></h2>
+          <button type="button" class="c-close" id="controlsClose" aria-label="Close controls">✕</button>
+        </div>
+        <div class="c-body controls-body" id="controlsBody" tabindex="0"></div>
       </div>
     </div>
 

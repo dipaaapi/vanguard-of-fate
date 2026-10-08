@@ -149,7 +149,7 @@ class NPC {
     this.flip = false;
     this.visible = true;
     this.avatar = new Avatar(NPC_DEFS[id].look);
-    this.avatar.sheetKey = `npc/${id}`;   // aseprite/npc/<id>.aseprite when exported
+    if (id !== "nimaFen" && id !== "eirene" && id !== "templar") this.avatar.sheetKey = `npc/${id}`;   // Signature recruit designs use procedural parts.
     this.squash = NPC_DEFS[id].dwarf ? 0.8 : 1;   // dwarves stand shorter
     this.tick = Math.floor(Math.random() * 120);
 
@@ -197,7 +197,7 @@ class NPC {
   }
 
   // Face the player when close; patrol, or attack any foe to keep everyone safe
-  update(px, py, enemyManager = null, fx = null, king = null) {
+  update(px, py, enemyManager = null, fx = null, king = null, heir = null) {
     this.tick++;
     if (this.attackAnimTimer > 0) this.attackAnimTimer--;
     if (this.attackCooldown > 0) this.attackCooldown--;
@@ -217,8 +217,9 @@ class NPC {
     let minThreatDist = Infinity;
 
     if (enemyManager && enemyManager.enemies && enemyManager.enemies.length > 0) {
-      const anchorX = (this.guard && king) ? king.x : this.x;
-      const anchorY = (this.guard && king) ? king.y : this.y;
+      const protector = this.id === "templar" ? heir : king;
+      const anchorX = (this.guard && protector) ? protector.x : this.x;
+      const anchorY = (this.guard && protector) ? protector.y : this.y;
 
       for (const e of enemyManager.enemies) {
         if (!e.isAlive) continue;
@@ -467,6 +468,7 @@ export class NPCManager {
     this.platformId = "hub";
     this.chatCooldown = 120;
     this.activeChat = null;
+    this.partyNpcs = [];
   }
 
   // Change place: only that place's NPCs are visible
@@ -474,11 +476,23 @@ export class NPCManager {
     this.platformId = id;
     this.nearest = null;
     this.activeChat = null;
+    this.partyNpcs.forEach(n => { n.platform = id; });
+  }
+
+  setParty(ids = [], activeId = null) {
+    this.activePlayable = activeId;
+    const keep = ids.filter(id => id !== activeId);
+    this.partyNpcs = keep.map((id, i) => {
+      const n = new NPC(id, 0, 0, "down", this.platformId, { guard: true, wanderRadius: 0, speed: 0.72 });
+      n.isPartyFollower = true;
+      n.formationIndex = i;
+      return n;
+    });
   }
 
   // Is the NPC visible in the current place?
   shown(n) {
-    return n.visible && n.platform === this.platformId;
+    return n.visible && n.platform === this.platformId && !(this.activePlayable === n.id && !n.isPartyFollower);
   }
 
   // Places every character. summonerId = "aurelia" or "kenneth" (from the player)
@@ -496,6 +510,8 @@ export class NPCManager {
       // Summoner: Barracks (Acts II–III, VI) or Citadel (Acts IV–V) — only one is visible
       Object.assign(new NPC(summonerId, bx + 150, by + 52, "down", "hub", { wanderRadius: 32, speed: 0.30 }), { tag: "summonerBarracks" }),
       Object.assign(new NPC(summonerId, gx - 22, gy + 42, "down", "hub", { wanderRadius: 18, speed: 0.25 }), { tag: "summonerCitadel" }),
+      Object.assign(new NPC("templar", bx + 170, by + 86, "down", "hub", { guard: true, wanderRadius: 8, speed: 0.32 }), { tag: "templarBarracks" }),
+      Object.assign(new NPC("templar", gx - 40, gy + 58, "down", "hub", { guard: true, wanderRadius: 8, speed: 0.32 }), { tag: "templarCitadel" }),
       // The five earlier souls (Act III): each has a designated area and wanders the Barracks
       new NPC("arthur", bx + 60, by + 164, "down", "hub", { wanderRadius: 44, speed: 0.36 }),
       new NPC("lyra", bx + 105, by + 188, "down", "hub", { wanderRadius: 48, speed: 0.40 }),
@@ -507,11 +523,13 @@ export class NPCManager {
       new NPC("royalGuard", gx - 62, gy + 36, "down", "hub", { guard: true, wanderRadius: 16, speed: 0.30 }),
       new NPC("royalGuard", gx + 62, gy + 36, "down", "hub", { guard: true, wanderRadius: 16, speed: 0.30 })
     ];
+    this.npcs.push(new NPC("cerynVoss", bx + 280, by + 188, "down", "hub", { guard: true, wanderRadius: 18, speed: 0.28 }));
 
     // Acts VII–XII: the summoner accompanies the hero at each platform's camp
     PLATFORM_ORDER.forEach((pid) => {
       const c = PLATFORMS[pid].camp;
       this.npcs.push(Object.assign(new NPC(summonerId, c.x + c.w / 2 + 18, c.y + c.h / 2 + 8, "down", pid, { wanderRadius: 30, speed: 0.32 }), { tag: "field" }));
+      this.npcs.push(Object.assign(new NPC("templar", c.x + c.w / 2 - 16, c.y + c.h / 2 + 12, "down", pid, { guard: true, wanderRadius: 8, speed: 0.32 }), { tag: "templarField" }));
       // Village residents (Emberhold in the Ashfall Wastelands)
       Object.entries(PLATFORMS[pid].villagers || {}).forEach(([id, [x, y]]) => {
         this.npcs.push(new NPC(id, x, y, "down", pid, { guard: true, wanderRadius: 10, speed: 0.22 }));
@@ -519,9 +537,16 @@ export class NPCManager {
     });
     // Act XI: Captain Ronald and the Royal Guard help hold the breach
     const sc = PLATFORMS.siege.camp;
+    this.npcs.push(new NPC("vaelThorn", sc.x + 96, sc.y + 28, "down", "siege", { guard: true, wanderRadius: 12, speed: 0.25 }));
     this.npcs.push(new NPC("ronald", sc.x + 36, sc.y + sc.h / 2 + 10, "up", "siege", { wanderRadius: 28, speed: 0.35 }));
     this.npcs.push(new NPC("royalGuard", sc.x + sc.w - 30, sc.y + 30, "up", "siege", { guard: true, wanderRadius: 16, speed: 0.30 }));
     this.npcs.push(new NPC("royalGuard", sc.x + 30, sc.y + 30, "up", "siege", { guard: true, wanderRadius: 16, speed: 0.30 }));
+    this.npcs.push(new NPC("nimaFen", 185, 510, "down", "swamp", { wanderRadius: 22, speed: 0.3 }));
+    this.npcs.push(Object.assign(new NPC("nimaFen", 246, 495, "down", "port", { guard: true, wanderRadius: 0, speed: 0 }), { tag: "tradeCaravan" }));
+    this.npcs.push(new NPC("selaMoss", 215, 455, "down", "swamp", { wanderRadius: 20, speed: 0.22 }));
+    this.npcs.push(new NPC("taviReed", 245, 495, "down", "swamp", { wanderRadius: 24, speed: 0.32 }));
+    this.npcs.push(new NPC("eirene", 190, 480, "down", "lost", { guard: true, wanderRadius: 8, speed: 0.2 }));
+    this.npcs.push(new NPC("tidemarkTrader", 230, 480, "down", "port", { wanderRadius: 10, speed: 0.2 }));
   }
 
   // Which NPCs to show depending on the quest
@@ -530,6 +555,11 @@ export class NPCManager {
     this.npcs.forEach((n) => {
       if (n.tag === "summonerBarracks") n.visible = !atCitadel;
       if (n.tag === "summonerCitadel") n.visible = atCitadel;
+      if (n.tag === "tradeCaravan") n.visible = quest.unlocked("port") && quest.unlocked("swamp") && quest.unlocked("siege");
+      if (n.id === "king") n.visible = !quest.kingDead;
+      if (n.tag === "templarBarracks") n.visible = !atCitadel;
+      if (n.tag === "templarCitadel") n.visible = atCitadel;
+      if (n.tag === "templarField") n.visible = true;
     });
     this.marked = quest.targetNpc(this.summonerId, cls);
   }
@@ -668,12 +698,26 @@ export class NPCManager {
     const px = player.x + 10, py = player.y + 21;
     let best = null, bestD = TALK_RANGE;
     const king = this.find("king");
+    const heir = this.find(this.summonerId);
 
     this.npcs.forEach((n) => {
       if (!this.shown(n)) return;
-      n.update(px, py, enemyManager, fx, king);
+      n.update(px, py, enemyManager, fx, king, heir);
       const d = Math.hypot(px - n.x, py - n.y);
       if (d < bestD) { best = n; bestD = d; }
+    });
+    this.partyNpcs.forEach(n => {
+      const i = n.formationIndex + 1;
+      if (n.x === 0 && n.y === 0) { n.x = px - 18 * i; n.y = py + 8 + (i % 2) * 12; }
+      const targetX = px - 18 * i, targetY = py + 8 + (i % 2) * 12;
+      const dx = targetX - n.x, dy = targetY - n.y, d = Math.hypot(dx, dy);
+      if (d > 5) {
+        const step = Math.min(d, n.speed * Math.min(2.2, d / 10));
+        n.x += dx / d * step; n.y += dy / d * step;
+        n.dir = Math.abs(dx) > Math.abs(dy) ? "side" : dy < 0 ? "up" : "down";
+        n.flip = dx < 0; n.state = "walk"; n.walkAnimTick++;
+      } else n.state = "idle";
+      n.tick++;
     });
     this.nearest = best;
 
@@ -695,7 +739,7 @@ export class NPCManager {
 
   // Y-sort: NPCs behind the player (smaller y) are drawn first
   drawLayer(ctx, playerFootY, front) {
-    this.npcs.forEach((n) => {
+    [...this.npcs, ...this.partyNpcs].forEach((n) => {
       if (!this.shown(n)) return;
       if ((n.y > playerFootY) === front) n.draw(ctx);
     });

@@ -1,0 +1,514 @@
+{ "frames": [
+   {
+    "filename": "eirene 0.aseprite",
+    "frame": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 1.aseprite",
+    "frame": { "x": 32, "y": 0, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 2.aseprite",
+    "frame": { "x": 64, "y": 0, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 3.aseprite",
+    "frame": { "x": 32, "y": 0, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 4.aseprite",
+    "frame": { "x": 96, "y": 0, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 5.aseprite",
+    "frame": { "x": 32, "y": 0, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 6.aseprite",
+    "frame": { "x": 128, "y": 0, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 7.aseprite",
+    "frame": { "x": 160, "y": 0, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 8.aseprite",
+    "frame": { "x": 192, "y": 0, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 9.aseprite",
+    "frame": { "x": 0, "y": 36, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 10.aseprite",
+    "frame": { "x": 32, "y": 36, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 11.aseprite",
+    "frame": { "x": 64, "y": 36, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 12.aseprite",
+    "frame": { "x": 96, "y": 36, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 13.aseprite",
+    "frame": { "x": 128, "y": 36, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 14.aseprite",
+    "frame": { "x": 160, "y": 36, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 15.aseprite",
+    "frame": { "x": 192, "y": 36, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 16.aseprite",
+    "frame": { "x": 0, "y": 72, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 17.aseprite",
+    "frame": { "x": 32, "y": 72, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 18.aseprite",
+    "frame": { "x": 64, "y": 72, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 19.aseprite",
+    "frame": { "x": 96, "y": 72, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 20.aseprite",
+    "frame": { "x": 128, "y": 72, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 21.aseprite",
+    "frame": { "x": 96, "y": 72, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 22.aseprite",
+    "frame": { "x": 160, "y": 72, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 23.aseprite",
+    "frame": { "x": 96, "y": 72, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 24.aseprite",
+    "frame": { "x": 128, "y": 72, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 25.aseprite",
+    "frame": { "x": 96, "y": 72, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 26.aseprite",
+    "frame": { "x": 160, "y": 72, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 27.aseprite",
+    "frame": { "x": 96, "y": 72, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 28.aseprite",
+    "frame": { "x": 192, "y": 72, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 29.aseprite",
+    "frame": { "x": 0, "y": 108, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 30.aseprite",
+    "frame": { "x": 32, "y": 108, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 31.aseprite",
+    "frame": { "x": 64, "y": 108, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 32.aseprite",
+    "frame": { "x": 96, "y": 108, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 33.aseprite",
+    "frame": { "x": 128, "y": 108, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 34.aseprite",
+    "frame": { "x": 160, "y": 108, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 35.aseprite",
+    "frame": { "x": 192, "y": 108, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 36.aseprite",
+    "frame": { "x": 0, "y": 144, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 37.aseprite",
+    "frame": { "x": 32, "y": 144, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 38.aseprite",
+    "frame": { "x": 64, "y": 144, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 39.aseprite",
+    "frame": { "x": 32, "y": 144, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 40.aseprite",
+    "frame": { "x": 96, "y": 144, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 41.aseprite",
+    "frame": { "x": 32, "y": 144, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 42.aseprite",
+    "frame": { "x": 128, "y": 144, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 43.aseprite",
+    "frame": { "x": 160, "y": 144, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 44.aseprite",
+    "frame": { "x": 192, "y": 144, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 45.aseprite",
+    "frame": { "x": 0, "y": 180, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 46.aseprite",
+    "frame": { "x": 32, "y": 180, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 47.aseprite",
+    "frame": { "x": 64, "y": 180, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 48.aseprite",
+    "frame": { "x": 96, "y": 180, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 49.aseprite",
+    "frame": { "x": 128, "y": 180, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 50.aseprite",
+    "frame": { "x": 160, "y": 180, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 51.aseprite",
+    "frame": { "x": 192, "y": 180, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 52.aseprite",
+    "frame": { "x": 0, "y": 216, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   },
+   {
+    "filename": "eirene 53.aseprite",
+    "frame": { "x": 32, "y": 216, "w": 32, "h": 36 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 36 },
+    "sourceSize": { "w": 32, "h": 36 },
+    "duration": 150
+   }
+ ],
+ "meta": {
+  "app": "https://www.aseprite.org/",
+  "version": "1.3.18.6-x64",
+  "image": "eirene.png",
+  "format": "RGBA8888",
+  "size": { "w": 224, "h": 252 },
+  "scale": "1",
+  "frameTags": [
+   { "name": "down-idle", "from": 0, "to": 1, "direction": "forward", "color": "#000000ff" },
+   { "name": "down-walk", "from": 2, "to": 5, "direction": "forward", "color": "#000000ff" },
+   { "name": "down-run", "from": 6, "to": 9, "direction": "forward", "color": "#000000ff" },
+   { "name": "down-attack", "from": 10, "to": 11, "direction": "forward", "color": "#000000ff" },
+   { "name": "down-skill", "from": 12, "to": 17, "direction": "forward", "color": "#000000ff" },
+   { "name": "side-idle", "from": 18, "to": 19, "direction": "forward", "color": "#000000ff" },
+   { "name": "side-walk", "from": 20, "to": 23, "direction": "forward", "color": "#000000ff" },
+   { "name": "side-run", "from": 24, "to": 27, "direction": "forward", "color": "#000000ff" },
+   { "name": "side-attack", "from": 28, "to": 29, "direction": "forward", "color": "#000000ff" },
+   { "name": "side-skill", "from": 30, "to": 35, "direction": "forward", "color": "#000000ff" },
+   { "name": "up-idle", "from": 36, "to": 37, "direction": "forward", "color": "#000000ff" },
+   { "name": "up-walk", "from": 38, "to": 41, "direction": "forward", "color": "#000000ff" },
+   { "name": "up-run", "from": 42, "to": 45, "direction": "forward", "color": "#000000ff" },
+   { "name": "up-attack", "from": 46, "to": 47, "direction": "forward", "color": "#000000ff" },
+   { "name": "up-skill", "from": 48, "to": 53, "direction": "forward", "color": "#000000ff" }
+  ]
+ }
+}

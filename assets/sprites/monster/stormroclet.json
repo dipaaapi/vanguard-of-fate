@@ -1,0 +1,568 @@
+{ "frames": [
+   {
+    "filename": "stormroclet 0.aseprite",
+    "frame": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 1.aseprite",
+    "frame": { "x": 36, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 2.aseprite",
+    "frame": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 3.aseprite",
+    "frame": { "x": 36, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 4.aseprite",
+    "frame": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 5.aseprite",
+    "frame": { "x": 36, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 6.aseprite",
+    "frame": { "x": 72, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 7.aseprite",
+    "frame": { "x": 108, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 8.aseprite",
+    "frame": { "x": 144, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 9.aseprite",
+    "frame": { "x": 180, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 10.aseprite",
+    "frame": { "x": 216, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 11.aseprite",
+    "frame": { "x": 144, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 12.aseprite",
+    "frame": { "x": 180, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 13.aseprite",
+    "frame": { "x": 216, "y": 0, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 14.aseprite",
+    "frame": { "x": 0, "y": 30, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 15.aseprite",
+    "frame": { "x": 36, "y": 30, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 16.aseprite",
+    "frame": { "x": 72, "y": 30, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 17.aseprite",
+    "frame": { "x": 108, "y": 30, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 18.aseprite",
+    "frame": { "x": 144, "y": 30, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 19.aseprite",
+    "frame": { "x": 180, "y": 30, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 20.aseprite",
+    "frame": { "x": 216, "y": 30, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 21.aseprite",
+    "frame": { "x": 0, "y": 60, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 22.aseprite",
+    "frame": { "x": 216, "y": 30, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 23.aseprite",
+    "frame": { "x": 0, "y": 60, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 24.aseprite",
+    "frame": { "x": 216, "y": 30, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 25.aseprite",
+    "frame": { "x": 0, "y": 60, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 26.aseprite",
+    "frame": { "x": 36, "y": 60, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 27.aseprite",
+    "frame": { "x": 72, "y": 60, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 28.aseprite",
+    "frame": { "x": 108, "y": 60, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 29.aseprite",
+    "frame": { "x": 144, "y": 60, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 30.aseprite",
+    "frame": { "x": 180, "y": 60, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 31.aseprite",
+    "frame": { "x": 108, "y": 60, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 32.aseprite",
+    "frame": { "x": 144, "y": 60, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 33.aseprite",
+    "frame": { "x": 180, "y": 60, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 34.aseprite",
+    "frame": { "x": 216, "y": 60, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 35.aseprite",
+    "frame": { "x": 0, "y": 90, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 36.aseprite",
+    "frame": { "x": 36, "y": 90, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 37.aseprite",
+    "frame": { "x": 72, "y": 90, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 38.aseprite",
+    "frame": { "x": 108, "y": 90, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 39.aseprite",
+    "frame": { "x": 144, "y": 90, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 40.aseprite",
+    "frame": { "x": 180, "y": 90, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 41.aseprite",
+    "frame": { "x": 216, "y": 90, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 42.aseprite",
+    "frame": { "x": 180, "y": 90, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 43.aseprite",
+    "frame": { "x": 216, "y": 90, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 44.aseprite",
+    "frame": { "x": 180, "y": 90, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 45.aseprite",
+    "frame": { "x": 216, "y": 90, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 46.aseprite",
+    "frame": { "x": 0, "y": 120, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 47.aseprite",
+    "frame": { "x": 36, "y": 120, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 48.aseprite",
+    "frame": { "x": 72, "y": 120, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 49.aseprite",
+    "frame": { "x": 108, "y": 120, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 50.aseprite",
+    "frame": { "x": 144, "y": 120, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 51.aseprite",
+    "frame": { "x": 72, "y": 120, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 52.aseprite",
+    "frame": { "x": 108, "y": 120, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 53.aseprite",
+    "frame": { "x": 144, "y": 120, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 54.aseprite",
+    "frame": { "x": 180, "y": 120, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 55.aseprite",
+    "frame": { "x": 216, "y": 120, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 56.aseprite",
+    "frame": { "x": 0, "y": 150, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 57.aseprite",
+    "frame": { "x": 36, "y": 150, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 58.aseprite",
+    "frame": { "x": 72, "y": 150, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   },
+   {
+    "filename": "stormroclet 59.aseprite",
+    "frame": { "x": 108, "y": 150, "w": 36, "h": 30 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 36, "h": 30 },
+    "sourceSize": { "w": 36, "h": 30 },
+    "duration": 150
+   }
+ ],
+ "meta": {
+  "app": "https://www.aseprite.org/",
+  "version": "1.3.18.6-x64",
+  "image": "stormroclet.png",
+  "format": "RGBA8888",
+  "size": { "w": 252, "h": 180 },
+  "scale": "1",
+  "frameTags": [
+   { "name": "down-idle", "from": 0, "to": 1, "direction": "forward", "color": "#000000ff" },
+   { "name": "down-walk", "from": 2, "to": 5, "direction": "forward", "color": "#000000ff" },
+   { "name": "down-attack", "from": 6, "to": 7, "direction": "forward", "color": "#000000ff" },
+   { "name": "down-run", "from": 8, "to": 13, "direction": "forward", "color": "#000000ff" },
+   { "name": "down-skill", "from": 14, "to": 19, "direction": "forward", "color": "#000000ff" },
+   { "name": "side-idle", "from": 20, "to": 21, "direction": "forward", "color": "#000000ff" },
+   { "name": "side-walk", "from": 22, "to": 25, "direction": "forward", "color": "#000000ff" },
+   { "name": "side-attack", "from": 26, "to": 27, "direction": "forward", "color": "#000000ff" },
+   { "name": "side-run", "from": 28, "to": 33, "direction": "forward", "color": "#000000ff" },
+   { "name": "side-skill", "from": 34, "to": 39, "direction": "forward", "color": "#000000ff" },
+   { "name": "up-idle", "from": 40, "to": 41, "direction": "forward", "color": "#000000ff" },
+   { "name": "up-walk", "from": 42, "to": 45, "direction": "forward", "color": "#000000ff" },
+   { "name": "up-attack", "from": 46, "to": 47, "direction": "forward", "color": "#000000ff" },
+   { "name": "up-run", "from": 48, "to": 53, "direction": "forward", "color": "#000000ff" },
+   { "name": "up-skill", "from": 54, "to": 59, "direction": "forward", "color": "#000000ff" }
+  ]
+ }
+}

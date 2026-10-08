@@ -35,9 +35,11 @@ export class Platform {
     // Trail to the frontier map beside this platform (sealed until its Act; set by main.js)
     this.trail = def.trail ? gateOf(def.trail, "TRAIL", def.trail.dest, (FRONTIERS[def.trail.dest] || {}).color || "#ffd166") : null;
     this.trailSealed = false;
+    this.exits = (def.exits || []).map((g, i) => ({ ...gateOf(g, `EXIT_${i}`, g.dest, (FRONTIERS[g.dest] || {}).color || "#ffd166"), label: g.label || null, sealed: false }));
     if (this.trail) this.clearAreas.push({ x: this.trail.x - 34, y: this.trail.y - 34, w: 68, h: 68 });
+    this.exits.forEach(g => this.clearAreas.push({ x: g.x - 34, y: g.y - 34, w: 68, h: 68 }));
     // Paths reach the arena, the edges, every site to scout and the trail gate
-    this.pathTargets = [...(def.pathTargets || []), ...(def.sites || []).map((s) => [s.x, s.y]), ...(this.trail ? [[this.trail.x, this.trail.y]] : [])];
+    this.pathTargets = [...(def.pathTargets || []), ...(def.sites || []).map((s) => [s.x, s.y]), ...(this.trail ? [[this.trail.x, this.trail.y]] : []), ...this.exits.map(g => [g.x, g.y])];
     this.castle = null;
     this.tick = 0;
     this.cleared = false;     // the boss has been defeated (set by main.js from the quest)
@@ -81,7 +83,8 @@ export class Platform {
 
   // Coming back from the frontier map: beside the trail gate
   arrivalFrom(fromId) {
-    return this.trail && this.trail.dest === fromId ? this.besideGate(this.trail) : this.arrival();
+    const entry = [this.trail, ...this.exits].find(g => g && g.dest === fromId);
+    return entry ? this.besideGate(entry) : this.arrival();
   }
 
   besideGate(g) {
@@ -106,6 +109,12 @@ export class Platform {
     if (tr && Math.abs(fx - tr.x) < tr.w / 2 + 4 && Math.abs(fy - tr.y) < tr.h / 2 + 6) {
       player.portalCooldown = 75;
       if (onPortal) onPortal({ id: "TRAIL", dest: tr.dest, from: this.id });
+      return;
+    }
+    const exit = this.exits.find(g => Math.abs(fx - g.x) < g.w / 2 + 4 && Math.abs(fy - g.y) < g.h / 2 + 6);
+    if (exit) {
+      player.portalCooldown = 75;
+      if (onPortal) onPortal({ id: exit.id, dest: exit.dest, from: this.id });
       return;
     }
     const rift = this.def.rift;
@@ -279,6 +288,10 @@ export class Platform {
       const f = FRONTIERS[this.trail.dest];
       drawGateway(ctx, this.trail, this.tick * 0.08, this.trailSealed, f ? `${this.trailSealed ? "" : "→ "}${f.name[L].toUpperCase()}` : "");
     }
+    this.exits.forEach(g => {
+      const d = FRONTIERS[g.dest] || PLATFORMS[g.dest];
+      drawGateway(ctx, g, this.tick * 0.08, g.sealed, d ? `${g.sealed ? "" : "→ "}${(g.label?.[L] || d.name[L]).toUpperCase()}` : "");
+    });
   }
 
   drawOverlay(ctx, player = null) {

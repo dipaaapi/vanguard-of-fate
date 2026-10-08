@@ -40,7 +40,9 @@ export class ActIntro {
   // act: number; title: "The Earthbound Summoning" (already in the player's language)
   start(act, title) {
     this.act = act;
+    this.label = `ACT ${ROMAN[act] || act}`;
     this.title = title || "";
+    this.caption = null;
     this.t = 0;
     this.open = true;
     this.img = new Image();
@@ -49,6 +51,20 @@ export class ActIntro {
     this.motes = Array.from({ length: 46 }, () => ({
       x: Math.random() * 480, y: 40 + Math.random() * 230, v: 0.12 + Math.random() * 0.35,
       s: Math.random() < 0.25 ? 2 : 1, c: cols[Math.random() < 0.7 ? 0 : 1], ph: Math.random() * 6.28
+    }));
+  }
+
+  startStory(label, title, caption, color = "#67e8f9") {
+    this.act = 8;
+    this.label = label;
+    this.title = title;
+    this.caption = caption;
+    this.t = 0;
+    this.open = true;
+    this.img = null;
+    this.motes = Array.from({ length: 46 }, () => ({
+      x: Math.random() * 480, y: 40 + Math.random() * 230, v: 0.12 + Math.random() * 0.35,
+      s: Math.random() < 0.25 ? 2 : 1, c: Math.random() < 0.7 ? color : "#fff4d6", ph: Math.random() * 6.28
     }));
   }
 
@@ -126,7 +142,7 @@ export class ActIntro {
     // "ACT IX": letters appear one by one, spaced wide
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    const label = `ACT ${ROMAN[this.act] || this.act}`;
+    const label = this.label || `ACT ${ROMAN[this.act] || this.act}`;
     const shown = Math.floor(Math.max(0, t - 45) / 5);
     ctx.font = "bold 9px monospace";
     const step = 9;
@@ -153,12 +169,13 @@ export class ActIntro {
     }
     // caption of the banner in the lower bar
     const ca = ease((t - 140) / 50);
-    const cap = captions && captions[`assets/banner/act-${this.act}.png`];
+    const cap = this.caption ? { caption: this.caption } : captions && captions[`assets/banner/act-${this.act}.png`];
     if (ca > 0 && cap) {
       ctx.globalAlpha = A * (ca);
       ctx.font = "italic 6px Georgia, 'Times New Roman', serif";
       ctx.fillStyle = "#e2e8f0";
-      const lines = wrap(ctx, cap.caption[getLang() === "fil" ? "fil" : "en"] || cap.caption.en, W - 120);
+      const text = typeof cap.caption === "string" ? cap.caption : cap.caption[getLang() === "fil" ? "fil" : "en"] || cap.caption.en;
+      const lines = wrap(ctx, text, W - 120);
       lines.slice(0, 2).forEach((ln, i) => ctx.fillText(ln, W / 2, H / 2 + 26 + i * 9));
       ctx.globalAlpha = A;
     }

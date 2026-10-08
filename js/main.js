@@ -54,6 +54,7 @@ import { t, onLangChange, getLang } from "./i18n.js";
 import { loadConfig, GFX, SettingsPanel, toggleFullscreen } from "./settings.js";
 import { Market, marketText } from "./market.js";
 import { SkillSlots } from "./skillslots.js";
+import { PlayableQuestBook, PLAYABLES, PLAYABLE_IDS, makePlayableKit } from "./playables.js";
 
 import { FalconCompanion } from "./summons/falcon.js";
 import { GuardianAngelCompanion } from "./summons/angel.js";
@@ -202,7 +203,8 @@ const questHud = new QuestHud(viewportEl);
 const chatLog = new ChatLog(chatLogEl);
 dialog.onLine = (id, line) => chatLog.add(id, line, dayNight.label());
 const summonerName = () => (npcManager.summonerId ? npcName(npcManager.summonerId) : "");
-const playerClass = () => (player ? player.heroData.id : "novice");
+const playerClass = () => (player ? (player.baseHeroData || player.heroData).id : "novice");
+let playableQuests = new PlayableQuestBook();
 // Name of the mentor of the player's class (Act V); null while still a Novice
 const mentorName = () => (MENTOR_BY_CLASS[playerClass()] ? npcName(MENTOR_BY_CLASS[playerClass()]) : null);
 
@@ -279,6 +281,9 @@ fishing.onMiss = () => fx.spawnDamagePopup(player.x + 10, player.y - 18, lang() 
 // Codex (N): encyclopedia of NPCs, monsters, MVPs and items; progress is saved with the game
 // Safe-zone Market (B) and Settings (O): HTML overlays; the game waits while one is open
 const market = new Market(document.getElementById("market"), {
+  stock: () => stage.id === "port"
+    ? ["salve", "elixir", "tonic", "panacea", "mackerel", "squid", "tilapia", "mudcarp", "wildSpice", "rockSalt"]
+    : ["salve", "elixir", "tonic", "panacea"],
   onTrade: (text) => {
     chatLog.event("loot", text, dayNight.label());
     if (Sound.playCoin) Sound.playCoin();
@@ -325,6 +330,7 @@ function toggleCodex() {
   inventory.close();
   charPanel.close();
   worldMap.close();
+  codex.playableQuests = playableQuests;
   codex.toggle();
 }
 function openRonaldMenu() {
@@ -682,6 +688,7 @@ const actionPanel = new ActionPanel({
   settings: () => { Sound.init(); toggleSettings(); },
   market: () => { Sound.init(); toggleMarket(); },
   fullscreen: () => { Sound.init(); toggleFullscreen(); },
+  switchCharacter: () => { Sound.init(); if (gameState === "PLAYING" && !dialog.open) switchPlayable(); },
   slotsChanged: () => { if (Sound.playSelectMove) Sound.playSelectMove(); saveGame(); }
 });
 
@@ -728,9 +735,14 @@ const fillNames = (lines) => lines.map((s) => s.replace(/\{s\}/g, summonerName()
 function syncPlatformFlags() {
   Object.values(platformCache).forEach((p) => {
     p.cleared = quest.cleared(p.id);
+    p.tradeRouteOpen = quest.unlocked("port") && quest.unlocked("swamp") && quest.unlocked("siege");
+    p.lostRouteData = quest.lostRoute.records;
+    p.lostDeviceOn = quest.lostRoute.deviceActivated;
+    p.eireneSystems = playableQuests.state.eirene?.systems || {};
     if (p.def.rift) p.riftOpen = quest.unlocked(p.def.rift.dest);
     p.miningUnlocked = quest.mining === 2;
     if (p.trail) p.trailSealed = !quest.unlocked(p.trail.dest);
+    (p.exits || []).forEach(g => { g.sealed = !quest.unlocked(g.dest); });
     // Celestial Monolith: chained until the Leviathan Regent falls; awakened once the Seal Stones are placed
     if (p.boatSystem) {
       p.boatSystem.chained = !p.cleared;
@@ -755,6 +767,12 @@ function syncBoss() {
   const def = stage.def;
   if (!quest.wantsBoss(stage.id) || enemyManager.boss()) return;
   if (player.bag.has(def.item) || lootManager.items.some((it) => it.id === def.item)) return;
+  if (def.bossSequence) {
+    const next = def.bossSequence.find((boss) =>
+      !player.bag.has(boss.drop) && !lootManager.items.some((it) => it.id === boss.drop));
+    if (next) enemyManager.spawnBoss(next.key, def.bossSpawn.x, def.bossSpawn.y, player.level);
+    return;
+  }
   enemyManager.spawnBoss(def.boss, def.bossSpawn.x, def.bossSpawn.y, player.level);
 }
 
@@ -809,6 +827,16 @@ function travelTo(id, at = null) {
     quest.onArrive(id);
     const s = npcManager.find(npcManager.summonerId);
     dialog.start(npcManager.summonerId, s && s.avatar, fillNames(def.text[lang()].arrive));
+  }
+  if ((id === "swamp" || id === "lost") && !quest.regionIntros[id]) {
+    quest.regionIntros[id] = true;
+    const fil = getLang() === "fil";
+    if (id === "swamp") actIntro.startStory(fil ? "PANIMULA NG PULO" : "ISLAND PROLOGUE",
+      fil ? "Ang Latian ng mga Beastkin" : "The Beastkin Swamp Island",
+      fil ? "Sa likod ng takot ng mga taga-pulo ay may nakabaong lihim at isang daang naghihintay mabuksan." : "Behind the islanders' fear lies a buried secret—and a path waiting to be opened.", "#a3e635");
+    else actIntro.startStory(fil ? "PANIMULA NG NAWAWALANG KONTINENTE" : "LOST CONTINENT PROLOGUE",
+      fil ? "Ang Sinaunang Kontinenteng-Langit" : "The Ancient Floating Continent",
+      fil ? "Walang lungsod sa ulap—tanging mga makinang iniwan ng lumikha at ang robot na nananatiling nag-iisa." : "No city waits above the clouds—only a creator's abandoned machines and the robot left to keep them alive.", "#67e8f9");
   }
   syncBoss();
   restoreSealStone();
@@ -904,6 +932,30 @@ function sideQuestPoint() {
 
 // Boss defeated: pick up the quest item
 enemyManager.onBossDefeated = (e) => {
+  const personalProgress = playableQuests.onBossDefeated(stage.id);
+  if (personalProgress.length) {
+    personalProgress.forEach(id => questHud.toast(`${npcName(id)} · ${getLang() === "fil" ? "napatunayan sa boss" : "boss proof secured"}`));
+    saveGame();
+  }
+  if (stage.id === "siege" && !quest.kingDead) {
+    const heir = npcManager.find(npcManager.summonerId);
+    const fil = lang() === "fil";
+    dialog.start(npcManager.summonerId, heir?.avatar, fil ? [
+      "Nabali ng bayani ang mahika ng Succubus at naiahon ang aking ama mula sa sumpa—ngunit hindi na naibabalik ng mahika ang isip at buhay na winasak nito.",
+      "Ako, ang tagapagmana ng trono, ang nagbibigay sa iyo ng pahintulot. Tapusin mo ang buhay ng Hari upang hindi na siya muling magamit ng Succubus laban sa kaharian.",
+      "Hindi nailigtas ni Dame Serelle ang Hari sa sandaling iyon. Nanatili siya sa tabi ko, pasan ang bigat ng kanyang panata at ang pagkawala ng Hari."
+    ] : [
+      "You broke the Succubus's spell and lifted my father from its curse—but no magic can return the mind and life it destroyed.",
+      "As heir to the throne, I give you permission. End the King's life so the Succubus can never turn him against the kingdom again.",
+      "Dame Serelle could not save him in that moment. She stayed at my side, carrying her oath and the loss of the King."
+    ], () => {
+      if (quest.resolveKingFate()) {
+        npcManager.applyQuest(quest, playerClass());
+        questHud.toast(fil ? "Namatay ang Hari. Nagsisimula ang panata ni Dame Serelle." : "The King has died. Dame Serelle's oath begins.");
+        saveGame();
+      }
+    });
+  }
   const item = stage.def && stage.def.item;
   questHud.toast(lang() === "fil" ? `Natalo si ${e.kind.name.fil}! Pulutin ang iniwan niya.` : `${e.kind.name.en} has fallen! Claim what was left behind.`);
   if (item) fx.spawnDamagePopup(e.x + 10, e.y - 40, "✦ QUEST ITEM ✦", true, "#facc15");
@@ -911,11 +963,21 @@ enemyManager.onBossDefeated = (e) => {
   const seal = stage.def && stage.def.seal;
   if (seal && !quest.monolith && !player.bag.has(seal)) lootManager.drop({ x: e.x + 22, y: e.y + 12 }, { id: seal, qty: 1 }, true);
 };
-lootManager.onQuestItem = (id) => quest.onQuestItem(id);
+lootManager.onQuestItem = (id) => {
+  quest.onQuestItem(id);
+  if (stage.id === "maw") syncBoss();
+};
 // Bottom tray: EXP from the hero's kills (merged while chaining kills), or a note when an ally took the last hit
 enemyManager.onKill = (e, byPlayer, exp) => {
   codex.recordKill(e.key);
   sideProgress(quest.side.onKill(e, stage.id));
+  if (byPlayer && e.elite) {
+    const advanced = playableQuests.onEliteKill(stage.id);
+    if (advanced.length) {
+      advanced.forEach(id => questHud.toast(`${npcName(id)} · ${playableQuests.state[id].progress}/${PLAYABLES[id].required}`));
+      saveGame();
+    }
+  }
   const fil = lang() === "fil";
   const name = enemyManager.displayName(e);
   if (!byPlayer) {
@@ -992,10 +1054,12 @@ function getSavePayload() {
     game: "Vanguard of Fate",
     version: "2.5.0",
     savedAt: new Date().toISOString(),
-    heroId: player.heroData.id,
-    name: player.heroName || "",
+    heroId: (player.baseHeroData || player.heroData).id,
+    name: player.baseHeroName ?? player.heroName ?? "",
     avatar: player.avatarConfig || null,   // look from the Character Creator
     quest: quest.serialize(),
+    playableQuests: playableQuests.serialize(),
+    activePlayable: player.activePlayable || null,
     level: player.level,
     exp: player.exp,
     expNext: player.expNext,
@@ -1125,7 +1189,9 @@ function loadGame() {
       ? getNovice(data.avatar, data.name)
       : equipJob(ROSTER.find((h) => h.id === data.heroId) || ROSTER[0], data.avatar);
     player = new Player(data.x || hub.width / 2, data.y || hub.height / 2, foundHero);
+    player.baseHeroData = foundHero;
     player.heroName = data.name || "";
+    player.baseHeroName = player.heroName;
     player.avatarConfig = data.avatar || foundHero.avatarConfig || null;
 
     player.level = data.level || 1;
@@ -1163,12 +1229,14 @@ function loadGame() {
     Workshop.load(player, data.life);
     player.hp = Math.min(player.maxHp, data.hp || player.maxHp);
     quest.load(data.quest, player);
+    playableQuests = new PlayableQuestBook(data.playableQuests || {});
 
     if (foundHero.id === "archer") {
       player.falconCompanion = new FalconCompanion(player.x, player.y);
     }
 
     beginPlaying();
+    if (data.activePlayable && playableQuests.state[data.activePlayable]?.recruited) switchPlayable(data.activePlayable, false);
     // Return to the platform where the game was saved (if the quest still allows it)
     const saved = data.platform && data.platform !== "hub" && areaDef(data.platform) && quest.unlocked(data.platform) ? data.platform : null;
     if (saved) travelTo(saved, { x: player.x, y: player.y });
@@ -1196,6 +1264,7 @@ function beginPlaying() {
   dayNight.setPlace("hub");
   npcManager.build(summonerIdFor(player.avatarConfig));
   npcManager.setPlatform("hub");
+  syncPlayableFollowers();
   npcManager.applyQuest(quest, playerClass());
   syncLoreAct();
   syncPlatformFlags();
@@ -1246,6 +1315,7 @@ function awaken(chosenHero) {
   const old = player;
   // Same look from the Character Creator; the class provides the new gear
   const p = new Player(old.x, old.y, equipJob(chosenHero, old.avatarConfig));
+  p.baseHeroData = p.heroData;
   ["level", "exp", "expNext", "gold", "statPoints", "bonusHp", "bonusDamage",
     "bonusDefense", "bonusSpeed", "bonusCrit", "bonusCooldown", "heroName", "avatarConfig",
     "stats", "skillLevels", "skillPoints", "belt", "autoPot", "style", "pathSlots", "autoStat"].forEach((k) => { p[k] = old[k]; });
@@ -1257,6 +1327,7 @@ function awaken(chosenHero) {
   p.hp = p.maxHp;
   if (chosenHero.id === "archer") p.falconCompanion = new FalconCompanion(p.x, p.y);
   player = p;
+  p.baseHeroName = p.heroName || "";
 
   controller.clearAll();
   gameState = "PLAYING";
@@ -1276,6 +1347,43 @@ function awaken(chosenHero) {
 // Talking to an NPC (E). After the last line: quest + the NPC's service
 function talkTo(npc) {
   codex.meet(npc.id);
+  if (npc.id === "templar" && !quest.kingDead) {
+    dialog.start(npc.id, npc.avatar, [lang() === "fil"
+      ? "Ako si Dame Serelle, ang templar na laging nagbabantay sa tagapagmana. Hindi ako aalis sa kanyang tabi. Kapag ligtas na ang Hari at tapos na ang panunumpa ko, saka natin pag-uusapan ang aking sariling landas."
+      : "I am Dame Serelle, the Templar sworn to remain at the heir's side. I will not leave them. When the King's fate is settled and my oath is fulfilled, we can speak of my own path."]);
+    return;
+  }
+  if (npc.id === "cerynVoss" && quest.act() >= 8 && !quest.lostRoute.started) {
+    const fil = lang() === "fil";
+    dialog.start(npc.id, npc.avatar, [fil
+      ? "May nakita akong lumang survey sa Aethelgard archive. Itinuro nito ang nawawalang lab ni Dr. Vey, ngunit kailangan ang kaalaman ng Beastkin tungkol sa latian upang mabuo ang tamang beacon. Hanapin ang marka sa Lumang Bantayan; saka kausapin si Nima sa Gloomwater."
+      : "I found an old survey in Aethelgard's royal archive. It points to Dr. Vey's lost laboratory, but Beastkin marsh knowledge is needed to complete its beacon. Find the survey mark at the Old Watchtower, then speak with Nima in Gloomwater."], () => {
+      if (quest.startLostRoute()) {
+        questHud.toast(fil ? "Bagong Personal na Quest: hanapin ang survey sa Old Watchtower." : "New Personal Quest: find the survey at the Old Watchtower.");
+        saveGame();
+      }
+    });
+    return;
+  }
+  if (npc.id === "nimaFen" && quest.lostRoute.started && quest.lostRoute.marshGlassFound && !quest.lostRoute.beaconCrafted) {
+    const fil = lang() === "fil";
+    dialog.start(npc.id, npc.avatar, [fil
+      ? "Tugma ang marka ng survey sa ugong ng bogglass na ito. Ihahalo ko ang dalawa sa isang Resonance Beacon. Dalhin ito sa Witchlight Hollow at tutok tayo sa ilalim ng lupa."
+      : "The survey's mark matches the resonance in this bogglass. I can combine them into a Resonance Beacon. Take it to Witchlight Hollow and we can find what lies below."], () => {
+      if (quest.craftResonanceBeacon()) {
+        questHud.toast(fil ? "Nagawa ang Resonance Beacon. Puntahan ang Witchlight Hollow at pindutin ang E." : "Resonance Beacon made. Go to Witchlight Hollow and press E.");
+        saveGame();
+      }
+    });
+    return;
+  }
+  if (PLAYABLES[npc.id]) return talkPlayableNpc(npc);
+  if (npc.id === "tidemarkTrader") {
+    dialog.start(npc.id, npc.avatar, [getLang() === "fil" ? "Sariwa ang huli at sagana ang sangkap dito. Nasa pamilihan ang paninda; sa talyer ka maaaring magluto." : "Fresh catch and local ingredients are in season. Browse the market, then use the Workshop to cook."] , () => {
+      if (stage.isInsideSafeZone(player.x + 10, player.y + 17)) { closeOverlays(); market.show(player); }
+    });
+    return;
+  }
   if (npc.tag === "field") return talkField(npc);
   const d = getDialogue(npc.id, { step: quest.step, cls: playerClass(), met: quest.met, summoner: npcManager.summonerId });
   dialog.start(npc.id, npc.avatar, d.lines, () => {
@@ -1290,6 +1398,167 @@ function talkTo(npc) {
     else if (d.action === "noble") openNobleMenu();
     else if (d.action === "awaken" && canAwaken(player)) startAwakening();
   });
+}
+
+function talkPlayableNpc(npc) {
+  const id = npc.id, def = PLAYABLES[id], q = playableQuests.state[id];
+  if (id === "vaelThorn" && quest.cleared("siege")) q.bossProof = true;
+  if (id === "templar" && quest.kingDead) q.bossProof = true;
+  const fil = getLang() === "fil";
+  if (id === "eirene" && q.started && !q.recruited && playableQuests.ready(id)) {
+    dialog.start(id, npc.avatar, [fil ? "Naibalik na ang mga makina. Maaari na akong sumama sa iyo—at gabayan ka gamit ang mga protocol na ako lamang ang may kakayahang gamitin." : "The continent's systems are restored. I can join you now—and guide you with protocols only I can use."], () => {
+      if (playableQuests.recruit(id)) { syncPlayableFollowers(); questHud.toast(fil ? "Sumama si Eirene sa iyong pangkat!" : "Eirene joined your party!"); saveGame(); }
+    });
+    return;
+  }
+  const lines = q.recruited
+    ? [fil ? `${npcName(id)} ay kasama mo na. Pindutin ang V o gamitin ang LB/RB ng controller para magpalit ng karakter; gamitin ang Shift+1–6 para pumili ng puwesto.` : `${npcName(id)} has joined your roster. Press V or a controller bumper to switch characters; use Shift+1–6 to pick a party slot.`]
+      : q.started
+      ? [playableQuests.ready(id, player.bag)
+        ? (fil ? "Napatunayan mo ang iyong paninindigan. Sasama ako sa iyong pangkat." : "You have proven your resolve. I will join your party.")
+        : (id === "templar"
+          ? (fil ? `Playable Character Quest: harapin ang mga elite sa Obsidian Citadel at patunayan na kaya mong ipagpatuloy ang tungkulin ni Dame Serelle (${q.progress}/3).` : `Playable Character Quest: face the Obsidian Citadel elites and prove you can carry Dame Serelle's duty forward (${q.progress}/3).`)
+          : id === "eirene"
+          ? (fil ? `Playable Character Quest: ayusin ang tatlong sistema ng kontinente—ang wind-lift, suplay ng tirahan, at caretaker core (${q.progress}/3).` : `Playable Character Quest: restore the continent's wind-lift, habitat supply, and caretaker core (${q.progress}/3).`)
+          : def.feed
+          ? (fil ? `Personal na Character Quest: magdala ng ${def.feed.mudcarp ? "2 Mudfin Carp at 2 Wild Spice" : "2 Silver Mackerel at 1 Abyss Squid"}${def.feed.mudcarp ? " para sa recipe ng aking pamilya." : " para mapakain ang nagugutom na lumilipad na nilalang. Hindi sila kalaban."}` : `Playable Character Quest: bring ${def.feed.mudcarp ? "2 Mudfin Carp and 2 Wild Spice for my family's recipe." : "2 Silver Mackerel and 1 Abyss Squid to feed the hungry flying creatures. They are not enemies."}`)
+          : (fil ? `Personal na Character Quest: talunin ang mga elite sa aking rehiyon (${q.progress}/${def.required})${def.needsBoss && !q.bossProof ? "; patunayan din ang iyong lakas laban sa pinuno ng rehiyon." : ""}` : `Playable Character Quest: defeat the elites in my region (${q.progress}/${def.required})${def.needsBoss && !q.bossProof ? "; then prove yourself against the region's boss." : ""}`))]
+      : [id === "templar"
+        ? (fil ? "Hindi ko nailigtas ang Hari. Hindi ko mapatawad ang sarili ko, kahit ibinigay ng tagapagmana sa iyo ang pahintulot at ikaw lamang ang nakapag-alis ng sumpa. Tanggapin ang aking hiwalay na Playable Character Quest at tulungan akong tuparin ang panata ko sa pamamagitan ng pagprotekta sa tagapagmana?" : "I could not save the King. I cannot forgive myself, even though the heir gave you permission and only you could lift his curse. Will you take my separate Playable Character Quest and help me honor my oath by protecting the heir?")
+        : fil ? `Mayroon akong sariling landas at mga kasanayang hindi matututuhan sa ibang tao. Tanggapin ang aking Personal na Character Quest?` : `I have my own path and skills no one else can learn. Begin my Playable Character Quest?`];
+  dialog.start(id, npc.avatar, lines, () => {
+    if (q.recruited) return;
+    if (playableQuests.ready(id, player.bag)) {
+      playableQuests.recruit(id, player.bag);
+      syncPlayableFollowers();
+      questHud.toast(fil ? `${npcName(id)} ay sumali sa iyong pangkat!` : `${npcName(id)} joined your party!`);
+    } else if (!q.started) playableQuests.start(id);
+    saveGame();
+  });
+}
+
+const UNDERWORKS_RECORDS = [
+  { id: "power", x: 300, y: 230, en: "Geothermal Power Vault", fil: "Imbakan ng Init sa Ilalim ng Lupa" },
+  { id: "navigation", x: 980, y: 230, en: "Aether Navigation Archive", fil: "Sinupan ng Aether Navigation" },
+  { id: "safety", x: 640, y: 700, en: "Containment Safeguards", fil: "Mga Pananggalang sa Pasilidad" }
+];
+const EIRENE_REPAIRS = [
+  { id: "lift", x: 980, y: 250, en: "Wind-Lift Engine", fil: "Makina ng Pag-angat sa Hangin" },
+  { id: "habitat", x: 540, y: 180, en: "Habitat and Food System", fil: "Sistema ng Tirahan at Pagkain" },
+  { id: "caretaker", x: 800, y: 760, en: "Caretaker Core", fil: "Ubod ng Tagapag-alaga" }
+];
+const LOST_ROUTE_OBJECTIVES = {
+  hub: { x: 260, y: 220 },
+  swamp: { x: 720, y: 470 },
+  passage: { x: 640, y: 800 },
+  device: { x: 640, y: 470 }
+};
+
+function lostRouteObjective() {
+  const r = quest.lostRoute;
+  if (!r.started || r.deviceActivated) return null;
+  if (!r.surveyFound) return { area: "hub", ...LOST_ROUTE_OBJECTIVES.hub };
+  if (!r.marshGlassFound) return { area: "swamp", ...LOST_ROUTE_OBJECTIVES.swamp };
+  if (!r.beaconCrafted) return { area: "swamp", x: 185, y: 510 };
+  if (!r.passageOpen) return { area: "swamp", ...LOST_ROUTE_OBJECTIVES.passage };
+  if (UNDERWORKS_RECORDS.some((site) => !r.records[site.id])) {
+    const site = UNDERWORKS_RECORDS.find((item) => !r.records[item.id]);
+    return { area: "underworks", x: site.x, y: site.y };
+  }
+  return { area: "underworks", ...LOST_ROUTE_OBJECTIVES.device };
+}
+
+function interactLostRoute() {
+  if (!player || gameState !== "PLAYING") return false;
+  const target = lostRouteObjective();
+  if (!target || target.area !== stage.id || Math.hypot(player.x + 10 - target.x, player.y + 18 - target.y) > 48) return false;
+  const fil = lang() === "fil";
+  const r = quest.lostRoute;
+  if (!r.surveyFound && stage.id === "hub" && quest.findRoyalSurvey()) {
+    questHud.toast(fil ? "Nahanap ang survey ni Dr. Vey. Pumunta sa Rotting Boardwalk sa pulo ng Beastkin." : "Dr. Vey's survey found. Search the Beastkin island's Rotting Boardwalk.");
+  } else if (!r.marshGlassFound && stage.id === "swamp" && quest.findMarshGlass()) {
+    questHud.toast(fil ? "Nakuha ang bogglass. Kausapin si Nima para buuin ang beacon." : "Bogglass recovered. Speak with Nima to craft the beacon.");
+  } else if (!r.passageOpen && stage.id === "swamp" && quest.revealUnderworks()) {
+    questHud.toast(fil ? "Nabuksan ang lihim na lagusan sa ilalim ng Witchlight Hollow." : "A hidden passage has opened beneath Witchlight Hollow.");
+    syncPlatformFlags();
+  } else if (stage.id === "underworks") {
+    const site = UNDERWORKS_RECORDS.find((item) => !r.records[item.id] && Math.hypot(player.x + 10 - item.x, player.y + 18 - item.y) <= 48);
+    if (site && quest.recordFacilitySystem(site.id)) {
+      questHud.toast(fil ? `Naibalik ang sistema: ${site.fil}.` : `Facility system restored: ${site.en}.`);
+    } else if (Math.hypot(player.x + 10 - LOST_ROUTE_OBJECTIVES.device.x, player.y + 18 - LOST_ROUTE_OBJECTIVES.device.y) <= 48) {
+      if (quest.activateLostDevice()) {
+        syncPlatformFlags();
+        questHud.toast(fil ? "Aktibo na ang teleportation device. Bukas ang daan patungo sa sinaunang floating continent." : "The teleportation device is active. The route to the ancient floating continent is open.");
+      } else {
+        const missing = UNDERWORKS_RECORDS.filter((item) => !r.records[item.id]).length;
+        questHud.toast(fil ? `Hindi pa ligtas buhayin. Hanapin muna ang natitirang ${missing} sistema.` : `Activation unsafe. Restore the remaining ${missing} facility system${missing === 1 ? "" : "s"} first.`);
+      }
+    } else return false;
+  } else return false;
+  saveGame();
+  return true;
+}
+
+function interactEireneRepair() {
+  const q = playableQuests.state.eirene;
+  if (stage.id !== "lost" || !q?.started || q.recruited) return false;
+  const site = EIRENE_REPAIRS.find(item => !q.systems[item.id] && Math.hypot(player.x + 10 - item.x, player.y + 18 - item.y) <= 48);
+  if (!site || !playableQuests.repairSystem("eirene", site.id)) return false;
+  syncPlatformFlags();
+  questHud.toast(`${getLang() === "fil" ? "Naayos:" : "Restored:"} ${site[lang()]} (${q.progress}/3)`);
+  saveGame();
+  return true;
+}
+
+function switchPlayable(id = null, notify = true, direction = 1) {
+  if (!player) return;
+  const active = player.activePlayable || null;
+  const owned = PLAYABLE_IDS.filter(key => playableQuests.state[key]?.recruited);
+  if (id === null) {
+    if (!owned.length) {
+      if (notify) questHud.toast(getLang() === "fil" ? "Wala ka pang nare-recruit na playable NPC." : "Recruit a playable NPC through their personal quest first.");
+      return;
+    }
+    const rotation = [null, ...owned];
+    const i = Math.max(0, rotation.indexOf(active));
+    id = rotation[(i + direction + rotation.length) % rotation.length];
+  } else if (id === "hero") {
+    id = null;
+  }
+  if (id === active) return;
+  if (active) {
+    player.heroData = player.baseHeroData;
+    player.heroName = player.baseHeroName || "";
+    player.activePlayable = null;
+  }
+  if (id) {
+    if (!playableQuests.state[id]?.recruited) return;
+    player.baseHeroData ||= player.heroData;
+    player.baseHeroName ??= player.heroName || "";
+    const avatar = new Avatar(NPC_DEFS[id].look);
+    if (id !== "nimaFen" && id !== "eirene" && id !== "templar") avatar.sheetKey = `npc/${id}`;
+    player.heroData = makePlayableKit(id, avatar);
+    player.heroName = npcName(id);
+    player.activePlayable = id;
+  }
+  player.state = "idle";
+  syncPlayableFollowers();
+  if (notify) questHud.toast(getLang() === "fil" ? `Aktibong karakter: ${player.heroName || "Bayani"} · V / Shift+1–6 / LB-RB` : `Active character: ${player.heroName || "Hero"} · V / Shift+1–6 / LB-RB`);
+  saveGame();
+}
+
+function switchPlayableSlot(slot) {
+  const roster = ["hero", ...PLAYABLE_IDS.filter(key => playableQuests.state[key]?.recruited)];
+  const id = roster[slot];
+  if (id === undefined) {
+    questHud.toast(getLang() === "fil" ? "Wala pang karakter sa puwestong iyon. Kumpletuhin muna ang personal na quest para ma-recruit siya." : "No one is in that party slot yet. Complete their personal quest to recruit them.");
+    return;
+  }
+  switchPlayable(id);
+}
+
+function syncPlayableFollowers() {
+  if (player) npcManager.setParty(PLAYABLE_IDS.filter(id => playableQuests.state[id]?.recruited), player.activePlayable || null);
 }
 
 const titleScene = new TitleScene(
@@ -1327,6 +1596,9 @@ const creatorScene = new CreatorScene(
   document.getElementById("creator"),
   (config, name) => {
     player = new Player(hub.width / 2, hub.height / 2, getNovice(config, name));
+    player.baseHeroData = player.heroData;
+    player.baseHeroName = name || "";
+    playableQuests = new PlayableQuestBook();
     player.heroName = name;
     player.avatarConfig = player.heroData.avatarConfig;
     starterKit(player);
@@ -1435,6 +1707,16 @@ window.addEventListener("keydown", (e) => {
       return;
     }
 
+    if (e.code === "KeyV" && gameState === "PLAYING" && !e.repeat && !showShopModal && !showMercModal) {
+      switchPlayable();
+      return;
+    }
+
+    if (e.shiftKey && /^Digit[1-6]$/.test(e.code) && gameState === "PLAYING" && !e.repeat && !showShopModal && !showMercModal) {
+      switchPlayableSlot(Number(e.code.slice(-1)) - 1);
+      return;
+    }
+
     if (e.code === "KeyN" && gameState === "PLAYING") {
       toggleCodex();
       return;
@@ -1489,6 +1771,10 @@ window.addEventListener("keydown", (e) => {
         mineVein(stage.ore.nearest(player));
       } else if (gameState === "PLAYING" && npcManager.nearest) {
         talkTo(npcManager.nearest);
+      } else if (gameState === "PLAYING" && interactLostRoute()) {
+        // Personal research-route interaction consumed.
+      } else if (gameState === "PLAYING" && interactEireneRepair()) {
+        // Eirene's personal restoration quest interaction consumed.
       } else if (gameState === "PLAYING") {
         fishing.press(player, stage);
       }
@@ -1600,6 +1886,13 @@ window.addEventListener("keyup", (e) => {
 
 function updateGame() {
   if (player && actIntroShown === null) actIntroShown = quest.act();
+  if (gameState === "PLAYING" && controller.consumeInteract()) {
+    window.dispatchEvent(new KeyboardEvent("keydown", { code: "KeyE", key: "e", bubbles: true }));
+  }
+  const partySwitch = controller.consumePartySwitch();
+  if (partySwitch && gameState === "PLAYING" && !actIntro.open && !showShopModal && !showMercModal && !dialog.open && !serviceMenu.open && !codex.open && !questHud.logOpen && !inventory.open && !charPanel.open && !actReader.open && !worldMap.open && !market.open && !settingsPanel.open) {
+    switchPlayable(null, true, partySwitch);
+  }
   if (gameState !== "PLAYING" || !player || actIntro.open || showShopModal || showMercModal || dialog.open || serviceMenu.open || codex.open || questHud.logOpen || inventory.open || charPanel.open || actReader.open || worldMap.open || market.open || settingsPanel.open) return;
 
   if (player.hp <= 0) {
@@ -1753,6 +2046,14 @@ function drawHealBeam() {
 // Golden arrow at the screen edge pointing to the quest objective (when off screen)
 // Where the objective is in the current place: an NPC, a boss, or the way to the next platform
 function objectivePoint() {
+  const eirene = playableQuests.state.eirene;
+  if (stage.id === "lost" && eirene?.started && !eirene.recruited) {
+    if (playableQuests.ready("eirene")) { const npc = npcManager.find("eirene"); if (npc) return { x: npc.x, y: npc.y - 18 }; }
+    const repair = EIRENE_REPAIRS.find(item => !eirene.systems[item.id]);
+    if (repair) return { x: repair.x, y: repair.y };
+  }
+  const routeObjective = lostRouteObjective();
+  if (routeObjective?.area === stage.id) return { x: routeObjective.x, y: routeObjective.y };
   if (quest.gated()) return sideQuestPoint();
   const npc = npcManager.find(quest.targetNpc(npcManager.summonerId, playerClass()));
   if (npc) return { x: npc.x, y: npc.y - 18 };

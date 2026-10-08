@@ -20,7 +20,12 @@ const SKILLS = {
   archer:  { J: ["🏹", "Quiver Shot"],        K: ["🦅", "Falcon Dive"],           L: ["🌧️", "Arrow Shower"] },
   priest:  { J: ["✚", "Priority Heal"],       K: ["👼", "Guardian Angels"],       L: ["🌟", "Holy Light"] },
   mage:    { J: ["☄️", "Meteor Fall"],        K: ["🌩️", "Thunderstorm"],          L: ["🧊", "Frost Diver"] },
-  fighter: { J: ["🔵", "Force Sphere"],       K: ["🦶", "Flying Dropkick"],       L: ["💢", "Ki Explosion"] }
+  fighter: { J: ["🔵", "Force Sphere"],       K: ["🦶", "Flying Dropkick"],       L: ["💢", "Ki Explosion"] },
+  cerynVoss: { J: ["✦", "Oathmark"], K: ["🛡️", "Royal Intercession"], L: ["⚔️", "Crownward Edict"] },
+  vaelThorn: { J: ["◈", "Umbral Anchor"], K: ["🌑", "Nightfold Step"], L: ["⛓️", "Gravetide Snare"] },
+  nimaFen: { J: ["❧", "Bogcraft"], K: ["🌿", "Reed Decoy"], L: ["☘️", "Fenburst"] },
+  eirene: { J: ["⚙️", "Maintenance Pulse"], K: ["🪽", "Aerial Lift"], L: ["⛨", "Sanctuary Array"] },
+  templar: { J: ["✧", "Last Vow"], K: ["⚔️", "Oathbreaker Pursuit"], L: ["⛨", "Heir's Sanctuary"] }
 };
 
 const TEXT = {
@@ -30,7 +35,7 @@ const TEXT = {
     pause: "Pause", resume: "Resume", menu: "Main Menu", map: "World Map", codex: "Codex", workshop: "Workshop", safe: "Safe zone", nobody: "No one nearby",
     settings: "Settings", market: "Market", full: "Full Screen", window: "Window", tools: "Shortcuts",
     edit: "Arrange skills", book: "Drag a skill onto J, K or L · drag slot to slot to swap · P to finish",
-    marketShut: "Markets open in a safe zone"
+    marketShut: "Markets open in a safe zone", switchCharacter: "Switch character", switchCharacterHint: "Switch roster: V · Shift+1–6 · controller LB/RB"
   },
   fil: {
     skills: "Mga Skill", options: "Mga Opsyon", attack: "Atake", skill: "Skill", belt: "Mabilisang gamit", auto: "AUTO",
@@ -38,7 +43,7 @@ const TEXT = {
     pause: "Pause", resume: "Ituloy", menu: "Main Menu", map: "Mapa ng Mundo", codex: "Codex", workshop: "Talyer", safe: "Ligtas na lugar", nobody: "Walang malapit",
     settings: "Settings", market: "Palengke", full: "Full Screen", window: "Window", tools: "Shortcut",
     edit: "Ayusin ang skill", book: "I-drag ang skill sa J, K o L · i-drag ang slot sa slot para magpalit · P para matapos",
-    marketShut: "Bukas ang palengke sa ligtas na lugar"
+    marketShut: "Bukas ang palengke sa ligtas na lugar", switchCharacter: "Magpalit ng karakter", switchCharacterHint: "Palit-pangkat: V · Shift+1–6 · LB/RB ng controller"
   }
 };
 const tx = (k) => (TEXT[getLang()] || TEXT.en)[k];
@@ -231,10 +236,13 @@ export class ActionPanel {
       this.utilLabel.textContent = tx("tools");
       this.util = {
         market: this.clickButton("market", "KeyB", h.market),
-        full: this.clickButton("full", "KeyF", h.fullscreen)
+        full: this.clickButton("full", "KeyF", h.fullscreen),
+        party: this.clickButton("party", "KeyV", h.switchCharacter)
       };
       this.set(this.util.market, "⚖️", tx("market"));
       this.set(this.util.full, "⛶", document.fullscreenElement ? tx("window") : tx("full"));
+      this.set(this.util.party, "♙", tx("switchCharacter"));
+      this.util.party.title = tx("switchCharacterHint");
       Object.values(this.util).forEach((b) => this.utilEl.appendChild(b));
       if (!this.fsBound) {
         this.fsBound = true;

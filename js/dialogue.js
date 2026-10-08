@@ -14,14 +14,18 @@ const NAMES = {
     ronald: "Captain Ronald", edgar: "Edgar the Apothecary",
     arthur: "Arthur \"Art\" Ramirez", lyra: "Lyra Vance", julian: "Dr. Julian Alcantara",
     sam: "Samantha \"Sam\" Chen", renzo: "Renzo \"Striker\" Cruz", elvenMatriarch: "Elven Matriarch",
-    brakka: "Brakka Emberforge", hilde: "Hilde Rivetmend", durgrim: "Thane Durgrim Ashenhelm", pip: "Pip Gildbarrow"
+    brakka: "Brakka Emberforge", hilde: "Hilde Rivetmend", durgrim: "Thane Durgrim Ashenhelm", pip: "Pip Gildbarrow",
+    eirene: "Eirene", cerynVoss: "Ceryn Voss", vaelThorn: "Vael Thorn", nimaFen: "Nima Fen", templar: "Dame Serelle", tidemarkTrader: "Mara of Tidemark",
+    selaMoss: "Sela Moss", taviReed: "Tavi Reed"
   },
   fil: {
     aurelia: "Prinsesa Aurelia", kenneth: "Prinsipe Kenneth", king: "Ang Hari", royalGuard: "Bantay ng Hari",
     ronald: "Kapitan Ronald", edgar: "Edgar ang Apothecary",
     arthur: "Arthur \"Art\" Ramirez", lyra: "Lyra Vance", julian: "Dr. Julian Alcantara",
     sam: "Samantha \"Sam\" Chen", renzo: "Renzo \"Striker\" Cruz", elvenMatriarch: "Matriarka ng mga Elf",
-    brakka: "Brakka Emberforge", hilde: "Hilde Rivetmend", durgrim: "Thane Durgrim Ashenhelm", pip: "Pip Gildbarrow"
+    brakka: "Brakka Emberforge", hilde: "Hilde Rivetmend", durgrim: "Thane Durgrim Ashenhelm", pip: "Pip Gildbarrow",
+    eirene: "Eirene", cerynVoss: "Ceryn Voss", vaelThorn: "Vael Thorn", nimaFen: "Nima Fen", templar: "Dame Serelle", tidemarkTrader: "Mara ng Tidemark",
+    selaMoss: "Sela Moss", taviReed: "Tavi Reed"
   }
 };
 

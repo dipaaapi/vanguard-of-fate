@@ -175,7 +175,10 @@ const OTHER = {
   emberSeal:    { type: "quest", icon: "crystal", tint: "#ff7a1a", name: N("Ember Seal Stone", "Ember Seal Stone"), desc: N("One of four Seal Stones. Place all four on the Celestial Monolith in the Cerulean Abyss.", "Isa sa apat na Seal Stone. Ilagay ang lahat ng apat sa Celestial Monolith sa Cerulean Abyss.") },
   forgeCore:    { type: "quest", icon: "heart", tint: "#ff7a1a", name: N("Hellforge Reactor Core", "Reactor Core ng Hellforge"), desc: N("Torn from Ignis the Iron Lord.", "Hinugot mula kay Ignis the Iron Lord.") },
   imperialCrest:{ type: "quest", icon: "crest", tint: "#ffd166", name: N("Imperial Crest", "Imperial Crest"), desc: N("The King's last gift, for the new Sovereign.", "Huling handog ng Hari para sa bagong Sovereign.") },
-  astralAsh:    { type: "quest", icon: "ash", tint: "#fde68a", name: N("Astral Ash of Satan", "Astral na Abo ni Satan"), desc: N("All that remains of the Demon Lord.", "Ang natira sa Demon Lord.") }
+  vharokSigil:  { type: "quest", icon: "crest", tint: "#c24d68", name: N("Vharok's Grave Sigil", "Selyo ng Libingan ni Vharok"), desc: N("Proof that Vharok, the Grave Crown, has fallen.", "Patunay na bumagsak na si Vharok, ang Koronang Libingan.") },
+  nyxaraSigil:  { type: "quest", icon: "crystal", tint: "#c26fe0", name: N("Nyxara's Soul Sigil", "Selyo ng Kaluluwa ni Nyxara"), desc: N("Proof that Nyxara, the Soul Weaver, has fallen.", "Patunay na bumagsak na si Nyxara, ang Tagahabi ng Kaluluwa.") },
+  gorvathSigil: { type: "quest", icon: "ore", tint: "#d18b47", name: N("Gorvath's Titan Sigil", "Selyo ng Higanteng si Gorvath"), desc: N("Proof that Gorvath, the Hollow Titan, has fallen.", "Patunay na bumagsak na si Gorvath, ang Hungkag na Higante.") },
+  astralAsh:    { type: "quest", icon: "ash", tint: "#fde68a", name: N("Mawborn Astral Ash", "Astral na Abo ng Maw"), desc: N("A residue of the Pillars' rite, gathered as the Dark Lord rises again.", "Nalabing bakas ng ritwal ng mga Haligi habang muling bumabangon ang Dark Lord.") }
 };
 // Crafting materials (ores, cores, essences) and cooking (fish, ingredients, the 15 dishes)
 Object.assign(OTHER, CRAFT_ITEMS, FOOD_ITEMS);
@@ -203,12 +206,31 @@ const CARDS = {
   shockTrooper: { n: N("Shock Trooper", "Shock Trooper"), stats: { crit: 6 } },
   voidSpider: { n: N("Miasma Spider", "Gagamba ng Miasma"), stats: { dex: 5 } },
   specter: { n: N("Spectral Horror", "Multong Kakila-kilabot"), stats: { luk: 6 } },
+  rootstalker: { n: N("Rootstalker", "Tagasubaybay ng Ugat"), stats: { agi: 4, vit: 3 } },
+  rimefang: { n: N("Rimefang Stalker", "Mandaragit ng Yelo"), stats: { agi: 5 } },
+  cindermauler: { n: N("Cindermauler", "Durog-Baga"), stats: { str: 5, hp: 30 } },
+  ironback: { n: N("Ironback Ravager", "Mapaminsalang Bakal-Likod"), stats: { vit: 5, def: 3 } },
+  voidhulk: { n: N("Void Hulk", "Higante ng Void"), stats: { vit: 5, hp: 35 } },
+  thornwing: { n: N("Thornwing Drake", "Drake na May Tinik na Pakpak"), stats: { dex: 4 } },
+  stormroclet: { n: N("Storm Roclet", "Batang Ibon ng Bagyo"), stats: { agi: 4, aspd: 3 } },
+  blizzardroc: { n: N("Blizzard Roc", "Ibon ng Blizard"), stats: { agi: 4, vit: 3 } },
+  emberkite: { n: N("Emberkite", "Saranggola ng Baga"), stats: { int: 4, atk: 6 } },
+  voidmanta: { n: N("Void Manta", "Manta ng Void"), stats: { int: 5, luk: 3 } },
+  glassray: { n: N("Glassfin Ray", "Raya na Palikpik-Bubog"), stats: { dex: 4, luk: 3 } },
+  tideback: { n: N("Tideback Snapper", "Pagong na Alon"), stats: { vit: 5, def: 3 } },
+  glacialeel: { n: N("Glacier Eel", "Igat ng Yelo"), stats: { agi: 4, int: 3 } },
+  abysscrab: { n: N("Abyss Lantern Crab", "Alimangong Ilawan ng Kalaliman"), stats: { vit: 4, luk: 4 } },
+  voidnautilus: { n: N("Void Nautilus", "Nautilus ng Void"), stats: { vit: 5, int: 3 } },
   malakor: { n: N("Malakor", "Malakor"), stats: { vit: 6, hp: 60 }, boss: true },
   leviathan: { n: N("Leviathan Regent", "Leviathan Regent"), stats: { int: 6, cdr: 6 }, boss: true },
   cryonix: { n: N("Cryonix", "Cryonix"), stats: { agi: 6, aspd: 8 }, boss: true },
   ignis: { n: N("Ignis", "Ignis"), stats: { str: 7, atk: 15 }, boss: true },
   commander: { n: N("Demon Commander", "Heneral ng mga Demonyo"), stats: { crit: 10, dex: 5 }, boss: true },
-  satan: { n: N("Satan", "Satan"), stats: { str: 5, agi: 5, vit: 5, int: 5, dex: 5, luk: 5 }, boss: true }
+  satan: { n: N("Satan", "Satan"), stats: { str: 5, agi: 5, vit: 5, int: 5, dex: 5, luk: 5 }, boss: true },
+  vharok: { n: N("Vharok, the Grave Crown", "Vharok, ang Koronang Libingan"), stats: { str: 6, vit: 5, def: 5 }, boss: true },
+  nyxara: { n: N("Nyxara, the Soul Weaver", "Nyxara, Tagahabi ng Kaluluwa"), stats: { int: 7, cdr: 6, luk: 4 }, boss: true },
+  gorvath: { n: N("Gorvath, the Hollow Titan", "Gorvath, ang Hungkag na Higante"), stats: { vit: 7, hp: 80, def: 4 }, boss: true },
+  vaelthir: { n: N("Vaelthir, the Stormbound", "Vaelthir, Gapós ng Bagyo"), stats: { agi: 6, aspd: 5, dex: 5 }, boss: true }
 };
 
 // ---------- SLOT / STAT NAMES ----------

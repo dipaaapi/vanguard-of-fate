@@ -14,7 +14,9 @@ export function paint(P, { R, K }) {
   water(P, 150, 210, { deep: "#060a1a", mid: "#0f1a3a", light: "#2a3a6a", foam: "#8aa0d8", seed: 2, reflect: "#c4b5fd", reflectX: 392, reflectW: 10 });
   const shore = ridgeFn({ base: 152, amp: 22, freq: 0.02, seed: 4, sharp: 0.5 });
   ridge(P, (x) => (x < 170 ? shore(x) : 400), "#141838", { light: "#262c58" });
-  castle(P, 84, shore(84) + 4, { scale: 0.42, style: "imperial", seed: 3, glow: true });
+  // Give the Imperial Citadel enough scale for its ashlar, lit windows and crowned towers to read
+  // clearly behind the title foreground, while preserving the sword as the visual focal point.
+  castle(P, 106, shore(106) + 5, { scale: 0.62, style: "imperial", seed: 3, glow: true });
   fogBand(P, 168, 10, "#2c3466", 0.5, 5);
 
   // the cliff and the altar steps

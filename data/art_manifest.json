@@ -202,8 +202,8 @@
     "assets/bg/title_bg.png": {
       "kind": "background",
       "caption": {
-        "en": "The Lantern Knight's sword in the seal altar above the sea, a lantern on its hilt.",
-        "fil": "Ang espada ng Lantern Knight sa altar ng selyo sa itaas ng dagat, may parol sa puluhan."
+        "en": "The Lantern Knight's sword at the seal altar, overlooking the sea and the illuminated towers of the Imperial Citadel.",
+        "fil": "Ang espada ng Lantern Knight sa altar ng selyo, tanaw ang dagat at nagliliwanag na mga tore ng Imperial Citadel."
       },
       "usedBy": [
         "css/title.css",

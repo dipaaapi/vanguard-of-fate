@@ -2,6 +2,8 @@ import { getLang } from "./i18n.js";
 import { PLATFORMS } from "./world/platforms.js";
 import { FRONTIERS } from "./world/frontiers.js";
 import { areaLevels } from "./world/areas.js";
+import { Avatar } from "./avatar/avatar.js";
+import { NPC_DEFS } from "./npc/roster.js";
 
 // ==================== DUAL-CONTINENT WORLD MAP (Book I) ====================
 // The world of Vanguard of Fate is made of two great continents:
@@ -19,8 +21,11 @@ const LANDS = [
   { id: "frost", x: 0.24, y: 0.17, color: "#bfe9ff", icon: "peak" },
   { id: "mountain", x: 0.385, y: 0.15, color: "#86efac", icon: "crag" },
   { id: "canopy", x: 0.40, y: 0.40, color: "#c77dff", icon: "tree" },
-  { id: "swamp", x: 0.475, y: 0.58, color: "#84cc16", icon: "reeds" },
+  { id: "swamp", x: 0.475, y: 0.58, color: "#84cc16", icon: "reeds", name: { en: "Beastkin Swamp Island", fil: "Pulo ng Latian ng Beastkin" } },
+  { id: "underworks", x: 0.52, y: 0.69, color: "#67e8f9", icon: "monolith", name: { en: "The Underworks", fil: "Ang Ilalim na Pasilidad" } },
+  { id: "lost", x: 0.55, y: 0.24, color: "#67e8f9", icon: "crag", name: { en: "Ancient Floating Continent", fil: "Sinaunang Lumulutang na Kontinente" } },
   { id: "coast", x: 0.085, y: 0.50, color: "#38bdf8", icon: "ship", name: { en: "Cerulean Coast & Pier", fil: "Baybayin at Pier ng Cerulean" } },
+  { id: "port", x: 0.16, y: 0.60, color: "#38bdf8", icon: "anchor" },
   { id: "rocky", x: 0.13, y: 0.71, color: "#d6a35c", icon: "mesa" },
   { id: "ash", x: 0.29, y: 0.73, color: "#ff7a1a", icon: "volcano" },
   { id: "desert", x: 0.34, y: 0.89, color: "#fbbf24", icon: "dune" },
@@ -53,6 +58,7 @@ const landById = (id) => LANDS.find((l) => l.id === id);
 
 export class ContinentMap {
   constructor() {
+    this.caravanRider = new Avatar(NPC_DEFS.nimaFen.look);
     this.base = null;
     this.size = [0, 0];
   }
@@ -269,6 +275,35 @@ export class ContinentMap {
       ctx.beginPath(); ctx.moveTo(x + w * A.x, y + h * A.y); ctx.lineTo(x + w * B.x, y + h * B.y); ctx.stroke();
       ctx.restore();
     });
+
+    // Nima leads the sea-trade circuit once Aethelgard, the Beastkin island and the Dark
+    // Continent are all reachable. The moving caravan makes the unlocked connection visible.
+    const routeOpen = Boolean(q && q.unlocked && q.unlocked("port") && q.unlocked("swamp") && q.unlocked("siege"));
+    if (routeOpen) {
+      const stops = ["port", "swamp", "darkShore"].map(landById);
+      ctx.save();
+      ctx.strokeStyle = "rgba(250, 204, 21, 0.78)";
+      ctx.lineWidth = 1.4;
+      ctx.setLineDash([3, 2]);
+      ctx.beginPath();
+      stops.forEach((stop, i) => i ? ctx.lineTo(x + w * stop.x, y + h * stop.y) : ctx.moveTo(x + w * stop.x, y + h * stop.y));
+      ctx.closePath(); ctx.stroke(); ctx.restore();
+
+      const phase = (tick / 150) % stops.length;
+      const i = Math.floor(phase), f = phase - i;
+      const a = stops[i], b = stops[(i + 1) % stops.length];
+      const cx = x + w * (a.x + (b.x - a.x) * f), cy = y + h * (a.y + (b.y - a.y) * f);
+      ctx.fillStyle = "#493626"; ctx.fillRect(cx - 6, cy + 2, 13, 2);
+      ctx.fillStyle = "#d6a35c"; ctx.fillRect(cx - 5, cy - 2, 11, 4);
+      ctx.fillStyle = "#263238"; ctx.fillRect(cx - 5, cy + 3, 3, 3); ctx.fillRect(cx + 3, cy + 3, 3, 3);
+      ctx.fillStyle = "#cbd5e1"; ctx.fillRect(cx - 4, cy + 4, 1, 1); ctx.fillRect(cx + 4, cy + 4, 1, 1);
+      this.caravanRider.draw(ctx, cx, cy + 2, "down", "idle", Math.floor(tick / 24) % 2, false, false, 0.28);
+      ctx.fillStyle = "#fef3c7"; ctx.fillRect(cx - 1, cy - 10, 2, 2);
+      ctx.fillStyle = "rgba(3, 6, 17, 0.82)";
+      ctx.fillRect(x + w * 0.37, y + h - 9, 84, 7);
+      ctx.fillStyle = "#fde68a"; ctx.font = "bold 4px monospace"; ctx.textAlign = "center";
+      ctx.fillText(L === "fil" ? "CARAVAN NI NIMA · BUKAS NA RUTA" : "NIMA'S CARAVAN · TRADE ROUTE OPEN", x + w * 0.37 + 42, y + h - 4);
+    }
 
     // Headers over the two continents and the Book II island
     ctx.font = "bold 6px monospace";

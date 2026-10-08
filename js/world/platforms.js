@@ -1,7 +1,7 @@
 import { GFX } from "../settings.js";
 
 // ==================== CAMPAIGN PLATFORMS (LORE Acts VII–XII) ====================
-// Each Act has its own place, monsters (5 regular + 4 elite kinds), sites to scout, boss and quest item:
+// Each Act has its own place, expanded regular-monster pools, 4 elite kinds, sites, boss and quest item:
 //   canopy  VII  Whispering Canopy        (EAST gateway)   boss: Malakor      → Blighted Heartstone
 //   coast   VIII Cerulean Abyss            (WEST gateway)   boss: Leviathan    → Abyssal Helm Shard
 //   frost   IX   Frostfang Precipice       (NORTH gateway)  boss: Cryonix      → Cryonix Core
@@ -50,7 +50,7 @@ export const PLATFORMS = {
     camp: { x: 560, y: 780, w: 160, h: 110 }, gate: { x: 640, y: 878 },
     arena: { x: 470, y: 100, w: 340, h: 230 }, bossSpawn: { x: 630, y: 190 }, boss: "malakor", item: "heartstone",
     arenaName: { en: "Heartwood Grove", fil: "Heartwood Grove" },
-    monsters: ["sporeling", "beastman", "mossTreant", "blightHarpy", "sporeHornet"],
+    monsters: ["sporeling", "beastman", "mossTreant", "blightHarpy", "sporeHornet", "rootstalker", "thornwing"],
     elites: ["rotheartDryad", "beastmanChieftain", "thornbackBehemoth", "miasmaHiveQueen"],
     sites: [{ x: 180, y: 300, name: { en: "Hollow Ironwood", fil: "Hungkag na Ironwood" } }, { x: 1080, y: 280, name: { en: "Dryad Ring", fil: "Bilog ng mga Dryad" } }, { x: 1000, y: 700, name: { en: "Spore Hollow", fil: "Lungga ng mga Spore" } }],
     trail: { x: 1196, y: 470, dir: "vertical", dest: "swamp" },   // gate to the frontier map (js/world/frontiers.js)
@@ -101,10 +101,11 @@ export const PLATFORMS = {
     camp: { x: 990, y: 410, w: 170, h: 120 }, gate: { x: 1196, y: 470, dir: "vertical" },
     arena: { x: 290, y: 370, w: 270, h: 220 }, bossSpawn: { x: 300, y: 470 }, boss: "leviathan", item: "abyssHelm",
     arenaName: { en: "Sunken Altar", fil: "Lubog na Altar" },
-    monsters: ["reefCrab", "mariner", "coralGolem", "stormPetrel", "tideSlime"],
+    monsters: ["reefCrab", "mariner", "coralGolem", "stormPetrel", "tideSlime", "stormroclet", "glassray", "tideback"],
     elites: ["siren", "drownedSpecter", "drownedCaptain", "abyssalKraken"],
     sites: [{ x: 820, y: 200, name: { en: "Wrecked Galleon", fil: "Nawasak na Galyon" } }, { x: 1100, y: 120, name: { en: "Lighthouse Ruin", fil: "Guho ng Parola" } }, { x: 760, y: 720, name: { en: "Pearl Shoals", fil: "Bahura ng Perlas" } }],
-    pathTargets: [[425, 480], [700, 60], [700, 900]],
+    pathTargets: [[425, 480], [700, 60], [700, 900], [1180, 470]],
+    trail: { x: 1180, y: 470, dir: "vertical", dest: "port" },
     // The boat waits at the end of the stone causeway heading south (path to [700, 900]).
     // The boat's monolith is the landmark's Celestial Monolith itself (x 120, y 210) in the western sea.
     boat: {
@@ -246,7 +247,7 @@ export const PLATFORMS = {
     camp: { x: 100, y: 760, w: 180, h: 110 }, gate: { x: 190, y: 878 },
     arena: { x: 880, y: 90, w: 300, h: 210 }, bossSpawn: { x: 1020, y: 170 }, boss: "cryonix", item: "cryoCore",
     arenaName: { en: "Glacial Crest", fil: "Glacial Crest" },
-    monsters: ["yeti", "iceGolem", "frostStalker", "wyvern", "frozenCrab"],
+    monsters: ["yeti", "iceGolem", "frostStalker", "wyvern", "frozenCrab", "rimefang", "blizzardroc", "glacialeel"],
     elites: ["frostGargoyle", "frostSerpent", "rimeJotun", "glacierWitch"],
     sites: [{ x: 300, y: 240, name: { en: "Frozen Shrine", fil: "Nagyelong Dambana" } }, { x: 640, y: 640, name: { en: "Mammoth Graveyard", fil: "Libingan ng mga Mammoth" } }, { x: 900, y: 520, name: { en: "Icefall Bridge", fil: "Tulay ng Talong-Yelo" } }],
     trail: { x: 1196, y: 820, dir: "vertical", dest: "mountain" },   // gate to the frontier map (js/world/frontiers.js)
@@ -305,7 +306,7 @@ export const PLATFORMS = {
     ore: { count: 10, kinds: [["emberite", 0.6], ["obsidianOre", 0.4]] },   // mining (js/world/mining.js)
     arena: { x: 110, y: 110, w: 330, h: 220 }, bossSpawn: { x: 260, y: 200 }, boss: "ignis", item: "forgeCore",
     arenaName: { en: "Hellforge", fil: "Hellforge" },
-    monsters: ["obsidianGolem", "hellHound", "imp", "magmaDrake", "lavaCrab"],
+    monsters: ["obsidianGolem", "hellHound", "imp", "magmaDrake", "lavaCrab", "cindermauler", "emberkite"],
     elites: ["fireGargoyle", "lavaSerpent", "hellforgeOverseer", "cinderBehemoth"],
     sites: [{ x: 700, y: 220, name: { en: "Slag Heaps", fil: "Bunton ng Slag" } }, { x: 520, y: 600, name: { en: "Brimstone Vent", fil: "Butas ng Asupre" } }, { x: 1150, y: 300, name: { en: "Charred Watchpost", fil: "Sunog na Bantayan" } }],
     trail: { x: 300, y: 878, dest: "desert" },   // gate to the frontier map (js/world/frontiers.js)
@@ -360,7 +361,7 @@ export const PLATFORMS = {
     camp: { x: 560, y: 790, w: 160, h: 110 }, gate: { x: 640, y: 878 },
     arena: { x: 470, y: 90, w: 340, h: 210 }, bossSpawn: { x: 630, y: 170 }, boss: "commander", item: "imperialCrest",
     arenaName: { en: "Obsidian Throne Hall", fil: "Bulwagan ng Obsidian na Trono" },
-    monsters: ["shockTrooper", "voidSpider", "demonKnight", "chaosGargoyle", "corruptedCrab"],
+    monsters: ["shockTrooper", "voidSpider", "demonKnight", "chaosGargoyle", "corruptedCrab", "ironback", "abysscrab"],
     elites: ["abyssalJuggernaut", "hellfireWarlock", "obsidianSentinel", "infernalWyvern"],
     sites: [{ x: 300, y: 600, name: { en: "Broken Ballista", fil: "Sirang Ballista" } }, { x: 980, y: 600, name: { en: "Fallen Banner", fil: "Bumagsak na Bandila" } }, { x: 640, y: 420, name: { en: "Gatehouse Rubble", fil: "Guho ng Bantayang-Pinto" } }],
     pathTargets: [[640, 200], [170, 500], [1110, 500]],
@@ -423,9 +424,13 @@ export const PLATFORMS = {
     id: "maw", act: 12, tier: 7, theme: "maw", ambient: "void", seed: 12121, hubGate: "RIFT", color: "#9d4edd",
     name: { en: "Maw of Damnation", fil: "Maw of Damnation" },
     camp: { x: 560, y: 790, w: 160, h: 100 }, gate: { x: 640, y: 874 },
-    arena: { x: 460, y: 170, w: 360, h: 230 }, bossSpawn: { x: 630, y: 270 }, boss: "satan", item: "astralAsh",
+    arena: { x: 460, y: 170, w: 360, h: 230 }, bossSpawn: { x: 630, y: 270 }, boss: "vaelthir", item: "astralAsh",
+    bossSequence: [
+      { key: "vharok", drop: "vharokSigil" }, { key: "nyxara", drop: "nyxaraSigil" },
+      { key: "gorvath", drop: "gorvathSigil" }, { key: "vaelthir", drop: "astralAsh" }
+    ],
     arenaName: { en: "Obsidian Dais", fil: "Obsidian Dais" },
-    monsters: ["voidHusk", "specter", "magmaDrake", "voidSerpent", "deepKraken"],
+    monsters: ["voidHusk", "specter", "magmaDrake", "voidSerpent", "deepKraken", "voidhulk", "voidmanta", "voidnautilus"],
     elites: ["fallenSeraph", "abyssBehemoth", "abyssWyrm", "wraithLord"],
     sites: [{ x: 240, y: 560, name: { en: "Shattered Altar", fil: "Basag na Altar" } }, { x: 1040, y: 560, name: { en: "Ember Isle", fil: "Pulo ng Baga" } }, { x: 640, y: 600, name: { en: "Weeping Spire", fil: "Umiiyak na Tore" } }],
     pathTargets: [[640, 290], [240, 560], [1040, 560], [640, 600]],
@@ -449,19 +454,19 @@ export const PLATFORMS = {
     text: {
       en: {
         arrive: ["The Maw of Damnation... the sky has ceased to exist.",
-          "Demon Lord Satan waits upon the obsidian dais at the heart of the vortex. Whatever happens, {h} — I am at your side."],
-        hint: ["Satan waits on the great obsidian dais to the north. He will unleash all seven blights. I will chant for you — go!"],
-        deliver: ["It's over... the miasma is unraveling. Look — a true dawn over Aethelgard.",
-          "The Celestial Portals chime... the way back to Earth is open, {h}. Your old life is waiting.",
-          "...You're staying? Then take my hand. Together we will lead Aethelgard into an age of unbroken peace."]
+          "The four Pillars have gathered around a soul-forging rite. Satan is nowhere to be seen. We must stop them, {h} — I am at your side."],
+        hint: ["The four Pillars guard the ritual. Each is an MVP in its own right. Defeat them one by one before the Stone is complete!"],
+        deliver: ["The four Pillars are down... but their souls are pouring into the Philosopher's Stone! The crater is breaking apart!",
+          "A lightning storm is swallowing the Maw. {h}, you can barely stand—someone is reaching you through the rain!",
+          "The Necromancer carried you to Aethelgard. The heir ordered the guards to arrest them, and Satan still lives beyond the storm."]
       },
       fil: {
         arrive: ["Ang Maw of Damnation... wala na ang langit.",
-          "Naghihintay si Demon Lord Satan sa obsidian dais sa puso ng ipu-ipo. Anuman ang mangyari, {h} — nasa tabi mo ako."],
-        hint: ["Naghihintay si Satan sa malaking obsidian dais sa hilaga. Ilalabas niya ang pitong sumpa. Aawit ako para sa iyo — humayo ka!"],
-        deliver: ["Tapos na... nalulusaw na ang miasma. Tingnan mo — isang tunay na bukang-liwayway sa Aethelgard.",
-          "Tumutunog ang mga Celestial Portal... bukas na ang daan pabalik sa Daigdig, {h}. Naghihintay ang dati mong buhay.",
-          "...Mananatili ka? Kung gayon, hawakan mo ang aking kamay. Magkasama nating pamumunuan ang Aethelgard sa panahon ng walang patid na kapayapaan."]
+          "Nagtipon ang apat na Haligi para sa ritwal na humuhubog ng kaluluwa. Wala si Satan. Kailangan natin silang pigilan, {h} — nasa tabi mo ako."],
+        hint: ["Binabantayan ng apat na Haligi ang ritwal. Bawat isa ay MVP sa sariling lakas. Talunin sila nang sunod-sunod bago mabuo ang Bato!"],
+        deliver: ["Bumagsak na ang apat na Haligi... ngunit dumadaloy ang kanilang mga kaluluwa sa Philosopher's Stone! Nabibiyak ang bunganga!",
+          "Nilalamon ng unos ng kidlat ang Maw. {h}, halos hindi ka na makatayo—may lumalapit sa iyo sa gitna ng ulan!",
+          "Dinala ka ng Necromancer sa Aethelgard. Iniutos ng tagapagmana na arestuhin siya, at buhay pa si Satan sa kabila ng unos."]
       }
     }
   }

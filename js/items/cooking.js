@@ -79,6 +79,8 @@ export const DISHES = {
     stats: { int: 5, cdr: 3, hp: 50 }, skill: { heal: 10, regen: 4 }, name: N("Tilapia Tinola", "Tinolang Tilapia") },
   paksiw:   { path: "int", step: 3, level: 18, time: 7 * MIN, tint: "#a3a3a3", price: 70, ing: { mackerel: 1, rockSalt: 1, wildSpice: 2 },
     stats: { int: 8, luk: 4, cdr: 4 }, skill: { dmg: 6, kcd: 6, lcd: 6 }, name: N("Mackerel Paksiw", "Paksiw na Alumahan") },
+  tidemarkChowder: { path: "int", step: 3, level: 12, time: 6 * MIN, tint: "#38bdf8", price: 85, ing: { mackerel: 1, squid: 1, tilapia: 1, wildSpice: 1 },
+    stats: { int: 6, vit: 3, hp: 90, cdr: 3 }, skill: { heal: 10, dmg: 5 }, name: N("Tidemark Chowder", "Nilagang Tidemark") },
   nilaga:   { path: "int", step: 4, level: 28, time: 8 * MIN, tint: "#a855f7", price: 110, ing: { angler: 1, wildSpice: 1, rockSalt: 1 },
     stats: { int: 11, luk: 6, cdr: 5, hp: 120 }, skill: { dmg: 9, kcd: 8, heal: 14 }, name: N("Void Angler Nilaga", "Nilagang Angler ng Void") },
   pancit:   { path: "int", step: 5, level: 38, time: 10 * MIN, tint: "#fcd34d", price: 200, ing: { bangus: 1, angler: 1, wildSpice: 2, rockSalt: 1 },

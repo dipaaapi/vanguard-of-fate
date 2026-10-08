@@ -86,6 +86,38 @@ export const NPC_DEFS = {
   elvenMatriarch: {
     look: { ...base, body: "female", skin: "#f7d9c4", eyes: "#7a3fb0", hairStyle: "long", hairColor: "#dfe6ee", ears: "elf",
       outfit: "gown", outfitColor: "#2f6b4f", legColor: "#2f6b4f", headgear: "tiara", cape: "#e8e2d0", weapon: "staff" }
+  },
+
+  // ---- Playable NPC art starters: five regional recruits ----
+  eirene: {
+    look: { ...base, body: "female", robot: true, skin: "#d8ddd9", eyes: "#43e0dc", hairStyle: "none", hairColor: "#dfe6ee",
+      outfit: "gown", outfitColor: "#e8e2d0", legColor: "#536b75", bootColor: "#334c57", headgear: "headband", cape: "#2a7a80", weapon: "none" }
+  },
+  templar: {
+    look: { ...base, body: "female", skin: "#f1c27d", eyes: "#e2c66f", hairStyle: "ponytail", hairColor: "#6b432b", gloves: "leather",
+      outfit: "armor", outfitColor: "#e8e2d0", legColor: "#34465c", bootColor: "#3b3f4a", headgear: "headband", cape: "#8a2c2c", shield: "tower", weapon: "lance" }
+  },
+  cerynVoss: {
+    look: { ...base, body: "female", skin: "#e0ac69", eyes: "#7a3fb0", hairStyle: "ponytail", hairColor: "#8a3b24", gloves: "leather",
+      outfit: "armor", outfitColor: "#2c4f8a", legColor: "#3b3f4a", bootColor: "#c9a063", headgear: "headband", cape: "#8a2c2c", weapon: "book" }
+  },
+  vaelThorn: {
+    look: { ...base, body: "male", skin: "#8d5524", eyes: "#8ee0d5", hairStyle: "long", hairColor: "#1f1a24", gloves: "leather",
+      outfit: "coat", outfitColor: "#3b3f4a", legColor: "#242638", bootColor: "#2b2b33", cape: "#5a3d91", weapon: "none" }
+  },
+  nimaFen: {
+    look: { ...base, body: "female", beastkin: true, furColor: "#385b3a", earInner: "#d59a83", tailTip: "#d6a35c", muzzleColor: "#d9d0a8", noseColor: "#30252b",
+      skin: "#a8b883", eyes: "#f2c45c", hairStyle: "twintails", hairColor: "#2f6b4f", gloves: "wraps",
+      outfit: "vest", outfitColor: "#2f6b4f", legColor: "#8a6b3d", bootColor: "#5e3b1a", weapon: "flask" }
+  },
+  tidemarkTrader: {
+    look: { ...base, body: "female", skin: "#f1c27d", eyes: "#38bdf8", hairStyle: "braid", hairColor: "#5e3b1a", outfit: "vest", outfitColor: "#256d85", legColor: "#8a6b3d", weapon: "flask" }
+  },
+  selaMoss: {
+    look: { ...base, body: "female", skin: "#86a878", eyes: "#d6e88f", hairStyle: "long", hairColor: "#385b3a", outfit: "gown", outfitColor: "#486b43", legColor: "#344c35", cape: "#79905a", weapon: "staff" }
+  },
+  taviReed: {
+    look: { ...base, body: "male", skin: "#78966d", eyes: "#e2c66e", hairStyle: "spiky", hairColor: "#294c36", outfit: "tunic", outfitColor: "#6e8c4c", legColor: "#634b2f", bootColor: "#3c3526", weapon: "none" }
   }
 };
 

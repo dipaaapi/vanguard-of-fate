@@ -784,22 +784,46 @@ function drawHead(p, c, cfg, dy, view) {
   }
 
   if (view === "down") {
+    const expression = cfg.expression || "neutral";
     // ears
     p.set(8, 8 + dy, c.skin); p.set(8, 9 + dy, c.skinD);
     p.set(23, 8 + dy, c.skinD); p.set(23, 9 + dy, c.skinDD);
-    // eyebrows
-    p.rows([[7, 12, 13], [7, 18, 19]], c.hairD, dy);
-    // eyes: lashes, iris with a glint, lower shade
-    [[12, 13], [18, 19]].forEach(([a, b]) => {
-      p.set(a, 8 + dy, c.lash); p.set(b, 8 + dy, c.lash);
-      p.set(a, 9 + dy, c.eye); p.set(b, 9 + dy, c.white);
-      p.set(a, 10 + dy, c.eyeD); p.set(b, 10 + dy, c.eye);
-    });
-    if (cfg.body === "female") { p.set(11, 8 + dy, c.lash); p.set(20, 8 + dy, c.lash); }
+    // Brows and eyes change shape in expression portraits, not just colour.
+    if (expression === "angry" || expression === "determined") {
+      p.rows([[7, 12, 13], [8, 14, 14], [8, 17, 17], [7, 18, 19]], c.hairD, dy);
+    } else if (expression === "worried" || expression === "hurt") {
+      p.rows([[8, 12, 13], [7, 14, 14], [7, 17, 17], [8, 18, 19]], c.hairD, dy);
+    } else {
+      p.rows([[7, 12, 13], [7, 18, 19]], c.hairD, dy);
+    }
+    const closedEyes = expression === "joyful" || expression === "hurt";
+    if (closedEyes) {
+      p.rows([[9, 11, 14], [9, 17, 20]], c.lash, dy);
+      p.set(12, 10 + dy, c.lash); p.set(19, 10 + dy, c.lash);
+    } else {
+      [[12, 13], [18, 19]].forEach(([a, b]) => {
+        p.set(a, 8 + dy, c.lash); p.set(b, 8 + dy, c.lash);
+        p.set(a, 9 + dy, c.eye); p.set(b, 9 + dy, c.white);
+        p.set(a, 10 + dy, c.eyeD); p.set(b, 10 + dy, c.eye);
+      });
+    }
+    if (cfg.body === "female" && !closedEyes) { p.set(11, 8 + dy, c.lash); p.set(20, 8 + dy, c.lash); }
     // nose and mouth
     p.set(16, 10 + dy, c.skinD);
     const mouth = cfg.body === "female" ? mix(c.skin, "#c2506e", 0.4) : c.skinDD;
-    p.set(15, 12 + dy, mouth); p.set(16, 12 + dy, mouth);
+    if (expression === "joyful") {
+      p.rows([[12, 14, 17], [13, 15, 16]], mouth, dy);
+    } else if (expression === "worried" || expression === "hurt") {
+      p.set(15, 12 + dy, mouth); p.set(16, 12 + dy, mouth);
+      p.set(15, 11 + dy, mouth);
+    } else if (expression === "speaking") {
+      p.set(15, 12 + dy, mouth); p.set(16, 12 + dy, mouth);
+      p.set(15, 13 + dy, c.skinDD); p.set(16, 13 + dy, c.skinDD);
+    } else if (expression === "angry") {
+      p.rows([[12, 14, 17]], c.skinDD, dy);
+    } else {
+      p.set(15, 12 + dy, mouth); p.set(16, 12 + dy, mouth);
+    }
     if (cfg.body === "female") {
       p.set(11, 11 + dy, mix(c.skin, c.blush, 0.45));
       p.set(20, 11 + dy, mix(c.skin, c.blush, 0.45));
@@ -809,13 +833,19 @@ function drawHead(p, c, cfg, dy, view) {
     p.set(23, 8 + dy, c.skinD); p.set(23, 9 + dy, c.skinDD);
   } else {
     // side: one eye, nose, mouth, ear
+    const expression = cfg.expression || "neutral";
     p.rows([[7, 18, 19]], c.hairD, dy);
-    p.set(18, 8 + dy, c.lash); p.set(19, 8 + dy, c.lash);
-    p.set(18, 9 + dy, c.white); p.set(19, 9 + dy, c.eye);
-    p.set(19, 10 + dy, c.eyeD);
+    if (expression === "joyful" || expression === "hurt") {
+      p.rows([[9, 18, 20]], c.lash, dy);
+    } else {
+      p.set(18, 8 + dy, c.lash); p.set(19, 8 + dy, c.lash);
+      p.set(18, 9 + dy, c.white); p.set(19, 9 + dy, c.eye);
+      p.set(19, 10 + dy, c.eyeD);
+    }
     if (cfg.body === "female") p.set(20, 8 + dy, c.lash);
     p.set(22, 9 + dy, c.skin); p.set(22, 10 + dy, c.skinD);          // nose
-    p.set(20, 12 + dy, c.skinDD);                                      // bibig
+    p.set(20, 12 + dy, c.skinDD);                                      // mouth
+    if (expression === "speaking") p.set(20, 13 + dy, c.skinDD);
     p.set(14, 8 + dy, c.skinD); p.set(14, 9 + dy, c.skinDD);          // ears
     if (cfg.body === "female") p.set(20, 11 + dy, mix(c.skin, c.blush, 0.45));
   }
@@ -876,6 +906,72 @@ function drawElfEars(p, c, dy, view) {
     p.set(24, 6 + dy, c.skinD); p.set(24, 7 + dy, c.skinD); p.set(23, 7 + dy, c.skinD); p.set(23, 8 + dy, c.skinD); p.set(23, 9 + dy, c.skinDD);
   } else {
     p.set(12, 5 + dy, c.skin); p.set(13, 6 + dy, c.skin); p.set(13, 7 + dy, c.skin); p.set(14, 8 + dy, c.skinD); p.set(14, 9 + dy, c.skinDD);
+  }
+}
+
+// Eirene's porcelain-metal faceplate, status eye and service-core make her read as an automaton.
+function drawRobotDetails(p, dy, view) {
+  const steel = "#8a99ab", light = "#dbe4ee", dark = "#334c57", cyan = "#43e0dc";
+  if (view === "down") {
+    p.rows([[7, 10, 10], [8, 10, 10], [9, 10, 10], [7, 21, 21], [8, 21, 21], [9, 21, 21]], steel, dy);
+    p.rows([[9, 12, 13], [9, 18, 19]], cyan, dy);
+    p.set(16, 10 + dy, light); p.rows([[12, 15, 16]], dark, dy);
+    p.set(15, 12 + dy, light); p.set(17, 12 + dy, steel);
+  } else if (view === "side") {
+    p.rows([[7, 21, 22], [8, 21, 22], [9, 21, 22]], steel, dy);
+    p.set(19, 9 + dy, cyan); p.set(21, 11 + dy, light); p.set(20, 12 + dy, dark);
+  } else {
+    p.rows([[8, 11, 12], [8, 19, 20]], steel, dy);
+    p.set(15, 10 + dy, light);
+  }
+}
+
+function drawRobotCore(p, dy, view) {
+  if (view === "up") return;
+  const x = view === "side" ? 18 : 15;
+  p.rect(x, 18 + dy, 2, 2, "#2a7a80");
+  p.set(x, 18 + dy, "#67e8f9");
+  p.set(x - 1, 17 + dy, "#dbe4ee"); p.set(x + 2, 21 + dy, "#dbe4ee");
+}
+
+// Broad upright ears, muzzle and a brush tail give Nima a readable Beastkin silhouette.
+function drawBeastkinEars(p, cfg, dy, view) {
+  const fur = cfg.furColor || cfg.hairColor || "#385b3a";
+  const inner = cfg.earInner || "#c98574";
+  if (view === "down" || view === "up") {
+    p.rows([[0, 8, 9], [1, 7, 10], [2, 7, 11], [3, 8, 11], [4, 9, 11], [5, 10, 11]], fur, dy);
+    p.rows([[0, 22, 23], [1, 21, 24], [2, 20, 24], [3, 20, 23], [4, 20, 22], [5, 20, 21]], fur, dy);
+    p.rows([[1, 8, 9], [2, 8, 10], [3, 9, 10]], inner, dy);
+    p.rows([[1, 22, 23], [2, 21, 23], [3, 21, 22]], inner, dy);
+  } else {
+    p.rows([[0, 11, 12], [1, 10, 13], [2, 9, 13], [3, 10, 12], [4, 11, 12], [5, 11, 12]], fur, dy);
+    p.rows([[1, 11, 12], [2, 10, 12], [3, 11, 11]], inner, dy);
+  }
+}
+
+function drawBeastkinMuzzle(p, cfg, dy, view) {
+  if (view === "up") return;
+  const fur = cfg.muzzleColor || "#d9d0a8";
+  const nose = cfg.noseColor || "#30252b";
+  if (view === "down") {
+    p.rows([[10, 14, 17], [11, 13, 18], [12, 14, 17]], fur, dy);
+    p.set(15, 10 + dy, nose); p.set(16, 10 + dy, nose);
+    p.set(11, 11 + dy, fur); p.set(20, 11 + dy, fur);
+  } else {
+    p.rows([[9, 21, 23], [10, 20, 23], [11, 20, 22]], fur, dy);
+    p.set(23, 9 + dy, nose); p.set(24, 10 + dy, fur);
+  }
+}
+
+function drawBeastkinTail(p, cfg, dy, view) {
+  const fur = cfg.furColor || cfg.hairColor || "#385b3a";
+  const tip = cfg.tailTip || "#d6a35c";
+  if (view === "side") {
+    p.rows([[20, 5, 8], [21, 3, 7], [22, 2, 6], [23, 3, 6], [24, 5, 7]], fur, dy);
+    p.set(2, 22 + dy, tip); p.set(3, 21 + dy, tip);
+  } else {
+    p.rows([[20, 6, 9], [21, 4, 8], [22, 3, 7], [23, 4, 7], [24, 6, 8]], fur, dy);
+    p.set(3, 22 + dy, tip); p.set(4, 21 + dy, tip);
   }
 }
 
@@ -1173,6 +1269,7 @@ function renderPix(cfg, dir, anim, i) {
     const female = cfg.body === "female";
     const lx = female ? 9 : 8, rx = female ? 21 : 22;
 
+    if (cfg.beastkin) drawBeastkinTail(p, cfg, dy, back ? "up" : "down");
     if (cfg.cape && !back) drawCape(p, c, dy, "down");
     if (cfg.quiver && !back) drawQuiver(p, c, dy, "down");
     if (!back && !helmet) drawHairBack(p, c, cfg, dy, "down");
@@ -1187,6 +1284,7 @@ function renderPix(cfg, dir, anim, i) {
     if (cfg.outfit === "gown") drawGownSkirt(p, c, dy, false);
 
     drawTorso(p, c, cfg, dy, dir);
+    if (cfg.robot) drawRobotCore(p, dy, dir);
 
     // Arms: in the back view the hands swap sides (right hand on the screen's right)
     let weaponArm, shieldArm;
@@ -1210,13 +1308,16 @@ function renderPix(cfg, dir, anim, i) {
 
     drawHead(p, c, cfg, dy, dir);
     drawFaceExtras(p, c, cfg, dy, dir);
+    if (cfg.robot) drawRobotDetails(p, dy, dir);
     if (back && !helmet) drawHairFront(p, c, cfg, dy, "up");
     if (!back && !helmet) drawHairFront(p, c, cfg, dy, "down");
+    if (cfg.beastkin) { drawBeastkinMuzzle(p, cfg, dy, dir); drawBeastkinEars(p, cfg, dy, dir); }
     if (cfg.ears === "elf") drawElfEars(p, c, dy, dir);
     drawHeadgear(p, c, cfg, dy, dir);
   } else {
     // ---- SIDE (facing right) ----
     const s = g.stride;
+    if (cfg.beastkin) drawBeastkinTail(p, cfg, dy, "side");
     if (cfg.cape) drawCape(p, c, dy, "side");
     if (cfg.quiver) drawQuiver(p, c, dy, "side");
     if (!helmet) drawHairBack(p, c, cfg, dy, "side");
@@ -1235,6 +1336,7 @@ function renderPix(cfg, dir, anim, i) {
     if (cfg.outfit === "gown") drawGownSkirt(p, c, dy, true);
 
     drawTorso(p, c, cfg, dy, "side");
+    if (cfg.robot) drawRobotCore(p, dy, "side");
     if (cfg.shield === "tower") drawShield(p, c, cfg, "side", farArm);   // in front of the body
 
     let arm;
@@ -1256,7 +1358,9 @@ function renderPix(cfg, dir, anim, i) {
 
     drawHead(p, c, cfg, dy, "side");
     drawFaceExtras(p, c, cfg, dy, "side");
+    if (cfg.robot) drawRobotDetails(p, dy, "side");
     if (!helmet) drawHairFront(p, c, cfg, dy, "side");
+    if (cfg.beastkin) { drawBeastkinMuzzle(p, cfg, dy, "side"); drawBeastkinEars(p, cfg, dy, "side"); }
     if (cfg.ears === "elf") drawElfEars(p, c, dy, "side");
     drawHeadgear(p, c, cfg, dy, "side");
   }
@@ -1326,8 +1430,8 @@ export class Avatar {
   }
 
   // Close-up of head and shoulders (for the dialogue portrait)
-  drawPortrait(ctx, w, h) {
-    const img = this.frame("down", "idle", 0);
+  drawPortrait(ctx, w, h, expression = "neutral") {
+    const img = renderFrame({ ...this.config, expression }, "down", "idle", 0);
     ctx.clearRect(0, 0, w, h);
     ctx.imageSmoothingEnabled = false;
     // region x 4..28, y 0..22 (head down to the chest)

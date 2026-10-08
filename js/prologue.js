@@ -552,6 +552,55 @@ const SCENES = [
       s.summoner.draw(ctx, 520 - walk * 250, 216, "side", moving ? "walk" : "idle", Math.floor(f / (moving ? 8 : 30)), true, false, 2);
       s.fade = p < 0.12 ? Math.max(s.fade, 1 - p / 0.12) : s.fade;
     }
+  },
+
+  // 9. THE STORM YET TO COME — a vision after the hero wakes
+  {
+    dur: 420,
+    sound: "thunder",
+    card: { en: ["A DISTANT OMEN", "The storm has not passed"], fil: ["BABALA MULA SA MALAYO", "Hindi pa lumilipas ang unos"] },
+    lines: [
+      { en: "Far beyond Aethelgard, four pillars of darkness fed their lives into a single black stone.",
+        fil: "Sa malayong bahagi ng Aethelgard, inialay ng apat na haligi ng kadiliman ang kanilang buhay sa isang maitim na bato." },
+      { en: "A crater split open beneath the lightning. Something ancient stirred—and one exhausted soul was carried away.",
+        fil: "Nabiyak ang bunganga sa ilalim ng mga kidlat. May sinaunang bagay na nagising—at iniligtas ang isang pagod na kaluluwa." }
+    ],
+    draw(ctx, p, f, s) {
+      fillGrad(ctx, [[0, "#080b1b"], [0.58, "#191329"], [1, "#05070d"]], 0, H);
+      const flash = Math.max(0, 1 - Math.abs((f % 96) - 14) / 7);
+      // Distant broken land and the crater mouth
+      ctx.fillStyle = "#191b29";
+      ctx.beginPath(); ctx.moveTo(0, 174); ctx.lineTo(78, 164); ctx.lineTo(139, 177); ctx.lineTo(193, 158);
+      ctx.lineTo(224, 196); ctx.lineTo(257, 158); ctx.lineTo(315, 176); ctx.lineTo(382, 160); ctx.lineTo(480, 175);
+      ctx.lineTo(480, 270); ctx.lineTo(0, 270); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#05060d"; ctx.beginPath(); ctx.ellipse(240, 207, 102, 29, 0, 0, Math.PI * 2); ctx.fill();
+      // Four fading pillars around the ritual circle
+      for (let i = 0; i < 4; i++) {
+        const a = i * Math.PI / 2 + f * 0.004;
+        const x = 240 + Math.cos(a) * 62, y = 204 + Math.sin(a) * 15;
+        const glowA = Math.max(0.12, 0.7 - p * 0.5);
+        glow(ctx, x, y - 24, 18, "180, 70, 210", glowA);
+        ctx.fillStyle = "#292337"; ctx.fillRect(x - 6, y - 37, 12, 36);
+        ctx.fillStyle = "#a94cbe"; ctx.fillRect(x - 2, y - 29, 4, 14);
+      }
+      // Lightning forks illuminate the crater and its rising dark pulse
+      if (flash > 0) {
+        ctx.fillStyle = `rgba(180, 205, 255, ${flash * 0.15})`; ctx.fillRect(0, 0, W, H);
+        ctx.strokeStyle = `rgba(214, 228, 255, ${flash})`; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(362, 0); ctx.lineTo(344, 39); ctx.lineTo(359, 48); ctx.lineTo(327, 92); ctx.stroke();
+        glow(ctx, 240, 198, 55 + Math.sin(f / 8) * 8, "115, 70, 190", 0.35 + flash * 0.4);
+      }
+      // A small fleeing silhouette, swallowed by rain and shadow
+      const retreat = ease(span(p, 0.58, 0.94));
+      ctx.fillStyle = "#090911";
+      ctx.fillRect(274 + retreat * 42, 166 - retreat * 2, 5, 25);
+      ctx.fillRect(268 + retreat * 42, 171 - retreat * 2, 17, 3);
+      for (let i = 0; i < 44; i++) {
+        const x = (i * 67 + f * (1 + i % 3)) % W, y = (i * 41 + f * 2) % H;
+        ctx.fillStyle = `rgba(155, 177, 220, ${0.12 + flash * 0.25})`; ctx.fillRect(x, y, 1, 5);
+      }
+      s.fade = Math.max(s.fade, span(p, 0.92, 1));
+    }
   }
 ];
 

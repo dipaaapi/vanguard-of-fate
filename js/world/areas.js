@@ -22,7 +22,7 @@ export const HUB_AREA = {
   trail: { x: 220, y: 914, dest: "rocky" }
 };
 
-export const BOOK_ONE_AREAS = ["hub", ...PLATFORM_ORDER, ...FRONTIER_ORDER];
+export const BOOK_ONE_AREAS = ["hub", ...PLATFORM_ORDER, ...FRONTIER_ORDER, "port", "underworks", "lost"];
 
 // The definition of any map (null for an unknown id)
 export function areaDef(id) {

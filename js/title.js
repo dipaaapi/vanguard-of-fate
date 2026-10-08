@@ -1,16 +1,15 @@
 import { Sound } from "./audio.js";
 import { t, getLang, setLang, toggleLang, onLangChange } from "./i18n.js";
-import { loadLore, parseChapters, chapterKey, bannerSrc, BANNER_EXTS } from "./lore.js";
 import { SETTINGS, settingLabel, settingValue, stepSetting, toggleFullscreen } from "./settings.js";
 
-// Title screen (full window). The logo, menu and Chronicles are HTML/CSS;
+// Title screen (full window). The logo, menu and credits are HTML/CSS;
 // the canvas (#titleFx) animates the painting: stars, eclipse, sea, a passing ship, the sword and embers.
 //
 // Steps (data-step on #title):
 //   press      → "Press any key" (music also starts here, since browsers need user input)
-//   menu       → Continue / New Expedition / Chronicles / Options
-//   options    → settings, language, save data
-//   chronicles → lore, split by Act
+//   menu       → Continue / New Expedition / Options / Credits
+//   options    → settings, controls, language and save data
+//   controls   → keyboard and controller reference
 
 const SAVE_KEY = "vanguard_savegame";
 const BG_SRC = "assets/bg/title_bg.png";
@@ -29,14 +28,13 @@ export class TitleScene {
     this.menuEl = rootEl.querySelector("#titleMenu");
     this.hintEl = rootEl.querySelector("#titleHint");
     this.langBtn = rootEl.querySelector("#langToggle");
-    this.chronTabs = rootEl.querySelector("#chronTabs");
-    this.chronBody = rootEl.querySelector("#chronBody");
+    this.controlsBody = rootEl.querySelector("#controlsBody");
 
     this.step = "press";
     this.index = 0;
     this.items = [];
-    this.chapters = null;
-    this.chapter = 0;
+    this.padPrev = new Set();
+    this.padNavAt = 0;
 
     this.fx = rootEl.querySelector("#titleFx");
     this.fxCtx = this.fx.getContext("2d");
@@ -46,12 +44,7 @@ export class TitleScene {
     this.tick = 0;
 
     this.bindDom();
-    onLangChange(async (lang) => {
-      if (this.step === "chronicles") {
-        this.chapters = parseChapters(await loadLore(lang));
-      }
-      this.render();
-    });
+    onLangChange(() => this.render());
     this.render();
   }
 
@@ -92,6 +85,7 @@ export class TitleScene {
       // Settings come from js/settings.js (shared with the in-game Settings panel, O)
       return [
         ...SETTINGS.map((s) => ({ id: s.id, label: settingLabel(s.id), [s.toggle ? "toggle" : "choice"]: s.id })),
+        { id: "controls", label: t("controlsTitle"), section: t("controlsSection") },
         { id: "lang",    label: t("language"), lang: true },
         { id: "export",  label: t("exportSave"), disabled: !save, section: t("saveData") },
         { id: "import",  label: t("importSave") },
@@ -104,7 +98,6 @@ export class TitleScene {
     if (save) items.push({ id: "continue", label: t("continue"), sub: this.saveSummary(save) });
     items.push(
       { id: "new",        label: t("newGame") },
-      { id: "chronicles", label: t("chronicles") },
       { id: "options",    label: t("options") },
       { id: "credits",    label: t("credits") }
     );
@@ -146,10 +139,10 @@ export class TitleScene {
     document.addEventListener("pointerdown", (e) => { if (!e.target.closest(".t-lang")) setMenu(false); });
     document.addEventListener("fullscreenchange", () => this.renderLang());
 
-    const close = this.root.querySelector("#chronClose");
-    close.addEventListener("click", () => this.closeChronicles());
     const credClose = this.root.querySelector("#credClose");
     if (credClose) credClose.addEventListener("click", () => this.closeCredits());
+    const controlsClose = this.root.querySelector("#controlsClose");
+    if (controlsClose) controlsClose.addEventListener("click", () => this.closeControls());
   }
 
   render() {
@@ -160,11 +153,11 @@ export class TitleScene {
     });
     this.renderLang();
 
-    const hintKey = { press: "", menu: "titleHint", options: "optionsHint", chronicles: "chroniclesHint", credits: "creditsHint" }[this.step];
+    const hintKey = { press: "", menu: "titleHint", options: "optionsHint", controls: "controlsHint", credits: "creditsHint" }[this.step];
     this.hintEl.innerHTML = hintKey ? t(hintKey) : "";
 
     if (this.step === "menu" || this.step === "options") this.renderMenu();
-    if (this.step === "chronicles") this.renderChronicles();
+    if (this.step === "controls") this.renderControls();
     if (this.step === "credits") this.renderCredits();
   }
 
@@ -313,7 +306,8 @@ export class TitleScene {
         return;
       }
       if (Sound.playSelectConfirm) Sound.playSelectConfirm();
-      if (item.id === "export") this.onExportSave();
+      if (item.id === "controls") this.goTo("controls", "controls");
+      else if (item.id === "export") this.onExportSave();
       else if (item.id === "import") this.onImportSave();
       else if (item.id === "back") this.goTo("menu", "options");
       return;
@@ -326,8 +320,6 @@ export class TitleScene {
     } else if (item.id === "new") {
       this.flash();
       this.onStartGame();
-    } else if (item.id === "chronicles") {
-      this.openChronicles();
     } else if (item.id === "options") {
       this.goTo("options", "music");
     } else if (item.id === "credits") {
@@ -386,6 +378,12 @@ export class TitleScene {
     add("p", "cr-name", "EdMaster28");
     add("p", "cr-role", t("credStoryRole"));
 
+    add("h4", "", t("credWorld"));
+    add("p", "cr-role", t("credWorldRole"));
+
+    add("h4", "", t("credCharacters"));
+    add("p", "cr-role", t("credCharactersRole"));
+
     add("h4", "", t("credCode"));
     add("p", "cr-name", "EdMaster28 × Claude (Anthropic)");
     add("p", "cr-role", t("credCodeRole"));
@@ -400,6 +398,7 @@ export class TitleScene {
       ["localStorage + JSON", t("credTechSave")],
       ["Google Fonts", "Cinzel · Silkscreen"],
       [t("credTechPixel"), t("credTechPixelSub")],
+      ["Aseprite", t("credTechAseprite")],
       ["Claude Code", t("credTechClaude")]
     ].forEach(([name, sub]) => {
       const li = document.createElement("li");
@@ -423,74 +422,46 @@ export class TitleScene {
     add("p", "cr-thanks", t("credThanks"));
   }
 
-  // ---------- CHRONICLES ----------
-  async openChronicles() {
-    this.step = "chronicles";
-    this.render();
-    this.chapters = parseChapters(await loadLore(getLang()));
-    if (this.step === "chronicles") this.renderChronicles();
-  }
-
-  closeChronicles() {
+  // ---------- CONTROLS REFERENCE ----------
+  closeControls() {
     if (Sound.playSelectMove) Sound.playSelectMove();
-    this.goTo("menu", "chronicles");
+    this.goTo("options", "controls");
   }
 
-  setChapter(i) {
-    if (!this.chapters || !this.chapters.length) return;
-    const n = this.chapters.length;
-    const next = (i + n) % n;
-    if (next === this.chapter) return;
-    this.chapter = next;
-    if (Sound.playSelectMove) Sound.playSelectMove();
-    this.renderChronicles();
-    this.chronBody.scrollTop = 0;
-  }
-
-  renderChronicles() {
-    this.root.querySelector("#chronTitle").textContent = t("chroniclesTitle");
-    this.root.querySelector("#chronNote").textContent = t("loreNote");
-    if (!this.chapters) return;
-
-    this.chronTabs.innerHTML = "";
-    this.chapters.forEach((ch, i) => {
-      const tab = document.createElement("button");
-      tab.type = "button";
-      tab.className = "c-tab" + (i === this.chapter ? " on" : "");
-      tab.textContent = ch.tab;
-      tab.addEventListener("mousedown", (e) => e.preventDefault());
-      tab.addEventListener("click", () => this.setChapter(i));
-      this.chronTabs.appendChild(tab);
-    });
-
-    const ch = this.chapters[this.chapter];
-    this.chronBody.innerHTML = "";
-    if (!ch) return;
-    // Chapter picture (assets/banner/act-N.* or prophecy/ledger/heralds.*); tries other extensions, hidden when missing
-    const act = chapterKey(ch.tab);
-    if (act) {
-      const fig = document.createElement("figure");
-      fig.className = "c-banner";
-      const img = document.createElement("img");
-      img.alt = ch.title;
-      let ext = 0;
-      img.addEventListener("error", () => {
-        ext++;
-        if (ext < BANNER_EXTS.length) img.src = bannerSrc(act, ext);
-        else fig.remove();
-      });
-      img.src = bannerSrc(act, 0);
-      fig.appendChild(img);
-      this.chronBody.appendChild(fig);
+  renderControls() {
+    const title = this.root.querySelector("#controlsTitle");
+    if (title) title.textContent = t("controlsTitle");
+    const body = this.controlsBody;
+    if (!body) return;
+    body.replaceChildren();
+    const groups = [
+      [t("controlsKeyboard"), [
+        [t("controlsMove"), "WASD / Arrow keys"], [t("controlsMenu"), "↑ / ↓ · Enter · Esc"],
+        [t("controlsAttack"), "J · K · L"], [t("controlsSprint"), "Space"],
+        [t("controlsInteract"), "E"], [t("controlsSwitch"), "V · Shift+1–6"],
+        [t("controlsPanels"), "Q · I · C · M · N · O · G"], [t("controlsQuick"), "1–4"],
+        [t("controlsUtility"), t("controlsUtilityKeys")], [t("controlsPausedTitle"), "H"]
+      ]],
+      [t("controlsGamepad"), [
+        [t("controlsMove"), t("controlsPadMove")], [t("controlsMenu"), t("controlsPadMenu")],
+        [t("controlsAttack"), t("controlsPadAttack")], [t("controlsSprint"), t("controlsPadSprint")],
+        [t("controlsInteract"), t("controlsPadInteract")], [t("controlsSwitch"), t("controlsPadSwitch")]
+      ]]
+    ];
+    for (const [heading, rows] of groups) {
+      const section = document.createElement("section");
+      section.className = "control-group";
+      const h = document.createElement("h3"); h.textContent = heading; section.appendChild(h);
+      const list = document.createElement("dl");
+      for (const [label, keys] of rows) {
+        const dt = document.createElement("dt"); dt.textContent = label;
+        const dd = document.createElement("dd"); dd.textContent = keys;
+        list.append(dt, dd);
+      }
+      section.appendChild(list); body.appendChild(section);
     }
-    const h = document.createElement("h3");
-    h.textContent = ch.title;
-    this.chronBody.appendChild(h);
-    ch.paragraphs.forEach((text) => {
-      const p = document.createElement("p");
-      p.textContent = text;
-      this.chronBody.appendChild(p);
-    });
+    const note = document.createElement("p");
+    note.className = "control-note"; note.textContent = t("controlsNote"); body.appendChild(note);
   }
 
   // ---------- INPUT ----------
@@ -524,12 +495,10 @@ export class TitleScene {
       return;
     }
 
-    if (this.step === "chronicles") {
-      if (left) this.setChapter(this.chapter - 1);
-      else if (right) this.setChapter(this.chapter + 1);
-      else if (up) this.chronBody.scrollBy({ top: -80, behavior: "smooth" });
-      else if (down) this.chronBody.scrollBy({ top: 80, behavior: "smooth" });
-      else if (back) this.closeChronicles();
+    if (this.step === "controls") {
+      if (up) this.controlsBody.scrollBy({ top: -70, behavior: "smooth" });
+      else if (down) this.controlsBody.scrollBy({ top: 70, behavior: "smooth" });
+      else if (back || ok) this.closeControls();
       return;
     }
 
@@ -542,7 +511,45 @@ export class TitleScene {
     } else if (back && this.step === "options") {
       if (Sound.playSelectMove) Sound.playSelectMove();
       this.goTo("menu", "options");
+    } else if (back && this.step === "controls") {
+      this.closeControls();
     }
+  }
+
+  pollGamepad() {
+    const pad = navigator.getGamepads?.() && Array.from(navigator.getGamepads()).find((p) => p?.connected);
+    if (!pad) { this.padPrev.clear(); return; }
+    const down = new Set();
+    pad.buttons.forEach((b, i) => { if (b?.pressed || b?.value > 0.55) down.add(`b${i}`); });
+    const x = pad.axes[0] || 0, y = pad.axes[1] || 0;
+    if (y < -0.55) down.add("up"); if (y > 0.55) down.add("down");
+    if (x < -0.55) down.add("left"); if (x > 0.55) down.add("right");
+    const edge = (...keys) => keys.some((key) => down.has(key) && !this.padPrev.has(key));
+    if (edge("up", "b12")) {
+      if (this.step === "controls") this.controlsBody.scrollBy({ top: -70 });
+      else this.setIndex(this.nextEnabled(this.index, -1));
+    } else if (edge("down", "b13")) {
+      if (this.step === "controls") this.controlsBody.scrollBy({ top: 70 });
+      else this.setIndex(this.nextEnabled(this.index, 1));
+    }
+    else if (edge("left", "b14") && this.step === "options") {
+      const item = this.items[this.index]; if (item?.toggle || item?.choice || item?.lang) this.change(item, -1);
+    } else if (edge("right", "b15") && this.step === "options") {
+      const item = this.items[this.index]; if (item?.toggle || item?.choice || item?.lang) this.change(item, 1);
+    }
+    if (edge("b0")) {
+      if (this.step === "press") this.advance();
+      else if (this.step === "controls") this.closeControls();
+      else if (this.step !== "credits") this.confirm();
+    }
+    if (edge("b1")) {
+      if (this.step === "controls") this.closeControls();
+      else if (this.step === "credits") this.closeCredits();
+      else if (this.step === "options") this.goTo("menu", "options");
+      else this.goTo("menu");
+    }
+    if (edge("b9") && this.step === "press") this.advance();
+    this.padPrev = down;
   }
 
   // ---------- LIVING BACKGROUND (canvas) ----------
@@ -551,6 +558,7 @@ export class TitleScene {
   // twinkling stars, shooting stars, the eclipse's corona, a ship sailing the horizon, moonlight glints
   // on the sea, the pentagram circle pulsing under the sword, the lantern's flicker and the embers.
   draw() {
+    this.pollGamepad();
     this.tick++;
     const W = Math.ceil(window.innerWidth / FX_PIXEL);
     const H = Math.ceil(window.innerHeight / FX_PIXEL);
