@@ -589,6 +589,9 @@ function attachBag(p) {
     chatLog.event("equip", `${verb} ${item.name}`, dayNight.label());
   };
   p.onLevelUp = (level) => {
+    // Every 10th level is a milestone: the full Mythic ceremony
+    const big = level % 10 === 0;
+    celebrate(p, big ? "MYTHIC" : "LEVEL", big ? t("cerLevelMilestone", level) : t("cerLevel"), t("cerLevelSub", level));
     chatLog.event("level", lang() === "fil" ? `Umakyat ka sa Level ${level}! +stat at +skill point` : `Level up! You are now Lv ${level} (+stat & skill points)`, dayNight.label());
   };
   p.onHurt = (dmg, src) => {
@@ -605,8 +608,18 @@ function attachBag(p) {
       }
     });
   };
+  p.onSkillMastered = (s) => celebrate(p, "LEGENDARY", t("cerSkill"), t("cerSkillSub", `${s.icon} ${s.name[lang()]}`));
   refreshLook(p);
   p.recalc();
+}
+
+// Unlock ceremony: pillar of light + rings + sparks (fx), sub-bass and chime (Sound), and the banner (ui).
+// at = the hero (or anything with x/y at its top-left) or a ground point { x, y, point: true }.
+function celebrate(at, rarity, title, subtitle = "") {
+  const x = at.point ? at.x : at.x + 10, y = at.point ? at.y : at.y + 20;
+  fx.triggerUnlockCeremony(x, y, rarity, title);
+  if (Sound.playUnlockCeremony) Sound.playUnlockCeremony(rarity);
+  ui.showUnlockBanner(rarity, title, subtitle);
 }
 
 // ==================== TARGET LOCK (Shift) ====================
@@ -1041,6 +1054,8 @@ enemyManager.onKill = (e, byPlayer, exp) => {
       : (fil ? `+${total} EXP — natalo si ${name}` : `+${total} EXP — defeated ${name}`))
   });
 };
+// A monster dropped a Unique (Legendary) or Set piece (Mythic): the pillar marks where it fell
+lootManager.onRareDrop = (pos, it, rarity) => celebrate({ ...pos, point: true }, rarity, t(rarity === "MYTHIC" ? "cerMythic" : "cerLegendary"), it.name);
 // Bottom tray: gold and items picked up (consecutive identical pickups merge)
 lootManager.onCollect = (it) => {
   const fil = lang() === "fil";
@@ -1382,6 +1397,7 @@ function awaken(chosenHero) {
   gameState = "PLAYING";
   if (fx.spawnHitSparks) fx.spawnHitSparks(p.x + 10, p.y + 10, "#ffd166", 28);
   if (Sound.playAwakening) Sound.playAwakening();
+  celebrate(p, "MYTHIC", t("cerJob"), t("cerJobSub", chosenHero.name));
   if (gameConfig.music) Sound.startGameplayBGM();
   quest.advance(5);   // Act V: Dual Equipment Matrix
 
@@ -2103,10 +2119,14 @@ function renderGameWorld() {
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, VIEW_W, VIEW_H);
   }
+  // Unlock ceremonies draw over the night/blind darkness so the pillar shines through it
+  fx.drawUnlockCeremonies(ctx, { x: camera.x - offsetX, y: camera.y - offsetY, w: VIEW_W, h: VIEW_H });
   enemyManager.drawBossBar(ctx, VIEW_W);
 
 
   if (gameState === "PLAYING" && !worldMap.open) drawObjectiveArrow();
+  // Unlock ceremony banner (waits while the world map covers the screen)
+  if (!worldMap.open) ui.drawUnlockBanner(ctx, VIEW_W, VIEW_H);
 
   if (worldMap.open && player) {
     const tq = quest.text(player, summonerName(), mentorName());
@@ -2387,6 +2407,7 @@ function changeJob(def) {
   enemyManager.player = p;
   if (fx.spawnHitSparks) fx.spawnHitSparks(p.x + 10, p.y + 10, "#c084fc", 28);
   if (Sound.playAwakening) Sound.playAwakening();
+  celebrate(p, "MYTHIC", t("cerJob"), t("cerJobSub", def.name));
   questHud.toast(fil ? `Bagong tungkulin: ${def.name}` : `Calling changed: ${def.name}`);
   saveGame();
 }

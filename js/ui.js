@@ -29,6 +29,85 @@ export class UIManager {
     this.buttons = {
       pause: { x: 406, y: 7, w: 14, h: 14 }
     };
+    this.unlockBanners = [];   // queued celebration banners (showUnlockBanner), shown one at a time
+  }
+
+  // ==================== UNLOCK BANNER ====================
+  // A centred celebration card for level-ups, Legendary/Mythic drops and awakenings: it pops in with
+  // an ease-out bounce (0.3 s), holds (1.2 s), then drifts up and fades (0.5 s). Banners that arrive
+  // together queue instead of stacking; the queue keeps at most three waiting.
+  showUnlockBanner(rarity = "LEGENDARY", title = "", subtitle = "") {
+    if (this.unlockBanners.length >= 4) this.unlockBanners.splice(1, 1);
+    this.unlockBanners.push({ rarity, title, subtitle, start: 0 });
+  }
+
+  drawUnlockBanner(ctx, W, H) {
+    const b = this.unlockBanners[0];
+    if (!b) return;
+    const now = performance.now();
+    if (!b.start) b.start = now;
+    const t = (now - b.start) / 1000;
+    const IN = 0.3, HOLD = 1.2, OUT = 0.5;
+    if (t >= IN + HOLD + OUT) { this.unlockBanners.shift(); return; }
+
+    // easeOutBack: overshoots a little, then settles at full size
+    const easeOutBack = (k) => { const c1 = 1.9, c3 = c1 + 1; return 1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2); };
+    const scale = t < IN ? Math.max(0.01, easeOutBack(t / IN)) : 1;
+    const out = t > IN + HOLD ? (t - IN - HOLD) / OUT : 0;
+    const alpha = 1 - out;
+    const mythic = b.rarity === "MYTHIC";
+    const accent = mythic ? `hsl(${(now / 8) % 360}, 90%, 72%)` : "#ffd166";
+
+    const bw = 230, bh = 42, cx = W / 2, cy = Math.round(H * 0.27 - out * 18);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(cx, cy);
+    ctx.scale(scale, scale);
+
+    // panel with a pulsing glow behind the border
+    const pulse = 0.6 + 0.4 * Math.sin(t * 9);
+    ctx.shadowColor = accent;
+    ctx.shadowBlur = 10 * pulse;
+    ctx.fillStyle = "rgba(10, 8, 20, 0.86)";
+    ctx.fillRect(-bw / 2, -bh / 2, bw, bh);
+    ctx.shadowBlur = 0;
+    // ribbon fade across the panel
+    const rib = ctx.createLinearGradient(-bw / 2, 0, bw / 2, 0);
+    rib.addColorStop(0, "rgba(255, 209, 102, 0)");
+    rib.addColorStop(0.5, `rgba(255, 209, 102, ${0.18 * pulse})`);
+    rib.addColorStop(1, "rgba(255, 209, 102, 0)");
+    ctx.fillStyle = rib;
+    ctx.fillRect(-bw / 2, -bh / 2, bw, bh);
+    drawBorder(ctx, -bw / 2, -bh / 2, bw, bh, mythic ? accent : "#ffd166");
+    // a light sweep that runs across the border once while it holds
+    const sweep = (t - IN) / HOLD;
+    if (sweep > 0 && sweep < 1) {
+      const sx = -bw / 2 + sweep * bw;
+      ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+      ctx.fillRect(Math.round(sx), -bh / 2 - 1, 6, 1);
+      ctx.fillRect(Math.round(-sx - 6), bh / 2, 6, 1);
+    }
+
+    // bold retro title with a dual-tone drop shadow
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = "bold 14px monospace";
+    const ty = b.subtitle ? -6 : 0;
+    ctx.fillStyle = "#2a0a3d"; ctx.fillText(b.title, 2, ty + 2);
+    ctx.fillStyle = "#b45309"; ctx.fillText(b.title, 1, ty + 1);
+    const tg = ctx.createLinearGradient(0, ty - 7, 0, ty + 7);
+    tg.addColorStop(0, "#ffffff");
+    tg.addColorStop(0.55, mythic ? accent : "#ffd166");
+    tg.addColorStop(1, "#f59e0b");
+    ctx.fillStyle = tg;
+    ctx.fillText(b.title, 0, ty);
+
+    if (b.subtitle) {
+      ctx.font = "bold 7px monospace";
+      ctx.fillStyle = "#000000"; ctx.fillText(b.subtitle, 1, 12);
+      ctx.fillStyle = "#fff3d6"; ctx.fillText(b.subtitle, 0, 11);
+    }
+    ctx.restore();
   }
 
   // Terrain thumbnail of a place at 1/8 scale, built once per place (ground + tree canopy)

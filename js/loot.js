@@ -95,11 +95,15 @@ export function findNearestWalkableSpot(startX, startY, stage) {
   return { x: startX, y: startY };
 }
 
+// Item rarity → unlock ceremony tier: Uniques are Legendary, Set pieces Mythic
+const RARE_DROP = { unique: "LEGENDARY", set: "MYTHIC" };
+
 export class LootManager {
   constructor() {
     this.items = [];
     this.onQuestItem = null;   // (id) => void — a quest item was picked up
     this.onCollect = null;     // ({ gold } | { id, name, qty, color }) => void — for the bottom tray log
+    this.onRareDrop = null;    // (pos, describedItem) => void — a monster dropped a Unique or Set piece (unlock ceremony)
     this.fullWarn = 0;
     this.stage = null;         // current place (set by update), used when a caller passes none
   }
@@ -131,7 +135,12 @@ export class LootManager {
     // item
     const grade = info.grade ?? info.tierGrade ?? 0;
     rollDrop(grade, info.cls || "novice", { key: info.key, tier: info.tier, boss: info.boss, diff: info.diff, extra: info.extra, level, element: info.element, race: info.race })
-      .forEach((inst) => this.drop(scatter(), inst));
+      .forEach((inst) => {
+        const pos = scatter();
+        this.drop(pos, inst);
+        const it = this.onRareDrop && describe(inst);
+        if (it && RARE_DROP[it.rarity]) this.onRareDrop({ x: pos.targetSlideX ?? pos.x, y: pos.targetSlideY ?? pos.y }, it, RARE_DROP[it.rarity]);
+      });
     if (info.drop) this.drop({ x, y }, { id: info.drop, qty: 1 }, true, stage);
   }
 
