@@ -1,4 +1,3 @@
-import { GrasslandSystem } from "./world/grassland.js";
 import { BarracksSystem } from "./world/barracks.js";
 import { CastleSystem } from "./world/castle.js";
 import { PortalSystem } from "./world/portal.js";
@@ -26,8 +25,7 @@ export class Stage {
       maxY: this.height - 58
     };
 
-    // Subsystems
-    this.grassland = new GrasslandSystem(this.width, this.height);
+    // Subsystems (the ground, its water, turf and props belong to the tile map: this.tilemap.ocean / .grass / .props)
     this.barracks = new BarracksSystem(this.width, this.height);
     this.castle = new CastleSystem(this.width, this.height);
     this.portals = new PortalSystem(this.width, this.height);
@@ -51,6 +49,8 @@ export class Stage {
     // Tile-based ground (grass, paths, trees, rocks). Built last because it reads
     // where the castle, barracks and portals are drawn.
     this.tilemap = new TileMap(this);
+    this.grassland = this.tilemap.grass;
+    this.ocean = this.tilemap.ocean;
   }
 
   // Impassable tiles (trees, rocks) and the Barracks longhouses (when their Aseprite art is shown)
@@ -59,10 +59,10 @@ export class Stage {
     if (hasZoneArt("barracks")) pushOutOf(entity, this.barracks.solids);
   }
 
-  // Tree canopy: drawn ABOVE the characters
+  // ---------- LAYER 6: the sky above everyone ----------
+  // Clouds, rain/fog tint and the cloud banks at the map edges (the tree canopy is layer 3, js/world/props.js)
   drawOverlay(ctx, player = null) {
     if (this.tilemap) this.tilemap.drawOverlay(ctx);
-    // Weather above everything on the ground: clouds, rain/fog tint, and the cloud banks at the map edges
     this.weather.drawSkyClouds(ctx, player);
     this.weather.drawWeatherOverlay(ctx);
     this.weather.drawCloudBorders(ctx);
@@ -86,8 +86,7 @@ export class Stage {
   }
 
   update(player, onWarp) {
-    // 1. Environment Updates
-    this.grassland.update();
+    // 1. Environment Updates (the turf sways in drawTurf, once per drawn frame)
     this.barracks.update();
     this.castle.update();
     this.portals.update(player, onWarp);
@@ -107,20 +106,34 @@ export class Stage {
     }
   }
 
+  // ==================== WORLD LAYERS (js/world/layers.js; main.js renderGameWorld calls them in order) ====================
+  // Layers 0–1: water, ground and turf, then the landmarks standing on it
   draw(ctx) {
-    // 1. Base Natural Ground (tile-based)
-    this.tilemap.drawGround(ctx);
+    this.tilemap.drawGround(ctx);   // 0 ocean (none on the plains) + 1 baked ground
+    this.tilemap.drawTurf(ctx);     // 1 turf blades in the wind
+    this.castle.draw(ctx);          // Citadel (corner landmark)
+    this.barracks.draw(ctx);        // central sanctuary
+    this.portals.draw(ctx);         // 4-way Warp Gateways
+  }
 
-    // 2. Corner Landmark (Fortress Citadel)
-    this.castle.draw(ctx);
+  // Layer 2: contact shadows of the props along the sun, and the shadows of passing clouds
+  drawShadows(ctx) {
+    if (!GFX.shadows) return;
+    this.tilemap.drawShadows(ctx);
+    this.weather.drawCloudShadows(ctx);
+  }
 
-    // 3. Central Sanctuary Platform
-    this.barracks.draw(ctx);
+  // Layer 3: props sorted with the characters (main.js draws the characters in between)
+  drawPropsBack(ctx) {
+    this.tilemap.drawPropsBack(ctx);
+  }
 
-    // 4. 4-Way Warp Portals
-    this.portals.draw(ctx);
+  drawPropsFront(ctx, feet) {
+    this.tilemap.drawPropsFront(ctx, feet);
+  }
 
-    // 5. Cloud shadows on the ground (the clouds themselves are drawn above the characters)
-    if (GFX.shadows) this.weather.drawCloudShadows(ctx);
+  // Layer 4: foam on the shore and glints on the water
+  drawSurface(ctx) {
+    this.tilemap.drawSurface(ctx);
   }
 }

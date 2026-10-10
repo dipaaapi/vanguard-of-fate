@@ -643,6 +643,29 @@ class SoundEngine {
     this.sweep(d, "sine", 330, 1320, t + 0.1, 0.8, 0.08, true);
   }
 
+  // ---- environment: water and grass underfoot ----
+  // A splash: a sine that falls from 380 Hz to 120 Hz in 120 ms, over a short burst of spray
+  playWaterSplash(x = null, y = null) {
+    const d = this.sfx(x, y, 1, "splash", 0.06); if (!d) return;
+    const t = this.now;
+    this.sweep(d, "sine", 380, 120, t, 0.12, 0.42);
+    this.burst(d, t, 0.1, 0.22, "bandpass", 2400, 700, 1.2);
+  }
+  // A step in the shallows: a smaller, lower splash
+  playWaterStep(x = null, y = null) {
+    const d = this.sfx(x, y, 0.8, "wetstep", 0.12); if (!d) return;
+    const t = this.now;
+    this.sweep(d, "sine", 300, 140, t, 0.08, 0.18);
+    this.burst(d, t, 0.07, 0.14, "bandpass", 1500, 500, 1.4);
+  }
+  // A step through tall grass and flowers: a soft brush of high noise
+  playGrassBrush(x = null, y = null) {
+    const d = this.sfx(x, y, 0.7, "brush", 0.14); if (!d) return;
+    const t = this.now;
+    this.burst(d, t, 0.09, 0.12, "bandpass", 3600, 2200, 0.8);
+    this.burst(d, t + 0.04, 0.06, 0.06, "highpass", 5200, 4200, 0.7);
+  }
+
   // ---- fanfares ----
   playLevelUp() { this.playJingle("levelUp"); }
   playAwakening() { this.playJingle("awakening"); }

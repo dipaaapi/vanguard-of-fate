@@ -113,6 +113,7 @@ export class WorldMap {
     if (st.id !== "hub") {
       // A platform or frontier: ground, landmark, camp and gateways
       st.draw(c);
+      if (st.tilemap.props) st.tilemap.props.paintAll(c);
       if (st.tilemap.overlayCanvas) c.drawImage(st.tilemap.overlayCanvas, 0, 0);
       return;
     }
@@ -120,6 +121,7 @@ export class WorldMap {
     [st.castle, st.barracks, st.portals].forEach((sys) => {
       try { if (sys && sys.draw) sys.draw(c); } catch (_) { /* skip */ }
     });
+    if (st.tilemap && st.tilemap.props) st.tilemap.props.paintAll(c);
     if (st.tilemap && st.tilemap.overlayCanvas) c.drawImage(st.tilemap.overlayCanvas, 0, 0);
   }
 

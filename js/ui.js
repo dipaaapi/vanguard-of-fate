@@ -41,8 +41,10 @@ export class UIManager {
       c.height = Math.ceil(stage.height / 8);
       const g = c.getContext("2d");
       g.imageSmoothingEnabled = true;
-      g.drawImage(stage.tilemap.groundCanvas, 0, 0, c.width, c.height);
-      if (stage.tilemap.overlayCanvas) g.drawImage(stage.tilemap.overlayCanvas, 0, 0, c.width, c.height);
+      g.save();
+      g.scale(c.width / stage.width, c.height / stage.height);
+      stage.tilemap.paintMap(g);   // ground, trees and stones, edge canopy
+      g.restore();
       // a touch darker so the markers stand out
       g.fillStyle = "rgba(6, 10, 24, 0.28)";
       g.fillRect(0, 0, c.width, c.height);
@@ -180,6 +182,35 @@ export class UIManager {
       ctx.fillText(label, X + W / 2, Y + H + 5.8, W + 2);
     }
     ctx.restore();
+  }
+
+  // Layer 7 (js/world/layers.js): a soft vignette along the screen's edges. One cached image; only
+  // its four border bands are drawn, so it costs a fraction of a full-screen fill.
+  drawScreenOverlay(ctx, w, h) {
+    const b = Math.round(h * 0.18);
+    if (!this.vignette || this.vignette.width !== w || this.vignette.height !== h) {
+      const c = document.createElement("canvas");
+      c.width = w; c.height = h;
+      const g = c.getContext("2d");
+      if (!g || !g.createLinearGradient) return;
+      const band = (x0, y0, x1, y1, rx, ry, rw, rh) => {
+        const gr = g.createLinearGradient(x0, y0, x1, y1);
+        gr.addColorStop(0, "rgba(5, 7, 12, 0.3)");
+        gr.addColorStop(1, "rgba(5, 7, 12, 0)");
+        g.fillStyle = gr;
+        g.fillRect(rx, ry, rw, rh);
+      };
+      band(0, 0, 0, b, 0, 0, w, b);
+      band(0, h, 0, h - b, 0, h - b, w, b);
+      band(0, 0, b, 0, 0, 0, b, h);
+      band(w, 0, w - b, 0, w - b, 0, b, h);
+      this.vignette = c;
+    }
+    const v = this.vignette;
+    ctx.drawImage(v, 0, 0, w, b, 0, 0, w, b);
+    ctx.drawImage(v, 0, h - b, w, b, 0, h - b, w, b);
+    ctx.drawImage(v, 0, b, b, h - 2 * b, 0, b, b, h - 2 * b);
+    ctx.drawImage(v, w - b, b, b, h - 2 * b, w - b, b, b, h - 2 * b);
   }
 
   drawInWorldUI(ctx, player) {

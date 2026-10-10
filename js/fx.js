@@ -12,6 +12,8 @@ export class FXManager {
     this.burnFlames = [];
     this.freezeShards = [];
     this.sprites = [];        // one-shot effect animations (js/fxsprites.js): bites, claws, slashes
+    this.droplets = [];       // water splashes: rising, fading droplets
+    this.ripples = [];        // water splashes: contact rings spreading on the surface
 
     // Environment & Weather
     this.timeOfDay = "DAY";
@@ -119,6 +121,25 @@ export class FXManager {
   }
 
   // 2. MAGE METEOR BURN EFFECT (glowing fire and smoke)
+  // Water splash where a foot or a projectile meets the sea or the wet shore: 4–6 droplets that
+  // rise and fall back fading (#e0f7fa) and two contact ripples that spread on the surface.
+  // small: a footstep in the shallows (3 droplets, one small ring)
+  spawnWaterSplash(x, y, small = false) {
+    if (this.droplets.length > 140) return;
+    const n = small ? 3 : 4 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < n; i++) {
+      const life = (small ? 14 : 20) + Math.floor(Math.random() * 8);
+      this.droplets.push({
+        x: x + (Math.random() - 0.5) * 4, y, floor: y + 1,
+        vx: (Math.random() - 0.5) * (small ? 0.8 : 1.3),
+        vy: -(small ? 0.8 : 1.3) - Math.random() * (small ? 0.6 : 1.2),
+        life, maxLife: life, size: Math.random() < 0.3 ? 2 : 1
+      });
+    }
+    this.ripples.push({ x, y, r: 1, max: small ? 6 : 10, life: small ? 18 : 26, maxLife: small ? 18 : 26 });
+    if (!small) this.ripples.push({ x, y, r: 0, max: 15, life: 34, maxLife: 34, delay: 6 });
+  }
+
   spawnBurnFlames(x, y, radius = 24, count = 12) {
     for (let i = 0; i < count; i++) {
       const offsetAngle = Math.random() * Math.PI * 2;
@@ -197,6 +218,36 @@ export class FXManager {
         ctx.fillRect(Math.round(bl.x), Math.round(bl.y), bl.size, bl.size);
         if (bl.life <= 0) this.bloodSplats.splice(b, 1);
       }
+    }
+
+    // 1b. Water splashes: ripples on the surface, then the droplets above them
+    for (let r = this.ripples.length - 1; r >= 0; r--) {
+      const rp = this.ripples[r];
+      if (rp.delay > 0) { rp.delay--; continue; }
+      rp.life--;
+      const k = 1 - rp.life / rp.maxLife;
+      const rad = rp.r + (rp.max - rp.r) * k;
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, 1 - k) * 0.75;
+      ctx.strokeStyle = "#e0f7fa";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.ellipse(rp.x, rp.y, rad, rad * 0.45, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+      if (rp.life <= 0) this.ripples.splice(r, 1);
+    }
+    for (let d = this.droplets.length - 1; d >= 0; d--) {
+      const dr = this.droplets[d];
+      dr.x += dr.vx;
+      dr.y += dr.vy;
+      dr.vy += 0.13;
+      dr.life--;
+      ctx.globalAlpha = Math.max(0, dr.life / dr.maxLife);
+      ctx.fillStyle = "#e0f7fa";
+      ctx.fillRect(Math.round(dr.x), Math.round(Math.min(dr.y, dr.floor)), dr.size, dr.size);
+      ctx.globalAlpha = 1;
+      if (dr.life <= 0 || (dr.vy > 0 && dr.y >= dr.floor)) this.droplets.splice(d, 1);
     }
 
     // 2. Draw Sparks
@@ -478,5 +529,7 @@ export class FXManager {
     this.burnFlames = [];
     this.freezeShards = [];
     this.sprites = [];
+    this.droplets = [];
+    this.ripples = [];
   }
 }

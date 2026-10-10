@@ -769,11 +769,11 @@ export class EnemyManager {
         this.hitTarget(o.src, player, player, fx, o.dmg);
         o.life = 0;
       }
-      // Crosses water/lava/void but stops at walls and trees
+      // Crosses water/lava/void but stops at walls and at the roots of trees and stones
       const tm = this.stage && this.stage.tilemap;
       if (tm) {
         const tx = Math.floor(o.x / 16), ty = Math.floor(o.y / 16);
-        if (tm.inBounds(tx, ty) && tm.solid[tm.idx(tx, ty)] && !tm.liquid[tm.idx(tx, ty)]) o.life = 0;
+        if (tm.inBounds(tx, ty) && tm.blocksShotAt(o.x, o.y)) o.life = 0;   // roots, not the canopy
       }
     });
     this.orbs = this.orbs.filter((o) => o.life > 0);
