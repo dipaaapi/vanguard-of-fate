@@ -10,9 +10,9 @@ then `outline <file>` and read only the line range you need.
 - `controls.css` (9.9 KB, 270) — Hotbar and skill book in the bottom tray, side-panel world map, Market and Settings overlays (sized by --s)
 - `devtools.css` (4.5 KB, 87) — Developer tools panel styles (F9, ?dev)
 - `dialog.css` (23 KB, 490) — Dialogue box, quest tracker/log, service menu and panel overlays; --s = integer canvas scale set by main.js fitCanvas
-- `gamepad.css` (3.3 KB, 63) — (no purpose yet)
+- `gamepad.css` (3.3 KB, 63) — Gamepad corner badge, toast and guide modal styles (js/gamepad.js)
 - `guild.css` (2.2 KB, 26) — Guild service/contract overlay, independent tracker and ceremony styles
-- `hud.css` (8.9 KB, 216) — (no purpose yet)
+- `hud.css` (8.9 KB, 216) — HD interface styles using the Aseprite frames in assets/ui/ (hero card, party slots, meters, key chips)
 - `regression.css` (1.7 KB, 45) — End-of-Book-I Regression modal styles
 - `style.css` (18 KB, 623) — Global page layout, pixelated canvas, side panel, bottom bar / adventure log tray
 - `title.css` (19 KB, 687) — Title screen, options, Chronicles reader and credits; defines --gold/--sky/--ink colour variables
@@ -27,6 +27,7 @@ then `outline <file>` and read only the line range you need.
 - `npc_conversations.json` (39 KB, 839) — NPC ambient chatter: solo lines per NPC and two-NPC exchanges, each line with en/fil text (fetched by npc/npcs.js)
 - `party.json` (5.6 KB, 87) — Recruitment talk (offer / progress / join) for the five playable NPCs and the party HUD/toast wording, EN/FIL
 - `prologue.json` (6.7 KB, 162) — Prologue text by shot id (cards, typed lines with speakers, EN/FIL) and the status panel lines; read by js/prologue.js
+- `tilemaps.json` (0.9 KB, 28) — Saved terrain tile map layouts per theme, read by the tile map system and tools/tilemap/preview.mjs
 
 ## (root)
 
@@ -56,7 +57,7 @@ then `outline <file>` and read only the line range you need.
 - `errand.js` (8.9 KB, 212) — Summon errands: the familiar/Falcon/Guardian Angel carries a 9-slot pack to market from the field (sell non-quest items, buy potions and herbs), is out of combat until back; ErrandPack order, dispatch, updateErrand, save/load · errandReady, errandConfig, errandText, runnerName, errandBuyPrice, runnerFor, hasRunnerKind, awayRunner +7
 - `fx.js` (25 KB, 698) — Game feel: screen shake, hit-stop, shockwave rings, sparks, blood, water splashes (droplets + ripples), damage numbers, flashes, vignette · FXManager
 - `fxsprites.js` (2.1 KB, 53) — Effect sprites from Aseprite (assets/sprites/fx/<name>, "down-play" tag): drawFx with rotation, size, anchor, alpha and cached tints; false when not loaded so callers keep their code-drawn effect · fxFrames, drawFx
-- `gamepad.js` (14 KB, 317) — (no purpose yet) · PAD_ACTIONS, GamepadInput
+- `gamepad.js` (14 KB, 317) — Gamepad support (DS4 / DualSense / Joy-Con / Xbox): button mapping to game keys, connect badge, toast and guide modal · PAD_ACTIONS, GamepadInput
 - `guild.js` (11 KB, 178) — Independent guild membership, ability assessment, paid resets, escalating plate replacements, 90 ranked contracts and atomic rewards · GUILD_REGISTRATION, guildState, guildAssessment, guildContracts, GuildBook
 - `guildceremony.js` (2.7 KB, 44) — Four-scene animated membership assessment, oath and plate-award cinematic · GuildCeremony
 - `guilddata.js` (11 KB, 99) — Guild ranks, level thresholds, roles, pillar memberships, hall placement and EN/FIL text · GUILD_RANKS, GUILD_LEVELS, GUILD_AREAS, GUILD_ROLES, PILLAR_MEMBERS, GUILD_SITE, GUILD_ZONE, GUILD_NPCS +2
@@ -75,7 +76,7 @@ then `outline <file>` and read only the line range you need.
 - `mercenaryManager.js` (15 KB, 392) — Hireable mercenaries: contracts and fees, following, AI combat, daze and recovery, drawing · MERC_CLASSES, MercenaryManager
 - `monsterTiers.js` (6.5 KB, 138) — Monster tiers (Normal, Champion, Elite, MVP) and modifiers: rolling, applying, damage multipliers, names, life bars (lives per level and tier) · MODS, modName, TIERS, rollTier, applyTier, tierName, has, MAX_LIVES +10
 - `music.js` (15 KB, 314) — Music score as data: note/chord helpers, bass/arp/pad pattern styles, compileTrack, TRACKS (title, hub, night, canopy, coast, frost, ash, siege, maw, boss, finale), AREA_TRACK (platform id → track) and JINGLES · midi, freq, chord, compileTrack, TRACKS, AREA_TRACK, JINGLES
-- `padnav.js` (3.4 KB, 92) — (no purpose yet) · PanelNav
+- `padnav.js` (3.4 KB, 92) — Panel navigation with arrows / D-pad + Enter: moves a highlight between buttons of mouse-first HTML panels · PanelNav
 - `party.js` (8.5 KB, 204) — Party of the hero + recruited playable NPCs (up to 6): who is on the field, per-member HP, switching (player.active kit), next member steps in on a fall, sanctuary recovery, recruitment talk and trial progress (PlayableQuestBook), Eirene's consoles; text from data/party.json · PARTY_MAX, partyText, memberName, Party
 - `partyhud.js` (4.8 KB, 110) — Party list under the hero card (switch key, head, name, HP; the member on the field lit) and the hero card's portrait head, drawn from each member's Avatar portrait · PartyHud, roleOf
 - `playables.js` (7.9 KB, 110) — Playable NPC recruits: PLAYABLES (region, role, skills, trial requirements), makePlayableKit (combat kit per recruit), PlayableQuestBook (trial state) · PLAYABLES, PLAYABLE_IDS, makePlayableKit, PlayableQuestBook
@@ -180,6 +181,7 @@ then `outline <file>` and read only the line range you need.
 - `grassland.js` (4.6 KB, 102) — Layer 1 ground details on the tile map: baked sand/wet-sand shoreline beside water, turf blades swaying in the wind, isFloraAt for footstep cues · GrasslandSystem
 - `guildhall.js` (1.5 KB, 34) — Aseprite guild hall/NPC loading, safe-zone unlock, physical footprints and world drawing · guildImage, GUILD_SOLIDS, setGuildHallOpen, drawGuildHall, drawGuildNpc
 - `layers.js` (3.1 KB, 58) — World render layer order (0 ocean … 7 screen), sun vector and shadow colour, view/tile-span helpers, pixel ellipse · LAYER, SUN, SHADOW_COLOR, viewOf, tileSpan, hashTile, pixelEllipse
+- `layouts.js` (9.1 KB, 205) — Seeded terrain grids for terrain.js (islands, coast, lakes, river, atoll, archipelago) with routed roads (turn- and shore-penalised search, main roads 2 wide) · makeLayout, addPaths, LAYOUT_KINDS · LAYOUT_KINDS, addPaths, makeLayout
 - `mining.js` (5.5 KB, 121) — Ore veins on every platform (tier ore, plus minerals on Ashfall and the Citadel; rock salt): picks per vein, ore drops · MINE_RANGE, needsPick, OreVeins
 - `nav.js` (5.9 KB, 141) — Ground movement for monsters, mercenaries and walking pets: obstacle grid, flow field toward the hero, steering around obstacles, confinement to bounds · blockedAt, footBlocked, clearLine, trackGoal, towardGoal, steer, confine
 - `ocean.js` (11 KB, 234) — Water of a map (real-water themes only): baked depth gradient #00b4d8→#03045e + bedrock, moving currents, A·sin(ωt) foam crests and glints, isWaterAt/isShoreAt · WATER_THEMES, OceanSystem
@@ -187,6 +189,7 @@ then `outline <file>` and read only the line range you need.
 - `platforms.js` (48 KB, 684) — Campaign platform definitions for Acts VII–XV (Aethelgard + the Dark Continent: strand, ossuary, siege, chainspire, maw): places, 5 monsters + 4 elites, sites, frontier trails, roads/rifts, bosses, quest items, seal stones, en/fil text · DARK_CONTINENT · SEAL_STONES, PLATFORMS, PLATFORM_ORDER, DARK_CONTINENT, PLATFORM_SIZE
 - `portal.js` (4.7 KB, 124) — Celestial Warp Gateways and the Badlands trail: drawing and collision; calls main.js's handler to travel or report sealed · drawGateway, PortalSystem
 - `props.js` (7.2 KB, 181) — Trees, stones and shoreline boulders as Y-sorted props: cached sprites, root-only collision boxes (lower third), contact shadows along the sun, map snapshots · PropField
+- `terrain.js` (9.0 KB, 181) — Terrain tile maps from the Aseprite tile sets (assets/sprites/tiles/<theme>): dual-grid autotiling (16 corner tiles) for ground/cliffs/shore and paths, baked ground + decor, animated liquid and foam; TILESHEET layout shared with the painter · TILESHEET, CLIFF_H, CELL, TILE_THEMES, loadTerrainSheet, TerrainMap
 - `tilemap.js` (20 KB, 502) — Tile map generation and rendering from the tileset, foot hitbox collision, decorations · TileMap
 - `tileset.js` (28 KB, 626) — Procedural 16×16 pixel-art tile atlas, themes, seeded RNG (mulberry32), tree/rock/bush drawing · TILE, ATLAS_COLS, T, THEMES, mulberry32, buildTileset, drawTree, drawTreeSplit +2
 - `weather.js` (8.9 KB, 234) — Hub weather cycle (clear, rain, storm, fog) with pixel-art clouds and shadows · WeatherSystem
@@ -265,7 +268,7 @@ then `outline <file>` and read only the line range you need.
 ## tools/aseprite/
 
 - `asefile.mjs` (12 KB, 220) — Reads and writes .aseprite files in plain Node (layers or a single layer, linked cels, tags, palette); export.mjs, seed.mjs and the painters use it when Aseprite isn't installed · writeAse, readAse
-- `export.mjs` (6.8 KB, 111) — Exports aseprite/**/*.aseprite with aseprite -b to assets/sprites/<key>.png + .json, checks tags/size against the code sprite, rewrites the manifest
+- `export.mjs` (7.2 KB, 117) — Exports aseprite/**/*.aseprite with aseprite -b to assets/sprites/<key>.png + .json, checks tags/size against the code sprite, rewrites the manifest
 - `lib.mjs` (6.7 KB, 127) — Aseprite tool helpers: find the Aseprite executable, read a creature sprite headless, write PNGs; readPng and tryAseprite for the Node fallback · ROOT, SRC_DIR, OUT_DIR, findAseprite, codeSprite, writePng, readPng, tryAseprite
 - `seed.mjs` (2.7 KB, 61) — Starts aseprite/<kind>/<key>.aseprite from a creature's code-drawn frames (one tag per direction+animation): node tools/aseprite/seed.mjs monster/slime
 
@@ -279,9 +282,10 @@ then `outline <file>` and read only the line range you need.
 - `fx.mjs` (14 KB, 273) — Painter: skill and hit effects (meteor, blast, lightning, holy, sphere, slash, wave, bolt, arrow, arrowfall, bite, claw, arcane, tear, bonespike, chain, shockring); grey ones are tinted in game · FX, mix
 - `guild.mjs` (6.4 KB, 71) — Paint ten editable Aseprite guild hall, staff, plate, caravan and resource sources
 - `kit.mjs` (7.8 KB, 145) — Painting kit for the procedural Aseprite starting points: Canvas (lit dithered blobs, thick lines, polygons, outline, sparks), fromGame, build() → aseprite/<key>.aseprite via seed.lua · hex, mixc, Canvas, fromGame, build
-- `paint.mjs` (3.4 KB, 55) — Recreates the detailed procedural .aseprite starting points (overwrites): node tools/aseprite/paint/paint.mjs <key|all> · SUBJECTS
+- `paint.mjs` (3.7 KB, 59) — Recreates the detailed procedural .aseprite starting points (overwrites): node tools/aseprite/paint/paint.mjs <key|all> · SUBJECTS
 - `scenery.mjs` (23 KB, 430) — Scenery kit for the safe-zone painters: alpha Img canvas, flagstones, clearings, shingles, timber walls, tents, braziers, banners, crates, barrels, smoke, campfire · FRAMES, ph, rgb, mix, withA, shade, ramp, pick +25
 - `slime.mjs` (7.5 KB, 141) — Painter: detailed slime 32×24 (Forest Slime; Pocket Slime with sprout), idle/walk/run/attack/skill × 3 directions · W, FOREST, FRAMES, DURATIONS, paintSlime
+- `tiles.mjs` (26 KB, 447) — Painter for the terrain tile sets → aseprite/tiles/<theme>.aseprite (15 themes; layers liquid, foam, ground, path, decor; 8 frames): corner tiles with rounded/inner corners, cliff faces, foam, liquids (water, lava, void, ice, blood, murk), decorations · paintTiles, tileSubjects
 - `ui.mjs` (9.9 KB, 208) — Painter for the HD interface frames (2× pixel density): hero card, party slots, portrait, meters, key chips, side-menu panels and buttons → aseprite/ui/<key>.aseprite · UI_KEYS, UI_SLICES, paintUi, uiSubjects
 - `zones.mjs` (37 KB, 581) — Paints the safe zones as layered .aseprite files: themed Fated Vanguard camps per map, Barracks + longhouses, Imperial Citadel + dais, Emberhold · CAMP_THEMES, zoneSubjects
 
@@ -298,3 +302,8 @@ then `outline <file>` and read only the line range you need.
 
 - `playwright-mcp.mjs` (1.7 KB, 34) — Launches the pinned @playwright/mcp server with the session's Chromium (no sandbox as root) and serves the repo on 127.0.0.1:5173
 - `vof-game-mcp.mjs` (9.4 KB, 147) — vof-game MCP server (stdio, no deps): game_start/input/hold/state/screenshot/eval/travel/autoplay/logs/stop on the real game in headless Chromium
+
+## tools/tilemap/
+
+- `preview.mjs` (6.1 KB, 103) — Renders every terrain tile set on its layout (480×270 views + contact sheet) and the maps in data/tilemaps.json to PNG in headless Chromium: node tools/tilemap/preview.mjs [themes…] [--layout k] [--seed n] [--scale n] [--out dir]
+- `viewer.html` (3.7 KB, 86) — Page used by tools/tilemap/preview.mjs to render terrain tile sets and maps
