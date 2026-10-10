@@ -87,7 +87,8 @@ const EXTRA = {
   ears: ["elf"],
   weapon: ["novice", "staff", "lance", "scepter", "bow", "sword", "flask", "book", "axe", "greatsword", "crossbow", "wand", "none"],
   shield: ["tower", "buckler"],
-  face: ["skull"]
+  face: ["skull"],
+  job: ["knight", "archer", "priest", "mage", "fighter"]   // class signature details (js/avatar/jobmarks.js)
 };
 const HEX = /^#[0-9a-f]{6}$/i;
 
