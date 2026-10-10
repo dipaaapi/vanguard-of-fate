@@ -59,27 +59,27 @@ export const NPC_DEFS = {
   arthur: {
     mentor: "knight",
     look: { ...base, body: "male", skin: "#c68642", eyes: "#2b1d14", hairStyle: "short", hairColor: "#2b1d14", gloves: "leather",
-      outfit: "armor", outfitColor: "#c9a063", legColor: "#7d8c9e", bootColor: "#2b2b33", cape: "#8a2c2c", weapon: "lance" }
+      outfit: "armor", outfitColor: "#2c4f8a", legColor: "#7d8c9e", bootColor: "#5d6b7e", cape: "#1f3b70", weapon: "lance", job: "knight" }
   },
   lyra: {
     mentor: "archer",
     look: { ...base, body: "female", skin: "#f7d9c4", eyes: "#3a8a4a", hairStyle: "long", hairColor: "#e0c068", ears: "elf",
-      outfit: "vest", outfitColor: "#2f6b3f", legColor: "#4a3a28", bootColor: "#5e3b1a", gloves: "leather", weapon: "bow" }
+      outfit: "vest", outfitColor: "#2f6b3f", legColor: "#4a3a28", bootColor: "#5e3b1a", gloves: "leather", weapon: "bow", job: "archer" }
   },
   julian: {
     mentor: "priest",
     look: { ...base, body: "male", skin: "#c68642", eyes: "#3b2a1d", hairStyle: "short", hairColor: "#2b1d14", glasses: true,
-      outfit: "robe", outfitColor: "#f2ecf8", legColor: "#c9a063", bootColor: "#c9a063", cape: "#c9a063", weapon: "scepter" }
+      outfit: "robe", outfitColor: "#f4f0fa", legColor: "#c9a063", bootColor: "#c9a063", cape: "#e9dfc4", weapon: "scepter", job: "priest" }
   },
   sam: {
     mentor: "mage",
     look: { ...base, body: "female", skin: "#f1c27d", eyes: "#3b2a1d", hairStyle: "bob", hairColor: "#1f1a24", glasses: true,
-      outfit: "robe", outfitColor: "#5a3d91", legColor: "#2b2b33", bootColor: "#2b2b33", weapon: "staff" }
+      outfit: "robe", outfitColor: "#4b3388", legColor: "#2b2b33", bootColor: "#2b2b33", cape: "#1d1a44", weapon: "staff", job: "mage" }
   },
   renzo: {
     mentor: "fighter",
     look: { ...base, body: "male", skin: "#c68642", eyes: "#2b1d14", hairStyle: "spiky", hairColor: "#1f1a24", headgear: "headband",
-      outfit: "vest", outfitColor: "#c73e3a", legColor: "#2b2b33", legs: "pants", bootColor: "#2b2b33", gloves: "wraps", weapon: "none" }
+      outfit: "vest", outfitColor: "#b8322f", legColor: "#24202c", legs: "pants", bootColor: "#2b2b33", gloves: "wraps", weapon: "none", job: "fighter" }
   },
 
   // ---- Guides of the campaign (each has a job: recaps, the sea, boss briefings, the Lantern's lore) ----
