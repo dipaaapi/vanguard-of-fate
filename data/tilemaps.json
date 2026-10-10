@@ -1,0 +1,27 @@
+{
+  "_doc": "Terrain tile maps for js/world/terrain.js. maps: hand-made grids ('#' ground, '=' path, '.' liquid; 16 game px per cell). themeLayouts: the generated layout (js/world/layouts.js) each tile set is previewed with.",
+  "maps": {
+    "sample": {
+      "theme": "meadow", "seed": 7,
+      "rows": [
+        "..............",
+        "..............",
+        "..#####.####..",
+        "..##=#######..",
+        "..##=====###..",
+        "..#####......",
+        "..#####.####..",
+        "....##..####..",
+        "....##..####..",
+        "..##....####..",
+        "..##..........",
+        ".............."
+      ]
+    }
+  },
+  "themeLayouts": {
+    "meadow": "islands", "aethelgard": "lakes", "canopy": "lakes", "coast": "coast", "frost": "coast",
+    "ash": "river", "siege": "river", "maw": "islands", "strand": "coast", "ossuary": "lakes",
+    "chainspire": "archipelago", "rocky": "river", "swamp": "lakes", "highland": "river", "desert": "atoll"
+  }
+}

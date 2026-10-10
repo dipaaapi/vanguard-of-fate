@@ -107,10 +107,11 @@
   "js/world/fishing.js": "Fishing at liquid tiles: cast, bite, hook with E, bobber/line drawing and prompt",
   "js/world/frontiers.js": "Four frontier maps (Greyhorn Badlands, Gloomwater Fens, Stormcrown Highlands, Sunscorch Dunes): Acts, levels, themes, monsters, elites, sites, terrain and landmarks, en/fil text",
   "js/world/grassland.js": "Layer 1 ground details on the tile map: baked sand/wet-sand shoreline beside water, turf blades swaying in the wind, isFloraAt for footstep cues",
-  "js/world/islands.js": "Tile-based floating-island maps: autotiled grass tops (rounded/inner corners, rim), cliff faces under south edges, foam shoreline, animated caustic water; IslandMap.fromRows + draw(ctx, cam, view, tick)",
+  "js/world/layouts.js": "Seeded terrain grids for terrain.js (islands, coast, lakes, river, atoll, archipelago) with routed roads (turn- and shore-penalised search, main roads 2 wide) · makeLayout, addPaths, LAYOUT_KINDS",
   "js/world/mining.js": "Ore veins on every platform (tier ore, plus minerals on Ashfall and the Citadel; rock salt): picks per vein, ore drops",
   "js/world/nav.js": "Ground movement for monsters, mercenaries and walking pets: obstacle grid, flow field toward the hero, steering around obstacles, confinement to bounds",
   "js/world/platform.js": "Platform or frontier map for one Act: tilemap, ambience, return gateway, frontier trail, safe zones; same interface as Stage",
+  "js/world/terrain.js": "Terrain tile maps from the Aseprite tile sets (assets/sprites/tiles/<theme>): dual-grid autotiling (16 corner tiles) for ground/cliffs/shore and paths, baked ground + decor, animated liquid and foam; TILESHEET layout shared with the painter",
   "js/world/platforms.js": "Campaign platform definitions for Acts VII–XV (Aethelgard + the Dark Continent: strand, ossuary, siege, chainspire, maw): places, 5 monsters + 4 elites, sites, frontier trails, roads/rifts, bosses, quest items, seal stones, en/fil text · DARK_CONTINENT",
   "js/world/portal.js": "Celestial Warp Gateways and the Badlands trail: drawing and collision; calls main.js's handler to travel or report sealed",
   "js/world/tilemap.js": "Tile map generation and rendering from the tileset, foot hitbox collision, decorations",
@@ -126,7 +127,7 @@
   "tools/art/lib/px.js": "Px pixel buffer (shapes, gradients, glow, blit, silhouette, vignette, quantize, toCanvas) plus colour, noise, fbm, Bayer dither and banded ramp helpers",
   "tools/art/lib/sprites.js": "Game sprites for the art tools: NPC, hero, monster, boss and item-icon frames from the real Avatar/creature/icon code, plus the Lantern Knight look",
   "tools/art/render.mjs": "Renders the procedural art to PNG in headless Chromium: node tools/art/render.mjs [keys…] [--list] [--preview]; PNG8 when ≤256 colours",
-  "tools/tilemap/preview.mjs": "Renders the island maps in data/islands.json to PNG in headless Chromium: node tools/tilemap/preview.mjs [map…] [--scale n] [--out dir] [--tick n]",
+  "tools/tilemap/preview.mjs": "Renders every terrain tile set on its layout (480×270 views + contact sheet) and the maps in data/tilemaps.json to PNG in headless Chromium: node tools/tilemap/preview.mjs [themes…] [--layout k] [--seed n] [--scale n] [--out dir]",
   "tools/art/scenes/act01.js": "Art painter — Act I — The Sundered Dominion of Aethelgard",
   "tools/art/scenes/act02.js": "Art painter — Act II — The Celestial Rift & The Earthbound Summoning",
   "tools/art/scenes/act03.js": "Art painter — Act III — The Five Disciplines & Earthbound Profiles",
@@ -185,5 +186,6 @@
   "js/world/layers.js": "World render layer order (0 ocean … 7 screen), sun vector and shadow colour, view/tile-span helpers, pixel ellipse",
   "js/world/ocean.js": "Water of a map (real-water themes only): baked depth gradient #00b4d8→#03045e + bedrock, moving currents, A·sin(ωt) foam crests and glints, isWaterAt/isShoreAt",
   "js/world/props.js": "Trees, stones and shoreline boulders as Y-sorted props: cached sprites, root-only collision boxes (lower third), contact shadows along the sun, map snapshots",
-  "js/world/footfall.js": "Footsteps and splashes: strides on the wet shore splash (hero: wet step sound), steps in tall flora brush, shots ending over water splash"
+  "js/world/footfall.js": "Footsteps and splashes: strides on the wet shore splash (hero: wet step sound), steps in tall flora brush, shots ending over water splash",
+  "tools/aseprite/paint/tiles.mjs": "Painter for the terrain tile sets → aseprite/tiles/<theme>.aseprite (15 themes; layers liquid, foam, ground, path, decor; 8 frames): corner tiles with rounded/inner corners, cliff faces, foam, liquids (water, lava, void, ice, blood, murk), decorations"
 }

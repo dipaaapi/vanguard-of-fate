@@ -3,64 +3,82 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Island Tile Map</title>
+<title>Terrain Tile Maps</title>
 <style>
   body { margin: 0; background: #0b1020; color: #cbd5e1; font: 13px system-ui, sans-serif; }
-  header { padding: 8px 12px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  header { padding: 8px 12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
   canvas { display: block; image-rendering: pixelated; cursor: crosshair; margin: 0 12px 12px; }
+  input[type=number] { width: 5em; }
 </style>
 </head>
 <body>
 <header>
-  <strong>Island tile map</strong>
-  <select id="map"></select>
-  <label>Scale <input id="scale" type="number" min="1" max="6" value="3" style="width:3em"></label>
-  <span>Click or drag to paint land, right-click to dig water.</span>
+  <strong>Terrain</strong>
+  <label>Tile set <select id="theme"></select></label>
+  <label>Layout <select id="layout"></select></label>
+  <label>Seed <input id="seed" type="number" value="1"></label>
+  <label>Size <input id="cols" type="number" value="40" min="8" max="160">×<input id="rows" type="number" value="24" min="6" max="120"></label>
+  <label>Scale <input id="scale" type="number" min="1" max="6" value="2"></label>
+  <label>Brush <select id="brush"><option value="1">ground</option><option value="2">path</option><option value="0">liquid</option></select></label>
+  <span>Drag to paint cells.</span>
 </header>
 <canvas id="c"></canvas>
 <script type="module">
-import { IslandMap } from "../../js/world/islands.js";
+import { TerrainMap, TILE_THEMES } from "../../js/world/terrain.js";
+import { makeLayout, LAYOUT_KINDS } from "../../js/world/layouts.js";
 import { TILE } from "../../js/world/tileset.js";
 
-const data = await (await fetch("../../data/islands.json")).json();
-const keys = Object.keys(data).filter((k) => !k.startsWith("_"));
-const sel = document.getElementById("map"), scaleIn = document.getElementById("scale"), cv = document.getElementById("c");
-const ctx = cv.getContext("2d");
-for (const k of keys) sel.append(new Option(k, k));
-const PAD = 2 * TILE;              // open water around the grid
-let map, tick = 0;
+const data = await (await fetch("../../data/tilemaps.json")).json();
+const $ = (id) => document.getElementById(id);
+const cv = $("c"), ctx = cv.getContext("2d");
+for (const t of TILE_THEMES) $("theme").append(new Option(t, t));
+for (const k of Object.keys(data.maps)) $("layout").append(new Option(`map: ${k}`, `map:${k}`));
+for (const k of LAYOUT_KINDS) $("layout").append(new Option(k, k));
+const q = new URLSearchParams(location.search);
+if (q.get("theme")) $("theme").value = q.get("theme");
+$("layout").value = q.get("layout") || data.themeLayouts[$("theme").value] || "islands";
+for (const k of ["seed", "cols", "rows", "scale"]) if (q.get(k)) $(k).value = q.get(k);
 
-function load(key) {
-  const m = data[key] || data[keys[0]];
-  map = IslandMap.fromRows(m.rows, { seed: m.seed });
+let map = null, tick = 0;
+async function build() {
+  const theme = $("theme").value, lay = $("layout").value, seed = +$("seed").value;
+  let m;
+  if (lay.startsWith("map:")) {
+    const src = data.maps[lay.slice(4)];
+    m = TerrainMap.fromRows(src.rows, { theme, seed: src.seed, sheetBase: "../../assets/sprites/tiles/" });
+  } else {
+    const { cells, cols, rows } = makeLayout(lay, +$("cols").value, +$("rows").value, seed);
+    m = new TerrainMap(cells, cols, rows, { theme, seed, sheetBase: "../../assets/sprites/tiles/" });
+  }
+  await m.ready;
+  map = m;
   resize();
 }
 function resize() {
-  const s = Math.max(1, Math.min(6, scaleIn.value | 0));
-  cv.width = map.width + PAD * 2; cv.height = map.height + PAD * 2;
+  const s = Math.max(1, Math.min(6, +$("scale").value | 0));
+  cv.width = map.width; cv.height = map.height;
   cv.style.width = cv.width * s + "px"; cv.style.height = cv.height * s + "px";
 }
 function frame() {
-  map.draw(ctx, -PAD, -PAD, cv.width, cv.height, tick++);
+  if (map) map.draw(ctx, 0, 0, cv.width, cv.height, tick++);
   requestAnimationFrame(frame);
 }
-let painting = -1;
+let painting = false;
 function paint(e) {
   const r = cv.getBoundingClientRect(), s = cv.width / r.width;
-  const cx = Math.floor(((e.clientX - r.left) * s - PAD) / TILE), cy = Math.floor(((e.clientY - r.top) * s - PAD) / TILE);
-  if (map.isLand(cx, cy) === !!painting) return;
-  map.setLand(cx, cy, painting === 1);
+  const cx = Math.floor((e.clientX - r.left) * s / TILE), cy = Math.floor((e.clientY - r.top) * s / TILE), v = +$("brush").value;
+  if (map.cell(cx, cy) === v) return;
+  map.setCell(cx, cy, v);
   map.bake();
 }
-cv.addEventListener("contextmenu", (e) => e.preventDefault());
-cv.addEventListener("pointerdown", (e) => { painting = e.button === 2 ? 0 : 1; paint(e); });
-cv.addEventListener("pointermove", (e) => { if (painting >= 0) paint(e); });
-addEventListener("pointerup", () => { painting = -1; });
-sel.onchange = () => load(sel.value);
-scaleIn.oninput = resize;
-load(new URLSearchParams(location.search).get("map") || keys[0]);
-window.islandMap = () => map;
-window.islandReady = true;
+cv.addEventListener("pointerdown", (e) => { painting = true; paint(e); });
+cv.addEventListener("pointermove", (e) => { if (painting) paint(e); });
+addEventListener("pointerup", () => { painting = false; });
+for (const id of ["theme", "layout", "seed", "cols", "rows"]) $(id).onchange = build;
+$("scale").oninput = resize;
+window.terrain = { build, get map() { return map; }, TILE_THEMES, LAYOUT_KINDS, data };
+await build();
+window.terrainReady = true;
 frame();
 </script>
 </body>

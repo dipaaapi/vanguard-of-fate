@@ -16,6 +16,7 @@ aseprite/zone/barracks.aseprite   → the hub's Barracks Sanctuary and its two l
 aseprite/zone/castle.aseprite     → the Imperial Citadel and its audience dais (320×340; the gate portal stays code-drawn)
 aseprite/zone/<map id>.aseprite   → that map's safe zone: a Fated Vanguard camp, or Emberhold for `ash`
 aseprite/ui/<key>.aseprite        → an interface frame (css/hud.css, css/title.css): exported to assets/ui/<key>.png, one image
+aseprite/tiles/<theme>.aseprite   → a terrain tile set (js/world/terrain.js): one per map theme, 256×96, 8 frames
 ```
 
 ## Safe zones
@@ -47,6 +48,29 @@ Bosses with sheets (twice the size of their 2×-scaled code sprite, feet where t
 `boss/dolora` 64×72 (feet 32,68; she floats ~4px above them), `boss/morgrave` 96×104 (feet 48,100) and
 `boss/vorgath` 112×112 (feet 56,108), each with idle 4, walk 6, run 6, attack 4 and skill 6 frames per
 direction.
+
+## Terrain tile sets
+
+`aseprite/tiles/<theme>.aseprite` holds one map theme's terrain (meadow plus every theme in `js/world/tileset.js`) on a
+16 px grid, laid out as `TILESHEET` in `js/world/terrain.js`:
+
+```
+(0,0)    64×64 liquid texture, seamless, animated       layer liquid
+(64,0)   16 ground tiles, index = corner mask            layer ground   (TL 1, TR 2, BL 4, BR 8 = which corners are ground)
+(128,0)  16 path tiles, same masks                       layer path
+(192,0)  16 shore tiles: foam, waves, shallows, shadow   layer foam     (animated)
+(0,64)   8 plain-ground variants · (128,64) 4 plain-path variants
+(0,80)   16 decorations: 0-5 small, 6-11 large, 12-15 theme specials   layer decor
+```
+
+The map is a grid of cells (liquid, ground, path) and every drawn tile sits where four cells meet, so these 16
+tiles cover any shape: coasts, single cells, diagonals, lakes inside islands. A ground cell over liquid shows its
+cliff face in its lower 10 px (`CLIFF_H`). Keep tile edges where they are when you repaint (a tile's edge must meet
+its neighbours'); textures, colours, cliffs, foam and decorations are free to change. Only `liquid` and `foam`
+differ between frames. `node tools/aseprite/paint/paint.mjs tiles` repaints them all from
+`tools/aseprite/paint/tiles.mjs` (overwrites hand edits), `node tools/aseprite/export.mjs tiles/<theme>` exports one,
+and `node tools/tilemap/preview.mjs` renders every set on its layout (`js/world/layouts.js`). Tile sets load on
+demand, so they are left out of `manifest.json`.
 
 ## Interface frames (HD)
 

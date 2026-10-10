@@ -79,6 +79,12 @@ for (const file of files) {
     console.log(`${rel(png)}  ${data.frames[0].frame.w}×${data.frames[0].frame.h}  play×${data.frames.length}`);
     continue;
   }
+  if (key.startsWith("tiles/")) {   // terrain tile sets: 256×96 per frame, loaded on demand by js/world/terrain.js
+    const { w, h } = data.frames[0].frame;
+    if (w !== 256 || h !== 96) warn(`tile set is ${w}×${h}; js/world/terrain.js expects 256×96 (TILESHEET)`);
+    console.log(`${rel(png)}  ${w}×${h}  frames×${data.frames.length}`);
+    continue;
+  }
   if (key.startsWith("zone/")) {   // safe-zone art: one looping "down-idle" tag, placed by js/world/zonesprites.js
     const { w, h } = data.frames[0].frame;
     if (!(data.meta.frameTags || []).some((t) => t.name === "down-idle")) warn(`safe-zone art needs a "down-idle" tag`);
@@ -104,7 +110,7 @@ for (const file of files) {
   console.log(`${rel(png)}  ${w}×${h}  ${used.join(" ")}`);
 }
 
-// Manifest = every exported sheet that still has its source file
-const keys = sources(SRC_DIR).map(keyOf).filter((k) => fs.existsSync(path.join(OUT_DIR, `${k}.png`))).sort();
+// Manifest = every exported sheet that still has its source file (tile sets load on demand, not at boot)
+const keys = sources(SRC_DIR).map(keyOf).filter((k) => !k.startsWith("tiles/") && fs.existsSync(path.join(OUT_DIR, `${k}.png`))).sort();
 fs.writeFileSync(path.join(OUT_DIR, "manifest.json"), JSON.stringify({ sheets: keys }, null, 2) + "\n");
 console.log(`${rel(path.join(OUT_DIR, "manifest.json"))}  ${keys.length} sheet(s)${problems ? `, ${problems} warning(s)` : ""}`);

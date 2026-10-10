@@ -21,11 +21,11 @@ then `outline <file>` and read only the line range you need.
 - `art_manifest.json` (19 KB, 625) — Every generated image (banners, title/portal backgrounds, vistas, portraits, relics): kind, EN/FIL caption and where the game uses it; paired with tools/art/scenes/index.js
 - `codex_entries.json` (5.9 KB, 66) — Codex scene data: Earthbound dossiers for the hero classes (EN/FIL) and the falcon/angel companion records
 - `errand.json` (3.1 KB, 39) — Summon errand tuning (pack slots, stack per slot, trip time, what it may buy) and EN/FIL wording
-- `islands.json` (0.8 KB, 38) — (no purpose yet)
 - `loading_tips.json` (2.1 KB, 16) — Portal loading screen wording and EN/FIL lore tips (js/loading.js)
 - `market.json` (1.6 KB, 22) — Market (B) stock and EN/FIL wording
 - `npc_conversations.json` (37 KB, 692) — NPC ambient chatter: solo lines per NPC and two-NPC exchanges, each line with en/fil text (fetched by npc/npcs.js)
 - `party.json` (5.6 KB, 87) — Recruitment talk (offer / progress / join) for the five playable NPCs and the party HUD/toast wording, EN/FIL
+- `tilemaps.json` (0.9 KB, 28) — (no purpose yet)
 
 ## (root)
 
@@ -162,8 +162,8 @@ then `outline <file>` and read only the line range you need.
 - `footfall.js` (2.6 KB, 61) — Footsteps and splashes: strides on the wet shore splash (hero: wet step sound), steps in tall flora brush, shots ending over water splash · Footfall
 - `frontiers.js` (19 KB, 291) — Four frontier maps (Greyhorn Badlands, Gloomwater Fens, Stormcrown Highlands, Sunscorch Dunes): Acts, levels, themes, monsters, elites, sites, terrain and landmarks, en/fil text · FRONTIERS, FRONTIER_ORDER
 - `grassland.js` (4.6 KB, 102) — Layer 1 ground details on the tile map: baked sand/wet-sand shoreline beside water, turf blades swaying in the wind, isFloraAt for footstep cues · GrasslandSystem
-- `islands.js` (14 KB, 322) — Tile-based floating-island maps: autotiled grass tops (rounded/inner corners, rim), cliff faces under south edges, foam shoreline, animated caustic water; IslandMap.fromRows + draw(ctx, cam, view, tick) · CLIFF_H, ISLAND_PALETTE, buildWaterFrames, IslandMap
 - `layers.js` (3.1 KB, 58) — World render layer order (0 ocean … 7 screen), sun vector and shadow colour, view/tile-span helpers, pixel ellipse · LAYER, SUN, SHADOW_COLOR, viewOf, tileSpan, hashTile, pixelEllipse
+- `layouts.js` (9.1 KB, 205) — Seeded terrain grids for terrain.js (islands, coast, lakes, river, atoll, archipelago) with routed roads (turn- and shore-penalised search, main roads 2 wide) · makeLayout, addPaths, LAYOUT_KINDS · LAYOUT_KINDS, addPaths, makeLayout
 - `mining.js` (5.5 KB, 121) — Ore veins on every platform (tier ore, plus minerals on Ashfall and the Citadel; rock salt): picks per vein, ore drops · MINE_RANGE, needsPick, OreVeins
 - `nav.js` (5.9 KB, 141) — Ground movement for monsters, mercenaries and walking pets: obstacle grid, flow field toward the hero, steering around obstacles, confinement to bounds · blockedAt, footBlocked, clearLine, trackGoal, towardGoal, steer, confine
 - `ocean.js` (11 KB, 234) — Water of a map (real-water themes only): baked depth gradient #00b4d8→#03045e + bedrock, moving currents, A·sin(ωt) foam crests and glints, isWaterAt/isShoreAt · WATER_THEMES, OceanSystem
@@ -171,6 +171,7 @@ then `outline <file>` and read only the line range you need.
 - `platforms.js` (48 KB, 684) — Campaign platform definitions for Acts VII–XV (Aethelgard + the Dark Continent: strand, ossuary, siege, chainspire, maw): places, 5 monsters + 4 elites, sites, frontier trails, roads/rifts, bosses, quest items, seal stones, en/fil text · DARK_CONTINENT · SEAL_STONES, PLATFORMS, PLATFORM_ORDER, DARK_CONTINENT, PLATFORM_SIZE
 - `portal.js` (4.7 KB, 124) — Celestial Warp Gateways and the Badlands trail: drawing and collision; calls main.js's handler to travel or report sealed · drawGateway, PortalSystem
 - `props.js` (7.2 KB, 181) — Trees, stones and shoreline boulders as Y-sorted props: cached sprites, root-only collision boxes (lower third), contact shadows along the sun, map snapshots · PropField
+- `terrain.js` (9.0 KB, 181) — Terrain tile maps from the Aseprite tile sets (assets/sprites/tiles/<theme>): dual-grid autotiling (16 corner tiles) for ground/cliffs/shore and paths, baked ground + decor, animated liquid and foam; TILESHEET layout shared with the painter · TILESHEET, CLIFF_H, CELL, TILE_THEMES, loadTerrainSheet, TerrainMap
 - `tilemap.js` (20 KB, 502) — Tile map generation and rendering from the tileset, foot hitbox collision, decorations · TileMap
 - `tileset.js` (28 KB, 626) — Procedural 16×16 pixel-art tile atlas, themes, seeded RNG (mulberry32), tree/rock/bush drawing · TILE, ATLAS_COLS, T, THEMES, mulberry32, buildTileset, drawTree, drawTreeSplit +2
 - `weather.js` (8.9 KB, 234) — Hub weather cycle (clear, rain, storm, fog) with pixel-art clouds and shadows · WeatherSystem
@@ -231,7 +232,7 @@ then `outline <file>` and read only the line range you need.
 ## tools/aseprite/
 
 - `asefile.mjs` (12 KB, 220) — Reads and writes .aseprite files in plain Node (layers or a single layer, linked cels, tags, palette); export.mjs, seed.mjs and the painters use it when Aseprite isn't installed · writeAse, readAse
-- `export.mjs` (6.8 KB, 111) — Exports aseprite/**/*.aseprite with aseprite -b to assets/sprites/<key>.png + .json, checks tags/size against the code sprite, rewrites the manifest
+- `export.mjs` (7.2 KB, 117) — Exports aseprite/**/*.aseprite with aseprite -b to assets/sprites/<key>.png + .json, checks tags/size against the code sprite, rewrites the manifest
 - `lib.mjs` (6.7 KB, 127) — Aseprite tool helpers: find the Aseprite executable, read a creature sprite headless, write PNGs; readPng and tryAseprite for the Node fallback · ROOT, SRC_DIR, OUT_DIR, findAseprite, codeSprite, writePng, readPng, tryAseprite
 - `seed.mjs` (2.7 KB, 61) — Starts aseprite/<kind>/<key>.aseprite from a creature's code-drawn frames (one tag per direction+animation): node tools/aseprite/seed.mjs monster/slime
 
@@ -243,9 +244,10 @@ then `outline <file>` and read only the line range you need.
 - `boss.mjs` (64 KB, 1099) — Painter: Dark Continent bosses Dolora 64×72, Morgrave 96×104, Vorgath 112×112, idle/walk/run/attack/skill × 3 directions · FRAMES, BOSSES
 - `fx.mjs` (14 KB, 273) — Painter: skill and hit effects (meteor, blast, lightning, holy, sphere, slash, wave, bolt, arrow, arrowfall, bite, claw, arcane, tear, bonespike, chain, shockring); grey ones are tinted in game · FX, mix
 - `kit.mjs` (7.8 KB, 145) — Painting kit for the procedural Aseprite starting points: Canvas (lit dithered blobs, thick lines, polygons, outline, sparks), fromGame, build() → aseprite/<key>.aseprite via seed.lua · hex, mixc, Canvas, fromGame, build
-- `paint.mjs` (3.4 KB, 55) — Recreates the detailed procedural .aseprite starting points (overwrites): node tools/aseprite/paint/paint.mjs <key|all> · SUBJECTS
+- `paint.mjs` (3.7 KB, 59) — Recreates the detailed procedural .aseprite starting points (overwrites): node tools/aseprite/paint/paint.mjs <key|all> · SUBJECTS
 - `scenery.mjs` (23 KB, 430) — Scenery kit for the safe-zone painters: alpha Img canvas, flagstones, clearings, shingles, timber walls, tents, braziers, banners, crates, barrels, smoke, campfire · FRAMES, ph, rgb, mix, withA, shade, ramp, pick +25
 - `slime.mjs` (7.5 KB, 141) — Painter: detailed slime 32×24 (Forest Slime; Pocket Slime with sprout), idle/walk/run/attack/skill × 3 directions · W, FOREST, FRAMES, DURATIONS, paintSlime
+- `tiles.mjs` (26 KB, 447) — Painter for the terrain tile sets → aseprite/tiles/<theme>.aseprite (15 themes; layers liquid, foam, ground, path, decor; 8 frames): corner tiles with rounded/inner corners, cliff faces, foam, liquids (water, lava, void, ice, blood, murk), decorations · paintTiles, tileSubjects
 - `ui.mjs` (9.9 KB, 208) — Painter for the HD interface frames (2× pixel density): hero card, party slots, portrait, meters, key chips, side-menu panels and buttons → aseprite/ui/<key>.aseprite · UI_KEYS, UI_SLICES, paintUi, uiSubjects
 - `zones.mjs` (37 KB, 581) — Paints the safe zones as layered .aseprite files: themed Fated Vanguard camps per map, Barracks + longhouses, Imperial Citadel + dais, Emberhold · CAMP_THEMES, zoneSubjects
 
@@ -260,5 +262,5 @@ then `outline <file>` and read only the line range you need.
 
 ## tools/tilemap/
 
-- `preview.mjs` (3.8 KB, 75) — Renders the island maps in data/islands.json to PNG in headless Chromium: node tools/tilemap/preview.mjs [map…] [--scale n] [--out dir] [--tick n]
-- `viewer.html` (2.6 KB, 68) — (no purpose yet)
+- `preview.mjs` (6.1 KB, 103) — Renders every terrain tile set on its layout (480×270 views + contact sheet) and the maps in data/tilemaps.json to PNG in headless Chromium: node tools/tilemap/preview.mjs [themes…] [--layout k] [--seed n] [--scale n] [--out dir]
+- `viewer.html` (3.7 KB, 86) — (no purpose yet)
