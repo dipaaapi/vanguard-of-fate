@@ -13,8 +13,8 @@ then `outline <file>` and read only the line range you need.
 - `gamepad.css` (3.3 KB, 63) — (no purpose yet)
 - `hud.css` (7.3 KB, 184) — (no purpose yet)
 - `regression.css` (1.7 KB, 45) — End-of-Book-I Regression modal styles
-- `style.css` (18 KB, 605) — Global page layout, pixelated canvas, side panel, bottom bar / adventure log tray
-- `title.css` (19 KB, 688) — Title screen, options, Chronicles reader and credits; defines --gold/--sky/--ink colour variables
+- `style.css` (18 KB, 623) — Global page layout, pixelated canvas, side panel, bottom bar / adventure log tray
+- `title.css` (19 KB, 687) — Title screen, options, Chronicles reader and credits; defines --gold/--sky/--ink colour variables
 
 ## data/
 
@@ -25,6 +25,7 @@ then `outline <file>` and read only the line range you need.
 - `market.json` (1.6 KB, 22) — Market (B) stock and EN/FIL wording
 - `npc_conversations.json` (37 KB, 692) — NPC ambient chatter: solo lines per NPC and two-NPC exchanges, each line with en/fil text (fetched by npc/npcs.js)
 - `party.json` (5.6 KB, 87) — Recruitment talk (offer / progress / join) for the five playable NPCs and the party HUD/toast wording, EN/FIL
+- `prologue.json` (6.7 KB, 162) — Prologue text by shot id (cards, typed lines with speakers, EN/FIL) and the status panel lines; read by js/prologue.js
 
 ## (root)
 
@@ -32,7 +33,7 @@ then `outline <file>` and read only the line range you need.
 
 ## js/
 
-- `actintro.js` (7.4 KB, 195) — Act intro cinematic (ActIntro): when the story reaches a new Act, the Act banner pushes in behind letterbox bars with motes and a light sweep, then the Act number, title and the banner's EN/FIL caption from data/art_manifest.json; skippable · ActIntro
+- `actintro.js` (9.3 KB, 229) — Act intro cinematic (ActIntro): an HD overlay that rebuilds the Act's layered set (assets/cinema/act-N) with the cinema engine and the camera/lights/particles of js/cinema/actShots.js, then sets the Act number, title and EN/FIL caption (data/art_manifest.json) in HD type; skippable; startStory for story cards · ActIntro
 - `actionpanel.js` (21 KB, 479) — Hotbar on the bottom tray (J/K/L skill slots with drag-and-drop arranging and the skill book (P), Space/E, quick slots 1–4, Market B and Full Screen F) and the right panel's option buttons · ActionPanel
 - `actreader.js` (5.0 KB, 146) — "Read more" Act reader: full text of finished Acts from LORE.md with their banners · ActReader
 - `audio.js` (31 KB, 661) — Procedural Web Audio engine (exported Sound): master/music/SFX buses with compressor and reverb, synth instruments, a lookahead sequencer that crossfades the tracks in js/music.js by place/night/boss (setScene), fanfares (playJingle) and 30+ play* SFX that fade by distance and mute off screen · Sound
@@ -62,7 +63,7 @@ then `outline <file>` and read only the line range you need.
 - `loading.js` (3.7 KB, 111) — Portal loading screen: rotating ring, ENTERING <place>, lore tip (data/loading_tips.json), progress bar; runs the travel work behind it · LoadingScreen
 - `loot.js` (11 KB, 279) — Loot drops: gold and items from slain monsters, ground items, magnetic pickup into the bag; blocked drops slide to the nearest walkable tile (findNearestWalkableSpot) · findNearestWalkableSpot, LootManager
 - `lore.js` (8.0 KB, 245) — Loads LORE.md / LORE_FIL.md, parses ## Acts into chapters, act banners, auto-scrolling lore panel · loadLore, parseChapters, actNumber, chapterKey, BANNER_EXTS, bannerSrc, createLorePanel
-- `main.js` (105 KB, 2413) — Entry module and coordinator: canvas fit, scene routing (title → codex scene (creator) → prologue → game), managers, menus/shops, platform travel, save/load/export/import, Job Awakening, update + render game loop
+- `main.js` (105 KB, 2416) — Entry module and coordinator: canvas fit, scene routing (title → codex scene (creator) → prologue → game), managers, menus/shops, platform travel, save/load/export/import, Job Awakening, update + render game loop
 - `market.js` (13 KB, 317) — Market (B): buy and sell with a quantity slider per row (prices from items/economy.js via ctx) inside a sanctuary; outside one the same overlay builds and sends a summon errand (errand.js) · sellPrice, Market, marketText
 - `mercenaryManager.js` (15 KB, 392) — Hireable mercenaries: contracts and fees, following, AI combat, daze and recovery, drawing · MERC_CLASSES, MercenaryManager
 - `monsterTiers.js` (6.5 KB, 138) — Monster tiers (Normal, Champion, Elite, MVP) and modifiers: rolling, applying, damage multipliers, names, life bars (lives per level and tier) · MODS, modName, TIERS, rollTier, applyTier, tierName, has, MAX_LIVES +10
@@ -73,7 +74,7 @@ then `outline <file>` and read only the line range you need.
 - `playables.js` (7.9 KB, 110) — Playable NPC recruits: PLAYABLES (region, role, skills, trial requirements), makePlayableKit (combat kit per recruit), PlayableQuestBook (trial state) · PLAYABLES, PLAYABLE_IDS, makePlayableKit, PlayableQuestBook
 - `player.js` (26 KB, 643) — Player entity: stats, stamina/sprint/dodge roll, damage and debuffs, EXP/levels, skill learning, movement, attack pose, drawing · expFor, Player
 - `projectiles.js` (15 KB, 381) — Player/mercenary projectiles and skill effects (meteor, thunder, arrows, ki spheres, dropkick) and their hit detection · ProjectileManager
-- `prologue.js` (40 KB, 865) — Act I animated pixel-art cutscene (480×270) explaining how the hero reached Aethelgard · PrologueScene
+- `prologue.js` (8.9 KB, 233) — Act I prologue (PrologueScene): nine HD cinematic shots (js/cinema/prologueShots.js) with typed EN/FIL subtitles from data/prologue.json; Enter advances, Esc skips · PrologueScene
 - `quest.js` (19 KB, 432) — Main quest (Book I, Acts II–XV): steps with act, place, characters, objectives; QuestManager progress, side-quest gate, Book titles; mentor per class; save migration (v1/v2 → v3) · FINAL_STEP, MENTOR_BY_CLASS, bookText, qt, QuestManager
 - `regression.js` (6.6 KB, 139) — Regression (New Game+): difficulties Easy→Mythical (+20% monster HP/damage each), saved record of cleared difficulties and learned jobs, end-of-Book-I modal (Continue / save+download / Regress) · DIFFICULTIES, regression, resetRegression, serializeRegression, loadRegression, difficulty, difficultyName, enemyMult +4
 - `saveSecurity.js` (10 KB, 261) — Save format .vof: checksum/HMAC-style signing, XOR obfuscation, sanity audit of gold/stats/items/level, legacy .json migration; exposed as window.SaveSecurity
@@ -99,6 +100,14 @@ then `outline <file>` and read only the line range you need.
 - `jobmarks.js` (14 KB, 309) — Class signature details from the splash art (look `job`): Knight crest and gold trim, Archer hooded mantle and falcon feather, Priest stole and circlet, Mage starry cloak and orbiting star, Fighter open gi, black belt and headband tails; drawn in layers by renderPix · JOBS, jobPalette, drawJob
 - `options.js` (6.0 KB, 142) — Character Creator choices and colours, NPC-only parts, config normalisation and random look/name · FIELDS, DEFAULT_CONFIG, summonedGarb, normalizeConfig, randomConfig, randomName
 - `sheets.js` (3.4 KB, 88) — Aseprite sprite sheets: loads assets/sprites/manifest.json and slices each sheet into per-tag frames ("<dir>-<anim>") that override the code-drawn creature frames; sheetCount for frame counts · sheetsVersion, sheetCount, sheetFrame, sheetDurations, loadSpriteSheets
+
+## js/cinema/
+
+- `actShots.js` (10 KB, 114) — ACT_SHOTS: per-Act camera move, horizon, focus rack, grade, lights, rays, fog, particles and title accent for the Act intros; storyShot(color) for story cards · ACT_SHOTS, storyShot
+- `engine.js` (22 KB, 551) — HD cinema engine (Cinema): layered pixel-art sets from assets/cinema/ drawn at screen resolution with a keyframed parallax camera, depth of field, light maps, live lights, god rays, fog, particles, bloom, grade, vignette, grain, letterbox, flash/shake/fade; loadSet, span/ease helpers, CINEMA_WIDTH per Quality · NW, NH, ease, span, rgba, loadSet, Cinema, CINEMA_WIDTH
+- `fx.js` (11 KB, 259) — Cinema HD effects in native coordinates: glow, rune circle, beam, eclipse, lightning bolt, sky rift, glowing crack, warp tunnel, birds, mana crystal, status panel · glow, runeCircle, beam, eclipse, bolt, rift, crack, warp +3
+- `particles.js` (7.4 KB, 153) — Cinema particles: depth-aware ambient fields (embers, sparks, motes, dust, spores, stars, snow, blizzard, rain, ash, petals, miasma) and one-shot bursts, drawn as soft bokeh out of focus · Particles
+- `prologueShots.js` (18 KB, 317) — The nine prologue shots (buildShots(cast)): backdrop set, camera path, focus, grade, lights, fog, particles and hooks for the live parts (eclipse, Satan rising, wolf, King and summoner, rift, ritual, waking) · buildShots
 
 ## js/classes/
 
@@ -180,36 +189,44 @@ then `outline <file>` and read only the line range you need.
 
 - `darkBosses.js` (11 KB, 173) — Hand-painted figures of the Dark Continent bosses (dolora, morgrave, vorgath) shared by the Act banners and portraits · dolora, morgrave, vorgath
 - `kit.js` (35 KB, 723) — Painting kit for scenes: skies, eclipse/moon/sun, clouds, ridges, water/lava, castles, trees, rocks, crystals, rune circles, beams, rays, sparks, character staging (stand, rimLight) and discipline colours · Px, hex, mixC, shadeC, clamp, lerp, smooth, dith +51
-- `px.js` (13 KB, 298) — Px pixel buffer (shapes, gradients, glow, blit, silhouette, vignette, quantize, toCanvas) plus colour, noise, fbm, Bayer dither and banded ramp helpers · hex, mixC, shadeC, clamp, lerp, smooth, bayer, dith +7
+- `px.js` (16 KB, 362) — Px pixel buffer (shapes, gradients, glow, blit, silhouette, vignette, quantize, toCanvas) plus colour, noise, fbm, Bayer dither and banded ramp helpers; layered mode (beginLayers/layer/layerCanvases) for cinema sets · hex, mixC, shadeC, clamp, lerp, smooth, bayer, dith +7
 - `sprites.js` (6.2 KB, 110) — Game sprites for the art tools: NPC, hero, monster, boss and item-icon frames from the real Avatar/creature/icon code, plus the Lantern Knight look · ART_LOOKS, npc, look, hero, monster, boss, DEFAULT_LOOK, zone +3
 
 ## tools/art/
 
-- `render.mjs` (5.0 KB, 93) — Renders the procedural art to PNG in headless Chromium: node tools/art/render.mjs [keys…] [--list] [--preview]; PNG8 when ≤256 colours
-- `studio.html` (2.0 KB, 48) — Art studio page: paints every scene (or ?only=key) for review; exposes renderScene/sceneList to render.mjs
+- `render.mjs` (6.9 KB, 132) — Renders the procedural art to PNG in headless Chromium: node tools/art/render.mjs [keys…] [--list] [--preview]; PNG8 when ≤256 colours; cine-* keys write layered sets to assets/cinema/ + manifest.json
+- `studio.html` (2.5 KB, 53) — Art studio page: paints every scene (or ?only=key) for review; exposes renderScene/sceneList to render.mjs
 
 ## tools/art/scenes/
 
-- `act01.js` (5.0 KB, 83) — Art painter — Act I — The Sundered Dominion of Aethelgard · paint
-- `act02.js` (3.7 KB, 72) — Art painter — Act II — The Celestial Rift & The Earthbound Summoning · paint
-- `act03.js` (2.9 KB, 53) — Art painter — Act III — The Five Disciplines & Earthbound Profiles · paint
-- `act04.js` (4.6 KB, 74) — Art painter — Act IV — The Novice's Path & The Royal Job Awakening · paint
-- `act05.js` (3.7 KB, 63) — Art painter — Act V — The Dual Equipment Matrix & Strategic Warfare · paint
-- `act06.js` (3.2 KB, 46) — Art painter — Act VI — The Royal Covenant & The Vanguard Campaign · paint
-- `act07.js` (3.4 KB, 50) — Art painter — Act VII — The Corrupted Sylvan Frontier & The Elven Sanctuary · paint
-- `act08.js` (3.4 KB, 46) — Art painter — Act VIII — The Cerulean Abyss & The Sunken Monoliths · paint
-- `act09.js` (3.2 KB, 44) — Art painter — Act IX — The Frostfang Precipice & The Shivering Siege · paint
-- `act10.js` (4.2 KB, 65) — Art painter — Act X — The Ashfall Wastelands & The Hellforge · paint
-- `actChainspire.js` (5.1 KB, 85) — Art painter — Act XIV — The Chainspire Descent (chain spire over the abyss, Vorgath) · paint
-- `actMaw.js` (2.8 KB, 39) — Art painter — Act XV — The Heart of the Abyss & The Sovereign Dawn · paint
-- `actOssuary.js` (5.4 KB, 78) — Art painter — Act XII — The Ossuary Fields (bone field, the Lantern Knight's cairn, Morgrave) · paint
-- `actSiege.js` (3.5 KB, 49) — Art painter — Act XIII — The Siege of the Obsidian Citadel & The Broken Gates · paint
-- `actStrand.js` (5.6 KB, 79) — Art painter — Act XI — The Lamenting Strand (Dawnstar wreck, tear pools, Dolora over the water) · paint
+- `act01.js` (5.1 KB, 88) — Art painter — Act I — The Sundered Dominion of Aethelgard · paint
+- `act02.js` (3.8 KB, 76) — Art painter — Act II — The Celestial Rift & The Earthbound Summoning · paint
+- `act03.js` (3.1 KB, 58) — Art painter — Act III — The Five Disciplines & Earthbound Profiles · paint
+- `act04.js` (4.8 KB, 80) — Art painter — Act IV — The Novice's Path & The Royal Job Awakening · paint
+- `act05.js` (3.8 KB, 67) — Art painter — Act V — The Dual Equipment Matrix & Strategic Warfare · paint
+- `act06.js` (3.4 KB, 51) — Art painter — Act VI — The Royal Covenant & The Vanguard Campaign · paint
+- `act07.js` (3.6 KB, 58) — Art painter — Act VII — The Corrupted Sylvan Frontier & The Elven Sanctuary · paint
+- `act08.js` (3.6 KB, 51) — Art painter — Act VIII — The Cerulean Abyss & The Sunken Monoliths · paint
+- `act09.js` (3.4 KB, 52) — Art painter — Act IX — The Frostfang Precipice & The Shivering Siege · paint
+- `act10.js` (4.5 KB, 72) — Art painter — Act X — The Ashfall Wastelands & The Hellforge · paint
+- `actChainspire.js` (5.3 KB, 91) — Art painter — Act XIV — The Chainspire Descent (chain spire over the abyss, Vorgath) · paint
+- `actMaw.js` (3.0 KB, 45) — Art painter — Act XV — The Heart of the Abyss & The Sovereign Dawn · paint
+- `actOssuary.js` (5.6 KB, 85) — Art painter — Act XII — The Ossuary Fields (bone field, the Lantern Knight's cairn, Morgrave) · paint
+- `actSiege.js` (3.7 KB, 55) — Art painter — Act XIII — The Siege of the Obsidian Citadel & The Broken Gates · paint
+- `actStrand.js` (5.8 KB, 87) — Art painter — Act XI — The Lamenting Strand (Dawnstar wreck, tear pools, Dolora over the water) · paint
 - `heralds.js` (2.0 KB, 35) — Art painter — Heralds — The Inverted Star · paint
-- `index.js` (3.9 KB, 70) — Scene registry: key → output path, native size, upscale and painter module; paintScene(key) · SCENES, paintScene
+- `index.js` (5.5 KB, 93) — Scene registry: key → output path, native size, upscale and painter module; paintScene(key) · SCENES, paintScene
 - `ledger.js` (3.1 KB, 53) — Art painter — Ledger — The Rules of the Summoned · paint
 - `portal.js` (2.5 KB, 31) — Art painter — Portal — The Pentagram Gate · paint
 - `portraits.js` (3.8 KB, 50) — Art painter — Portrait cards — one per lore character, drawn with the character's in-game sprite on a backdrop · BOSSES, paint
+- `proBlights.js` (2.7 KB, 44) — Prologue cinema set painter (layered, assets/cinema/pro-*) — The Seven Blights (blood moon, burning village, dead forest) · paint
+- `proEarth.js` (3.5 KB, 61) — Prologue cinema set painter (layered, assets/cinema/pro-*) — Earth, 2026 (rainy city street under the eclipse) · paint
+- `proEclipse.js` (2.3 KB, 38) — Prologue cinema set painter (layered, assets/cinema/pro-*) — The Eclipse of the Abyss (dusk land, Satan as a layer) · paint
+- `proGolden.js` (3.7 KB, 52) — Prologue cinema set painter (layered, assets/cinema/pro-*) — The Golden Age (golden-hour plains, Citadel, Celestial Gateways) · paint
+- `proOmen.js` (1.8 KB, 35) — Prologue cinema set painter (layered, assets/cinema/pro-*) — A Distant Omen (crater, four pillars) · paint
+- `proRitual.js` (2.1 KB, 40) — Prologue cinema set painter (layered, assets/cinema/pro-*) — The Ritual beneath the Citadel (summoning vault, pedestal) · paint
+- `proSanctuary.js` (2.3 KB, 41) — Prologue cinema set painter (layered, assets/cinema/pro-*) — Waking in the Barracks Sanctuary (courtyard, cot) · paint
+- `proThrone.js` (3.6 KB, 66) — Prologue cinema set painter (layered, assets/cinema/pro-*) — The King and the Heir (throne hall, stained glass) · paint
 - `prophecy.js` (3.1 KB, 52) — Art painter — Prophecy — The Pentagram Seal · paint
 - `relics.js` (7.6 KB, 73) — Art painter — Relics and sigils — 32×32 item art for story objects that have no in-game icon yet: the four · paint
 - `title.js` (3.6 KB, 48) — Art painter — Title — The Lantern Knight's Sword · paint
@@ -246,6 +263,11 @@ then `outline <file>` and read only the line range you need.
 ## tools/audio/
 
 - `render-audio.mjs` (7.0 KB, 116) — Offline renders of the music, jingles and SFX to WAV/MP3 with peak/RMS checks: node tools/audio/render-audio.mjs [music|jingles|sfx|<name>…] [--mp3] [--out dir]; exits 1 on clipping or silence
+
+## tools/cinema/
+
+- `harness.html` (2.8 KB, 58) — Page used by tools/cinema/preview.mjs (renderPro / renderAct)
+- `preview.mjs` (3.5 KB, 67) — Renders HD cinematic frames headless with the game's code: node tools/cinema/preview.mjs pro:<id>@<p> | act:<n>@<frame> [--sheet] [--w 1920]
 
 ## tools/mcp/
 

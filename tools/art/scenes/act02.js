@@ -4,6 +4,7 @@
 export function paint(P, { R, K, S }) {
   const { hex, mixC, shadeC, pillar, brazier, flagstones, runeCircle, beam, crystal, sparks, stand, rimLight, POINT_COLORS, dith, clamp } = K;
 
+  P.layer("wall", 0.3);
   // Back wall: dark ashlar with a rose window
   P.rectF(0, 0, P.w, 170, (x, y) => {
     const course = Math.floor(y / 9), brick = Math.floor((x + (course % 2) * 8) / 16);
@@ -36,9 +37,11 @@ export function paint(P, { R, K, S }) {
     for (let i = 0; i < 8; i++) { P.set(bx + i, 80 + (i % 2), hex("#8b1e1e")); P.set(bx + 15 - i, 80 + (i % 2), hex("#8b1e1e")); }
     P.disc(bx + 8, 50, 4, hex("#e0b84a")); P.disc(bx + 8, 50, 2, hex("#8b1e1e"));
   }
+  P.layer("pillars", 0.5);
   // pillars
   for (const [x, w] of [[22, 22], [86, 16], [378, 16], [436, 22]]) pillar(P, x, 10, 170, w, { c: "#5b6280", dark: "#2e3350", lit: "#8a93b8" });
 
+  P.layer("floor", 0.8);
   // Floor
   flagstones(P, 170, P.h, { c: "#2a2f48", lit: "#353b5a", dark: "#20243a", seam: "#12142a", vx: 240 });
   // The Pentagram Seal
@@ -59,6 +62,7 @@ export function paint(P, { R, K, S }) {
   // levitating mana crystals
   for (const [x, y, h] of [[150, 150, 14], [330, 146, 14], [176, 120, 10], [304, 118, 10]]) crystal(P, x, y, h, { glowK: 0.5 });
 
+  P.layer("court", 1);
   // the Crown Heir holding the conduit, Royal Guards behind
   const heir = S.npc("aurelia", "side", "attack", 1);
   stand(P, heir, 120, 236, { flip: false });

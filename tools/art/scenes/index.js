@@ -56,14 +56,37 @@ const RELICS = ["sylvanStone", "tideStone", "frostStone", "emberStone", "lantern
   "tearUrn", "lanternVisor", "wardensKey"];
 for (const r of RELICS) SCENES[`relic-${r}`] = relic(r);
 
+// ── Cinema sets (js/cinema/) ──────────────────────────────────────────────────
+// The same painters, split into depth layers (P.layer(name, z) markers) and written at native size to
+// assets/cinema/<id>/<layer>.png (+ <layer>-light.png, an additive light map) with a manifest entry.
+// The game rebuilds the scene in HD from them: parallax camera, depth of field, lights and particles.
+// `seedOf` keeps the random details identical to the flat banner of the same painter.
+const cine = (id, mod, seedOf, arg) => ({ out: `assets/cinema/${id}/`, w: 480, h: 270, scale: 1, mod, layers: true, id, seedOf, arg });
+for (let n = 1; n <= 15; n++) SCENES[`cine-act-${n}`] = cine(`act-${n}`, SCENES[`act-${n}`].mod, `act-${n}`);
+for (const [id, mod] of [["golden-age", "proGolden"], ["eclipse", "proEclipse"], ["blights", "proBlights"], ["throne", "proThrone"],
+  ["earth", "proEarth"], ["ritual", "proRitual"], ["sanctuary", "proSanctuary"], ["omen", "proOmen"]]) SCENES[`cine-pro-${id}`] = cine(`pro-${id}`, mod);
+
 const mods = new Map();
 export async function paintScene(key) {
   const s = SCENES[key];
   if (!s) throw new Error(`unknown scene ${key}`);
   if (!mods.has(s.mod)) mods.set(s.mod, await import(`./${s.mod}.js`));
   const P = new Px(s.w, s.h);
-  if (s.mod !== "relics") P.fill([0, 0, 0]);   // scenes are opaque; relics keep a transparent background
-  const seed = [...key].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+  if (s.layers) P.beginLayers();
+  else if (s.mod !== "relics") P.fill([0, 0, 0]);   // scenes are opaque; relics keep a transparent background
+  const seedKey = s.seedOf || key;
+  const seed = [...seedKey].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
   await mods.get(s.mod).paint(P, { R: rng(seed), S, K, arg: s.arg });
-  return { px: P, canvas: P.toCanvas(s.scale) };
+  if (!s.layers) return { px: P, canvas: P.toCanvas(s.scale) };
+  // preview of a layered set: every layer flattened in order, lights added
+  const layers = P.layerCanvases();
+  const canvas = document.createElement("canvas");
+  canvas.width = s.w; canvas.height = s.h;
+  const g = canvas.getContext("2d");
+  g.fillStyle = "#000"; g.fillRect(0, 0, s.w, s.h);
+  for (const L of layers) {
+    if (L.canvas) g.drawImage(L.canvas, 0, 0);
+    if (L.light) { g.globalCompositeOperation = "lighter"; g.drawImage(L.light, 0, 0); g.globalCompositeOperation = "source-over"; }
+  }
+  return { px: P, canvas, layers };
 }

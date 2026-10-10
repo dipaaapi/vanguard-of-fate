@@ -4,13 +4,16 @@
 export function paint(P, { R, K, S }) {
   const { hex, sky, clouds, ridgeFn, ridge, castle, water, stand, rimLight, sparks, groundTex, eclipse, fogBand, flag } = K;
 
+  P.layer("sky", 0);
   sky(P, [[0, hex("#12030a")], [0.45, hex("#4a0a14")], [0.8, hex("#a3201e")], [1, hex("#e2582a")]], 0, 180, 3);
   eclipse(P, 240, 30, 10, { corona: "#ff3b3b", rim: "#ffb347", core: "#0a0204", k: 0.9 });
   clouds(P, { y0: 0, y1: 90, cover: 0.46, seed: 61, colors: ["#1a0508", "#3a0c12", "#7a1e1a"], stretch: 3 });
+  P.layer("crags", 0.15);
   // miasma-wreathed crags
   const far = ridgeFn({ base: 150, amp: 60, freq: 0.014, seed: 21, sharp: 0.85 });
   ridge(P, far, "#2a0a12", { light: "#4a1218" });
   fogBand(P, 140, 18, "#6a1a3a", 0.5, 8);
+  P.layer("citadel", 0.35);
   // the Obsidian Citadel
   P.glow(240, 110, 120, hex("#ff3b3b"), 0.25, 1.4);
   castle(P, 240, 168, { scale: 1.45, style: "obsidian", seed: 13, glow: true });
@@ -21,6 +24,7 @@ export function paint(P, { R, K, S }) {
   // smoke columns
   for (const sx of [160, 300, 352]) for (let s = 0; s < 70; s++) { const y = 150 - s * 1.6, x = sx + Math.sin(s * 0.2) * 4 + s * 0.4; P.disc(x, y, 2 + s * 0.08, hex("#1a1012"), 0.5); }
 
+  P.layer("harbor", 0.6);
   // the harbor
   P.rect(0, 172, P.w, 10, hex("#1c1014"));
   water(P, 180, 228, { deep: "#1a0610", mid: "#3a0e18", light: "#8a2a24", foam: "#ffb38a", seed: 3, reflect: "#ff7a1a", reflectX: 240, reflectW: 12 });
@@ -34,6 +38,7 @@ export function paint(P, { R, K, S }) {
     P.poly([[x + 1, y - 24 * s], [x + 7 * s, y - 20 * s], [x + 1, y - 14 * s]], hex("#e0b84a"));
     flag(P, x, y - 26 * s, hex("#e0b84a"), R);
   }
+  P.layer("shore", 1);
   // the shore before the gate
   const shore = (x) => 230 + K.fbm1(x * 0.03, 6) * 6;
   ridge(P, shore, groundTex(["#5a3a3e", "#3a2228", "#2c1a20", "#20121a", "#160c12"], { seed: 4, depth: 40 }));
@@ -43,6 +48,7 @@ export function paint(P, { R, K, S }) {
     const [l, t] = stand(P, f, x, y); rimLight(P, f, l, t, "#ffb347", 1);
   }
   P.glow(232, 232, 12, hex("#67e8f9"), 0.6, 2);
+  P.layer("weather", 1.2, { skip: true });   // live HD particles replace the baked ones
   sparks(P, R, 140, { colors: ["#ffb347", "#ff3b3b", "#ffe08a"], glowK: 0.25 });
   P.vignette([10, 0, 4], 0.6, 0.58);
 }

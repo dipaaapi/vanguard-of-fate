@@ -4,6 +4,7 @@
 export async function paint(P, { R, K, S }) {
   const { hex, eclipse, clouds, ridgeFn, ridge, fogBand, oak, stars, mixC, dith, fbm, clamp, groundTex, stand, rimLight } = K;
 
+  P.layer("sky", 0);
   // Sky: azure on the left giving way to amethyst and black under the eclipse
   const skyStops = [[0, hex("#8cc0ec")], [0.3, hex("#5f7cc8")], [0.55, hex("#5b3e9a")], [0.78, hex("#2c1650")], [1, hex("#0d0618")]];
   for (let y = 0; y < 160; y++)
@@ -14,16 +15,19 @@ export async function paint(P, { R, K, S }) {
   clouds(P, { y0: 6, y1: 66, cover: 0.56, seed: 11, colors: ["#24123f", "#432670", "#7f5bbd"], stretch: 3.5 });
   clouds(P, { y0: 70, y1: 118, cover: 0.6, seed: 4, colors: ["#4a4486", "#7479be", "#c3cdf0"], stretch: 4.5 });
 
+  P.layer("far", 0.2);
   // Far mountains, then rolling hills with the citadel
   const far = ridgeFn({ base: 134, amp: 40, freq: 0.011, seed: 3, sharp: 0.55 });
   ridge(P, far, "#4a4a8c", { light: "#9097d8", snow: "#dfe5fa", snowLine: 110 });
   fogBand(P, 136, 6, "#9aa2d8", 0.5, 2);
+  P.layer("hills", 0.45);
   const mid = ridgeFn({ base: 156, amp: 18, freq: 0.008, seed: 21 });
   ridge(P, mid, groundTex(["#9bc46a", "#6fa452", "#5a8f48", "#4a7a40", "#3d6838"], { seed: 3, depth: 40, strokes: false }));
   const hillTop = (x) => mid(x) - Math.max(0, 22 - Math.abs(x - 132) * 0.28);
   ridge(P, hillTop, groundTex(["#a9d074", "#7cb257", "#64994b", "#527f42", "#466f3b"], { seed: 8, depth: 30, strokes: false }));
   P.blit(await S.zone("castle", 0, 210), 132 - 56, hillTop(132) + 2 - 74, { scale: 0.35 });
 
+  P.layer("valley", 0.7);
   // Valley floor: green on the left, blighted to grey-violet toward the eclipse
   const valley = (x) => 166 + K.fbm1(x * 0.02, 8) * 3;
   const green = groundTex(["#a7cc6a", "#7fae4e", "#5f9440", "#4a7a37", "#3a6232"], { seed: 5, depth: 70 });
@@ -65,6 +69,7 @@ export async function paint(P, { R, K, S }) {
     P.set(ex, ey, hex(c)); P.set(ex + 4, ey, hex(c));
   }
 
+  P.layer("ridge", 1);
   // Foreground ridge (in shadow) with the King and the Crown Heir looking out
   const fore = (x) => 226 + Math.sin(x * 0.012) * 6 - Math.max(0, 16 - Math.abs(x - 300) * 0.12) + K.fbm1(x * 0.05, 2) * 4;
   ridge(P, fore, groundTex(["#5a6a7a", "#2c3a45", "#24303a", "#1b242d", "#141b22"], { seed: 12, depth: 30 }));

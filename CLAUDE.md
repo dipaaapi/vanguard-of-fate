@@ -33,6 +33,7 @@ No backend and no build step: the game is static files. State persists in `local
 - `node .claude/skills/playtest/perf.mjs [--areas hub,ash] [--viewport 2560x1440] [--profile]` — frame rate and per-frame JS time in each scene with a 4× slower CPU; run it before and after anything that draws more.
 - `/security-audit` — audit save import, localStorage loading, innerHTML use, page config and the dev server.
 - `node tools/art/render.mjs [keys…] [--list] [--preview]` — re-render the procedural art (headless Chromium; exact key or prefix, e.g. `act-3`, `portrait-`).
+- `node tools/cinema/preview.mjs pro:<shot>@<0..1> | act:<n|all>@<frame> [--sheet] [--w 1280]` — render cinematic frames headless to `/tmp/vof-cinema/` (re-render a set first with `node tools/art/render.mjs cine-act-3` / `cine-pro-`).
 - `node tools/aseprite/export.mjs [kind/key…]` — export `aseprite/**/*.aseprite` with `aseprite -b` to `assets/sprites/` (sheet + JSON + manifest); `node tools/aseprite/seed.mjs monster/<key>` starts a file from the code art. See `aseprite/README.md`.
 - `node tools/audio/render-audio.mjs [music|jingles|sfx|<name>…] [--mp3]` — offline render of music/SFX with peak/RMS checks; run it after changing `audio.js` or `music.js`.
 - `scripts/headless.mjs` — lets any Node script `load("js/<module>.js")` with browser stubs; build new tools and tests on it instead of copying formulas.
@@ -41,7 +42,8 @@ No backend and no build step: the game is static files. State persists in `local
 
 - `index.html` — page shell; loads `js/main.js` as the only module script.
 - `js/main.js` — coordinator: scene routing (`TITLE` → prologue → `CREATE` → playing), all managers, service menus, platform travel (`travelTo`, `handlePortal`), save/load, Job Awakening, `updateGame` / `renderGameWorld`, and the fixed-step `gameLoop`.
-- Scenes: `title.js`, `prologue.js` (Act I cutscene), `creator.js` (Character Creator), `select.js`.
+- Scenes: `title.js`, `prologue.js` (Act I cutscene, text in `data/prologue.json`), `creator.js` (Character Creator), `select.js`.
+- Cinematics: `cinema/engine.js` rebuilds a layered pixel-art set (`assets/cinema/<id>/`, rendered by `tools/art` from the `cine-` keys) at HD resolution with a keyframed camera, parallax, depth of field, light maps, god rays, fog, particles (`cinema/particles.js`) and post (bloom, grade, vignette, grain, letterbox). Shots: `cinema/prologueShots.js` (prologue) and `cinema/actShots.js` (Act intros, played by `actintro.js`). A frame-time guard steps the backbuffer down on slow devices.
 - World: `stage.js` (hub plains, 1280×960) and `world/platform.js` (one Act's map) share one interface (bounds, safe zones, `resolveTile…`), so camera, enemies, NPCs and map work on both. Campaign data in `world/platforms.js`; tiles in `world/tileset.js` + `world/tilemap.js`; `world/weather.js`, `world/ambient.js`, `world/portal.js`, `world/boat.js`, `world/mining.js`.
 - Actors: `player.js`, `enemy.js` (all monster AI), `mercenaryManager.js` + `mercenary/*`, `npc/npcs.js` + `npc/roster.js`, `summons/*`, `projectiles.js`. Class kits in `classes/*` (`novice.js`, `job.js` for the post-Awakening look).
 - Rendering: `avatar/avatar.js` (modular pixel Avatar used by the hero, NPCs, mercenaries and humanoid monsters), `avatar/creature.js` + `avatar/beasts.js` (non-human sprites), `items/icons.js`, `fx.js`, `juice.js` (shared combat poses).

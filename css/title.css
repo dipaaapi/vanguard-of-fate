@@ -565,8 +565,8 @@ body[data-mode="title"] #title {
 }
 
 /* ================================================================= */
-/* PROLOGUE CUTSCENE (ACT I) — pixel canvas + subtitles              */
-/* --s = integer canvas scale (set by js/prologue.js)      */
+/* PROLOGUE CUTSCENE (ACT I) — HD cinema canvas + subtitles         */
+/* --s = CSS px per art pixel of the 16:9 frame (set by js/prologue.js) */
 /* ================================================================= */
 .prologue-modal {
   position: fixed;
@@ -596,7 +596,6 @@ body[data-mode="title"] #title {
 
 .pro-stage canvas {
   display: block;
-  image-rendering: pixelated;
 }
 
 /* Act title card (fades in and out) */
@@ -641,9 +640,9 @@ body[data-mode="title"] #title {
   position: absolute;
   left: 8%;
   right: 8%;
-  bottom: calc(var(--s) * 20px);
+  bottom: calc(var(--s) * 6px);
   padding: calc(var(--s) * 4px) calc(var(--s) * 8px);
-  background: rgba(3, 6, 17, 0.72);
+  background: linear-gradient(90deg, rgba(3, 6, 17, 0.78), rgba(3, 6, 17, 0.42));
   border-left: calc(var(--s) * 1px) solid rgba(255, 209, 102, 0.6);
   font-family: Georgia, "Times New Roman", serif;
   font-size: calc(var(--s) * 7.5px);

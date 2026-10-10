@@ -4,16 +4,19 @@
 export function paint(P, { R, K, S }) {
   const { hex, mixC, sky, clouds, ridgeFn, ridge, water, vortex, stand, rimLight, sparks, groundTex, rock } = K;
 
+  P.layer("sky", 0);
   sky(P, [[0, hex("#0b1424")], [0.45, hex("#1f3350")], [0.75, hex("#55507a")], [0.92, hex("#e08a6a")], [1, hex("#ffd29a")]], 0, 140, 3);
   clouds(P, { y0: 0, y1: 90, cover: 0.48, seed: 31, colors: ["#0d1626", "#1f2c46", "#3e4f72"], stretch: 3 });
   clouds(P, { y0: 80, y1: 130, cover: 0.56, seed: 8, colors: ["#5a4a6a", "#a3687a", "#f0a07a"], stretch: 6 });
   // lightning
   let lx = 92, ly = 0;
   while (ly < 112) { const nx = lx + R.range(-6, 6), ny = ly + R.range(5, 11); P.line(lx, ly, nx, ny, hex("#f0f9ff")); P.glow(lx, ly, 6, hex("#93c5fd"), 0.3, 2); lx = nx; ly = ny; }
+  P.layer("cliffs", 0.2);
   // distant sea cliffs
   const cl = ridgeFn({ base: 136, amp: 40, freq: 0.03, seed: 6, sharp: 0.7 });
   ridge(P, (x) => (x < 110 ? cl(x) : 140), "#283650", { light: "#3c4c6c" });
 
+  P.layer("sea", 0.5);
   // the sea
   water(P, 138, P.h, { deep: "#0a1f36", mid: "#12416a", light: "#3a86b8", foam: "#d9f0ff", seed: 9, reflect: "#f0a07a", reflectX: 330, reflectW: 18 });
   // maelstrom
@@ -28,6 +31,7 @@ export function paint(P, { R, K, S }) {
   for (let i = 0; i < 6; i++) { const x = 290 + i * 12, y = 188 + Math.sin(i) * 3; P.ellipse(x, y, 6, 3, hex("#1b2a4a")); P.ellipse(x, y - 1, 5, 1.5, hex("#2e4670")); P.set(x, y - 2, hex("#5eead4")); }
   sparks(P, R, 120, { x0: 120, x1: 380, y0: 150, y1: 210, colors: ["#d9f0ff", "#ffffff"], glowK: 0 });
 
+  P.layer("cliff", 1);
   // foreground cliff with the pair
   const fc = (x) => (x > 330 ? 210 - (x - 330) * 0.35 + K.fbm1(x * 0.06, 3) * 8 : 400);
   ridge(P, fc, groundTex(["#7a8a7a", "#4a5560", "#363f4a", "#283039", "#1c222a"], { seed: 3, depth: 50, strokes: false }));
@@ -39,6 +43,7 @@ export function paint(P, { R, K, S }) {
   rimLight(P, hero, l, t, "#ffd29a", 1);
   [l, t] = stand(P, heir, 420, Math.round(fc(420)) + 1, { flip: true });
   rimLight(P, heir, l, t, "#ffd29a", 1);
+  P.layer("weather", 1.2, { skip: true });   // live HD particles replace the baked ones
   // rain
   for (let i = 0; i < 500; i++) { const x = R.range(0, P.w), y = R.range(0, P.h); P.line(x, y, x - 2, y + 5, hex("#9fb8d8"), 0.35); }
   P.vignette([2, 6, 14], 0.55, 0.6);
