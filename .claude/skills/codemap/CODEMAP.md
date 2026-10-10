@@ -11,6 +11,7 @@ then `outline <file>` and read only the line range you need.
 - `devtools.css` (4.5 KB, 87) — Developer tools panel styles (F9, ?dev)
 - `dialog.css` (23 KB, 490) — Dialogue box, quest tracker/log, service menu and panel overlays; --s = integer canvas scale set by main.js fitCanvas
 - `gamepad.css` (3.3 KB, 63) — (no purpose yet)
+- `hud.css` (7.3 KB, 184) — (no purpose yet)
 - `regression.css` (1.7 KB, 45) — End-of-Book-I Regression modal styles
 - `style.css` (18 KB, 605) — Global page layout, pixelated canvas, side panel, bottom bar / adventure log tray
 - `title.css` (19 KB, 688) — Title screen, options, Chronicles reader and credits; defines --gold/--sky/--ink colour variables
@@ -23,15 +24,16 @@ then `outline <file>` and read only the line range you need.
 - `loading_tips.json` (2.1 KB, 16) — Portal loading screen wording and EN/FIL lore tips (js/loading.js)
 - `market.json` (1.6 KB, 22) — Market (B) stock and EN/FIL wording
 - `npc_conversations.json` (37 KB, 692) — NPC ambient chatter: solo lines per NPC and two-NPC exchanges, each line with en/fil text (fetched by npc/npcs.js)
+- `party.json` (5.6 KB, 87) — Recruitment talk (offer / progress / join) for the five playable NPCs and the party HUD/toast wording, EN/FIL
 
 ## (root)
 
-- `index.html` (12 KB, 251) — Page shell: canvas #gameCanvas inside #stage/#viewport, title/codex-scene/dialog overlays, bottom bar, save file input, Google Fonts; loads js/main.js as a module
+- `index.html` (12 KB, 254) — Page shell: canvas #gameCanvas inside #stage/#viewport, title/codex-scene/dialog overlays, bottom bar, save file input, Google Fonts; loads js/main.js as a module
 
 ## js/
 
 - `actintro.js` (7.4 KB, 195) — Act intro cinematic (ActIntro): when the story reaches a new Act, the Act banner pushes in behind letterbox bars with motes and a light sweep, then the Act number, title and the banner's EN/FIL caption from data/art_manifest.json; skippable · ActIntro
-- `actionpanel.js` (20 KB, 472) — Hotbar on the bottom tray (J/K/L skill slots with drag-and-drop arranging and the skill book (P), Space/E, quick slots 1–4, Market B and Full Screen F) and the right panel's option buttons · ActionPanel
+- `actionpanel.js` (21 KB, 479) — Hotbar on the bottom tray (J/K/L skill slots with drag-and-drop arranging and the skill book (P), Space/E, quick slots 1–4, Market B and Full Screen F) and the right panel's option buttons · ActionPanel
 - `actreader.js` (5.0 KB, 146) — "Read more" Act reader: full text of finished Acts from LORE.md with their banners · ActReader
 - `audio.js` (31 KB, 661) — Procedural Web Audio engine (exported Sound): master/music/SFX buses with compressor and reverb, synth instruments, a lookahead sequencer that crossfades the tracks in js/music.js by place/night/boss (setScene), fanfares (playJingle) and 30+ play* SFX that fade by distance and mute off screen · Sound
 - `background.js` (0.9 KB, 25) — Background image helpers for assets/bg/: loadImage and cover-fit drawCover · loadImage, drawCover
@@ -45,42 +47,45 @@ then `outline <file>` and read only the line range you need.
 - `daynight.js` (3.8 KB, 109) — Day/night cycle (6-minute day): phases, night tint and night monster behaviour · DayNight
 - `devtools.js` (26 KB, 522) — Developer tools panel (?dev, F9): cheats (level, gold, items, god mode, travel, spawns), save inspection/import/export, live hero stats · devEnabled, validateSave, DevTools
 - `dialog.js` (7.1 KB, 228) — HTML dialogue box with speaker portrait, quest tracker HUD and quest log overlays · DialogBox, QuestHud
-- `dialogue.js` (34 KB, 514) — Story dialogue for Acts II–VI per NPC and quest step (en/fil); getDialogue(id, ctx), npcName · npcName, getDialogue
+- `dialogue.js` (35 KB, 517) — Story dialogue for Acts II–VI per NPC and quest step (en/fil); getDialogue(id, ctx), npcName · npcName, getDialogue
 - `elements.js` (4.9 KB, 104) — Race, element, size and type tables with damage multipliers and variant prefixes (Ragnarok style), en/fil names · ELEMENTS, elementMult, raceBonus, sizeMod, rollVariant, variantPrefix, elementName, raceName +1
 - `enemy.js` (58 KB, 1239) — Enemy manager: monster spawning (hub, platforms, frontiers, elites, night, ambushes, bosses), AI state machines, telegraphed attacks, boss move styles (drift/blink, charge, chained) and skills (tear rain, wail cone, bone lances, chain sweep/grab, shockwave rings) with Aseprite effects, tiers/elements, death and drops · HUB_KINDS, HUB_ELITES, EnemyManager
 - `errand.js` (8.9 KB, 212) — Summon errands: the familiar/Falcon/Guardian Angel carries a 9-slot pack to market from the field (sell non-quest items, buy potions and herbs), is out of combat until back; ErrandPack order, dispatch, updateErrand, save/load · errandReady, errandConfig, errandText, runnerName, errandBuyPrice, runnerFor, hasRunnerKind, awayRunner +7
 - `fx.js` (15 KB, 482) — Game feel: screen shake, hit-stop, shockwave rings, sparks, blood, damage numbers, flashes, vignette · FXManager
 - `fxsprites.js` (2.1 KB, 53) — Effect sprites from Aseprite (assets/sprites/fx/<name>, "down-play" tag): drawFx with rotation, size, anchor, alpha and cached tints; false when not loaded so callers keep their code-drawn effect · fxFrames, drawFx
-- `gamepad.js` (14 KB, 312) — (no purpose yet) · PAD_ACTIONS, GamepadInput
-- `hudbar.js` (5.0 KB, 110) — Bottom bar HUD outside the canvas: name, level, HP/EXP/gold, status icons, quest objective, field state, Quest/Pause buttons · HudBar
-- `i18n.js` (26 KB, 546) — UI strings in English and Filipino (STRINGS.en / STRINGS.fil), language stored in localStorage; t(key), getLang/setLang/toggleLang/onLangChange · getLang, setLang, toggleLang, onLangChange, t
+- `gamepad.js` (14 KB, 317) — (no purpose yet) · PAD_ACTIONS, GamepadInput
+- `hudbar.js` (5.1 KB, 110) — Hero card over the top-right of the game screen (name and role of the member on the field, level, HP/stamina/EXP, status icons) plus the side panel's field state and Quest/Pause buttons · HudBar
+- `i18n.js` (29 KB, 622) — UI strings in English and Filipino (STRINGS.en / STRINGS.fil), language stored in localStorage; t(key), getLang/setLang/toggleLang/onLangChange · getLang, setLang, toggleLang, onLangChange, t
 - `inventory.js` (32 KB, 631) — Inventory panel (I): hero look, worn equipment, stats, tabbed bag, item details and actions (equip, upgrade, refine, sockets) · InventoryPanel
 - `juice.js` (4.0 KB, 99) — Shared combat animation helpers for every fighter: rest/hit/attack/windup/breath/spawn poses, swing arcs · REST, hitPose, attackPose, windupPose, breathPose, spawnPose, mix, around +1
+- `keybinds.js` (3.7 KB, 79) — Rebindable keyboard controls (vanguard_keys): next party member, party member 1–6, full screen; matches / actionOf / bindFrom / label · KEY_ACTIONS, Keybinds
 - `loading.js` (3.7 KB, 111) — Portal loading screen: rotating ring, ENTERING <place>, lore tip (data/loading_tips.json), progress bar; runs the travel work behind it · LoadingScreen
 - `loot.js` (11 KB, 279) — Loot drops: gold and items from slain monsters, ground items, magnetic pickup into the bag; blocked drops slide to the nearest walkable tile (findNearestWalkableSpot) · findNearestWalkableSpot, LootManager
 - `lore.js` (8.0 KB, 245) — Loads LORE.md / LORE_FIL.md, parses ## Acts into chapters, act banners, auto-scrolling lore panel · loadLore, parseChapters, actNumber, chapterKey, BANNER_EXTS, bannerSrc, createLorePanel
-- `main.js` (101 KB, 2340) — Entry module and coordinator: canvas fit, scene routing (title → codex scene (creator) → prologue → game), managers, menus/shops, platform travel, save/load/export/import, Job Awakening, update + render game loop
+- `main.js` (105 KB, 2413) — Entry module and coordinator: canvas fit, scene routing (title → codex scene (creator) → prologue → game), managers, menus/shops, platform travel, save/load/export/import, Job Awakening, update + render game loop
 - `market.js` (13 KB, 317) — Market (B): buy and sell with a quantity slider per row (prices from items/economy.js via ctx) inside a sanctuary; outside one the same overlay builds and sends a summon errand (errand.js) · sellPrice, Market, marketText
 - `mercenaryManager.js` (15 KB, 392) — Hireable mercenaries: contracts and fees, following, AI combat, daze and recovery, drawing · MERC_CLASSES, MercenaryManager
 - `monsterTiers.js` (6.5 KB, 138) — Monster tiers (Normal, Champion, Elite, MVP) and modifiers: rolling, applying, damage multipliers, names, life bars (lives per level and tier) · MODS, modName, TIERS, rollTier, applyTier, tierName, has, MAX_LIVES +10
 - `music.js` (15 KB, 314) — Music score as data: note/chord helpers, bass/arp/pad pattern styles, compileTrack, TRACKS (title, hub, night, canopy, coast, frost, ash, siege, maw, boss, finale), AREA_TRACK (platform id → track) and JINGLES · midi, freq, chord, compileTrack, TRACKS, AREA_TRACK, JINGLES
 - `padnav.js` (3.4 KB, 92) — (no purpose yet) · PanelNav
-- `playables.js` (7.9 KB, 110) — (no purpose yet) · PLAYABLES, PLAYABLE_IDS, makePlayableKit, PlayableQuestBook
-- `player.js` (26 KB, 639) — Player entity: stats, stamina/sprint/dodge roll, damage and debuffs, EXP/levels, skill learning, movement, attack pose, drawing · expFor, Player
+- `party.js` (8.5 KB, 204) — Party of the hero + recruited playable NPCs (up to 6): who is on the field, per-member HP, switching (player.active kit), next member steps in on a fall, sanctuary recovery, recruitment talk and trial progress (PlayableQuestBook), Eirene's consoles; text from data/party.json · PARTY_MAX, partyText, memberName, Party
+- `partyhud.js` (4.8 KB, 110) — Party list under the hero card (switch key, head, name, HP; the member on the field lit) and the hero card's portrait head, drawn from each member's Avatar portrait · PartyHud, roleOf
+- `playables.js` (7.9 KB, 110) — Playable NPC recruits: PLAYABLES (region, role, skills, trial requirements), makePlayableKit (combat kit per recruit), PlayableQuestBook (trial state) · PLAYABLES, PLAYABLE_IDS, makePlayableKit, PlayableQuestBook
+- `player.js` (26 KB, 643) — Player entity: stats, stamina/sprint/dodge roll, damage and debuffs, EXP/levels, skill learning, movement, attack pose, drawing · expFor, Player
 - `projectiles.js` (15 KB, 381) — Player/mercenary projectiles and skill effects (meteor, thunder, arrows, ki spheres, dropkick) and their hit detection · ProjectileManager
 - `prologue.js` (40 KB, 865) — Act I animated pixel-art cutscene (480×270) explaining how the hero reached Aethelgard · PrologueScene
 - `quest.js` (19 KB, 432) — Main quest (Book I, Acts II–XV): steps with act, place, characters, objectives; QuestManager progress, side-quest gate, Book titles; mentor per class; save migration (v1/v2 → v3) · FINAL_STEP, MENTOR_BY_CLASS, bookText, qt, QuestManager
 - `regression.js` (6.6 KB, 139) — Regression (New Game+): difficulties Easy→Mythical (+20% monster HP/damage each), saved record of cleared difficulties and learned jobs, end-of-Book-I modal (Continue / save+download / Regress) · DIFFICULTIES, regression, resetRegression, serializeRegression, loadRegression, difficulty, difficultyName, enemyMult +4
 - `saveSecurity.js` (10 KB, 261) — Save format .vof: checksum/HMAC-style signing, XOR obfuscation, sanity audit of gold/stats/items/level, legacy .json migration; exposed as window.SaveSecurity
 - `services.js` (3.1 KB, 95) — NPC service menu: short choice list (mouse, 1–9, arrows + Enter) shown after talking to a service NPC · ServiceMenu
-- `settings.js` (9.5 KB, 234) — Settings shared by the title Options and the in-game Settings panel (O): SETTINGS list (volumes, FPS limit, brightness, shadows, glow, quality…), load/normalize/save vanguard_config, stepSetting, GFX drawing flags, glowAt cached additive halo, toggleFullscreen, SettingsPanel overlay · CONFIG_KEY, SETTINGS, settingLabel, settingValue, normalizeConfig, loadConfig, saveConfig, stepSetting +4
+- `settings.js` (11 KB, 265) — Settings shared by the title Options and the in-game Settings panel (O): SETTINGS list (volumes, FPS limit, brightness, shadows, glow, quality…), load/normalize/save vanguard_config, stepSetting, GFX drawing flags, glowAt cached additive halo, toggleFullscreen, SettingsPanel overlay · CONFIG_KEY, SETTINGS, settingLabel, settingValue, normalizeConfig, loadConfig, saveConfig, stepSetting +4
 - `sidequest.js` (10 KB, 246) — Book I side quests: 5–10 seeded per Act (hunt, trophy, elite, scout, cull, champion, sky) that gate the main quest; en/fil text, rewards, scouting-site cairns · st, SideQuests, drawSites
 - `skillpaths.js` (15 KB, 243) — Might (STR) / Finesse (DEX) / Arcana (INT) skill paths: passive and active nodes, play-style affinity (noteStyle/styleOf), resonance, T/Y/U skill slots (assignSlot, castActive, tickActives) for the hotbar · PATH_IDS, PATHS, RESONANCE, SLOT_KEYS, SKILL_DRAG_TYPE, PATH_TREES, PATH_TREE_IDS, activeSkill +9
 - `skills.js` (18 KB, 231) — Stat builder rules and skill trees per class (Ragnarok style): stat costs/caps, skill definitions and bonuses, learn rules (level, style, own summon), resonance, auto stat path (autoAllocate), en/fil text · STATS, PRIMARY, STAT_INFO, statCost, STAT_MAX, TREES, skillText, treesFor +10
 - `skillslots.js` (1.8 KB, 54) — Hotbar skill slots J/K/L: which ability sits in each slot (drag and drop), logical() maps a pressed key to its slot's ability for the controller and main.js, saved as skillKeys; ActionPanel.addSlotGroup adds more slot groups (e.g. path actives) · SLOT_KEYS, ABILITIES, SkillSlots
 - `stage.js` (4.8 KB, 126) — Hub map of the Aethelgard plains (Acts I–VI): grassland, Barracks, Citadel, 4 Warp Gateways, safe zones; same interface as world/platform.js · Stage
 - `status.js` (3.4 KB, 68) — Abnormal statuses (Seven Anomaly Blights: bleed, silence, poison, shock, burn, freeze, blind): effects, resist chance, ticking · STATUS, STATUS_KEYS, statusName, resistChance, tickStatuses, blocksRegen
-- `title.js` (30 KB, 788) — Title screen scene: menu, options (music/sfx/blood/weather/language), Chronicles, credits, save slot info; canvas draws embers and sword glow · TitleScene
+- `title.js` (30 KB, 790) — Title screen scene: menu, options (music/sfx/blood/weather/language), Chronicles, credits, save slot info; canvas draws embers and sword glow · TitleScene
 - `ui.js` (20 KB, 463) — In-canvas UI: terrain minimap with objective/compass/place name (drawn in the right panel's World Map box), overhead cooldown bar, and the framed pause, Apothecary shop, Mercenary Guild and game over panels (EN/FIL via t()) · UIManager
 - `uiframe.js` (4.3 KB, 115) — Shared look for in-canvas panels: drawFrame (slate panel, gold double border, corner studs, title ribbon, open animation), drawBorder, drawBackdrop, openEase, keyChip · drawBackdrop, drawBorder, drawFrame, openEase, keyChip
 - `workshop.js` (11 KB, 216) — Workshop menu (G in a safe zone): craft sets, auto-craft toggle, cooking, transmutes; save/load of craft, meal and market · Workshop
@@ -126,12 +131,12 @@ then `outline <file>` and read only the line range you need.
 
 ## js/npc/
 
-- `npcs.js` (30 KB, 812) — NPCs in the world: spawning per place, wandering, ambient chatter (npc_conversations.json), sparring, talking · NPCManager
+- `npcs.js` (31 KB, 815) — NPCs in the world: spawning per place, wandering, ambient chatter (npc_conversations.json), sparring, talking · NPCManager
 - `roster.js` (9.4 KB, 151) — Lore characters from LORE.md: Avatar looks, places, mentor per class, summoner (Aurelia/Kenneth) · NPC_DEFS, MENTOR_OF, summonerIdFor
 
 ## js/scenes/
 
-- `codexScene.js` (28 KB, 673) — Codex scene: one entity viewer for the Character Creator, the Job Awakening and the Codex (N); Heroes/Enemies/Summons/NPCs/Items tabs, turntable, stances, dossier, lore ticker, control deck · CodexScene
+- `codexScene.js` (28 KB, 674) — Codex scene: one entity viewer for the Character Creator, the Job Awakening and the Codex (N); Heroes/Enemies/Summons/NPCs/Items tabs, turntable, stances, dossier, lore ticker, control deck · CodexScene
 
 ## js/summons/
 
@@ -220,7 +225,7 @@ then `outline <file>` and read only the line range you need.
 ## tools/aseprite/
 
 - `asefile.mjs` (12 KB, 220) — Reads and writes .aseprite files in plain Node (layers or a single layer, linked cels, tags, palette); export.mjs, seed.mjs and the painters use it when Aseprite isn't installed · writeAse, readAse
-- `export.mjs` (6.3 KB, 103) — Exports aseprite/**/*.aseprite with aseprite -b to assets/sprites/<key>.png + .json, checks tags/size against the code sprite, rewrites the manifest
+- `export.mjs` (6.8 KB, 111) — Exports aseprite/**/*.aseprite with aseprite -b to assets/sprites/<key>.png + .json, checks tags/size against the code sprite, rewrites the manifest
 - `lib.mjs` (6.7 KB, 127) — Aseprite tool helpers: find the Aseprite executable, read a creature sprite headless, write PNGs; readPng and tryAseprite for the Node fallback · ROOT, SRC_DIR, OUT_DIR, findAseprite, codeSprite, writePng, readPng, tryAseprite
 - `seed.mjs` (2.7 KB, 61) — Starts aseprite/<kind>/<key>.aseprite from a creature's code-drawn frames (one tag per direction+animation): node tools/aseprite/seed.mjs monster/slime
 
@@ -232,9 +237,10 @@ then `outline <file>` and read only the line range you need.
 - `boss.mjs` (64 KB, 1099) — Painter: Dark Continent bosses Dolora 64×72, Morgrave 96×104, Vorgath 112×112, idle/walk/run/attack/skill × 3 directions · FRAMES, BOSSES
 - `fx.mjs` (14 KB, 273) — Painter: skill and hit effects (meteor, blast, lightning, holy, sphere, slash, wave, bolt, arrow, arrowfall, bite, claw, arcane, tear, bonespike, chain, shockring); grey ones are tinted in game · FX, mix
 - `kit.mjs` (7.8 KB, 145) — Painting kit for the procedural Aseprite starting points: Canvas (lit dithered blobs, thick lines, polygons, outline, sparks), fromGame, build() → aseprite/<key>.aseprite via seed.lua · hex, mixc, Canvas, fromGame, build
-- `paint.mjs` (3.1 KB, 51) — Recreates the detailed procedural .aseprite starting points (overwrites): node tools/aseprite/paint/paint.mjs <key|all> · SUBJECTS
+- `paint.mjs` (3.4 KB, 55) — Recreates the detailed procedural .aseprite starting points (overwrites): node tools/aseprite/paint/paint.mjs <key|all> · SUBJECTS
 - `scenery.mjs` (23 KB, 430) — Scenery kit for the safe-zone painters: alpha Img canvas, flagstones, clearings, shingles, timber walls, tents, braziers, banners, crates, barrels, smoke, campfire · FRAMES, ph, rgb, mix, withA, shade, ramp, pick +25
 - `slime.mjs` (7.5 KB, 141) — Painter: detailed slime 32×24 (Forest Slime; Pocket Slime with sprout), idle/walk/run/attack/skill × 3 directions · W, FOREST, FRAMES, DURATIONS, paintSlime
+- `ui.mjs` (9.9 KB, 208) — Painter for the HD interface frames (2× pixel density): hero card, party slots, portrait, meters, key chips, side-menu panels and buttons → aseprite/ui/<key>.aseprite · UI_KEYS, UI_SLICES, paintUi, uiSubjects
 - `zones.mjs` (37 KB, 581) — Paints the safe zones as layered .aseprite files: themed Fated Vanguard camps per map, Barracks + longhouses, Imperial Citadel + dais, Emberhold · CAMP_THEMES, zoneSubjects
 
 ## tools/audio/

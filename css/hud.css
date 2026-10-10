@@ -1,0 +1,183 @@
+/* ==================== HD INTERFACE (Aseprite frames, assets/ui/) ====================
+   Frames painted at twice the game's pixel density by tools/aseprite/paint/ui.mjs (aseprite/ui/*.aseprite →
+   node tools/aseprite/export.mjs ui/<key>). Over the game screen one art pixel is half a game pixel
+   (calc(var(--s) * 0.5px)); in the side menu and tray (page pixels) one art pixel is one CSS pixel.
+   The border-image width is set apart from the border width, so a frame can be wider than its padding.
+   Slices (art pixels): hud_panel 14 · party_slot(_on) 8 · portrait 8 · bar 4 · key 4 · side_panel 10 · button(_on) 6. */
+
+#viewport {
+  --hd: calc(var(--s) * 0.5px);   /* one HD art pixel over the game screen (--s is set here by fitCanvas) */
+}
+
+/* ---------- Hero card (top right): head + name of the member on the field ---------- */
+#heroHud {
+  background: none;
+  border: calc(var(--hd) * 6) solid transparent;
+  border-image: url("../assets/ui/hud_panel.png") 14 fill / calc(var(--hd) * 14) / 0 round;
+  image-rendering: pixelated;
+  padding: calc(var(--hd) * 1);
+  width: calc(122px * var(--s));
+  filter: drop-shadow(0 calc(var(--hd) * 2) 0 rgba(0, 0, 0, 0.45));
+}
+.hb-portrait {
+  position: relative;
+  flex: 0 0 calc(var(--hd) * 56);
+  height: calc(var(--hd) * 52);
+  background: none;
+  border: calc(var(--hd) * 4) solid transparent;
+  border-image: url("../assets/ui/portrait.png") 8 fill / calc(var(--hd) * 8) / 0 stretch;
+  box-sizing: border-box;
+}
+.hb-portrait canvas {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: calc(24px * var(--s));
+  height: calc(22px * var(--s));
+  transform: translate(-50%, -50%);
+  image-rendering: pixelated;
+}
+.hb-name { font-family: "Silkscreen", "Consolas", monospace; letter-spacing: 0.02em; text-shadow: 0 1px 0 #000; }
+.hb-level { font-family: "Silkscreen", "Consolas", monospace; text-shadow: 0 1px 0 #000; }
+
+/* Meters: recessed gilt trough + lit fill strips */
+#heroHud .hb-meter {
+  background: none;
+  border: calc(var(--hd) * 2) solid transparent;
+  border-image: url("../assets/ui/bar.png") 4 fill / calc(var(--hd) * 4) / 0 stretch;
+  image-rendering: pixelated;
+  box-sizing: content-box;
+}
+#heroHud .hb-meter i, .pt-bar i {
+  background: url("../assets/ui/fill_hp.png") 0 0 / calc(var(--hd) * 2) 100% repeat-x;
+  image-rendering: pixelated;
+}
+#heroHud .hb-meter i.mid { background-image: url("../assets/ui/fill_hp_mid.png"); }
+#heroHud .hb-meter i.low { background-image: url("../assets/ui/fill_hp_low.png"); }
+#heroHud .hb-meter.st i { background-image: url("../assets/ui/fill_st.png"); }
+#heroHud .hb-meter.st.tired i { background: #7c2d12; }
+#heroHud .hb-meter.xp i { background-image: url("../assets/ui/fill_xp.png"); }
+#heroHud .hb-meter.st.tired { border-color: transparent; }
+
+/* ---------- Party list (under the hero card, Genshin-style) ---------- */
+.pt-list {
+  position: absolute;
+  top: calc(52px * var(--s));
+  right: calc(4px * var(--s));
+  display: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: calc(var(--hd) * 2);
+  pointer-events: none;
+  z-index: 5;
+  font-family: "Silkscreen", "Consolas", monospace;
+}
+body[data-mode="play"] .pt-list.on { display: flex; }
+.pt-row {
+  display: grid;
+  grid-template-columns: auto calc(16px * var(--s)) calc(48px * var(--s));
+  align-items: center;
+  gap: calc(var(--hd) * 3);
+  padding: calc(var(--hd) * 1) calc(var(--hd) * 3);
+  border: calc(var(--hd) * 4) solid transparent;
+  border-image: url("../assets/ui/party_slot.png") 8 fill / calc(var(--hd) * 8) / 0 round;
+  image-rendering: pixelated;
+  opacity: 0.9;
+  transition: transform 0.12s ease-out, opacity 0.12s;
+}
+.pt-row.on {
+  border-image-source: url("../assets/ui/party_slot_on.png");
+  opacity: 1;
+  transform: translateX(calc(-4px * var(--s)));
+}
+.pt-row.wait { opacity: 0.6; }
+.pt-row.down { opacity: 0.55; }
+.pt-row.down .pt-head { filter: grayscale(1) brightness(0.7); }
+.pt-row.down .pt-name::after { content: " ✕"; color: #f87171; }
+.pt-key {
+  min-width: calc(var(--hd) * 12);
+  padding: 0 calc(var(--hd) * 2);
+  font: bold calc(4.5px * var(--s)) / calc(6px * var(--s)) "Silkscreen", "Consolas", monospace;
+  text-align: center;
+  color: #e2e8f0;
+  border: calc(var(--hd) * 3) solid transparent;
+  border-image: url("../assets/ui/key.png") 4 fill / calc(var(--hd) * 4) / 0 stretch;
+  image-rendering: pixelated;
+}
+.pt-row.on .pt-key { color: #ffd166; }
+.pt-head {
+  width: calc(16px * var(--s));
+  height: calc(15px * var(--s));
+  image-rendering: pixelated;
+  background: radial-gradient(circle at 50% 40%, #1e4052, #0a1520 75%);
+  box-shadow: 0 0 0 calc(var(--hd) * 1) #070b16, 0 0 0 calc(var(--hd) * 2) #4f79a6;
+}
+.pt-row.on .pt-head { box-shadow: 0 0 0 calc(var(--hd) * 1) #070b16, 0 0 0 calc(var(--hd) * 2) #e9b949; }
+.pt-info { display: flex; flex-direction: column; gap: calc(var(--hd) * 2); min-width: 0; }
+.pt-name {
+  font-size: calc(4.5px * var(--s));
+  line-height: 1;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 0 #000;
+}
+.pt-row.on .pt-name { color: #fff1b8; }
+.pt-bar {
+  position: relative;
+  height: calc(var(--hd) * 4);
+  border: calc(var(--hd) * 2) solid transparent;
+  border-image: url("../assets/ui/bar.png") 4 fill / calc(var(--hd) * 4) / 0 stretch;
+  image-rendering: pixelated;
+  overflow: hidden;
+}
+.pt-bar i { position: absolute; left: 0; top: 0; bottom: 0; transition: width 0.15s; }
+.pt-row.low .pt-bar i { background-image: url("../assets/ui/fill_hp_low.png"); }
+
+/* ---------- Side menu (page pixels: one art pixel = 1 CSS px) ---------- */
+#lore {
+  border: 6px solid transparent;
+  border-image: url("../assets/ui/side_panel.png") 10 fill / 10px / 0 round;
+  background: none;
+  image-rendering: pixelated;
+}
+body[data-mode="select"] #lore { border-color: transparent; }
+body[data-mode="play"] #chatLog {
+  border: 6px solid transparent;
+  border-image: url("../assets/ui/side_panel.png") 10 fill / 10px / 0 round;
+  background: none;
+  box-shadow: none;
+  image-rendering: pixelated;
+}
+.sa-btn, .sa-belt {
+  background: none;
+  border: 2px solid transparent;   /* the 6px frame overlaps the padding, so labels keep their width */
+  border-image: url("../assets/ui/button.png") 6 fill / 6px / 0 stretch;
+  image-rendering: pixelated;
+}
+.sa-btn:hover, .sa-belt:hover, .sa-btn.held, .sa-btn:active, .sa-btn.skill.ready {
+  border-color: transparent;
+  border-image-source: url("../assets/ui/button_on.png");
+  box-shadow: none;
+}
+.sa-btn.option.on { background: none; border-image-source: url("../assets/ui/button_on.png"); color: #ffd166; }
+.sa-btn.option.on kbd { color: #ffd166; border-color: #8a6d2a; background: #0b1120; }
+.sa-btn kbd, .sm-head kbd {
+  border: 3px solid transparent;
+  border-image: url("../assets/ui/key.png") 4 fill / 4px / 0 stretch;
+  background: none;
+  image-rendering: pixelated;
+  font-family: "Silkscreen", "Consolas", monospace;
+  font-weight: normal;
+  padding: 0 2px;
+}
+
+/* ---------- In-game overlays: the same gilt panel as the hero card ---------- */
+#settings, #market {
+  background: rgba(7, 12, 22, 0.96) padding-box;   /* solid behind long text; the frame draws the edge */
+  border: calc(var(--hd) * 8) solid transparent;
+  border-image: url("../assets/ui/hud_panel.png") 14 / calc(var(--hd) * 14) / 0 round;
+  image-rendering: pixelated;
+}
+.set-val.key { font-family: "Silkscreen", "Consolas", monospace; color: #a5f3fc; }
+.set-row.wait .set-val { color: #fde68a; animation: hb-tired 0.8s ease-in-out infinite; }

@@ -16,6 +16,7 @@ import { loadLore, parseChapters } from "../lore.js";
 import { TurntablePedestal, HEADINGS } from "../ui/turntablePedestal.js";
 import { LoreTicker } from "../ui/loreTicker.js";
 import { toggleFullscreen } from "../settings.js";
+import { Keybinds } from "../keybinds.js";
 
 // ==================== CODEX SCENE ====================
 // One entity viewer for three jobs:
@@ -572,7 +573,7 @@ export class CodexScene {
     } else if (c === "KeyV" && !e.repeat) this.setStance(this.stance === 0 ? 1 : 0);
     else if ((c === "Digit1" || c === "Digit2" || c === "Digit3") && !e.repeat) this.setStance(Number(c.slice(5)) - 1);
     else if (c === "KeyH" && !e.repeat) this.toggleClean();
-    else if (c === "KeyF" && !e.repeat) this.toggleFullscreen();
+    else if (Keybinds.matches("fullscreen", e) && !e.repeat) this.toggleFullscreen();
     else if (c === "KeyR" && !e.repeat && this.mode === "create") this.randomize();
     else if ((c === "Enter" || c === "Space") && !e.repeat) {
       e.preventDefault();

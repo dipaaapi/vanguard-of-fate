@@ -13,7 +13,7 @@ export class HudBar {
   constructor({ onQuest, onPause } = {}) {
     const $ = (id) => document.getElementById(id);
     this.el = {
-      initial: $("hbInitial"), name: $("hbName"), cls: $("hbClass"), level: $("hbLevel"),
+      name: $("hbName"), cls: $("hbClass"), level: $("hbLevel"),
       hp: $("hbHp"), hpTrail: $("hbHpTrail"), hpText: $("hbHpText"), xp: $("hbXp"), xpText: $("hbXpText"), gold: $("hbGold"),
       st: $("hbSt"), stBox: $("hbStBox"), status: $("hbStatus"),
       foesK: $("hbFoesK"), foes: $("hbFoes"), lootK: $("hbLootK"), loot: $("hbLoot"),
@@ -60,11 +60,11 @@ export class HudBar {
     const p = s.player;
     if (!p) return;
     const e = this.el;
-    const displayName = (p.heroName || p.heroData.name || "").toUpperCase();
-    this.set("initial", e.initial, (displayName[0] || "?"));
+    // The member on the field: the hero, or a playable NPC switched in (head drawn by js/partyhud.js)
+    const displayName = (p.activeName || p.heroName || p.heroData.name || "").toUpperCase();
     this.set("name", e.name, displayName);
-    // A Novice's heroData.name is the hero's own name, so show the class instead
-    const cls = p.heroData.id === "novice" ? "Novice" : p.heroData.name;
+    // A Novice's heroData.name is the hero's own name, so show the class instead; a recruit shows their role
+    const cls = s.role || (p.heroData.id === "novice" ? "Novice" : p.heroData.name);
     this.set("cls", e.cls, s.difficulty ? `${cls} · ${s.difficulty}` : cls);   // Regression difficulty (above Easy)
     this.set("level", e.level, `LV.${p.level}`);
 

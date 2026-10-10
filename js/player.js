@@ -24,6 +24,7 @@ export class Player {
     this.x = x;
     this.y = y;
     this.heroData = heroData;
+    this.active = null;   // a playable NPC's combat kit while one is switched in (js/party.js); see get kit()
 
     this.level = 1;
     this.exp = 0;
@@ -146,6 +147,9 @@ export class Player {
   }
 
   // Total STR/AGI/… = base + equipment (affixes, cards) + skills
+  // The combat kit on the field: the hero's class, or a playable NPC's while one is switched in (js/party.js)
+  get kit() { return this.active || this.heroData; }
+
   totalStat(k) {
     return (this.stats[k] || 1) + (this.gearStats ? this.gearStats[k] || 0 : 0) + (this.sk[k] || 0);
   }
@@ -356,7 +360,7 @@ export class Player {
     if (this.hp <= 0) return;
     if (this.meal && --this.meal.t <= 0) { this.meal = null; this.recalc(); }   // the meal wears off
     // Only target within the class's reach (e.g. arrows 220px, dagger 60px); beyond that, straight ahead
-    const range = (this.heroData && this.heroData.range) || 200;
+    const range = (this.kit && this.kit.range) || 200;
     if (closestEnemy && Math.hypot(closestEnemy.x - this.x, closestEnemy.y - this.y) > range) closestEnemy = null;
     this.target = closestEnemy;
 
@@ -391,8 +395,8 @@ export class Player {
     // Archer reload: counted down by the class kit (js/classes/archer.js onUpdate); here only the pose
     if (this.isReloading && this.reloadTimer <= 1) this.state = "idle";
 
-    if (this.heroData && this.heroData.onUpdate) {
-      this.heroData.onUpdate(this);
+    if (this.kit && this.kit.onUpdate) {
+      this.kit.onUpdate(this);
     }
 
     const isPressed = (code) => {
@@ -463,10 +467,10 @@ export class Player {
     }
 
     // Key J (Attack / Reload)
-    const caster = this.heroData.id === "mage" || this.heroData.id === "priest";
+    const caster = this.kit.id === "mage" || this.kit.id === "priest";
     if (isPressed("KeyJ") && this.attackCooldownTimer <= 0 && !isInSafeZone && !this.paralyzed && !(caster && this.debuffs.silence > 0)) {
-      if (this.heroData && this.heroData.onAttack) {
-        const ok = this.heroData.onAttack(this, closestEnemy, spawnProjectile);
+      if (this.kit && this.kit.onAttack) {
+        const ok = this.kit.onAttack(this, closestEnemy, spawnProjectile);
         if (ok !== false) {
           if (caster) noteStyle(this, "int", 1);
           this.faceAim();
@@ -475,38 +479,38 @@ export class Player {
           this.startAttackPose(14);
           const rapid = this.buffs.atkSpeed > 0 ? 0.5 : 1.0;
           const chill = this.debuffs.freeze > 0 ? 1.5 : 1;   // Diablo: cold slows attacks
-          this.attackCooldownTimer = Math.round((this.heroData.attackCooldown || 22) * rapid * chill * (1 - this.aspd) * (1 - this.cdr * 0.5));
+          this.attackCooldownTimer = Math.round((this.kit.attackCooldown || 22) * rapid * chill * (1 - this.aspd) * (1 - this.cdr * 0.5));
         }
       }
     }
 
     // Key K (special skill: Falcon Strike for the Archer)
     if (isPressed("KeyK") && this.skillCooldownTimer <= 0 && !isInSafeZone && this.debuffs.silence <= 0 && !this.paralyzed) {
-      if (this.heroData && this.heroData.onSkill) {
-        const ok = this.heroData.onSkill(this, closestEnemy, spawnProjectile);
+      if (this.kit && this.kit.onSkill) {
+        const ok = this.kit.onSkill(this, closestEnemy, spawnProjectile);
         if (ok !== false) {
           noteStyle(this, this.rollTimer ? "dex" : "int", 1);   // the Novice's K is a dodge roll
           // Job: face the target while casting (the Novice's Dodge Roll follows the movement)
-          if (this.heroData.animMap) this.faceAim();
+          if (this.kit.animMap) this.faceAim();
           this.state = "bash";
           this.animFrame = 0;
           if (!this.rollTimer) this.startAttackPose(20);
-          this.skillCooldownTimer = Math.round((this.heroData.cooldown || 180) * Math.max(0.3, 1 - this.cdr - (this.sk.kcd || 0) / 100));
+          this.skillCooldownTimer = Math.round((this.kit.cooldown || 180) * Math.max(0.3, 1 - this.cdr - (this.sk.kcd || 0) / 100));
         }
       }
     }
 
     // Key L (the class's third skill)
     if (isPressed("KeyL") && this.skill2CooldownTimer <= 0 && !isInSafeZone && this.debuffs.silence <= 0 && !this.paralyzed) {
-      if (this.heroData && this.heroData.onSkill2) {
-        const ok = this.heroData.onSkill2(this, closestEnemy, spawnProjectile);
+      if (this.kit && this.kit.onSkill2) {
+        const ok = this.kit.onSkill2(this, closestEnemy, spawnProjectile);
         if (ok !== false) {
           this.faceAim();
           this.state = "slash";
           this.animFrame = 0;
           this.startAttackPose(18);
           noteStyle(this, "int", 1);
-          this.skill2CooldownTimer = Math.round((this.heroData.cooldown2 || 120) * Math.max(0.3, 1 - this.cdr - (this.sk.lcd || 0) / 100));
+          this.skill2CooldownTimer = Math.round((this.kit.cooldown2 || 120) * Math.max(0.3, 1 - this.cdr - (this.sk.lcd || 0) / 100));
         }
       }
     }
@@ -515,7 +519,7 @@ export class Player {
     tickActives(this, isPressed, { target: closestEnemy, spawn: spawnProjectile, fx, safe: isInSafeZone });
 
     this.animTimer++;
-    const spriteObj = this.heroData ? this.heroData.sprites : null;
+    const spriteObj = this.heroData ? this.kit.sprites : null;
     const frames = (spriteObj && spriteObj[this.state]) || (spriteObj && spriteObj.idle) || [];
 
     // Faster steps while sprinting, to match the movement speed
@@ -579,7 +583,7 @@ export class Player {
   }
 
   isMelee() {
-    return ((this.heroData && this.heroData.range) || 200) <= 60;
+    return ((this.kit && this.kit.range) || 200) <= 60;
   }
 
   // Face the attack direction (for the 4-direction Avatar)
@@ -605,9 +609,9 @@ export class Player {
     if (this.buffs.invis > 0) ctx.globalAlpha = 0.35;
 
     // Modular Avatar (Novice and every job, from the Character Creator): feet at (x+10, y+21)
-    const avatar = this.heroData && this.heroData.avatar;
+    const avatar = this.kit && this.kit.avatar;
     if (avatar) {
-      const map = { run: this.sprinting ? "run" : "walk", slash: "attack", bash: "walk", ...(this.heroData.animMap || {}) };
+      const map = { run: this.sprinting ? "run" : "walk", slash: "attack", bash: "walk", ...(this.kit.animMap || {}) };
       const anim = map[this.state] || "idle";
       const frame = anim === "idle" ? Math.floor(this.animFrame / 4) : this.animFrame;
       if (rolling) {

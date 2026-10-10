@@ -15,6 +15,7 @@ aseprite/fx/<name>.aseprite       → a skill or hit effect (one "down-play" tag
 aseprite/zone/barracks.aseprite   → the hub's Barracks Sanctuary and its two longhouses (300×296)
 aseprite/zone/castle.aseprite     → the Imperial Citadel and its audience dais (320×340; the gate portal stays code-drawn)
 aseprite/zone/<map id>.aseprite   → that map's safe zone: a Fated Vanguard camp, or Emberhold for `ash`
+aseprite/ui/<key>.aseprite        → an interface frame (css/hud.css, css/title.css): exported to assets/ui/<key>.png, one image
 ```
 
 ## Safe zones
@@ -46,6 +47,14 @@ Bosses with sheets (twice the size of their 2×-scaled code sprite, feet where t
 `boss/dolora` 64×72 (feet 32,68; she floats ~4px above them), `boss/morgrave` 96×104 (feet 48,100) and
 `boss/vorgath` 112×112 (feet 56,108), each with idle 4, walk 6, run 6, attack 4 and skill 6 frames per
 direction.
+
+## Interface frames (HD)
+
+`aseprite/ui/` holds the frames of the hero card, party list, meters, key chips and side menu, painted at twice the
+game's pixel density (one art pixel = half a game pixel over the game screen, one CSS pixel in the side menu) on three
+layers: `fill`, `frame`, `gems`. The CSS uses each one as a 9-slice `border-image`; the slice sizes are listed at the
+top of `css/hud.css`. `node tools/aseprite/paint/paint.mjs ui` repaints them from `tools/aseprite/paint/ui.mjs`
+(overwrites hand edits), and `node tools/aseprite/export.mjs ui/<key>` writes `assets/ui/<key>.png`.
 
 ## Workflow
 

@@ -1,0 +1,86 @@
+{
+  "_comment": "Recruitment talk for the playable NPCs (js/party.js). {n} = progress, {req} = goal, {place} = their home map. Every line needs en and fil.",
+  "recruit": {
+    "cerynVoss": {
+      "offer": {
+        "en": ["The Crown sent me to find capable hands, Vanguard. Words are cheap in the Badlands.", "Break three of the Greyhorn Badlands' elite beasts and I will march under your banner."],
+        "fil": ["Ipinadala ako ng Korona upang humanap ng may kakayahan, Vanguard. Mura ang salita sa Badlands.", "Talunin ang tatlong elite na halimaw ng Greyhorn Badlands at sasama ako sa ilalim ng iyong bandila."]
+      },
+      "progress": {
+        "en": ["Greyhorn elites felled: {n} / {req}. The Crown keeps count, and so do I."],
+        "fil": ["Mga elite ng Greyhorn na napabagsak: {n} / {req}. Nagbibilang ang Korona, at ako rin."]
+      },
+      "join": {
+        "en": ["Proof enough. Ceryn Voss, royal envoy, reporting to your party.", "Call on me when you need an order carried out."],
+        "fil": ["Sapat na patunay. Si Ceryn Voss, sugo ng hari, sasama na sa iyong pangkat.", "Tawagin mo ako kapag may utos na kailangang tuparin."]
+      }
+    },
+    "vaelThorn": {
+      "offer": {
+        "en": ["You want a guide through the dark? Then show me you can survive it.", "Cut down three elites of the siege lines and break its commander. Then we talk."],
+        "fil": ["Gusto mo ng gabay sa dilim? Ipakita mo munang kaya mong mabuhay rito.", "Pabagsakin ang tatlong elite ng pagkubkob at talunin ang pinuno nito. Saka tayo mag-usap."]
+      },
+      "progress": {
+        "en": ["Siege elites: {n} / {req}. The commander still stands until you say otherwise."],
+        "fil": ["Mga elite ng pagkubkob: {n} / {req}. Nakatayo pa ang pinuno hangga't hindi mo siya napababagsak."]
+      },
+      "join": {
+        "en": ["You lived. Most don't. Vael Thorn walks with you now."],
+        "fil": ["Nabuhay ka. Karamihan, hindi. Kasama mo na si Vael Thorn."]
+      }
+    },
+    "nimaFen": {
+      "offer": {
+        "en": ["Hm. You smell like the city. The fens don't trust that.", "Thin the Gloomwater elites, three of them, and bring me two Mudfin Carp and two Wild Spice. A guide needs feeding."],
+        "fil": ["Hm. Amoy-lungsod ka. Hindi iyon pinagkakatiwalaan ng latian.", "Bawasan ang mga elite ng Gloomwater, tatlo sila, at dalhan ako ng dalawang Karpang Putik at dalawang Wild Spice. Kailangang pakainin ang gabay."]
+      },
+      "progress": {
+        "en": ["Gloomwater elites: {n} / {req}. And don't forget the carp and the spice."],
+        "fil": ["Mga elite ng Gloomwater: {n} / {req}. At huwag kalimutan ang karpa at ang pampalasa."]
+      },
+      "join": {
+        "en": ["Fresh carp! Fine, fine. Nima Fen is in your party. Try to keep up."],
+        "fil": ["Sariwang karpa! Sige, sige. Kasama mo na si Nima Fen. Sikapin mong makasabay."]
+      }
+    },
+    "eirene": {
+      "offer": {
+        "en": ["Visitor detected. Caretaker protocol: I may not leave while the continent's systems are failing.", "Restore the habitat, the lift and the caretaker core. Their consoles are marked on the island."],
+        "fil": ["May bisitang natukoy. Protocol ng tagapag-alaga: hindi ako maaaring umalis habang sira ang mga sistema ng kontinente.", "Ayusin ang habitat, ang lift at ang caretaker core. May marka ang kanilang mga console sa isla."]
+      },
+      "progress": {
+        "en": ["Systems restored: {n} / {req}. Walk up to a dark console to restart it."],
+        "fil": ["Mga sistemang naayos: {n} / {req}. Lumapit sa madilim na console upang buhayin ito."]
+      },
+      "join": {
+        "en": ["All systems nominal. New directive accepted: accompany the Vanguard. Eirene, joining your party."],
+        "fil": ["Maayos na ang lahat ng sistema. Tinanggap ang bagong utos: samahan ang Vanguard. Si Eirene, sasama sa iyong pangkat."]
+      }
+    },
+    "templar": {
+      "offer": {
+        "en": ["My vow binds me to the heir. But a vow that hides behind walls is no vow at all.", "Break three elites at the Obsidian siege and its commander. Then I will ride with you."],
+        "fil": ["Nakatali ang aking panata sa tagapagmana. Ngunit hindi panata ang panatang nagtatago sa likod ng pader.", "Pabagsakin ang tatlong elite sa pagkubkob ng Obsidian at ang pinuno nito. Saka ako sasama sa iyo."]
+      },
+      "progress": {
+        "en": ["Siege elites: {n} / {req}. The commander's fall will settle the rest."],
+        "fil": ["Mga elite ng pagkubkob: {n} / {req}. Ang pagbagsak ng pinuno ang tatapos sa iba."]
+      },
+      "join": {
+        "en": ["Then my lance is yours. Dame Serelle, sworn to the heir, rides with the Vanguard."],
+        "fil": ["Kung gayon, iyo ang aking sibat. Si Dame Serelle, sinumpaan ng tagapagmana, ay sasama sa Vanguard."]
+      }
+    }
+  },
+  "ui": {
+    "joined": { "en": "{name} joined your party! Switch with {key}.", "fil": "Sumama si {name} sa iyong pangkat! Lumipat gamit ang {key}." },
+    "switched": { "en": "Switched to {name}", "fil": "Lumipat kay {name}" },
+    "fell": { "en": "{name} fell! {next} steps in.", "fil": "Bumagsak si {name}! Pumalit si {next}." },
+    "down": { "en": "{name} is down. Rest in a sanctuary to revive.", "fil": "Bagsak si {name}. Magpahinga sa santuwaryo upang buhayin." },
+    "system": { "en": "System restored: {n} / {req}", "fil": "Naayos ang sistema: {n} / {req}" },
+    "progress": { "en": "{name}: {n} / {req}", "fil": "{name}: {n} / {req}" },
+    "ready": { "en": "{name} is ready to join. Talk to them.", "fil": "Handa nang sumama si {name}. Kausapin siya." },
+    "hero": { "en": "Hero", "fil": "Bayani" },
+    "fallen": { "en": "DOWN", "fil": "BAGSAK" }
+  }
+}

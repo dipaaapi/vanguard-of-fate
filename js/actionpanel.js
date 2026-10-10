@@ -1,3 +1,4 @@
+import { Keybinds } from "./keybinds.js";
 import { getLang, onLangChange } from "./i18n.js";
 import { getItem } from "./items/itemdb.js";
 import { iconURL } from "./items/icons.js";
@@ -142,6 +143,12 @@ export class ActionPanel {
     b.className = "sa-btn option";
     b.dataset.id = id;
     b.innerHTML = `<span class="sa-icon"></span><span class="sa-name"></span><kbd>${keyLabel(code)}</kbd>`;
+    // Full screen is rebindable (Settings → Controls): its chip follows the binding
+    if (id === "full") {
+      const kbd = b.querySelector("kbd"), sync = () => { kbd.textContent = Keybinds.label("fullscreen"); };
+      sync();
+      Keybinds.onChange(sync);
+    }
     b.addEventListener("mousedown", (e) => e.preventDefault());
     b.addEventListener("click", () => fn && fn());
     return b;

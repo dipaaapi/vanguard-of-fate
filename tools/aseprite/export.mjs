@@ -6,7 +6,7 @@
  *   node tools/aseprite/export.mjs                  # every file under aseprite/
  *   node tools/aseprite/export.mjs monster/slime    # only these keys
  *
- * Writes assets/sprites/<kind>/<key>.png + .json (Aseprite json-array with tags) and rewrites
+ * Writes assets/sprites/<kind>/<key>.png + .json (ui/<key> → assets/ui/<key>.png, one image for the CSS) (Aseprite json-array with tags) and rewrites
  * assets/sprites/manifest.json from what is on disk. Hidden layers are left out, so a hidden
  * reference layer is fine. Checks each sheet against the code sprite it replaces: tag names
  * ("<down|side|up>-<anim>"), animations the game plays, and canvas size (same or larger).
@@ -58,6 +58,14 @@ function exportInNode(file, png, json) {
 let problems = 0;
 for (const file of files) {
   const key = keyOf(file);
+  if (key.startsWith("ui/")) {   // interface art: one image, assets/ui/<name>.png, used by the CSS (9-slice border-image)
+    const ase = readAse(file);
+    const png = path.join(ROOT, "assets", `${key}.png`);
+    fs.mkdirSync(path.dirname(png), { recursive: true });
+    writePng(png, ase.w, ase.h, ase.frames[0].rgba);
+    console.log(`${rel(png)}  ${ase.w}×${ase.h}`);
+    continue;
+  }
   const png = path.join(OUT_DIR, `${key}.png`), json = path.join(OUT_DIR, `${key}.json`);
   fs.mkdirSync(path.dirname(png), { recursive: true });
   if (exe) execFileSync(exe, ["-b", rel(file), "--sheet", rel(png), "--data", rel(json), "--format", "json-array",

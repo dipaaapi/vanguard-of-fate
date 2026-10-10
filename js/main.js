@@ -51,6 +51,9 @@ import { loadSpriteSheets } from "./avatar/sheets.js";
 import { ActIntro } from "./actintro.js";
 import { createLorePanel } from "./lore.js";
 import { HudBar } from "./hudbar.js";
+import { Party, partyText, memberName } from "./party.js";
+import { PartyHud, roleOf } from "./partyhud.js";
+import { Keybinds } from "./keybinds.js";
 import { ActionPanel } from "./actionpanel.js";
 import { WorldMap } from "./worldmap.js";
 import { ActReader } from "./actreader.js";
@@ -218,6 +221,9 @@ const gamepad = new GamepadInput(() => {
       Boolean(stage.boatSystem && stage.boatSystem.canToggle(player)));
   } catch (_) { return false; }
 });
+// Pad buttons that aren't a keyboard key: party switch (gameplay) and full screen (bindable in the Controller guide)
+gamepad.onPad.partyNext = () => { if (gameState === "PLAYING") switchMember(-1); };
+gamepad.onPad.fullscreen = () => toggleFullscreen();
 const panelNav = new PanelNav();   // arrows / D-pad + Enter inside the Inventory and Character panels (js/padnav.js)
 onLangChange(() => gamepad.refresh());
 enemyManager.loot = lootManager;
@@ -347,6 +353,7 @@ function toggleMarket() {
   panelSound(true);
 }
 const settingsPanel = new SettingsPanel(document.getElementById("settings"), gameConfig, (key) => applyConfig(key));
+settingsPanel.onPadGuide = () => gamepad.show();   // Settings → Controls → Controller Guide
 function toggleSettings() {
   if (!player || (gameState !== "PLAYING" && gameState !== "PAUSED") || dialog.open || actReader.open) return;
   if (!settingsPanel.open) closeOverlays();
@@ -989,6 +996,7 @@ function sideQuestPoint() {
 
 // Boss defeated: pick up the quest item
 enemyManager.onBossDefeated = (e) => {
+  party.onBossDefeated(stage.id).forEach((id) => chatLog.event("info", party.progressText(id, player.bag), dayNight.label()));
   const item = stage.def && stage.def.item;
   questHud.toast(lang() === "fil" ? `Natalo si ${e.kind.name.fil}! Pulutin ang iniwan niya.` : `${e.kind.name.en} has fallen! Claim what was left behind.`);
   if (item) fx.spawnDamagePopup(e.x + 10, e.y - 40, "✦ QUEST ITEM ✦", true, "#facc15");
@@ -1004,6 +1012,7 @@ lootManager.onQuestItem = (id) => {
 // Bottom tray: EXP from the hero's kills (merged while chaining kills), or a note when an ally took the last hit
 enemyManager.onKill = (e, byPlayer, exp) => {
   codex.recordKill(e.key);
+  if (e.elite) party.onEliteKill(stage.id).forEach((id) => chatLog.event("info", party.progressText(id, player.bag), dayNight.label()));
   sideProgress(quest.side.onKill(e, stage.id));
   const fil = lang() === "fil";
   const name = enemyManager.displayName(e);
@@ -1069,6 +1078,8 @@ function talkField(npc) {
 
 let gameState = "TITLE";
 let player = null;
+let party = new Party();   // hero + recruited playable NPCs; one is on the field (js/party.js)
+const partyHud = new PartyHud();
 let showShopModal = false;
 let showMercModal = false;
 
@@ -1097,6 +1108,8 @@ function getSavePayload() {
     bonusCrit: player.bonusCrit,
     bonusCooldown: player.bonusCooldown,
     hp: player.hp,
+    party: party.serialize(player),         // members, who is on the field, each one's HP (js/party.js)
+    playables: party.book.serialize(),      // recruitment trials of the playable NPCs
     bag: player.bag.serialize(),            // bag and worn equipment
     stats: { ...player.stats },             // STR/AGI/VIT/INT/DEX/LUK
     skills: { ...player.skillLevels },
@@ -1256,6 +1269,8 @@ function loadGame() {
     Workshop.load(player, data.life);
     loadErrand(player, data.errand);
     player.hp = Math.min(player.maxHp, data.hp || player.maxHp);
+    party = new Party(data.party, data.playables);
+    party.apply(player);
     quest.load(data.quest, player);
     loadRegression(data.regression);
     if (data.earth && typeof data.earth === "object") player.earthLook = normalizeConfig(data.earth);
@@ -1299,6 +1314,7 @@ function beginPlaying() {
   dayNight.setPlace("hub");
   npcManager.build(summonerIdFor(player.avatarConfig));
   npcManager.setPlatform("hub");
+  syncPartyNpcs();
   npcManager.applyQuest(quest, playerClass());
   syncLoreAct();
   syncPlatformFlags();
@@ -1346,6 +1362,7 @@ function startAwakening() {
 // Stats and skills are reset with every point refunded, so the new job is built from scratch.
 function awaken(chosenHero) {
   const old = player;
+  party.heroOnField(old);
   // Same look from the Character Creator; the class provides the new gear
   const p = new Player(old.x, old.y, equipJob(chosenHero, old.avatarConfig));
   ["level", "exp", "expNext", "gold", "statPoints", "bonusHp", "bonusDamage",
@@ -1376,6 +1393,33 @@ function awaken(chosenHero) {
   dialog.start(npcManager.summonerId, summoner && summoner.avatar, d.lines);
 }
 
+// ==================== PARTY (playable NPCs, js/party.js) ====================
+const partyName = (id) => memberName(id, player ? player.heroName || partyText("hero") : "");
+
+// Recruited members leave their post in the world while they travel with the party
+function syncPartyNpcs() {
+  npcManager.setParty(party.members.filter((id) => id !== "hero"), party.activeId);
+}
+
+// i = member index, or -1 for the next one standing
+function switchMember(i) {
+  if (!player || party.size < 2) return;
+  const id = i < 0 ? party.next(player) : party.switchTo(i, player);
+  if (!id) return;
+  lockedTarget = null;
+  if (fx.spawnHitSparks) fx.spawnHitSparks(player.x + 10, player.y + 10, "#a5f3fc", 16);
+  if (Sound.playSelectConfirm) Sound.playSelectConfirm();
+  chatLog.event("info", partyText("switched", { name: partyName(id) }), dayNight.label());
+  syncPartyNpcs();
+}
+
+function onRecruited(id) {
+  syncPartyNpcs();
+  questHud.toast(partyText("joined", { name: partyName(id), key: Keybinds.label("partyNext") }));
+  if (Sound.playQuestComplete) Sound.playQuestComplete();
+  saveGame();
+}
+
 // Talking to an NPC (E). After the last line: quest + the NPC's service
 function talkTo(npc) {
   codex.meet(npc.id);
@@ -1388,7 +1432,11 @@ function talkTo(npc) {
     place, boss: pdef && pdef.boss, cleared: Boolean(pdef && quest.cleared(place)),
     sealsReady: quest.monolith || SEAL_STONES.every((s) => player.bag.has(s))
   });
-  dialog.start(npc.id, npc.avatar, fillNames(d.lines), () => {
+  // Playable NPCs: their recruitment trial (offer → progress → joining the party) follows their own lines
+  const trial = party.talk(npc.id, player.bag);
+  if (trial && trial.joined) onRecruited(npc.id);
+  const lines = [...fillNames(d.lines), ...(trial ? trial.lines : [])];
+  dialog.start(npc.id, npc.avatar, lines, () => {
     quest.onTalk(npc.id, npcManager.summonerId, playerClass());
     npcManager.applyQuest(quest, playerClass());
     saveGame();   // records who has been spoken to
@@ -1448,6 +1496,7 @@ const codexScene = new CodexScene(document.getElementById("codexScene"), {
     player.heroName = name;
     player.avatarConfig = player.heroData.avatarConfig;
     player.earthLook = { ...config };
+    party = new Party();
     starterKit(player);
     SkillSlots.reset();
     attachBag(player);
@@ -1596,8 +1645,15 @@ window.addEventListener("keydown", (e) => {
       toggleSettings();
       return;
     }
-    if (e.code === "KeyF" && !e.repeat) {
+    if (Keybinds.matches("fullscreen", e) && !e.repeat) {
       toggleFullscreen();
+      return;
+    }
+    // Party: next member (V) or member 1–6 (Shift+1–6), rebindable in Settings → Controls
+    const partyKey = gameState === "PLAYING" && !e.repeat ? Keybinds.actionOf(e) : null;
+    if (partyKey && partyKey !== "fullscreen") {
+      switchMember(partyKey === "partyNext" ? -1 : Number(partyKey.slice(5)) - 1);
+      e.preventDefault();
       return;
     }
     if (e.code === "KeyP" && gameState === "PLAYING" && !e.repeat) {
@@ -1752,6 +1808,15 @@ function updateGame() {
   if (player && actIntroShown === null) actIntroShown = quest.act();
   if (gameState !== "PLAYING" || !player || (devTools && devTools.open) || regressionModal.open || actIntro.open || showShopModal || showMercModal || dialog.open || serviceMenu.open || codexScene.open || questHud.logOpen || inventory.open || charPanel.open || actReader.open || worldMap.open || market.open || settingsPanel.open) return;
 
+  // The member on the field fell: the next one standing steps in; game over only when all are down
+  if (player.hp <= 0) {
+    const r = party.rescue(player);
+    if (r) {
+      questHud.toast(partyText("fell", { name: partyName(r.fallen), next: partyName(r.id) }));
+      if (fx.spawnHitSparks) fx.spawnHitSparks(player.x + 10, player.y + 10, "#e0f2fe", 18);
+      syncPartyNpcs();
+    }
+  }
   if (player.hp <= 0) {
     gameState = "GAMEOVER";
     Sound.stopGameplayBGM();
@@ -1816,6 +1881,9 @@ function updateGame() {
 
   autoPotion();
   summonerHeal();
+  party.update(player, isInBarracks);
+  const repaired = party.checkConsoles(stage, player);   // Eirene's trial: the Lost Sky Continent's consoles
+  if (repaired) { questHud.toast(repaired); if (Sound.playQuestComplete) Sound.playQuestComplete(); saveGame(); }
 
   // A summon away on a market errand doesn't fight until it's back (js/errand.js)
   updateErrand(player, {
@@ -2196,8 +2264,10 @@ function frame(now) {
       time: dayNight.label(),
       inSanctuary: stage.isInsideSafeZone(player.x, player.y),
       paused: gameState === "PAUSED",
-      difficulty: regression.level ? difficultyName() : ""
+      difficulty: regression.level ? difficultyName() : "",
+      role: party.activeId === "hero" ? "" : roleOf(party.activeId)
     });
+    partyHud.update(party, player);
     actionPanel.update({
       player,
       inSanctuary: stage.isInsideSafeZone(player.x, player.y),
@@ -2269,6 +2339,7 @@ function regress() {
   player.heroName = name;
   player.avatarConfig = player.heroData.avatarConfig;
   player.earthLook = { ...earth };
+  party = new Party();   // a new soul: the recruits' trials start over with the story
   starterKit(player);
   SkillSlots.reset();
   attachBag(player);
@@ -2302,6 +2373,7 @@ function changeJob(def) {
     return;
   }
   const old = player;
+  party.heroOnField(old);
   const p = new Player(old.x, old.y, equipJob(def, old.avatarConfig));
   ["level", "exp", "expNext", "gold", "statPoints", "bonusHp", "bonusDamage", "bonusDefense", "bonusSpeed", "bonusCrit",
     "bonusCooldown", "heroName", "avatarConfig", "earthLook", "stats", "skillLevels", "skillPoints", "belt", "autoPot", "style", "pathSlots", "autoStat"].forEach((k) => { p[k] = old[k]; });
@@ -2333,6 +2405,7 @@ const devTools = devEnabled() ? new DevTools({
 if (new URLSearchParams(location.search).has("debug")) {
   window.__vof = {
     get player() { return player; }, get stage() { return stage; }, get state() { return gameState; },
+    get party() { return party; }, talkTo, switchMember,
     quest, enemyManager, lootManager, projectileManager, mercManager, npcManager, inventory, charPanel, travelTo, warpTo, saveGame, awaken, ROSTER, dayNight, dialog,
     openShop() { showShopModal = true; }, openMerc() { showMercModal = true; }, actIntro, codexScene, regressionModal, regression, openJobChange, market, settingsPanel, actionPanel, gameConfig, SkillSlots, fishing, workshop
   };
