@@ -8,7 +8,7 @@
 - After any code change, run `node .claude/skills/codemap/codemap.mjs verify` (syntax + every import resolves). There is no bundler, so this is the cheapest way to catch the error that would otherwise only show up as a blank page.
 - At the start of a session, briefly explain what's in the project and propose what to do next.
 - Story, dialogue and EN/FIL text: use `/lore` (canon sheet + `lore-tool.mjs`) instead of reading LORE.md or the dialogue tables whole.
-- Measure, don't estimate: balance or fairness questions go through `/balance` (headless sim on the real code), new or renamed game data through `/content` (recipes + cross-check), looks through `/sprite-preview` (PNG of the real sprite), and flow/UI checks through `/playtest` (headless browser). Each tool takes seconds and replaces reading many files or asking the user to test.
+- Measure, don't estimate: balance or fairness questions go through `/balance` (headless sim on the real code), new or renamed game data through `/content` (recipes + cross-check), looks through `/sprite-preview` (PNG of the real sprite), flow/UI checks through `/playtest` (headless browser), feel and class spread in the real game loop through `/autoplay`, and visual changes through `/visual-review` (before/after screenshots of every scene). Each tool takes seconds and replaces reading many files or asking the user to test.
 - Repetitive, reusable text (NPC chatter, message wording, EN/FIL pairs, lookup tables) goes in a `.json` file under `data/` or an existing table module and is referenced by key, not hardcoded inline. Example: `data/npc_conversations.json`.
 
 ## Project overview
@@ -27,6 +27,9 @@ No backend and no build step: the game is static files. State persists in `local
 - `/content` — `node .claude/skills/content/content-check.mjs`: cross-checks monsters, bosses, platforms, items, NPCs, chatter and quest text; SKILL.md has the add-a-monster/item/NPC/platform recipes.
 - `/sprite-preview` — `node .claude/skills/sprite-preview/sprite-tool.mjs render <class:|npc:|merc:|monster:|boss:|icon:><key> [--before HEAD]`: PNG sheet of the real sprite.
 - `/playtest` — `node .claude/skills/playtest/playtest.mjs [--flow newgame] [--keys …] [--debug --keys-after …]`: headless Chromium run with console errors and screenshots.
+- `/autoplay` — `node .claude/skills/autoplay/autoplay.mjs [--class a,b] [--level n] [--area id] [--seconds n] [--immortal]`: a bot plays the real game and reports kills/min, EXP/min, lowest HP, deaths, stuck count and console errors.
+- `/visual-review` — `node .claude/skills/visual-review/review.mjs [--before <ref>] [--scenes …]`: screenshots of title, creator, hub, every platform and the main panels, as before | after | diff sheets with % changed.
+- `/game-control` — MCP servers in `.mcp.json`: `vof-game` (play step by step: start, keys, hold, state, screenshot, eval, travel, autoplay, logs) and `playwright` (@playwright/mcp for DOM overlays, serves the game on 127.0.0.1:5173). Both run headless in cloud sessions; the browser driver behind them and the tools above is `scripts/gamebrowser.mjs`.
 - `node .claude/skills/playtest/perf.mjs [--areas hub,ash] [--viewport 2560x1440] [--profile]` — frame rate and per-frame JS time in each scene with a 4× slower CPU; run it before and after anything that draws more.
 - `/security-audit` — audit save import, localStorage loading, innerHTML use, page config and the dev server.
 - `node tools/art/render.mjs [keys…] [--list] [--preview]` — re-render the procedural art (headless Chromium; exact key or prefix, e.g. `act-3`, `portrait-`).

@@ -198,7 +198,7 @@ function cmdVerify() {
     try { execFileSync(process.execPath, ['--check', path.join(ROOT, f)], { stdio: 'pipe' }); }
     catch (e) { problems++; console.log(`syntax: ${f}\n  ${String(e.stderr).trim().split('\n').slice(0, 5).join('\n  ')}`); }
   }
-  const importRe = /import\s+([\s\S]*?)\s+from\s+["'](\.{1,2}\/[^"']+)["']|import\s+["'](\.{1,2}\/[^"']+)["']/g;
+  const importRe = /import\s+([^;"']*?)\s+from\s+["'](\.{1,2}\/[^"']+)["']|import\s+["'](\.{1,2}\/[^"']+)["']/g;
   for (const f of files) {
     // Blank out comments (keeping line numbers) so example imports in them are not checked
     const text = read(path.join(ROOT, f))

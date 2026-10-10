@@ -30,6 +30,7 @@ node .claude/skills/playtest/perf.mjs --areas hub-night,ash --viewport 2560x1440
 ## Notes
 
 - Needs Playwright with a Chromium it can launch (`npm i -D playwright && npx playwright install chromium` on a new machine). Cloud sessions already have it. The page is served by Node's own `http` module on a free port.
-- Flows are plain key scripts at the top of `playtest.mjs`. When a menu changes (`js/title.js`, `js/creator.js`, `js/prologue.js`), fix the flow there.
-- Game state lives in module scope (`js/main.js`), not on `window`; read it through the DOM (`#hudText`, panels) or `localStorage.vanguard_savegame` after a save.
+- The browser driver (server, flows, key scripts, state summary, bot) is `scripts/gamebrowser.mjs`, shared with `/autoplay`, `/visual-review` and the vof-game MCP server (`/game-control`). Flows are plain key scripts at its top. When a menu changes (`js/title.js`, `js/creator.js`, `js/prologue.js`), fix the flow there.
+- Game state lives in module scope (`js/main.js`), not on `window`; with `--debug` read it through `window.__vof` (listed at the end of `js/main.js`), otherwise through the DOM or `localStorage.vanguard_savegame`.
+- Step-by-step play, with the screen and state after every move: `/game-control` (MCP). A bot that fights for N seconds: `/autoplay`. Before/after screenshots of every scene: `/visual-review`.
 - Prefer the headless tools first (`codemap verify`, `content-check`, `balance-sim`, `sprite-tool`): they take under a second. Use playtest when the change is about flow, DOM/UI, input or timing.

@@ -116,6 +116,7 @@
   "js/world/weather.js": "Hub weather cycle (clear, rain, storm, fog) with pixel-art clouds and shadows",
   "js/world/zonesprites.js": "Safe-zone art from Aseprite (zone/barracks, zone/castle, zone/<map id> camps and Emberhold): ZONE_ART placement + solid footprints, campLayout shared with the painter, drawZoneArt, zoneSolids, pushOutOf",
   "js/worldmap.js": "World map (M): zoomable/pannable region view (grid, sites, elites, route, side panel) and continent view; Tab, L, zoom and pan keys, mouse wheel",
+  "scripts/gamebrowser.mjs": "Headless-Chromium game driver shared by playtest, autoplay, visual-review and the vof-game MCP server: static server, flows, key scripts, seeded Math.random, state summary via window.__vof, setupHero, and the autoplay bot (BFS pathing over the tile grid)",
   "scripts/headless.mjs": "Headless loader: stubs document/window/localStorage/canvas so Node can import the game's modules (used by the balance, content and sprite tools); seedRandom for repeatable runs",
   "scripts/test-loot-drop.mjs": "Headless test: drops thrown into walls, water, cliffs and unreachable pockets on the hub and every platform land on walkable ground (loot.js findNearestWalkableSpot)",
   "tools/art/lib/darkBosses.js": "Hand-painted figures of the Dark Continent bosses (dolora, morgrave, vorgath) shared by the Act banners and portraits",
@@ -169,5 +170,7 @@
   "tools/aseprite/paint/slime.mjs": "Painter: detailed slime 32×24 (Forest Slime; Pocket Slime with sprout), idle/walk/run/attack/skill × 3 directions",
   "tools/aseprite/paint/zones.mjs": "Paints the safe zones as layered .aseprite files: themed Fated Vanguard camps per map, Barracks + longhouses, Imperial Citadel + dais, Emberhold",
   "tools/aseprite/seed.mjs": "Starts aseprite/<kind>/<key>.aseprite from a creature's code-drawn frames (one tag per direction+animation): node tools/aseprite/seed.mjs monster/slime",
-  "tools/audio/render-audio.mjs": "Offline renders of the music, jingles and SFX to WAV/MP3 with peak/RMS checks: node tools/audio/render-audio.mjs [music|jingles|sfx|<name>…] [--mp3] [--out dir]; exits 1 on clipping or silence"
+  "tools/audio/render-audio.mjs": "Offline renders of the music, jingles and SFX to WAV/MP3 with peak/RMS checks: node tools/audio/render-audio.mjs [music|jingles|sfx|<name>…] [--mp3] [--out dir]; exits 1 on clipping or silence",
+  "tools/mcp/playwright-mcp.mjs": "Launches the pinned @playwright/mcp server with the session's Chromium (no sandbox as root) and serves the repo on 127.0.0.1:5173",
+  "tools/mcp/vof-game-mcp.mjs": "vof-game MCP server (stdio, no deps): game_start/input/hold/state/screenshot/eval/travel/autoplay/logs/stop on the real game in headless Chromium"
 }

@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "vof-game": {
+      "command": "node",
+      "args": ["tools/mcp/vof-game-mcp.mjs"]
+    },
+    "playwright": {
+      "command": "node",
+      "args": ["tools/mcp/playwright-mcp.mjs"]
+    }
+  }
+}
