@@ -1,4 +1,5 @@
 import { t, getLang, toggleLang } from "./i18n.js";
+import { KEY_ACTIONS, Keybinds } from "./keybinds.js";
 
 // ==================== SETTINGS (vanguard_config) ====================
 // One list of settings shared by the title screen's Options and the in-game Settings panel (O).
@@ -127,8 +128,9 @@ if (typeof document !== "undefined") {
 }
 
 // ==================== IN-GAME SETTINGS PANEL (O) ====================
-// HTML overlay in #viewport; rows grouped Audio / Video / Gameplay, plus language and full screen.
-// onChange(id) is main.js's applyConfig.
+// HTML overlay in #viewport; rows grouped Audio / Video / Gameplay, plus language and full screen, and
+// Controls: the rebindable keys (js/keybinds.js: party switch, full screen) and the Controller guide.
+// onChange(id) is main.js's applyConfig; onPadGuide() opens the gamepad's guide (its own bindings).
 export class SettingsPanel {
   constructor(root, config, onChange) {
     this.root = root;
@@ -137,12 +139,15 @@ export class SettingsPanel {
     this.open = false;
     this.index = 0;
     this.rows = [];
+    this.listening = null;      // key action waiting for a key press (rebinding)
+    this.refused = false;       // the last key pressed can't be bound
+    this.onPadGuide = null;
     document.addEventListener("fullscreenchange", () => { if (this.open) this.render(); });
   }
 
   toggle() { if (this.open) this.close(); else this.show(); }
   show() { this.open = true; this.index = 0; this.root.classList.add("open"); this.render(); }
-  close() { this.open = false; this.root.classList.remove("open"); }
+  close() { this.open = false; this.listening = null; this.root.classList.remove("open"); }
 
   items() {
     const list = [];
@@ -151,12 +156,18 @@ export class SettingsPanel {
       SETTINGS.filter((s) => s.group === g).forEach((s) => list.push({ id: s.id }));
     });
     list.push({ id: "lang" }, { id: "fullscreen" });
+    list.push({ head: t("set_group_controls") });
+    KEY_ACTIONS.forEach((a) => list.push({ id: `key:${a.id}`, key: a.id }));
+    list.push({ id: "padGuide" }, { id: "keysReset" });
     return list;
   }
 
   change(id, dir, wrap = false) {
     if (id === "lang") { toggleLang(); this.render(); return; }
     if (id === "fullscreen") { toggleFullscreen(); return; }
+    if (id.startsWith("key:")) { this.listening = id.slice(4); this.refused = false; this.render(); return; }
+    if (id === "padGuide") { if (this.onPadGuide) this.onPadGuide(); return; }
+    if (id === "keysReset") { Keybinds.reset(); this.render(); return; }
     if (stepSetting(this.config, id, dir, wrap) && this.onChange) this.onChange(id);
     this.render();
   }
@@ -192,6 +203,15 @@ export class SettingsPanel {
       } else if (it.id === "fullscreen") {
         name.textContent = t("set_fullscreen");
         val.textContent = document.fullscreenElement ? "ON" : "OFF";
+      } else if (it.key) {
+        name.textContent = t(`key_${it.key}`);
+        const wait = this.listening === it.key;
+        val.textContent = wait ? (this.refused ? t("keyTaken") : t("keyPress")) : Keybinds.label(it.key);
+        val.classList.add("key");
+        if (wait) row.classList.add("wait");
+      } else if (it.id === "padGuide" || it.id === "keysReset") {
+        name.textContent = t(it.id === "padGuide" ? "padGuide" : "keysReset");
+        val.textContent = "↵";
       } else {
         name.textContent = settingLabel(it.id);
         val.textContent = settingValue(it.id, this.config);
@@ -222,6 +242,17 @@ export class SettingsPanel {
   }
 
   handleInput(e) {
+    // Rebinding: the next key press becomes the binding (Esc cancels)
+    if (this.listening) {
+      e.preventDefault();
+      if (e.repeat) return;
+      if (e.code === "Escape") { this.listening = null; this.render(); return; }
+      const r = Keybinds.bindFrom(this.listening, e);
+      if (r === "wait") return;
+      if (r === "ok") this.listening = null; else this.refused = true;
+      this.render();
+      return;
+    }
     const n = this.rows.length;
     if (e.code === "KeyO" || e.code === "Escape") this.close();
     else if (e.code === "ArrowDown" || e.code === "KeyS") { this.index = (this.index + 1) % n; this.render(); }

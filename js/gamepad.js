@@ -24,6 +24,8 @@ export const PAD_ACTIONS = [
   { id: "quest",     code: "KeyQ",   def: 7 },
   { id: "character", code: "KeyC",   def: 11 },
   { id: "pause",     code: "Escape", def: 9 },
+  { id: "partyNext", code: null,     def: 10 },   // next party member on the field (main.js onPad.partyNext)
+  { id: "fullscreen", code: null,    def: 17 },   // full screen (main.js onPad.fullscreen; the browser may refuse it from a pad)
   { id: "guide",     code: null,     def: 8 }
 ];
 const DPAD = { 12: "ArrowUp", 13: "ArrowDown", 14: "ArrowLeft", 15: "ArrowRight" };
@@ -83,6 +85,7 @@ export class GamepadInput {
     this.held = new Map();      // code → true while we hold a synthetic key down
     this.repeat = {};           // menu direction repeat timers
     this.listening = null;      // action id waiting for a button (rebinding)
+    this.onPad = {};            // action id → handler for actions that aren't a keyboard key (partyNext, fullscreen)
     this.buildUi();
 
     window.addEventListener("gamepadconnected", (e) => this.connect(e.gamepad));
@@ -167,6 +170,7 @@ export class GamepadInput {
     }
 
     if (down(this.binds.guide)) { this.open ? this.close() : this.show(); this.prev = btn; return; }
+    if (!this.open && down(this.binds.fullscreen) && this.onPad.fullscreen) { this.onPad.fullscreen(); this.prev = btn; return; }
 
     if (this.open) {                // guide navigation
       if (down(1) || down(9)) this.close();
@@ -199,6 +203,7 @@ export class GamepadInput {
       const atk = this.binds.attack;
       if (tapDown(atk) && this.canInteract()) { this.talkHold = true; tap("KeyE"); }
       if (!btn[atk]) this.talkHold = false;
+      if (tapDown(this.binds.partyNext) && this.onPad.partyNext) this.onPad.partyNext();
       // held keys: directions and every bound action
       for (const [code, v] of Object.entries(dirs)) v ? this.press(code) : this.release(code);
       for (const a of PAD_ACTIONS) {

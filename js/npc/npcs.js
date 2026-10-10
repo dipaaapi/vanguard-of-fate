@@ -480,9 +480,12 @@ export class NPCManager {
     this.partyNpcs.forEach(n => { n.platform = id; });
   }
 
-  setParty(ids = [], activeId = null) {
+  // ids: recruited party members, who leave their post in the world (shown()); follow: also walk
+  // the off-field ones behind the player (off by default: off-field members are away, Genshin-style)
+  setParty(ids = [], activeId = null, follow = false) {
     this.activePlayable = activeId;
-    const keep = ids.filter(id => id !== activeId);
+    this.partyIds = new Set(ids);
+    const keep = follow ? ids.filter(id => id !== activeId) : [];
     this.partyNpcs = keep.map((id, i) => {
       const n = new NPC(id, 0, 0, "down", this.platformId, { guard: true, wanderRadius: 0, speed: 0.72 });
       n.isPartyFollower = true;
@@ -493,7 +496,7 @@ export class NPCManager {
 
   // Is the NPC visible in the current place?
   shown(n) {
-    return n.visible && n.platform === this.platformId && !(this.activePlayable === n.id && !n.isPartyFollower);
+    return n.visible && n.platform === this.platformId && (n.isPartyFollower || !(this.activePlayable === n.id || this.partyIds?.has(n.id)));
   }
 
   // Places every character. summonerId = "aurelia" or "kenneth" (from the player)

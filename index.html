@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="css/devtools.css" />
   <link rel="stylesheet" href="css/controls.css" />
   <link rel="stylesheet" href="css/gamepad.css" />
+  <link rel="stylesheet" href="css/hud.css" />
 </head>
 <body data-mode="title" class="notranslate" translate="no">
 
@@ -129,7 +130,7 @@
 
         <!-- Hero gauge: top-right of the game screen (js/hudbar.js) -->
         <div class="hb-hero" id="heroHud" aria-label="Hero status">
-          <div class="hb-portrait" id="hbInitial"></div>
+          <div class="hb-portrait" id="hbInitial"><canvas id="hbPortrait" aria-hidden="true"></canvas></div>
           <div class="hb-info">
             <div class="hb-row">
               <span class="hb-name" id="hbName"></span>
@@ -142,6 +143,8 @@
             <div class="hb-status" id="hbStatus"></div>
           </div>
         </div>
+        <!-- Party: one row per member under the hero card, the one on the field lit (js/partyhud.js) -->
+        <div class="pt-list" id="partyHud" aria-label="Party"></div>
 
         <!-- HTML Overlays: Toasts, Quest log, Inventory, Character sheet, Dialog -->
         <div id="questToast" aria-live="polite"></div>

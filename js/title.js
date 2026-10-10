@@ -1,3 +1,4 @@
+import { Keybinds } from "./keybinds.js";
 import { Sound } from "./audio.js";
 import { t, getLang, setLang, toggleLang, onLangChange } from "./i18n.js";
 import { SETTINGS, settingLabel, settingValue, stepSetting, toggleFullscreen } from "./settings.js";
@@ -440,7 +441,8 @@ export class TitleScene {
       [t("controlsKeyboard"), [
         [t("controlsMove"), "WASD / Arrow keys"], [t("controlsMenu"), "↑ / ↓ · Enter · Esc"],
         [t("controlsAttack"), "J · K · L"], [t("controlsSprint"), "Space"],
-        [t("controlsInteract"), "E"], [t("controlsSwitch"), "V · Shift+1–6"],
+        [t("controlsInteract"), "E"], [t("controlsSwitch"), `${Keybinds.label("partyNext")} · ${Keybinds.label("party1")}–${Keybinds.label("party6")}`],
+        [t("controlsFullscreen"), Keybinds.label("fullscreen")],
         [t("controlsPanels"), "Q · I · C · M · N · O · G"], [t("controlsQuick"), "1–4"],
         [t("controlsUtility"), t("controlsUtilityKeys")], [t("controlsPausedTitle"), "H"]
       ]],

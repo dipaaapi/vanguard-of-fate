@@ -46,7 +46,7 @@
   "js/errand.js": "Summon errands: the familiar/Falcon/Guardian Angel carries a 9-slot pack to market from the field (sell non-quest items, buy potions and herbs), is out of combat until back; ErrandPack order, dispatch, updateErrand, save/load",
   "js/fx.js": "Game feel: screen shake, hit-stop, shockwave rings, sparks, blood, damage numbers, flashes, vignette",
   "js/fxsprites.js": "Effect sprites from Aseprite (assets/sprites/fx/<name>, \"down-play\" tag): drawFx with rotation, size, anchor, alpha and cached tints; false when not loaded so callers keep their code-drawn effect",
-  "js/hudbar.js": "Bottom bar HUD outside the canvas: name, level, HP/EXP/gold, status icons, quest objective, field state, Quest/Pause buttons",
+  "js/hudbar.js": "Hero card over the top-right of the game screen (name and role of the member on the field, level, HP/stamina/EXP, status icons) plus the side panel's field state and Quest/Pause buttons",
   "js/i18n.js": "UI strings in English and Filipino (STRINGS.en / STRINGS.fil), language stored in localStorage; t(key), getLang/setLang/toggleLang/onLangChange",
   "js/inventory.js": "Inventory panel (I): hero look, worn equipment, stats, tabbed bag, item details and actions (equip, upgrade, refine, sockets)",
   "js/items/bag.js": "Bag and equipment: stacking, equip/unequip, set bonuses, upgrades and refines, serialisation",
@@ -169,5 +169,11 @@
   "tools/aseprite/paint/slime.mjs": "Painter: detailed slime 32×24 (Forest Slime; Pocket Slime with sprout), idle/walk/run/attack/skill × 3 directions",
   "tools/aseprite/paint/zones.mjs": "Paints the safe zones as layered .aseprite files: themed Fated Vanguard camps per map, Barracks + longhouses, Imperial Citadel + dais, Emberhold",
   "tools/aseprite/seed.mjs": "Starts aseprite/<kind>/<key>.aseprite from a creature's code-drawn frames (one tag per direction+animation): node tools/aseprite/seed.mjs monster/slime",
-  "tools/audio/render-audio.mjs": "Offline renders of the music, jingles and SFX to WAV/MP3 with peak/RMS checks: node tools/audio/render-audio.mjs [music|jingles|sfx|<name>…] [--mp3] [--out dir]; exits 1 on clipping or silence"
+  "tools/audio/render-audio.mjs": "Offline renders of the music, jingles and SFX to WAV/MP3 with peak/RMS checks: node tools/audio/render-audio.mjs [music|jingles|sfx|<name>…] [--mp3] [--out dir]; exits 1 on clipping or silence",
+  "js/party.js": "Party of the hero + recruited playable NPCs (up to 6): who is on the field, per-member HP, switching (player.active kit), next member steps in on a fall, sanctuary recovery, recruitment talk and trial progress (PlayableQuestBook), Eirene's consoles; text from data/party.json",
+  "js/partyhud.js": "Party list under the hero card (switch key, head, name, HP; the member on the field lit) and the hero card's portrait head, drawn from each member's Avatar portrait",
+  "js/keybinds.js": "Rebindable keyboard controls (vanguard_keys): next party member, party member 1–6, full screen; matches / actionOf / bindFrom / label",
+  "js/playables.js": "Playable NPC recruits: PLAYABLES (region, role, skills, trial requirements), makePlayableKit (combat kit per recruit), PlayableQuestBook (trial state)",
+  "data/party.json": "Recruitment talk (offer / progress / join) for the five playable NPCs and the party HUD/toast wording, EN/FIL",
+  "tools/aseprite/paint/ui.mjs": "Painter for the HD interface frames (2× pixel density): hero card, party slots, portrait, meters, key chips, side-menu panels and buttons → aseprite/ui/<key>.aseprite"
 }

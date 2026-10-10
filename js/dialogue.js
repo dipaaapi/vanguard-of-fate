@@ -15,7 +15,9 @@ const NAMES = {
     arthur: "Arthur \"Art\" Ramirez", lyra: "Lyra Vance", julian: "Dr. Julian Alcantara",
     sam: "Samantha \"Sam\" Chen", renzo: "Renzo \"Striker\" Cruz", elvenMatriarch: "Elven Matriarch",
     brakka: "Brakka Emberforge", hilde: "Hilde Rivetmend", durgrim: "Thane Durgrim Ashenhelm", pip: "Pip Gildbarrow",
-    maren: "Archivist Maren", isolde: "Captain Isolde Wavecrest", veyra: "Veyra the Ashen Scout", aldric: "Brother Aldric of the Lantern"
+    maren: "Archivist Maren", isolde: "Captain Isolde Wavecrest", veyra: "Veyra the Ashen Scout", aldric: "Brother Aldric of the Lantern",
+    // playable NPCs (js/playables.js)
+    cerynVoss: "Ceryn Voss", vaelThorn: "Vael Thorn", nimaFen: "Nima Fen", eirene: "Eirene", templar: "Dame Serelle"
   },
   fil: {
     aurelia: "Prinsesa Aurelia", kenneth: "Prinsipe Kenneth", king: "Ang Hari", royalGuard: "Bantay ng Hari",
@@ -23,7 +25,8 @@ const NAMES = {
     arthur: "Arthur \"Art\" Ramirez", lyra: "Lyra Vance", julian: "Dr. Julian Alcantara",
     sam: "Samantha \"Sam\" Chen", renzo: "Renzo \"Striker\" Cruz", elvenMatriarch: "Matriarka ng mga Elf",
     brakka: "Brakka Emberforge", hilde: "Hilde Rivetmend", durgrim: "Thane Durgrim Ashenhelm", pip: "Pip Gildbarrow",
-    maren: "Arkibista Maren", isolde: "Kapitana Isolde Wavecrest", veyra: "Veyra ang Abong Batyaw", aldric: "Kapatid na Aldric ng Lantern"
+    maren: "Arkibista Maren", isolde: "Kapitana Isolde Wavecrest", veyra: "Veyra ang Abong Batyaw", aldric: "Kapatid na Aldric ng Lantern",
+    cerynVoss: "Ceryn Voss", vaelThorn: "Vael Thorn", nimaFen: "Nima Fen", eirene: "Eirene", templar: "Dame Serelle"
   }
 };
 
