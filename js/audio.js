@@ -650,6 +650,56 @@ class SoundEngine {
   playGameOver() { this.stopAllBGM(); this.playJingle("gameOver"); }
   playQuest() { this.playJingle("quest"); }
 
+  // Unlock ceremony (level-up, Legendary/Mythic drop, Skill/Job Awakening): a sub-bass drop with a
+  // little overdrive, a crystalline C6–E6–G6–C7 arpeggio ringing out over 1.8 s, and a faint
+  // 440/880 Hz shimmer underneath. LEVEL is lighter; MYTHIC adds a top E7 and a detuned sparkle.
+  playUnlockCeremony(rarity = "LEGENDARY") {
+    const d = this.sfx(null, null, 1, "unlock", 0.25); if (!d) return;
+    const c = this.ctx, t = this.now;
+    const big = rarity !== "LEVEL", mythic = rarity === "MYTHIC";
+
+    // 1. Sub-bass impact: 80 → 35 Hz in 0.25 s through a soft clipper
+    const shaper = c.createWaveShaper(); shaper.curve = this.distCurve(); shaper.oversample = "2x";
+    const sub = c.createGain();
+    sub.gain.setValueAtTime(0.0001, t);
+    sub.gain.linearRampToValueAtTime(big ? 0.9 : 0.6, t + 0.008);
+    sub.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
+    const so = c.createOscillator(); so.type = "sine";
+    so.frequency.setValueAtTime(80, t); so.frequency.exponentialRampToValueAtTime(35, t + 0.25);
+    const pre = c.createGain(); pre.gain.value = 1.6;   // drive into the curve for a bit of grit
+    so.connect(pre); pre.connect(shaper); shaper.connect(sub); sub.connect(d);
+    so.start(t); so.stop(t + 0.5);
+
+    // 2. Crystalline fanfare: ascending triangle tones with a sine an octave up, long exponential tails
+    const notes = [1046.5, 1318.5, 1567.98, 2093.0];
+    if (mythic) notes.push(2637.0);
+    notes.forEach((f, i) => {
+      const at = t + 0.05 + i * 0.085, end = t + 1.8;
+      const g = c.createGain();
+      g.gain.setValueAtTime(0.0001, at);
+      g.gain.linearRampToValueAtTime((big ? 0.11 : 0.08) * (1 - i * 0.08), at + 0.006);
+      g.gain.exponentialRampToValueAtTime(0.0001, end);
+      g.connect(d); g.connect(this.sfxSend);
+      this.osc("triangle", f, at, end + 0.05, g);
+      const h = c.createGain(); h.gain.value = 0.35; h.connect(g);
+      this.osc("sine", f * 2, at, end + 0.05, h, mythic ? 7 : 0);
+    });
+
+    // 3. Harmonic shimmer: 440 + 880 Hz with a slow tremolo, fading over 1.5 s
+    const hum = c.createGain();
+    hum.gain.setValueAtTime(0.0001, t);
+    hum.gain.linearRampToValueAtTime(big ? 0.05 : 0.035, t + 0.12);
+    hum.gain.exponentialRampToValueAtTime(0.0001, t + 1.5);
+    const trem = c.createGain(); trem.gain.value = 1;
+    const lfo = c.createOscillator(), depth = c.createGain();
+    lfo.frequency.value = 6; depth.gain.value = 0.35;
+    lfo.connect(depth); depth.connect(trem.gain);
+    trem.connect(hum); hum.connect(d); hum.connect(this.sfxSend);
+    this.osc("sine", 440, t, t + 1.55, trem);
+    this.osc("sine", 880, t, t + 1.55, trem, mythic ? -6 : 0);
+    lfo.start(t); lfo.stop(t + 1.55);
+  }
+
   // Old helper, kept for any caller that still uses it
   playTone(f, type, duration, startVol = 0.15) {
     const d = this.sfx(); if (!d) return;

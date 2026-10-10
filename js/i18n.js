@@ -164,6 +164,12 @@ const STRINGS = {
     embarkBtn: "EMBARK ▶",
     awakenHint: "<span>A / D</span> Choose calling &nbsp;|&nbsp; <span>Enter / Space</span> Awaken &nbsp;|&nbsp; or click below",
 
+    // ---- Unlock ceremony banners (level-ups, Legendary/Mythic drops, awakenings) ----
+    cerLevel: "LEVEL UP!", cerLevelMilestone: (n) => `LEVEL ${n} REACHED!`, cerLevelSub: (n) => `Lv ${n} · +stat & skill points`,
+    cerLegendary: "LEGENDARY DROP!", cerMythic: "MYTHIC DROP!",
+    cerSkill: "SKILL AWAKENED!", cerSkillSub: (name) => `${name} · mastered`,
+    cerJob: "JOB AWAKENED!", cerJobSub: (name) => `The calling of the ${name}`,
+
     // ---- Codex scene (creator, Job Awakening, Codex N) ----
     cxsChangeJob: "Change Calling", cxsJobSlots: (n, m) => `Callings learned: ${n} / ${m} · ★ current · ✓ learned · + learnable · 🔒 clear a harder difficulty`,
     cxsDifficulty: "Difficulty",
@@ -469,6 +475,12 @@ const STRINGS = {
     awakenBtn: "GISINGIN ▶",
     embarkBtn: "SUMABAK ▶",
     awakenHint: "<span>A / D</span> Pumili ng tungkulin &nbsp;|&nbsp; <span>Enter / Space</span> Gisingin &nbsp;|&nbsp; o i-click sa ibaba",
+
+    // ---- Unlock ceremony banners ----
+    cerLevel: "UMAKYAT NG LEVEL!", cerLevelMilestone: (n) => `NAABOT ANG LEVEL ${n}!`, cerLevelSub: (n) => `Lv ${n} · +stat at skill point`,
+    cerLegendary: "LEGENDARY NA SAMSAM!", cerMythic: "MITIKAL NA SAMSAM!",
+    cerSkill: "GISING NA ANG SKILL!", cerSkillSub: (name) => `${name} · ganap na`,
+    cerJob: "GISING NA ANG JOB!", cerJobSub: (name) => `Ang tungkulin ng ${name}`,
 
     // ---- Character Creator ----
     // ---- Codex scene (creator, Job Awakening, Codex N) ----

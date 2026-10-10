@@ -275,6 +275,8 @@ export class Player {
     this.skillLevels[id] = (this.skillLevels[id] || 0) + 1;
     slotNewActive(this, id);
     this.recalc();
+    // Skill Awakening: the skill just reached its top rank (main.js plays the unlock ceremony)
+    if (this.skillLevels[id] >= s.max && this.onSkillMastered) this.onSkillMastered(s);
     return true;
   }
 

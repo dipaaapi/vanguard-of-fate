@@ -1,5 +1,19 @@
 import { drawFx, fxFrames } from "./fxsprites.js";
 
+// Unlock ceremony looks per rarity (triggerUnlockCeremony). LEVEL is the everyday level-up,
+// LEGENDARY / MYTHIC the big moments (rare drops, milestone levels, awakenings).
+const CEREMONY_FRAMES = 72;   // 1.2 s pillar
+const CEREMONY = {
+  LEVEL: { beam: "#ffd166", width: 9, rings: 2, ringMax: 46, sparks: 18, freeze: 6, shake: 5, palette: ["#ffd166", "#fff3b0", "#ffffff"] },
+  LEGENDARY: { beam: "#ffd166", width: 12, rings: 3, ringMax: 60, sparks: 22, freeze: 8, shake: 8, palette: ["#ffd166", "#ffb703", "#fff3b0", "#ffffff"] },
+  MYTHIC: { beam: "#ffe9a8", width: 14, rings: 3, ringMax: 72, sparks: 24, freeze: 8, shake: 8, prismatic: true, palette: ["#ffd166", "#c084fc", "#67e8f9", "#ffffff"] }
+};
+// "#rrggbb" → "rgba(r, g, b, a)"
+function hexA(hex, a) {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${n >> 16}, ${(n >> 8) & 255}, ${n & 255}, ${Math.max(0, Math.min(1, a))})`;
+}
+
 export class FXManager {
   constructor() {
     this.screenShake = 0;
@@ -12,6 +26,8 @@ export class FXManager {
     this.burnFlames = [];
     this.freezeShards = [];
     this.sprites = [];        // one-shot effect animations (js/fxsprites.js): bites, claws, slashes
+    this.ceremonies = [];     // unlock ceremonies: light pillar, rings, swirling sparks (triggerUnlockCeremony)
+    this.aberration = 0;      // frames left of the RGB-split pulse at the screen edge
 
     // Environment & Weather
     this.timeOfDay = "DAY";
@@ -467,6 +483,151 @@ export class FXManager {
     ctx.fillRect(0, 0, width, height);
   }
 
+  // ==================== UNLOCK CEREMONY ====================
+  // Level-ups, Legendary/Mythic drops and Skill/Job Awakenings: a pillar of light from (x, y) up off
+  // the screen, 2–3 decelerating shockwave rings, sparks that burst out and then swirl up the pillar,
+  // a short freeze of the fight, screen shake and an RGB-split pulse at the screen edge.
+  // Timed in 60 fps frames but advanced by real time in drawUnlockCeremonies, so it lasts as long on a 144 Hz screen.
+  triggerUnlockCeremony(x, y, rarity = "LEGENDARY", titleText = "MYTHIC UNLOCKED!") {
+    const P = CEREMONY[rarity] || CEREMONY.LEGENDARY;
+    const sparks = [];
+    for (let i = 0; i < P.sparks; i++) {
+      const a = (i / P.sparks) * Math.PI * 2 + Math.random() * 0.4;
+      const v = 1.8 + Math.random() * 2.2;
+      sparks.push({
+        x, y: y - 4, vx: Math.cos(a) * v, vy: Math.sin(a) * v * 0.6 - 0.6,
+        life: 70 + Math.random() * 30, age: 0, spin: Math.random() < 0.5 ? -1 : 1,
+        rune: i % 4 === 0, hue: (i / P.sparks) * 360,
+        color: P.palette[i % P.palette.length]
+      });
+    }
+    this.ceremonies.push({ x, y, P, title: titleText, t: 0, sparks });
+    // Freeze the fight (the same hit-stop main.js already honours: updates skip, drawing carries on)
+    this.hitStopFrames = Math.max(this.hitStopFrames, P.freeze);
+    this.hitStopRest = 0;
+    this.addScreenShake(P.shake);
+    this.aberration = Math.max(this.aberration, 20);
+  }
+
+  // Called once per drawn frame after the night/blind overlays (so the pillar shines through the dark).
+  // view = { x, y, w, h }: camera position including shake, and the view size in game pixels.
+  drawUnlockCeremonies(ctx, view) {
+    if (!this.ceremonies.length && this.aberration <= 0) { this.cerLast = 0; return; }
+    const now = performance.now();
+    const dt = this.cerLast ? Math.min(3, (now - this.cerLast) / (1000 / 60)) : 1;
+    this.cerLast = now;
+
+    ctx.save();
+    ctx.translate(Math.round(-view.x), Math.round(-view.y));
+    for (let i = this.ceremonies.length - 1; i >= 0; i--) {
+      const c = this.ceremonies[i];
+      c.t += dt;
+      this.drawCeremony(ctx, c, dt, view);
+      if (c.t >= CEREMONY_FRAMES && !c.sparks.length) this.ceremonies.splice(i, 1);
+    }
+    ctx.restore();
+
+    if (this.aberration > 0) {
+      this.drawAberration(ctx, view.w, view.h, this.aberration / 20);
+      this.aberration = Math.max(0, this.aberration - dt);
+    }
+  }
+
+  drawCeremony(ctx, c, dt, view) {
+    const { x, y, P } = c, t = c.t;
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+
+    // 1. Beacon of light: rises in 6 frames, fades out over 1.2 s (72 frames), narrowing as it goes
+    if (t < CEREMONY_FRAMES) {
+      const a = t < 6 ? t / 6 : Math.pow(1 - (t - 6) / (CEREMONY_FRAMES - 6), 1.6);
+      const top = view.y - 8;
+      if (top < y) {
+        const grad = ctx.createLinearGradient(0, y, 0, top);
+        grad.addColorStop(0, `rgba(255, 255, 255, ${0.9 * a})`);
+        grad.addColorStop(0.15, hexA(P.beam, 0.75 * a));
+        grad.addColorStop(1, hexA(P.beam, 0));
+        ctx.fillStyle = grad;
+        const w = P.width * (0.55 + 0.45 * a) * (1 + 0.08 * Math.sin(t * 0.6));
+        // soft volumetric edge (wide, faint) → body → white-hot core, in whole pixels
+        ctx.globalAlpha = 0.35; ctx.fillRect(Math.round(x - w), top, Math.round(w * 2), Math.round(y - top));
+        ctx.globalAlpha = 0.7; ctx.fillRect(Math.round(x - w * 0.55), top, Math.round(w * 1.1), Math.round(y - top));
+        ctx.globalAlpha = 1; ctx.fillRect(Math.round(x - w * 0.18), top, Math.max(1, Math.round(w * 0.36)), Math.round(y - top));
+      }
+      // ground glow where the pillar meets the floor
+      const gr = 26 * (0.6 + 0.4 * a);
+      const g = ctx.createRadialGradient(x, y, 0, x, y, gr);
+      g.addColorStop(0, hexA("#ffffff", 0.7 * a));
+      g.addColorStop(0.4, hexA(P.beam, 0.45 * a));
+      g.addColorStop(1, hexA(P.beam, 0));
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = g;
+      ctx.save();
+      ctx.translate(x, y); ctx.scale(1, 0.5); ctx.translate(-x, -y);
+      ctx.fillRect(x - gr, y - gr, gr * 2, gr * 2);
+      ctx.restore();
+    }
+
+    // 2. Shockwave rings: staggered starts, ease-out (cubic) so each one decelerates as it grows
+    for (let r = 0; r < P.rings; r++) {
+      const k = (t - r * 8) / 36;
+      if (k <= 0 || k >= 1) continue;
+      const rad = 4 + (P.ringMax - r * 10) * (1 - Math.pow(1 - k, 3));
+      ctx.globalAlpha = (1 - k) * 0.9;
+      ctx.strokeStyle = r === 0 ? "#ffffff" : P.beam;
+      ctx.lineWidth = Math.max(0.5, 2.5 * (1 - k));
+      ctx.beginPath();
+      ctx.ellipse(x, y, rad, rad * 0.5, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // 3. Sparks and runes: burst outward, then swirl around the pillar and drift up
+    for (let s = c.sparks.length - 1; s >= 0; s--) {
+      const p = c.sparks[s];
+      p.age += dt;
+      if (p.age < 14) {
+        const damp = Math.pow(0.9, dt);
+        p.vx *= damp; p.vy *= damp;
+      } else {
+        // pull toward the pillar's axis with a tangential push → a rising helix
+        const dx = p.x - x;
+        p.vx += (-dx * 0.012 + p.spin * 0.12) * dt;
+        p.vx *= Math.pow(0.94, dt);
+        p.vy += (-0.05) * dt;
+        p.vy = Math.max(p.vy, -1.6);
+      }
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      const k = p.age / p.life;
+      if (k >= 1) { c.sparks.splice(s, 1); continue; }
+      ctx.globalAlpha = k < 0.7 ? 1 : (1 - k) / 0.3;
+      ctx.fillStyle = P.prismatic ? `hsl(${(p.hue + t * 6) % 360}, 95%, 72%)` : p.color;
+      const px = Math.round(p.x), py = Math.round(p.y);
+      if (p.rune) {
+        // a tiny 3×3 rune: a plus with a white heart
+        ctx.fillRect(px - 1, py, 3, 1); ctx.fillRect(px, py - 1, 1, 3);
+        ctx.fillStyle = "#ffffff"; ctx.fillRect(px, py, 1, 1);
+      } else {
+        ctx.fillRect(px, py, k < 0.4 ? 2 : 1, k < 0.4 ? 2 : 1);
+      }
+    }
+    ctx.restore();
+  }
+
+  // RGB split at the screen edge: a red rim nudged left and a cyan rim nudged right, fading out
+  drawAberration(ctx, w, h, k) {
+    const a = 0.32 * k * k, off = 3 * k;
+    ctx.save();
+    ctx.globalCompositeOperation = "screen";
+    [["255, 40, 90", -off], ["40, 220, 255", off]].forEach(([rgb, dx]) => {
+      const g = ctx.createRadialGradient(w / 2 + dx, h / 2, Math.min(w, h) * 0.38, w / 2 + dx, h / 2, Math.max(w, h) * 0.62);
+      g.addColorStop(0, `rgba(${rgb}, 0)`);
+      g.addColorStop(1, `rgba(${rgb}, ${a})`);
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+    });
+    ctx.restore();
+  }
+
   reset() {
     this.screenShake = 0;
     this.hitStopFrames = 0;
@@ -478,5 +639,7 @@ export class FXManager {
     this.burnFlames = [];
     this.freezeShards = [];
     this.sprites = [];
+    this.ceremonies = [];
+    this.aberration = 0;
   }
 }
