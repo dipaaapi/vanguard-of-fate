@@ -1,8 +1,11 @@
 import {
   TILE, ATLAS_COLS, T, THEMES,
-  buildTileset, drawTreeSplit, drawRock, drawBush, mulberry32
+  buildTileset, drawBush, mulberry32
 } from "./tileset.js";
 import { markEdges, paintLandEdges, bakeHaze, drawHaze } from "./edges.js";
+import { OceanSystem, WATER_THEMES } from "./ocean.js";
+import { GrasslandSystem } from "./grassland.js";
+import { PropField } from "./props.js";
 
 // ---------- noise ----------
 function hash2(x, y, seed) {
@@ -28,7 +31,8 @@ export class TileMap {
   // For platforms: stage.theme (key in THEMES), stage.terrain(tx, ty, cols, rows, noise)
   // → "liquid" | "wall" | null, stage.pathTargets ([x, y] in pixels), stage.coverageSystems.
   constructor(stage, seed = 20260928) {
-    this.theme = THEMES[stage.theme] || THEMES.aethelgard;
+    this.themeKey = THEMES[stage.theme] ? stage.theme : "aethelgard";
+    this.theme = THEMES[this.themeKey];
     this.tile = TILE;
     this.pxW = stage.width;
     this.pxH = stage.height;
@@ -291,9 +295,30 @@ export class TileMap {
         }
       }
     }
+
+    // ----- Shoreline boulders on the sand beside real water (own RNG: the rest of the map is unchanged) -----
+    if (WATER_THEMES.includes(this.themeKey)) {
+      const brnd = mulberry32(seed + 404);
+      const wet = (tx, ty) => this.inBounds(tx, ty) && this.liquid[this.idx(tx, ty)] === 1 && !(this.edge && this.edge[this.idx(tx, ty)]);
+      for (let ty = M + 1; ty < rows - M; ty++) {
+        for (let tx = M; tx < cols - M; tx++) {
+          if (!free(tx, ty) || !(wet(tx + 1, ty) || wet(tx - 1, ty) || wet(tx, ty + 1) || wet(tx, ty - 1))) continue;
+          if ((wet(tx + 1, ty) && wet(tx - 1, ty)) || (wet(tx, ty + 1) && wet(tx, ty - 1))) continue;   // never plug a strip of land
+          if (brnd() < 0.07) {
+            this.objects.push({ type: "boulder", tx, ty, seed: Math.floor(brnd() * 1e6) });
+            occ[this.idx(tx, ty)] = 1;
+            this.solid[this.idx(tx, ty)] = 1;
+          }
+        }
+      }
+    }
   }
 
   // ---------- RENDER (once) ----------
+  // The ground canvas holds the static parts of layers 0 and 1, painted in layer order:
+  // water tiles + depth gradient + bedrock, then land tiles + sand shoreline + bushes.
+  // Trees, rocks and boulders are props (layers 2–3, js/world/props.js); the map edge's trees are
+  // split between the ground and the overlay canvas (its canopy is drawn in layer 6).
   render() {
     const mk = () => {
       const c = document.createElement("canvas");
@@ -307,26 +332,33 @@ export class TileMap {
     const o = mk();
     this.groundCanvas = g.c;
     this.overlayCanvas = o.c;
+    this.ocean = new OceanSystem(this, this.themeKey);
+    this.grass = new GrasslandSystem(this, this.themeKey, this.theme);
 
+    const tileAt = (tx, ty) => {
+      const id = this.ids[this.idx(tx, ty)];
+      g.ctx.drawImage(
+        this.atlas,
+        (id % ATLAS_COLS) * TILE, Math.floor(id / ATLAS_COLS) * TILE, TILE, TILE,
+        tx * TILE, ty * TILE, TILE, TILE
+      );
+    };
+    // Layer 0: the water and its depth
     for (let ty = 0; ty < this.rows; ty++) {
-      for (let tx = 0; tx < this.cols; tx++) {
-        const id = this.ids[this.idx(tx, ty)];
-        g.ctx.drawImage(
-          this.atlas,
-          (id % ATLAS_COLS) * TILE, Math.floor(id / ATLAS_COLS) * TILE, TILE, TILE,
-          tx * TILE, ty * TILE, TILE, TILE
-        );
-      }
+      for (let tx = 0; tx < this.cols; tx++) if (this.liquid[this.idx(tx, ty)]) tileAt(tx, ty);
     }
+    this.ocean.bake(g.ctx);
+    // Layer 1: the land and its shoreline
+    for (let ty = 0; ty < this.rows; ty++) {
+      for (let tx = 0; tx < this.cols; tx++) if (!this.liquid[this.idx(tx, ty)]) tileAt(tx, ty);
+    }
+    this.grass.bakeShore(g.ctx, this.ocean);
 
-    // Top to bottom so trees overlap correctly
-    const sorted = [...this.objects].sort((a, b) => a.ty - b.ty);
-    sorted.forEach((ob) => {
-      const th = this.theme;
-      if (ob.type === "tree") drawTreeSplit(g.ctx, o.ctx, ob.tx * TILE, (ob.ty - 1) * TILE, ob.seed, th.tree);
-      else if (ob.type === "rock") drawRock(g.ctx, ob.tx * TILE, ob.ty * TILE, ob.seed, th.rock);
-      else if (ob.type === "bush") drawBush(g.ctx, ob.tx * TILE, ob.ty * TILE, ob.seed, th.bush);
+    const th = this.theme;
+    this.objects.forEach((ob) => {
+      if (ob.type === "bush") drawBush(g.ctx, ob.tx * TILE, ob.ty * TILE, ob.seed, th.bush);
     });
+    this.props = new PropField(this, th);
     // The edge barrier: boulders and trees on land, a bank of haze over water
     paintLandEdges(this, g.ctx, o.ctx, this.theme, this.seed);
     this.haze = bakeHaze(this, this.theme, this.seed);
@@ -349,15 +381,49 @@ export class TileMap {
     ctx.imageSmoothingEnabled = prev;
   }
 
+  // Layers 0–1: the baked ground, then the moving water (currents, on water tiles only)
   drawGround(ctx) {
     this.blit(ctx, this.groundCanvas);
+    this.ocean.drawCurrents(ctx);
   }
 
-  // Tree canopy: drawn ABOVE the characters
+  // Layer 1 (moving): turf blades swaying on the tufts and flowers
+  drawTurf(ctx) {
+    this.grass.update();
+    this.grass.draw(ctx);
+  }
+
+  // Layer 2: the props' contact shadows
+  drawShadows(ctx) {
+    this.props.drawShadows(ctx);
+  }
+
+  // Layer 3: props behind the characters, then again over the ones standing behind them
+  drawPropsBack(ctx) {
+    this.props.drawBack(ctx);
+  }
+
+  drawPropsFront(ctx, feet = []) {
+    this.props.drawFront(ctx, feet);
+  }
+
+  // Layer 4: foam and glints
+  drawSurface(ctx) {
+    this.ocean.drawSurface(ctx);
+  }
+
+  // Layer 6: the map edge's canopy and its bank of haze, above everyone
   drawOverlay(ctx) {
     this.blit(ctx, this.overlayCanvas);
     drawHaze(ctx, this.haze, this, this.tick++);
     if (this.debug) this.drawDebug(ctx);
+  }
+
+  // Whole-map picture (minimap, world map): ground, props, edge canopy
+  paintMap(ctx) {
+    if (this.groundCanvas) ctx.drawImage(this.groundCanvas, 0, 0);
+    if (this.props) this.props.paintAll(ctx);
+    if (this.overlayCanvas) ctx.drawImage(this.overlayCanvas, 0, 0);
   }
 
   drawDebug(ctx) {
@@ -379,6 +445,8 @@ export class TileMap {
         }
         ctx.strokeStyle = "rgba(255,255,255,0.08)";
         ctx.strokeRect(tx * TILE + 0.5, ty * TILE + 0.5, TILE - 1, TILE - 1);
+        const roots = this.props && this.props.rootsAt(this.idx(tx, ty));
+        if (roots) roots.forEach((r) => { ctx.fillStyle = "rgba(250, 204, 21, 0.45)"; ctx.fillRect(r.x, r.y, r.w, r.h); });
       }
     }
   }
@@ -389,7 +457,18 @@ export class TileMap {
     return this.inBounds(tx, ty) && this.solid[this.idx(tx, ty)] === 1;
   }
 
-  // Pushes an entity (player/enemy) out when it is inside a solid tile
+  // What stops a projectile: walls, cliffs and the edge, and a prop's roots (not its canopy);
+  // it flies on over water, lava and void
+  blocksShotAt(px, py) {
+    const tx = Math.floor(px / TILE), ty = Math.floor(py / TILE);
+    if (!this.inBounds(tx, ty)) return true;
+    const i = this.idx(tx, ty);
+    if (!this.solid[i] || this.liquid[i]) return false;
+    return this.props && this.props.rootsAt(i) ? this.props.rootAt(px, py) : true;
+  }
+
+  // Pushes an entity (player/enemy) out when its feet are inside a solid tile, or inside a prop's
+  // roots on a tile that only holds props
   resolveCollision(e) {
     if (!e || typeof e.x !== "number") return;
 
@@ -402,14 +481,18 @@ export class TileMap {
       for (let ty = ty0; ty <= ty1 && !moved; ty++) {
         for (let tx = tx0; tx <= tx1 && !moved; tx++) {
           if (!this.inBounds(tx, ty) || !this.solid[this.idx(tx, ty)]) continue;
-          const tl = tx * TILE, tt = ty * TILE;
-          const ox = Math.min(bx + FOOT.w, tl + TILE) - Math.max(bx, tl);
-          const oy = Math.min(by + FOOT.h, tt + TILE) - Math.max(by, tt);
-          if (ox <= 0 || oy <= 0) continue;
+          const roots = this.props && this.props.rootsAt(this.idx(tx, ty));
+          const boxes = roots || [{ x: tx * TILE, y: ty * TILE, w: TILE, h: TILE }];
+          for (const b of boxes) {
+            const ox = Math.min(bx + FOOT.w, b.x + b.w) - Math.max(bx, b.x);
+            const oy = Math.min(by + FOOT.h, b.y + b.h) - Math.max(by, b.y);
+            if (ox <= 0 || oy <= 0) continue;
 
-          if (ox < oy) e.x += (bx + FOOT.w / 2 < tl + TILE / 2) ? -ox : ox;
-          else e.y += (by + FOOT.h / 2 < tt + TILE / 2) ? -oy : oy;
-          moved = true;
+            if (ox < oy) e.x += (bx + FOOT.w / 2 < b.x + b.w / 2) ? -ox : ox;
+            else e.y += (by + FOOT.h / 2 < b.y + b.h / 2) ? -oy : oy;
+            moved = true;
+            break;
+          }
         }
       }
       if (!moved) break;

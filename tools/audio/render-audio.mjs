@@ -51,7 +51,8 @@ await page.goto(base + "__audio.html");
 
 const SFX = ["playSelectMove", "playSelectConfirm", "playUiOpen", "playUiClose", "playSlash", "playHitEnemy", "playCriticalHit", "playHitPlayer", "playGuard", "playDash", "playDodge",
   "playForceSphere", "playMeteorCast", "playMeteorExplosion", "playThunder", "playArrowShoot", "playFalconScreech", "playHolyBurst", "playHeal", "playForcefield", "playDarkCast",
-  "playEnemyDeath", "playBossRoar", "playBossCast", "playBossDeath", "playLootPickup", "playCoin", "playPortal"];
+  "playEnemyDeath", "playBossRoar", "playBossCast", "playBossDeath", "playLootPickup", "playCoin", "playPortal",
+  "playWaterSplash", "playWaterStep", "playGrassBrush"];
 const jobs = await page.evaluate(async () => {
   const { TRACKS, JINGLES } = await import("/js/music.js");
   return { tracks: Object.keys(TRACKS), jingles: Object.keys(JINGLES) };

@@ -25,6 +25,7 @@ import { UIManager } from "./ui.js";
 import { LootManager, findNearestWalkableSpot } from "./loot.js";
 import { MercenaryManager, MERC_CLASSES } from "./mercenaryManager.js";
 import { Sound } from "./audio.js";
+import { Footfall } from "./world/footfall.js";
 import { Stage } from "./stage.js";
 import { TitleScene } from "./title.js";
 import { CodexScene } from "./scenes/codexScene.js";
@@ -2099,6 +2100,7 @@ function updateGame() {
   // At sea the crew keep their posts on the ship
   if (stage.boatSystem) stage.boatSystem.carry(player, crewOf());
   projectileManager.update(enemyManager.enemies, enemyManager, fx, lootManager, player);
+  footfall.update(stage, walkersOnFoot(), projectileManager.projectiles, enemyManager.orbs || [], fx, Sound, onScreen);
   lootManager.update(player, fx);
   workshop.update(player, stage.isInsideSafeZone(player.x + 10, player.y + 17));
   fishing.update(player);
@@ -2223,11 +2225,14 @@ function renderGameWorld() {
   ctx.save();
   ctx.translate(Math.round(-camera.x + offsetX), Math.round(-camera.y + offsetY));
 
-  stage.draw(ctx, player);
+  // World layers, strictly in order (js/world/layers.js)
+  stage.draw(ctx, player);            // 0 ocean + 1 ground, turf and landmarks
   if (player) {
     const cur = quest.side.current();
     drawSites(ctx, quest.side.pendingSites(stage.id), performance.now() / 16, cur && cur.area === stage.id ? quest.side.site(cur) : null);
   }
+  stage.drawShadows(ctx);             // 2 contact shadows along the sun
+  stage.drawPropsBack(ctx);           // 3 props, then the characters, then the props in front of them
   const footY = player ? player.y + 21 : 0;
   npcManager.drawLayer(ctx, footY, false);   // NPCs behind the player
   lootManager.draw(ctx);
@@ -2256,11 +2261,13 @@ function renderGameWorld() {
     fishing.draw(ctx, player, stage, gameState === "PLAYING" && !npcManager.nearest && !(stage.ore && stage.ore.nearest(player)));
   }
   npcManager.drawLayer(ctx, footY, true);    // NPCs in front of the player
+  stage.drawPropsFront(ctx, standingFeet(), player);
 
-  stage.drawOverlay(ctx, player);   // tree canopy and the weather above the characters
-  if (player && gameState !== "GAMEOVER") npcManager.drawLabels(ctx, player);
-  // The fx rain/storm is for Aethelgard only; each platform has its own ambience
+  stage.drawSurface(ctx);             // 4 shoreline foam and water glints
+  // 5 combat particles, sparks, splashes, damage numbers
   fx.updateAndDraw(ctx, stage === hub ? gameConfig : { ...gameConfig, weather: false });
+  stage.drawOverlay(ctx, player);     // 6 the map edge's canopy, ambience, weather and mist borders
+  if (player && gameState !== "GAMEOVER") npcManager.drawLabels(ctx, player);
   ctx.restore();
   // Night: darkness with light around the hero (the Archer sees farther)
   if (player) {
@@ -2276,6 +2283,7 @@ function renderGameWorld() {
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, VIEW_W, VIEW_H);
   }
+  ui.drawScreenOverlay(ctx, VIEW_W, VIEW_H);   // 7 screen-space vignette
   // Unlock ceremonies draw over the night/blind darkness so the pillar shines through it
   fx.drawUnlockCeremonies(ctx, { x: camera.x - offsetX, y: camera.y - offsetY, w: VIEW_W, h: VIEW_H });
   enemyManager.drawBossBar(ctx, VIEW_W);
@@ -2323,6 +2331,29 @@ function renderGameWorld() {
   if (gameState === "GAMEOVER") {
     ui.drawGameOver(ctx, VIEW_W, VIEW_H, { act: quest.act(), level: player ? player.level : 0 });
   }
+}
+
+// Water and grass underfoot, shots landing in the sea (js/world/footfall.js)
+const footfall = new Footfall();
+const onScreen = (x, y) => x > camera.x - 16 && x < camera.x + VIEW_W + 16 && y > camera.y - 16 && y < camera.y + VIEW_H + 16;
+function walkersOnFoot() {
+  if (!player || player.inBoat) return [];   // at sea the ship carries everyone
+  const out = [{ ref: player, x: player.x + 10, y: player.y + 21, hero: true }];
+  enemyManager.enemies.forEach((e) => { if (e.isAlive && !(e.kind && e.kind.flying) && onScreen(e.x + 10, e.y + 20)) out.push({ ref: e, x: e.x + 10, y: e.y + 20 }); });
+  mercManager.mercenaries.forEach((m) => { if (m.hp > 0) out.push({ ref: m, x: m.x + 8, y: m.y + 15 }); });
+  return out;
+}
+
+// Feet of every character on screen (layer 3: props are drawn again over the ones standing behind them)
+function standingFeet() {
+  const feet = [];
+  const on = (x, y) => x > camera.x - 48 && x < camera.x + VIEW_W + 48 && y > camera.y - 16 && y < camera.y + VIEW_H + 64;
+  const add = (x, y, r) => { if (on(x, y)) feet.push({ x, y, r }); };
+  if (player && player.hp > 0) add(player.x + 10, player.y + 21, 12);
+  enemyManager.enemies.forEach((e) => { if (e.isAlive && !(e.kind && e.kind.flying)) add(e.x + 10, e.y + 20, Math.max(12, e.hitR || 12)); });
+  mercManager.mercenaries.forEach((m) => { if (m.hp > 0) add(m.x + 8, m.y + 15, 12); });
+  [...npcManager.npcs, ...npcManager.partyNpcs].forEach((n) => { if (npcManager.shown(n)) add(n.x, n.y, 12); });
+  return feet;
 }
 
 // Right panel World Map: the live minimap, drawn in the side panel instead of over the game screen.
@@ -2589,7 +2620,7 @@ if (new URLSearchParams(location.search).has("debug")) {
   window.__vof = {
     get player() { return player; }, get stage() { return stage; }, get state() { return gameState; },
     get party() { return party; }, talkTo, switchMember,
-    quest, autoAdventure, guildBook, guildField, guildPanel, guildCeremony, enemyManager, lootManager, projectileManager, mercManager, npcManager, inventory, charPanel, travelTo, warpTo, saveGame, awaken, ROSTER, dayNight, dialog,
+    quest, autoAdventure, guildBook, guildField, guildPanel, guildCeremony, enemyManager, lootManager, projectileManager, fx, mercManager, npcManager, inventory, charPanel, travelTo, warpTo, saveGame, awaken, ROSTER, dayNight, dialog,
     openShop() { showShopModal = true; }, openMerc() { showMercModal = true; }, actIntro, codexScene, regressionModal, regression, openJobChange, market, settingsPanel, actionPanel, gameConfig, SkillSlots, fishing, workshop
   };
 }

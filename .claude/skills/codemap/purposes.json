@@ -51,7 +51,7 @@
   "js/elements.js": "Race, element, size and type tables with damage multipliers and variant prefixes (Ragnarok style), en/fil names",
   "js/enemy.js": "Enemy manager: monster spawning (hub, platforms, frontiers, elites, night, ambushes, bosses), AI state machines, telegraphed attacks, boss move styles (drift/blink, charge, chained) and skills (tear rain, wail cone, bone lances, chain sweep/grab, shockwave rings) with Aseprite effects, tiers/elements, death and drops",
   "js/errand.js": "Summon errands: the familiar/Falcon/Guardian Angel carries a 9-slot pack to market from the field (sell non-quest items, buy potions and herbs), is out of combat until back; ErrandPack order, dispatch, updateErrand, save/load",
-  "js/fx.js": "Game feel: screen shake, hit-stop, shockwave rings, sparks, blood, damage numbers, flashes, vignette",
+  "js/fx.js": "Game feel: screen shake, hit-stop, shockwave rings, sparks, blood, water splashes (droplets + ripples), damage numbers, flashes, vignette",
   "js/fxsprites.js": "Effect sprites from Aseprite (assets/sprites/fx/<name>, \"down-play\" tag): drawFx with rotation, size, anchor, alpha and cached tints; false when not loaded so callers keep their code-drawn effect",
   "js/hudbar.js": "Hero card over the top-right of the game screen (name and role of the member on the field, level, HP/stamina/EXP, status icons) plus the side panel's field state and Quest/Pause buttons",
   "js/i18n.js": "UI strings in English and Filipino (STRINGS.en / STRINGS.fil), language stored in localStorage; t(key), getLang/setLang/toggleLang/onLangChange",
@@ -93,7 +93,7 @@
   "js/skillpaths.js": "Might (STR) / Finesse (DEX) / Arcana (INT) skill paths: passive and active nodes, play-style affinity (noteStyle/styleOf), resonance, T/Y/U skill slots (assignSlot, castActive, tickActives) for the hotbar",
   "js/skills.js": "Stat builder rules and skill trees per class (Ragnarok style): stat costs/caps, skill definitions and bonuses, learn rules (level, style, own summon), resonance, auto stat path (autoAllocate), en/fil text",
   "js/skillslots.js": "Hotbar skill slots J/K/L: which ability sits in each slot (drag and drop), logical() maps a pressed key to its slot's ability for the controller and main.js, saved as skillKeys; ActionPanel.addSlotGroup adds more slot groups (e.g. path actives)",
-  "js/stage.js": "Hub map of the Aethelgard plains (Acts I–VI): grassland, Barracks, Citadel, 4 Warp Gateways, safe zones; same interface as world/platform.js",
+  "js/stage.js": "Hub map of the Aethelgard plains (Acts I–VI): Barracks, Citadel, 4 Warp Gateways, safe zones; draws the world layers (draw, drawShadows, drawPropsBack/Front, drawSurface, drawOverlay); same interface as world/platform.js",
   "js/status.js": "Abnormal statuses (Seven Anomaly Blights: bleed, silence, poison, shock, burn, freeze, blind): effects, resist chance, ticking",
   "js/summons/angel.js": "Priest's Guardian Angel companion: lifespan, hover/attack/taunt AI, drawing",
   "js/summons/falcon.js": "Archer's falcon companion: dive attacks, taunts, afterimages",
@@ -112,7 +112,7 @@
   "js/world/edges.js": "Barrier band along every Act platform / frontier map edge: solid tiles, themed boulders + trees on land, rolling haze (fog, smoke, poison gas…) over water",
   "js/world/fishing.js": "Fishing at liquid tiles: cast, bite, hook with E, bobber/line drawing and prompt",
   "js/world/frontiers.js": "Four frontier maps (Greyhorn Badlands, Gloomwater Fens, Stormcrown Highlands, Sunscorch Dunes): Acts, levels, themes, monsters, elites, sites, terrain and landmarks, en/fil text",
-  "js/world/grassland.js": "Hub grassland ground rendering (seeded grass and flora)",
+  "js/world/grassland.js": "Layer 1 ground details on the tile map: baked sand/wet-sand shoreline beside water, turf blades swaying in the wind, isFloraAt for footstep cues",
   "js/world/mining.js": "Ore veins on every platform (tier ore, plus minerals on Ashfall and the Citadel; rock salt): picks per vein, ore drops",
   "js/world/nav.js": "Ground movement for monsters, mercenaries and walking pets: obstacle grid, flow field toward the hero, steering around obstacles, confinement to bounds",
   "js/world/platform.js": "Platform or frontier map for one Act: tilemap, ambience, return gateway, frontier trail, safe zones; same interface as Stage",
@@ -216,5 +216,9 @@
   "scripts/test-guild-contracts.mjs": "Verify distinct hunt tiers, source-aware delivery, NPC supplies and caravan guiding, waves, damage, failure and persistence",
   "js/summons/automation.js": "Z-controlled pet loot pathfinding, defensive targeting, automatic falcon strikes and guardian angel replacement",
   "scripts/test-summon-auto.mjs": "Verify summon looting, defensive priority, timer and boarding guards, callbacks, bag limits and class summon cooldowns",
-  "scripts/test-summon-auto-browser.mjs": "Browser checks of Z pet pickups with a stationary owner, toggle pause/resume, automatic falcon strikes and guardian summoning"
+  "scripts/test-summon-auto-browser.mjs": "Browser checks of Z pet pickups with a stationary owner, toggle pause/resume, automatic falcon strikes and guardian summoning",
+  "js/world/layers.js": "World render layer order (0 ocean … 7 screen), sun vector and shadow colour, view/tile-span helpers, pixel ellipse",
+  "js/world/ocean.js": "Water of a map (real-water themes only): baked depth gradient #00b4d8→#03045e + bedrock, moving currents, A·sin(ωt) foam crests and glints, isWaterAt/isShoreAt",
+  "js/world/props.js": "Trees, stones and shoreline boulders as Y-sorted props: cached sprites, root-only collision boxes (lower third), contact shadows along the sun, map snapshots",
+  "js/world/footfall.js": "Footsteps and splashes: strides on the wet shore splash (hero: wet step sound), steps in tall flora brush, shots ending over water splash"
 }
