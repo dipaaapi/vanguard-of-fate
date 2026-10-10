@@ -7,12 +7,14 @@ import { veinsFor } from "../items/craftsets.js";
 import { PLATFORMS, PLATFORM_SIZE } from "./platforms.js";
 import { FRONTIERS } from "./frontiers.js";
 import { getLang } from "../i18n.js";
+import { GFX } from "../settings.js";
 import { drawZoneArt, hasZoneArt, zoneSolids, pushOutOf } from "./zonesprites.js";
 
 // ==================== PLATFORM (one Act of the campaign) ====================
 // Same interface as Stage (js/stage.js), so the camera, enemies, NPCs and world map can use it:
 //   width/height, bounds, safeZone(s), safeZoneAt(), isInsideSafeZone(), resolveTileCollision(),
-//   update(player, onPortal), draw(ctx), drawOverlay(ctx), tilemap.
+//   update(player, onPortal), the world layers draw / drawShadows / drawPropsBack / drawPropsFront /
+//   drawSurface / drawOverlay (js/world/layers.js), tilemap.
 // The camp is a sanctuary with a Return Gateway back to Aethelgard (from a frontier map: back to the
 // platform it was reached from). A platform with a `trail` has a second gateway to its frontier map.
 
@@ -69,6 +71,7 @@ export class Platform {
     const tm = this.tilemap;
     if (tm) {
       [tm.groundCanvas, tm.overlayCanvas, tm.atlas, tm.haze, tm.haze && tm.haze.canvas].forEach(free);
+      if (tm.props) tm.props.destroy();
       tm.groundCanvas = tm.overlayCanvas = tm.haze = null;
     }
     this.navGrid = null;
@@ -311,8 +314,11 @@ export class Platform {
     ctx.restore();
   }
 
+  // ==================== WORLD LAYERS (js/world/layers.js; same calls as js/stage.js) ====================
+  // Layers 0–1: water, ground and turf, then the landmark, camp, ship, ore and gateways
   draw(ctx, player = null) {
     this.tilemap.drawGround(ctx);
+    this.tilemap.drawTurf(ctx);
     this.def.landmark.call(this.def, ctx, this.tick / 20, this.cleared, this.riftOpen, this);
     this.drawCamp(ctx);
     if (this.boatSystem) this.boatSystem.draw(ctx, player);
@@ -330,9 +336,28 @@ export class Platform {
     });
   }
 
-  drawOverlay(ctx, player = null) {
-    // The ship's near side goes over the crew standing on its deck
+  // Layer 2: contact shadows of the props
+  drawShadows(ctx) {
+    if (GFX.shadows) this.tilemap.drawShadows(ctx);
+  }
+
+  // Layer 3: props sorted with the characters; the ship's near side goes over the crew on its deck
+  drawPropsBack(ctx) {
+    this.tilemap.drawPropsBack(ctx);
+  }
+
+  drawPropsFront(ctx, feet, player = null) {
+    this.tilemap.drawPropsFront(ctx, feet);
     if (this.boatSystem) this.boatSystem.drawFront(ctx, player);
+  }
+
+  // Layer 4: foam on the shore and glints on the water
+  drawSurface(ctx) {
+    this.tilemap.drawSurface(ctx);
+  }
+
+  // Layer 6: the edge's canopy and haze, then the platform's ambience
+  drawOverlay(ctx) {
     this.tilemap.drawOverlay(ctx);
     this.ambient.draw(ctx);
   }

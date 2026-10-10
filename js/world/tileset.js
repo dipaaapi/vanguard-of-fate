@@ -524,12 +524,15 @@ function drawCactus(ctx, x, y, rnd) {
 const TREES = { oak: drawOak, weeping: drawWeeping, pine: drawPine, seastack: drawSeastack, spire: drawSpire, ruin: drawRuin, pillar: drawPillar,
   hoodoo: drawHoodoo, cypress: drawCypress, crag: drawCrag, cactus: drawCactus };
 
-function drawTree(ctx, x, y, seed, kind = "oak") {
+// shadow = false: the prop layer draws the contact shadow itself (js/world/props.js)
+export function drawTree(ctx, x, y, seed, kind = "oak", shadow = true) {
   const rnd = mulberry32(seed);
-  ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
-  ctx.beginPath();
-  ctx.ellipse(x + 16, y + 29, 12, 3.5, 0, 0, Math.PI * 2);
-  ctx.fill();
+  if (shadow) {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
+    ctx.beginPath();
+    ctx.ellipse(x + 16, y + 29, 12, 3.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
   (TREES[kind] || drawOak)(ctx, x, y, rnd);
 }
 
@@ -550,12 +553,14 @@ export function drawTreeSplit(groundCtx, overlayCtx, x, y, seed, kind = "oak") {
   overlayCtx.restore();
 }
 
-export function drawRock(ctx, x, y, seed, colors = THEMES.aethelgard.rock) {
+export function drawRock(ctx, x, y, seed, colors = THEMES.aethelgard.rock, shadow = true) {
   const rnd = mulberry32(seed);
-  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
-  ctx.beginPath();
-  ctx.ellipse(x + 8, y + 13, 7, 2.5, 0, 0, Math.PI * 2);
-  ctx.fill();
+  if (shadow) {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+    ctx.beginPath();
+    ctx.ellipse(x + 8, y + 13, 7, 2.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
   fillCircle(ctx, x + 8, y + 9, 5, colors[0]);
   fillCircle(ctx, x + 8, y + 8, 4, colors[1]);
   fillCircle(ctx, x + 6, y + 6, 2, colors[2]);
