@@ -19,6 +19,7 @@
   "js/audio.js": "Procedural Web Audio engine (exported Sound): master/music/SFX buses with compressor and reverb, synth instruments, a lookahead sequencer that crossfades the tracks in js/music.js by place/night/boss (setScene), fanfares (playJingle) and 30+ play* SFX that fade by distance and mute off screen",
   "js/avatar/avatar.js": "Modular pixel-art Avatar renderer: layered parts (cape, hair, body, arms, held item), 8 directions, cached frames; Pix buffer and shade helpers; optional Aseprite sheet (sheetKey) like CreatureSprite",
   "js/avatar/beasts.js": "Act monster sprites (sporeling, drake, crab, serpent, brute, imp, specter, treant, …) with idle/walk/attack frames",
+  "js/avatar/jobmarks.js": "Class signature details from the splash art (look `job`): Knight crest and gold trim, Archer hooded mantle and falcon feather, Priest stole and circlet, Mage starry cloak and orbiting star, Fighter open gi, black belt and headband tails; drawn in layers by renderPix",
   "js/avatar/creature.js": "Non-human sprite base (CreatureSprite; uses Aseprite sheet frames when loaded, incl. extra anims and larger canvases) plus slime, wolf and falcon sprites and SheetBossSprite (a boss drawn from its Aseprite sheet, code sprite ×2 as fallback); facingFrom direction helper",
   "js/avatar/options.js": "Character Creator choices and colours, NPC-only parts, config normalisation and random look/name",
   "js/avatar/sheets.js": "Aseprite sprite sheets: loads assets/sprites/manifest.json and slices each sheet into per-tag frames (\"<dir>-<anim>\") that override the code-drawn creature frames; sheetCount for frame counts",
@@ -116,6 +117,7 @@
   "js/world/weather.js": "Hub weather cycle (clear, rain, storm, fog) with pixel-art clouds and shadows",
   "js/world/zonesprites.js": "Safe-zone art from Aseprite (zone/barracks, zone/castle, zone/<map id> camps and Emberhold): ZONE_ART placement + solid footprints, campLayout shared with the painter, drawZoneArt, zoneSolids, pushOutOf",
   "js/worldmap.js": "World map (M): zoomable/pannable region view (grid, sites, elites, route, side panel) and continent view; Tab, L, zoom and pan keys, mouse wheel",
+  "scripts/gamebrowser.mjs": "Headless-Chromium game driver shared by playtest, autoplay, visual-review and the vof-game MCP server: static server, flows, key scripts, seeded Math.random, state summary via window.__vof, setupHero, and the autoplay bot (BFS pathing over the tile grid)",
   "scripts/headless.mjs": "Headless loader: stubs document/window/localStorage/canvas so Node can import the game's modules (used by the balance, content and sprite tools); seedRandom for repeatable runs",
   "scripts/test-loot-drop.mjs": "Headless test: drops thrown into walls, water, cliffs and unreachable pockets on the hub and every platform land on walkable ground (loot.js findNearestWalkableSpot)",
   "tools/art/lib/darkBosses.js": "Hand-painted figures of the Dark Continent bosses (dolora, morgrave, vorgath) shared by the Act banners and portraits",
@@ -175,5 +177,7 @@
   "js/keybinds.js": "Rebindable keyboard controls (vanguard_keys): next party member, party member 1–6, full screen; matches / actionOf / bindFrom / label",
   "js/playables.js": "Playable NPC recruits: PLAYABLES (region, role, skills, trial requirements), makePlayableKit (combat kit per recruit), PlayableQuestBook (trial state)",
   "data/party.json": "Recruitment talk (offer / progress / join) for the five playable NPCs and the party HUD/toast wording, EN/FIL",
-  "tools/aseprite/paint/ui.mjs": "Painter for the HD interface frames (2× pixel density): hero card, party slots, portrait, meters, key chips, side-menu panels and buttons → aseprite/ui/<key>.aseprite"
+  "tools/aseprite/paint/ui.mjs": "Painter for the HD interface frames (2× pixel density): hero card, party slots, portrait, meters, key chips, side-menu panels and buttons → aseprite/ui/<key>.aseprite",
+  "tools/mcp/playwright-mcp.mjs": "Launches the pinned @playwright/mcp server with the session's Chromium (no sandbox as root) and serves the repo on 127.0.0.1:5173",
+  "tools/mcp/vof-game-mcp.mjs": "vof-game MCP server (stdio, no deps): game_start/input/hold/state/screenshot/eval/travel/autoplay/logs/stop on the real game in headless Chromium"
 }

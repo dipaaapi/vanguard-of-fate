@@ -1,5 +1,6 @@
 import { normalizeConfig } from "./options.js";
 import { sheetCount, sheetFrame, sheetsVersion } from "./sheets.js";
+import { jobPalette, drawJob } from "./jobmarks.js";
 
 // ==================== MODULAR AVATAR RENDERER ====================
 // A character is built from separate parts (layers):
@@ -1293,6 +1294,7 @@ function renderFrame(cfg, dir, anim, i) {
 function renderPix(cfg, dir, anim, i) {
   const p = new Pix(FRAME_W, FRAME_H);
   const c = palette(cfg);
+  if (cfg.job) jobPalette(c, cfg);
   const g = gait(anim, i);
   const dy = g.bob;
   const helmet = cfg.headgear === "helmet" || cfg.headgear === "hood";   // covers the hair
@@ -1313,6 +1315,7 @@ function renderPix(cfg, dir, anim, i) {
     if (cfg.quiver && !back) drawQuiver(p, c, dy, "down");
     if (!back && !helmet) drawHairBack(p, c, cfg, dy, "down");
     if (back && cfg.shield === "tower") drawShield(p, c, cfg, "up", { hx: female ? 21 : 22, hy: 23 + dy });
+    if (cfg.job) drawJob("behind", p, c, cfg, dy, dir, i);
 
     // Legs and feet
     drawLegFront(p, c, cfg, 12, g.lLift);
@@ -1324,6 +1327,7 @@ function renderPix(cfg, dir, anim, i) {
 
     drawTorso(p, c, cfg, dy, dir);
     if (cfg.robot) drawRobotCore(p, dy, dir);
+    if (cfg.job) drawJob("body", p, c, cfg, dy, dir, i);
 
     // Arms: in the back view the hands swap sides (right hand on the screen's right)
     let weaponArm, shieldArm;
@@ -1340,6 +1344,7 @@ function renderPix(cfg, dir, anim, i) {
     }
 
     if (cfg.cape && back) drawCape(p, c, dy, "up");
+    if (cfg.job) drawJob("over", p, c, cfg, dy, dir, i);
     if (cfg.quiver && back) drawQuiver(p, c, dy, "up");
     if (cfg.wings && back) drawWings(p, c, dy, "up", flap);
     if (!back && cfg.shield) drawShield(p, c, cfg, dir, shieldArm);
@@ -1353,6 +1358,7 @@ function renderPix(cfg, dir, anim, i) {
     if (cfg.beastkin) { drawBeastkinMuzzle(p, cfg, dy, dir); drawBeastkinEars(p, cfg, dy, dir); }
     if (cfg.ears === "elf") drawElfEars(p, c, dy, dir);
     drawHeadgear(p, c, cfg, dy, dir);
+    if (cfg.job) drawJob("head", p, c, cfg, dy, dir, i);
   } else {
     // ---- SIDE (facing right) ----
     const s = g.stride;
@@ -1360,6 +1366,7 @@ function renderPix(cfg, dir, anim, i) {
     if (cfg.cape) drawCape(p, c, dy, "side");
     if (cfg.quiver) drawQuiver(p, c, dy, "side");
     if (!helmet) drawHairBack(p, c, cfg, dy, "side");
+    if (cfg.job) drawJob("behind", p, c, cfg, dy, "side", i);
 
     // back arm (dark) behind the body
     const farArm = drawArmSide(p, c, cfg, dy, g.attack ? 0 : -s, true);
@@ -1376,6 +1383,7 @@ function renderPix(cfg, dir, anim, i) {
 
     drawTorso(p, c, cfg, dy, "side");
     if (cfg.robot) drawRobotCore(p, dy, "side");
+    if (cfg.job) drawJob("body", p, c, cfg, dy, "side", i);
     if (cfg.shield === "tower") drawShield(p, c, cfg, "side", farArm);   // in front of the body
 
     let arm;
@@ -1393,6 +1401,7 @@ function renderPix(cfg, dir, anim, i) {
     } else {
       arm = drawArmSide(p, c, cfg, dy, s, false);
     }
+    if (cfg.job) drawJob("over", p, c, cfg, dy, "side", i);
     drawHeld(p, c, cfg, "side", arm, farArm, g);
 
     drawHead(p, c, cfg, dy, "side");
@@ -1402,6 +1411,7 @@ function renderPix(cfg, dir, anim, i) {
     if (cfg.beastkin) { drawBeastkinMuzzle(p, cfg, dy, "side"); drawBeastkinEars(p, cfg, dy, "side"); }
     if (cfg.ears === "elf") drawElfEars(p, c, dy, "side");
     drawHeadgear(p, c, cfg, dy, "side");
+    if (cfg.job) drawJob("head", p, c, cfg, dy, "side", i);
   }
 
   p.detail();

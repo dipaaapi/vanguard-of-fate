@@ -93,17 +93,18 @@ then `outline <file>` and read only the line range you need.
 
 ## js/avatar/
 
-- `avatar.js` (63 KB, 1480) — Modular pixel-art Avatar renderer: layered parts (cape, hair, body, arms, held item), 8 directions, cached frames; Pix buffer and shade helpers; optional Aseprite sheet (sheetKey) like CreatureSprite · FRAME_W, FRAME_H, DIRS, shade, Pix, whiteOf, Avatar
+- `avatar.js` (63 KB, 1490) — Modular pixel-art Avatar renderer: layered parts (cape, hair, body, arms, held item), 8 directions, cached frames; Pix buffer and shade helpers; optional Aseprite sheet (sheetKey) like CreatureSprite · FRAME_W, FRAME_H, DIRS, shade, Pix, whiteOf, Avatar
 - `beasts.js` (25 KB, 518) — Act monster sprites (sporeling, drake, crab, serpent, brute, imp, specter, treant, …) with idle/walk/attack frames · SporelingSprite, DrakeSprite, CrabSprite, SerpentSprite, BruteSprite, ImpSprite, SpecterSprite, TreantSprite +1
 - `creature.js` (16 KB, 385) — Non-human sprite base (CreatureSprite; uses Aseprite sheet frames when loaded, incl. extra anims and larger canvases) plus slime, wolf and falcon sprites and SheetBossSprite (a boss drawn from its Aseprite sheet, code sprite ×2 as fallback); facingFrom direction helper · CreatureSprite, ellipse, SheetBossSprite, SlimeSprite, WolfSprite, FalconSprite, facingFrom
-- `options.js` (5.9 KB, 141) — Character Creator choices and colours, NPC-only parts, config normalisation and random look/name · FIELDS, DEFAULT_CONFIG, summonedGarb, normalizeConfig, randomConfig, randomName
+- `jobmarks.js` (14 KB, 309) — Class signature details from the splash art (look `job`): Knight crest and gold trim, Archer hooded mantle and falcon feather, Priest stole and circlet, Mage starry cloak and orbiting star, Fighter open gi, black belt and headband tails; drawn in layers by renderPix · JOBS, jobPalette, drawJob
+- `options.js` (6.0 KB, 142) — Character Creator choices and colours, NPC-only parts, config normalisation and random look/name · FIELDS, DEFAULT_CONFIG, summonedGarb, normalizeConfig, randomConfig, randomName
 - `sheets.js` (3.4 KB, 88) — Aseprite sprite sheets: loads assets/sprites/manifest.json and slices each sheet into per-tag frames ("<dir>-<anim>") that override the code-drawn creature frames; sheetCount for frame counts · sheetsVersion, sheetCount, sheetFrame, sheetDurations, loadSpriteSheets
 
 ## js/classes/
 
 - `archer.js` (3.5 KB, 118) — Elven Archer class: quiver capacity, timed reload, falcon strike · ArcherClass
 - `fighter.js` (2.1 KB, 58) — Fighter (Brawler) class: ki spheres, lock-on, homing flying dropkick · FighterClass
-- `job.js` (2.5 KB, 57) — Job look after the Job Awakening: keeps the creator body, swaps outfit and weapon per class · FRAME_COUNTS, refreshLook, equipJob
+- `job.js` (2.7 KB, 58) — Job look after the Job Awakening: keeps the creator body, swaps outfit and weapon per class · FRAME_COUNTS, refreshLook, equipJob
 - `knight.js` (2.2 KB, 57) — Knight (Aegis Lancer) class: stats and attack/skill handlers · KnightClass
 - `mage.js` (2.0 KB, 64) — Mage (Arcane Sage) class: meteor and thunderstorm skills · MageClass
 - `novice.js` (2.7 KB, 85) — Novice starting class (dagger + buckler) before the Lv 10 Job Awakening · getNovice
@@ -131,7 +132,7 @@ then `outline <file>` and read only the line range you need.
 ## js/npc/
 
 - `npcs.js` (31 KB, 815) — NPCs in the world: spawning per place, wandering, ambient chatter (npc_conversations.json), sparring, talking · NPCManager
-- `roster.js` (9.3 KB, 151) — Lore characters from LORE.md: Avatar looks, places, mentor per class, summoner (Aurelia/Kenneth) · NPC_DEFS, MENTOR_OF, summonerIdFor
+- `roster.js` (9.4 KB, 151) — Lore characters from LORE.md: Avatar looks, places, mentor per class, summoner (Aurelia/Kenneth) · NPC_DEFS, MENTOR_OF, summonerIdFor
 
 ## js/scenes/
 
@@ -171,6 +172,7 @@ then `outline <file>` and read only the line range you need.
 
 ## scripts/
 
+- `gamebrowser.mjs` (19 KB, 327) — Headless-Chromium game driver shared by playtest, autoplay, visual-review and the vof-game MCP server: static server, flows, key scripts, seeded Math.random, state summary via window.__vof, setupHero, and the autoplay bot (BFS pathing over the tile grid) · ROOT, FLOWS, findPlaywright, chromiumPath, serve, startGame, runSteps, readState +2
 - `headless.mjs` (4.8 KB, 100) — Headless loader: stubs document/window/localStorage/canvas so Node can import the game's modules (used by the balance, content and sprite tools); seedRandom for repeatable runs · ROOT, installStubs, load, seedRandom
 - `test-loot-drop.mjs` (1.4 KB, 33) — Headless test: drops thrown into walls, water, cliffs and unreachable pockets on the hub and every platform land on walkable ground (loot.js findNearestWalkableSpot)
 
@@ -244,3 +246,8 @@ then `outline <file>` and read only the line range you need.
 ## tools/audio/
 
 - `render-audio.mjs` (7.0 KB, 116) — Offline renders of the music, jingles and SFX to WAV/MP3 with peak/RMS checks: node tools/audio/render-audio.mjs [music|jingles|sfx|<name>…] [--mp3] [--out dir]; exits 1 on clipping or silence
+
+## tools/mcp/
+
+- `playwright-mcp.mjs` (1.7 KB, 34) — Launches the pinned @playwright/mcp server with the session's Chromium (no sandbox as root) and serves the repo on 127.0.0.1:5173
+- `vof-game-mcp.mjs` (9.4 KB, 147) — vof-game MCP server (stdio, no deps): game_start/input/hold/state/screenshot/eval/travel/autoplay/logs/stop on the real game in headless Chromium
