@@ -1,0 +1,723 @@
+{
+ "act-1": {
+  "layers": [
+   {
+    "name": "sky",
+    "z": 0,
+    "img": "sky.png",
+    "light": "sky-light.png"
+   },
+   {
+    "name": "far",
+    "z": 0.2,
+    "img": "far.png"
+   },
+   {
+    "name": "hills",
+    "z": 0.45,
+    "img": "hills.png"
+   },
+   {
+    "name": "valley",
+    "z": 0.7,
+    "img": "valley.png",
+    "light": "valley-light.png"
+   },
+   {
+    "name": "ridge",
+    "z": 1,
+    "img": "ridge.png"
+   }
+  ]
+ },
+ "act-10": {
+  "layers": [
+   {
+    "name": "sky",
+    "z": 0,
+    "img": "sky.png"
+   },
+   {
+    "name": "volcano",
+    "z": 0.2,
+    "img": "volcano.png",
+    "light": "volcano-light.png"
+   },
+   {
+    "name": "forge",
+    "z": 0.45,
+    "img": "forge.png",
+    "light": "forge-light.png"
+   },
+   {
+    "name": "lake",
+    "z": 0.7,
+    "img": "lake.png",
+    "light": "lake-light.png"
+   },
+   {
+    "name": "party",
+    "z": 1,
+    "img": "party.png"
+   },
+   {
+    "name": "rocks",
+    "z": 1.4,
+    "img": "rocks.png"
+   }
+  ]
+ },
+ "act-11": {
+  "layers": [
+   {
+    "name": "sky",
+    "z": 0,
+    "img": "sky.png",
+    "light": "sky-light.png"
+   },
+   {
+    "name": "crags",
+    "z": 0.15,
+    "img": "crags.png"
+   },
+   {
+    "name": "sea",
+    "z": 0.35,
+    "img": "sea.png"
+   },
+   {
+    "name": "wreck",
+    "z": 0.55,
+    "img": "wreck.png",
+    "light": "wreck-light.png"
+   },
+   {
+    "name": "beach",
+    "z": 0.85,
+    "img": "beach.png"
+   },
+   {
+    "name": "dolora",
+    "z": 0.6,
+    "img": "dolora.png",
+    "light": "dolora-light.png"
+   },
+   {
+    "name": "party",
+    "z": 0.95,
+    "img": "party.png",
+    "light": "party-light.png"
+   }
+  ]
+ },
+ "act-12": {
+  "layers": [
+   {
+    "name": "sky",
+    "z": 0,
+    "img": "sky.png"
+   },
+   {
+    "name": "far",
+    "z": 0.15,
+    "img": "far.png"
+   },
+   {
+    "name": "field",
+    "z": 0.6,
+    "img": "field.png"
+   },
+   {
+    "name": "cairn",
+    "z": 0.8,
+    "img": "cairn.png",
+    "light": "cairn-light.png"
+   },
+   {
+    "name": "morgrave",
+    "z": 0.8,
+    "img": "morgrave.png",
+    "light": "morgrave-light.png"
+   },
+   {
+    "name": "party",
+    "z": 1,
+    "img": "party.png",
+    "light": "party-light.png"
+   }
+  ]
+ },
+ "act-13": {
+  "layers": [
+   {
+    "name": "sky",
+    "z": 0,
+    "img": "sky.png"
+   },
+   {
+    "name": "crags",
+    "z": 0.15,
+    "img": "crags.png"
+   },
+   {
+    "name": "citadel",
+    "z": 0.35,
+    "img": "citadel.png",
+    "light": "citadel-light.png"
+   },
+   {
+    "name": "harbor",
+    "z": 0.6,
+    "img": "harbor.png"
+   },
+   {
+    "name": "shore",
+    "z": 1,
+    "img": "shore.png",
+    "light": "shore-light.png"
+   }
+  ]
+ },
+ "act-14": {
+  "layers": [
+   {
+    "name": "abyss",
+    "z": 0,
+    "img": "abyss.png"
+   },
+   {
+    "name": "walls",
+    "z": 0.55,
+    "img": "walls.png"
+   },
+   {
+    "name": "spire",
+    "z": 0.3,
+    "img": "spire.png",
+    "light": "spire-light.png"
+   },
+   {
+    "name": "vorgath",
+    "z": 0.6,
+    "img": "vorgath.png",
+    "light": "vorgath-light.png"
+   },
+   {
+    "name": "ledge",
+    "z": 1,
+    "img": "ledge.png",
+    "light": "ledge-light.png"
+   }
+  ]
+ },
+ "act-15": {
+  "layers": [
+   {
+    "name": "sky",
+    "z": 0,
+    "img": "sky.png"
+   },
+   {
+    "name": "colossus",
+    "z": 0.25,
+    "img": "colossus.png",
+    "light": "colossus-light.png"
+   },
+   {
+    "name": "star",
+    "z": 0.4,
+    "img": "star.png",
+    "light": "star-light.png"
+   },
+   {
+    "name": "lantern",
+    "z": 0.7,
+    "img": "lantern.png",
+    "light": "lantern-light.png"
+   },
+   {
+    "name": "platform",
+    "z": 1,
+    "img": "platform.png"
+   }
+  ]
+ },
+ "act-2": {
+  "layers": [
+   {
+    "name": "wall",
+    "z": 0.3,
+    "img": "wall.png"
+   },
+   {
+    "name": "pillars",
+    "z": 0.5,
+    "img": "pillars.png"
+   },
+   {
+    "name": "floor",
+    "z": 0.8,
+    "img": "floor.png",
+    "light": "floor-light.png"
+   },
+   {
+    "name": "court",
+    "z": 1,
+    "img": "court.png",
+    "light": "court-light.png"
+   }
+  ]
+ },
+ "act-3": {
+  "layers": [
+   {
+    "name": "sky",
+    "z": 0,
+    "img": "sky.png"
+   },
+   {
+    "name": "citadel",
+    "z": 0.15,
+    "img": "citadel.png",
+    "light": "citadel-light.png"
+   },
+   {
+    "name": "walls",
+    "z": 0.4,
+    "img": "walls.png"
+   },
+   {
+    "name": "court",
+    "z": 0.8,
+    "img": "court.png",
+    "light": "court-light.png"
+   }
+  ]
+ },
+ "act-4": {
+  "layers": [
+   {
+    "name": "wall",
+    "z": 0.3,
+    "img": "wall.png",
+    "light": "wall-light.png"
+   },
+   {
+    "name": "dais",
+    "z": 0.7,
+    "img": "dais.png"
+   },
+   {
+    "name": "altar",
+    "z": 0.75,
+    "img": "altar.png",
+    "light": "altar-light.png"
+   },
+   {
+    "name": "court",
+    "z": 1,
+    "img": "court.png",
+    "light": "court-light.png"
+   },
+   {
+    "name": "front",
+    "z": 1.1,
+    "img": "front.png",
+    "light": "front-light.png"
+   }
+  ]
+ },
+ "act-5": {
+  "layers": [
+   {
+    "name": "wall",
+    "z": 0.3,
+    "img": "wall.png",
+    "light": "wall-light.png"
+   },
+   {
+    "name": "floor",
+    "z": 0.75,
+    "img": "floor.png"
+   },
+   {
+    "name": "actors",
+    "z": 1,
+    "img": "actors.png",
+    "light": "actors-light.png"
+   }
+  ]
+ },
+ "act-6": {
+  "layers": [
+   {
+    "name": "sky",
+    "z": 0,
+    "img": "sky.png"
+   },
+   {
+    "name": "lowlands",
+    "z": 0.3,
+    "img": "lowlands.png"
+   },
+   {
+    "name": "balcony",
+    "z": 0.85,
+    "img": "balcony.png"
+   },
+   {
+    "name": "actors",
+    "z": 1,
+    "img": "actors.png",
+    "light": "actors-light.png"
+   }
+  ]
+ },
+ "act-7": {
+  "layers": [
+   {
+    "name": "sky",
+    "z": 0,
+    "img": "sky.png",
+    "light": "sky-light.png"
+   },
+   {
+    "name": "trees",
+    "z": 0.3,
+    "img": "trees.png"
+   },
+   {
+    "name": "grove",
+    "z": 0.6,
+    "img": "grove.png"
+   },
+   {
+    "name": "malakor",
+    "z": 0.7,
+    "img": "malakor.png",
+    "light": "malakor-light.png"
+   },
+   {
+    "name": "near",
+    "z": 1,
+    "img": "near.png",
+    "light": "near-light.png"
+   },
+   {
+    "name": "trunks",
+    "z": 1.45,
+    "img": "trunks.png"
+   },
+   {
+    "name": "party",
+    "z": 1,
+    "img": "party.png",
+    "light": "party-light.png"
+   }
+  ]
+ },
+ "act-8": {
+  "layers": [
+   {
+    "name": "sky",
+    "z": 0,
+    "img": "sky.png"
+   },
+   {
+    "name": "cliffs",
+    "z": 0.2,
+    "img": "cliffs.png"
+   },
+   {
+    "name": "sea",
+    "z": 0.5,
+    "img": "sea.png",
+    "light": "sea-light.png"
+   },
+   {
+    "name": "cliff",
+    "z": 1,
+    "img": "cliff.png"
+   }
+  ]
+ },
+ "act-9": {
+  "layers": [
+   {
+    "name": "sky",
+    "z": 0,
+    "img": "sky.png"
+   },
+   {
+    "name": "peaks",
+    "z": 0.15,
+    "img": "peaks.png"
+   },
+   {
+    "name": "spire",
+    "z": 0.3,
+    "img": "spire.png",
+    "light": "spire-light.png"
+   },
+   {
+    "name": "ridge",
+    "z": 0.5,
+    "img": "ridge.png"
+   },
+   {
+    "name": "pass",
+    "z": 0.6,
+    "img": "pass.png",
+    "light": "pass-light.png"
+   },
+   {
+    "name": "ledge",
+    "z": 1,
+    "img": "ledge.png",
+    "light": "ledge-light.png"
+   },
+   {
+    "name": "pines",
+    "z": 1.5,
+    "img": "pines.png"
+   }
+  ]
+ },
+ "pro-blights": {
+  "layers": [
+   {
+    "name": "sky",
+    "z": 0,
+    "img": "sky.png"
+   },
+   {
+    "name": "village",
+    "z": 0.15,
+    "img": "village.png",
+    "light": "village-light.png"
+   },
+   {
+    "name": "trees",
+    "z": 0.45,
+    "img": "trees.png"
+   },
+   {
+    "name": "ground",
+    "z": 0.9,
+    "img": "ground.png"
+   },
+   {
+    "name": "thorns",
+    "z": 1.55,
+    "img": "thorns.png"
+   }
+  ]
+ },
+ "pro-earth": {
+  "layers": [
+   {
+    "name": "sky",
+    "z": 0,
+    "img": "sky.png"
+   },
+   {
+    "name": "skyline",
+    "z": 0.12,
+    "img": "skyline.png"
+   },
+   {
+    "name": "towers",
+    "z": 0.4,
+    "img": "towers.png",
+    "light": "towers-light.png"
+   },
+   {
+    "name": "street",
+    "z": 1,
+    "img": "street.png",
+    "light": "street-light.png"
+   },
+   {
+    "name": "frame",
+    "z": 1.6,
+    "img": "frame.png",
+    "light": "frame-light.png"
+   }
+  ]
+ },
+ "pro-eclipse": {
+  "layers": [
+   {
+    "name": "sky",
+    "z": 0,
+    "img": "sky.png"
+   },
+   {
+    "name": "peaks",
+    "z": 0.12,
+    "img": "peaks.png"
+   },
+   {
+    "name": "satan",
+    "z": 0.22,
+    "img": "satan.png"
+   },
+   {
+    "name": "citadel",
+    "z": 0.32,
+    "img": "citadel.png"
+   },
+   {
+    "name": "plain",
+    "z": 0.65,
+    "img": "plain.png"
+   },
+   {
+    "name": "ridge",
+    "z": 1.35,
+    "img": "ridge.png"
+   }
+  ]
+ },
+ "pro-golden-age": {
+  "layers": [
+   {
+    "name": "sky",
+    "z": 0,
+    "img": "sky.png",
+    "light": "sky-light.png"
+   },
+   {
+    "name": "peaks",
+    "z": 0.12,
+    "img": "peaks.png"
+   },
+   {
+    "name": "citadel",
+    "z": 0.32,
+    "img": "citadel.png"
+   },
+   {
+    "name": "plains",
+    "z": 0.6,
+    "img": "plains.png",
+    "light": "plains-light.png"
+   },
+   {
+    "name": "meadow",
+    "z": 1,
+    "img": "meadow.png"
+   },
+   {
+    "name": "frame",
+    "z": 1.55,
+    "img": "frame.png"
+   }
+  ]
+ },
+ "pro-omen": {
+  "layers": [
+   {
+    "name": "sky",
+    "z": 0,
+    "img": "sky.png"
+   },
+   {
+    "name": "crags",
+    "z": 0.15,
+    "img": "crags.png"
+   },
+   {
+    "name": "crater",
+    "z": 0.55,
+    "img": "crater.png"
+   },
+   {
+    "name": "rocks",
+    "z": 1.5,
+    "img": "rocks.png"
+   }
+  ]
+ },
+ "pro-ritual": {
+  "layers": [
+   {
+    "name": "vault",
+    "z": 0.25,
+    "img": "vault.png"
+   },
+   {
+    "name": "pillars",
+    "z": 0.5,
+    "img": "pillars.png",
+    "light": "pillars-light.png"
+   },
+   {
+    "name": "floor",
+    "z": 0.85,
+    "img": "floor.png"
+   },
+   {
+    "name": "columns",
+    "z": 1.6,
+    "img": "columns.png"
+   }
+  ]
+ },
+ "pro-sanctuary": {
+  "layers": [
+   {
+    "name": "sky",
+    "z": 0,
+    "img": "sky.png"
+   },
+   {
+    "name": "citadel",
+    "z": 0.15,
+    "img": "citadel.png"
+   },
+   {
+    "name": "walls",
+    "z": 0.45,
+    "img": "walls.png"
+   },
+   {
+    "name": "court",
+    "z": 0.85,
+    "img": "court.png",
+    "light": "court-light.png"
+   },
+   {
+    "name": "braziers",
+    "z": 1.3,
+    "img": "braziers.png",
+    "light": "braziers-light.png"
+   }
+  ]
+ },
+ "pro-throne": {
+  "layers": [
+   {
+    "name": "wall",
+    "z": 0.25,
+    "img": "wall.png"
+   },
+   {
+    "name": "pillars",
+    "z": 0.5,
+    "img": "pillars.png",
+    "light": "pillars-light.png"
+   },
+   {
+    "name": "hall",
+    "z": 0.8,
+    "img": "hall.png"
+   },
+   {
+    "name": "columns",
+    "z": 1.6,
+    "img": "columns.png"
+   }
+  ]
+ }
+}

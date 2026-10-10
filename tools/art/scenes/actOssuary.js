@@ -8,15 +8,18 @@ export function paint(P, { R, K, S }) {
   const { hex, shadeC, sky, clouds, ridgeFn, ridge, fogBand, stand, rimLight, sparks, groundTex, rock, skull, bones, ribcage, tornBanner } = K;
   const HOR = 138;
 
+  P.layer("sky", 0);
   sky(P, [[0, hex("#6a6a74")], [0.45, hex("#a8a6a0")], [0.85, hex("#d8d4c6")], [1, hex("#ece6d4")]], 0, HOR, 3);
   P.glow(150, 54, 40, hex("#f4f0e4"), 0.35, 1.4);
   P.disc(150, 54, 9, hex("#e8e4d8"));
   clouds(P, { y0: 0, y1: 100, cover: 0.55, seed: 33, colors: ["#5a5a64", "#80808a", "#b4b0a8"], stretch: 6 });
+  P.layer("far", 0.15);
   // low far hills and the haze of the endless field
   ridge(P, ridgeFn({ base: HOR, amp: 14, freq: 0.02, seed: 8 }), "#8a867e", { light: "#a29e94" });
   ridge(P, ridgeFn({ base: HOR + 6, amp: 8, freq: 0.035, seed: 15 }), "#a09a8c");
   fogBand(P, HOR + 2, 8, "#d8d4c6", 0.6, 4);
 
+  P.layer("field", 0.6);
   // the field itself, bone-grey, darkening toward the camera
   ridge(P, (x) => HOR + 8 + K.fbm1(x * 0.02, 2) * 3, groundTex(["#cfc8b2", "#a8a08a", "#8a8270", "#6a6456", "#4a4640"], { seed: 6, depth: 120 }));
   const depth = (y) => 0.4 + ((y - HOR) / (P.h - HOR)) * 1.6;
@@ -35,6 +38,7 @@ export function paint(P, { R, K, S }) {
   // spears and swords standing in the ground
   for (let i = 0; i < 14; i++) { const x = R.range(10, 470), y = R.range(HOR + 40, P.h), d = depth(y); P.line(x, y, x + R.range(-4, 4) * d, y - 10 * d, hex("#4a4038")); P.set(x, y - 10 * d, hex("#8a8a92")); }
 
+  P.layer("cairn", 0.8);
   // the Lantern Knight's Cairn and its keeper
   const cx = 76, cg = 196;
   for (const [dx, dy, w, h] of [[-14, 0, 16, 9], [12, 0, 18, 10], [0, 0, 22, 12], [-6, -9, 16, 9], [8, -8, 14, 9], [0, -16, 14, 9], [0, -23, 9, 6]])
@@ -49,6 +53,7 @@ export function paint(P, { R, K, S }) {
   let [l, t] = stand(P, ald, cx + 26, cg + 6); rimLight(P, ald, l, t, "#ffd27a", -1);
   P.glow(cx + 32, cg - 8, 7, hex("#ffd27a"), 0.8, 1.8); P.rect(cx + 31, cg - 10, 3, 4, hex("#fff1c4"));
 
+  P.layer("morgrave", 0.8);
   // Morgrave and his line of bone lances erupting toward the Vanguard
   P.wash(330, 150, 70, 60, hex("#3a3a2a"), 0.25);
   P.ellipse(330, 214, 36, 5, hex("#2a2620"), 0.6);
@@ -65,12 +70,14 @@ export function paint(P, { R, K, S }) {
     P.set(x - 1, y - 15, hex("#bef264")); P.set(x + 1, y - 15, hex("#bef264"));
   }
 
+  P.layer("party", 1);
   // the Vanguard, foreground left, facing the warlord
   for (const [f, x, y] of [[S.hero("knight", "side", "attack", 0), 186, 256], [S.npc("renzo", "side"), 160, 262], [S.npc("veyra", "side"), 210, 264], [S.npc("julian", "side"), 136, 266]]) {
     const [a, b] = stand(P, f, x, y); rimLight(P, f, a, b, "#f4f0e4", -1);
   }
   P.glow(194, 244, 10, hex("#67e8f9"), 0.4, 2);
 
+  P.layer("weather", 1.2, { skip: true });   // live HD particles replace the baked ones
   sparks(P, R, 90, { y0: 60, y1: 260, colors: ["#f4f0e4", "#d9f99d", "#ffffff"], glowK: 0.1 });
   P.vignette([24, 22, 18], 0.55, 0.6);
   void shadeC;

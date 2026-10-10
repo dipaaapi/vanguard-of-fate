@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cinema preview</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&display=swap" />
+<link rel="stylesheet" href="../../css/style.css" />
+<style>html, body { margin: 0; background: #000; } #c { display: block; }</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script type="module">
+  // Used by tools/cinema/preview.mjs: renders one cinematic frame headless with the game's own code
+  import { Cinema, loadSet } from "../../js/cinema/engine.js";
+  import { buildShots } from "../../js/cinema/prologueShots.js";
+  import { ActIntro } from "../../js/actintro.js";
+  import { Avatar } from "../../js/avatar/avatar.js";
+  import { WolfSprite } from "../../js/avatar/creature.js";
+  import { NPC_DEFS } from "../../js/npc/roster.js";
+
+  const W = Number(new URLSearchParams(location.search).get("w") || 1920);
+  window.renderPro = async (id, p, warm = 60) => {
+    const canvas = document.getElementById("c");
+    const cine = new Cinema(canvas);
+    cine.resize(W / (window.devicePixelRatio || 1), (W * 9) / 16 / (window.devicePixelRatio || 1), W);
+    const res = await (await fetch("../../data/prologue.json")).json();
+    const cast = {
+      hero: new Avatar({}), summoner: new Avatar(NPC_DEFS.aurelia.look), king: new Avatar(NPC_DEFS.king.look),
+      ronald: new Avatar(NPC_DEFS.ronald.look), edgar: new Avatar(NPC_DEFS.edgar.look),
+      wolf: new WolfSprite({ body: "#1c1222", bodyD: "#0a0610", bodyL: "#3a2442", eye: "#ff3b3b" }),
+      streaks: Array.from({ length: 160 }, (_, i) => ({ q: i * 2.39996, d: (i * 0.618) % 1, v: 0.6 + ((i * 37) % 14) / 10, a: 0.5 + ((i * 13) % 5) / 10 })),
+      flags: {}, panel: res.panel.en
+    };
+    const shot = buildShots(cast).find((s) => s.id === id);
+    if (!shot) throw new Error(`no shot ${id}`);
+    const layers = (await loadSet(shot.set)) || [];
+    cine.begin(shot, layers);
+    cine.bars = 1;
+    const T = Math.round(p * shot.dur);
+    for (let f = Math.max(0, T - warm); f <= T; f++) { cine.fade = 0; cine.frame(f, f / shot.dur); }
+    return canvas.toDataURL("image/png");
+  };
+  window.renderAct = async (act, t, title) => {
+    const intro = new ActIntro();
+    intro.quality = () => "sharp";
+    intro.fit = () => intro.cine.resize(W / (window.devicePixelRatio || 1), (W * 9) / 16 / (window.devicePixelRatio || 1), W);
+    if (act === 0) intro.startStory("CHAPTER", title, "A test caption for a story card.", "#67e8f9");
+    else intro.start(act, title);
+    for (let i = 0; i < 200 && !intro.ready; i++) await new Promise((r) => setTimeout(r, 25));
+    intro.t = Math.max(0, t - 40);
+    while (intro.t < t && intro.open) intro.draw();
+    return intro.canvas.toDataURL("image/png");
+  };
+  window.harnessReady = true;
+</script>
+</body>
+</html>

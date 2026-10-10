@@ -602,3 +602,21 @@ body[data-mode="play"] .lore-more { display: block; flex: 0 0 auto; padding: 7px
 .ar-hint { margin: 0; padding: 8px 16px; font-size: 11px; color: #64748b; text-align: center; border-top: 1px solid #22304d; }
 .ar-hint span { color: #ffd166; font-weight: bold; }
 
+
+/* ================================================================= */
+/* ACT INTRO — HD cinema overlay (js/actintro.js)                    */
+/* ================================================================= */
+.act-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  pointer-events: none;
+}
+
+.act-intro.show { display: flex; }
+
+.act-intro canvas { display: block; }

@@ -1,20 +1,17 @@
 // ==================== ACT INTRO ====================
-// A short cinematic when the story reaches a new Act: the Act's banner (assets/banner/act-N.png)
-// slowly pushes in behind letterbox bars, motes drift in the Act's colour and a light sweeps
-// across, then the Act number, its title and the banner's caption (data/art_manifest.json)
-// fade in. About six seconds; Enter / Esc / Space / J skip it. The game waits while it plays.
+// An HD cinematic when the story reaches a new Act: the Act's layered set (assets/cinema/act-N)
+// is rebuilt at screen resolution by js/cinema/engine.js with its own camera move, parallax,
+// depth of field, lights and particles (js/cinema/actShots.js); the letterbox slides in, then the
+// Act number, its title and the banner's EN/FIL caption (data/art_manifest.json) are set in HD
+// type. About seven and a half seconds; Enter / Esc / Space / J skip it. The game waits while it
+// plays. It draws on its own full-window canvas over the game, so it is not limited to 480×270.
 import { getLang } from "./i18n.js";
+import { Cinema, loadSet, span, ease, rgba, CINEMA_WIDTH } from "./cinema/engine.js";
+import { ACT_SHOTS, storyShot } from "./cinema/actShots.js";
 
 const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV"];
-const LENGTH = 390;            // frames (6.5 s)
-const FADE_OUT = 36;
-// Mote colours per Act (follow each banner's light)
-const MOTES = {
-  1: ["#c084fc", "#e9d5ff"], 2: ["#5ee7ff", "#e0f2fe"], 3: ["#fde68a", "#c084fc"], 4: ["#fde68a", "#ffffff"],
-  5: ["#5ee7ff", "#fde68a"], 6: ["#e0e7ff", "#a5b4fc"], 7: ["#86efac", "#c084fc"], 8: ["#7dd3fc", "#e0f2fe"],
-  9: ["#ffffff", "#bae6fd"], 10: ["#fb923c", "#fde047"], 11: ["#7dd3fc", "#cbd5e1"], 12: ["#e7e5e4", "#fb923c"],
-  13: ["#f87171", "#fb923c"], 14: ["#f43f5e", "#a1a1aa"], 15: ["#c084fc", "#f0abfc"]
-};
+const LENGTH = 450;            // frames (7.5 s)
+const FADE_OUT = 40;
 const SKIP = new Set(["Enter", "Escape", "Space", "KeyJ", "NumpadEnter"]);
 
 let captions = null;
@@ -34,8 +31,36 @@ export class ActIntro {
   constructor() {
     this.open = false;
     this.t = 0;
-    this.img = null;
-    this.motes = [];
+    this.quality = () => "balanced";   // main.js: Options → Quality
+    if (typeof document === "undefined") return;
+    this.el = document.createElement("div");
+    this.el.className = "act-intro";
+    this.el.setAttribute("aria-hidden", "true");
+    this.canvas = document.createElement("canvas");
+    this.el.append(this.canvas);
+    document.body.append(this.el);
+    this.cine = new Cinema(this.canvas);
+    window.addEventListener("resize", () => { if (this.open) this.fit(); });
+  }
+
+  fit() { this.cine.resize(window.innerWidth, window.innerHeight, CINEMA_WIDTH[this.quality()] || CINEMA_WIDTH.balanced); }
+
+  begin(shot, setId, fallback) {
+    this.t = 0;
+    this.open = true;
+    this.shot = shot;
+    this.ready = false;
+    this.cine.reset();
+    if (!this.el) return;
+    this.el.classList.add("show");
+    this.fit();
+    if (!setId && !fallback) { this.cine.begin(shot, []); this.ready = true; return; }
+    const token = (this.token = {});
+    loadSet(setId, fallback).then((layers) => {
+      if (this.token !== token || !this.open) return;
+      this.cine.begin(shot, layers || []);
+      this.ready = true;
+    });
   }
 
   // act: number; title: "The Earthbound Summoning" (already in the player's language)
@@ -44,32 +69,22 @@ export class ActIntro {
     this.label = `ACT ${ROMAN[act] || act}`;
     this.title = title || "";
     this.caption = null;
-    this.t = 0;
-    this.open = true;
-    this.img = new Image();
-    this.img.src = `assets/banner/act-${act}.png`;
-    const cols = MOTES[act] || MOTES[1];
-    this.motes = Array.from({ length: 46 }, () => ({
-      x: Math.random() * 480, y: 40 + Math.random() * 230, v: 0.12 + Math.random() * 0.35,
-      s: Math.random() < 0.25 ? 2 : 1, c: cols[Math.random() < 0.7 ? 0 : 1], ph: Math.random() * 6.28
-    }));
+    this.begin(ACT_SHOTS[act] || ACT_SHOTS[1], `act-${act}`, `assets/banner/act-${act}.png`);
   }
 
   startStory(label, title, caption, color = "#67e8f9") {
-    this.act = 8;
+    this.act = 0;
     this.label = label;
     this.title = title;
     this.caption = caption;
-    this.t = 0;
-    this.open = true;
-    this.img = null;
-    this.motes = Array.from({ length: 46 }, () => ({
-      x: Math.random() * 480, y: 40 + Math.random() * 230, v: 0.12 + Math.random() * 0.35,
-      s: Math.random() < 0.25 ? 2 : 1, c: Math.random() < 0.7 ? color : "#fff4d6", ph: Math.random() * 6.28
-    }));
+    this.begin(storyShot(color), null, null);
   }
 
-  close() { this.open = false; }
+  close() {
+    this.open = false;
+    if (this.el) this.el.classList.remove("show");
+    if (this.cine) this.cine.release();
+  }
 
   // true when the key was used (skip)
   handleInput(e) {
@@ -79,115 +94,134 @@ export class ActIntro {
     return true;
   }
 
-  draw(ctx, W, H) {
+  // Called once per game frame while open (the game is paused); ctx is the game's, unused here
+  draw() {
     if (!this.open) return;
+    if (!this.el) { if (++this.t >= LENGTH) this.close(); return; }
+    const cine = this.cine, ctx = cine.ctx;
+    if (!this.ready) {                       // set still loading: hold on black
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.fillStyle = "#000";
+      ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      return;
+    }
     const t = ++this.t;
-    if (t >= LENGTH) { this.open = false; return; }
-    const ease = (x) => 1 - (1 - Math.min(1, Math.max(0, x))) ** 3;
-    const fadeIn = ease(t / 40);
+    if (t >= LENGTH) { this.close(); return; }
+    const p = t / LENGTH;
     const out = t > LENGTH - FADE_OUT ? (t - (LENGTH - FADE_OUT)) / FADE_OUT : 0;
-    const A = 1 - ease(out);              // the whole card fades away, back into the game
+    cine.bars = ease.out(span(t, 0, 40));
+    cine.fadeColor = "#000000";
+    cine.fade = Math.max(1 - ease.out(t / 50), ease.inout(out));
+    const shot = this.shot;
+    shot.ui = (c) => this.titles(c, t);
+    cine.frame(t, p);
+    // the overlay itself fades away in the last frames, back into the game
+    this.el.style.opacity = String(1 - ease.inout(span(t, LENGTH - 14, LENGTH)));
+  }
+
+  // HD type: "ACT IX" letter by letter, the title with a light sweep, a gold rule, the caption
+  titles(cine, t) {
+    const ctx = cine.ctx, W = this.canvas.width, H = this.canvas.height, k = cine.k;
+    const accent = this.shot.accent || "#fde68a";
+    const A = 1 - span(t, LENGTH - FADE_OUT, LENGTH - 8);
+    if (A <= 0) return;
+    const cy = H * 0.47;
     ctx.save();
-    ctx.globalAlpha = A;
-    ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, W, H);
-
-    // The banner pushes in slowly; odd Acts drift right, even Acts drift left
-    const img = this.img;
-    if (img && img.complete && img.naturalWidth) {
-      const p = t / LENGTH;
-      const zoom = 1.14 - 0.12 * ease(p * 1.2);
-      const dir = this.act % 2 ? 1 : -1;
-      const w = W * zoom, h = H * zoom;
-      ctx.globalAlpha = A * (fadeIn);
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(img, (W - w) / 2 + dir * (p - 0.5) * 18, (H - h) / 2, w, h);
-      ctx.globalAlpha = A;
-    }
-
-    // A band of light sweeps across once
-    const sweep = (t - 30) / 120;
-    if (sweep > 0 && sweep < 1) {
-      const sx = -120 + sweep * (W + 240);
-      const g = ctx.createLinearGradient(sx - 60, 0, sx + 60, 0);
-      g.addColorStop(0, "rgba(255, 244, 214, 0)");
-      g.addColorStop(0.5, "rgba(255, 244, 214, 0.16)");
-      g.addColorStop(1, "rgba(255, 244, 214, 0)");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, W, H);
-    }
-
-    // Motes rising in the Act's light
-    this.motes.forEach((m) => {
-      m.y -= m.v;
-      m.x += Math.sin(t / 40 + m.ph) * 0.15;
-      if (m.y < 26) { m.y = H - 26; m.x = Math.random() * W; }
-      ctx.globalAlpha = A * (fadeIn * (0.45 + Math.sin(t / 12 + m.ph) * 0.35));
-      ctx.fillStyle = m.c;
-      ctx.fillRect(Math.round(m.x), Math.round(m.y), m.s, m.s);
-    });
-    ctx.globalAlpha = A;
-
-    // Shade under the text, then letterbox bars that slide in
-    const sh = ctx.createLinearGradient(0, H * 0.35, 0, H * 0.8);
-    sh.addColorStop(0, "rgba(0, 0, 0, 0)");
-    sh.addColorStop(0.5, "rgba(0, 0, 0, 0.55)");
-    sh.addColorStop(1, "rgba(0, 0, 0, 0)");
-    ctx.fillStyle = sh;
-    ctx.fillRect(0, 0, W, H);
-    const bar = Math.round(26 * ease(t / 30));
-    ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, W, bar);
-    ctx.fillRect(0, H - bar, W, bar);
-
-    // "ACT IX": letters appear one by one, spaced wide
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
+    // a soft dark band behind the text so it reads on any painting
+    const band = ctx.createLinearGradient(0, cy - 40 * k, 0, cy + 50 * k);
+    band.addColorStop(0, "rgba(0,0,0,0)");
+    band.addColorStop(0.5, `rgba(0,0,0,${0.5 * A * ease.out(span(t, 30, 80))})`);
+    band.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = band;
+    ctx.fillRect(0, cy - 40 * k, W, 90 * k);
+
+    // "ACT IX": letters appear one by one, widely spaced, gold with a glow
     const label = this.label || `ACT ${ROMAN[this.act] || this.act}`;
-    const shown = Math.floor(Math.max(0, t - 45) / 5);
-    ctx.font = "bold 9px monospace";
-    const step = 9;
-    const x0 = W / 2 - ((label.length - 1) * step) / 2;
-    for (let i = 0; i < Math.min(label.length, shown); i++) {
-      ctx.fillStyle = "#000";
-      ctx.fillText(label[i], x0 + i * step + 1, H / 2 - 22 + 1);
+    ctx.font = `700 ${Math.round(8.5 * k)}px Cinzel, Georgia, serif`;
+    const step = 9.5 * k, x0 = W / 2 - ((label.length - 1) * step) / 2;
+    for (let i = 0; i < label.length; i++) {
+      const a = ease.out(span(t, 45 + i * 5, 60 + i * 5)) * A;
+      if (a <= 0) continue;
+      ctx.globalAlpha = a;
+      ctx.shadowColor = rgba(accent, 0.9);
+      ctx.shadowBlur = 6 * k;
       ctx.fillStyle = "#fde68a";
-      ctx.fillText(label[i], x0 + i * step, H / 2 - 22);
+      ctx.fillText(label[i], x0 + i * step, cy - 22 * k + (1 - a) * 3 * k);
     }
-    // title and a gold rule
-    const ta = ease((t - 90) / 40);
-    if (ta > 0) {
-      ctx.globalAlpha = A * (ta);
-      ctx.font = "bold 14px Georgia, 'Times New Roman', serif";
-      ctx.fillStyle = "#000";
-      ctx.fillText(this.title, W / 2 + 1, H / 2 + 1, W - 40);
-      ctx.fillStyle = "#fff4d6";
-      ctx.fillText(this.title, W / 2, H / 2, W - 40);
-      ctx.fillStyle = "#c9a227";
-      const rw = 120 * ta;
-      ctx.fillRect(W / 2 - rw, H / 2 + 12, rw * 2, 1);
-      ctx.globalAlpha = A;
+    ctx.shadowBlur = 0;
+
+    // the title: rises into place, then a band of light sweeps across it
+    const ta = ease.out(span(t, 90, 130)) * A;
+    if (ta > 0 && this.title) {
+      const size = Math.round(15 * k);
+      ctx.font = `900 ${size}px Cinzel, Georgia, serif`;
+      let w = ctx.measureText(this.title).width;
+      const maxW = W * 0.86;
+      if (w > maxW) { ctx.font = `900 ${Math.round(size * (maxW / w))}px Cinzel, Georgia, serif`; w = maxW; }
+      const ty = cy + (1 - ta) * 6 * k;
+      ctx.globalAlpha = ta;
+      ctx.fillStyle = "rgba(0,0,0,0.85)";
+      ctx.fillText(this.title, W / 2 + k * 0.6, ty + k * 0.8);
+      const g = ctx.createLinearGradient(0, ty - size / 2, 0, ty + size / 2);
+      g.addColorStop(0, "#fffaf0");
+      g.addColorStop(0.55, "#fde9b8");
+      g.addColorStop(1, "#d9b064");
+      ctx.shadowColor = rgba(accent, 0.55);
+      ctx.shadowBlur = 10 * k;
+      ctx.fillStyle = g;
+      ctx.fillText(this.title, W / 2, ty);
+      ctx.shadowBlur = 0;
+      const sweep = span(t, 130, 210);
+      if (sweep > 0 && sweep < 1) {
+        const sx = W / 2 - w / 2 - 40 * k + sweep * (w + 80 * k);
+        const sg = ctx.createLinearGradient(sx - 30 * k, 0, sx + 30 * k, 0);
+        sg.addColorStop(0, "rgba(255,255,255,0)");
+        sg.addColorStop(0.5, "rgba(255,255,255,0.85)");
+        sg.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = sg;
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(W / 2 - w / 2, ty - size * 0.7, w, size * 1.4);
+        ctx.clip();
+        ctx.globalCompositeOperation = "lighter";
+        ctx.globalAlpha = ta * 0.9;
+        ctx.fillText(this.title, W / 2, ty);
+        ctx.restore();
+        ctx.globalCompositeOperation = "source-over";
+      }
+      // gold rule that grows from the centre, with bright ends
+      const rw = Math.min(w * 0.55, 130 * k) * ease.out(span(t, 100, 160));
+      const rg = ctx.createLinearGradient(W / 2 - rw, 0, W / 2 + rw, 0);
+      rg.addColorStop(0, "rgba(201,162,39,0)");
+      rg.addColorStop(0.5, "rgba(240,205,110,1)");
+      rg.addColorStop(1, "rgba(201,162,39,0)");
+      ctx.globalAlpha = ta;
+      ctx.fillStyle = rg;
+      ctx.fillRect(W / 2 - rw, cy + 13 * k, rw * 2, Math.max(1, 0.6 * k));
     }
-    // caption of the banner in the lower bar
-    const ca = ease((t - 140) / 50);
+
+    // the banner's caption, two lines at most, in italic
+    const ca = ease.out(span(t, 140, 190)) * A;
     const cap = this.caption ? { caption: this.caption } : captions && captions[`assets/banner/act-${this.act}.png`];
     if (ca > 0 && cap) {
-      ctx.globalAlpha = A * (ca);
-      ctx.font = "italic 6px Georgia, 'Times New Roman', serif";
-      ctx.fillStyle = "#e2e8f0";
+      ctx.globalAlpha = ca;
+      ctx.font = `italic ${Math.round(6.4 * k)}px Georgia, 'Times New Roman', serif`;
+      ctx.fillStyle = "#e7e5e4";
+      ctx.shadowColor = "rgba(0,0,0,0.9)";
+      ctx.shadowBlur = 3 * k;
       const text = typeof cap.caption === "string" ? cap.caption : cap.caption[getLang() === "fil" ? "fil" : "en"] || cap.caption.en;
-      const lines = wrap(ctx, text, W - 120);
-      lines.slice(0, 2).forEach((ln, i) => ctx.fillText(ln, W / 2, H / 2 + 26 + i * 9));
-      ctx.globalAlpha = A;
+      wrap(ctx, text, W * 0.72).slice(0, 2).forEach((ln, i) => ctx.fillText(ln, W / 2, cy + 26 * k + i * 9.5 * k));
+      ctx.shadowBlur = 0;
     }
-    // skip hint
+    // skip hint in the lower bar
     if (t > 100) {
       ctx.globalAlpha = A * (0.45 + Math.sin(t / 10) * 0.25);
-      ctx.font = "bold 5px monospace";
+      ctx.font = `700 ${Math.round(5 * k)}px Cinzel, Georgia, serif`;
       ctx.textAlign = "right";
-      ctx.fillStyle = "#94a3b8";
-      ctx.fillText("ENTER ▸", W - 10, H - 13);
-      ctx.globalAlpha = A;
+      ctx.fillStyle = "#cbd5e1";
+      ctx.fillText("ENTER ▸", W - 12 * k, H - 10 * k);
     }
     ctx.restore();
   }

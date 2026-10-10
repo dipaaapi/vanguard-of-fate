@@ -4,6 +4,7 @@
 export function paint(P, { R, K, S }) {
   const { hex, mixC, shadeC, flagstones, stand, rimLight, brazier, rays, sparks, POINT_COLORS } = K;
 
+  P.layer("wall", 0.3);
   // timber wall with a big window of morning light
   P.rectF(0, 0, P.w, 176, (x, y) => {
     const plank = Math.floor(x / 12);
@@ -37,12 +38,14 @@ export function paint(P, { R, K, S }) {
     else { P.rect(x - 4, 6, 3, 5, hex("#fde68a")); P.rect(x + 1, 5, 4, 6, hex("#93c5fd")); }
   }
 
+  P.layer("floor", 0.75);
   // floor and a weapon table
   flagstones(P, 176, P.h, { c: "#5b5160", lit: "#6c6272", dark: "#4a414f", seam: "#2c2630", vx: 240 });
   P.rect(40, 210, 110, 8, hex("#5e3f25")); P.rect(40, 210, 110, 2, hex("#8a6440"));
   P.rect(44, 218, 4, 22, hex("#3a2616")); P.rect(142, 218, 4, 22, hex("#3a2616"));
   P.blit(S.icon("helm"), 52, 196); P.blit(S.icon("gauntlets"), 76, 196); P.blit(S.icon("plate"), 100, 196); P.blit(S.icon("boots"), 124, 196);
 
+  P.layer("actors", 1);
   // the Knight with a Bastion Forcefield, Captain Ronald and recruits
   const kx = 250, kg = 236;
   const knight = S.hero("knight", "side", "attack", 1);
@@ -57,6 +60,7 @@ export function paint(P, { R, K, S }) {
   P.line(166, 214, 194, 214, hex("#9ca3af"));
   stand(P, S.npc("royalGuard", "up"), 400, 262);
   brazier(P, 460, 200, {});
+  P.layer("weather", 1.2, { skip: true });   // live HD particles replace the baked ones
   sparks(P, R, 40, { x0: 200, x1: 300, y0: 190, y1: 250, colors: ["#dbeafe", "#93c5fd"], glowK: 0.3 });
   P.vignette([12, 6, 4], 0.5, 0.62);
 }
