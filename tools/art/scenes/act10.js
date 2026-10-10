@@ -4,8 +4,10 @@
 export function paint(P, { R, K, S }) {
   const { hex, sky, clouds, ridgeFn, ridge, lavaFlow, stand, rimLight, sparks, groundTex, rock } = K;
 
+  P.layer("sky", 0);
   sky(P, [[0, hex("#0d0606")], [0.5, hex("#2a0e0a")], [0.85, hex("#6a1e10")], [1, hex("#c2441a")]], 0, 170, 3);
   clouds(P, { y0: 0, y1: 100, cover: 0.42, seed: 51, colors: ["#120808", "#2a1410", "#5a2a1a"], stretch: 3 });
+  P.layer("volcano", 0.2);
   // erupting volcano
   const vol = (x) => 150 - Math.max(0, 70 - Math.abs(x - 90) * 0.9) + K.fbm1(x * 0.05, 3) * 6;
   ridge(P, vol, "#2a1414", { light: "#4a2018" });
@@ -15,6 +17,7 @@ export function paint(P, { R, K, S }) {
   const far = ridgeFn({ base: 160, amp: 24, freq: 0.02, seed: 7, sharp: 0.6 });
   ridge(P, (x) => (x > 150 ? far(x) : 400), "#2a1212", { light: "#3e1a14" });
 
+  P.layer("forge", 0.45);
   // the Hellforge: black citadel of furnaces
   for (const [x, w, h] of [[300, 40, 70], [344, 26, 96], [374, 34, 60], [410, 22, 80]]) {
     P.rect(x, 170 - h, w, h, hex("#1a0e0e"));
@@ -30,6 +33,7 @@ export function paint(P, { R, K, S }) {
   P.disc(355, 142, 11, hex("#ffe08a")); P.rect(344, 142, 22, 30, hex("#ffe08a"));
   for (let k = 0; k < 5; k++) P.vline(343 + k * 6, 126, 172, hex("#2a1410"));
   P.glow(355, 150, 70, hex("#ff5a1a"), 0.5, 1.4);
+  P.layer("lake", 0.7);
   // lava lake
   P.rectF(0, 172, P.w, 98, (x, y) => {
     const v = K.fbm(x * 0.04, y * 0.1, 5, 4);
@@ -42,7 +46,6 @@ export function paint(P, { R, K, S }) {
   // basalt platforms
   const plat = (x0, x1, y) => { for (let x = x0; x < x1; x++) { const top = y + K.fbm1(x * 0.1, x0) * 3; for (let j = top; j < y + 16; j++) P.set(x, j, j - top < 1 ? hex("#5a3a32") : K.noise2(x * 0.3, j * 0.3, 2) > 0.6 ? hex("#2a1a18") : hex("#1c1210")); } };
   plat(250, 400, 198);
-  plat(0, 170, 236);
   // chained bridge between
   for (let x = 170; x < 252; x += 3) { const y = Math.round(238 - (x - 170) * 0.46 + Math.sin(((x - 170) / 82) * Math.PI) * 4); P.rect(x, y, 2, 2, hex("#4a2e22")); }
   P.line(170, 228, 252, 190, hex("#6b6b72")); P.line(170, 240, 252, 202, hex("#6b6b72"));
@@ -52,11 +55,15 @@ export function paint(P, { R, K, S }) {
   stand(P, S.boss("ignis", "down", "attack", 0), 326, 202);
   stand(P, S.monster("demonKnight", "down"), 286, 204); stand(P, S.monster("obsidianGolem", "down"), 372, 206);
   stand(P, S.monster("magmaDrake", "side"), 430, 120, { shadow: false, flip: true });
+  P.layer("party", 1);
+  plat(0, 170, 236);       // the near platform travels with the party (same flat result: nothing between overlaps it)
   // the Vanguard
   const party = [[S.hero("knight", "side"), 120], [S.npc("renzo", "side"), 92], [S.npc("aurelia", "side"), 66]];
   for (const [f, x] of party) { const [l, t] = stand(P, f, x, 240); rimLight(P, f, l, t, "#ffb347", 1); }
+  P.layer("rocks", 1.4);
   rock(P, 20, 270, 40, 26, { c: "#1c1210", lit: "#3a2420", dark: "#0a0606" });
   rock(P, 452, 272, 60, 40, { c: "#1c1210", lit: "#3a2420", dark: "#0a0606" });
+  P.layer("weather", 1.2, { skip: true });   // live HD particles replace the baked ones
   // falling embers and ash
   sparks(P, R, 160, { colors: ["#ffb347", "#ff7a1a", "#ffe08a"], glowK: 0.3 });
   for (let i = 0; i < 300; i++) P.set(R.range(0, P.w), R.range(0, P.h), hex("#5a4a48"), 0.6);

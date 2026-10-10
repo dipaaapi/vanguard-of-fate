@@ -1,0 +1,161 @@
+{
+  "_note": "Prologue (Act I) cinematic text, one entry per shot in js/cinema/prologueShots.js. {h} = the hero's name; speaker = an NPC id or \"summoner\" (Aurelia or Kenneth).",
+  "shots": {
+    "golden-age": {
+      "card": {
+        "en": [
+          "ACT I",
+          "The Sundered Dominion"
+        ],
+        "fil": [
+          "ACT I",
+          "Ang Nahating Kaharian"
+        ]
+      },
+      "lines": [
+        {
+          "en": "Long ago, the continent of Aethelgard flourished beneath the light of the goddess Astraea.",
+          "fil": "Noong unang panahon, masaganang namukadkad ang kontinente ng Aethelgard sa ilalim ng liwanag ng diyosang si Astraea."
+        },
+        {
+          "en": "Four Celestial Gateways bound the land to the Imperial Citadel, and for generations there was peace.",
+          "fil": "Apat na Celestial Gateway ang nagbubuklod sa lupain at sa Imperial Citadel, at sa loob ng maraming salinlahi ay may kapayapaan."
+        }
+      ]
+    },
+    "eclipse": {
+      "lines": [
+        {
+          "en": "Then came the Eclipse of the Abyss. The ancient seals beneath the earth shattered...",
+          "fil": "Pagkatapos ay dumating ang Eklipse ng Kalaliman. Nawasak ang mga sinaunang selyo sa ilalim ng lupa..."
+        },
+        {
+          "en": "...and Demon Lord Satan rose from the pit, exhaling the Void Miasma across the land.",
+          "fil": "...at bumangon mula sa hukay ang Demon Lord na si Satan, ibinuga ang Void Miasma sa buong lupain."
+        }
+      ]
+    },
+    "blights": {
+      "lines": [
+        {
+          "en": "Forests withered. Beasts twisted into nocturnal abominations with crimson eyes.",
+          "fil": "Nalanta ang mga gubat. Naging mababangis na halimaw ng gabi ang mga hayop, may mga matang pula."
+        },
+        {
+          "en": "And those who breathed the miasma fell to the Seven Blights. Garrisons crumbled, one after another.",
+          "fil": "At ang mga nakalanghap ng miasma ay tinamaan ng Pitong Sumpa. Isa-isang bumagsak ang mga garison."
+        }
+      ]
+    },
+    "throne": {
+      "lines": [
+        {
+          "speaker": "king",
+          "en": "Steel alone can no longer hold back the dark. Our garrisons are ash.",
+          "fil": "Hindi na kaya ng bakal lamang ang dilim. Abo na ang ating mga garison."
+        },
+        {
+          "speaker": "summoner",
+          "en": "Then we invoke the forbidden covenant, Father. We reach across the veil — and call a soul from Earth.",
+          "fil": "Kung gayon, gamitin natin ang ipinagbabawal na tipan, Ama. Tatawirin natin ang tabing — at tatawag tayo ng kaluluwa mula sa Daigdig."
+        },
+        {
+          "speaker": "king",
+          "en": "The last soul this crown called was the Lantern Knight. They sealed the demon with their own life, and never went home.",
+          "fil": "Ang huling kaluluwang tinawag ng koronang ito ay ang Lantern Knight. Ibinuklod nila ang demonyo gamit ang sariling buhay, at hindi na nakauwi."
+        },
+        {
+          "speaker": "summoner",
+          "en": "Five souls have already answered the Pentagram Seal. The prophecy asks for one more: a sixth, to stand at the heart of the star. And this time, we bring them all home.",
+          "fil": "Lima nang kaluluwa ang tumugon sa Pentagram Seal. Isa pa ang hinihingi ng propesiya: ang ikaanim, na tatayo sa puso ng bituin. At ngayon, iuuwi natin silang lahat."
+        }
+      ]
+    },
+    "earth": {
+      "lines": [
+        {
+          "en": "Earth, 2026. A total eclipse turned noon into dusk across the whole world.",
+          "fil": "Daigdig, 2026. Ginawang takipsilim ng isang ganap na eklipse ang tanghali sa buong mundo."
+        },
+        {
+          "en": "{h} was doing what the brave always do — holding the line for others — when the sky tore open.",
+          "fil": "Ginagawa ni {h} ang laging ginagawa ng matatapang — ang ipagtanggol ang iba — nang biglang napunit ang langit."
+        }
+      ]
+    },
+    "crossing": {
+      "lines": [
+        {
+          "en": "Body became light. Light was pulled across the veil between worlds...",
+          "fil": "Naging liwanag ang katawan. Hinila ang liwanag patawid sa tabing sa pagitan ng mga mundo..."
+        }
+      ]
+    },
+    "ritual": {
+      "lines": [
+        {
+          "speaker": "summoner",
+          "en": "By Astraea's light and the blood of kings — hear me, soul of Earth. Answer!",
+          "fil": "Sa liwanag ni Astraea at sa dugo ng mga hari — dinggin mo ako, kaluluwa ng Daigdig. Sumagot ka!"
+        },
+        {
+          "en": "Light wove itself back into sinew and breath upon the stone pedestal. {h} drew a first breath in a new world...",
+          "fil": "Muling hinabi ng liwanag ang laman at hininga sa ibabaw ng batong pedestal. Unang hininga ni {h} sa bagong mundo..."
+        },
+        {
+          "en": "...and collapsed.",
+          "fil": "...at bumagsak."
+        }
+      ]
+    },
+    "sanctuary": {
+      "lines": [
+        {
+          "en": "Three days later — the Barracks Sanctuary, a consecrated haven the Void can never cross.",
+          "fil": "Makalipas ang tatlong araw — ang Barracks Sanctuary, isang banal na kanlungang hindi kailanman matatawid ng Void."
+        },
+        {
+          "en": "A pale gold panel flickered before {h}'s eyes, a page only they could read: Level 1 · Job: none. Then it faded.",
+          "fil": "Isang maputlang gintong panel ang kumislap sa harap ng mga mata ni {h}, isang pahinang siya lamang ang makababasa: Level 1 · Job: wala. Saka ito naglaho."
+        },
+        {
+          "speaker": "summoner",
+          "en": "You're awake. Welcome to Aethelgard, {h}. I'm the one who called you here — and I owe you the truth.",
+          "fil": "Gising ka na. Maligayang pagdating sa Aethelgard, {h}. Ako ang tumawag sa iyo rito — at utang ko sa iyo ang katotohanan."
+        }
+      ]
+    },
+    "omen": {
+      "card": {
+        "en": [
+          "A DISTANT OMEN",
+          "The storm has not passed"
+        ],
+        "fil": [
+          "BABALA MULA SA MALAYO",
+          "Hindi pa lumilipas ang unos"
+        ]
+      },
+      "lines": [
+        {
+          "en": "Far beyond Aethelgard, four pillars of darkness fed their lives into a single black stone.",
+          "fil": "Sa malayong bahagi ng Aethelgard, inialay ng apat na haligi ng kadiliman ang kanilang buhay sa isang maitim na bato."
+        },
+        {
+          "en": "A crater split open beneath the lightning. Something ancient stirred—and one exhausted soul was carried away.",
+          "fil": "Nabiyak ang bunganga sa ilalim ng mga kidlat. May sinaunang bagay na nagising—at iniligtas ang isang pagod na kaluluwa."
+        }
+      ]
+    }
+  },
+  "panel": {
+    "en": [
+      "Level 1",
+      "Job: none"
+    ],
+    "fil": [
+      "Level 1",
+      "Job: wala"
+    ]
+  }
+}

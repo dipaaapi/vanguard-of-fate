@@ -25,7 +25,12 @@
     const { canvas } = await paintScene(key);
     return canvas.toDataURL("image/png");
   };
-  window.sceneList = () => Object.entries(SCENES).map(([key, s]) => ({ key, out: s.out, w: s.w, h: s.h, scale: s.scale }));
+  // Layered cinema sets: [{ name, z, png, light }] (PNG data URLs at native size)
+  window.renderLayers = async (key) => {
+    const { layers } = await paintScene(key);
+    return layers.map((L) => ({ name: L.name, z: L.z, png: L.canvas ? L.canvas.toDataURL("image/png") : null, light: L.light ? L.light.toDataURL("image/png") : null }));
+  };
+  window.sceneList = () => Object.entries(SCENES).map(([key, s]) => ({ key, out: s.out, w: s.w, h: s.h, scale: s.scale, layers: Boolean(s.layers), id: s.id }));
   window.studioReady = true;
   if (!navigator.webdriver) {
     const only = new URLSearchParams(location.search).get("only");
@@ -33,8 +38,8 @@
     for (const key of Object.keys(SCENES)) {
       if (only && !key.startsWith(only)) continue;
       const fig = document.createElement("figure");
-      const { px } = await paintScene(key);
-      const c = px.toCanvas(1);
+      const { px, canvas } = await paintScene(key);
+      const c = SCENES[key].layers ? canvas : px.toCanvas(1);
       fig.append(c);
       const cap = document.createElement("figcaption");
       cap.textContent = `${key} → ${SCENES[key].out}`;

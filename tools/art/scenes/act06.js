@@ -4,6 +4,7 @@
 export function paint(P, { R, K, S }) {
   const { hex, sky, stars, moon, clouds, ridgeFn, ridge, fogBand, stand, rimLight, brazier, pillar, sparks } = K;
 
+  P.layer("sky", 0);
   sky(P, [[0, hex("#070b1e")], [0.5, hex("#142456")], [0.85, hex("#2f3f7a")], [1, hex("#5a5f9a")]], 0, 170, 3);
   stars(P, R, 260, { y1: 150, big: 0.08 });
   // the milky band of Astraea
@@ -11,6 +12,7 @@ export function paint(P, { R, K, S }) {
   moon(P, 400, 44, 13, { shadow: 0.5 });
   clouds(P, { y0: 110, y1: 160, cover: 0.62, seed: 21, colors: ["#1c2550", "#2c3a72", "#4c5a98"], stretch: 6 });
 
+  P.layer("lowlands", 0.3);
   // lowlands with town lights and the Vanguard's camp
   const far = ridgeFn({ base: 158, amp: 26, freq: 0.012, seed: 9, sharp: 0.4 });
   ridge(P, far, "#1d2550", { light: "#2f3b78", snow: "#7e8ac4", snowLine: 140 });
@@ -20,6 +22,7 @@ export function paint(P, { R, K, S }) {
   for (let i = 0; i < 70; i++) { const x = R.range(20, 460), y = R.range(low(x) + 2, 196); P.set(x, y, hex(R.pick(["#ffcf7a", "#ffb347", "#fff1c4"]))); if (R.chance(0.3)) P.glow(x, y, 4, hex("#ffb347"), 0.4, 2); }
   for (const [x, y] of [[90, 188], [120, 192], [150, 186]]) { P.glow(x, y, 8, hex("#ff8a3d"), 0.7, 1.8); P.set(x, y, hex("#fff1c4")); }
 
+  P.layer("balcony", 0.85);
   // observatory balcony: floor, balustrade, columns, a brass telescope
   P.rect(0, 200, P.w, 70, hex("#3a3550"));
   P.rectF(0, 200, P.w, 70, (x, y) => ((y - 200) % 10 === 0 || (x + Math.floor((y - 200) / 10) * 9) % 24 === 0 ? hex("#2a2640") : K.noise2(x * 0.1, y * 0.1, 2) > 0.7 ? hex("#454062") : null));
@@ -33,6 +36,7 @@ export function paint(P, { R, K, S }) {
   P.thick(358, 226, 392, 206, 4, hex("#c9963a")); P.thick(392, 206, 398, 202, 5, hex("#e5b85a"));
   P.set(394, 204, hex("#fff1c4"));
 
+  P.layer("actors", 1);
   // the pair at the balustrade, seen from behind, lit by the moon
   const hero = S.hero("knight", "up"), heir = S.npc("aurelia", "up");
   let [l, t] = stand(P, hero, 226, 236);
@@ -40,6 +44,7 @@ export function paint(P, { R, K, S }) {
   [l, t] = stand(P, heir, 246, 236);
   rimLight(P, heir, l, t, "#c7d2fe", 1);
   brazier(P, 40, 262, {}); brazier(P, 440, 262, {});
+  P.layer("weather", 1.2, { skip: true });   // live HD particles replace the baked ones
   sparks(P, R, 30, { y0: 170, y1: 260, colors: ["#fde68a", "#c7d2fe"], glowK: 0.15 });
   P.vignette([2, 2, 10], 0.55, 0.62);
 }

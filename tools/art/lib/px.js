@@ -81,6 +81,18 @@ export class Px {
     x |= 0; y |= 0;
     if (!this.inside(x, y) || a <= 0) return;
     const i = (y * this.w + x) * 4, d = this.d;
+    if (this.layered) {
+      // cinema layers: real "over" blending onto transparent pixels, and paint covers the light under it
+      const g = this.g, j = (y * this.w + x) * 3, k = Math.min(1, a);
+      g[j] *= 1 - k; g[j + 1] *= 1 - k; g[j + 2] *= 1 - k;
+      const da = d[i + 3] / 255;
+      if (a < 1 && da < 1) {
+        const oa = a + da * (1 - a);
+        for (let n = 0; n < 3; n++) d[i + n] = (c[n] * a + d[i + n] * da * (1 - a)) / oa;
+        d[i + 3] = oa * 255;
+        return;
+      }
+    }
     if (a >= 1) { d[i] = c[0]; d[i + 1] = c[1]; d[i + 2] = c[2]; d[i + 3] = 255; return; }
     d[i] += (c[0] - d[i]) * a; d[i + 1] += (c[1] - d[i + 1]) * a; d[i + 2] += (c[2] - d[i + 2]) * a;
     d[i + 3] = Math.max(d[i + 3], a * 255);
@@ -91,6 +103,12 @@ export class Px {
     x |= 0; y |= 0;
     if (!this.inside(x, y) || k <= 0) return;
     const i = (y * this.w + x) * 4, d = this.d;
+    if (this.layered && d[i + 3] < 255) {
+      // light over see-through pixels goes to the layer's additive light buffer (drawn with "lighter")
+      const g = this.g, j = (y * this.w + x) * 3;
+      g[j] += c[0] * k; g[j + 1] += c[1] * k; g[j + 2] += c[2] * k;
+      return;
+    }
     d[i] += c[0] * k; d[i + 1] += c[1] * k; d[i + 2] += c[2] * k; d[i + 3] = 255;
   }
 
@@ -182,6 +200,8 @@ export class Px {
         const d = Math.hypot(x + 0.5 - cx, y + 0.5 - cy) / r;
         if (d >= 1) continue;
         const t = Math.pow(1 - d, falloff) * k;
+        // cinema layers: light over see-through pixels stays smooth (the game draws it in HD)
+        if (this.layered && this.alpha(x, y) < 255) { this.add(x, y, c, t * 0.8); continue; }
         // quantise into bands so the glow stays crisp, dither the band edges
         const band = Math.floor(t * 4 + bayer(x, y)) / 4;
         if (band > 0) this.add(x, y, c, band * 0.8);
@@ -237,6 +257,7 @@ export class Px {
 
   /** Dark frame round the edges, dithered */
   vignette(c = [4, 4, 10], k = 0.55, inner = 0.55) {
+    if (this.layered) return;     // the cinema draws its own vignette in HD
     for (let y = 0; y < this.h; y++)
       for (let x = 0; x < this.w; x++) {
         const dx = (x / this.w - 0.5) * 2, dy = (y / this.h - 0.5) * 2;
@@ -260,6 +281,49 @@ export class Px {
       }
       d[i] = pal[best][0]; d[i + 1] = pal[best][1]; d[i + 2] = pal[best][2];
     }
+  }
+
+  // ── Cinema layers ──────────────────────────────────────────────────────────
+  // A scene painted for js/cinema/ is split into depth layers: the painter calls P.layer(name, z)
+  // before each group (z = parallax depth: 0 sky, 1 the focal plane, > 1 foreground). Every layer
+  // is its own transparent buffer plus an additive light buffer, so the game can move them apart
+  // with a camera. For the flat banners layer() does nothing and the output is unchanged.
+  beginLayers() {
+    this.layered = true;
+    this.layers = [];
+    this.layer("base", 0);
+  }
+  layer(name, z = 1, opts = {}) {
+    if (!this.layered) return;
+    const L = { name, z, ...opts, d: new Uint8ClampedArray(this.w * this.h * 4), g: new Float32Array(this.w * this.h * 3) };
+    this.layers.push(L);
+    this.d = L.d;
+    this.g = L.g;
+  }
+  /** [{ name, z, canvas, light (canvas or null) }] for every layer that has something in it */
+  layerCanvases() {
+    const out = [];
+    for (const L of this.layers || []) {
+      if (L.skip) continue;
+      let any = false, lit = false;
+      for (let i = 3; i < L.d.length; i += 4) if (L.d[i]) { any = true; break; }
+      for (let i = 0; i < L.g.length; i++) if (L.g[i] >= 1) { lit = true; break; }
+      if (!any && !lit) continue;
+      const mk = (data) => {
+        const c = document.createElement("canvas");
+        c.width = this.w; c.height = this.h;
+        c.getContext("2d").putImageData(new ImageData(data, this.w, this.h), 0, 0);
+        return c;
+      };
+      let light = null;
+      if (lit) {
+        const ld = new Uint8ClampedArray(this.w * this.h * 4);
+        for (let p = 0, q = 0; p < ld.length; p += 4, q += 3) { ld[p] = L.g[q]; ld[p + 1] = L.g[q + 1]; ld[p + 2] = L.g[q + 2]; ld[p + 3] = 255; }
+        light = mk(ld);
+      }
+      out.push({ name: L.name, z: L.z, canvas: any ? mk(new Uint8ClampedArray(L.d)) : null, light });
+    }
+    return out;
   }
 
   toCanvas(scale = 1) {

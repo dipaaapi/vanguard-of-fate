@@ -57,6 +57,7 @@ import { hasRunnerKind, isAway, updateErrand, serializeErrand, loadErrand, erran
 import { Avatar } from "./avatar/avatar.js";
 import { loadSpriteSheets } from "./avatar/sheets.js";
 import { ActIntro } from "./actintro.js";
+import { CINEMA_WIDTH } from "./cinema/engine.js";
 import { createLorePanel } from "./lore.js";
 import { HudBar } from "./hudbar.js";
 import { Party, partyText, memberName } from "./party.js";
@@ -795,6 +796,7 @@ function panelSound(open) {
 
 // Act intro cinematic: plays when the story moves on to a new Act during play (not on loading a save)
 const actIntro = new ActIntro();
+actIntro.quality = () => gameConfig.quality;
 let actIntroShown = null;
 let pendingToast = null;
 function maybeActIntro() {
@@ -1566,6 +1568,7 @@ const prologueScene = new PrologueScene(
     saveGame();
   }
 );
+prologueScene.maxWidth = () => CINEMA_WIDTH[gameConfig.quality] || CINEMA_WIDTH.balanced;
 
 // One entity viewer for the Character Creator, the Job Awakening and the Codex (N)
 const codexScene = new CodexScene(document.getElementById("codexScene"), {
