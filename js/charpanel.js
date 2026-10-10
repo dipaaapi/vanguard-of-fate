@@ -1,4 +1,5 @@
 import { getLang } from "./i18n.js";
+import { guildText } from "./guilddata.js";
 import { STATS, PRIMARY, STAT_INFO, statCost, STAT_MAX, TREES, treesFor, canLearn, learnBlock, skillText, findSkill, AUTO_MODES, autoAllocate, autoPathFor } from "./skills.js";
 import { PATHS, PATH_IDS, SLOT_KEYS, SKILL_DRAG_TYPE, RESONANCE, styleOf, styleShares, assignSlot, activeCooldown } from "./skillpaths.js";
 
@@ -11,13 +12,13 @@ import { PATHS, PATH_IDS, SLOT_KEYS, SKILL_DRAG_TYPE, RESONANCE, styleOf, styleS
 
 const TEXT = {
   en: {
-    title: "Covenant Ledger", stats: "Stats", skills: "Skills", points: "Stat points", spoints: "Skill points",
+    title: "Covenant Ledger", stats: "Stats", skills: "Skills", points: "Stat points", spoints: "Skill points", ppoints: "Path points", resetPaths: "Reset paths",
     cost: "cost", derived: "Battle stats", atk: "ATK", def: "DEF", hp: "Max HP", aspd: "Attack speed", crit: "Crit",
     cdr: "Cooldown −", move: "Move", stamina: "Stamina", dmg: "Skill damage", reduce: "Damage taken −",
     primary: "main stat", gear: "from gear & skills", req: "Requires", max: "MAX", learn: "Learn", locked: "Locked",
     novice: "Novice", jobTree: "Job", awaken: "Your job tree unlocks at the Royal Job Awakening (Lv 10).",
     close: "C / Esc — close", pick: "Select a skill.",
-    paths: "Paths", auto: "Auto path", autoModes: { off: "Off", str: "STR", dex: "DEX", int: "INT", style: "My style" },
+    paths: "Paths", auto: "Auto stats", autoModes: { off: "Off", str: "STR", dex: "DEX", int: "INT", style: "My style" },
     autoHint: "Spends stat points on every level-up.", spend: "Spend now", style: "Your style", undecided: "Undecided — keep fighting",
     styleHint: "Up close builds Might, range and crits build Finesse, skills and spells build Arcana. The leading path gets +20% passives and unlocks its capstone.",
     active: "Active", passive: "Passive", summon: "Summon", cd: "Cooldown", slots: "Skill slots", slot: "Set to", clear: "Clear",
@@ -25,13 +26,13 @@ const TEXT = {
     resetStats: "Reset stats", resetSkills: "Reset skills", confirm: "Click again to confirm"
   },
   fil: {
-    title: "Covenant Ledger", stats: "Katangian", skills: "Skill", points: "Stat point", spoints: "Skill point",
+    title: "Covenant Ledger", stats: "Katangian", skills: "Skill", points: "Stat point", spoints: "Skill point", ppoints: "Path point", resetPaths: "I-reset ang mga landas",
     cost: "halaga", derived: "Katangian sa laban", atk: "ATK", def: "DEF", hp: "Max HP", aspd: "Bilis ng atake", crit: "Crit",
     cdr: "Cooldown −", move: "Lakad", stamina: "Stamina", dmg: "Pinsala ng skill", reduce: "Natatanggap na pinsala −",
     primary: "pangunahing stat", gear: "mula sa kagamitan at skill", req: "Kailangan", max: "MAX", learn: "Matuto", locked: "Nakakandado",
     novice: "Novice", jobTree: "Job", awaken: "Mabubuksan ang puno ng job sa Royal Job Awakening (Lv 10).",
     close: "C / Esc — isara", pick: "Pumili ng skill.",
-    paths: "Landas", auto: "Auto na landas", autoModes: { off: "Wala", str: "STR", dex: "DEX", int: "INT", style: "Istilo ko" },
+    paths: "Landas", auto: "Auto stat", autoModes: { off: "Wala", str: "STR", dex: "DEX", int: "INT", style: "Istilo ko" },
     autoHint: "Ginagastos ang stat point sa bawat level-up.", spend: "Gastusin na", style: "Iyong istilo", undecided: "Hindi pa tiyak — lumaban pa",
     styleHint: "Ang malapitang laban ay para sa Lakas, ang malayuan at crit ay sa Liksi, ang skill at spell ay sa Hiwaga. Ang nangungunang landas ay may +20% sa passive at nabubuksan ang capstone.",
     active: "Active", passive: "Passive", summon: "Summon", cd: "Cooldown", slots: "Mga skill slot", slot: "Ilagay sa", clear: "Alisin",
@@ -42,9 +43,13 @@ const TEXT = {
 const tx = () => TEXT[getLang()] || TEXT.en;
 const L = () => (getLang() === "fil" ? "fil" : "en");
 const CLASS_NAMES = { knight: "Knight", archer: "Archer", priest: "Priest", mage: "Mage", fighter: "Fighter" };
+function addResetNote(parent) {
+  const n = document.createElement("div"); n.className = "ch-note"; n.textContent = guildText("resetAt"); parent.appendChild(n);
+}
 
 export class CharacterPanel {
-  constructor(root) {
+  constructor(root, onGuildReset = null) {
+    this.onGuildReset = onGuildReset;
     this.el = root;
     this.open = false;
     this.tab = "stats";
@@ -95,7 +100,7 @@ export class CharacterPanel {
     add(el, "h3", "", T.title);
     add(el, "div", "ql-sub", `${p.heroName || ""} · ${p.heroData.id === "novice" ? "Novice" : p.heroData.name} · Lv ${p.level}`);
     const tabs = add(el, "div", "ch-tabs");
-    [["stats", `${T.stats} (${p.statPoints})`], ["skills", `${T.skills} (${p.skillPoints})`], ["paths", T.paths]].forEach(([id, label]) => {
+    [["stats", `${T.stats} (${p.statPoints})`], ["skills", `${T.skills} (${p.skillPoints})`], ["paths", `${T.paths} (${p.pathPoints})`]].forEach(([id, label]) => {
       button(tabs, "ch-tab" + (this.tab === id ? " on" : ""), label, () => { this.tab = id; this.confirmReset = null; this.render(); });
     });
 
@@ -105,17 +110,14 @@ export class CharacterPanel {
     add(el, "div", "ql-foot", T.close);
   }
 
-  // Free reset, any time: the first click arms it, the second refunds every point
+  // The hall representative performs paid refunds; this is a service shortcut only.
   resetButton(parent, button, kind) {
     const p = this.player, T = tx();
-    const armed = this.confirmReset === kind;
-    const spent = kind === "stats" ? Object.values(p.stats).some((v) => v > 1) : Object.keys(p.skillLevels).length > 0;
-    button(parent, "ch-chip ch-reset" + (armed ? " on" : ""), armed ? T.confirm : (kind === "stats" ? T.resetStats : T.resetSkills), () => {
-      if (!armed) { this.confirmReset = kind; this.render(); return; }
-      this.confirmReset = null;
-      if (kind === "stats") p.resetStats(); else p.resetSkills();
-      this.render();
+    const spent = kind === "stats" ? Object.values(p.stats).some((v) => v > 1) : Object.entries(p.skillLevels).some(([id, lv]) => lv > 0 && Boolean(findSkill(id)?.path) === (kind === "paths"));
+    button(parent, "ch-chip ch-reset", kind === "stats" ? T.resetStats : kind === "paths" ? T.resetPaths : T.resetSkills, () => {
+      if (this.onGuildReset) this.onGuildReset(kind);
     }, !spent);
+    addResetNote(parent);
   }
 
   renderStats(el, add, button) {
@@ -170,10 +172,23 @@ export class CharacterPanel {
     });
   }
 
+  automation(el, add, button, kind) {
+    const p = this.player, paths = kind === "paths";
+    add(el, "div", "inv-head", guildText(paths ? "autoPaths" : "autoSkills"));
+    const modes = add(el, "div", "ch-auto");
+    const field = paths ? "autoPath" : "autoSkill";
+    for (const mode of paths ? ["off", "style", "str", "dex", "int"] : [false, true]) {
+      const label = typeof mode === "boolean" ? guildText(mode ? "on" : "off") : ["str", "dex", "int"].includes(mode) ? mode.toUpperCase() : guildText(mode);
+      button(modes, "ch-chip" + (p[field] === mode ? " on" : ""), label, () => { p[field] = mode; p.allocateAutomatically(); this.render(); });
+    }
+    add(el, "div", "ch-note", guildText("autoHint"));
+  }
+
   renderSkills(el, add, button) {
     const p = this.player, T = tx();
     add(el, "div", "inv-head", `${T.spoints}: ${p.skillPoints}`);
     this.resetButton(el, button, "skills");
+    this.automation(el, add, button, "skills");
     const wrap = add(el, "div", "ch-trees");
     const cls = p.heroData.id;
     const trees = cls === "novice" ? ["novice", null] : treesFor(cls);
@@ -215,8 +230,9 @@ export class CharacterPanel {
 
   renderPaths(el, add, button) {
     const p = this.player, T = tx();
-    add(el, "div", "inv-head", `${T.spoints}: ${p.skillPoints}`);
-    this.resetButton(el, button, "skills");
+    add(el, "div", "inv-head", `${T.ppoints}: ${p.pathPoints}`);
+    this.resetButton(el, button, "paths");
+    this.automation(el, add, button, "paths");
 
     // Play-style meter
     const style = styleOf(p), shares = styleShares(p);

@@ -1,3 +1,5 @@
+import { getLang } from "../i18n.js";
+
 // ==================== ECONOMY (buy and sell prices) ====================
 // One place for what shops charge and what they pay, so prices stay consistent between the inventory,
 // Edgar's apothecary, Pip's stall and any safe-zone shop.
@@ -22,7 +24,7 @@ export const SHOPS = {
     fixed: { monsterShard: 15, voidCrystal: 80, elixir: 45, tonic: 18, panacea: 22, mushroom: 3000 }
   },
   // Any safe zone (Barracks, Citadel, platform camps): basics and cooking staples
-  safezone: { stock: ["salve", "elixir", "tonic", "panacea", "monsterShard", "wildSpice", "rockSalt"], markup: 1.25 }
+  safezone: { stock: ["soulstone", "salve", "elixir", "tonic", "panacea", "monsterShard", "wildSpice", "rockSalt"], markup: 1.25 }
 };
 
 // What a shop charges for one. item = describe(...) of the id
@@ -90,4 +92,49 @@ export function sell(player, item, qty = 1) {
   player.gold += gold;
   player.market.record(item, qty);
   return gold;
+}
+
+// Save-compatible gold units; 100 bronze = silver, 100 silver = gold, 100 gold = platinum.
+export function coinBreakdown(gold) {
+  let bronze = Math.max(0, Math.round((Number.isFinite(gold) ? gold : 0) * 10000));
+  const coins = {};
+  for (const [id, value] of [["platinum", 1000000], ["gold", 10000], ["silver", 100], ["bronze", 1]]) {
+    coins[id] = Math.floor(bronze / value);
+    bronze %= value;
+  }
+  return coins;
+}
+
+export function formatCoins(gold, compact = true) {
+  const coins = coinBreakdown(gold);
+  const labels = compact ? { platinum: "P", gold: "G", silver: "S", bronze: "B" }
+    : getLang() === "fil" ? { platinum: "platino", gold: "ginto", silver: "pilak", bronze: "tanso" }
+    : { platinum: "platinum", gold: "gold", silver: "silver", bronze: "bronze" };
+  return Object.entries(coins).filter(([, n]) => n).map(([id, n]) => `${n}${compact ? "" : " "}${labels[id]}`).join(" ") || `0${compact ? "" : " "}${labels.bronze}`;
+}
+
+// Persistent four-denomination wallet: only rebuild when the amount or language changes.
+export function renderCoinWallet(el, gold) {
+  const sig = `${gold}|${getLang()}`;
+  if (el.dataset.coins === sig) return;
+  el.dataset.coins = sig;
+  el.classList.add("coin-wallet");
+  el.textContent = "";
+  const names = getLang() === "fil"
+    ? { platinum: "Platino", gold: "Ginto", silver: "Pilak", bronze: "Tanso" }
+    : { platinum: "Platinum", gold: "Gold", silver: "Silver", bronze: "Bronze" };
+  const coins = coinBreakdown(gold);
+  el.setAttribute("aria-label", formatCoins(gold, false));
+  for (const [coin, count] of Object.entries(coins)) {
+    const chip = document.createElement("span");
+    chip.className = `coin-chip ${coin}`;
+    chip.title = `${count} ${names[coin]}`;
+    const icon = document.createElement("img");
+    icon.src = `assets/ui/coin_${coin}.png`;
+    icon.alt = names[coin];
+    const amount = document.createElement("b");
+    amount.textContent = String(count);
+    chip.append(icon, amount);
+    el.appendChild(chip);
+  }
 }

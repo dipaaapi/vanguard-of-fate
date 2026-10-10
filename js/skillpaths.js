@@ -1,7 +1,7 @@
 import { Sound } from "./audio.js";
 
 // ==================== SKILL PATHS: MIGHT (STR) · FINESSE (DEX) · ARCANA (INT) ====================
-// Three trees every hero can learn from with the same skill points as the class trees (js/skills.js
+// Three trees every hero can learn from with their own path points, separate from the class trees (js/skills.js
 // merges them into TREES). Each path mixes passives (always on) and actives (cast from the skill
 // slots T / Y / U).
 //

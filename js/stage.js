@@ -8,6 +8,8 @@ import { GFX } from "./settings.js";
 import { HUB_AREA } from "./world/areas.js";
 import { DARK_CONTINENT } from "./world/platforms.js";
 import { hasZoneArt, pushOutOf } from "./world/zonesprites.js";
+import { GUILD_ZONE, GUILD_SITE } from "./guilddata.js";
+import { drawGuildHall } from "./world/guildhall.js";
 
 // The plains of Aethelgard (Acts I–VI): Barracks, Citadel and the 4 Warp Gateways.
 // The boat and the sea are in the Cerulean Abyss (the "coast" platform).
@@ -39,7 +41,8 @@ export class Stage {
     // Audience dais in front of the Citadel gate: no trees or rocks (the King, summoner and mentors stand here)
     const gate = this.castle.gatePortal;
     this.dais = { x: gate.x - 110, y: gate.y - 4, w: 220, h: 128 };
-    this.clearAreas = [this.dais];
+    this.clearAreas = [this.dais, GUILD_ZONE];
+    this.guildSolids = [];
 
     // Sacred places monsters cannot enter: the Barracks and the Citadel's audience dais
     this.safeZones = [this.safeZone, this.dais];
@@ -50,11 +53,13 @@ export class Stage {
 
     // Tile-based ground (grass, paths, trees, rocks). Built last because it reads
     // where the castle, barracks and portals are drawn.
+    this.pathTargets.push([GUILD_SITE.x + 140, GUILD_SITE.y + 190]);
     this.tilemap = new TileMap(this);
   }
 
   // Impassable tiles (trees, rocks) and the Barracks longhouses (when their Aseprite art is shown)
   resolveTileCollision(entity) {
+    pushOutOf(entity, this.guildSolids);
     if (this.tilemap) this.tilemap.resolveCollision(entity);
     if (hasZoneArt("barracks")) pushOutOf(entity, this.barracks.solids);
   }
@@ -116,6 +121,7 @@ export class Stage {
 
     // 3. Central Sanctuary Platform
     this.barracks.draw(ctx);
+    drawGuildHall(ctx, this);
 
     // 4. 4-Way Warp Portals
     this.portals.draw(ctx);

@@ -55,3 +55,16 @@ coverage/
 .env.production.local
 *.pem
 *.key
+
+# Local browser verification dependencies and captures
+.codex/browser-tools/
+.codex/visual-before-coins/
+.codex/visual-after-coins/
+.codex/check-economy.mjs
+.codex/economy-*.md
+.codex/economy-art.png
+.codex/check-adventure.mjs
+.codex/check-boat-nav.mjs
+.codex/visual-after-guild/
+.codex/guild-*.mjs
+.codex/guild-*.png

@@ -2,7 +2,7 @@ import { Sound } from "./audio.js";
 import { Bag } from "./items/bag.js";
 import { mealBonus } from "./items/cooking.js";
 import { Market } from "./items/economy.js";
-import { STATS, PRIMARY, statCost, STAT_MAX, skillBonus, canLearn, findSkill, autoAllocate } from "./skills.js";
+import { STATS, PRIMARY, statCost, STAT_MAX, skillBonus, canLearn, findSkill, pointPoolFor, autoAllocate, autoLearn } from "./skills.js";
 import { SLOT_KEYS, noteStyle, slotNewActive, tickActives, styleOf } from "./skillpaths.js";
 import { STATUS_KEYS, tickStatuses, resistChance, blocksRegen } from "./status.js";
 import { around, mix, hitPose, attackPose, breathPose, drawSwing } from "./juice.js";
@@ -35,7 +35,11 @@ export class Player {
     // Stat builder and skill tree (Ragnarok Online style) — see js/skills.js
     this.stats = { str: 1, agi: 1, vit: 1, int: 1, dex: 1, luk: 1 };
     this.skillLevels = {};
+    this.autoAttack = { remainingMs: 5 * 60 * 1000, until: 0 };
+    this.autoAdventureClass = "knight";
+    this.autoAdventureStatus = "off";
     this.skillPoints = 0;
+    this.pathPoints = 0;
     this.sk = {};             // combined skill effects (computed in recalc)
     this.aspd = 0;            // attack speed (0..0.5)
     this.dmgMult = 1;         // extra % damage from skills
@@ -49,7 +53,9 @@ export class Player {
     this.wardPct = 0;         // share of damage they stop
     this.styleCheck = 0;
     this.styleNow = null;
-    this.autoStat = "off";    // auto stat path: off | str | dex | int | style (js/skills.js autoAllocate)
+    this.autoStat = "off";    // independent allocation controls
+    this.autoSkill = false;
+    this.autoPath = "off";
 
     this.bonusHp = 0;
     this.bonusDamage = 0;
@@ -191,7 +197,7 @@ export class Player {
     this.resetSkills();
   }
 
-  // Stat reset (free, any time from the Character panel): every stat back to 1, all points refunded.
+  // Internal refund; player-requested resets are priced and authorized by the Guild Representative.
   // The auto stat path is switched off so the refunded points are not spent again at once.
   resetStats() {
     Object.keys(this.stats).forEach((k) => {
@@ -203,11 +209,21 @@ export class Player {
     this.hp = Math.min(this.hp, this.maxHp);
   }
 
-  // Skill reset (free, any time): every skill forgotten, all skill points refunded, T/Y/U slots cleared
-  resetSkills() {
-    this.skillPoints += Object.values(this.skillLevels).reduce((n, lv) => n + lv, 0);
-    this.skillLevels = {};
-    this.pathSlots = SLOT_KEYS.map(() => null);
+  // Refund each learned ability to its own pool. An omitted kind resets both.
+  resetSkills(kind = "all") {
+    if (kind !== "paths") this.autoSkill = false;
+    if (kind !== "skills") this.autoPath = "off";
+    for (const [id, lv] of Object.entries(this.skillLevels)) {
+      const s = findSkill(id);
+      const path = Boolean(s && s.path);
+      if (kind !== "all" && path !== (kind === "paths")) continue;
+      this[path ? "pathPoints" : "skillPoints"] += lv;
+      delete this.skillLevels[id];
+    }
+    if (kind !== "skills") {
+      this.pathSlots = SLOT_KEYS.map(() => null);
+      this.activeCd = {};
+    }
     this.recalc();
     this.hp = Math.min(this.hp, this.maxHp);
   }
@@ -226,11 +242,36 @@ export class Player {
     return true;
   }
 
+  // Real elapsed time: an enabled timer expires even during pauses or offline.
+  autoAttackTime(now = Date.now()) {
+    const a = this.autoAttack;
+    if (a.until) {
+      a.remainingMs = Math.max(0, a.until - now);
+      if (!a.remainingMs) a.until = 0;
+    }
+    return a.remainingMs;
+  }
+
+  toggleAutoAttack(now = Date.now()) {
+    this.autoAttackTime(now);
+    const a = this.autoAttack;
+    if (a.until) { a.until = 0; return false; }
+    if (!a.remainingMs) return false;
+    a.until = now + a.remainingMs;
+    return true;
+  }
+
+  extendAutoAttack(ms, now = Date.now()) {
+    this.autoAttackTime(now);
+    this.autoAttack.remainingMs += ms;
+    if (this.autoAttack.until) this.autoAttack.until = now + this.autoAttack.remainingMs;
+  }
+
   // Skill tree: raise a skill's level
   learnSkill(id) {
     const s = findSkill(id);
     if (!s || !canLearn(this, s)) return false;
-    this.skillPoints--;
+    this[pointPoolFor(s)]--;
     this.skillLevels[id] = (this.skillLevels[id] || 0) + 1;
     slotNewActive(this, id);
     this.recalc();
@@ -303,16 +344,23 @@ export class Player {
       this.exp -= this.expNext;
       this.level++;
       this.expNext = expFor(this.level);
-      // Ragnarok: more stat points at higher levels; 1 skill point per level
+      // More stat points at higher levels; one skill point and one path point per level
       this.statPoints += 3 + Math.floor(this.level / 5);
       this.skillPoints += 1;
+      this.pathPoints += 1;
       this.recalc();
       // A level-up restores a quarter of max HP (no longer a free full heal mid-fight)
       this.hp = Math.min(this.maxHp, this.hp + Math.round(this.maxHp * 0.25));
       if (Sound && Sound.playLevelUp) Sound.playLevelUp();
       if (this.onLevelUp) this.onLevelUp(this.level);
     }
-    if (this.autoStat && this.autoStat !== "off" && this.statPoints > 0 && autoAllocate(this)) this.recalc();
+    this.allocateAutomatically();
+  }
+
+  allocateAutomatically() {
+    if (this.autoStat !== "off" && this.statPoints > 0 && autoAllocate(this)) this.recalc();
+    autoLearn(this, "skills");
+    autoLearn(this, "paths");
   }
 
   upgradeStat(type) {
@@ -357,6 +405,7 @@ export class Player {
   }
 
   update(input, bounds, spawnProjectile, closestEnemy, isInSafeZone = false, fx = null) {
+    this.allocateAutomatically();
     if (this.hp <= 0) return;
     if (this.meal && --this.meal.t <= 0) { this.meal = null; this.recalc(); }   // the meal wears off
     // Only target within the class's reach (e.g. arrows 220px, dagger 60px); beyond that, straight ahead
@@ -468,7 +517,10 @@ export class Player {
 
     // Key J (Attack / Reload)
     const caster = this.kit.id === "mage" || this.kit.id === "priest";
-    if (isPressed("KeyJ") && this.attackCooldownTimer <= 0 && !isInSafeZone && !this.paralyzed && !(caster && this.debuffs.silence > 0)) {
+    const autoTime = this.autoAttackTime();
+    const autoAttack = !this.suspendAutoAttack && autoTime > 0 && this.autoAttack.until > 0 && closestEnemy?.isAlive &&
+      Math.hypot(closestEnemy.x - this.x, closestEnemy.y - this.y) <= (this.kit.range || 70);
+    if ((isPressed("KeyJ") || autoAttack) && this.attackCooldownTimer <= 0 && !isInSafeZone && !this.paralyzed && !(caster && this.debuffs.silence > 0)) {
       if (this.kit && this.kit.onAttack) {
         const ok = this.kit.onAttack(this, closestEnemy, spawnProjectile);
         if (ok !== false) {

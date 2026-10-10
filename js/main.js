@@ -1,3 +1,11 @@
+import { AutoAdventure } from "./autoadventure.js";
+import { GuildBook } from "./guild.js";
+import { GuildField } from "./guildfield.js";
+import { autoSummonDefence } from "./summons/automation.js";
+import { GuildPanel } from "./guildpanel.js";
+import { GuildCeremony } from "./guildceremony.js";
+import { GUILD_NPCS, guildText } from "./guilddata.js";
+import { setGuildHallOpen } from "./world/guildhall.js";
 import { KnightClass } from "./classes/knight.js";
 import { MageClass } from "./classes/mage.js";
 import { PriestClass } from "./classes/priest.js";
@@ -44,7 +52,7 @@ import { wear, WEAR_WEAPON, WEAR_ARMOR, ARMOR_SLOTS } from "./items/durability.j
 import { needsPick } from "./world/mining.js";
 import { Fishing } from "./world/fishing.js";
 import { Workshop } from "./workshop.js";
-import { SHOPS, buyPrice, Market as EconMarket } from "./items/economy.js";
+import { SHOPS, buyPrice, Market as EconMarket, formatCoins } from "./items/economy.js";
 import { hasRunnerKind, isAway, updateErrand, serializeErrand, loadErrand, errandText, runnerName } from "./errand.js";
 import { Avatar } from "./avatar/avatar.js";
 import { loadSpriteSheets } from "./avatar/sheets.js";
@@ -69,7 +77,7 @@ import { FalconCompanion } from "./summons/falcon.js";
 import { GuardianAngelCompanion } from "./summons/angel.js";
 import { syncFamiliar } from "./summons/familiar.js";
 import { PATH_IDS, SLOT_KEYS, assignSlot } from "./skillpaths.js";
-import { AUTO_MODES } from "./skills.js";
+import { AUTO_MODES, loadSkillPoints } from "./skills.js";
 import "./saveSecurity.js";
 
 const canvas = document.getElementById("gameCanvas");
@@ -205,13 +213,22 @@ const ui = new UIManager();
 const lootManager = new LootManager();
 const mercManager = new MercenaryManager();
 const controller = new InputController();
+const autoAdventure = new AutoAdventure();
+const guildBook = new GuildBook();
+const guildField = new GuildField(guildBook);
+const guildCeremony = new GuildCeremony();
+const guildContext = () => ({ quest, stage });
+const guildPanel = new GuildPanel(document.getElementById("viewport"), guildBook,
+  () => { player.allocateAutomatically(); saveGame(); },
+  result => { controller.clearAll(); guildCeremony.start(player, result); });
+guildBook.onReady = () => { questHud.toast(guildText("ready")); saveGame(); };
 // Gamepad (DS4 / DualSense / Joy-Con / Xbox): translated into the same key events as the keyboard.
 // Gameplay bindings apply only while the hero is free to move; otherwise the pad navigates menus.
 const gamepad = new GamepadInput(() => {
   try {
     return Boolean(player) && gameState === "PLAYING" && !dialog.open && !actReader.open && !serviceMenu.open &&
       !showShopModal && !showMercModal && !inventory.open && !worldMap.open && !charPanel.open &&
-      !questHud.logOpen && !market.open && !settingsPanel.open && !codexScene.open && !regressionModal.open;
+      !questHud.logOpen && !market.open && !settingsPanel.open && !codexScene.open && !regressionModal.open && !guildPanel.open && !guildCeremony.open;
   } catch (_) { return false; }   // still booting
 }, () => {
   // something in reach of E: an NPC, an ore vein or the boat → the pad's A button talks / uses
@@ -222,7 +239,7 @@ const gamepad = new GamepadInput(() => {
   } catch (_) { return false; }
 });
 // Pad buttons that aren't a keyboard key: party switch (gameplay) and full screen (bindable in the Controller guide)
-gamepad.onPad.partyNext = () => { if (gameState === "PLAYING") switchMember(-1); };
+gamepad.onPad.partyNext = () => { if (gameState === "PLAYING" && !guildPanel.open && !guildCeremony.open) switchMember(-1); };
 gamepad.onPad.fullscreen = () => toggleFullscreen();
 const panelNav = new PanelNav();   // arrows / D-pad + Enter inside the Inventory and Character panels (js/padnav.js)
 onLangChange(() => gamepad.refresh());
@@ -387,7 +404,7 @@ function toggleCodex() {
 function openRonaldMenu() {
   const fil = lang() === "fil", who = npcName("ronald");
   serviceMenu.show(who, [
-    { label: fil ? "Umupa ng mercenary" : "Hire mercenaries", hint: `${MercenaryManager.cost(player.level)}G`, onPick: () => { showMercModal = true; } },
+    { label: fil ? "Umupa ng mercenary" : "Hire mercenaries", hint: `${formatCoins(MercenaryManager.cost(player.level))}`, onPick: () => { showMercModal = true; } },
     { label: fil ? "Mag-refine (hanggang +4)" : "Refine gear (up to +4)", hint: fil ? "Ang dwarf na panday sa Ashfall ang lampas +4" : "Beyond +4 needs the dwarf smith of Ashfall",
       onPick: () => openService("refine", { maxPlus: 4, serviceName: who }) },
     { label: fil ? "Field repair (dobleng halaga)" : "Field repair (double cost)", hint: fil ? "Mas mura sa dwarf sa Ashfall" : "Cheaper with the dwarves of Ashfall",
@@ -408,7 +425,7 @@ function openSmithMenu() {
 }
 
 // Forging: pick a set, then a slot; each option shows its mineral cost
-const costText = (cost) => Object.entries(cost).map(([id, n]) => (id === "gold" ? `${n}G` : `${getItem(id).name} ${player.bag.count(id)}/${n}`)).join(" · ");
+const costText = (cost) => Object.entries(cost).map(([id, n]) => (id === "gold" ? `${formatCoins(n)}` : `${getItem(id).name} ${player.bag.count(id)}/${n}`)).join(" · ");
 function openForgeSets() {
   const fil = lang() === "fil";
   serviceMenu.show(fil ? "Pumili ng set" : "Choose a set", Object.entries(SETS).filter(([, set]) => set.mineral).map(([id, set]) => ({
@@ -420,7 +437,7 @@ function openForgeSets() {
 function openForgeSlots(setId) {
   const fil = lang() === "fil", set = SETS[setId];
   const SLOT_NAME = { weapon: fil ? "Sandata" : "Weapon", head: fil ? "Ulo" : "Head", armor: fil ? "Baluti" : "Armor", gloves: fil ? "Guwantes" : "Gloves", boots: fil ? "Bota" : "Boots" };
-  serviceMenu.show(`${set.name[lang()]} · ◆ ${player.gold}G`, SET_SLOTS.map((slot) => ({
+  serviceMenu.show(`${set.name[lang()]} · ◆ ${formatCoins(player.gold)}`, SET_SLOTS.map((slot) => ({
     label: SLOT_NAME[slot],
     hint: costText(recipeCost(setId, slot)),
     onPick: () => {
@@ -509,8 +526,8 @@ let pipHasMushroom = false;       // rolled each time the hero arrives in the As
 function openDwarfShop() {
   const fil = lang() === "fil";
   const stock = pipHasMushroom ? [...DWARF_STOCK, ["mushroom", 3000]] : DWARF_STOCK;
-  serviceMenu.show(`${npcName("pip")} · ◆ ${player.gold}G`, stock.map(([id, price]) => ({
-    label: `${getItem(id).name} — ${price}G`,
+  serviceMenu.show(`${npcName("pip")} · ◆ ${formatCoins(player.gold)}`, stock.map(([id, price]) => ({
+    label: `${getItem(id).name} — ${formatCoins(price)}`,
     hint: getItem(id).desc,
     disabled: player.gold < price,
     onPick: () => {
@@ -518,7 +535,7 @@ function openDwarfShop() {
         fx.spawnDamagePopup(player.x + 10, player.y - 10, fil ? "HINDI MAKABILI" : "CAN'T BUY", false, "#ef4444");
       } else {
         player.gold -= price;
-        chatLog.event("loot", fil ? `Binili ang ${getItem(id).name} (−${price}G)` : `Bought ${getItem(id).name} (−${price}G)`, dayNight.label());
+        chatLog.event("loot", fil ? `Binili ang ${getItem(id).name} (−${formatCoins(price)})` : `Bought ${getItem(id).name} (−${formatCoins(price)})`, dayNight.label());
         if (id === "mushroom") pipHasMushroom = false;   // one per visit
         if (Sound.playLootPickup) Sound.playLootPickup();
       }
@@ -538,7 +555,7 @@ function inventoryCtx() {
       const it = lootManager.items[lootManager.items.length - 1];
       if (it) it.blocked = 240;     // don't pick it up again right away
     },
-    onRepair: (n, cost) => chatLog.event("equip", lang() === "fil" ? `Naayos ang ${n} kagamitan (−${cost}G)` : `Repaired ${n} item${n > 1 ? "s" : ""} (−${cost}G)`, dayNight.label())
+    onRepair: (n, cost) => chatLog.event("equip", lang() === "fil" ? `Naayos ang ${n} kagamitan (−${formatCoins(cost)})` : `Repaired ${n} item${n > 1 ? "s" : ""} (−${formatCoins(cost)})`, dayNight.label())
   };
 }
 
@@ -564,7 +581,10 @@ function wearGear(slots, amount) {
 enemyManager.onHeroHit = () => wearGear(["weapon"], WEAR_WEAPON);
 
 // Character (C): stat builder and skill tree (Ragnarok Online style). The game is paused while it is open.
-const charPanel = new CharacterPanel(document.getElementById("character"));
+const charPanel = new CharacterPanel(document.getElementById("character"), () => {
+  if (!guildBook.at(player, guildContext(), "guildRepresentative")) { questHud.toast(guildText("resetAt")); return; }
+  charPanel.close(); guildPanel.show("guildRepresentative", player, guildContext());
+});
 function toggleCharacter() {
   if (!player || gameState !== "PLAYING" || dialog.open || actReader.open || showShopModal || showMercModal) return;
   controller.clearAll();
@@ -710,7 +730,19 @@ function exitToTitle() {
 }
 
 // Right panel, bottom: skills (J, K, L, Space, E) and options (Q, I, C, M, N, Esc, H)
+function toggleAutoAttack() {
+  if (!["PLAYING", "PAUSED", "SELECT"].includes(gameState) || !player) return;
+  const on = player.toggleAutoAttack();
+  autoAdventure.reset();
+  if (on && (dialog.open || gameState === "SELECT" && codexScene.mode === "awaken")) {
+    autoAdventure.dialogOwned = true; autoAdventure.dialogAt = Date.now();
+  }
+  questHud.toast(t(on ? "autoAdventureOn" : player.autoAttackTime() > 0 ? "autoAdventureOff" : "autoAdventureExpired"));
+  saveGame();
+}
+
 const actionPanel = new ActionPanel({
+  autoAttack: toggleAutoAttack,
   quests: () => {
     Sound.init();
     if (gameState === "PLAYING" && !dialog.open && !actReader.open && !showShopModal && !showMercModal) {
@@ -898,6 +930,7 @@ function travelTo(id, at = null) {
   if (def && !def.frontier && quest.step === quest.baseStep(id)) {
     quest.onArrive(id);
     const s = npcManager.find(npcManager.summonerId);
+    if (player.autoAttack.until) { autoAdventure.dialogOwned = true; autoAdventure.dialogAt = Date.now(); }
     dialog.start(npcManager.summonerId, s && s.avatar, fillNames(def.text[lang()].arrive));
   }
   syncBoss();
@@ -1011,6 +1044,8 @@ lootManager.onQuestItem = (id) => {
 };
 // Bottom tray: EXP from the hero's kills (merged while chaining kills), or a note when an ally took the last hit
 enemyManager.onKill = (e, byPlayer, exp) => {
+  if (byPlayer && player) guildBook.progress(player, stage.id, e);
+  if (byPlayer && player) guildField.onKill(player, stage, e, lootManager);
   codex.recordKill(e.key);
   if (e.elite) party.onEliteKill(stage.id).forEach((id) => chatLog.event("info", party.progressText(id, player.bag), dayNight.label()));
   sideProgress(quest.side.onKill(e, stage.id));
@@ -1043,11 +1078,12 @@ enemyManager.onKill = (e, byPlayer, exp) => {
 };
 // Bottom tray: gold and items picked up (consecutive identical pickups merge)
 lootManager.onCollect = (it) => {
+  if (player && it.guildSource) guildBook.collect(player, stage.id, it.id, it.guildSource, it.qty);
   const fil = lang() === "fil";
   if (it.gold) {
     chatLog.event("loot", "", dayNight.label(), {
       key: "gold", value: it.gold,
-      format: (n, total) => (fil ? `Napulot ang ${total}G` : `Picked up ${total}G`)
+      format: (n, total) => (fil ? `Napulot ang ${formatCoins(total)}` : `Picked up ${formatCoins(total)}`)
     });
     return;
   }
@@ -1113,10 +1149,16 @@ function getSavePayload() {
     bag: player.bag.serialize(),            // bag and worn equipment
     stats: { ...player.stats },             // STR/AGI/VIT/INT/DEX/LUK
     skills: { ...player.skillLevels },
+    autoAttack: { ...player.autoAttack },
+    autoAdventureClass: player.autoAdventureClass,
     skillPoints: player.skillPoints,
+    pathPoints: player.pathPoints,
     pathSlots: [...(player.pathSlots || [])],   // path actives on T / Y / U
     style: { ...player.style },                    // play-style affinity (js/skillpaths.js)
     autoStat: player.autoStat || "off",
+    autoSkill: Boolean(player.autoSkill),
+    autoPath: player.autoPath || "off",
+    guild: guildBook.state(player),
     belt: [...player.belt],
     skillKeys: SkillSlots.serialize(),      // J/K/L arrangement on the hotbar (skill book, P)
     autoPot: { ...player.autoPot },
@@ -1138,6 +1180,8 @@ function loadPaths(p, data) {
   if (data.style) PATH_IDS.forEach((k) => { const v = Number(data.style[k]); p.style[k] = Number.isFinite(v) && v > 0 ? Math.min(v, 1e4) : 0; });
   if (Array.isArray(data.pathSlots)) SLOT_KEYS.forEach((_, i) => assignSlot(p, i, typeof data.pathSlots[i] === "string" ? data.pathSlots[i] : null));
   p.autoStat = AUTO_MODES.includes(data.autoStat) ? data.autoStat : "off";
+  p.autoSkill = data.autoSkill === true;
+  p.autoPath = AUTO_MODES.includes(data.autoPath) ? data.autoPath : "off";
 }
 
 function saveGame() {
@@ -1238,7 +1282,7 @@ function loadGame() {
     player.exp = data.exp || 0;
     player.expNext = expFor(player.level);          // new EXP curve (not the old one from the save)
     player.exp = Math.min(player.exp, player.expNext - 1);
-    player.gold = data.gold || 150;
+    player.gold = Number.isFinite(data.gold) ? Math.max(0, data.gold) : 150;
     player.statPoints = data.statPoints || 0;
     player.bonusHp = data.bonusHp || 0;
     player.bonusDamage = data.bonusDamage || 0;
@@ -1251,11 +1295,23 @@ function loadGame() {
     if (data.stats) {
       Object.keys(player.stats).forEach((k) => { player.stats[k] = Math.max(1, Math.min(99, data.stats[k] | 0 || 1)); });
       player.skillLevels = { ...(data.skills || {}) };
-      player.skillPoints = data.skillPoints || 0;
+      loadSkillPoints(player, data);
       loadPaths(player, data);
     } else {
       player.statPoints = (data.statPoints || 0) + 10 + (player.level - 1) * 3;
       player.skillPoints = player.level - 1;
+      player.pathPoints = player.level - 1;
+    }
+    player.autoAdventureClass = ["knight", "mage", "archer", "priest", "fighter"].includes(data.autoAdventureClass) ? data.autoAdventureClass : "knight";
+    guildBook.load(player, data.guild);
+    autoAdventure.reset();
+    if (data.autoAttack && typeof data.autoAttack === "object") {
+      const a = data.autoAttack;
+      player.autoAttack = {
+        remainingMs: Number.isFinite(a.remainingMs) ? Math.max(0, a.remainingMs) : 0,
+        until: Number.isFinite(a.until) ? Math.max(0, a.until) : 0
+      };
+      player.autoAttackTime();
     }
     dayNight.load(data.dayTick);
     codex.load(data.codex);
@@ -1307,6 +1363,7 @@ function starterKit(p) {
 
 // Common reset when entering the game (new game or load)
 function beginPlaying() {
+  guildPanel.close(); guildCeremony.close(); setGuildHallOpen(hub, guildBook.available(quest));
   controller.clearAll();
   chatLog.clear();
   stage = hub;
@@ -1332,6 +1389,7 @@ function beginPlaying() {
 }
 
 function backToTitle() {
+  guildPanel.close(); guildCeremony.close(); guildPanel.tracker.hidden = true;
   controller.clearAll();
   actIntro.close();
   actIntroShown = null;
@@ -1367,7 +1425,7 @@ function awaken(chosenHero) {
   const p = new Player(old.x, old.y, equipJob(chosenHero, old.avatarConfig));
   ["level", "exp", "expNext", "gold", "statPoints", "bonusHp", "bonusDamage",
     "bonusDefense", "bonusSpeed", "bonusCrit", "bonusCooldown", "heroName", "avatarConfig",
-    "stats", "skillLevels", "skillPoints", "belt", "autoPot", "style", "pathSlots", "autoStat"].forEach((k) => { p[k] = old[k]; });
+    "stats", "skillLevels", "skillPoints", "pathPoints", "autoAttack", "autoAdventureClass", "belt", "autoPot", "style", "pathSlots", "autoStat", "autoSkill", "autoPath", "guild"].forEach((k) => { p[k] = old[k]; });
   // Keeps the bag; the summoner hands over the class's custom-forged weapon (LORE Act IV)
   p.bag = old.bag;
   p.bag.giveKit(chosenHero.id, 1);
@@ -1421,7 +1479,18 @@ function onRecruited(id) {
 }
 
 // Talking to an NPC (E). After the last line: quest + the NPC's service
-function talkTo(npc) {
+function talkTo(npc, automated = false) {
+  if (automated && npc.id === "guildClerk" && guildBook.state(player).active?.have >= (guildBook.objective(player)?.n || Infinity)) {
+    const result = guildBook.claim(player, guildContext());
+    questHud.toast(guildText(result.error || "ok"));
+    if (result.error) player.toggleAutoAttack();
+    saveGame(); return;
+  }
+  const supply = guildField.supply(player, stage, npc);
+  if (supply) { questHud.toast(guildText(supply)); saveGame(); return; }
+  if (GUILD_NPCS[npc.id]) { controller.clearAll(); guildPanel.show(npc.id, player, guildContext()); return; }
+  autoAdventure.dialogOwned = automated;
+  if (automated) autoAdventure.dialogAt = Date.now();
   codex.meet(npc.id);
   if (npc.tag === "field") return talkField(npc);
   const place = npc.platform, pdef = PLATFORMS[place];
@@ -1440,6 +1509,7 @@ function talkTo(npc) {
     quest.onTalk(npc.id, npcManager.summonerId, playerClass());
     npcManager.applyQuest(quest, playerClass());
     saveGame();   // records who has been spoken to
+    if (autoAdventure.dialogOwned && player.autoAttack.until > 0 && d.action !== "awaken") return;
     if (d.action === "shop") { showShopModal = true; showMercModal = false; }
     else if (d.action === "merc") { showShopModal = false; openRonaldMenu(); }
     else if (d.action === "smith") openSmithMenu();
@@ -1553,6 +1623,20 @@ window.addEventListener("keydown", (e) => {
   }
   Sound.init();
   if (devTools && devTools.handleKey(e)) return;   // F9 panel: its keys never reach the game
+  if (["INPUT", "TEXTAREA", "SELECT"].includes(e.target?.tagName)) return;
+  // Stop or resume automation even while reviewing a guild service or ceremony.
+  if (e.code === "KeyZ" && !e.repeat && player && ["PLAYING", "PAUSED", "SELECT"].includes(gameState)) {
+    toggleAutoAttack(); e.preventDefault(); return;
+  }
+  if (guildCeremony.open) { guildCeremony.handleInput(e); return; }
+  if (guildPanel.open) {
+    if (e.code === "Escape" || e.code === "F3") { guildPanel.close(); panelNav.reset(); }
+    else panelNav.handle(guildPanel.el, e);
+    e.preventDefault(); return;
+  }
+  if (e.code === "F3" && gameState === "PLAYING" && player && !dialog.open) {
+    controller.clearAll(); guildPanel.show("guildClerk", player, guildContext()); e.preventDefault(); return;
+  }
   if (e.code === "F2") { stage.tilemap.debug = !stage.tilemap.debug; e.preventDefault(); }
 
   if (regressionModal.open) { regressionModal.handleInput(e); return; }
@@ -1804,7 +1888,43 @@ window.addEventListener("keyup", (e) => {
   if (tapped && player && gameState === "PLAYING" && !dialog.open) player.sprintLock = !player.sprintLock;
 });
 
+// Drive only game-owned story conversations; user-opened panels suspend movement.
+function updateAutoAdventureStory() {
+  if (!player) return;
+  if (guildPanel.open || guildCeremony.open) return;
+  const enabled = player.autoAttackTime() > 0 && player.autoAttack.until > 0;
+  if (!enabled) { autoAdventure.dialogOwned = false; player.autoAdventureStatus = player.autoAttackTime() ? "off" : "expired"; return; }
+  if (quest.step >= FINAL_STEP && !dialog.open && !guildBook.state(player).active) {
+    player.toggleAutoAttack(); autoAdventure.reset();
+    player.autoAdventureStatus = "complete";
+    questHud.toast(t("autoAdventureComplete")); saveGame(); return;
+  }
+  if (gameState === "PAUSED" || (devTools && devTools.open)) return;
+  if (actIntro.open && gameState === "PLAYING" && actIntro.t > 90) actIntro.close();
+  if (!autoAdventure.dialogOwned) return;
+  const now = Date.now();
+  if (dialog.open) {
+    player.autoAdventureStatus = "dialogue";
+    if (now - autoAdventure.dialogAt >= 1000) { autoAdventure.dialogAt = now; dialog.next(); }
+    return;
+  }
+  // Quest NPC services open after the final line. Dismiss the menu without spending gold.
+  if (showShopModal) showShopModal = false;
+  if (showMercModal) showMercModal = false;
+  if (serviceMenu.open) serviceMenu.close();
+  if (gameState === "SELECT" && codexScene.mode === "awaken") {
+    const chosen = ROSTER.find(h => h.id === (player.autoAdventureClass || "knight"));
+    if (chosen) { codexScene.close(); awaken(chosen); autoAdventure.dialogAt = now; }
+    return;
+  }
+  autoAdventure.dialogOwned = false;
+  saveGame();
+}
+
 function updateGame() {
+  if (player) setGuildHallOpen(hub, guildBook.available(quest));
+  if (guildPanel.open || guildCeremony.open) return;
+  updateAutoAdventureStory();
   if (player && actIntroShown === null) actIntroShown = quest.act();
   if (gameState !== "PLAYING" || !player || (devTools && devTools.open) || regressionModal.open || actIntro.open || showShopModal || showMercModal || dialog.open || serviceMenu.open || codexScene.open || questHud.logOpen || inventory.open || charPanel.open || actReader.open || worldMap.open || market.open || settingsPanel.open) return;
 
@@ -1859,6 +1979,35 @@ function updateGame() {
   }
   stage.resolveTileCollision(player);
 
+  let adventure = null;
+  const autoEnabled = player.autoAttackTime() > 0 && player.autoAttack.until > 0;
+  const manualMovement = controller.getMovementVector().isMoving;
+  player.suspendAutoAttack = autoEnabled && manualMovement;
+  if (autoEnabled && !manualMovement) {
+    if (player.hp < player.maxHp * 0.6 && player.potionCd <= 0) {
+      const potion = player.hp < player.maxHp * 0.4 && player.bag.has("elixir") ? "elixir" : "salve";
+      if (player.bag.has(potion)) player.bag.useById(potion, player, fx);
+    }
+    if (player.hasAnyDebuff() && player.bag.has("panacea")) player.bag.useById("panacea", player, fx);
+    adventure = autoAdventure.update({ player, stage, quest, npcs: npcManager, enemies: enemyManager.enemies,
+      loot: lootManager, hub, finalStep: FINAL_STEP, guildGoal: guildField.goal(player, stage, enemyManager, npcManager, lootManager) });
+    player.autoAdventureStatus = adventure.status;
+    if (adventure.done || adventure.halted || adventure.status === "bagFull") {
+      player.toggleAutoAttack();
+      questHud.toast(t(adventure.done ? "autoAdventureComplete" : adventure.halted ? "autoAdventureBlocked" : "autoAdventureBagFull"));
+      saveGame(); return;
+    }
+    if (adventure.npc && Math.hypot(player.x + 10 - adventure.npc.x, player.y + 10 - adventure.npc.y) < 38 && Date.now() - autoAdventure.lastTalk > 1000) {
+      autoAdventure.lastTalk = Date.now(); talkTo(adventure.npc, true); return;
+    }
+    if (adventure.action === "board" && stage.boatSystem.canToggle(player)) {
+      stage.boatSystem.toggleBoard(player, fx, crewOf()); return;
+    }
+    if (adventure.action === "monolith" && Math.hypot(player.x - stage.boatSystem.monolith.x, player.y - stage.boatSystem.monolith.y) < 65) {
+      stage.boatSystem.activateMonolith(player, fx, () => { quest.monolith = true; saveGame(); });
+    }
+  } else if (autoEnabled) player.autoAdventureStatus = "manual";
+
   let closestEnemy = enemyManager.enemies
     .filter((e) => e.isAlive)
     .sort((a, b) => Math.hypot(a.x - player.x, a.y - player.y) - Math.hypot(b.x - player.x, b.y - player.y))[0] || null;
@@ -1868,10 +2017,12 @@ function updateGame() {
     if (lockedTarget.isAlive && enemyManager.enemies.includes(lockedTarget) && Math.hypot(lockedTarget.x - player.x, lockedTarget.y - player.y) <= range) closestEnemy = lockedTarget;
     else lockedTarget = null;
   }
-  enemyManager.lockedId = lockedTarget ? lockedTarget.id : null;
+  if (adventure) closestEnemy = adventure.enemy || null;
+  enemyManager.lockedId = closestEnemy && adventure ? closestEnemy.id : lockedTarget ? lockedTarget.id : null;
 
+  autoSummonDefence(player, enemyManager, stage, GuardianAngelCompanion, lootManager);
   player.update(
-    controller,
+    adventure ? { isDown: code => controller.isDown(code) || adventure.keys.has(code) } : controller,
     stage.bounds,
     (proj) => projectileManager.add(proj),
     closestEnemy,
@@ -1909,6 +2060,7 @@ function updateGame() {
   camera.update(player.x, player.y);
 
   enemyManager.allies = mercManager.mercenaries;
+  guildField.update(player, stage, enemyManager);
   enemyManager.update(player, fx, lootManager, stage);
   if (stage.castle) {
     enemyManager.enemies.forEach((enemy) => {
@@ -1921,6 +2073,7 @@ function updateGame() {
 
   quest.update(player);
   sideProgress(quest.side.onMove(stage.id, player.x + 10, player.y + 18));
+  guildBook.progress(player, stage.id, null, { x: player.x + 10, y: player.y + 18 });
   npcManager.update(player, enemyManager, fx);
 
   mercManager.update(player, enemyManager, lootManager, fx, (proj) => projectileManager.add(proj), stage);
@@ -2059,6 +2212,7 @@ function renderGameWorld() {
   const footY = player ? player.y + 21 : 0;
   npcManager.drawLayer(ctx, footY, false);   // NPCs behind the player
   lootManager.draw(ctx);
+  guildField.draw(ctx, player, stage);
   mercManager.draw(ctx);
   enemyManager.draw(ctx);
   projectileManager.draw(ctx);
@@ -2130,7 +2284,8 @@ function renderGameWorld() {
   }
 
   // Inventory / Character panel cursor (arrows / D-pad): re-attach after each re-render
-  if (inventory.open) panelNav.mark(document.getElementById("inventory"));
+  if (guildPanel.open) panelNav.mark(guildPanel.el);
+  else if (inventory.open) panelNav.mark(document.getElementById("inventory"));
   else if (charPanel.open) panelNav.mark(document.getElementById("character"));
   else if (panelNav.root) panelNav.reset();
 
@@ -2253,6 +2408,7 @@ function frame(now) {
   const MODES = { TITLE: "title", SELECT: "select", CREATE: "create" };
   setLayoutMode(MODES[gameState] || "play");
   dialog.update();
+  document.getElementById("viewport").classList.toggle("guild-ceremony", guildCeremony.open);
   questHud.setVisible(layoutMode === "play" && Boolean(player) && gameState !== "GAMEOVER" && !actIntro.open);
   if (player && layoutMode === "play") {
     questHud.update(quest, player, summonerName(), mentorName());
@@ -2280,10 +2436,12 @@ function frame(now) {
       charOpen: charPanel.open,
       marketOpen: market.open,
       settingsOpen: settingsPanel.open,
-      pointsAvailable: player.statPoints > 0 || player.skillPoints > 0
+      pointsAvailable: player.statPoints > 0 || player.skillPoints > 0 || player.pathPoints > 0
     });
   }
   if (inventory.open && (gameState !== "PLAYING" || !player)) inventory.close();
+  guildPanel.update(gameState === "PLAYING" ? player : null, guildContext());
+  if (guildPanel.open && (gameState !== "PLAYING" || !player)) guildPanel.close();
   if (charPanel.open && (gameState !== "PLAYING" || !player)) charPanel.close();
   inventory.update();
   if (actReader.open && (layoutMode !== "play" || !player)) actReader.close();
@@ -2305,6 +2463,7 @@ function frame(now) {
     renderGameWorld();
   }
   if (codexScene.open && gameState !== "CREATE" && gameState !== "SELECT") codexScene.draw();   // the Codex (N) over the game
+  if (guildCeremony.open && gameState === "PLAYING") guildCeremony.draw(ctx);
   if (actIntro.open && gameState === "PLAYING") actIntro.draw(ctx, VIEW_W, VIEW_H);
   if (pendingToast && !actIntro.open) { questHud.toast(pendingToast); pendingToast = null; }
   if (layoutMode === "play") drawSideMap();
@@ -2376,7 +2535,7 @@ function changeJob(def) {
   party.heroOnField(old);
   const p = new Player(old.x, old.y, equipJob(def, old.avatarConfig));
   ["level", "exp", "expNext", "gold", "statPoints", "bonusHp", "bonusDamage", "bonusDefense", "bonusSpeed", "bonusCrit",
-    "bonusCooldown", "heroName", "avatarConfig", "earthLook", "stats", "skillLevels", "skillPoints", "belt", "autoPot", "style", "pathSlots", "autoStat"].forEach((k) => { p[k] = old[k]; });
+    "bonusCooldown", "heroName", "avatarConfig", "earthLook", "stats", "skillLevels", "skillPoints", "pathPoints", "autoAttack", "autoAdventureClass", "belt", "autoPot", "style", "pathSlots", "autoStat", "autoSkill", "autoPath", "guild"].forEach((k) => { p[k] = old[k]; });
   p.bag = old.bag;
   if (!known) { p.bag.giveKit(def.id, 1); regression.jobs.push(def.id); }
   attachBag(p);
@@ -2406,7 +2565,7 @@ if (new URLSearchParams(location.search).has("debug")) {
   window.__vof = {
     get player() { return player; }, get stage() { return stage; }, get state() { return gameState; },
     get party() { return party; }, talkTo, switchMember,
-    quest, enemyManager, lootManager, projectileManager, mercManager, npcManager, inventory, charPanel, travelTo, warpTo, saveGame, awaken, ROSTER, dayNight, dialog,
+    quest, autoAdventure, guildBook, guildField, guildPanel, guildCeremony, enemyManager, lootManager, projectileManager, mercManager, npcManager, inventory, charPanel, travelTo, warpTo, saveGame, awaken, ROSTER, dayNight, dialog,
     openShop() { showShopModal = true; }, openMerc() { showMercModal = true; }, actIntro, codexScene, regressionModal, regression, openJobChange, market, settingsPanel, actionPanel, gameConfig, SkillSlots, fishing, workshop
   };
 }

@@ -1,3 +1,4 @@
+import { coinBreakdown, formatCoins } from "./items/economy.js";
 import { Sound } from "./audio.js";
 import { describe, rollDrop } from "./items/itemdb.js";
 import { iconCanvas } from "./items/icons.js";
@@ -95,6 +96,13 @@ export function findNearestWalkableSpot(startX, startY, stage) {
   return { x: startX, y: startY };
 }
 
+// About 3x starting rewards, rising towards 6x late-game; champions/elites/bosses carry richer purses.
+export function rollCoinReward(info = {}, random = Math.random) {
+  const level = Math.max(1, info.level || 1);
+  const tier = info.boss ? 20 : { normal: 1, champion: 3, elite: 6, mvp: 20 }[info.tier] || 1;
+  return Math.round((3 + level * 1.1) * 3 * (1 + level / 50) * (0.7 + random() * 0.6) * tier * 10000) / 10000;
+}
+
 export class LootManager {
   constructor() {
     this.items = [];
@@ -122,11 +130,15 @@ export class LootManager {
       return { x: sx, y: sy };
     };
 
-    // gold
-    const GOLD_MULT = { normal: 1, champion: 2, elite: 4, mvp: 12 };
-    // economy pass: was 2 + level × 0.8 — late Acts could not pay for their own potions (balance-sim --economy)
-    const gold = Math.round((3 + level * 1.1) * (0.7 + Math.random() * 0.6) * (GOLD_MULT[info.tier] || (info.boss ? 12 : 1)));
-    this.items.push({ ...scatter(), type: "gold", amount: gold, color: "#ffd166", bobTimer: Math.random() * 6 });
+    // Higher levels and tougher tiers pay more. Keep bronze precision, then scatter actual denominations.
+    const coins = coinBreakdown(rollCoinReward(info));
+    const value = { platinum: 100, gold: 1, silver: 0.01, bronze: 0.0001 };
+    const color = { platinum: "#a7e5e3", gold: "#efbd4e", silver: "#b1c9dc", bronze: "#cd894b" };
+    for (const [coin, count] of Object.entries(coins)) {
+      if (!count) continue;
+      this.items.push({ ...scatter(), type: "gold", coin, count, amount: Math.round(count * value[coin] * 10000) / 10000,
+        color: color[coin], bobTimer: Math.random() * 6 });
+    }
 
     // item
     const grade = info.grade ?? info.tierGrade ?? 0;
@@ -210,29 +222,37 @@ export class LootManager {
       }
 
       if (dist < collectRadius) {
-        if (!this.collect(player, item, fx)) {
+        if (!this.pickUp(player, item, fx)) {
           // bag full: leave it on the ground for now
           item.blocked = 90;
           item.x -= (dx / (dist || 1)) * 14;
           item.y -= (dy / (dist || 1)) * 14;
           continue;
         }
-        if (Sound) { if (item.type === "gold") { if (Sound.playCoin) Sound.playCoin(); } else if (Sound.playLootPickup) Sound.playLootPickup(); }
-        if (fx && fx.spawnHitSparks) fx.spawnHitSparks(item.x, item.y, item.color, item.quest ? 24 : 10);
-        this.items.splice(i, 1);
       }
     }
+  }
+
+  pickUp(player, item, fx) {
+    const index = this.items.indexOf(item);
+    if (index < 0 || !this.collect(player, item, fx)) return false;
+    if (item.type === "gold") Sound.playCoin?.(); else Sound.playLootPickup?.();
+    fx?.spawnHitSparks?.(item.x, item.y, item.color, item.quest ? 24 : 10);
+    this.items.splice(index, 1); return true;
   }
 
   collect(player, item, fx) {
     const pX = player.x + 10, pY = player.y - 6;
     if (item.type === "gold") {
-      player.gold += item.amount;
+      player.gold = Math.round((player.gold + item.amount) * 10000) / 10000;
       if (this.onCollect) this.onCollect({ gold: item.amount });
-      if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(pX, pY, `+${item.amount}G`, false, "#ffd166");
+      if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(pX, pY, `+${formatCoins(item.amount)}`, false, "#ffd166");
       return true;
     }
+    const slotsBefore = player.bag.slots.map(slot => ({ ...slot }));
     if (!player.bag.add(item.inst)) {
+      // A multi-item drop must not partially fill a stack and remain collectible.
+      player.bag.slots = slotsBefore; player.bag.changed();
       if (this.fullWarn <= 0 && fx && fx.spawnDamagePopup) fx.spawnDamagePopup(pX, pY, "BAG FULL!", false, "#ef4444");
       this.fullWarn = 120;
       return false;
@@ -240,7 +260,7 @@ export class LootManager {
     const it = describe(item.inst);
     const qty = item.inst.qty || 1;
     if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(pX, pY, `${it.name}${qty > 1 ? ` x${qty}` : ""}`, item.quest || it.rarity === "unique" || it.type === "card", it.color);
-    if (this.onCollect) this.onCollect({ id: it.base || item.id, name: it.name, qty, color: it.color });
+    if (this.onCollect) this.onCollect({ id: it.base || item.id, name: it.name, qty, color: it.color, guildSource: item.guildSource });
     if (item.quest && this.onQuestItem) this.onQuestItem(item.id);
     return true;
   }
@@ -261,12 +281,9 @@ export class LootManager {
       ctx.globalAlpha = 1.0;
 
       if (item.type === "gold") {
-        ctx.fillStyle = "#a8782a";
-        ctx.fillRect(item.x - 2, hoverY - 2, 5, 5);
-        ctx.fillStyle = "#ffd166";
-        ctx.fillRect(item.x - 2, hoverY - 3, 4, 4);
-        ctx.fillStyle = "#fff4b0";
-        ctx.fillRect(item.x - 1, hoverY - 2, 1, 1);
+        const icon = iconCanvas({ coin: item.coin || "gold", icon: "ore", tint: item.color });
+        if (icon) ctx.drawImage(icon, Math.round(item.x - 7), Math.round(hoverY - 7), 14, 14);
+
       } else {
         // Item pixel icon (quest items are bigger)
         const icon = iconCanvas(describe(item.inst));

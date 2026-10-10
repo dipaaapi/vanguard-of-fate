@@ -27,6 +27,9 @@ export const RARITY = {
   magic: { color: "#60a5fa", en: "Magic", fil: "Mahiwaga" },
   rare: { color: "#facc15", en: "Rare", fil: "Bihira" },
   unique: { color: "#f59e0b", en: "Unique", fil: "Natatangi" },
+  epic: { color: "#c084fc", en: "Epic", fil: "Epiko" },
+  legendary: { color: "#fb923c", en: "Legendary", fil: "Maalamat" },
+  mythical: { color: "#f472b6", en: "Mythical", fil: "Mitikal" },
   set: { color: "#22c55e", en: "Set", fil: "Set" }
 };
 
@@ -35,6 +38,8 @@ export const RARITY = {
 // pieces of the same set adds the bonuses at 2, 4 and 5 pieces (5 = the set's named passive).
 // The crafted sets (Lv 10–100, js/items/craftsets.js) are merged in below; they count 2 / 4 / 6 pieces.
 export const SETS = {
+  meridian: { grade: 1, color: "#4dd7bb", name: { en: "Meridian Covenant", fil: "Kasunduan ng Meridian" },
+    piece: { def: 2, hp: 10 }, bonus: { 2: { hp: 30 }, 3: { atk: 6 }, 4: { def: 6, cdr: 4 } } },
   ember: {
     mineral: true, grade: 5, color: "#f97316", name: { en: "Emberforged", fil: "Emberforged" },
     piece: { def: 3, hp: 12 },
@@ -145,6 +150,8 @@ const UNIQUES = {
 
 // ---------- CONSUMABLES, MATERIALS, QUEST ITEMS ----------
 const OTHER = {
+  guildPlate: { type: "quest", icon: "card", tint: "#4dd7bb", price: 0, name: N("Meridian Guild Plate", "Plaka ng Meridian Guild"),
+    desc: N("Proof of guild membership. A lost plate costs double its last issue price to replace at the Guild Representative.", "Patunay ng pagiging miyembro. Doble ng huling presyo ang kapalit na plaka sa Kinatawan ng Guild.") },
   // Minerals: mined in the Ashfall Wastelands (emberite, obsidian) and the Siege (mythril, starsteel)
   emberite:    { type: "material", icon: "ore", tint: "#f97316", price: 30, name: N("Emberite", "Emberite"), desc: N("Ore still warm from the Hellforge. Forges Emberforged gear and tempers weapons.", "Mineral na mainit pa mula sa Hellforge. Pang-forge ng Emberforged at pampatibay ng sandata.") },
   obsidianOre: { type: "material", icon: "crystal", tint: "#818cf8", price: 40, name: N("Obsidian Ore", "Obsidian Ore"), desc: N("Glassy volcanic ore. Used in set forging and to temper armor.", "Makinang na bulkanikong mineral. Pang-forge ng set at pampatibay ng baluti.") },
@@ -152,6 +159,7 @@ const OTHER = {
   starsteel:   { type: "material", icon: "crystal", tint: "#fde68a", price: 200, name: N("Starsteel", "Starsteel"), desc: N("A rare fallen-star alloy. Needed for Starforged gear.", "Bihirang haluang metal mula sa bumagsak na bituin. Kailangan sa Starforged.") },
   dwarvenPickaxe: { type: "quest", icon: "ore", tint: "#a8a29e", name: N("Dwarven Pickaxe", "Piko ng Dwarf"), desc: N("Thane Durgrim's gift. Lets you mine ore veins in the Ashfall Wastelands and the Siege.", "Regalo ni Thane Durgrim. Nagbibigay-daan sa pagmimina sa Ashfall Wastelands at sa Siege.") },
   // healPct: potions keep up with the hero — they restore the HP or that share of max HP, whichever is more
+  soulstone: { type: "consume", icon: "crystal", tint: "#a78bfa", price: 8000, effect: { autoAttackMs: 10 * 60 * 1000 }, name: N("Soulstone", "Bato ng Kaluluwa"), desc: N("Adds 10 real-world minutes of autonomous quest movement, combat and NPC conversations. Sold at the Market for 100 platinum (10,000 gold).", "Nagdaragdag ng 10 minuto ng totoong oras para sa kusang paglakad, laban at pakikipag-usap sa quest. Mabibili sa Palengke sa halagang 100 platino (10,000 ginto).") },
   salve:    { type: "consume", icon: "potion", tint: "#ef4444", price: 10, effect: { heal: 40, healPct: 0.06 }, name: N("Red Potion", "Pulang Potion"), desc: N("Restores 40 HP or 6% of max HP, whichever is more.", "Nagbabalik ng 40 HP o 6% ng max HP, alinman ang mas marami.") },
   elixir:   { type: "consume", icon: "potion", tint: "#f8fafc", price: 30, effect: { heal: 150, healPct: 0.2 }, name: N("White Potion", "Puting Potion"), desc: N("Restores 150 HP or 20% of max HP, whichever is more.", "Nagbabalik ng 150 HP o 20% ng max HP, alinman ang mas marami.") },
   tonic:    { type: "consume", icon: "potion", tint: "#facc15", price: 12, effect: { stamina: 100, fresh: 600 }, name: N("Stamina Tonic", "Tonic ng Lakas"), desc: N("Refills stamina; no fatigue for 10s.", "Puno ang stamina; walang pagod sa 10s.") },
@@ -415,7 +423,8 @@ export function describe(inst) {
 
   const e = EQUIP[base];
   if (e) {
-    const mult = (1 + grade * 0.6) * (1 + plus * 0.1);
+    const guildRarity = ({ epic: 1.3, legendary: 1.6, mythical: 2 })[inst.rarity] || 1;
+    const mult = (1 + grade * 0.6) * (1 + plus * 0.1) * guildRarity;
     const stats = scaleStats(e.stats, mult, (1 + grade * 0.25) * (1 + plus * 0.05));
     if (unique) addStats(stats, scaleStats(unique.stats, 1 + grade * 0.4, 1));
     const set = inst.set && SETS[inst.set];
@@ -423,9 +432,10 @@ export function describe(inst) {
     (inst.affixes || []).forEach((a) => addStats(stats, { [a.k]: a.v }));
     (inst.cards || []).forEach((cid) => { const c = CARDS[cid.slice(5)]; if (c) addStats(stats, c.stats); });
 
-    const rarity = set ? "set" : unique ? "unique" : inst.rarity || "normal";
+    const rarity = set ? "set" : unique ? "unique" : RARITY[inst.rarity] ? inst.rarity : "normal";
     let name = e.name[L];
     if (set) name = `${set.name[L]} ${e.name[L]}`;
+    else if (["epic", "legendary", "mythical"].includes(rarity)) name = `${RARITY[rarity][L]} ${e.name[L]}`;
     else if (unique) name = unique.name[L];
     else if (rarity === "magic") {
       const pre = (inst.affixes || []).find((a) => a.pre);

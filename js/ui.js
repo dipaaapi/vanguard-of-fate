@@ -1,3 +1,4 @@
+import { formatCoins } from "./items/economy.js";
 import { getLang, t } from "./i18n.js";
 import { getItem } from "./items/itemdb.js";
 import { iconCanvas } from "./items/icons.js";
@@ -315,7 +316,7 @@ export class UIManager {
       ctx.textAlign = "right";
       ctx.font = "bold 6px monospace";
       ctx.fillStyle = afford ? "#ffd166" : "#ef4444";
-      ctx.fillText(`${it.price}G`, bx + bw - 14, ry + 9);
+      ctx.fillText(`${formatCoins(it.price)}`, bx + bw - 14, ry + 9);
       ctx.font = "5px monospace";
       ctx.fillStyle = "#94a3b8";
       ctx.fillText(t("shopOwned", have), bx + bw - 14, ry + 17);
@@ -323,7 +324,7 @@ export class UIManager {
     ctx.textAlign = "left";
     ctx.font = "bold 6px monospace";
     ctx.fillStyle = "#ffd166";
-    ctx.fillText(`🪙 ${player.gold}G`, bx + 12, by + bh - 5);
+    ctx.fillText(`🪙 ${formatCoins(player.gold)}`, bx + 12, by + bh - 5);
     ctx.textAlign = "right";
     ctx.font = "5px monospace";
     ctx.fillStyle = "#64748b";
@@ -390,7 +391,7 @@ export class UIManager {
     ctx.textAlign = "left";
     ctx.font = "bold 6px monospace";
     ctx.fillStyle = afford ? "#ffd166" : "#ef4444";
-    ctx.fillText(`🪙 ${player.gold}G · ${t("mercCost", cost)}`, bx + 10, by + bh - 14);
+    ctx.fillText(`🪙 ${formatCoins(player.gold)} · ${t("mercCost", formatCoins(cost))}`, bx + 10, by + bh - 14);
     ctx.font = "5px monospace";
     ctx.fillStyle = "#94a3b8";
     ctx.fillText(t("mercScale", player.level), bx + 10, by + bh - 6);

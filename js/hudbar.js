@@ -1,3 +1,4 @@
+import { formatCoins, renderCoinWallet } from "./items/economy.js";
 import { t, onLangChange } from "./i18n.js";
 import { STATUS, STATUS_KEYS, statusName } from "./status.js";
 
@@ -94,7 +95,7 @@ export class HudBar {
     const xpRatio = Math.max(0, Math.min(1, p.exp / p.expNext));
     this.set("xp", e.xp, `${(xpRatio * 100).toFixed(1)}%`, "width");
     this.set("xpText", e.xpText, `EXP ${(xpRatio * 100).toFixed(1)}%`);
-    this.set("gold", e.gold, `🪙 ${p.gold}G`);
+    renderCoinWallet(e.gold, p.gold);
 
     this.set("foes", e.foes, String(s.foes));
     this.set("loot", e.loot, String(s.loot));

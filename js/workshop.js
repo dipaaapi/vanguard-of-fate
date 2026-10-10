@@ -3,7 +3,7 @@ import { getItem, describe, SETS, slotName, statText, skillText } from "./items/
 import { CRAFT_TIERS, PATHS, PATH_ORDER, recipeFor } from "./items/craftsets.js";
 import { craftSlots, craftCheck, craftPiece, ownedPieces, autoCraft, recommendedPath, tierForLevel, setIdFor, TRANSMUTES, transmute, pieceFor } from "./items/crafting.js";
 import { DISHES, cook, cookCheck } from "./items/cooking.js";
-import { Market } from "./items/economy.js";
+import { Market, formatCoins } from "./items/economy.js";
 
 // ==================== SAFE-ZONE WORKSHOP (G) ====================
 // Opens in any safe zone (Barracks, the Citadel dais, a platform camp). Uses the NPC service menu.
@@ -59,7 +59,7 @@ export class Workshop {
     this.player = player;
     if (!player.craft.target) player.craft.target = setIdFor(recommendedPath(player), Math.max(1, tierForLevel(player.level)));
     const target = SETS[player.craft.target];
-    d.menu.show(`${T.title} · ◆ ${player.gold}G`, [
+    d.menu.show(`${T.title} · ◆ ${formatCoins(player.gold)}`, [
       { label: T.craft, hint: T.craftHint, onPick: () => this.tiers() },
       { label: T.auto(player.craft.auto, target && target.name[L()]), hint: T.autoHint,
         onPick: () => { player.craft.auto = !player.craft.auto; this.open(player); } },
@@ -90,8 +90,8 @@ export class Workshop {
 
   pieces(setId) {
     const T = tx(), p = this.player, set = SETS[setId], cls = p.heroData.id, have = ownedPieces(p, setId);
-    const cost = (r) => Object.entries(r).map(([id, n]) => (id === "gold" ? `${n}G` : `${getItem(id).name} ${p.bag.count(id)}/${n}`)).join(" · ");
-    this.d.menu.show(`${set.name[L()]} · ${T.needLv(set.level)} · ◆ ${p.gold}G`, [
+    const cost = (r) => Object.entries(r).map(([id, n]) => (id === "gold" ? `${formatCoins(n)}` : `${getItem(id).name} ${p.bag.count(id)}/${n}`)).join(" · ");
+    this.d.menu.show(`${set.name[L()]} · ${T.needLv(set.level)} · ◆ ${formatCoins(p.gold)}`, [
       p.craft.target === setId
         ? { label: T.isTarget, disabled: true, onPick: () => {} }
         : { label: T.target(set.name[L()]), onPick: () => { p.craft.target = setId; p.craft.auto = true; this.pieces(setId); } },
@@ -155,10 +155,10 @@ export class Workshop {
       return;
     }
     const rules = TRANSMUTES.filter((r) => (group === "essence") === r.from.endsWith("Essence"));
-    this.d.menu.show(`${T.transmute} · ◆ ${p.gold}G`, [
+    this.d.menu.show(`${T.transmute} · ◆ ${formatCoins(p.gold)}`, [
       ...rules.map((r) => ({
         label: `${r.qty} ${getItem(r.from).name} → 1 ${getItem(r.to).name}`,
-        hint: `${getItem(r.from).name} ${p.bag.count(r.from)}/${r.qty} · ${r.gold}G`,
+        hint: `${getItem(r.from).name} ${p.bag.count(r.from)}/${r.qty} · ${formatCoins(r.gold)}`,
         disabled: p.bag.count(r.from) < r.qty || p.gold < r.gold,
         onPick: () => {
           const err = transmute(p, r);

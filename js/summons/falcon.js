@@ -1,5 +1,6 @@
 import { FalconSprite } from "../avatar/creature.js";
 import { GFX } from "../settings.js";
+import { autoSummonLoot } from "./automation.js";
 
 // One sprite for every falcon (frames are cached)
 export const SPRITE = new FalconSprite();
@@ -53,6 +54,7 @@ export class FalconCompanion {
   step(player, enemyManager, fx, lootManager) {
     this.wingTimer++;
     this.stateTimer++;
+    if (!["ATTACKING", "RETURNING"].includes(this.state) && autoSummonLoot(this, player, enemyManager, lootManager, fx, enemyManager.stage, { x: 16, y: 14, fly: true, speed: this.speed })) return;
     // Aboard the ship: no dives until the crew goes ashore
     if (this.aboard) {
       if (this.state !== "TAUNTING") this.state = "HOVERING";

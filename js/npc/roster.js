@@ -5,6 +5,11 @@
 const base = { gloves: "none", legs: "pants", boots: "boots", eyes: "#4a3222" };
 
 export const NPC_DEFS = {
+  guildMaster: { look: { ...base, body: "male", skin: "#c68c62", hairStyle: "short", hairColor: "#b9b9aa", beard: true, outfit: "armor", outfitColor: "#315b64", cape: "#286a61", weapon: "sword" } },
+  guildRepresentative: { look: { ...base, body: "female", skin: "#e0ac86", hairStyle: "long", hairColor: "#482f34", outfit: "coat", outfitColor: "#3b7470", weapon: "none" } },
+  guildClerk: { look: { ...base, body: "female", skin: "#f1cba5", hairStyle: "short", hairColor: "#ba744b", glasses: true, outfit: "robe", outfitColor: "#826140", weapon: "book" } },
+  guildScout: { look: { ...base, body: "male", skin: "#b98257", hairStyle: "short", hairColor: "#3c3025", outfit: "coat", outfitColor: "#446b3e", weapon: "bow" } },
+  guildInflictionist: { look: { ...base, body: "female", skin: "#d5bbcf", hairStyle: "long", hairColor: "#c9c1e7", outfit: "robe", outfitColor: "#5d386d", weapon: "staff" } },
   // ---- Royal family ----
   aurelia: {
     look: { ...base, body: "female", skin: "#f7d9c4", eyes: "#2f6db5", hairStyle: "long", hairColor: "#ece0b8",

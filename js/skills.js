@@ -175,9 +175,24 @@ export function learnBlock(player, s) {
 }
 
 // Can the skill be raised?
+export const pointPoolFor = (s) => s.path ? "pathPoints" : "skillPoints";
+
+// Restore independent balances; old saves spent both kinds from skillPoints.
+export function loadSkillPoints(player, data) {
+  const pathSpent = Object.entries(player.skillLevels).reduce((n, [id, lv]) =>
+    n + (findSkill(id)?.path ? lv : 0), 0);
+  player.skillPoints = data.skillPoints || 0;
+  if (data.pathPoints === undefined) {
+    player.skillPoints += pathSpent;
+    player.pathPoints = Math.max(0, player.level - 1 - pathSpent);
+  } else {
+    player.pathPoints = data.pathPoints;
+  }
+}
+
 export function canLearn(player, s) {
   const lv = player.skillLevels[s.id] || 0;
-  if (player.skillPoints <= 0 || lv >= s.max) return false;
+  if (!(player[pointPoolFor(s)] > 0) || lv >= s.max) return false;
   return !learnBlock(player, s);
 }
 
@@ -227,4 +242,25 @@ export function autoAllocate(player, path = autoPathFor(player)) {
     if (!player.raiseStat(k)) break;
   }
   return start - player.statPoints;
+}
+
+// Independent automatic learning; points wait when level/style prerequisites are not met.
+export function autoLearn(player, kind) {
+  const paths = kind === "paths";
+  const mode = paths ? player.autoPath : player.autoSkill;
+  if (!mode || mode === "off") return 0;
+  const pool = paths ? "pathPoints" : "skillPoints", before = player[pool];
+  const path = mode === "style" ? styleOf(player) || PRIMARY[player.heroData.id] || "str" : mode;
+  const candidates = paths ? Object.values(TREES).flat().filter(s => s.path === path)
+    : treesFor(player.heroData.id).flatMap(t => TREES[t]);
+  while (player[pool] > 0) {
+    const next = candidates.filter(s => canLearn(player, s)).sort((a, b) =>
+      (player.skillLevels[a.id] || 0) - (player.skillLevels[b.id] || 0) || a.row - b.row)[0];
+    if (!next || !player.learnSkill(next.id)) break;
+    if (paths && next.kind === "active" && !(player.pathSlots || []).includes(next.id)) {
+      const empty = player.pathSlots.findIndex(id => !id);
+      if (empty >= 0) player.pathSlots[empty] = next.id;
+    }
+  }
+  return before - player[pool];
 }

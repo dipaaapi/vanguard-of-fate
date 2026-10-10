@@ -92,3 +92,13 @@ The files here were painted procedurally as detailed starting points for hand ed
 the Forest Slime and Pocket Slime (32×24), War Hound and Spirit Fox (40×28), falcon and Arcane Owl
 (36×28, side view), Guardian Angel (44×44) and the bosses Dolora, Morgrave and Vorgath (`paint/boss.mjs`),
 with idle 4, walk 6, run 6, attack 4 and skill 6 frames.
+
+## Coins, consumables and the wallet
+
+`node tools/aseprite/paint/economy.mjs` creates four minted coin icons, all consumable icons (including Soulstone and cooked food), and matching wallet/quick-slot frames. Sources are `aseprite/ui/coin_<denomination>.aseprite`, `item_<id>.aseprite`, `wallet.aseprite`, and `consumable_slot.aseprite`. Each icon is 24 by 24 with a transparent background. Edit these sources in Aseprite, then export their `ui/<key>` with `node tools/aseprite/export.mjs ui/<key>`. Do not repaint after making hand edits. The inventory, Market, quick slots and ground drops share these exported images.
+
+Gold remains the save-compatible numeric unit. Each coin reward is split into platinum, gold, silver and bronze piles without losing bronze precision. The wallet shows all four amounts, using the agreed 100:1 exchange rates.
+
+## Guild hall, staff and membership plate
+
+`node tools/aseprite/paint/guild.mjs` paints ten editable sources under `aseprite/ui/guild_*.aseprite`: the 280×180 hall, five 32×48 guild staff portraits, a 24×24 plate, a 48×40 caravan, and 24×24 herb/stone resources. Export with `node tools/aseprite/export.mjs ui/guild_hall ui/guild_plate ui/guild_guildMaster ui/guild_guildRepresentative ui/guild_guildClerk ui/guild_guildScout ui/guild_guildInflictionist ui/guild_caravan ui/guild_herb ui/guild_stone`. The game places staff and hall in the hub, uses the hall and plate in the joining ceremony, and draws the caravan and resources during contracts. `assets/ui/guild.json` lists the exported keys. Edit the Aseprite sources and export them; do not rerun the painter after hand edits.

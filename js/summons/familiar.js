@@ -1,6 +1,7 @@
 import { Sound } from "../audio.js";
 import { SlimeSprite, WolfSprite, FalconSprite, facingFrom } from "../avatar/creature.js";
 import { confine, steer } from "../world/nav.js";
+import { autoSummonLoot, summonAutoEnabled, summonThreat } from "./automation.js";
 
 // ==================== FAMILIARS (pets for heroes with no summon of their own) ====================
 // Learned in the skill tree (js/skills.js, kind "summon"): the Novice's Pocket Slime, the Knight's
@@ -90,9 +91,14 @@ export class Familiar {
     if (this.beam && --this.beam.t <= 0) this.beam = null;
     if (this.aboard) { this.anim = "idle"; this.target = null; return; }
     if (Math.hypot(player.x - this.x, player.y - this.y) > TELEPORT) this.place(player);
+    const lootX = this.x, lootY = this.y;
+    if (autoSummonLoot(this, player, enemyManager, lootManager, fx, stage, { x: 8, y: 15, fly: k.fly, speed: k.speed })) {
+      this.face = facingFrom(this.x - lootX, this.y - lootY, this.face); return;
+    }
+    if (!safe && summonAutoEnabled(player)) this.target = summonThreat(player, enemyManager.enemies, LEASH);
 
     // Pick the closest foe near the hero
-    const near = (e) => e.isAlive && Math.hypot(e.x - player.x, e.y - player.y) <= LEASH;
+    const near = (e) => e.isAlive && e.minionOf !== "summon" && Math.hypot(e.x - player.x, e.y - player.y) <= LEASH;
     if (safe || player.hp <= 0) this.target = null;
     else if (!this.target || !near(this.target)) {
       this.target = null;

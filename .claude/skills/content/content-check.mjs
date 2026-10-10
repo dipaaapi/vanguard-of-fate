@@ -144,7 +144,9 @@ for (const id of Object.keys(NPC_DEFS)) {
 setLang("en");
 // Every NPC is placed somewhere: NPCManager.build (js/npc/npcs.js) or a platform's villagers
 const placedSrc = fs.readFileSync(path.join(ROOT, "js/npc/npcs.js"), "utf8");
+const { GUILD_NPCS } = await load("js/guilddata.js");
 const villagers = new Set(Object.values(PLATFORMS).flatMap((p) => Object.keys(p.villagers || {})));
+Object.keys(GUILD_NPCS).forEach(id => villagers.add(id));
 for (const id of Object.keys(NPC_DEFS)) {
   if (!villagers.has(id) && !new RegExp(`(new NPC|post)\\("${id}"`).test(placedSrc) && !["aurelia", "kenneth"].includes(id)) note(`NPC ${id}: never placed in the world (NPCManager.build or a platform's villagers)`);
 }

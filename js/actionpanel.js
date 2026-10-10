@@ -1,5 +1,5 @@
 import { Keybinds } from "./keybinds.js";
-import { getLang, onLangChange } from "./i18n.js";
+import { getLang, onLangChange, t } from "./i18n.js";
 import { getItem } from "./items/itemdb.js";
 import { iconURL } from "./items/icons.js";
 import { SkillSlots, SLOT_KEYS, ABILITIES } from "./skillslots.js";
@@ -26,6 +26,7 @@ const SKILLS = {
 
 const TEXT = {
   en: {
+    autoAttack: "Auto-adventure",
     skills: "Skills", options: "Options", attack: "Attack", skill: "Skill", belt: "Quick slots", auto: "AUTO",
     sprint: "Sprint", talk: "Talk", quests: "Quests", inventory: "Inventory", character: "Character",
     pause: "Pause", resume: "Resume", menu: "Main Menu", map: "World Map", codex: "Codex", workshop: "Workshop", safe: "Safe zone", nobody: "No one nearby",
@@ -35,6 +36,7 @@ const TEXT = {
     errand: "Summon errand"
   },
   fil: {
+    autoAttack: "Auto-lakbay",
     skills: "Mga Skill", options: "Mga Opsyon", attack: "Atake", skill: "Skill", belt: "Mabilisang gamit", auto: "AUTO",
     sprint: "Takbo", talk: "Kausapin", quests: "Quest", inventory: "Imbentaryo", character: "Karakter",
     pause: "Pause", resume: "Ituloy", menu: "Main Menu", map: "Mapa ng Mundo", codex: "Codex", workshop: "Talyer", safe: "Ligtas na lugar", nobody: "Walang malapit",
@@ -196,6 +198,7 @@ export class ActionPanel {
 
     const h = this.handlers;
     this.options = {
+      autoAttack: this.clickButton("autoAttack", "KeyZ", h.autoAttack),
       quests: this.clickButton("quests", "KeyQ", h.quests),
       inventory: this.clickButton("inventory", "KeyI", h.inventory),
       character: this.clickButton("character", "KeyC", h.character),
@@ -207,6 +210,7 @@ export class ActionPanel {
       menu: this.clickButton("menu", "KeyH", h.menu)
     };
 
+    this.set(this.options.autoAttack, "\u21bb", tx("autoAttack"));
     this.set(this.options.quests, "❗", tx("quests"));
     this.set(this.options.inventory, "🎒", tx("inventory"));
     this.set(this.options.character, "📜", tx("character"));
@@ -438,6 +442,12 @@ export class ActionPanel {
     }
     this.toggle(this.buttons.E, "talk", "ready", Boolean(s.canTalk));
     this.toggle(this.buttons.Space, "sprint", "ready", Boolean(s.sprinting));
+    const remaining = Math.ceil(p.autoAttackTime() / 1000);
+    const autoLabel = `${tx("auto")} ${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, "0")}`;
+    if (this.options.autoAttack.querySelector(".sa-name").textContent !== autoLabel)
+      this.options.autoAttack.querySelector(".sa-name").textContent = autoLabel;
+    this.options.autoAttack.title = t("autoAdventureHint") + " " + t(`autoAdventureState_${p.autoAdventureStatus || "off"}`);
+    this.toggle(this.options.autoAttack, "autoAttack", "on", p.autoAttack.until > 0);
     this.toggle(this.options.map, "map", "on", Boolean(s.mapOpen));
     this.toggle(this.options.workshop, "workshop", "on", safe);     // the Workshop opens only in a safe zone
     this.toggle(this.options.inventory, "inv", "on", Boolean(s.inventoryOpen));

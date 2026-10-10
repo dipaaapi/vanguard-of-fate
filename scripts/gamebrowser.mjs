@@ -85,7 +85,7 @@ export async function startGame(o = {}) {
     // Seeded Math.random (mulberry32) for repeatable spawns and maps, e.g. before/after screenshots
     if (seed) { let a = seed >>> 0; Math.random = () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
   }, [o.save || null, o.lang || null, o.seed || 0]);
-  await page.goto(o.debug ? `${base}?debug` : base, { waitUntil: "load" });
+  await page.goto(o.debug ? `${base}?debug` : base, { waitUntil: o.waitUntil || "load" });
   const outDir = o.outDir || path.join(os.tmpdir(), "vof-playtest");
   fs.mkdirSync(outDir, { recursive: true });
   const g = { page, browser, base, logs, outDir, shots: [], held: new Set() };

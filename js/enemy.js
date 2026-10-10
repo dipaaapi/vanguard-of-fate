@@ -293,6 +293,7 @@ export class EnemyManager {
 
   displayName(e) {
     const base = e.kind.name[lang()];
+    if (e.guildMvp) return `MVP · ${base}`;
     const pre = e.variant ? `${variantPrefix(e.variant)} ` : "";
     if (e.elite) return `${tierName(e)} (${pre}${base})`;
     return `${e.champion ? `${tierName(e)} ` : ""}${pre}${base}`;
@@ -428,10 +429,11 @@ export class EnemyManager {
   }
 
   updateMonster(e, player, fx) {
-    const aggressive = this.isAggressive(e, player);
+    const caravan = e.guildEscortTarget?.hp > 0 && !e.guildEscortTarget.failed ? e.guildEscortTarget : null;
+    const aggressive = Boolean(caravan) || this.isAggressive(e, player);
 
     // Target: the Priest's Guardian Angels first, if any
-    let target = player;
+    let target = caravan || player;
     const angels = player.angelCompanions || player.angels;
     if (aggressive && angels && angels.length) {
       const a = angels.find((x) => x.isAlive);
@@ -448,7 +450,7 @@ export class EnemyManager {
 
     let mx = 0, my = 0;
     const spd = e.speed * (1 + 0.15 * this.night) * (e.st && e.st.chill > 0 ? 0.5 : 1);
-    if (aggressive && (e.engaged ? dist < 320 : dist < aggroR) && !(this.stage && this.stage.isInsideSafeZone(player.x + 10, player.y + 17))) {
+    if (aggressive && (e.engaged ? dist < 320 : dist < aggroR) && (caravan || !(this.stage && this.stage.isInsideSafeZone(player.x + 10, player.y + 17)))) {
       e.engaged = true;
       if (dist > e.reach * 0.6) {
         const [ux, uy] = steer(this.stage, e.x + 10, e.y + 20, target.x + 10, target.y + 20, target === player);
@@ -516,7 +518,11 @@ export class EnemyManager {
         }
       }
     } else {
-      target.hp -= dmg;
+      if (target.guildCaravan) {
+        const absorbed = Math.min(target.defence, Math.ceil(dmg * .6));
+        target.defence -= absorbed; dmg -= absorbed;
+        target.hp = Math.max(0, target.hp - dmg);
+      } else target.hp -= dmg;
       target.hitTimer = 16;
       if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(target.x + 8, target.y - 6, `-${dmg}`, false, "#ffd166");
     }

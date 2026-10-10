@@ -1,3 +1,4 @@
+import { formatCoins, renderCoinWallet } from "./items/economy.js";
 import { getItem, describe } from "./items/itemdb.js";
 import { iconURL } from "./items/icons.js";
 import { getLang } from "./i18n.js";
@@ -80,7 +81,7 @@ export class Market {
     const got = p.bag.count(id) - before;
     if (!got) { this.fail(tx("full")); return; }
     p.gold -= price * got;
-    this.trade(tx("bought", { name: it.name, n: got, g: price * got }) + (fit ? "" : ` · ${tx("full")}`));
+    this.trade(tx("bought", { name: it.name, n: got, g: formatCoins(price * got) }) + (fit ? "" : ` · ${tx("full")}`));
   }
 
   sell(index, n) {
@@ -93,7 +94,7 @@ export class Market {
     p.bag.removeAt(index, n);
     p.gold += g;
     this.sold(it, n);
-    this.trade(tx("sold", { name: it.name, n, g }));
+    this.trade(tx("sold", { name: it.name, n, g: formatCoins(g) }));
   }
 
   trade(text) {
@@ -169,7 +170,7 @@ export class Market {
 
     const head = el("div", "mk-head");
     el("h3", "", errand ? `✦ ${errandText("title")}` : `⚖ ${tx("title")}`, head);
-    el("span", "mk-gold", `◆ ${p.gold}G`, head);
+    renderCoinWallet(el("span", "mk-gold", undefined, head), p.gold);
 
     // The summon is already out: just say when it's back
     if (errand && p.errand) {
@@ -229,8 +230,8 @@ export class Market {
         const cap = errand ? Math.min(MAX_BUY, this.pack.roomFor(id)) : MAX_BUY;
         const max = Math.min(cap, Math.floor(budget / Math.max(1, price)));
         addRow({
-          key: `b:${id}`, it, name: it.name, note: `${it.desc} · ${tx("owned")} ${p.bag.count(id)}`, price: `${price}G`, max,
-          label: (n) => (errand ? errandText("add", { n }) : tx("buyN", { n, g: price * n })),
+          key: `b:${id}`, it, name: it.name, note: `${it.desc} · ${tx("owned")} ${p.bag.count(id)}`, price: `${formatCoins(price)}`, max,
+          label: (n) => (errand ? errandText("add", { n }) : tx("buyN", { n, g: formatCoins(price * n) })),
           act: (n) => (errand ? this.packBuy(id, n) : this.buy(id, n))
         });
       });
@@ -242,8 +243,8 @@ export class Market {
         if (left <= 0) return;
         const each = this.quote(it, 1);
         addRow({
-          key: `s:${slot}`, it, name: `${it.name}${left > 1 ? ` ×${left}` : ""}`, note: `${each}G ${tx("each")}`, price: `+${this.quote(it, left)}G`, max: left,
-          label: (n) => (errand ? errandText("add", { n }) : tx("sellN", { n, g: this.quote(it, n) })),
+          key: `s:${slot}`, it, name: `${it.name}${left > 1 ? ` ×${left}` : ""}`, note: `${formatCoins(each)} ${tx("each")}`, price: `+${formatCoins(this.quote(it, left))}`, max: left,
+          label: (n) => (errand ? errandText("add", { n }) : tx("sellN", { n, g: formatCoins(this.quote(it, n)) })),
           act: (n) => (errand ? this.packSell(s, n) : this.sell(slot, n))
         });
       });
@@ -279,7 +280,7 @@ export class Market {
     if (!pack.used) { el("div", "mk-hint", errandText("packHint")); return; }
     const r = runnerFor(p);
     const net = pack.proceeds(p) - pack.cost();
-    const b = btn(errandText("send", { name: r ? runnerName(r.kind) : "?", s: pack.seconds(), net: `${net >= 0 ? "+" : ""}${net}G` }), () => this.send(), this.root, "wide");
+    const b = btn(errandText("send", { name: r ? runnerName(r.kind) : "?", s: pack.seconds(), net: `${net >= 0 ? "+" : ""}${formatCoins(net)}` }), () => this.send(), this.root, "wide");
     if (!r || this.errandBudget() < 0) b.classList.add("off");
   }
 

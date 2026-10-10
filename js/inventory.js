@@ -1,6 +1,6 @@
 import { getLang } from "./i18n.js";
 import { describe, canEquip, upgradeCost, refineChance, SLOTS, slotName, MAX_PLUS, statText, skillText, RARITY, GRADE_NAMES, slotsFor, SETS, setThresholds, getItem } from "./items/itemdb.js";
-import { sell, Market } from "./items/economy.js";
+import { sell, Market, formatCoins, renderCoinWallet } from "./items/economy.js";
 import { temperInfo, temper, MAX_TEMPER } from "./items/forge.js";
 import { iconURL } from "./items/icons.js";
 import { BAG_SIZE } from "./items/bag.js";
@@ -168,7 +168,7 @@ export class InventoryPanel {
     todo.forEach(repair);
     p.bag.compact();                 // repaired pieces may now stack with identical ones
     this.sel = null;
-    this.msg = `${T.repaired} −${cost}G`;
+    this.msg = `${T.repaired} −${formatCoins(cost)}`;
     if (this.ctx.fx && this.ctx.fx.spawnHitSparks) this.ctx.fx.spawnHitSparks(p.x + 10, p.y + 6, "#94a3b8", 14);
     if (this.ctx.onRepair) this.ctx.onRepair(todo.length, cost);
     p.bag.changed(true);
@@ -432,7 +432,7 @@ export class InventoryPanel {
       add(row, "span", "inv-k", k);
       add(row, "b", "inv-v", String(v));
     });
-    add(left, "div", "inv-gold", `◆ ${p.gold} ${T.gold}`);
+    renderCoinWallet(add(left, "div", "inv-gold"), p.gold);
 
     // Bag
     const right = add(grid, "div", "inv-right");
@@ -461,7 +461,7 @@ export class InventoryPanel {
       const damaged = this.damagedInsts();
       const total = damaged.reduce((n, inst) => n + repairCost(inst, this.ctx.repairMult || 1), 0);
       const b = button(tools, "inv-act inv-rec-all", () => this.repairItems(damaged));
-      b.textContent = damaged.length ? `⚒ ${T.repairAll} (${damaged.length}) · ${total}G` : T.nothingToRepair;
+      b.textContent = damaged.length ? `⚒ ${T.repairAll} (${damaged.length}) · ${formatCoins(total)}` : T.nothingToRepair;
       b.disabled = !damaged.length;
     } else if (this.tab === "equip" && Object.keys(rec).length) {
       const b = button(tools, "inv-act inv-rec-all", () => this.equipRecommended());
@@ -557,14 +557,14 @@ export class InventoryPanel {
           const info = temperInfo(inst);
           if (!info) add(det, "div", "inv-warn", T.temperErr.set);
           else if (info.done >= MAX_TEMPER) add(det, "div", "inv-warn", T.temperErr.max);
-          else actBtn(`🔥 ${T.doTemper} ${info.done + 1}/${MAX_TEMPER}: ${info.add.map(([k, v]) => statText(k, v)).join(" ")} (${getItem(info.mineral).name} ${bag.count(info.mineral)}/${info.qty} · ${info.gold}G)`, "temper");
+          else actBtn(`🔥 ${T.doTemper} ${info.done + 1}/${MAX_TEMPER}: ${info.add.map(([k, v]) => statText(k, v)).join(" ")} (${getItem(info.mineral).name} ${bag.count(info.mineral)}/${info.qty} · ${formatCoins(info.gold)})`, "temper");
         }
-        if (this.ctx.service === "repair" && durOf(inst) < DUR_MAX) actBtn(`⚒ ${T.doRepair} (${repairCost(inst, this.ctx.repairMult || 1)}G)`, "repair");
+        if (this.ctx.service === "repair" && durOf(inst) < DUR_MAX) actBtn(`⚒ ${T.doRepair} (${formatCoins(repairCost(inst, this.ctx.repairMult || 1))})`, "repair");
         if (this.ctx.service === "refine" && it.plus >= (this.ctx.maxPlus ?? MAX_PLUS) && it.plus < MAX_PLUS) add(det, "div", "inv-warn", T.smithLimit(this.ctx.maxPlus));
         if (this.ctx.service === "refine" && it.plus < (this.ctx.maxPlus ?? MAX_PLUS)) {
           const c = upgradeCost(it);
           const ch = Math.round(refineChance(it.plus) * 100);
-          actBtn(`${T.doUpgrade} +${it.plus + 1} · ${ch}% ${T.chance} (Shard ${c.shards}${c.crystals ? ` · Void Crystal ${c.crystals}` : ""} · ${c.gold}G)`, "upgrade");
+          actBtn(`${T.doUpgrade} +${it.plus + 1} · ${ch}% ${T.chance} (Shard ${c.shards}${c.crystals ? ` · Void Crystal ${c.crystals}` : ""} · ${formatCoins(c.gold)})`, "upgrade");
         }
       }
       if (inBag && it.effect && it.effect.jobScroll) actBtn(T.doUse, "use");
@@ -580,9 +580,9 @@ export class InventoryPanel {
       }
       if (inBag && it.type !== "quest") {
         if (!p.market) p.market = new Market();
-        actBtn(`${T.doSell} (${p.market.quote(it, 1)}G)`, "sell");
+        actBtn(`${T.doSell} (${formatCoins(p.market.quote(it, 1))})`, "sell");
         const stackQty = bag.slots[this.sel.index] ? bag.slots[this.sel.index].qty : 1;
-        if (stackQty > 1) actBtn(`${T.sellAll} ×${stackQty} (${p.market.quote(it, stackQty)}G)`, "sellall");
+        if (stackQty > 1) actBtn(`${T.sellAll} ×${stackQty} (${formatCoins(p.market.quote(it, stackQty))})`, "sellall");
         actBtn(this.confirmDrop ? T.confirm : T.doDrop, "drop");
       }
       if (this.msg) add(det, "div", "inv-msg", this.msg);

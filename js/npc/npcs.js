@@ -4,6 +4,8 @@ import { NPC_DEFS } from "./roster.js";
 import { npcName } from "../dialogue.js";
 import { qt } from "../quest.js";
 import { PLATFORMS, PLATFORM_ORDER } from "../world/platforms.js";
+import { GUILD_NPCS } from "../guilddata.js";
+import { drawGuildNpc } from "../world/guildhall.js";
 import { Sound } from "../audio.js";
 import { getLang } from "../i18n.js";
 import { GFX } from "../settings.js";
@@ -441,6 +443,7 @@ class NPC {
   }
 
   draw(ctx) {
+    if (drawGuildNpc(ctx, this)) return;
     if (GFX.shadows) { ctx.fillStyle = "rgba(0, 0, 0, 0.28)"; ctx.beginPath(); ctx.ellipse(this.x, this.y - 1, 8, 3, 0, 0, Math.PI * 2); ctx.fill(); }
 
     if (this.attackAnimTimer > 0) {
@@ -508,6 +511,7 @@ export class NPCManager {
 
     this.summonerId = summonerId;
     this.npcs = [
+      ...Object.entries(GUILD_NPCS).map(([id, pos]) => Object.assign(new NPC(id, pos.x, pos.y, "down", "hub", { wanderRadius: 0, speed: 0 }), { tag: "guild", visible: false })),
       // Barracks Sanctuary (Act II): where the summoner welcomed the souls from Earth
       new NPC("ronald", bx + 58, by + 72, "down", "hub", { wanderRadius: 42, speed: 0.38 }),
       new NPC("edgar", bx + 238, by + 72, "down", "hub", { wanderRadius: 36, speed: 0.32 }),
@@ -573,6 +577,7 @@ export class NPCManager {
   applyQuest(quest, cls) {
     const atCitadel = quest.summonerAtCitadel();
     this.npcs.forEach((n) => {
+      if (n.tag === "guild") n.visible = quest.unlocked("canopy");
       if (n.tag === "summonerBarracks") n.visible = !atCitadel;
       if (n.tag === "summonerCitadel") n.visible = atCitadel;
       if (n.tag === "tradeCaravan") n.visible = quest.unlocked("port") && quest.unlocked("swamp") && quest.unlocked("siege");

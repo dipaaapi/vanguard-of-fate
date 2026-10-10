@@ -10,6 +10,7 @@ import { MENTOR_BY_CLASS } from "./quest.js";
 
 const NAMES = {
   en: {
+    guildMaster: "Guild Master Oren Vale", guildRepresentative: "Representative Mira Quill", guildClerk: "Contract Clerk Tessa Reed", guildScout: "Guild Scout Bram Holt", guildInflictionist: "Warden Neris Dusk",
     aurelia: "Princess Aurelia", kenneth: "Prince Kenneth", king: "The King", royalGuard: "Royal Guard",
     ronald: "Captain Ronald", edgar: "Edgar the Apothecary",
     arthur: "Arthur \"Art\" Ramirez", lyra: "Lyra Vance", julian: "Dr. Julian Alcantara",
@@ -20,6 +21,7 @@ const NAMES = {
     cerynVoss: "Ceryn Voss", vaelThorn: "Vael Thorn", nimaFen: "Nima Fen", eirene: "Eirene", templar: "Dame Serelle"
   },
   fil: {
+    guildMaster: "Guild Master Oren Vale", guildRepresentative: "Kinatawan Mira Quill", guildClerk: "Klerk ng Kontrata Tessa Reed", guildScout: "Guild Scout Bram Holt", guildInflictionist: "Warden Neris Dusk",
     aurelia: "Prinsesa Aurelia", kenneth: "Prinsipe Kenneth", king: "Ang Hari", royalGuard: "Bantay ng Hari",
     ronald: "Kapitan Ronald", edgar: "Edgar ang Apothecary",
     arthur: "Arthur \"Art\" Ramirez", lyra: "Lyra Vance", julian: "Dr. Julian Alcantara",

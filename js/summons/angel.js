@@ -2,6 +2,7 @@ import { Sound } from "../audio.js";
 import { around, mix, hitPose, attackPose, drawSwing } from "../juice.js";
 import { Avatar } from "../avatar/avatar.js";
 import { facingFrom } from "../avatar/creature.js";
+import { autoSummonLoot, summonAutoEnabled, summonThreat } from "./automation.js";
 
 // Angel: modular Avatar with wings, halo, white gown and a sword
 export const ANGEL = new Avatar({
@@ -69,6 +70,7 @@ export class GuardianAngelCompanion {
     }
 
     if (this.attackCooldown > 0) this.attackCooldown--;
+    if (autoSummonLoot(this, player, enemyManager, lootManager, fx, enemyManager.stage, { x: 16, y: 29, fly: true, speed: 1.8 })) return;
 
     // 1. RANDOM TAUNT ANIMATION (Divine Blade Raise & Prayer Glow)
     if (this.state === "TAUNTING") {
@@ -80,7 +82,7 @@ export class GuardianAngelCompanion {
     }
 
     // 2. COMBAT TARGETING
-    const enemyTarget = enemyManager.enemies
+    const enemyTarget = (summonAutoEnabled(player) ? summonThreat(player, enemyManager.enemies, 200) : null) || enemyManager.enemies
       .filter((e) => e.isAlive)
       .sort((a, b) => Math.hypot(a.x - this.x, a.y - this.y) - Math.hypot(b.x - this.x, b.y - this.y))[0] || null;
 

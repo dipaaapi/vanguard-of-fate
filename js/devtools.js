@@ -49,7 +49,7 @@ export function validateSave(data) {
   if (!Number.isInteger(data.level) || data.level < 1 || data.level > 999) errors.push("level must be a whole number from 1 to 999");
   if (data.gold !== undefined && (!Number.isFinite(data.gold) || data.gold < 0)) errors.push("gold must be 0 or more");
   if (data.hp !== undefined && (!Number.isFinite(data.hp) || data.hp < 0)) errors.push("hp must be 0 or more");
-  ["statPoints", "skillPoints", "exp"].forEach((k) => {
+  ["statPoints", "skillPoints", "pathPoints", "exp"].forEach((k) => {
     if (data[k] !== undefined && (!Number.isFinite(data[k]) || data[k] < 0)) errors.push(`${k} must be 0 or more`);
   });
   if (data.stats) {
@@ -328,6 +328,7 @@ export class DevTools {
         <label>Gold <input id="devGold" type="number" min="0" value="${p.gold}"></label><button data-act="setGold">Set</button>
         <label>Stat points <input id="devStat" type="number" min="0" value="${p.statPoints}"></label><button data-act="setStat">Set</button>
         <label>Skill points <input id="devSkill" type="number" min="0" value="${p.skillPoints}"></label><button data-act="setSkill">Set</button>
+        <label>Path points <input id="devPath" type="number" min="0" value="${p.pathPoints}"></label><button data-act="setPath">Set</button>
       </div>
       <div class="dev-row">
         <button data-act="heal">Full heal &amp; cure</button>
@@ -466,6 +467,7 @@ export class DevTools {
       }
       case "setGold": p.gold = num("devGold"); return this.status(`Gold set to ${fmt(p.gold)}.`);
       case "setStat": p.statPoints = num("devStat"); return this.status(`Stat points: ${p.statPoints}.`);
+      case "setPath": p.pathPoints = num("devPath"); return this.status(`Path points: ${p.pathPoints}.`);
       case "setSkill": p.skillPoints = num("devSkill"); return this.status(`Skill points: ${p.skillPoints}.`);
       case "heal": p.hp = p.maxHp; if (p.cureAllDebuffs) p.cureAllDebuffs(); p.stamina = p.maxStamina; return this.status("Healed and cured.");
       case "killAll": {

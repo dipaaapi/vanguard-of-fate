@@ -25,6 +25,7 @@
   <link rel="stylesheet" href="css/controls.css" />
   <link rel="stylesheet" href="css/gamepad.css" />
   <link rel="stylesheet" href="css/hud.css" />
+  <link rel="stylesheet" href="css/guild.css" />
 </head>
 <body data-mode="title" class="notranslate" translate="no">
 
@@ -196,6 +197,7 @@
 
       <!-- Side HUD: Hero Portrait, Vitals, Quest Tracker & Field Info -->
       <section class="side-ui" id="hudBar" aria-label="Hero Status and Field State">
+        <div class="hb-wallet"><span id="hbGold" class="c-gold"></span></div>
         <div class="hb-quest" id="questTracker">
           <div id="qtAct"></div>
           <div id="qtGoal"></div>
@@ -204,7 +206,6 @@
         <div class="hb-field">
           <div><span class="hb-k" id="hbFoesK"></span> <b class="c-foe" id="hbFoes"></b></div>
           <div><span class="hb-k" id="hbLootK"></span> <b class="c-loot" id="hbLoot"></b></div>
-          <div><span id="hbGold" class="c-gold"></span></div>
           <div><span id="hbWeather"></span></div>
           <div class="hb-zone" id="hbZone"></div>
         </div>

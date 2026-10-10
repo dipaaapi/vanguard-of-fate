@@ -280,6 +280,7 @@ export class Bag {
     if (e.fresh) player.freshTimer = e.fresh;
     if (e.buff && player.buffs) player.buffs[e.buff] = Math.max(player.buffs[e.buff] || 0, e.time);
     if (e.respec && player.respec) player.respec();
+    if (e.autoAttackMs) player.extendAutoAttack(e.autoAttackMs);
     if (e.meal) startMeal(player, e.meal);
     this.removeAt(i, 1);
     pop(item.name.toUpperCase(), item.color);

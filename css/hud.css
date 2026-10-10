@@ -181,3 +181,35 @@ body[data-mode="play"] #chatLog {
 }
 .set-val.key { font-family: "Silkscreen", "Consolas", monospace; color: #a5f3fc; }
 .set-row.wait .set-val { color: #fde68a; animation: hb-tired 0.8s ease-in-out infinite; }
+
+/* Aseprite currency wallet: four mint marks and amounts, in denomination order. */
+.coin-wallet {
+  display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 9px;
+  padding: 6px 9px; box-sizing: border-box; max-width: 100%;
+  border: 4px solid transparent;
+  border-image: url("../assets/ui/wallet.png") 4 fill / 4px / 0 stretch;
+  image-rendering: pixelated;
+}
+.coin-chip { display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; }
+.coin-chip img { width: 20px; height: 20px; image-rendering: pixelated; }
+.coin-chip b { font: bold 10px "Silkscreen", "Consolas", monospace; font-variant-numeric: tabular-nums; }
+.coin-chip.platinum { color: #a7e5e3; }
+.coin-chip.gold { color: #efbd4e; }
+.coin-chip.silver { color: #b1c9dc; }
+.coin-chip.bronze { color: #cd894b; }
+.hb-wallet { margin-bottom: 8px; }
+#market .coin-wallet, .inv-gold.coin-wallet { gap: calc(3px * var(--s)); padding: calc(2px * var(--s)); }
+#market .coin-chip img, .inv-gold .coin-chip img { width: calc(10px * var(--s)); height: calc(10px * var(--s)); }
+#market .coin-chip b, .inv-gold .coin-chip b { font-size: calc(5px * var(--s)); }
+.sa-belt {
+  background: none; border: 4px solid transparent;
+  border-image: url("../assets/ui/consumable_slot.png") 4 fill / 4px / 0 stretch;
+}
+.sa-belt img { width: 24px; height: 24px; }
+.mk-icon { box-sizing: content-box; border: calc(2px * var(--s)) solid transparent;
+  border-image: url("../assets/ui/consumable_slot.png") 4 fill / calc(2px * var(--s)) / 0 stretch;
+}
+
+/* Economy panels sit above the hero gauge so wallet balances are never covered. */
+#market, #inventory { z-index: 8; }
+.mk-head { flex-wrap: wrap; gap: calc(3px * var(--s)); }

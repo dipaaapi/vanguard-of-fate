@@ -22,6 +22,7 @@ function disc(p, cx, cy, r, c, cD, cL) {
 
 // Drawing per kind (t = tint)
 const DRAW = {
+  coin(p, t) { disc(p, 8, 9, 6, t, shade(t, -0.4), shade(t, 0.45)); disc(p, 8, 8, 4, t, shade(t, -0.25), shade(t, 0.3)); line(p, 8, 5, 8, 11, shade(t, 0.6)); },
   dagger(p) { line(p, 4, 12, 11, 5, METAL); line(p, 5, 12, 12, 5, METAL_D); p.set(12, 4, METAL_L); line(p, 2, 11, 5, 14, GOLD); p.rect(2, 13, 2, 2, LEATHER); },
   sword(p) { line(p, 3, 13, 12, 4, METAL); line(p, 4, 13, 13, 4, METAL_D); p.set(13, 3, METAL_L); line(p, 2, 10, 6, 14, GOLD); p.rect(1, 13, 3, 2, LEATHER); },
   greatsword(p) { for (let k = 0; k < 11; k++) { p.set(3 + k, 12 - k, METAL); p.set(4 + k, 12 - k, METAL); p.set(4 + k, 13 - k, METAL_D); } p.set(14, 1, METAL_L); line(p, 1, 10, 6, 15, GOLD); p.rect(0, 13, 3, 3, LEATHER); },
@@ -80,6 +81,18 @@ const DRAW = {
   ash(p, t) { [[5, 10], [8, 7], [11, 10], [7, 12], [10, 5]].forEach(([x, y], k) => disc(p, x, y, k % 2 ? 1 : 2, t, shade(t, -0.3), "#ffffff")); }
 };
 
+// Exported Aseprite art overrides consumables and currency in the world and HTML panels.
+const artImages = new Map();
+const artPath = (item) => item?.coin ? `assets/ui/coin_${item.coin}.png`
+  : item?.base === "guildPlate" ? "assets/ui/guild_plate.png"
+  : item?.type === "consume" && item.base ? `assets/ui/item_${item.base}.png` : null;
+function artImage(item) {
+  const src = artPath(item);
+  if (!src) return null;
+  if (!artImages.has(src)) { const image = new Image(); image.src = src; artImages.set(src, image); }
+  const image = artImages.get(src);
+  return image.complete && image.naturalWidth > 0 ? image : null;
+}
 const cache = new Map();
 
 function build(icon, tint) {
@@ -91,12 +104,16 @@ function build(icon, tint) {
 
 export function iconCanvas(item) {
   if (!item) return null;
-  const key = `${item.icon}|${item.tint || ""}`;
-  if (!cache.has(key)) cache.set(key, { canvas: build(item.icon, item.tint), url: null });
+  const art = artImage(item);
+  if (art) return art;
+  const key = `${item.coin ? "coin" : item.icon}|${item.tint || ""}`;
+  if (!cache.has(key)) cache.set(key, { canvas: build(item.coin ? "coin" : item.icon, item.tint), url: null });
   return cache.get(key).canvas;
 }
 
 export function iconURL(item) {
+  const src = artPath(item);
+  if (src) return src;
   const c = iconCanvas(item);
   const entry = cache.get(`${item.icon}|${item.tint || ""}`);
   if (!entry.url) entry.url = c.toDataURL ? c.toDataURL() : "";

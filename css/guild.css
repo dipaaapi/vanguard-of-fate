@@ -1,0 +1,25 @@
+.guild-panel { position:absolute; z-index:24; inset:10px; background:#0b1721f5; color:#e6f4ed; border:2px solid #4cae9b; box-shadow:0 8px 40px #000b; padding:12px; display:none; flex-direction:column; font:13px Georgia,serif; }
+.guild-panel.open { display:flex; }
+.guild-head { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.guild-head h3 { margin:0; color:#b3f4d4; font-size:17px; }
+.guild-summary { margin:8px 0; padding:6px; background:#16312f; color:#ffdf8b; }
+.guild-content { overflow:auto; flex:1; min-height:0; line-height:1.5; }
+.guild-content p { margin:6px 0; }
+.guild-content h4 { color:#81dac1; margin:12px 0 6px; }
+.guild-button { background:#20313f; color:#e6f4ed; border:1px solid #568f85; padding:6px 9px; margin:3px; cursor:pointer; font:inherit; }
+.guild-button:hover:not(:disabled) { background:#315b50; }
+.guild-button:disabled { opacity:.45; cursor:default; }
+.guild-contract { border:1px solid #345a59; padding:8px; margin:8px 0; background:#10242b; }
+.guild-contract p { margin:4px 0; }.guild-reward { color:#d9cfa5; }
+.guild-message { margin:3px 0 6px; color:#f9de8f; }
+.guild-ranks { display:flex; flex-wrap:wrap; gap:4px; }.guild-ranks span { padding:4px; border:1px solid #314c4f; }.guild-ranks .current { color:#4dd7bb; }
+.guild-roster { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:4px; font-size:12px; }
+.guild-panel footer { padding-top:6px; color:#8fb1ba; font-size:11px; }
+.guild-tracker { position:absolute; z-index:5; top:8px; left:8px; max-width:64%; padding:4px 7px; background:#10232beb; color:#8ff0ce; border:1px solid #42766d; font:10px monospace; text-align:left; cursor:pointer; }
+.guild-tracker[hidden] { display:none; }
+.guild-ceremony #heroHud, .guild-ceremony #questToast, .guild-ceremony .guild-tracker { visibility:hidden; }
+.guild-contract-cull,.guild-contract-champion,.guild-contract-mvp { border-left: 4px solid #df8873; }
+.guild-contract-gather { border-left: 4px solid #a1c96c; background: #18372c; }
+.guild-contract-escort { border-left: 4px solid #6fb8df; background: #193443; }
+.guild-contract small { display: block; margin-bottom: 8px; }
+.guild-escort-condition { color: #91d7ef; }
