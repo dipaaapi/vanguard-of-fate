@@ -21,6 +21,7 @@ then `outline <file>` and read only the line range you need.
 - `art_manifest.json` (19 KB, 625) — Every generated image (banners, title/portal backgrounds, vistas, portraits, relics): kind, EN/FIL caption and where the game uses it; paired with tools/art/scenes/index.js
 - `codex_entries.json` (5.9 KB, 66) — Codex scene data: Earthbound dossiers for the hero classes (EN/FIL) and the falcon/angel companion records
 - `errand.json` (3.1 KB, 39) — Summon errand tuning (pack slots, stack per slot, trip time, what it may buy) and EN/FIL wording
+- `islands.json` (0.8 KB, 38) — (no purpose yet)
 - `loading_tips.json` (2.1 KB, 16) — Portal loading screen wording and EN/FIL lore tips (js/loading.js)
 - `market.json` (1.6 KB, 22) — Market (B) stock and EN/FIL wording
 - `npc_conversations.json` (37 KB, 692) — NPC ambient chatter: solo lines per NPC and two-NPC exchanges, each line with en/fil text (fetched by npc/npcs.js)
@@ -161,6 +162,7 @@ then `outline <file>` and read only the line range you need.
 - `footfall.js` (2.6 KB, 61) — Footsteps and splashes: strides on the wet shore splash (hero: wet step sound), steps in tall flora brush, shots ending over water splash · Footfall
 - `frontiers.js` (19 KB, 291) — Four frontier maps (Greyhorn Badlands, Gloomwater Fens, Stormcrown Highlands, Sunscorch Dunes): Acts, levels, themes, monsters, elites, sites, terrain and landmarks, en/fil text · FRONTIERS, FRONTIER_ORDER
 - `grassland.js` (4.6 KB, 102) — Layer 1 ground details on the tile map: baked sand/wet-sand shoreline beside water, turf blades swaying in the wind, isFloraAt for footstep cues · GrasslandSystem
+- `islands.js` (14 KB, 322) — Tile-based floating-island maps: autotiled grass tops (rounded/inner corners, rim), cliff faces under south edges, foam shoreline, animated caustic water; IslandMap.fromRows + draw(ctx, cam, view, tick) · CLIFF_H, ISLAND_PALETTE, buildWaterFrames, IslandMap
 - `layers.js` (3.1 KB, 58) — World render layer order (0 ocean … 7 screen), sun vector and shadow colour, view/tile-span helpers, pixel ellipse · LAYER, SUN, SHADOW_COLOR, viewOf, tileSpan, hashTile, pixelEllipse
 - `mining.js` (5.5 KB, 121) — Ore veins on every platform (tier ore, plus minerals on Ashfall and the Citadel; rock salt): picks per vein, ore drops · MINE_RANGE, needsPick, OreVeins
 - `nav.js` (5.9 KB, 141) — Ground movement for monsters, mercenaries and walking pets: obstacle grid, flow field toward the hero, steering around obstacles, confinement to bounds · blockedAt, footBlocked, clearLine, trackGoal, towardGoal, steer, confine
@@ -255,3 +257,8 @@ then `outline <file>` and read only the line range you need.
 
 - `playwright-mcp.mjs` (1.7 KB, 34) — Launches the pinned @playwright/mcp server with the session's Chromium (no sandbox as root) and serves the repo on 127.0.0.1:5173
 - `vof-game-mcp.mjs` (9.4 KB, 147) — vof-game MCP server (stdio, no deps): game_start/input/hold/state/screenshot/eval/travel/autoplay/logs/stop on the real game in headless Chromium
+
+## tools/tilemap/
+
+- `preview.mjs` (3.8 KB, 75) — Renders the island maps in data/islands.json to PNG in headless Chromium: node tools/tilemap/preview.mjs [map…] [--scale n] [--out dir] [--tick n]
+- `viewer.html` (2.6 KB, 68) — (no purpose yet)

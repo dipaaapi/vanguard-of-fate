@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Island Tile Map</title>
+<style>
+  body { margin: 0; background: #0b1020; color: #cbd5e1; font: 13px system-ui, sans-serif; }
+  header { padding: 8px 12px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  canvas { display: block; image-rendering: pixelated; cursor: crosshair; margin: 0 12px 12px; }
+</style>
+</head>
+<body>
+<header>
+  <strong>Island tile map</strong>
+  <select id="map"></select>
+  <label>Scale <input id="scale" type="number" min="1" max="6" value="3" style="width:3em"></label>
+  <span>Click or drag to paint land, right-click to dig water.</span>
+</header>
+<canvas id="c"></canvas>
+<script type="module">
+import { IslandMap } from "../../js/world/islands.js";
+import { TILE } from "../../js/world/tileset.js";
+
+const data = await (await fetch("../../data/islands.json")).json();
+const keys = Object.keys(data).filter((k) => !k.startsWith("_"));
+const sel = document.getElementById("map"), scaleIn = document.getElementById("scale"), cv = document.getElementById("c");
+const ctx = cv.getContext("2d");
+for (const k of keys) sel.append(new Option(k, k));
+const PAD = 2 * TILE;              // open water around the grid
+let map, tick = 0;
+
+function load(key) {
+  const m = data[key] || data[keys[0]];
+  map = IslandMap.fromRows(m.rows, { seed: m.seed });
+  resize();
+}
+function resize() {
+  const s = Math.max(1, Math.min(6, scaleIn.value | 0));
+  cv.width = map.width + PAD * 2; cv.height = map.height + PAD * 2;
+  cv.style.width = cv.width * s + "px"; cv.style.height = cv.height * s + "px";
+}
+function frame() {
+  map.draw(ctx, -PAD, -PAD, cv.width, cv.height, tick++);
+  requestAnimationFrame(frame);
+}
+let painting = -1;
+function paint(e) {
+  const r = cv.getBoundingClientRect(), s = cv.width / r.width;
+  const cx = Math.floor(((e.clientX - r.left) * s - PAD) / TILE), cy = Math.floor(((e.clientY - r.top) * s - PAD) / TILE);
+  if (map.isLand(cx, cy) === !!painting) return;
+  map.setLand(cx, cy, painting === 1);
+  map.bake();
+}
+cv.addEventListener("contextmenu", (e) => e.preventDefault());
+cv.addEventListener("pointerdown", (e) => { painting = e.button === 2 ? 0 : 1; paint(e); });
+cv.addEventListener("pointermove", (e) => { if (painting >= 0) paint(e); });
+addEventListener("pointerup", () => { painting = -1; });
+sel.onchange = () => load(sel.value);
+scaleIn.oninput = resize;
+load(new URLSearchParams(location.search).get("map") || keys[0]);
+window.islandMap = () => map;
+window.islandReady = true;
+frame();
+</script>
+</body>
+</html>
