@@ -1,3 +1,4 @@
+import { applyFacing, drawView } from "./avatar/facing.js";
 import { Sound } from "./audio.js";
 import { facingFrom } from "./avatar/creature.js";
 import { MONSTERS, BOSSES, BLIGHTS, NIGHT_KINDS } from "./bestiary.js";
@@ -818,9 +819,7 @@ export class EnemyManager {
 
   // Direction and animation from the enemy's actual movement
   animate(e, dx, dy, moved) {
-    const f = facingFrom(dx, dy, e);
-    e.dir = f.dir;
-    e.flip = f.flip;
+    applyFacing(e, facingFrom(dx, dy, e));   // 3-way dir for the logic, 8-way view for drawing
     const len = Math.hypot(dx, dy);
     if (len > 0.001) { e.aimX = dx / len; e.aimY = dy / len; }   // for the lunge
     if (e.strikeTimer > 0) e.strikeTimer--;
@@ -858,7 +857,7 @@ export class EnemyManager {
   frameOf(e) {
     // n = frames in this animation (more when an Aseprite sheet has them); 2-frame attacks and the
     // code-drawn idle/walk timing are unchanged
-    const n = e.kind.sprite.count ? e.kind.sprite.count(e.dir, e.anim) : 2;
+    const n = e.kind.sprite.count ? e.kind.sprite.count(drawView(e), e.anim) : 2;
     if (e.anim === "attack") {                                    // 0 = handa, 1… = tama
       if (e.strikeTimer <= 0) return 0;
       const p = 1 - e.strikeTimer / (e.strikeMax || 12);
@@ -867,7 +866,9 @@ export class EnemyManager {
     if (e.anim === "skill") return Math.min(n - 1, Math.floor(e.animTimer / SKILL_TICKS));   // charge, hold the last pose
     if (e.anim === "run") return Math.floor(e.animTimer / RUN_TICKS);
     const base = e.anim === "walk" ? WALK_TICKS * 4 : IDLE_TICKS * 2;   // one cycle, spread over the frames
-    return Math.floor(e.animTimer / Math.max(4, Math.round(base / Math.max(2, n))));
+    // a sheet's idle beyond four frames is more breaths (and a blink at the end), at the same pace
+    const per = e.anim === "idle" ? Math.min(4, Math.max(2, n)) : Math.max(2, n);
+    return Math.floor(e.animTimer / Math.max(4, Math.round(base / per)));
   }
 
   // player = the attacker (extra damage and crit from stats and equipment)
@@ -1072,7 +1073,7 @@ export class EnemyManager {
       const pose = { sx: 1 + 0.35 * k, sy: Math.max(0.1, 1 - 0.85 * k * k), ox: 0, oy: e.kind.flying ? k * 7 : 0 };
       ctx.save();
       ctx.globalAlpha = 1 - k * k;
-      around(ctx, e.x + 10, fy, pose, () => e.kind.sprite.draw(ctx, e.x + 10, fy, e.dir, e.anim, this.frameOf(e), e.flip, t < 4, scale));
+      around(ctx, e.x + 10, fy, pose, () => e.kind.sprite.draw(ctx, e.x + 10, fy, drawView(e), e.anim, this.frameOf(e), e.flip, t < 4, scale));
       ctx.restore();
     });
 
@@ -1099,7 +1100,7 @@ export class EnemyManager {
         ctx.restore();
       }
 
-      around(ctx, e.x + 10, fy, this.poseOf(e), () => k.sprite.draw(ctx, e.x + 10, fy, e.dir, e.anim, this.frameOf(e), e.flip, e.hitTimer > 0, scale));
+      around(ctx, e.x + 10, fy, this.poseOf(e), () => k.sprite.draw(ctx, e.x + 10, fy, drawView(e), e.anim, this.frameOf(e), e.flip, e.hitTimer > 0, scale));
       // Frozen: blue ice on top
       if (e.frozen > 0) {
         ctx.save();

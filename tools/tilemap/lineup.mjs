@@ -64,7 +64,7 @@ function sheetFrames(key) {
   const data = JSON.parse(fs.readFileSync(json, "utf8")), sheet = readPng(png);
   const tags = Object.fromEntries((data.meta.frameTags || []).map((t) => [t.name, t]));
   return (dir, a) => {
-    const t = tags[`${dir}-${a}`] || tags[`side-${a}`] || tags[`side-fly`];
+    const t = tags[`${dir}-${a}`] || (dir.endsWith("side") && tags[`side-${a}`]) || tags[`side-fly`];
     if (!t) return null;
     const r = data.frames[t.from].frame, f = img(r.w, r.h);
     blit(f, sheet, 0, 0, r.x, r.y, r.w, r.h);
@@ -76,7 +76,7 @@ async function character(spec) {
   const sheet = sheetFrames(`${kind}/${key}`);
   const code = await codeSprite(`${kind}/${key}`);
   if (!code && !sheet) { console.warn(`  ! ${spec}: no sprite`); return []; }
-  return ["down", "side", "up"].map((dir) => {
+  return ["down", "dside", "side", "uside", "up"].map((dir) => {
     const s = sheet && sheet(dir, anim);
     if (s) return s;
     if (!code) return null;

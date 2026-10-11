@@ -2,6 +2,7 @@ import { normalizeConfig } from "./options.js";
 import { sheetCount, sheetFrame, sheetsVersion } from "./sheets.js";
 import { jobPalette, drawJob } from "./jobmarks.js";
 import { tileStyle } from "./tilestyle.js";
+import { isDiagonal, sideways } from "./facing.js";
 
 // ==================== MODULAR AVATAR RENDERER ====================
 // A character is built from separate parts (layers):
@@ -12,7 +13,8 @@ import { tileStyle } from "./tilestyle.js";
 // and cached as a canvas — cheap to drawImage in the game.
 //
 // Frame: 32x36 (about 2 tiles tall at 16px). Anchor = middle of the feet (16, 34).
-// Directions: down (front), up (back), side (facing right; flip for left).
+// Directions: down (front), dside (front three-quarter), side (facing right), uside (back three-quarter),
+// up (back); the right-facing ones are flipped for the left, eight ways in all (js/avatar/facing.js).
 //
 // Extra parts for NPCs, jobs, mercenaries and summons (not in the Character Creator):
 //   outfit: gown | armor | coat      headgear: crown | tiara | helmet | headband | hat | hood | halo
@@ -26,7 +28,7 @@ export const FRAME_W = 32;
 export const FRAME_H = 36;
 const ANCHOR_X = 16;
 const ANCHOR_Y = 34;
-export const DIRS = ["down", "side", "up"];
+export const DIRS = ["down", "dside", "side", "uside", "up"];
 const FRAMES = { idle: 2, walk: 4, run: 4, attack: 2 };
 const SKILL_FRAMES = 6;   // "skill": the attack's ready pose with a growing aura (built from the attack frames)
 
@@ -180,6 +182,14 @@ export class Pix {
       if (lum > 0.25 + t) this.d[i] = shadeCached(c, 0.13);
       else if (lum < -0.25 - t) this.d[i] = shadeCached(c, -0.15);
       else if (dist[i] >= 3 && ((x * 7 + y * 13 + ((x * y) & 3)) % 11 === 0)) this.d[i] = shadeCached(c, -0.07);   // texture
+    }
+  }
+  // Remove column x (everything right of it moves one pixel left): the receding side of a three-quarter view
+  dropColumn(x, y0 = 0) {
+    for (let y = y0; y < this.h; y++) {
+      const r = y * this.w;
+      for (let i = x; i < this.w - 1; i++) this.d[r + i] = this.d[r + i + 1];
+      this.d[r + this.w - 1] = null;
     }
   }
   // Move everything by (dx, dy); rows above `pivot` lean forward by `lean` pixels (running, side view)
@@ -808,6 +818,26 @@ function drawHeld(p, c, cfg, view, weapon, shield, g) {
 const HEAD_FRONT = [[3, 11, 20], [4, 10, 21], [5, 9, 22], [6, 9, 22], [7, 9, 22], [8, 9, 22], [9, 9, 22], [10, 9, 22], [11, 9, 22], [12, 10, 21], [13, 11, 20]];
 const HEAD_SIDE = [[3, 12, 19], [4, 11, 20], [5, 10, 21], [6, 10, 21], [7, 10, 21], [8, 10, 21], [9, 10, 21], [10, 10, 21], [11, 10, 21], [12, 11, 20], [13, 12, 19]];
 
+// A Pix proxy for the face of the front three-quarter view: features crowd toward the turn (right),
+// the far eye narrows to one column, the nose moves to the near side. XMAP: front-view column → turned
+// column (null = hidden). t = 1 is the face; other t just shift (the fringe).
+const XMAP = { 9: 11, 10: 12, 11: 13, 12: 14, 13: null, 14: 15, 15: 17, 16: 18, 17: 18, 18: 19, 19: 20, 20: 21, 21: 21, 22: 22 };
+const XROW = { ...XMAP, 13: 14 };
+function turned(p, t) {
+  if (t !== 1) {    // the fringe: its right half slides one pixel over, the parting widens to fill the gap
+    const sx = (x) => (x >= 16 ? x + 1 : x);
+    return {
+      set: (x, y, col) => { p.set(sx(x), y, col); if (x === 15) p.set(16, y, col); },
+      rows: (list, col, dy = 0) => p.rows(list.map(([y, a, b]) => [y, sx(a), sx(b)]), col, dy)
+    };
+  }
+  const mx = (x, m) => (x in m ? m[x] : x);
+  return {
+    set: (x, y, col) => { const nx = mx(x, XMAP); if (nx != null) p.set(nx, y, col); },
+    rows: (list, col, dy = 0) => p.rows(list.map(([y, a, b]) => [y, mx(a, XROW), mx(b, XROW)]), col, dy)
+  };
+}
+
 function drawHead(p, c, cfg, dy, view) {
   const rows = view === "side" ? HEAD_SIDE : HEAD_FRONT;
   rows.forEach(([y, x0, x1]) => {
@@ -826,57 +856,63 @@ function drawHead(p, c, cfg, dy, view) {
 
   if (view === "down") {
     const expression = cfg.expression || "neutral";
+    // three-quarter view (cfg._turn, js/avatar/facing.js "dside"): the face slides toward the turn and
+    // the near ear hides behind the cheek
+    const t = cfg._turn || 0, f = t ? turned(p, t) : p;
     // ears
     p.set(8, 8 + dy, c.skin); p.set(8, 9 + dy, c.skinD);
-    p.set(23, 8 + dy, c.skinD); p.set(23, 9 + dy, c.skinDD);
+    if (!t) { p.set(23, 8 + dy, c.skinD); p.set(23, 9 + dy, c.skinDD); }
     // Brows and eyes change shape in expression portraits, not just colour.
     if (expression === "angry" || expression === "determined") {
-      p.rows([[7, 12, 13], [8, 14, 14], [8, 17, 17], [7, 18, 19]], c.hairD, dy);
+      f.rows([[7, 12, 13], [8, 14, 14], [8, 17, 17], [7, 18, 19]], c.hairD, dy);
     } else if (expression === "worried" || expression === "hurt") {
-      p.rows([[8, 12, 13], [7, 14, 14], [7, 17, 17], [8, 18, 19]], c.hairD, dy);
+      f.rows([[8, 12, 13], [7, 14, 14], [7, 17, 17], [8, 18, 19]], c.hairD, dy);
     } else {
-      p.rows([[7, 12, 13], [7, 18, 19]], c.hairD, dy);
+      f.rows([[7, 12, 13], [7, 18, 19]], c.hairD, dy);
     }
-    const closedEyes = expression === "joyful" || expression === "hurt";
+    const closedEyes = expression === "joyful" || expression === "hurt" || expression === "blink";
     if (closedEyes) {
-      p.rows([[9, 11, 14], [9, 17, 20]], c.lash, dy);
-      p.set(12, 10 + dy, c.lash); p.set(19, 10 + dy, c.lash);
+      f.rows([[9, 11, 14], [9, 17, 20]], c.lash, dy);
+      f.set(12, 10 + dy, c.lash); f.set(19, 10 + dy, c.lash);
     } else {
       [[12, 13], [18, 19]].forEach(([a, b]) => {
-        p.set(a, 8 + dy, c.lash); p.set(b, 8 + dy, c.lash);
-        p.set(a, 9 + dy, c.eye); p.set(b, 9 + dy, c.white);
-        p.set(a, 10 + dy, c.eyeD); p.set(b, 10 + dy, c.eye);
+        f.set(a, 8 + dy, c.lash); f.set(b, 8 + dy, c.lash);
+        f.set(a, 9 + dy, c.eye); f.set(b, 9 + dy, c.white);
+        f.set(a, 10 + dy, c.eyeD); f.set(b, 10 + dy, c.eye);
       });
     }
-    if (cfg.body === "female" && !closedEyes) { p.set(11, 8 + dy, c.lash); p.set(20, 8 + dy, c.lash); }
+    if (cfg.body === "female" && !closedEyes) { f.set(11, 8 + dy, c.lash); f.set(20, 8 + dy, c.lash); }
     // nose and mouth
-    p.set(16, 10 + dy, c.skinD);
+    f.set(16, 10 + dy, c.skinD);
     const mouth = cfg.body === "female" ? mix(c.skin, "#c2506e", 0.4) : c.skinDD;
     if (expression === "joyful") {
-      p.rows([[12, 14, 17], [13, 15, 16]], mouth, dy);
+      f.rows([[12, 14, 17], [13, 15, 16]], mouth, dy);
     } else if (expression === "worried" || expression === "hurt") {
-      p.set(15, 12 + dy, mouth); p.set(16, 12 + dy, mouth);
-      p.set(15, 11 + dy, mouth);
+      f.set(15, 12 + dy, mouth); f.set(16, 12 + dy, mouth);
+      f.set(15, 11 + dy, mouth);
     } else if (expression === "speaking") {
-      p.set(15, 12 + dy, mouth); p.set(16, 12 + dy, mouth);
-      p.set(15, 13 + dy, c.skinDD); p.set(16, 13 + dy, c.skinDD);
+      f.set(15, 12 + dy, mouth); f.set(16, 12 + dy, mouth);
+      f.set(15, 13 + dy, c.skinDD); f.set(16, 13 + dy, c.skinDD);
     } else if (expression === "angry") {
-      p.rows([[12, 14, 17]], c.skinDD, dy);
+      f.rows([[12, 14, 17], [13, 15, 16]], c.skinDD, dy);               // shouting
+    } else if (expression === "determined") {
+      f.rows([[12, 14, 17]], mouth, dy);                                // set jaw
     } else {
-      p.set(15, 12 + dy, mouth); p.set(16, 12 + dy, mouth);
+      f.set(15, 12 + dy, mouth); f.set(16, 12 + dy, mouth);
     }
     if (cfg.body === "female") {
-      p.set(11, 11 + dy, mix(c.skin, c.blush, 0.45));
-      p.set(20, 11 + dy, mix(c.skin, c.blush, 0.45));
+      f.set(11, 11 + dy, mix(c.skin, c.blush, 0.45));
+      f.set(20, 11 + dy, mix(c.skin, c.blush, 0.45));
     }
   } else if (view === "up") {
-    p.set(8, 8 + dy, c.skin); p.set(8, 9 + dy, c.skinD);
+    if (!cfg._turn) { p.set(8, 8 + dy, c.skin); p.set(8, 9 + dy, c.skinD); }   // turned away: only the near ear
     p.set(23, 8 + dy, c.skinD); p.set(23, 9 + dy, c.skinDD);
   } else {
     // side: one eye, nose, mouth, ear
     const expression = cfg.expression || "neutral";
-    p.rows([[7, 18, 19]], c.hairD, dy);
-    if (expression === "joyful" || expression === "hurt") {
+    const fierce = expression === "angry" || expression === "determined";
+    p.rows(fierce ? [[7, 17, 18]] : [[7, 18, 19]], c.hairD, dy);
+    if (expression === "joyful" || expression === "hurt" || expression === "blink") {
       p.rows([[9, 18, 20]], c.lash, dy);
     } else {
       p.set(18, 8 + dy, c.lash); p.set(19, 8 + dy, c.lash);
@@ -885,8 +921,10 @@ function drawHead(p, c, cfg, dy, view) {
     }
     if (cfg.body === "female") p.set(20, 8 + dy, c.lash);
     p.set(22, 9 + dy, c.skin); p.set(22, 10 + dy, c.skinD);          // nose
+    if (fierce) p.set(19, 8 + dy, c.hairD);                            // brow knitted down over the eye
     p.set(20, 12 + dy, c.skinDD);                                      // mouth
-    if (expression === "speaking") p.set(20, 13 + dy, c.skinDD);
+    if (expression === "speaking" || expression === "angry") p.set(20, 13 + dy, c.skinDD);
+    if (expression === "angry") p.set(21, 12 + dy, c.skinDD);
     p.set(14, 8 + dy, c.skinD); p.set(14, 9 + dy, c.skinDD);          // ears
     if (cfg.body === "female") p.set(20, 11 + dy, mix(c.skin, c.blush, 0.45));
   }
@@ -911,7 +949,8 @@ function drawSkullFace(p, c, dy, view) {
 }
 
 // Beard (hair colour) and glasses
-function drawFaceExtras(p, c, cfg, dy, view) {
+function drawFaceExtras(p0, c, cfg, dy, view) {
+  const p = view === "down" && cfg._turn ? turned(p0, cfg._turn) : p0;   // three-quarter view: follows the face
   if (cfg.beard && view !== "up") {
     const B = c.hair, D = c.hairD;
     if (view === "down") {
@@ -1063,7 +1102,8 @@ function drawTail(p, c, cx, top, dy, right) {
 }
 
 // Front layer (over the head)
-function drawHairFront(p, c, cfg, dy, view) {
+function drawHairFront(p0, c, cfg, dy, view) {
+  const p = view === "down" && cfg._turn ? turned(p0, 2) : p0;   // three-quarter view: the fringe follows the face
   const H = c.hair, D = c.hairD, L = c.hairL;
   const st = cfg.hairStyle;
   if (st === "none") return;
@@ -1295,6 +1335,13 @@ function renderFrame(cfg, dir, anim, i, style) {
 // style "tile": the terrain tile sets' palette, light and outline (js/avatar/tilestyle.js), used by
 // monsters, mercenaries and summons; everyone else keeps the Avatar's own detail + outline
 function renderPix(cfg, dir, anim, i, style) {
+  // three-quarter views (js/avatar/facing.js): the front / back view turned toward the right, the face
+  // slid over and the receding side one pixel narrower
+  if (dir === "dside" || dir === "uside") {
+    const p = renderPix({ ...cfg, _turn: 1 }, dir === "dside" ? "down" : "up", anim, i, "raw");
+    p.dropColumn(20, 15);    // the torso recedes on the side it turns toward
+    return finishPix(p, style);
+  }
   const p = new Pix(FRAME_W, FRAME_H);
   const c = palette(cfg);
   if (cfg.job) jobPalette(c, cfg);
@@ -1357,6 +1404,10 @@ function renderPix(cfg, dir, anim, i, style) {
     drawFaceExtras(p, c, cfg, dy, dir);
     if (cfg.robot) drawRobotDetails(p, dy, dir);
     if (back && !helmet) drawHairFront(p, c, cfg, dy, "up");
+    if (back && cfg._turn && !helmet && cfg.face !== "skull") {   // back three-quarter: cheek and ear show past the hair
+      p.rows([[9, 21, 22], [10, 21, 22], [11, 21, 22], [12, 21, 21]], c.skinD, dy);
+      p.set(22, 10 + dy, c.skin); p.set(21, 9 + dy, c.skinDD);
+    }
     if (!back && !helmet) drawHairFront(p, c, cfg, dy, "down");
     if (cfg.beastkin) { drawBeastkinMuzzle(p, cfg, dy, dir); drawBeastkinEars(p, cfg, dy, dir); }
     if (cfg.ears === "elf") drawElfEars(p, c, dy, dir);
@@ -1417,6 +1468,10 @@ function renderPix(cfg, dir, anim, i, style) {
     if (cfg.job) drawJob("head", p, c, cfg, dy, "side", i);
   }
 
+  return style === "raw" ? p : finishPix(p, style);
+}
+
+function finishPix(p, style) {
   if (style === "tile") tileStyle(p);
   else { p.detail(); p.outline(); }
   return p;
@@ -1435,6 +1490,22 @@ export function whiteOf(canvas) {
   return c;
 }
 
+// Faces by animation: calm while standing and walking, set jaw and knitted brows while running and
+// charging, a shout on the strike
+function animFace(anim, i) {
+  if (anim === "run") return "determined";
+  if (anim === "attack") return i ? "angry" : "determined";
+  if (anim === "skill") return i >= SKILL_FRAMES - 1 ? "angry" : "determined";
+  return "neutral";
+}
+// A blink of ~0.13 s every few seconds; the phase comes from where the figure stands, so a crowd
+// sharing one Avatar doesn't blink in unison
+const clock = () => (typeof performance !== "undefined" ? performance.now() : Date.now()) / 1000;
+function blinking(x, y) {
+  const phase = ((Math.round(x / 8) * 7 + Math.round(y / 8) * 13) % 31) / 10;
+  return (clock() + phase) % 3.6 < 0.13;
+}
+
 // ==================== PUBLIC API ====================
 export class Avatar {
   constructor(config) {
@@ -1444,7 +1515,14 @@ export class Avatar {
 
   // Frames in an animation: the Aseprite sheet's tag when there is one (sheetKey, js/avatar/sheets.js)
   count(dir, anim) {
+    dir = this.viewOf(dir, anim);
     return (this.sheetKey && sheetCount(this.sheetKey, dir, anim)) || FRAMES[anim] || (anim === "skill" ? SKILL_FRAMES : 1);
+  }
+
+  // The view drawn: the code renders every view (js/avatar/facing.js), but a painted sheet without the
+  // diagonal shows its own side view rather than mixing in code-drawn frames
+  viewOf(dir, anim) {
+    return isDiagonal(dir) && this.sheetKey && sheetCount(this.sheetKey, "down", "idle") && !sheetCount(this.sheetKey, dir, anim) ? "side" : dir;
   }
 
   // Whether this Avatar has the animation: drawn ones, "skill" (built from the attack) or a sheet's
@@ -1452,13 +1530,15 @@ export class Avatar {
     return !!(FRAMES[anim] || anim === "skill" || (this.sheetKey && sheetCount(this.sheetKey, dir, anim)));
   }
 
-  frame(dir, anim, i) {
+  frame(dir, anim, i, face = null) {
+    dir = this.viewOf(dir, anim);
     const n = this.count(dir, anim);
     const idx = ((i % n) + n) % n;
     const img = this.sheetKey && sheetFrame(this.sheetKey, dir, anim, idx);
     if (img) return img;
-    const key = `${dir}|${anim}|${idx}`;
-    if (!this.cache.has(key)) this.cache.set(key, renderFrame(this.config, dir, anim, idx, this.style));
+    face = face || this.config.expression || animFace(anim, idx);
+    const key = `${dir}|${anim}|${idx}|${face}`;
+    if (!this.cache.has(key)) this.cache.set(key, renderFrame({ ...this.config, expression: face }, dir, anim, idx, this.style));
     return this.cache.get(key);
   }
 
@@ -1470,11 +1550,13 @@ export class Avatar {
 
   // (x, y) = feet position in the world. flip = facing left (side only)
   // squash < 1 shortens the figure while keeping its width (dwarves)
-  draw(ctx, x, y, dir, anim, i, flip = false, flash = false, scale = 1, squash = 1) {
-    const img = flash ? this.flashFrame(dir, anim, i) : this.frame(dir, anim, i);
+  // face: an expression for this frame ("hurt", …); else the animation's own (animFace) with a blink now and then
+  draw(ctx, x, y, dir, anim, i, flip = false, flash = false, scale = 1, squash = 1, face = null) {
+    if (!face && (anim === "idle" || anim === "walk") && blinking(x, y)) face = "blink";
+    const img = flash ? this.flashFrame(dir, anim, i) : this.frame(dir, anim, i, face);
     ctx.save();
     ctx.translate(Math.round(x), Math.round(y));
-    if (flip && dir === "side") ctx.scale(-1, 1);
+    if (flip && sideways(dir)) ctx.scale(-1, 1);
     // A larger (sheet) frame keeps the same feet: extra width split left/right, extra height on top
     const ax = ANCHOR_X + Math.floor((img.width - FRAME_W) / 2), ay = ANCHOR_Y + (img.height - FRAME_H);
     ctx.drawImage(img, -ax * scale, -ay * scale * squash, img.width * scale, img.height * scale * squash);

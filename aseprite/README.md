@@ -65,7 +65,7 @@ Effects: `meteor`, `blast`, `lightning`, `holy`, `sphere`, `slash`, `wave`, `bol
 Bosses with sheets (twice the size of their 2×-scaled code sprite, feet where the game anchors them):
 `boss/dolora` 64×72 (feet 32,68; she floats ~4px above them), `boss/morgrave` 96×104 (feet 48,100) and
 `boss/vorgath` 112×112 (feet 56,108), each with idle 4, walk 6, run 6, attack 4 and skill 6 frames per
-direction.
+view (five views; the three-quarter ones are the front / back turned by `turnFinished`).
 
 ## Terrain tile sets
 
@@ -101,8 +101,11 @@ top of `css/hud.css`. `node tools/aseprite/paint/paint.mjs ui` repaints them fro
 ## Workflow
 
 1. Start from the current art (optional): `node tools/aseprite/seed.mjs monster/wolf`
-2. Paint in Aseprite. Keep one tag per direction + animation named `<down|side|up>-<anim>`
-   (`side-walk`, `up-attack`, …). The side view faces right; the game mirrors it.
+2. Paint in Aseprite. Keep one tag per view + animation named `<down|dside|side|uside|up>-<anim>`
+   (`side-walk`, `dside-run`, `up-attack`, …). Five views give eight directions: `down` and `up` face
+   the camera / away, `side` faces right, `dside` and `uside` are the right three-quarter views
+   (down-right, up-right); the game mirrors the right-facing ones for left (`js/avatar/facing.js`).
+   A sheet without `dside` / `uside` uses `side` for the diagonals.
 3. Export: `node tools/aseprite/export.mjs` (or `… export.mjs monster/wolf`). It runs `aseprite -b`,
    writes `assets/sprites/<kind>/<key>.png` + `.json`, updates `assets/sprites/manifest.json`, and warns
    about wrong tag names, sizes or frame counts.
@@ -119,6 +122,10 @@ Rules the game relies on:
 - The feet stay where the code sprite has them (e.g. the slime's at 12,16 on 24×18). A bigger canvas is
   fine: the extra width is split evenly left/right and the extra height goes on top, so the
   32×24 slime has its feet at 16,22. Keep the width difference even.
+- Faces: `idle` has 8 frames with the eyes shut on the last (a blink); `run`, `attack` and `skill` show
+  the angry face (lowered brows, open mouth). The painters register eye colours with `eyeCol()`
+  (`paint/monsterkit.mjs`), which draws both. Humanoids (the Avatar) do the same in code: a blink while
+  idle or walking, a set jaw while running or winding up, a shout on the strike and a wince while hit.
 - A missing tag falls back to the code-drawn frames, so a sheet can be partial (e.g. only `side-walk`).
 - Hidden layers are not exported, so a hidden reference or sketch layer is fine.
 - The game draws its own outline only on code-drawn frames; draw the outline in Aseprite.
@@ -133,7 +140,7 @@ The files here were painted procedurally as detailed starting points for hand ed
 (`node tools/aseprite/paint/paint.mjs <key>` recreates one, overwriting it, so don't run it on edited art):
 the Forest Slime and Pocket Slime (32×24), War Hound and Spirit Fox (40×28), falcon and Arcane Owl
 (36×28, side view), Guardian Angel (44×44) and the bosses Dolora, Morgrave and Vorgath (`paint/boss.mjs`),
-with idle 4, walk 6, run 6, attack 4 and skill 6 frames.
+with idle 8 (4 for the bosses), walk 6, run 6, attack 4 and skill 6 frames in five views (birds: side only).
 
 ## Coins, consumables and the wallet
 

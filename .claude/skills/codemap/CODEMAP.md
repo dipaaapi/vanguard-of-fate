@@ -53,7 +53,7 @@ then `outline <file>` and read only the line range you need.
 - `dialog.js` (7.1 KB, 228) — HTML dialogue box with speaker portrait, quest tracker HUD and quest log overlays · DialogBox, QuestHud
 - `dialogue.js` (35 KB, 519) — Story dialogue for Acts II–VI per NPC and quest step (en/fil); getDialogue(id, ctx), npcName · npcName, getDialogue
 - `elements.js` (4.9 KB, 104) — Race, element, size and type tables with damage multipliers and variant prefixes (Ragnarok style), en/fil names · ELEMENTS, elementMult, raceBonus, sizeMod, rollVariant, variantPrefix, elementName, raceName +1
-- `enemy.js` (58 KB, 1245) — Enemy manager: monster spawning (hub, platforms, frontiers, elites, night, ambushes, bosses), AI state machines, telegraphed attacks, boss move styles (drift/blink, charge, chained) and skills (tear rain, wail cone, bone lances, chain sweep/grab, shockwave rings) with Aseprite effects, tiers/elements, death and drops · HUB_KINDS, HUB_ELITES, EnemyManager
+- `enemy.js` (59 KB, 1246) — Enemy manager: monster spawning (hub, platforms, frontiers, elites, night, ambushes, bosses), AI state machines, telegraphed attacks, boss move styles (drift/blink, charge, chained) and skills (tear rain, wail cone, bone lances, chain sweep/grab, shockwave rings) with Aseprite effects, tiers/elements, death and drops · HUB_KINDS, HUB_ELITES, EnemyManager
 - `errand.js` (8.9 KB, 212) — Summon errands: the familiar/Falcon/Guardian Angel carries a 9-slot pack to market from the field (sell non-quest items, buy potions and herbs), is out of combat until back; ErrandPack order, dispatch, updateErrand, save/load · errandReady, errandConfig, errandText, runnerName, errandBuyPrice, runnerFor, hasRunnerKind, awayRunner +7
 - `fx.js` (25 KB, 698) — Game feel: screen shake, hit-stop, shockwave rings, sparks, blood, water splashes (droplets + ripples), damage numbers, flashes, vignette · FXManager
 - `fxsprites.js` (2.1 KB, 53) — Effect sprites from Aseprite (assets/sprites/fx/<name>, "down-play" tag): drawFx with rotation, size, anchor, alpha and cached tints; false when not loaded so callers keep their code-drawn effect · fxFrames, drawFx
@@ -73,14 +73,14 @@ then `outline <file>` and read only the line range you need.
 - `lore.js` (8.0 KB, 245) — Loads LORE.md / LORE_FIL.md, parses ## Acts into chapters, act banners, auto-scrolling lore panel · loadLore, parseChapters, actNumber, chapterKey, BANNER_EXTS, bannerSrc, createLorePanel
 - `main.js` (118 KB, 2627) — Entry module and coordinator: canvas fit, scene routing (title → codex scene (creator) → prologue → game), managers, menus/shops, platform travel, save/load/export/import, Job Awakening, update + render game loop
 - `market.js` (13 KB, 318) — Market (B): buy and sell with a quantity slider per row (prices from items/economy.js via ctx) inside a sanctuary; outside one the same overlay builds and sends a summon errand (errand.js) · sellPrice, Market, marketText
-- `mercenaryManager.js` (15 KB, 392) — Hireable mercenaries: contracts and fees, following, AI combat, daze and recovery, drawing · MERC_CLASSES, MercenaryManager
+- `mercenaryManager.js` (15 KB, 391) — Hireable mercenaries: contracts and fees, following, AI combat, daze and recovery, drawing · MERC_CLASSES, MercenaryManager
 - `monsterTiers.js` (6.5 KB, 138) — Monster tiers (Normal, Champion, Elite, MVP) and modifiers: rolling, applying, damage multipliers, names, life bars (lives per level and tier) · MODS, modName, TIERS, rollTier, applyTier, tierName, has, MAX_LIVES +10
 - `music.js` (15 KB, 314) — Music score as data: note/chord helpers, bass/arp/pad pattern styles, compileTrack, TRACKS (title, hub, night, canopy, coast, frost, ash, siege, maw, boss, finale), AREA_TRACK (platform id → track) and JINGLES · midi, freq, chord, compileTrack, TRACKS, AREA_TRACK, JINGLES
 - `padnav.js` (3.4 KB, 92) — Panel navigation with arrows / D-pad + Enter: moves a highlight between buttons of mouse-first HTML panels · PanelNav
 - `party.js` (8.5 KB, 204) — Party of the hero + recruited playable NPCs (up to 6): who is on the field, per-member HP, switching (player.active kit), next member steps in on a fall, sanctuary recovery, recruitment talk and trial progress (PlayableQuestBook), Eirene's consoles; text from data/party.json · PARTY_MAX, partyText, memberName, Party
 - `partyhud.js` (4.8 KB, 110) — Party list under the hero card (switch key, head, name, HP; the member on the field lit) and the hero card's portrait head, drawn from each member's Avatar portrait · PartyHud, roleOf
 - `playables.js` (7.9 KB, 110) — Playable NPC recruits: PLAYABLES (region, role, skills, trial requirements), makePlayableKit (combat kit per recruit), PlayableQuestBook (trial state) · PLAYABLES, PLAYABLE_IDS, makePlayableKit, PlayableQuestBook
-- `player.js` (28 KB, 698) — Player entity: stats, stamina/sprint/dodge roll, damage and debuffs, EXP/levels, skill learning, movement, attack pose, drawing · expFor, Player
+- `player.js` (29 KB, 706) — Player entity: stats, stamina/sprint/dodge roll, damage and debuffs, EXP/levels, skill learning, movement, attack pose, drawing · expFor, Player
 - `projectiles.js` (15 KB, 381) — Player/mercenary projectiles and skill effects (meteor, thunder, arrows, ki spheres, dropkick) and their hit detection · ProjectileManager
 - `prologue.js` (8.9 KB, 233) — Act I prologue (PrologueScene): nine HD cinematic shots (js/cinema/prologueShots.js) with typed EN/FIL subtitles from data/prologue.json; Enter advances, Esc skips · PrologueScene
 - `quest.js` (19 KB, 432) — Main quest (Book I, Acts II–XV): steps with act, place, characters, objectives; QuestManager progress, side-quest gate, Book titles; mentor per class; save migration (v1/v2 → v3) · FINAL_STEP, MENTOR_BY_CLASS, bookText, qt, QuestManager
@@ -102,9 +102,10 @@ then `outline <file>` and read only the line range you need.
 
 ## js/avatar/
 
-- `avatar.js` (63 KB, 1493) — Modular pixel-art Avatar renderer: layered parts (cape, hair, body, arms, held item), 8 directions, cached frames; Pix buffer and shade helpers; optional Aseprite sheet (sheetKey) like CreatureSprite · FRAME_W, FRAME_H, DIRS, shade, Pix, whiteOf, Avatar
+- `avatar.js` (68 KB, 1575) — Modular pixel-art Avatar renderer: layered parts (cape, hair, body, arms, held item), five views (three-quarter views turned from front/back) for 8 directions, facial expressions per animation (blink, determined, angry, hurt), cached frames; Pix buffer and shade helpers; optional Aseprite sheet (sheetKey) like CreatureSprite · FRAME_W, FRAME_H, DIRS, shade, Pix, whiteOf, Avatar
 - `beasts.js` (25 KB, 518) — Act monster sprites (sporeling, drake, crab, serpent, brute, imp, specter, treant, …) with idle/walk/attack frames · SporelingSprite, DrakeSprite, CrabSprite, SerpentSprite, BruteSprite, ImpSprite, SpecterSprite, TreantSprite +1
-- `creature.js` (16 KB, 385) — Non-human sprite base (CreatureSprite; uses Aseprite sheet frames when loaded, incl. extra anims and larger canvases) plus slime, wolf and falcon sprites and SheetBossSprite (a boss drawn from its Aseprite sheet, code sprite ×2 as fallback); facingFrom direction helper · CreatureSprite, ellipse, SheetBossSprite, SlimeSprite, WolfSprite, FalconSprite, facingFrom
+- `creature.js` (16 KB, 393) — Non-human sprite base (CreatureSprite; uses Aseprite sheet frames when loaded, incl. extra anims and larger canvases) plus slime, wolf and falcon sprites and SheetBossSprite (a boss drawn from its Aseprite sheet, code sprite ×2 as fallback); facingFrom direction helper · CreatureSprite, ellipse, SheetBossSprite, SlimeSprite, WolfSprite, FalconSprite, facingFrom
+- `facing.js` (2.4 KB, 41) — Eight-direction facing shared by every actor: five drawn views (down, dside, side, uside, up; right-facing mirrored), facing8(dx, dy) with hysteresis, applyFacing, drawView · VIEWS, isDiagonal, sideways, facing8, applyFacing, drawView
 - `jobmarks.js` (14 KB, 309) — Class signature details from the splash art (look `job`): Knight crest and gold trim, Archer hooded mantle and falcon feather, Priest stole and circlet, Mage starry cloak and orbiting star, Fighter open gi, black belt and headband tails; drawn in layers by renderPix · JOBS, jobPalette, drawJob
 - `options.js` (6.0 KB, 142) — Character Creator choices and colours, NPC-only parts, config normalisation and random look/name · FIELDS, DEFAULT_CONFIG, summonedGarb, normalizeConfig, randomConfig, randomName
 - `sheets.js` (3.9 KB, 100) — Aseprite sprite sheets: loads assets/sprites/manifest.json ({ sheets, lazy }) and slices each sheet into per-tag frames ("<dir>-<anim>") that override the code-drawn frames; monster sheets load on first use; sheetCount for frame counts · sheetsVersion, sheetCount, sheetFrame, sheetDurations, loadSpriteSheets
@@ -149,7 +150,7 @@ then `outline <file>` and read only the line range you need.
 
 ## js/npc/
 
-- `npcs.js` (31 KB, 820) — NPCs in the world: spawning per place, wandering, ambient chatter (npc_conversations.json), sparring, talking · NPCManager
+- `npcs.js` (31 KB, 803) — NPCs in the world: spawning per place, wandering, ambient chatter (npc_conversations.json), sparring, talking · NPCManager
 - `roster.js` (10 KB, 156) — Lore characters from LORE.md: Avatar looks, places, mentor per class, summoner (Aurelia/Kenneth) · NPC_DEFS, MENTOR_OF, summonerIdFor
 
 ## js/scenes/
@@ -161,7 +162,7 @@ then `outline <file>` and read only the line range you need.
 - `angel.js` (7.8 KB, 193) — Priest's Guardian Angel companion: lifespan, hover/attack/taunt AI, drawing · ANGEL, GuardianAngelCompanion
 - `automation.js` (3.4 KB, 61) — Z-controlled pet loot pathfinding, defensive targeting, automatic falcon strikes and guardian angel replacement · summonAutoEnabled, summonThreat, autoSummonDefence, autoSummonLoot
 - `falcon.js` (6.5 KB, 176) — Archer's falcon companion: dive attacks, taunts, afterimages · SPRITE, FalconCompanion
-- `familiar.js` (9.7 KB, 195) — Familiars for heroes with no summon (Novice slime, Knight hound, Mage owl, Fighter fox): learned in the skill tree, follow and fight on their own; syncFamiliar, familiarDamage · FAMILIARS, familiarFor, familiarDamage, syncFamiliar, Familiar
+- `familiar.js` (9.8 KB, 195) — Familiars for heroes with no summon (Novice slime, Knight hound, Mage owl, Fighter fox): learned in the skill tree, follow and fight on their own; syncFamiliar, familiarDamage · FAMILIARS, familiarFor, familiarDamage, syncFamiliar, Familiar
 
 ## js/ui/
 
@@ -270,12 +271,12 @@ then `outline <file>` and read only the line range you need.
 
 - `asefile.mjs` (12 KB, 220) — Reads and writes .aseprite files in plain Node (layers or a single layer, linked cels, tags, palette); export.mjs, seed.mjs and the painters use it when Aseprite isn't installed · writeAse, readAse
 - `export.mjs` (7.5 KB, 119) — Exports aseprite/**/*.aseprite with aseprite -b to assets/sprites/<key>.png + .json, checks tags/size against the code sprite, rewrites the manifest
-- `lib.mjs` (6.7 KB, 127) — Aseprite tool helpers: find the Aseprite executable, read a creature sprite headless, write PNGs; readPng and tryAseprite for the Node fallback · ROOT, SRC_DIR, OUT_DIR, findAseprite, codeSprite, writePng, readPng, tryAseprite
+- `lib.mjs` (6.8 KB, 127) — Aseprite tool helpers: find the Aseprite executable, read a creature sprite headless, write PNGs; readPng and tryAseprite for the Node fallback · ROOT, SRC_DIR, OUT_DIR, findAseprite, codeSprite, writePng, readPng, tryAseprite
 - `seed.mjs` (2.7 KB, 61) — Starts aseprite/<kind>/<key>.aseprite from a creature's code-drawn frames (one tag per direction+animation): node tools/aseprite/seed.mjs monster/slime
 
 ## tools/aseprite/paint/
 
-- `angel.mjs` (5.8 KB, 111) — Painter: detailed Guardian Angel 44×44 from the game's Avatar body plus feathered wings, halo glow and holy light · W, FRAMES, DURATIONS, LOOK, prepare
+- `angel.mjs` (6.2 KB, 114) — Painter: detailed Guardian Angel 44×44 from the game's Avatar body plus feathered wings, halo glow and holy light · W, FRAMES, DURATIONS, LOOK, prepare
 - `beast.mjs` (16 KB, 298) — Painter: detailed four-legged familiars 40×28 (War Hound, Spirit Fox), idle/walk/run/attack/skill × 3 directions · W, FRAMES, DURATIONS, KINDS, paintBeast, mix
 - `bird.mjs` (7.8 KB, 143) — Painter: detailed birds 36×28, side view (Archer's falcon, Arcane Owl): fly, dive, taunt · W, FRAMES, DURATIONS, KINDS, paintBird
 - `boss.mjs` (64 KB, 1099) — Painter: Dark Continent bosses Dolora 64×72, Morgrave 96×104, Vorgath 112×112, idle/walk/run/attack/skill × 3 directions · FRAMES, BOSSES
@@ -283,9 +284,9 @@ then `outline <file>` and read only the line range you need.
 - `fx.mjs` (14 KB, 273) — Painter: skill and hit effects (meteor, blast, lightning, holy, sphere, slash, wave, bolt, arrow, arrowfall, bite, claw, arcane, tear, bonespike, chain, shockring); grey ones are tinted in game · FX, mix
 - `guild.mjs` (7.0 KB, 104) — Paints the guild hall (aseprite/ui/guild_hall.aseprite) in the tile style with the scenery kit; the staff, plate, caravan and resource art are hand-finished sources (restyled by restyle.mjs)
 - `kit.mjs` (7.8 KB, 145) — Painting kit for the procedural Aseprite starting points: Canvas (lit dithered blobs, thick lines, polygons, outline, sparks), fromGame, build() → aseprite/<key>.aseprite via seed.lua · hex, mixc, Canvas, fromGame, build
-- `monsterkit.mjs` (6.8 KB, 135) — Shared kit for the monster family painters: frame counts/durations, tile ramps, motion curves per animation, body/taper/curve shapes, overlay contours, skill FX and finish() (tile-style outline + grain) · Canvas, TAU, FRAMES, DURATIONS, rgb, sh, grade, ramp +12
-- `monsters.mjs` (5.1 KB, 94) — Paints every monster and code-drawn boss as aseprite/<monster|boss>/<key>.aseprite with its family painter (Avatars and one-offs seeded from tile-style code frames): node tools/aseprite/paint/monsters.mjs [keys…] [--family X] [--preview]
-- `paint.mjs` (4.5 KB, 68) — Recreates the detailed procedural .aseprite starting points (overwrites): node tools/aseprite/paint/paint.mjs <key|all> · SUBJECTS
+- `monsterkit.mjs` (15 KB, 291) — Shared kit for the monster family painters: frame counts/durations, tile ramps, motion curves per animation, body/taper/curve shapes, overlay contours, skill FX and finish() (tile-style outline + grain); the look system: five views (upright turn / low tilt for the three-quarter views), eyeCol() faces (blink, angry), eightWay() wrapper and turnFinished() · Canvas, TAU, FRAMES, DURATIONS, VIEWS, rgb, sh, grade +18
+- `monsters.mjs` (7.1 KB, 119) — Paints every monster and code-drawn boss as aseprite/<monster|boss>/<key>.aseprite with its family painter (Avatars and one-offs seeded from tile-style code frames): node tools/aseprite/paint/monsters.mjs [keys…] [--family X] [--preview]
+- `paint.mjs` (5.2 KB, 76) — Recreates the detailed procedural .aseprite starting points (overwrites): node tools/aseprite/paint/paint.mjs <key|all> · SUBJECTS
 - `restyle.mjs` (1.8 KB, 39) — Gives hand-made single-frame .aseprite art the tile style in place (lifts the flat ink, grades colours, hue-shifted outline): node tools/aseprite/paint/restyle.mjs ui/guild_plate … · restyle
 - `scenery.mjs` (25 KB, 464) — Scenery kit for the safe-zone painters: alpha Img canvas, flagstones, clearings, shingles, timber walls, tents, braziers, banners, crates, barrels, smoke, campfire · FRAMES, ph, rgb, mix, withA, shade, ramp, pick +26
 - `slime.mjs` (7.5 KB, 141) — Painter: detailed slime 32×24 (Forest Slime; Pocket Slime with sprout), idle/walk/run/attack/skill × 3 directions · W, FOREST, FRAMES, DURATIONS, paintSlime
@@ -298,11 +299,11 @@ then `outline <file>` and read only the line range you need.
 - `brute.mjs` (10 KB, 192) — Monster painter: BruteSprite family (ogres, golems, yetis, trolls, demons), fur or stone, horns, wings, weapons; 52×56 · SIZE, paint
 - `crab.mjs` (8.1 KB, 142) — Monster painter: CrabSprite family (crabs, scarabs, spiders, krakens); 36×26 · SIZE, kindOf, paint, TAU
 - `drake.mjs` (12 KB, 186) — Monster painter: DrakeSprite family (drakes, gargoyles, birds), bat or feathered wings, flyers and walkers; 44×36 · SIZE, kindOf, paint
-- `imp.mjs` (8.9 KB, 148) — Monster painter: ImpSprite family (imps, bats, crows, moths, hornets); 30×30 · SIZE, kindOf, paint
+- `imp.mjs` (9.0 KB, 148) — Monster painter: ImpSprite family (imps, bats, crows, moths, hornets); 30×30 · SIZE, kindOf, paint
 - `serpent.mjs` (4.9 KB, 84) — Monster painter: SerpentSprite family (serpents, nagas, leeches, hydras); 44×30 · SIZE, paint
-- `slime.mjs` (1.2 KB, 26) — Monster painter: SlimeSprite family through slime.mjs with each monster's colours as tile ramps; 32×24 · SIZE, paint
+- `slime.mjs` (1.4 KB, 28) — Monster painter: SlimeSprite family through slime.mjs with each monster's colours as tile ramps; 32×24 · SIZE, paint
 - `specter.mjs` (5.2 KB, 86) — Monster painter: SpecterSprite family (specters, wraiths, banshees, shackled souls, the sorrow wisp); 30×36 · SIZE, paint
-- `wolf.mjs` (1.8 KB, 33) — Monster painter: WolfSprite family through beast.mjs with each monster's fur as tile ramps; 40×28 · SIZE, paint
+- `wolf.mjs` (2.1 KB, 36) — Monster painter: WolfSprite family through beast.mjs with each monster's fur as tile ramps; 40×28 · SIZE, paint
 
 ## tools/audio/
 
@@ -320,6 +321,6 @@ then `outline <file>` and read only the line range you need.
 
 ## tools/tilemap/
 
-- `lineup.mjs` (7.0 KB, 139) — Line-up PNG of sprites standing on a tile set (plain Node): node tools/tilemap/lineup.mjs <theme> monster:<k> merc:<k> summon:<k> npc:<id> act:<map> zone:<k> ui:<k> [--scale n] [--anim a] [--code] [--out file]
+- `lineup.mjs` (7.1 KB, 139) — Line-up PNG of sprites standing on a tile set (plain Node): node tools/tilemap/lineup.mjs <theme> monster:<k> merc:<k> summon:<k> npc:<id> act:<map> zone:<k> ui:<k> [--scale n] [--anim a] [--code] [--out file]
 - `preview.mjs` (6.1 KB, 103) — Renders every terrain tile set on its layout (480×270 views + contact sheet) and the maps in data/tilemaps.json to PNG in headless Chromium: node tools/tilemap/preview.mjs [themes…] [--layout k] [--seed n] [--scale n] [--out dir]
 - `viewer.html` (3.7 KB, 86) — Page used by tools/tilemap/preview.mjs to render terrain tile sets and maps

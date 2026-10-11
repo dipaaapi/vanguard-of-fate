@@ -3,7 +3,7 @@
 // turned into tile ramps and the tile outline. Colours from the code sprite: base, dark, deep, light, core, eye.
 // Code sprite 24×18 (feet 12,16) → painted 32×24 (feet 16,22).
 import * as slime from "../slime.mjs";
-import { grade, mixHex, finish } from "../monsterkit.mjs";
+import { grade, mixHex, finish, eyeCol, rgb } from "../monsterkit.mjs";
 import { tileShade, hexRgb, rgbHex } from "../../../../js/avatar/tilestyle.js";
 
 export const SIZE = { W: slime.W, H: slime.H };
@@ -20,6 +20,8 @@ function palette(c) {
 }
 
 export function paint(sprite, def, dir, anim, i) {
+  if (anim === "idle") i %= 4;   // the shared painter breathes over four frames; the sheet repeats them (blink last)
   if (!cache.has(def.key)) cache.set(def.key, palette(sprite.c));
+  eyeCol(rgb(cache.get(def.key).eye)); eyeCol(rgb("#ffffff"));
   return finish(slime.paintSlime(dir, anim, i, cache.get(def.key)));
 }

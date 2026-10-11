@@ -1,3 +1,4 @@
+import { applyFacing, drawView } from "./avatar/facing.js";
 import { AxeMercenary } from "./mercenary/axe.js";
 import { around, mix, hitPose, attackPose, breathPose, drawSwing } from "./juice.js";
 import { WandMercenary } from "./mercenary/wand.js";
@@ -177,11 +178,9 @@ export class MercenaryManager {
     const moved = Math.hypot(dx, dy) > 0.05;
     if (m.attackAnim > 0) {
       m.attackAnim--;
-      const f = facingFrom(Math.cos(m.aimAngle), Math.sin(m.aimAngle), m);
-      m.dir = f.dir; m.flip = f.flip;
+      applyFacing(m, facingFrom(Math.cos(m.aimAngle), Math.sin(m.aimAngle), m));
     } else if (moved) {
-      const f = facingFrom(dx, dy, m);
-      m.dir = f.dir; m.flip = f.flip;
+      applyFacing(m, facingFrom(dx, dy, m));
     }
     const anim = m.attackAnim > 0 ? "attack" : moved ? (m.isSprinting ? "run" : "walk") : "idle";
     if (anim !== m.anim) { m.anim = anim; m.animTimer = 0; }
@@ -373,7 +372,7 @@ export class MercenaryManager {
         m.anim === "idle" ? breathPose(m.animTimer || 0) : null
       );
       around(ctx, m.x + 8, m.y + 15, pose, () =>
-        avatarOf(m.data).draw(ctx, m.x + 8, m.y + 15, m.dir, m.anim, this.frameOf(m), m.flip, m.hitTimer > 0));
+        avatarOf(m.data).draw(ctx, m.x + 8, m.y + 15, drawView(m), m.anim, this.frameOf(m), m.flip, m.hitTimer > 0, 1, 1, m.hitTimer > 0 ? "hurt" : null));
       if (p && m.data.attackRange < 60) drawSwing(ctx, m.x + 8, m.y + 6, m.aimAngle || 0, 12, (p - 0.3) / 0.7, m.data.color);
 
       // HP bar (above the head)

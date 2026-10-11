@@ -201,8 +201,8 @@
   {
    "filename": "dolora 9.aseprite",
    "frame": {
-    "x": 0,
-    "y": 72,
+    "x": 576,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -223,8 +223,8 @@
   {
    "filename": "dolora 10.aseprite",
    "frame": {
-    "x": 64,
-    "y": 72,
+    "x": 640,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -245,8 +245,8 @@
   {
    "filename": "dolora 11.aseprite",
    "frame": {
-    "x": 128,
-    "y": 72,
+    "x": 704,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -267,8 +267,8 @@
   {
    "filename": "dolora 12.aseprite",
    "frame": {
-    "x": 192,
-    "y": 72,
+    "x": 768,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -289,8 +289,8 @@
   {
    "filename": "dolora 13.aseprite",
    "frame": {
-    "x": 256,
-    "y": 72,
+    "x": 832,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -311,8 +311,8 @@
   {
    "filename": "dolora 14.aseprite",
    "frame": {
-    "x": 320,
-    "y": 72,
+    "x": 896,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -333,8 +333,8 @@
   {
    "filename": "dolora 15.aseprite",
    "frame": {
-    "x": 384,
-    "y": 72,
+    "x": 960,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -355,8 +355,8 @@
   {
    "filename": "dolora 16.aseprite",
    "frame": {
-    "x": 448,
-    "y": 72,
+    "x": 1024,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -377,8 +377,8 @@
   {
    "filename": "dolora 17.aseprite",
    "frame": {
-    "x": 512,
-    "y": 72,
+    "x": 1088,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -399,8 +399,8 @@
   {
    "filename": "dolora 18.aseprite",
    "frame": {
-    "x": 0,
-    "y": 144,
+    "x": 1152,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -421,8 +421,8 @@
   {
    "filename": "dolora 19.aseprite",
    "frame": {
-    "x": 64,
-    "y": 144,
+    "x": 1216,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -443,8 +443,8 @@
   {
    "filename": "dolora 20.aseprite",
    "frame": {
-    "x": 128,
-    "y": 144,
+    "x": 1280,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -465,8 +465,8 @@
   {
    "filename": "dolora 21.aseprite",
    "frame": {
-    "x": 192,
-    "y": 144,
+    "x": 1344,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -487,8 +487,8 @@
   {
    "filename": "dolora 22.aseprite",
    "frame": {
-    "x": 256,
-    "y": 144,
+    "x": 1408,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -509,8 +509,8 @@
   {
    "filename": "dolora 23.aseprite",
    "frame": {
-    "x": 320,
-    "y": 144,
+    "x": 1472,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -531,8 +531,8 @@
   {
    "filename": "dolora 24.aseprite",
    "frame": {
-    "x": 384,
-    "y": 144,
+    "x": 1536,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -553,8 +553,8 @@
   {
    "filename": "dolora 25.aseprite",
    "frame": {
-    "x": 448,
-    "y": 144,
+    "x": 1600,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -575,8 +575,8 @@
   {
    "filename": "dolora 26.aseprite",
    "frame": {
-    "x": 512,
-    "y": 144,
+    "x": 1664,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -597,8 +597,8 @@
   {
    "filename": "dolora 27.aseprite",
    "frame": {
-    "x": 0,
-    "y": 216,
+    "x": 1728,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -619,8 +619,8 @@
   {
    "filename": "dolora 28.aseprite",
    "frame": {
-    "x": 64,
-    "y": 216,
+    "x": 1792,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -641,8 +641,8 @@
   {
    "filename": "dolora 29.aseprite",
    "frame": {
-    "x": 128,
-    "y": 216,
+    "x": 1856,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -663,8 +663,8 @@
   {
    "filename": "dolora 30.aseprite",
    "frame": {
-    "x": 192,
-    "y": 216,
+    "x": 1920,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -685,8 +685,8 @@
   {
    "filename": "dolora 31.aseprite",
    "frame": {
-    "x": 256,
-    "y": 216,
+    "x": 1984,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -707,8 +707,8 @@
   {
    "filename": "dolora 32.aseprite",
    "frame": {
-    "x": 320,
-    "y": 216,
+    "x": 2048,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -729,8 +729,8 @@
   {
    "filename": "dolora 33.aseprite",
    "frame": {
-    "x": 384,
-    "y": 216,
+    "x": 2112,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -751,8 +751,8 @@
   {
    "filename": "dolora 34.aseprite",
    "frame": {
-    "x": 448,
-    "y": 216,
+    "x": 2176,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -773,8 +773,8 @@
   {
    "filename": "dolora 35.aseprite",
    "frame": {
-    "x": 512,
-    "y": 216,
+    "x": 2240,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -795,8 +795,8 @@
   {
    "filename": "dolora 36.aseprite",
    "frame": {
-    "x": 0,
-    "y": 288,
+    "x": 2304,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -817,8 +817,8 @@
   {
    "filename": "dolora 37.aseprite",
    "frame": {
-    "x": 64,
-    "y": 288,
+    "x": 2368,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -839,8 +839,8 @@
   {
    "filename": "dolora 38.aseprite",
    "frame": {
-    "x": 128,
-    "y": 288,
+    "x": 2432,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -861,8 +861,8 @@
   {
    "filename": "dolora 39.aseprite",
    "frame": {
-    "x": 192,
-    "y": 288,
+    "x": 2496,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -883,8 +883,8 @@
   {
    "filename": "dolora 40.aseprite",
    "frame": {
-    "x": 256,
-    "y": 288,
+    "x": 2560,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -905,8 +905,8 @@
   {
    "filename": "dolora 41.aseprite",
    "frame": {
-    "x": 320,
-    "y": 288,
+    "x": 2624,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -927,8 +927,8 @@
   {
    "filename": "dolora 42.aseprite",
    "frame": {
-    "x": 384,
-    "y": 288,
+    "x": 2688,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -949,8 +949,8 @@
   {
    "filename": "dolora 43.aseprite",
    "frame": {
-    "x": 448,
-    "y": 288,
+    "x": 2752,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -971,8 +971,8 @@
   {
    "filename": "dolora 44.aseprite",
    "frame": {
-    "x": 512,
-    "y": 288,
+    "x": 2816,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -993,8 +993,8 @@
   {
    "filename": "dolora 45.aseprite",
    "frame": {
-    "x": 0,
-    "y": 360,
+    "x": 2880,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -1015,8 +1015,8 @@
   {
    "filename": "dolora 46.aseprite",
    "frame": {
-    "x": 64,
-    "y": 360,
+    "x": 2944,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -1037,8 +1037,8 @@
   {
    "filename": "dolora 47.aseprite",
    "frame": {
-    "x": 128,
-    "y": 360,
+    "x": 3008,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -1059,8 +1059,8 @@
   {
    "filename": "dolora 48.aseprite",
    "frame": {
-    "x": 192,
-    "y": 360,
+    "x": 3072,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -1081,8 +1081,8 @@
   {
    "filename": "dolora 49.aseprite",
    "frame": {
-    "x": 256,
-    "y": 360,
+    "x": 3136,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -1103,8 +1103,8 @@
   {
    "filename": "dolora 50.aseprite",
    "frame": {
-    "x": 320,
-    "y": 360,
+    "x": 3200,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -1125,8 +1125,8 @@
   {
    "filename": "dolora 51.aseprite",
    "frame": {
-    "x": 384,
-    "y": 360,
+    "x": 3264,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -1147,8 +1147,8 @@
   {
    "filename": "dolora 52.aseprite",
    "frame": {
-    "x": 448,
-    "y": 360,
+    "x": 3328,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -1169,8 +1169,8 @@
   {
    "filename": "dolora 53.aseprite",
    "frame": {
-    "x": 512,
-    "y": 360,
+    "x": 3392,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -1191,8 +1191,8 @@
   {
    "filename": "dolora 54.aseprite",
    "frame": {
-    "x": 0,
-    "y": 432,
+    "x": 3456,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -1213,8 +1213,8 @@
   {
    "filename": "dolora 55.aseprite",
    "frame": {
-    "x": 64,
-    "y": 432,
+    "x": 3520,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -1235,8 +1235,8 @@
   {
    "filename": "dolora 56.aseprite",
    "frame": {
-    "x": 128,
-    "y": 432,
+    "x": 3584,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -1257,8 +1257,8 @@
   {
    "filename": "dolora 57.aseprite",
    "frame": {
-    "x": 192,
-    "y": 432,
+    "x": 3648,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -1279,8 +1279,8 @@
   {
    "filename": "dolora 58.aseprite",
    "frame": {
-    "x": 256,
-    "y": 432,
+    "x": 3712,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -1301,8 +1301,8 @@
   {
    "filename": "dolora 59.aseprite",
    "frame": {
-    "x": 320,
-    "y": 432,
+    "x": 3776,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -1323,8 +1323,8 @@
   {
    "filename": "dolora 60.aseprite",
    "frame": {
-    "x": 384,
-    "y": 432,
+    "x": 3840,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -1345,8 +1345,8 @@
   {
    "filename": "dolora 61.aseprite",
    "frame": {
-    "x": 448,
-    "y": 432,
+    "x": 3904,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -1367,8 +1367,8 @@
   {
    "filename": "dolora 62.aseprite",
    "frame": {
-    "x": 512,
-    "y": 432,
+    "x": 3968,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -1389,8 +1389,8 @@
   {
    "filename": "dolora 63.aseprite",
    "frame": {
-    "x": 0,
-    "y": 504,
+    "x": 4032,
+    "y": 0,
     "w": 64,
     "h": 72
    },
@@ -1411,8 +1411,8 @@
   {
    "filename": "dolora 64.aseprite",
    "frame": {
-    "x": 64,
-    "y": 504,
+    "x": 0,
+    "y": 72,
     "w": 64,
     "h": 72
    },
@@ -1433,8 +1433,8 @@
   {
    "filename": "dolora 65.aseprite",
    "frame": {
-    "x": 128,
-    "y": 504,
+    "x": 64,
+    "y": 72,
     "w": 64,
     "h": 72
    },
@@ -1455,8 +1455,8 @@
   {
    "filename": "dolora 66.aseprite",
    "frame": {
-    "x": 192,
-    "y": 504,
+    "x": 128,
+    "y": 72,
     "w": 64,
     "h": 72
    },
@@ -1477,8 +1477,8 @@
   {
    "filename": "dolora 67.aseprite",
    "frame": {
-    "x": 256,
-    "y": 504,
+    "x": 192,
+    "y": 72,
     "w": 64,
     "h": 72
    },
@@ -1499,8 +1499,8 @@
   {
    "filename": "dolora 68.aseprite",
    "frame": {
-    "x": 320,
-    "y": 504,
+    "x": 256,
+    "y": 72,
     "w": 64,
     "h": 72
    },
@@ -1521,8 +1521,8 @@
   {
    "filename": "dolora 69.aseprite",
    "frame": {
-    "x": 384,
-    "y": 504,
+    "x": 320,
+    "y": 72,
     "w": 64,
     "h": 72
    },
@@ -1543,8 +1543,8 @@
   {
    "filename": "dolora 70.aseprite",
    "frame": {
-    "x": 448,
-    "y": 504,
+    "x": 384,
+    "y": 72,
     "w": 64,
     "h": 72
    },
@@ -1565,8 +1565,8 @@
   {
    "filename": "dolora 71.aseprite",
    "frame": {
-    "x": 512,
-    "y": 504,
+    "x": 448,
+    "y": 72,
     "w": 64,
     "h": 72
    },
@@ -1587,8 +1587,8 @@
   {
    "filename": "dolora 72.aseprite",
    "frame": {
-    "x": 0,
-    "y": 576,
+    "x": 512,
+    "y": 72,
     "w": 64,
     "h": 72
    },
@@ -1609,8 +1609,8 @@
   {
    "filename": "dolora 73.aseprite",
    "frame": {
-    "x": 64,
-    "y": 576,
+    "x": 576,
+    "y": 72,
     "w": 64,
     "h": 72
    },
@@ -1631,8 +1631,8 @@
   {
    "filename": "dolora 74.aseprite",
    "frame": {
-    "x": 128,
-    "y": 576,
+    "x": 640,
+    "y": 72,
     "w": 64,
     "h": 72
    },
@@ -1653,8 +1653,8 @@
   {
    "filename": "dolora 75.aseprite",
    "frame": {
-    "x": 192,
-    "y": 576,
+    "x": 704,
+    "y": 72,
     "w": 64,
     "h": 72
    },
@@ -1675,8 +1675,8 @@
   {
    "filename": "dolora 76.aseprite",
    "frame": {
-    "x": 256,
-    "y": 576,
+    "x": 768,
+    "y": 72,
     "w": 64,
     "h": 72
    },
@@ -1697,8 +1697,1152 @@
   {
    "filename": "dolora 77.aseprite",
    "frame": {
-    "x": 320,
-    "y": 576,
+    "x": 832,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 100
+  },
+  {
+   "filename": "dolora 78.aseprite",
+   "frame": {
+    "x": 896,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 200
+  },
+  {
+   "filename": "dolora 79.aseprite",
+   "frame": {
+    "x": 960,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 200
+  },
+  {
+   "filename": "dolora 80.aseprite",
+   "frame": {
+    "x": 1024,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 200
+  },
+  {
+   "filename": "dolora 81.aseprite",
+   "frame": {
+    "x": 1088,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 200
+  },
+  {
+   "filename": "dolora 82.aseprite",
+   "frame": {
+    "x": 1152,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 120
+  },
+  {
+   "filename": "dolora 83.aseprite",
+   "frame": {
+    "x": 1216,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 120
+  },
+  {
+   "filename": "dolora 84.aseprite",
+   "frame": {
+    "x": 1280,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 120
+  },
+  {
+   "filename": "dolora 85.aseprite",
+   "frame": {
+    "x": 1344,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 120
+  },
+  {
+   "filename": "dolora 86.aseprite",
+   "frame": {
+    "x": 1408,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 120
+  },
+  {
+   "filename": "dolora 87.aseprite",
+   "frame": {
+    "x": 1472,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 120
+  },
+  {
+   "filename": "dolora 88.aseprite",
+   "frame": {
+    "x": 1536,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 80
+  },
+  {
+   "filename": "dolora 89.aseprite",
+   "frame": {
+    "x": 1600,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 80
+  },
+  {
+   "filename": "dolora 90.aseprite",
+   "frame": {
+    "x": 1664,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 80
+  },
+  {
+   "filename": "dolora 91.aseprite",
+   "frame": {
+    "x": 1728,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 80
+  },
+  {
+   "filename": "dolora 92.aseprite",
+   "frame": {
+    "x": 1792,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 80
+  },
+  {
+   "filename": "dolora 93.aseprite",
+   "frame": {
+    "x": 1856,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 80
+  },
+  {
+   "filename": "dolora 94.aseprite",
+   "frame": {
+    "x": 1920,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 100
+  },
+  {
+   "filename": "dolora 95.aseprite",
+   "frame": {
+    "x": 1984,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 100
+  },
+  {
+   "filename": "dolora 96.aseprite",
+   "frame": {
+    "x": 2048,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 100
+  },
+  {
+   "filename": "dolora 97.aseprite",
+   "frame": {
+    "x": 2112,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 100
+  },
+  {
+   "filename": "dolora 98.aseprite",
+   "frame": {
+    "x": 2176,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 100
+  },
+  {
+   "filename": "dolora 99.aseprite",
+   "frame": {
+    "x": 2240,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 100
+  },
+  {
+   "filename": "dolora 100.aseprite",
+   "frame": {
+    "x": 2304,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 100
+  },
+  {
+   "filename": "dolora 101.aseprite",
+   "frame": {
+    "x": 2368,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 100
+  },
+  {
+   "filename": "dolora 102.aseprite",
+   "frame": {
+    "x": 2432,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 100
+  },
+  {
+   "filename": "dolora 103.aseprite",
+   "frame": {
+    "x": 2496,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 100
+  },
+  {
+   "filename": "dolora 104.aseprite",
+   "frame": {
+    "x": 2560,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 200
+  },
+  {
+   "filename": "dolora 105.aseprite",
+   "frame": {
+    "x": 2624,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 200
+  },
+  {
+   "filename": "dolora 106.aseprite",
+   "frame": {
+    "x": 2688,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 200
+  },
+  {
+   "filename": "dolora 107.aseprite",
+   "frame": {
+    "x": 2752,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 200
+  },
+  {
+   "filename": "dolora 108.aseprite",
+   "frame": {
+    "x": 2816,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 120
+  },
+  {
+   "filename": "dolora 109.aseprite",
+   "frame": {
+    "x": 2880,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 120
+  },
+  {
+   "filename": "dolora 110.aseprite",
+   "frame": {
+    "x": 2944,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 120
+  },
+  {
+   "filename": "dolora 111.aseprite",
+   "frame": {
+    "x": 3008,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 120
+  },
+  {
+   "filename": "dolora 112.aseprite",
+   "frame": {
+    "x": 3072,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 120
+  },
+  {
+   "filename": "dolora 113.aseprite",
+   "frame": {
+    "x": 3136,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 120
+  },
+  {
+   "filename": "dolora 114.aseprite",
+   "frame": {
+    "x": 3200,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 80
+  },
+  {
+   "filename": "dolora 115.aseprite",
+   "frame": {
+    "x": 3264,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 80
+  },
+  {
+   "filename": "dolora 116.aseprite",
+   "frame": {
+    "x": 3328,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 80
+  },
+  {
+   "filename": "dolora 117.aseprite",
+   "frame": {
+    "x": 3392,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 80
+  },
+  {
+   "filename": "dolora 118.aseprite",
+   "frame": {
+    "x": 3456,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 80
+  },
+  {
+   "filename": "dolora 119.aseprite",
+   "frame": {
+    "x": 3520,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 80
+  },
+  {
+   "filename": "dolora 120.aseprite",
+   "frame": {
+    "x": 3584,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 100
+  },
+  {
+   "filename": "dolora 121.aseprite",
+   "frame": {
+    "x": 3648,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 100
+  },
+  {
+   "filename": "dolora 122.aseprite",
+   "frame": {
+    "x": 3712,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 100
+  },
+  {
+   "filename": "dolora 123.aseprite",
+   "frame": {
+    "x": 3776,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 100
+  },
+  {
+   "filename": "dolora 124.aseprite",
+   "frame": {
+    "x": 3840,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 100
+  },
+  {
+   "filename": "dolora 125.aseprite",
+   "frame": {
+    "x": 3904,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 100
+  },
+  {
+   "filename": "dolora 126.aseprite",
+   "frame": {
+    "x": 3968,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 100
+  },
+  {
+   "filename": "dolora 127.aseprite",
+   "frame": {
+    "x": 4032,
+    "y": 72,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 100
+  },
+  {
+   "filename": "dolora 128.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 144,
+    "w": 64,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 64,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 64,
+    "h": 72
+   },
+   "duration": 100
+  },
+  {
+   "filename": "dolora 129.aseprite",
+   "frame": {
+    "x": 64,
+    "y": 144,
     "w": 64,
     "h": 72
    },
@@ -1719,12 +2863,11 @@
  ],
  "meta": {
   "app": "tools/aseprite/asefile.mjs",
-  "version": "1",
   "image": "dolora.png",
   "format": "RGBA8888",
   "size": {
-   "w": 576,
-   "h": 648
+   "w": 4096,
+   "h": 216
   },
   "scale": "1",
   "frameTags": [
@@ -1764,72 +2907,142 @@
     "color": "#000000ff"
    },
    {
-    "name": "side-idle",
+    "name": "dside-idle",
     "from": 26,
     "to": 29,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-walk",
+    "name": "dside-walk",
     "from": 30,
     "to": 35,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-run",
+    "name": "dside-run",
     "from": 36,
     "to": 41,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-attack",
+    "name": "dside-attack",
     "from": 42,
     "to": 45,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-skill",
+    "name": "dside-skill",
     "from": 46,
     "to": 51,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "up-idle",
+    "name": "side-idle",
     "from": 52,
     "to": 55,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "up-walk",
+    "name": "side-walk",
     "from": 56,
     "to": 61,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "up-run",
+    "name": "side-run",
     "from": 62,
     "to": 67,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "up-attack",
+    "name": "side-attack",
     "from": 68,
     "to": 71,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "up-skill",
+    "name": "side-skill",
     "from": 72,
     "to": 77,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-idle",
+    "from": 78,
+    "to": 81,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-walk",
+    "from": 82,
+    "to": 87,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-run",
+    "from": 88,
+    "to": 93,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-attack",
+    "from": 94,
+    "to": 97,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-skill",
+    "from": 98,
+    "to": 103,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-idle",
+    "from": 104,
+    "to": 107,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-walk",
+    "from": 108,
+    "to": 113,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-run",
+    "from": 114,
+    "to": 119,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-attack",
+    "from": 120,
+    "to": 123,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-skill",
+    "from": 124,
+    "to": 129,
     "direction": "forward",
     "color": "#000000ff"
    }

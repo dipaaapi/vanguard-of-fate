@@ -4,7 +4,7 @@
 // fur/furD/furDD/furL (or body/bodyD/bodyL, which some monsters set instead), belly, eye.
 // Code sprite 34×24 (feet 17,22) → painted 40×28 (feet 20,26), the same canvas as the familiars.
 import * as beast from "../beast.mjs";
-import { grade, mixHex, finish } from "../monsterkit.mjs";
+import { grade, mixHex, finish, eyeCol, rgb } from "../monsterkit.mjs";
 import { tileShade, hexRgb, rgbHex } from "../../../../js/avatar/tilestyle.js";
 
 export const SIZE = { W: beast.W, H: beast.H };
@@ -27,6 +27,9 @@ function palette(key, c) {
 }
 
 export function paint(sprite, def, dir, anim, i) {
+  if (anim === "idle") i %= 4;   // the shared painter breathes over four frames; the sheet repeats them (blink last)
   if (!beast.KINDS[`monster:${def.key}`]) beast.KINDS[`monster:${def.key}`] = palette(def.key, sprite.c);
+  const k = beast.KINDS[`monster:${def.key}`];
+  eyeCol(rgb(k.eye)); eyeCol(rgb(k.spark));
   return finish(beast.paintBeast(`monster:${def.key}`, dir, anim, i));
 }

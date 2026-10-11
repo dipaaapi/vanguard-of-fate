@@ -46,7 +46,7 @@ function slice(img, data) {
   const frames = Array.isArray(data.frames) ? data.frames : Object.values(data.frames);
   const tags = new Map();
   for (const tag of data.meta?.frameTags || []) {
-    const m = /^(down|side|up)-(\w+)$/.exec(tag.name);
+    const m = /^(down|dside|side|uside|up)-(\w+)$/.exec(tag.name);
     if (!m) continue;
     const list = [];
     for (let f = tag.from; f <= tag.to; f++) {

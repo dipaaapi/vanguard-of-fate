@@ -18,7 +18,7 @@
   "js/actionpanel.js": "Hotbar on the bottom tray (J/K/L skill slots with drag-and-drop arranging and the skill book (P), Space/E, quick slots 1–4, Market B and Full Screen F) and the right panel's option buttons",
   "js/actreader.js": "\"Read more\" Act reader: full text of finished Acts from LORE.md with their banners",
   "js/audio.js": "Procedural Web Audio engine (exported Sound): master/music/SFX buses with compressor and reverb, synth instruments, a lookahead sequencer that crossfades the tracks in js/music.js by place/night/boss (setScene), fanfares (playJingle) and 30+ play* SFX that fade by distance and mute off screen",
-  "js/avatar/avatar.js": "Modular pixel-art Avatar renderer: layered parts (cape, hair, body, arms, held item), 8 directions, cached frames; Pix buffer and shade helpers; optional Aseprite sheet (sheetKey) like CreatureSprite",
+  "js/avatar/avatar.js": "Modular pixel-art Avatar renderer: layered parts (cape, hair, body, arms, held item), five views (three-quarter views turned from front/back) for 8 directions, facial expressions per animation (blink, determined, angry, hurt), cached frames; Pix buffer and shade helpers; optional Aseprite sheet (sheetKey) like CreatureSprite",
   "js/avatar/beasts.js": "Act monster sprites (sporeling, drake, crab, serpent, brute, imp, specter, treant, …) with idle/walk/attack frames",
   "js/avatar/jobmarks.js": "Class signature details from the splash art (look `job`): Knight crest and gold trim, Archer hooded mantle and falcon feather, Priest stole and circlet, Mage starry cloak and orbiting star, Fighter open gi, black belt and headband tails; drawn in layers by renderPix",
   "js/avatar/creature.js": "Non-human sprite base (CreatureSprite; uses Aseprite sheet frames when loaded, incl. extra anims and larger canvases) plus slime, wolf and falcon sprites and SheetBossSprite (a boss drawn from its Aseprite sheet, code sprite ×2 as fallback); facingFrom direction helper",
@@ -233,7 +233,7 @@
   "tools/tilemap/viewer.html": "Page used by tools/tilemap/preview.mjs to render terrain tile sets and maps",
   "js/avatar/tilestyle.js": "Terrain tile-set look shared by every sprite: tileShade (hue-shifted ramps), tileGrade, inkHex outlines and tileStyle(pix) (upper-left light, grain, contact shade, hue-shifted 1 px outline); pure, used by the game and the Node painters",
   "tools/tilemap/lineup.mjs": "Line-up PNG of sprites standing on a tile set (plain Node): node tools/tilemap/lineup.mjs <theme> monster:<k> merc:<k> summon:<k> npc:<id> act:<map> zone:<k> ui:<k> [--scale n] [--anim a] [--code] [--out file]",
-  "tools/aseprite/paint/monsterkit.mjs": "Shared kit for the monster family painters: frame counts/durations, tile ramps, motion curves per animation, body/taper/curve shapes, overlay contours, skill FX and finish() (tile-style outline + grain)",
+  "tools/aseprite/paint/monsterkit.mjs": "Shared kit for the monster family painters: frame counts/durations, tile ramps, motion curves per animation, body/taper/curve shapes, overlay contours, skill FX and finish() (tile-style outline + grain); the look system: five views (upright turn / low tilt for the three-quarter views), eyeCol() faces (blink, angry), eightWay() wrapper and turnFinished()",
   "tools/aseprite/paint/monsters.mjs": "Paints every monster and code-drawn boss as aseprite/<monster|boss>/<key>.aseprite with its family painter (Avatars and one-offs seeded from tile-style code frames): node tools/aseprite/paint/monsters.mjs [keys…] [--family X] [--preview]",
   "tools/aseprite/paint/monsters/brute.mjs": "Monster painter: BruteSprite family (ogres, golems, yetis, trolls, demons), fur or stone, horns, wings, weapons; 52×56",
   "tools/aseprite/paint/monsters/drake.mjs": "Monster painter: DrakeSprite family (drakes, gargoyles, birds), bat or feathered wings, flyers and walkers; 44×36",
@@ -243,5 +243,6 @@
   "tools/aseprite/paint/monsters/specter.mjs": "Monster painter: SpecterSprite family (specters, wraiths, banshees, shackled souls, the sorrow wisp); 30×36",
   "tools/aseprite/paint/monsters/wolf.mjs": "Monster painter: WolfSprite family through beast.mjs with each monster's fur as tile ramps; 40×28",
   "tools/aseprite/paint/monsters/slime.mjs": "Monster painter: SlimeSprite family through slime.mjs with each monster's colours as tile ramps; 32×24",
-  "tools/aseprite/paint/restyle.mjs": "Gives hand-made single-frame .aseprite art the tile style in place (lifts the flat ink, grades colours, hue-shifted outline): node tools/aseprite/paint/restyle.mjs ui/guild_plate …"
+  "tools/aseprite/paint/restyle.mjs": "Gives hand-made single-frame .aseprite art the tile style in place (lifts the flat ink, grades colours, hue-shifted outline): node tools/aseprite/paint/restyle.mjs ui/guild_plate …",
+  "js/avatar/facing.js": "Eight-direction facing shared by every actor: five drawn views (down, dside, side, uside, up; right-facing mirrored), facing8(dx, dy) with hysteresis, applyFacing, drawView"
 }

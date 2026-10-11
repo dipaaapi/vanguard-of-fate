@@ -8,8 +8,10 @@ import { tileGrade, tileShade, hexRgb, rgbHex, tileStyle, toHsl, fromHsl } from 
 
 export { Canvas };
 export const TAU = Math.PI * 2;
-export const FRAMES = { idle: 4, walk: 6, run: 6, attack: 4, skill: 6 };
+export const FRAMES = { idle: 8, walk: 6, run: 6, attack: 4, skill: 6 };   // idle: two breaths, a blink on the last frame
 export const DURATIONS = { idle: 0.2, walk: 0.1, run: 0.07, attack: 0.09, skill: 0.08 };
+/** Every view a sheet carries (js/avatar/facing.js): front, front three-quarter, side, back three-quarter, back. */
+export const VIEWS = ["down", "dside", "side", "uside", "up"];
 
 const A = (c) => [c[0], c[1], c[2], 255];
 /** A colour (hex) as the kit's rgba. */
@@ -82,6 +84,7 @@ export function dust(f, x, y, i) {
  * (js/avatar/tilestyle.js), leaving glow particles (Canvas.fx) unoutlined on top.
  */
 export function finish(f, { grain = true } = {}) {
+  f = applyLook(f);
   const d = f.px.map((c, j) => (c && !f.fx.has(j) ? rgbHex(c) : null));
   const pix = { w: f.w, h: f.h, d };
   tileStyle(pix, { grade: false, light: false, grain });
@@ -131,4 +134,157 @@ export function overlay(f, part, k = -0.5) {
   }
   ring.forEach(([x, y]) => { const c = f.get(x, y); f.set(x, y, A(tileShade(c, k))); });
   f.blit(part, 0, 0);
+}
+
+// ==================== LOOK: three-quarter views and expressions ====================
+// The family painters draw three views (down, side, up) and register their eye colours with eyeCol().
+// The driver (tools/aseprite/paint/monsters.mjs) sets `look` before each frame; finish() then turns the
+// raw frame into a three-quarter view and gives it a face, so every family gets eight directions and
+// expressions from the same code:
+//   view "dside" / "uside" + body "upright": the front / back view with the head turned two pixels toward
+//     the right and the receding half of the body one column narrower
+//   view "dside" / "uside" + body "low": the side view foreshortened and tilted along the diagonal (rear
+//     up and away for dside, head up and away for uside), feet kept on the ground line
+//   expr "blink": eyes shut (lid colour from above the eye, a dark lash line under it)
+//   expr "angry": brows knitted down over the eyes toward the face's middle
+export const look = { view: null, body: "upright", expr: null, eyes: new Set() };
+const keyOf = (c) => (c[0] << 16) | (c[1] << 8) | c[2];
+/** Mark a colour (kit rgba) as an eye colour for this frame's expression; returns it. */
+export function eyeCol(c) { look.eyes.add(keyOf(c)); return c; }
+const dark = (c, k) => A(tileShade(c, k));
+
+function bounds(f) {
+  let x0 = f.w, x1 = -1, y0 = f.h, y1 = -1;
+  f.px.forEach((c, j) => { if (!c || f.fx.has(j)) return; const x = j % f.w, y = (j / f.w) | 0; x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); });
+  return x1 < 0 ? null : { x0, x1, y0, y1 };
+}
+
+function applyLook(f) {
+  if (look.expr && look.eyes.size) face(f, look.expr);
+  if (look.view === "dside" || look.view === "uside") f = look.body === "low" ? tilt(f, look.view) : turnUpright(f, look.view === "uside");
+  return f;
+}
+
+function face(f, expr) {
+  const isEye = (x, y) => { const c = f.get(x, y), j = y * f.w + x; return c && !f.fx.has(j) && look.eyes.has(keyOf(c)); };
+  const seen = new Set(), clusters = [];
+  for (let y = 0; y < f.h; y++) for (let x = 0; x < f.w; x++) {
+    if (seen.has(y * f.w + x) || !isEye(x, y)) continue;
+    const cl = [], st = [[x, y]]; seen.add(y * f.w + x);
+    while (st.length) {
+      const [a, b] = st.pop(); cl.push([a, b]);
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        const X = a + dx, Y = b + dy, q = Y * f.w + X;
+        if (X < 0 || Y < 0 || X >= f.w || Y >= f.h || seen.has(q) || !isEye(X, Y)) continue;
+        seen.add(q); st.push([X, Y]);
+      }
+    }
+    if (cl.length <= 12) clusters.push(cl);    // a big glowing patch is a gem or a core, not an eye
+  }
+  if (!clusters.length) return;
+  const all = clusters.flat(), mid = all.reduce((s, [x]) => s + x, 0) / all.length;
+  for (const cl of clusters) {
+    const ys = cl.map(([, y]) => y), top = Math.min(...ys), bottom = Math.max(...ys);
+    if (expr === "blink") {
+      for (const [x, y] of cl) {
+        let lid = null;
+        for (let yy = top - 1; yy >= 0 && !lid; yy--) { const c = f.get(x, yy); if (c && !isEye(x, yy)) lid = c; }
+        lid = lid || f.get(x - 1, y) || f.get(x + 1, y);
+        if (lid) f.set(x, y, y === bottom ? dark(lid, -0.6) : lid);
+      }
+    } else if (expr === "angry") {
+      const tops = cl.filter(([, y]) => y === top).map(([x]) => x);
+      const inner = clusters.length > 1 ? (tops.reduce((a, b) => (Math.abs(b - mid) < Math.abs(a - mid) ? b : a))) : Math.max(...tops);
+      const out = clusters.length > 1 ? (inner < mid ? -1 : 1) : -1;
+      const brow = (x, y) => { const c = f.get(x, y); if (c && !isEye(x, y)) f.set(x, y, dark(c, -0.65)); };
+      brow(inner, top - 1); brow(inner - out, top - 2);
+      if (!isEye(inner + out, top - 1)) brow(inner + out, top - 1);
+    }
+  }
+}
+
+// upright bodies: the front (or back) view wrapped round a cylinder and turned 35° to the right. Each
+// pixel sits on the cylinder's near surface; turning moves the middle of the body toward the turn while
+// the far edge folds away behind it, so the near arm stands clear and the far one tucks in. Rows are
+// redrawn as spans (no holes), nearest surface last; the feet are put back on the anchor.
+function turnUpright(f, back) {
+  const b = bounds(f);
+  if (!b) return f;
+  const C = (b.x0 + b.x1) / 2, HW = Math.max(2, (b.x1 - b.x0) / 2 + 0.5);
+  const th = 35 * Math.PI / 180, co = Math.cos(th), si = Math.sin(th) * (back ? -1 : 1), D = 0.75;
+  const map = (x) => { const u = Math.max(-1, Math.min(1, (x + 0.5 - C) / HW)), z = Math.sqrt(1 - Math.min(u * u, 0.72)) * D; return { x: C + HW * (u * co + z * si) - 0.5, z: z * co - u * Math.sin(th) * (back ? 1 : -1) }; };
+  const out = new Canvas(f.w, f.h), depth = new Float32Array(f.w * f.h).fill(-9);
+  for (let y = 0; y < f.h; y++) {
+    for (let x = 0; x < f.w; x++) {
+      const j = y * f.w + x, c = f.px[j];
+      if (!c) continue;
+      const m0 = map(x), m1 = map(x + 1);
+      for (let X = Math.round(Math.min(m0.x, m1.x)); X <= Math.max(Math.round(Math.min(m0.x, m1.x)), Math.round(Math.max(m0.x, m1.x)) - 1); X++) {
+        if (X < 0 || X >= f.w) continue;
+        const q = y * f.w + X;
+        if (m0.z < depth[q]) continue;
+        depth[q] = m0.z; out.px[q] = c;
+        if (f.fx.has(j)) out.fx.add(q); else out.fx.delete(q);
+      }
+    }
+  }
+  // feet back on the anchor: match the bottom rows' middle
+  const mid = (cv) => { let s = 0, n = 0; for (let y = b.y1 - 2; y <= b.y1; y++) for (let x = 0; x < cv.w; x++) if (cv.px[y * cv.w + x]) { s += x; n++; } return n ? s / n : 0; };
+  const dx = Math.round(mid(f) - mid(out));
+  if (!dx) return out;
+  const moved = new Canvas(f.w, f.h);
+  out.px.forEach((c, j) => { const x = (j % f.w) + dx, y = (j / f.w) | 0; if (c && x >= 0 && x < f.w) { moved.px[y * f.w + x] = c; if (out.fx.has(j)) moved.fx.add(y * f.w + x); } });
+  return moved;
+}
+
+// low bodies (side view): foreshortened by a fifth and tilted along the diagonal
+function tilt(f, view) {
+  const b = bounds(f);
+  if (!b) return f;
+  const keep = (x) => (x - b.x0) % 5 !== 2;                              // drop every fifth column
+  const cols = []; for (let x = b.x0; x <= b.x1; x++) if (keep(x)) cols.push(x);
+  const nw = cols.length - 1, nx0 = Math.round((b.x0 + b.x1) / 2 - nw / 2);
+  // dside: the head (right) comes toward the viewer, so the rear rises; uside: the head goes away and rises
+  const k = 0.28, rise = (i) => Math.round((view === "dside" ? nw - i : i) * k);
+  let lift = 0;
+  for (let i = 0; i <= nw; i++) lift = Math.max(lift, rise(i));
+  const room = b.y0;                                                    // keep the top inside the canvas
+  const scale = lift > room ? room / lift : 1;
+  const out = new Canvas(f.w, f.h);
+  cols.forEach((x, i) => {
+    const dy = -Math.round(rise(i) * scale);
+    for (let y = 0; y < f.h; y++) {
+      const j = y * f.w + x, c = f.px[j];
+      if (!c) continue;
+      const Y = y + dy, X = nx0 + i;
+      if (Y < 0 || Y >= f.h || X < 0 || X >= f.w) continue;
+      out.px[Y * f.w + X] = c;
+      if (f.fx.has(j)) out.fx.add(Y * f.w + X);
+    }
+  });
+  return out;
+}
+
+/** Face for a frame: a blink at the end of the idle, a scowl while chasing and fighting. */
+export const exprOf = (anim, i, idle = FRAMES.idle) => (anim === "idle" && i === idle - 1 ? "blink" : anim === "run" || anim === "attack" || anim === "skill" ? "angry" : null);
+
+/**
+ * Wrap a three-view painter (dir = down | side | up, ending in finish()) so it paints all five views
+ * and the faces: body "upright" turns the front/back view, "low" tilts the side view; eyes = the eye
+ * colours (kit rgba) when the painter doesn't register them itself; base4 = the painter breathes over
+ * four idle frames (the sheet's eight repeat them, blinking on the last).
+ */
+export function eightWay(paint, { body = "upright", eyes = [], base4 = false } = {}) {
+  return (dir, anim, i) => {
+    const diag = dir === "dside" || dir === "uside";
+    Object.assign(look, { view: diag ? dir : null, body, expr: exprOf(anim, i) });
+    look.eyes.clear(); eyes.forEach(eyeCol);
+    const base = !diag ? dir : body === "low" ? "side" : dir === "dside" ? "down" : "up";
+    try { return paint(base, anim, base4 && anim === "idle" ? i % 4 : i); } finally { look.view = null; look.expr = null; }
+  };
+}
+
+/** The three-quarter turn on a finished canvas (painted bosses): view "dside" | "uside". */
+export function turnFinished(f, view, body = "upright") {
+  return body === "low" ? tilt(f, view) : turnUpright(f, view === "uside");
 }

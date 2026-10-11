@@ -184,11 +184,11 @@ export class Familiar {
       k.sprite.draw(ctx, x, y - 4, "side", anim, Math.floor(this.t / (anim === "fly" ? 5 : 8)), this.face.flip);
     } else {
       // attack / skill play once over the strike; the others loop
-      const n = k.sprite.count(this.face.dir, this.anim);
+      const n = k.sprite.count(this.face.view || this.face.dir, this.anim);
       const max = this.anim === "skill" ? 24 : 12;
       const i = this.anim === "attack" || this.anim === "skill" ? (n <= 2 ? Math.floor(this.t / 16) : Math.min(n - 1, Math.floor((1 - this.atkT / max) * n)))
-        : Math.floor(this.t / ({ walk: 6, run: 4 }[this.anim] || (n > 2 ? 10 : 16)));
-      k.sprite.draw(ctx, x, y, this.face.dir, this.anim, i, this.face.flip, false, s);
+        : Math.floor(this.t / ({ walk: 6, run: 4 }[this.anim] || (n > 4 ? 14 : n > 2 ? 10 : 16)));
+      k.sprite.draw(ctx, x, y, this.face.view || this.face.dir, this.anim, i, this.face.flip, false, s);
     }
   }
 }
