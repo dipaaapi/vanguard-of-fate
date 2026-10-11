@@ -44,10 +44,13 @@ function wing(f, rx, ry, side, raise, spread, compact = 1) {
   f.blob(rx + side * 3 * compact, ry - 2 - raise * 2, 3.5 * compact, 2.5, [C.f2, C.f1, C.f0, C.f0]);
 }
 
-export async function prepare() {
+// outline: the wings' outline colour (the terrain tile style passes a hue-shifted ink from the wing whites);
+// the body is the game's Avatar in the tile style (js/avatar/tilestyle.js), like the in-game angel
+export async function prepare(outline = null) {
   const { load } = await import(new URL("../../../scripts/headless.mjs", import.meta.url).href);
   const { Avatar } = await load("js/avatar/avatar.js");
-  const body = new Avatar(LOOK);
+  const body = Object.assign(new Avatar(LOOK), { style: "tile" });
+  if (outline) C.outline = hex(outline);
   return {
     paint(dir, anim, i) {
       const f = new Canvas(W, H);

@@ -628,9 +628,10 @@ const TRAITS = {
 Object.entries(TRAITS).forEach(([k, [race, element, size]]) => Object.assign(MONSTERS[k] || BOSSES[k], { race, element, size }));
 
 // Aseprite sheets: aseprite/monster/<key>.aseprite and aseprite/boss/<key>.aseprite replace the
-// code-drawn frames of that creature when exported (js/avatar/sheets.js, tools/aseprite/export.mjs)
+// code-drawn frames of that creature when exported (js/avatar/sheets.js, tools/aseprite/export.mjs).
+// Humanoid monsters (Avatars) are drawn in the terrain tile style like the creatures (js/avatar/tilestyle.js).
 for (const [kind, table] of [["monster", MONSTERS], ["boss", BOSSES]]) {
-  for (const [key, def] of Object.entries(table)) def.sprite.sheetKey = `${kind}/${key}`;
+  for (const [key, def] of Object.entries(table)) Object.assign(def.sprite, { sheetKey: `${kind}/${key}`, style: "tile" });
 }
 
 // Night creatures of the plains (LORE Act I: "nocturnal abominations")

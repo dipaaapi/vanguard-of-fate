@@ -1,0 +1,1837 @@
+{
+ "frames": [
+  {
+   "filename": "duneHyena 0.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 200
+  },
+  {
+   "filename": "duneHyena 1.aseprite",
+   "frame": {
+    "x": 40,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 200
+  },
+  {
+   "filename": "duneHyena 2.aseprite",
+   "frame": {
+    "x": 80,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 200
+  },
+  {
+   "filename": "duneHyena 3.aseprite",
+   "frame": {
+    "x": 120,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 200
+  },
+  {
+   "filename": "duneHyena 4.aseprite",
+   "frame": {
+    "x": 160,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "duneHyena 5.aseprite",
+   "frame": {
+    "x": 200,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "duneHyena 6.aseprite",
+   "frame": {
+    "x": 240,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "duneHyena 7.aseprite",
+   "frame": {
+    "x": 280,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "duneHyena 8.aseprite",
+   "frame": {
+    "x": 320,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "duneHyena 9.aseprite",
+   "frame": {
+    "x": 360,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "duneHyena 10.aseprite",
+   "frame": {
+    "x": 400,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "duneHyena 11.aseprite",
+   "frame": {
+    "x": 440,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "duneHyena 12.aseprite",
+   "frame": {
+    "x": 480,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "duneHyena 13.aseprite",
+   "frame": {
+    "x": 520,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "duneHyena 14.aseprite",
+   "frame": {
+    "x": 560,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "duneHyena 15.aseprite",
+   "frame": {
+    "x": 600,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "duneHyena 16.aseprite",
+   "frame": {
+    "x": 640,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 90
+  },
+  {
+   "filename": "duneHyena 17.aseprite",
+   "frame": {
+    "x": 680,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 90
+  },
+  {
+   "filename": "duneHyena 18.aseprite",
+   "frame": {
+    "x": 720,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 90
+  },
+  {
+   "filename": "duneHyena 19.aseprite",
+   "frame": {
+    "x": 760,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 90
+  },
+  {
+   "filename": "duneHyena 20.aseprite",
+   "frame": {
+    "x": 800,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "duneHyena 21.aseprite",
+   "frame": {
+    "x": 840,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "duneHyena 22.aseprite",
+   "frame": {
+    "x": 880,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "duneHyena 23.aseprite",
+   "frame": {
+    "x": 920,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "duneHyena 24.aseprite",
+   "frame": {
+    "x": 960,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "duneHyena 25.aseprite",
+   "frame": {
+    "x": 1000,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "duneHyena 26.aseprite",
+   "frame": {
+    "x": 1040,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 200
+  },
+  {
+   "filename": "duneHyena 27.aseprite",
+   "frame": {
+    "x": 1080,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 200
+  },
+  {
+   "filename": "duneHyena 28.aseprite",
+   "frame": {
+    "x": 1120,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 200
+  },
+  {
+   "filename": "duneHyena 29.aseprite",
+   "frame": {
+    "x": 1160,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 200
+  },
+  {
+   "filename": "duneHyena 30.aseprite",
+   "frame": {
+    "x": 1200,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "duneHyena 31.aseprite",
+   "frame": {
+    "x": 1240,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "duneHyena 32.aseprite",
+   "frame": {
+    "x": 1280,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "duneHyena 33.aseprite",
+   "frame": {
+    "x": 1320,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "duneHyena 34.aseprite",
+   "frame": {
+    "x": 1360,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "duneHyena 35.aseprite",
+   "frame": {
+    "x": 1400,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "duneHyena 36.aseprite",
+   "frame": {
+    "x": 1440,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "duneHyena 37.aseprite",
+   "frame": {
+    "x": 1480,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "duneHyena 38.aseprite",
+   "frame": {
+    "x": 1520,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "duneHyena 39.aseprite",
+   "frame": {
+    "x": 1560,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "duneHyena 40.aseprite",
+   "frame": {
+    "x": 1600,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "duneHyena 41.aseprite",
+   "frame": {
+    "x": 1640,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "duneHyena 42.aseprite",
+   "frame": {
+    "x": 1680,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 90
+  },
+  {
+   "filename": "duneHyena 43.aseprite",
+   "frame": {
+    "x": 1720,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 90
+  },
+  {
+   "filename": "duneHyena 44.aseprite",
+   "frame": {
+    "x": 1760,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 90
+  },
+  {
+   "filename": "duneHyena 45.aseprite",
+   "frame": {
+    "x": 1800,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 90
+  },
+  {
+   "filename": "duneHyena 46.aseprite",
+   "frame": {
+    "x": 1840,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "duneHyena 47.aseprite",
+   "frame": {
+    "x": 1880,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "duneHyena 48.aseprite",
+   "frame": {
+    "x": 1920,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "duneHyena 49.aseprite",
+   "frame": {
+    "x": 1960,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "duneHyena 50.aseprite",
+   "frame": {
+    "x": 2000,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "duneHyena 51.aseprite",
+   "frame": {
+    "x": 2040,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "duneHyena 52.aseprite",
+   "frame": {
+    "x": 2080,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 200
+  },
+  {
+   "filename": "duneHyena 53.aseprite",
+   "frame": {
+    "x": 2120,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 200
+  },
+  {
+   "filename": "duneHyena 54.aseprite",
+   "frame": {
+    "x": 2160,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 200
+  },
+  {
+   "filename": "duneHyena 55.aseprite",
+   "frame": {
+    "x": 2200,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 200
+  },
+  {
+   "filename": "duneHyena 56.aseprite",
+   "frame": {
+    "x": 2240,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "duneHyena 57.aseprite",
+   "frame": {
+    "x": 2280,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "duneHyena 58.aseprite",
+   "frame": {
+    "x": 2320,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "duneHyena 59.aseprite",
+   "frame": {
+    "x": 2360,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "duneHyena 60.aseprite",
+   "frame": {
+    "x": 2400,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "duneHyena 61.aseprite",
+   "frame": {
+    "x": 2440,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "duneHyena 62.aseprite",
+   "frame": {
+    "x": 2480,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "duneHyena 63.aseprite",
+   "frame": {
+    "x": 2520,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "duneHyena 64.aseprite",
+   "frame": {
+    "x": 2560,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "duneHyena 65.aseprite",
+   "frame": {
+    "x": 2600,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "duneHyena 66.aseprite",
+   "frame": {
+    "x": 2640,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "duneHyena 67.aseprite",
+   "frame": {
+    "x": 2680,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "duneHyena 68.aseprite",
+   "frame": {
+    "x": 2720,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 90
+  },
+  {
+   "filename": "duneHyena 69.aseprite",
+   "frame": {
+    "x": 2760,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 90
+  },
+  {
+   "filename": "duneHyena 70.aseprite",
+   "frame": {
+    "x": 2800,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 90
+  },
+  {
+   "filename": "duneHyena 71.aseprite",
+   "frame": {
+    "x": 2840,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 90
+  },
+  {
+   "filename": "duneHyena 72.aseprite",
+   "frame": {
+    "x": 2880,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "duneHyena 73.aseprite",
+   "frame": {
+    "x": 2920,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "duneHyena 74.aseprite",
+   "frame": {
+    "x": 2960,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "duneHyena 75.aseprite",
+   "frame": {
+    "x": 3000,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "duneHyena 76.aseprite",
+   "frame": {
+    "x": 3040,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "duneHyena 77.aseprite",
+   "frame": {
+    "x": 3080,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  }
+ ],
+ "meta": {
+  "app": "tools/aseprite/asefile.mjs",
+  "image": "duneHyena.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 3120,
+   "h": 28
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "down-idle",
+    "from": 0,
+    "to": 3,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "down-walk",
+    "from": 4,
+    "to": 9,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "down-run",
+    "from": 10,
+    "to": 15,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "down-attack",
+    "from": 16,
+    "to": 19,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "down-skill",
+    "from": 20,
+    "to": 25,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-idle",
+    "from": 26,
+    "to": 29,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-walk",
+    "from": 30,
+    "to": 35,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-run",
+    "from": 36,
+    "to": 41,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-attack",
+    "from": 42,
+    "to": 45,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-skill",
+    "from": 46,
+    "to": 51,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-idle",
+    "from": 52,
+    "to": 55,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-walk",
+    "from": 56,
+    "to": 61,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-run",
+    "from": 62,
+    "to": 67,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-attack",
+    "from": 68,
+    "to": 71,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-skill",
+    "from": 72,
+    "to": 77,
+    "direction": "forward",
+    "color": "#000000ff"
+   }
+  ]
+ }
+}

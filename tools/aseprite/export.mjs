@@ -110,7 +110,9 @@ for (const file of files) {
   console.log(`${rel(png)}  ${w}×${h}  ${used.join(" ")}`);
 }
 
-// Manifest = every exported sheet that still has its source file (tile sets load on demand, not at boot)
-const keys = sources(SRC_DIR).map(keyOf).filter((k) => !k.startsWith("tiles/") && fs.existsSync(path.join(OUT_DIR, `${k}.png`))).sort();
-fs.writeFileSync(path.join(OUT_DIR, "manifest.json"), JSON.stringify({ sheets: keys }, null, 2) + "\n");
-console.log(`${rel(path.join(OUT_DIR, "manifest.json"))}  ${keys.length} sheet(s)${problems ? `, ${problems} warning(s)` : ""}`);
+// Manifest = every exported sheet that still has its source file (tile sets load on demand, not at boot).
+// Monster sheets are "lazy": js/avatar/sheets.js fetches each one the first time the game draws that monster.
+const all = sources(SRC_DIR).map(keyOf).filter((k) => !k.startsWith("tiles/") && !k.startsWith("ui/") && fs.existsSync(path.join(OUT_DIR, `${k}.png`))).sort();
+const keys = all.filter((k) => !k.startsWith("monster/")), lazy = all.filter((k) => k.startsWith("monster/"));
+fs.writeFileSync(path.join(OUT_DIR, "manifest.json"), JSON.stringify({ sheets: keys, lazy }, null, 2) + "\n");
+console.log(`${rel(path.join(OUT_DIR, "manifest.json"))}  ${keys.length} sheet(s) + ${lazy.length} on demand${problems ? `, ${problems} warning(s)` : ""}`);

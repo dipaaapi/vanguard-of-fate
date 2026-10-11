@@ -1,0 +1,1441 @@
+{
+ "frames": [
+  {
+   "filename": "leviathan 0.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 200
+  },
+  {
+   "filename": "leviathan 1.aseprite",
+   "frame": {
+    "x": 88,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 200
+  },
+  {
+   "filename": "leviathan 2.aseprite",
+   "frame": {
+    "x": 176,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 100
+  },
+  {
+   "filename": "leviathan 3.aseprite",
+   "frame": {
+    "x": 264,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 100
+  },
+  {
+   "filename": "leviathan 4.aseprite",
+   "frame": {
+    "x": 352,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 100
+  },
+  {
+   "filename": "leviathan 5.aseprite",
+   "frame": {
+    "x": 440,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 100
+  },
+  {
+   "filename": "leviathan 6.aseprite",
+   "frame": {
+    "x": 528,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 90
+  },
+  {
+   "filename": "leviathan 7.aseprite",
+   "frame": {
+    "x": 616,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 90
+  },
+  {
+   "filename": "leviathan 8.aseprite",
+   "frame": {
+    "x": 704,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 70
+  },
+  {
+   "filename": "leviathan 9.aseprite",
+   "frame": {
+    "x": 792,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 70
+  },
+  {
+   "filename": "leviathan 10.aseprite",
+   "frame": {
+    "x": 880,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 70
+  },
+  {
+   "filename": "leviathan 11.aseprite",
+   "frame": {
+    "x": 968,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 70
+  },
+  {
+   "filename": "leviathan 12.aseprite",
+   "frame": {
+    "x": 1056,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 70
+  },
+  {
+   "filename": "leviathan 13.aseprite",
+   "frame": {
+    "x": 1144,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 70
+  },
+  {
+   "filename": "leviathan 14.aseprite",
+   "frame": {
+    "x": 1232,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 80
+  },
+  {
+   "filename": "leviathan 15.aseprite",
+   "frame": {
+    "x": 1320,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 80
+  },
+  {
+   "filename": "leviathan 16.aseprite",
+   "frame": {
+    "x": 1408,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 80
+  },
+  {
+   "filename": "leviathan 17.aseprite",
+   "frame": {
+    "x": 1496,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 80
+  },
+  {
+   "filename": "leviathan 18.aseprite",
+   "frame": {
+    "x": 1584,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 80
+  },
+  {
+   "filename": "leviathan 19.aseprite",
+   "frame": {
+    "x": 1672,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 80
+  },
+  {
+   "filename": "leviathan 20.aseprite",
+   "frame": {
+    "x": 1760,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 200
+  },
+  {
+   "filename": "leviathan 21.aseprite",
+   "frame": {
+    "x": 1848,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 200
+  },
+  {
+   "filename": "leviathan 22.aseprite",
+   "frame": {
+    "x": 1936,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 100
+  },
+  {
+   "filename": "leviathan 23.aseprite",
+   "frame": {
+    "x": 2024,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 100
+  },
+  {
+   "filename": "leviathan 24.aseprite",
+   "frame": {
+    "x": 2112,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 100
+  },
+  {
+   "filename": "leviathan 25.aseprite",
+   "frame": {
+    "x": 2200,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 100
+  },
+  {
+   "filename": "leviathan 26.aseprite",
+   "frame": {
+    "x": 2288,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 90
+  },
+  {
+   "filename": "leviathan 27.aseprite",
+   "frame": {
+    "x": 2376,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 90
+  },
+  {
+   "filename": "leviathan 28.aseprite",
+   "frame": {
+    "x": 2464,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 70
+  },
+  {
+   "filename": "leviathan 29.aseprite",
+   "frame": {
+    "x": 2552,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 70
+  },
+  {
+   "filename": "leviathan 30.aseprite",
+   "frame": {
+    "x": 2640,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 70
+  },
+  {
+   "filename": "leviathan 31.aseprite",
+   "frame": {
+    "x": 2728,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 70
+  },
+  {
+   "filename": "leviathan 32.aseprite",
+   "frame": {
+    "x": 2816,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 70
+  },
+  {
+   "filename": "leviathan 33.aseprite",
+   "frame": {
+    "x": 2904,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 70
+  },
+  {
+   "filename": "leviathan 34.aseprite",
+   "frame": {
+    "x": 2992,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 80
+  },
+  {
+   "filename": "leviathan 35.aseprite",
+   "frame": {
+    "x": 3080,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 80
+  },
+  {
+   "filename": "leviathan 36.aseprite",
+   "frame": {
+    "x": 3168,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 80
+  },
+  {
+   "filename": "leviathan 37.aseprite",
+   "frame": {
+    "x": 3256,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 80
+  },
+  {
+   "filename": "leviathan 38.aseprite",
+   "frame": {
+    "x": 3344,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 80
+  },
+  {
+   "filename": "leviathan 39.aseprite",
+   "frame": {
+    "x": 3432,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 80
+  },
+  {
+   "filename": "leviathan 40.aseprite",
+   "frame": {
+    "x": 3520,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 200
+  },
+  {
+   "filename": "leviathan 41.aseprite",
+   "frame": {
+    "x": 3608,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 200
+  },
+  {
+   "filename": "leviathan 42.aseprite",
+   "frame": {
+    "x": 3696,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 100
+  },
+  {
+   "filename": "leviathan 43.aseprite",
+   "frame": {
+    "x": 3784,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 100
+  },
+  {
+   "filename": "leviathan 44.aseprite",
+   "frame": {
+    "x": 3872,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 100
+  },
+  {
+   "filename": "leviathan 45.aseprite",
+   "frame": {
+    "x": 3960,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 100
+  },
+  {
+   "filename": "leviathan 46.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 68,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 90
+  },
+  {
+   "filename": "leviathan 47.aseprite",
+   "frame": {
+    "x": 88,
+    "y": 68,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 90
+  },
+  {
+   "filename": "leviathan 48.aseprite",
+   "frame": {
+    "x": 176,
+    "y": 68,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 70
+  },
+  {
+   "filename": "leviathan 49.aseprite",
+   "frame": {
+    "x": 264,
+    "y": 68,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 70
+  },
+  {
+   "filename": "leviathan 50.aseprite",
+   "frame": {
+    "x": 352,
+    "y": 68,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 70
+  },
+  {
+   "filename": "leviathan 51.aseprite",
+   "frame": {
+    "x": 440,
+    "y": 68,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 70
+  },
+  {
+   "filename": "leviathan 52.aseprite",
+   "frame": {
+    "x": 528,
+    "y": 68,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 70
+  },
+  {
+   "filename": "leviathan 53.aseprite",
+   "frame": {
+    "x": 616,
+    "y": 68,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 70
+  },
+  {
+   "filename": "leviathan 54.aseprite",
+   "frame": {
+    "x": 704,
+    "y": 68,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 80
+  },
+  {
+   "filename": "leviathan 55.aseprite",
+   "frame": {
+    "x": 792,
+    "y": 68,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 80
+  },
+  {
+   "filename": "leviathan 56.aseprite",
+   "frame": {
+    "x": 880,
+    "y": 68,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 80
+  },
+  {
+   "filename": "leviathan 57.aseprite",
+   "frame": {
+    "x": 968,
+    "y": 68,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 80
+  },
+  {
+   "filename": "leviathan 58.aseprite",
+   "frame": {
+    "x": 1056,
+    "y": 68,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 80
+  },
+  {
+   "filename": "leviathan 59.aseprite",
+   "frame": {
+    "x": 1144,
+    "y": 68,
+    "w": 88,
+    "h": 68
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 88,
+    "h": 68
+   },
+   "sourceSize": {
+    "w": 88,
+    "h": 68
+   },
+   "duration": 80
+  }
+ ],
+ "meta": {
+  "app": "tools/aseprite/asefile.mjs",
+  "image": "leviathan.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 4048,
+   "h": 136
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "down-idle",
+    "from": 0,
+    "to": 1,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "down-walk",
+    "from": 2,
+    "to": 5,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "down-attack",
+    "from": 6,
+    "to": 7,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "down-run",
+    "from": 8,
+    "to": 13,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "down-skill",
+    "from": 14,
+    "to": 19,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-idle",
+    "from": 20,
+    "to": 21,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-walk",
+    "from": 22,
+    "to": 25,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-attack",
+    "from": 26,
+    "to": 27,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-run",
+    "from": 28,
+    "to": 33,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-skill",
+    "from": 34,
+    "to": 39,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-idle",
+    "from": 40,
+    "to": 41,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-walk",
+    "from": 42,
+    "to": 45,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-attack",
+    "from": 46,
+    "to": 47,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-run",
+    "from": 48,
+    "to": 53,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-skill",
+    "from": 54,
+    "to": 59,
+    "direction": "forward",
+    "color": "#000000ff"
+   }
+  ]
+ }
+}

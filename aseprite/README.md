@@ -19,6 +19,24 @@ aseprite/ui/<key>.aseprite        → an interface frame (css/hud.css, css/title
 aseprite/tiles/<theme>.aseprite   → a terrain tile set (js/world/terrain.js): one per map theme, 256×96, 8 frames
 ```
 
+## Tile style
+
+Everything that stands on the terrain tile sets is drawn in their look (`js/avatar/tilestyle.js`, the same
+formulas as `tools/aseprite/paint/tiles.mjs`): saturated ramps whose shadows drift to blue-violet and whose
+highlights drift to warm yellow, light from the upper left, a soft grain, a darker foot row, and a 1 px outline
+that is a deep hue-shifted shade of the colour it wraps (never one flat ink). 1 art pixel = 1 game pixel, the
+tiles' density; detail comes from bigger canvases, not from a finer grid.
+
+- Monsters and code-drawn bosses: `node tools/aseprite/paint/monsters.mjs [keys…] [--family Brute] [--preview]`
+  paints every one with its family painter (`tools/aseprite/paint/monsters/*.mjs`); humanoid monsters are seeded
+  from their code frames. Monster sheets are listed under `lazy` in `manifest.json` and load the first time the
+  game asks for them.
+- Code-drawn sprites without a sheet (mercenaries, humanoid monsters, the angel's body) get the same pass at
+  runtime (`style: "tile"` on the Avatar, `tileStyle()` in `CreatureSprite`).
+- Hand-finished single-frame art: `node tools/aseprite/paint/restyle.mjs <kind/key>` grades it and swaps the
+  flat outline for the hue-shifted one in place (run it once per file).
+- Check anything against the tiles with `node tools/tilemap/lineup.mjs <theme> monster:<k> zone:<k> …`.
+
 ## Safe zones
 
 Each zone file has one looping `down-idle` tag and four layers: `ground` (paving, earth, shadows),
@@ -125,4 +143,4 @@ Gold remains the save-compatible numeric unit. Each coin reward is split into pl
 
 ## Guild hall, staff and membership plate
 
-`node tools/aseprite/paint/guild.mjs` paints ten editable sources under `aseprite/ui/guild_*.aseprite`: the 280×180 hall, five 32×48 guild staff portraits, a 24×24 plate, a 48×40 caravan, and 24×24 herb/stone resources. Export with `node tools/aseprite/export.mjs ui/guild_hall ui/guild_plate ui/guild_guildMaster ui/guild_guildRepresentative ui/guild_guildClerk ui/guild_guildScout ui/guild_guildInflictionist ui/guild_caravan ui/guild_herb ui/guild_stone`. The game places staff and hall in the hub, uses the hall and plate in the joining ceremony, and draws the caravan and resources during contracts. `assets/ui/guild.json` lists the exported keys. Edit the Aseprite sources and export them; do not rerun the painter after hand edits.
+`aseprite/ui/guild_*.aseprite` holds ten sources: the 280×180 hall, five 32×48 guild staff portraits, a 24×24 plate, a 48×40 caravan, and 24×24 herb/stone resources. `node tools/aseprite/paint/guild.mjs` paints the hall in the tile style (scenery kit, like the safe zones); the other nine are hand-finished and were given the tile style with `restyle.mjs`. Export with `node tools/aseprite/export.mjs ui/guild_hall ui/guild_plate ui/guild_guildMaster ui/guild_guildRepresentative ui/guild_guildClerk ui/guild_guildScout ui/guild_guildInflictionist ui/guild_caravan ui/guild_herb ui/guild_stone`. The game places staff and hall in the hub, uses the hall and plate in the joining ceremony, and draws the caravan and resources during contracts. `assets/ui/guild.json` lists the exported keys. Edit the Aseprite sources and export them; do not rerun the painter on the hall after hand edits.

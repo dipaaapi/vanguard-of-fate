@@ -1,0 +1,1441 @@
+{
+ "frames": [
+  {
+   "filename": "malakor 0.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 200
+  },
+  {
+   "filename": "malakor 1.aseprite",
+   "frame": {
+    "x": 68,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 200
+  },
+  {
+   "filename": "malakor 2.aseprite",
+   "frame": {
+    "x": 136,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 100
+  },
+  {
+   "filename": "malakor 3.aseprite",
+   "frame": {
+    "x": 204,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 100
+  },
+  {
+   "filename": "malakor 4.aseprite",
+   "frame": {
+    "x": 272,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 100
+  },
+  {
+   "filename": "malakor 5.aseprite",
+   "frame": {
+    "x": 340,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 100
+  },
+  {
+   "filename": "malakor 6.aseprite",
+   "frame": {
+    "x": 408,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 90
+  },
+  {
+   "filename": "malakor 7.aseprite",
+   "frame": {
+    "x": 476,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 90
+  },
+  {
+   "filename": "malakor 8.aseprite",
+   "frame": {
+    "x": 544,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 70
+  },
+  {
+   "filename": "malakor 9.aseprite",
+   "frame": {
+    "x": 612,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 70
+  },
+  {
+   "filename": "malakor 10.aseprite",
+   "frame": {
+    "x": 680,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 70
+  },
+  {
+   "filename": "malakor 11.aseprite",
+   "frame": {
+    "x": 748,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 70
+  },
+  {
+   "filename": "malakor 12.aseprite",
+   "frame": {
+    "x": 816,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 70
+  },
+  {
+   "filename": "malakor 13.aseprite",
+   "frame": {
+    "x": 884,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 70
+  },
+  {
+   "filename": "malakor 14.aseprite",
+   "frame": {
+    "x": 952,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 80
+  },
+  {
+   "filename": "malakor 15.aseprite",
+   "frame": {
+    "x": 1020,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 80
+  },
+  {
+   "filename": "malakor 16.aseprite",
+   "frame": {
+    "x": 1088,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 80
+  },
+  {
+   "filename": "malakor 17.aseprite",
+   "frame": {
+    "x": 1156,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 80
+  },
+  {
+   "filename": "malakor 18.aseprite",
+   "frame": {
+    "x": 1224,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 80
+  },
+  {
+   "filename": "malakor 19.aseprite",
+   "frame": {
+    "x": 1292,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 80
+  },
+  {
+   "filename": "malakor 20.aseprite",
+   "frame": {
+    "x": 1360,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 200
+  },
+  {
+   "filename": "malakor 21.aseprite",
+   "frame": {
+    "x": 1428,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 200
+  },
+  {
+   "filename": "malakor 22.aseprite",
+   "frame": {
+    "x": 1496,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 100
+  },
+  {
+   "filename": "malakor 23.aseprite",
+   "frame": {
+    "x": 1564,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 100
+  },
+  {
+   "filename": "malakor 24.aseprite",
+   "frame": {
+    "x": 1632,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 100
+  },
+  {
+   "filename": "malakor 25.aseprite",
+   "frame": {
+    "x": 1700,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 100
+  },
+  {
+   "filename": "malakor 26.aseprite",
+   "frame": {
+    "x": 1768,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 90
+  },
+  {
+   "filename": "malakor 27.aseprite",
+   "frame": {
+    "x": 1836,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 90
+  },
+  {
+   "filename": "malakor 28.aseprite",
+   "frame": {
+    "x": 1904,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 70
+  },
+  {
+   "filename": "malakor 29.aseprite",
+   "frame": {
+    "x": 1972,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 70
+  },
+  {
+   "filename": "malakor 30.aseprite",
+   "frame": {
+    "x": 2040,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 70
+  },
+  {
+   "filename": "malakor 31.aseprite",
+   "frame": {
+    "x": 2108,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 70
+  },
+  {
+   "filename": "malakor 32.aseprite",
+   "frame": {
+    "x": 2176,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 70
+  },
+  {
+   "filename": "malakor 33.aseprite",
+   "frame": {
+    "x": 2244,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 70
+  },
+  {
+   "filename": "malakor 34.aseprite",
+   "frame": {
+    "x": 2312,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 80
+  },
+  {
+   "filename": "malakor 35.aseprite",
+   "frame": {
+    "x": 2380,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 80
+  },
+  {
+   "filename": "malakor 36.aseprite",
+   "frame": {
+    "x": 2448,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 80
+  },
+  {
+   "filename": "malakor 37.aseprite",
+   "frame": {
+    "x": 2516,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 80
+  },
+  {
+   "filename": "malakor 38.aseprite",
+   "frame": {
+    "x": 2584,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 80
+  },
+  {
+   "filename": "malakor 39.aseprite",
+   "frame": {
+    "x": 2652,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 80
+  },
+  {
+   "filename": "malakor 40.aseprite",
+   "frame": {
+    "x": 2720,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 200
+  },
+  {
+   "filename": "malakor 41.aseprite",
+   "frame": {
+    "x": 2788,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 200
+  },
+  {
+   "filename": "malakor 42.aseprite",
+   "frame": {
+    "x": 2856,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 100
+  },
+  {
+   "filename": "malakor 43.aseprite",
+   "frame": {
+    "x": 2924,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 100
+  },
+  {
+   "filename": "malakor 44.aseprite",
+   "frame": {
+    "x": 2992,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 100
+  },
+  {
+   "filename": "malakor 45.aseprite",
+   "frame": {
+    "x": 3060,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 100
+  },
+  {
+   "filename": "malakor 46.aseprite",
+   "frame": {
+    "x": 3128,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 90
+  },
+  {
+   "filename": "malakor 47.aseprite",
+   "frame": {
+    "x": 3196,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 90
+  },
+  {
+   "filename": "malakor 48.aseprite",
+   "frame": {
+    "x": 3264,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 70
+  },
+  {
+   "filename": "malakor 49.aseprite",
+   "frame": {
+    "x": 3332,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 70
+  },
+  {
+   "filename": "malakor 50.aseprite",
+   "frame": {
+    "x": 3400,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 70
+  },
+  {
+   "filename": "malakor 51.aseprite",
+   "frame": {
+    "x": 3468,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 70
+  },
+  {
+   "filename": "malakor 52.aseprite",
+   "frame": {
+    "x": 3536,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 70
+  },
+  {
+   "filename": "malakor 53.aseprite",
+   "frame": {
+    "x": 3604,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 70
+  },
+  {
+   "filename": "malakor 54.aseprite",
+   "frame": {
+    "x": 3672,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 80
+  },
+  {
+   "filename": "malakor 55.aseprite",
+   "frame": {
+    "x": 3740,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 80
+  },
+  {
+   "filename": "malakor 56.aseprite",
+   "frame": {
+    "x": 3808,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 80
+  },
+  {
+   "filename": "malakor 57.aseprite",
+   "frame": {
+    "x": 3876,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 80
+  },
+  {
+   "filename": "malakor 58.aseprite",
+   "frame": {
+    "x": 3944,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 80
+  },
+  {
+   "filename": "malakor 59.aseprite",
+   "frame": {
+    "x": 4012,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 68,
+    "h": 76
+   },
+   "sourceSize": {
+    "w": 68,
+    "h": 76
+   },
+   "duration": 80
+  }
+ ],
+ "meta": {
+  "app": "tools/aseprite/asefile.mjs",
+  "image": "malakor.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 4080,
+   "h": 76
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "down-idle",
+    "from": 0,
+    "to": 1,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "down-walk",
+    "from": 2,
+    "to": 5,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "down-attack",
+    "from": 6,
+    "to": 7,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "down-run",
+    "from": 8,
+    "to": 13,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "down-skill",
+    "from": 14,
+    "to": 19,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-idle",
+    "from": 20,
+    "to": 21,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-walk",
+    "from": 22,
+    "to": 25,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-attack",
+    "from": 26,
+    "to": 27,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-run",
+    "from": 28,
+    "to": 33,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-skill",
+    "from": 34,
+    "to": 39,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-idle",
+    "from": 40,
+    "to": 41,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-walk",
+    "from": 42,
+    "to": 45,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-attack",
+    "from": 46,
+    "to": 47,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-run",
+    "from": 48,
+    "to": 53,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-skill",
+    "from": 54,
+    "to": 59,
+    "direction": "forward",
+    "color": "#000000ff"
+   }
+  ]
+ }
+}

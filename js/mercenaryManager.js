@@ -13,8 +13,8 @@ const FOOT_X = 8, FOOT_Y = 15;   // a mercenary's feet from its x / y
 
 // One Avatar per mercenary type (frames are cached)
 const AVATARS = {};
-// aseprite/merc/<type>.aseprite replaces the code-drawn look when exported
-const avatarOf = (data) => AVATARS[data.type] || (AVATARS[data.type] = Object.assign(new Avatar(data.look), { sheetKey: `merc/${data.type}` }));
+// aseprite/merc/<type>.aseprite replaces the code-drawn look when exported; the code look is in the tile style
+const avatarOf = (data) => AVATARS[data.type] || (AVATARS[data.type] = Object.assign(new Avatar(data.look), { sheetKey: `merc/${data.type}`, style: "tile" }));
 
 // How long a mercenary stays dazed before getting back up (15 seconds at 60 fps)
 const KO_TIME = 900;

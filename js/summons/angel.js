@@ -11,6 +11,7 @@ export const ANGEL = new Avatar({
   boots: "sandals", bootColor: "#e0b44c", headgear: "halo", wings: "#ffffff", weapon: "sword"
 });
 ANGEL.sheetKey = "summon/angel";   // aseprite/summon/angel.aseprite when exported
+ANGEL.style = "tile";              // code fallback in the terrain tile style (js/avatar/tilestyle.js)
 
 export class GuardianAngelCompanion {
   constructor(x, y, maxHp) {

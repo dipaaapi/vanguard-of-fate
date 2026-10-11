@@ -77,7 +77,7 @@ const MEADOW = {
   liquid: { base: "#2a72dc", light: "#62bdfa", dark: "#1a4fb2", rim: "#f6fbff" },
   rock: ["#5b6475", "#8390a5", "#b9c3d2"]
 };
-function material(theme) {
+export function material(theme) {
   const th = theme === "meadow" ? MEADOW : THEMES[theme];
   const [surface, liquid, special] = KIND[theme];
   const g = th.grass.map(hex), gl = hex(th.grassLight), gd = hex(th.grassDark);

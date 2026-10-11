@@ -6,19 +6,19 @@
 import { writeAse } from "../asefile.mjs";
 import { SRC_DIR } from "../lib.mjs";
 import * as K from "./scenery.mjs";
+import { material } from "./tiles.mjs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-const { FRAMES, Img, rgb, ramp, mix, shade, withA, pick, hash, dither, ph, flagstones, clearing, shingles, timberWall, windowLit, shadow, flames, glow,
+const { FRAMES, Img, rgb, ramp, mix, shade, withA, pick, hash, dither, ph, vnoise, flagstones, clearing, shingles, timberWall, windowLit, shadow, flames, glow,
   smoke, brazier, flagPole, hangingBanner, crate, barrel, sack, weaponRack, dummy, bedroll, campfire, pavilion, ridgeTent } = K;
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const zs = await import(pathToFileURL(path.join(ROOT, "js/world/zonesprites.js")).href);
 const LAYERS = ["ground", "buildings", "props", "fire"];
-const INK = rgb("#160f1c");
 const DURATION = 0.12;
 
-const newLayers = (w, h) => Object.fromEntries(LAYERS.map((n) => [n, new Img(w, h)]));
+const newLayers = (w, h) => ({ ...Object.fromEntries(LAYERS.map((n) => [n, new Img(w, h)])), keep: new Set() });
 
 /** Paint FRAMES frames with paint(layers, f) and save aseprite/zone/<key>.aseprite. */
 function save(key, w, h, paint) {
@@ -26,8 +26,10 @@ function save(key, w, h, paint) {
   for (let f = 0; f < FRAMES; f++) {
     const L = newLayers(w, h);
     paint(L, f);
-    L.buildings.outline(INK);
-    L.props.outline(INK);
+    // the tile sets' look: graded colours, hue-shifted outlines (the camp clearing is tile soil already)
+    for (const n of ["ground", "buildings", "props"]) L[n].grade(n === "ground" ? L.keep : null);
+    L.buildings.tileOutline();
+    L.props.tileOutline();
     frames.push({ duration: DURATION, cels: Object.fromEntries(LAYERS.map((n) => [n, L[n].d])) });
   }
   const out = path.join(SRC_DIR, "zone", `${key}.aseprite`);
@@ -37,6 +39,34 @@ function save(key, w, h, paint) {
 }
 
 // ==================== CAMPS ====================
+/**
+ * Trodden clearing in the map's own path soil (aseprite/tiles/<theme>.aseprite, tools/aseprite/paint/tiles.mjs
+ * paintPath): the same ramp, mottling, worn border and pebbles, on a rounded crisp-edged ellipse.
+ * Records its colours in keep so the grading pass leaves them as the tiles paint them.
+ */
+function pathClearing(img, cx, cy, rx, ry, M, seed, keep) {
+  const P = M.p;
+  P.forEach((c) => keep.add((c[0] << 16) | (c[1] << 8) | c[2]));
+  const inside = (x, y) => {
+    const nx = (x + 0.5 - cx) / rx, ny = (y + 0.5 - cy) / ry;
+    return Math.sqrt(nx * nx + ny * ny) + (vnoise(x / 9, y / 9, seed) - 0.5) * 0.08 <= 1;
+  };
+  for (let y = Math.floor(cy - ry - 2); y <= cy + ry + 2; y++) for (let x = Math.floor(cx - rx - 2); x <= cx + rx + 2; x++) {
+    if (!inside(x, y)) continue;
+    const n = vnoise(x / 8, y / 8, seed + 1) * 0.6 + vnoise(x / 4, y / 4, seed + 5) * 0.4, r = hash(x, y, seed + 2);
+    let c = n < 0.38 ? P[2] : n > 0.6 ? P[4] : P[3];
+    if (r > 0.97) c = P[5]; else if (r < 0.03) c = P[1];
+    const edge = !inside(x - 1, y) || !inside(x + 1, y) || !inside(x, y - 1) || !inside(x, y + 1);
+    if (edge) c = P[1];
+    else if (!inside(x, y - 2) || !inside(x - 2, y)) c = P[2];       // worn shadow on the far side
+    else if (!inside(x, y + 2) || !inside(x + 2, y)) c = P[4];
+    img.put(x, y, [c[0], c[1], c[2], edge ? 170 : 255]);
+    if (!edge && r > 0.992 && inside(x + 2, y + 2)) {                 // pebble
+      img.put(x, y, P[5]); img.put(x + 1, y, P[4]); img.put(x, y + 1, P[1]); img.put(x + 1, y + 1, P[2]);
+    }
+  }
+}
+
 const WOOD = ramp("#3b2414", "#5e3b1a", "#7a5230", "#9c6b3c", "#b8864f");
 const STONE = ramp("#3d3a36", "#5a5650", "#7c776f", "#9c968c");
 const VANGUARD = ramp("#4a1219", "#7a1f2a", "#a3303a", "#c94a4a");
@@ -56,6 +86,8 @@ export const CAMP_THEMES = {
   chainspire: { ground: ramp("#1c1416", "#2a1d20", "#3a282c", "#4d3539"), tent: ramp("#4a1219", "#6b1a26", "#8f2433", "#b83347"), supply: ramp("#2b2d33", "#41444d", "#5b5f6b", "#7a7f8c"), extra: "chains", metal: "#3f3f46" },
   desert: { ground: ramp("#a8773f", "#bd8a4f", "#cf9d61", "#e0b477"), tent: ramp("#7a1f1f", "#a32a2a", "#c94a3a", "#e07a5a"), supply: ramp("#a8977a", "#c4b293", "#dccbab", "#f0e2c4"), extra: "pots", stripes: true }
 };
+
+CAMP_THEMES.highland = CAMP_THEMES.mountain;     // frontier maps on the highland tile set (the Lost Vale)
 
 function campExtras(L, kind, c, T, f) {
   const g = L.ground, p = L.props;
@@ -136,7 +168,7 @@ function campExtras(L, kind, c, T, f) {
   }
 }
 
-function paintCamp(L, f, camp, gate, T, seed) {
+function paintCamp(L, f, camp, gate, T, seed, theme) {
   const c = zs.campLayout(camp, gate);
   const g = L.ground, p = L.props;
   const rx = camp.w / 2, ry = camp.h / 2;
@@ -149,7 +181,7 @@ function paintCamp(L, f, camp, gate, T, seed) {
       g.put(x, y, j === 3 || seam ? WOOD[0] : pick(WOOD, 0.45 + (hash(x >> 2, plank, seed) - 0.5) * 0.35 + (j === 0 ? 0.15 : 0), x, y));
     }
     for (let x = x0 + 2; x < x0 + w; x += 24) g.rect(x, y0 + h, 3, 4, WOOD[0]);          // stilts
-  } else clearing(g, c.cx, c.cy, rx, ry, T.ground, seed);
+  } else pathClearing(g, c.cx, c.cy, rx, ry, material(theme), seed, L.keep);
   // the sanctuary ring: inlaid gold-and-stone dashes just inside the edge
   for (let k = 0; k < 64; k++) {
     if (k % 2) continue;
@@ -574,7 +606,7 @@ export async function zoneSubjects() {
     const T = CAMP_THEMES[id] || CAMP_THEMES[def.theme];
     if (!T) continue;     // a new map: add its theme above (falls back to the code-drawn camp until then)
     const c = zs.campLayout(def.camp, def.gate);
-    out[`zone/${id}`] = () => save(id, c.W, c.H, (L, f) => paintCamp(L, f, def.camp, def.gate, T, def.seed || 1));
+    out[`zone/${id}`] = () => save(id, c.W, c.H, (L, f) => paintCamp(L, f, def.camp, def.gate, T, def.seed || 1, def.theme));
   }
   return out;
 }
