@@ -3,7 +3,7 @@
 // is rebuilt at screen resolution by js/cinema/engine.js with its own camera move, parallax,
 // depth of field, lights and particles (js/cinema/actShots.js); the letterbox slides in, then the
 // Act number, its title and the banner's EN/FIL caption (data/art_manifest.json) are set in HD
-// type. About seven and a half seconds; Enter / Esc / Space / J skip it. The game waits while it
+// type. About seven and a half seconds; Enter / Backspace / Space / J skip it. The game waits while it
 // plays. It draws on its own full-window canvas over the game, so it is not limited to 480×270.
 import { getLang } from "./i18n.js";
 import { Cinema, loadSet, span, ease, rgba, CINEMA_WIDTH } from "./cinema/engine.js";
@@ -12,7 +12,7 @@ import { ACT_SHOTS, storyShot } from "./cinema/actShots.js";
 const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV"];
 const LENGTH = 450;            // frames (7.5 s)
 const FADE_OUT = 40;
-const SKIP = new Set(["Enter", "Escape", "Space", "KeyJ", "NumpadEnter"]);
+const SKIP = new Set(["Enter", "Backspace", "Space", "KeyJ", "NumpadEnter"]);
 
 let captions = null;
 fetch("data/art_manifest.json").then((r) => r.json()).then((m) => { captions = m.files || {}; }).catch(() => { captions = {}; });

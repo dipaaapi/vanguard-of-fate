@@ -1,3 +1,4 @@
+import { TerrainMap, CELL } from "./terrain.js";
 import {
   TILE, ATLAS_COLS, T, THEMES,
   buildTileset, drawBush, mulberry32
@@ -53,6 +54,28 @@ export class TileMap {
     this.generate(stage, seed);
     this.computeReach(stage);
     this.render();
+    this.loadTerrain();
+  }
+
+  // Reuse gameplay cells: the new art never changes solid tiles, spawns or routes.
+  loadTerrain() {
+    const cells=Uint8Array.from(this.ids,(id,i)=>this.liquid[i] ? CELL.LIQUID : id>=T.PATH_BASE && id<T.LIQUID_BASE ? CELL.PATH : CELL.GROUND);
+    const terrain=this.terrain=new TerrainMap(cells,this.cols,this.rows,{theme:this.themeKey,seed:this.seed,decor:.35});
+    this.terrainReady=terrain.ready.then(()=>{
+      if(this.disposed || this.terrain!==terrain){terrain.ground.width=terrain.ground.height=0;return;}
+      const detail=document.createElement("canvas");detail.width=this.pxW;detail.height=this.pxH;
+      const ctx=detail.getContext("2d");ctx.imageSmoothingEnabled=false;
+      for(let ty=0;ty<this.rows;ty++)for(let tx=0;tx<this.cols;tx++){
+        const id=this.ids[this.idx(tx,ty)];
+        if(id===T.WALL_A || id===T.WALL_B)ctx.drawImage(this.atlas,(id%ATLAS_COLS)*TILE,Math.floor(id/ATLAS_COLS)*TILE,TILE,TILE,tx*TILE,ty*TILE,TILE,TILE);
+      }
+      this.objects.forEach(ob=>{if(ob.type==="bush")drawBush(ctx,ob.tx*TILE,ob.ty*TILE,ob.seed,this.theme.bush);});
+      const overlay=document.createElement("canvas");overlay.width=this.pxW;overlay.height=this.pxH;
+      paintLandEdges(this,ctx,overlay.getContext("2d"),this.theme,this.seed);overlay.width=overlay.height=0;
+      this.terrainDetail=detail;
+      const ground=this.groundCanvas.getContext("2d");ground.clearRect(0,0,this.pxW,this.pxH);
+      terrain.draw(ground,0,0,this.pxW,this.pxH,0);ground.drawImage(detail,0,0);
+    }).catch(error=>{this.terrainError=error.message;this.terrain=null;});
   }
 
   // Tiles reachable from the sanctuary (so monsters never spawn in a closed pocket)
@@ -87,6 +110,10 @@ export class TileMap {
 
   // Swap the atlas for your own tileset (Image or Canvas, same layout)
   setAtlas(imageOrCanvas) {
+    if(this.terrain?.ground)this.terrain.ground.width=this.terrain.ground.height=0;
+    this.terrain=null;
+    if(this.terrainDetail)this.terrainDetail.width=this.terrainDetail.height=0;
+    this.terrainDetail=null;
     this.atlas = imageOrCanvas;
     this.render();
   }
@@ -383,8 +410,12 @@ export class TileMap {
 
   // Layers 0–1: the baked ground, then the moving water (currents, on water tiles only)
   drawGround(ctx) {
-    this.blit(ctx, this.groundCanvas);
-    this.ocean.drawCurrents(ctx);
+    if(this.terrain?.sheet && this.terrainDetail){
+      const transform=ctx.getTransform(),x=-transform.e/transform.a,y=-transform.f/transform.d;
+      ctx.save();ctx.translate(x,y);
+      this.terrain.draw(ctx,x,y,Math.ceil(ctx.canvas.width/transform.a)+2,Math.ceil(ctx.canvas.height/transform.d)+2,this.tick);
+      ctx.restore();this.blit(ctx,this.terrainDetail);
+    }else{this.blit(ctx,this.groundCanvas);this.ocean.drawCurrents(ctx);}
   }
 
   // Layer 1 (moving): turf blades swaying on the tufts and flowers
@@ -409,7 +440,7 @@ export class TileMap {
 
   // Layer 4: foam and glints
   drawSurface(ctx) {
-    this.ocean.drawSurface(ctx);
+    if(!this.terrainDetail)this.ocean.drawSurface(ctx);
   }
 
   // Layer 6: the map edge's canopy and its bank of haze, above everyone

@@ -14,7 +14,16 @@ export class GuildPanel {
     this.book = book; this.changed = changed; this.joined = joined;
     this.el = add(root, "section", "guild-panel"); this.el.setAttribute("role", "dialog");
     this.el.setAttribute("aria-modal", "true"); this.open = false; this.armed = null;
-    this.tracker = add(root, "button", "guild-tracker"); this.tracker.type = "button";
+    this.activeList = add(document.getElementById("hudBar"), "section", "guild-active");
+    this.activeList.hidden = true;
+    const label = add(this.activeList, "label", "guild-priority");
+    this.priority = add(label, "input"); this.priority.type = "checkbox";
+    this.priorityLabel = add(label, "span");
+    this.priority.addEventListener("change", () => {
+      const active=this.player && this.book.state(this.player).active;
+      if(active){active.priority=this.priority.checked;this.changed();}
+    });
+    this.tracker = add(this.activeList, "button", "guild-quest-info"); this.tracker.type = "button";
     this.tracker.addEventListener("click", () => { if (this.player) this.show("guildClerk", this.player, this.ctx); });
     onLangChange(() => { if (this.open) this.render(); this.lastTrack = ""; });
   }
@@ -113,6 +122,8 @@ export class GuildPanel {
     const a = player && this.book.state(player).active, c = player && this.book.objective(player);
     const text = c ? `${T("board")} · ${this.objective(c)} · ${a.have}/${c.n}` : "";
     if (text !== this.lastTrack) { this.tracker.textContent = text; this.lastTrack = text; }
-    this.tracker.hidden = !text;
+    this.activeList.hidden = !text;
+    this.priority.checked = a?.priority !== false;
+    this.priorityLabel.textContent = getLang()==="fil" ? "Unahin sa Auto · Kontrata ng guild" : "Prioritize in Auto · Guild contract";
   }
 }

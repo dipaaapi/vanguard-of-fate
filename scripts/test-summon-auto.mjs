@@ -78,3 +78,20 @@ for (let frame = 0; frame < 1500 && wallLoot.items.length; frame++) {
 }
 assert.ok(opening, `collector ended at ${walker.x},${walker.y}; remaining ${wallLoot.items.length}`); assert.equal(owner.bag.count("herb"), 1);
 console.log("Walking pet loot route navigated around real tile obstacles");
+
+// Ground defenders must route to attackers instead of pressing into the intervening wall.
+const defender = new Familiar("hound", 46, 44), foe = { x: 180, y: 44, isAlive: true, engaged: true };
+const defenceManager = { stage: maze, enemies: [foe], damage(e) { e.hit = true; e.isAlive = false; } };
+defender.combatNavigator = new AdventureNavigator();
+const combatBuild = defender.combatNavigator.build.bind(defender.combatNavigator);
+let combatTime = 0, defendedThroughOpening = false;
+defender.combatNavigator.build = (stage, actor) => combatBuild(stage, actor, combatTime);
+for (let frame = 0; frame < 1500 && foe.isAlive; frame++) {
+  combatTime = frame * 17;
+  defender.update(owner, defenceManager, null, new LootManager(), false, maze);
+  assert.equal(footBlocked(maze, defender.x + 8, defender.y + 15), false);
+  if (defender.y + 15 > 240) defendedThroughOpening = true;
+}
+assert.ok(foe.hit, `ground defender failed at ${defender.x},${defender.y}`);
+assert.ok(defendedThroughOpening);
+console.log("Walking familiar defended the hero through a real obstacle route");

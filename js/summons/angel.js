@@ -1,8 +1,10 @@
+import { premiumSkill } from "../premium.js";
 import { Sound } from "../audio.js";
 import { around, mix, hitPose, attackPose, drawSwing } from "../juice.js";
+import { tickBehavior, behaviorPose, drawBehaviorEmote } from "../behavior.js";
 import { Avatar } from "../avatar/avatar.js";
 import { facingFrom } from "../avatar/creature.js";
-import { autoSummonLoot, summonAutoEnabled, summonThreat } from "./automation.js";
+import { autoSummonLoot, summonDefenceEnabled, summonThreat, summonTarget } from "./automation.js";
 
 // Angel: modular Avatar with wings, halo, white gown and a sword
 export const ANGEL = new Avatar({
@@ -50,6 +52,7 @@ export class GuardianAngelCompanion {
     this.step(player, enemyManager, fx, lootManager, idx, isInBarracks);
     if (this.hp < hp0) this.hurtT = 12;          // recoil when struck
     else if (this.hurtT > 0) this.hurtT--;
+    tickBehavior(this, this.state === "HOVERING" && !this.moving && !(this.hurtT > 0), "humanoid");   // idle behaviors (js/behavior.js)
     const dx = this.x - ox, dy = this.y - oy;
     this.moving = Math.hypot(dx, dy) > 0.3;
     const f = this.state === "ATTACKING" ? facingFrom(this.aimX, this.aimY, this)
@@ -72,6 +75,9 @@ export class GuardianAngelCompanion {
     if (this.attackCooldown > 0) this.attackCooldown--;
     if (autoSummonLoot(this, player, enemyManager, lootManager, fx, enemyManager.stage, { x: 16, y: 29, fly: true, speed: 1.8 })) return;
 
+    const defensiveTarget = (this.lootOnly && !summonDefenceEnabled(player)) || (player.premium?.skills.autoDefend && !premiumSkill(player, "autoDefend")) ? null : summonTarget(player, enemyManager.enemies, 200);
+    if (defensiveTarget && this.state === "TAUNTING") { this.state = "HOVERING"; this.stateTimer = 0; }
+
     // 1. RANDOM TAUNT ANIMATION (Divine Blade Raise & Prayer Glow)
     if (this.state === "TAUNTING") {
       if (this.stateTimer > 80) {
@@ -82,9 +88,8 @@ export class GuardianAngelCompanion {
     }
 
     // 2. COMBAT TARGETING
-    const enemyTarget = (summonAutoEnabled(player) ? summonThreat(player, enemyManager.enemies, 200) : null) || enemyManager.enemies
-      .filter((e) => e.isAlive)
-      .sort((a, b) => Math.hypot(a.x - this.x, a.y - this.y) - Math.hypot(b.x - this.x, b.y - this.y))[0] || null;
+    const enemyTarget = defensiveTarget;
+    this.target = enemyTarget;
 
     const flankX = player.x + (idx === 0 ? -32 : 32);
     const flankY = player.y - 14 + Math.sin(Date.now() / 220) * 4;
@@ -166,9 +171,10 @@ export class GuardianAngelCompanion {
     const len = Math.hypot(this.aimX || 0, this.aimY || 0) || 1;
     const adx = (this.aimX || 0) / len, ady = (this.aimY || 0) / len;
     const p = this.state === "ATTACKING" ? 0.35 + 0.65 * Math.min(1, this.stateTimer / 20) : 0;
-    const pose = mix(hitPose(this.hurtT || 0, 12, this.flip ? -1 : 1), attackPose(p, adx, ady, 4));
+    const pose = mix(hitPose(this.hurtT || 0, 12, this.flip ? -1 : 1), attackPose(p, adx, ady, 4), anim === "idle" ? behaviorPose(this) : null);
     const fy = ay + 29 + hover;
     around(ctx, ax + 16, fy, pose, () => ANGEL.draw(ctx, ax + 16, fy, this.dir, anim, frame, this.flip));
+    if (anim === "idle") drawBehaviorEmote(ctx, this, ax + 16, fy - 30);
     if (p) drawSwing(ctx, ax + 16, fy - 12, Math.atan2(ady, adx), 15, (p - 0.35) / 0.65, "#ffd166", 2.4, 3);
 
     // HP and LIFESPAN BARS (above the halo)

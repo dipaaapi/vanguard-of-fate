@@ -3,7 +3,7 @@ import { getLang } from "./i18n.js";
 
 // ==================== NPC SERVICE MENU ====================
 // A short list of choices shown after talking to a service NPC (Captain Ronald, the dwarves of the
-// Ashfall village, …). Pick with the mouse, 1–9 or ↑/↓ + Enter; Esc closes. The game is paused while open.
+// Ashfall village, …). Pick with the mouse, 1–9 or ↑/↓ + Enter; Backspace closes. The game is paused while open.
 //   menu.show(title, [{ label, hint?, disabled?, onPick }])
 
 export class ServiceMenu {
@@ -63,7 +63,7 @@ export class ServiceMenu {
     });
     const foot = document.createElement("div");
     foot.className = "svc-foot";
-    foot.textContent = fil ? "1–9 / Enter pumili · Esc isara" : "1–9 / Enter choose · Esc close";
+    foot.textContent = fil ? "1–9 / Enter pumili · Backspace isara" : "1–9 / Enter choose · Backspace close";
     this.el.appendChild(foot);
   }
 
@@ -85,7 +85,7 @@ export class ServiceMenu {
     const c = e.code;
     e.preventDefault();
     if (performance.now() - this.openedAt < 250) return;
-    if (c === "Escape") this.close();
+    if (c === "Backspace") this.close();
     else if (c === "ArrowUp" || c === "KeyW") this.move(-1);
     else if (c === "ArrowDown" || c === "KeyS") this.move(1);
     else if ((c === "Enter" || c === "Space" || c === "KeyE") && !e.repeat) this.pick(this.index);

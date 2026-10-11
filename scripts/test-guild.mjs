@@ -13,7 +13,7 @@ const quest = { step: 7, unlocked: id => id === "canopy", summonerAtCitadel: () 
 const ctx = { quest, stage: { id: "hub" } };
 const at = id => { p.x = GUILD_NPCS[id].x - 10; p.y = GUILD_NPCS[id].y - 10; };
 p.level = 10; p.gold = 1000;
-at("guildMaster"); quest.step = 6; quest.unlocked = () => false;
+at("guildMaster"); quest.step = 4; quest.unlocked = () => false;   // locked until Act V (after the Job Awakening)
 assert.equal(book.register(p, ctx).error, "locked");
 quest.step = 7; quest.unlocked = id => id === "canopy";
 p.gold = 199; assert.equal(book.register(p, ctx).error, "funds"); assert.equal(p.bag.has("guildPlate"), false);
@@ -86,6 +86,27 @@ for(const [id,point] of Object.entries(GUILD_NPCS)) {
  assert.ok(arrived,`walk to ${id} must not become stuck against the hall`);
 }
 for(const id of Object.keys(GUILD_NPCS)) assert.ok(npcs.find(id),`${id} must be placed and visible after unlock`);
-quest.unlocked=()=>false;npcs.applyQuest(quest,"knight");for(const id of Object.keys(GUILD_NPCS))assert.equal(npcs.find(id),null);
+quest.step=4;quest.unlocked=()=>false;npcs.applyQuest(quest,"knight");for(const id of Object.keys(GUILD_NPCS))assert.equal(npcs.find(id),null);
 const art=JSON.parse(fs.readFileSync(`${ROOT}/assets/ui/guild.json`));for(const key of art){assert.ok(fs.existsSync(`${ROOT}/aseprite/ui/${key}.aseprite`));assert.ok(fs.existsSync(`${ROOT}/assets/ui/${key}.png`));}
 console.log("Guild: unlock, assessment, fees, independent resets, discounts, replacements, isolated contracts, atomic rewards, automatic allocation, saves, NPCs and Aseprite exports passed");
+
+const {GuildField}=await load("js/guildfield.js");
+const {AutoAdventure}=await load("js/autoadventure.js");
+const {EnemyManager}=await load("js/enemy.js");
+const runner=new Player(630,426,{id:"knight"});runner.guild={member:true,rank:"G",active:{id:"G:0",cls:"knight",have:0,priority:true}};
+const field=new GuildField(book),manager=new EnemyManager();manager.stage=stage;
+const loot={items:[]},crew={find:id=>id==="guildClerk"?{id,x:630,y:600}:null};
+const auto=new AutoAdventure();
+const objective=field.goal(runner,stage,manager,crew,loot);
+assert.equal(objective.status,"search","empty guild hunt continues patrolling");
+const motion=auto.update({player:runner,stage,quest:{step:1},guildGoal:objective,finalStep:99},0);
+assert.equal(motion.status,"search");assert.ok(motion.movement.distance>0);
+assert.equal(stage.isInsideSafeZone(auto.goal.point.x-10,auto.goal.point.y-20),false);
+runner.guild.active.priority=false;
+assert.equal(field.goal(runner,stage,manager,crew,loot),null,"unchecked contract leaves campaign in control");
+const saved=JSON.parse(JSON.stringify(runner.guild));book.load(runner,saved);assert.equal(runner.guild.active.priority,false);
+runner.guild.active.priority=true;runner.guild.active.have=book.objective(runner).n;
+assert.equal(field.goal(runner,stage,manager,crew,loot).npc.id,"guildClerk","finished contract returns to clerk");
+runner.guild.active={id:"G:8",cls:"knight",have:0,priority:true};field.goal(runner,stage,manager,crew,loot);
+const guildMvp=manager.enemies.find(e=>e.guildMvp);assert.ok(guildMvp);assert.equal(stage.isInsideSafeZone(guildMvp.x,guildMvp.y),false);
+console.log("PASS: guild priority persistence, empty-field patrol, claim routing and sanctuary-free MVP spawn");

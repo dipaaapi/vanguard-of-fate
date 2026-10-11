@@ -81,7 +81,7 @@ export class ActReader {
 
   handleInput(e) {
     const c = e.code;
-    if (c === "Escape" || c === "Backspace" || c === "KeyR") { this.close(); return; }
+    if (c === "Backspace" || c === "KeyR") { this.close(); return; }
     if (c === "ArrowLeft" || c === "KeyA") this.step(-1);
     else if (c === "ArrowRight" || c === "KeyD") this.step(1);
     else if (c === "ArrowUp" || c === "KeyW") this.bodyEl.scrollBy({ top: -80, behavior: "smooth" });

@@ -185,7 +185,7 @@ export class CodexScene {
   // ---------- the entity's sprite ----------
   spriteOf(e) {
     if (!e || e.header) return null;
-    const key = e.kind === "custom" || e.kind === "class" ? `${e.kind}:${e.id}:${JSON.stringify(this.heroLook())}` : `${e.kind}:${e.id}`;
+    const key = e.kind === "custom" || e.kind === "class" ? `${e.kind}:${e.id}:${JSON.stringify(this.heroLook())}` : `${e.kind}:${e.kind === "item" ? e.item.id : e.id}`;
     if (this.sprites.has(key)) return this.sprites.get(key);
     let s = null;
     if (e.kind === "custom") s = { sprite: new Avatar(this.config), scale: 2.6 };
@@ -215,13 +215,14 @@ export class CodexScene {
   render() {
     this.root.classList.toggle("clean", this.clean);
     this.renderStances();
+    this.el.facing.hidden = this.tab === "items";
     this.renderTabs();
     this.renderList();
     this.renderDossier();
     this.renderTicker();
     this.renderFacing();
     this.renderDeck();
-    this.el.hint.innerHTML = t(this.mode === "create" ? "cxsHintCreate" : this.mode === "awaken" ? "cxsHintAwaken" : "cxsHint");
+    this.el.hint.innerHTML = t(this.mode === "create" ? "cxsHintCreate" : this.mode === "awaken" ? "cxsHintAwaken" : this.tab === "items" ? "cxsHintItems" : "cxsHint");
   }
 
   button(parent, cls, text, onClick) {
@@ -239,6 +240,8 @@ export class CodexScene {
   renderStances() {
     const el = this.el.stances;
     el.textContent = "";
+    el.hidden = this.tab === "items";
+    if (el.hidden) return;
     STANCES.forEach((s, i) => {
       const on = this.action >= 0 ? i === 2 : i === this.stance;
       const b = this.button(el, "cxs-stance" + (on ? " on" : ""), t(s.label), () => this.setStance(i));
@@ -299,7 +302,7 @@ export class CodexScene {
       input.value = this.nameValue || "";
       input.addEventListener("input", () => { this.nameValue = input.value; });
       input.addEventListener("keydown", (ev) => {
-        if (ev.key === "Enter" || ev.key === "Escape") { ev.preventDefault(); input.blur(); }
+        if (ev.key === "Enter") { ev.preventDefault(); input.blur(); }
         ev.stopPropagation();
       });
       this.nameEl = input;
@@ -445,7 +448,7 @@ export class CodexScene {
     if (this.mode !== "awaken" || this.opts.jobChange) {
       const b = add(`${t("cxsBack")}`, () => this.back());
       const k = document.createElement("kbd");
-      k.textContent = "Esc";
+      k.textContent = "Backspace";
       b.prepend(k);
     }
   }
@@ -482,6 +485,7 @@ export class CodexScene {
   }
 
   setStance(i) {
+    if (this.tab === "items") return;
     if (i === 2) { this.action = 0; }
     else { this.stance = i; this.action = -1; }
     this.tick = 0;
@@ -528,7 +532,7 @@ export class CodexScene {
   }
 
   toggleFullscreen() {
-    toggleFullscreen();   // js/settings.js (keeps Esc for the game while in full screen)
+    toggleFullscreen();   // js/settings.js (Escape exits fullscreen through the browser)
   }
 
   begin() {
@@ -579,7 +583,7 @@ export class CodexScene {
       e.preventDefault();
       if (this.mode === "create") this.begin();
       else if (this.mode === "awaken") this.awaken();
-    } else if (c === "Escape" || (c === "KeyN" && this.mode === "codex")) this.back();
+    } else if (c === "Backspace" || (c === "KeyN" && this.mode === "codex")) this.back();
     // ---- gamepad-only codes (see padKeys) ----
     else if (c === "PadConfirm" && !e.repeat) {
       // A: on the customizer it steps the selected look option; elsewhere it confirms
@@ -620,8 +624,8 @@ export class CodexScene {
     this.pedestal.draw((ctx, x, y, dir, flip) => {
       if (!s) return;
       if (s.icon) {
-        const k = 3, bob = Math.round(Math.sin(this.tick / 20) * 2);
-        ctx.drawImage(s.icon, Math.round(x - (s.icon.width * k) / 2), Math.round(y - 20 - s.icon.height * k + bob), s.icon.width * k, s.icon.height * k);
+        const k = 3;
+        ctx.drawImage(s.icon, Math.round(x - (s.icon.width * k) / 2), Math.round(y - 20 - s.icon.height * k), s.icon.width * k, s.icon.height * k);
         return;
       }
       const sp = s.sprite;

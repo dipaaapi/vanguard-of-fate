@@ -23,3 +23,10 @@
 .guild-contract-escort { border-left: 4px solid #6fb8df; background: #193443; }
 .guild-contract small { display: block; margin-bottom: 8px; }
 .guild-escort-condition { color: #91d7ef; }
+
+.guild-active[hidden]{display:none!important}
+.guild-active{margin:8px 10px;padding:10px;border:1px solid #617d69;border-radius:6px;background:linear-gradient(125deg,#18322c,#0d1927);color:#ccf3df;font:11px/1.5 Arial,sans-serif}
+.guild-priority{display:flex;align-items:center;gap:8px;cursor:pointer;color:#d9c596;font-size:10px;letter-spacing:.3px}
+.guild-priority input{accent-color:#8ce1b5;width:16px;height:16px;margin:0;flex-shrink:0}
+.guild-quest-info{display:block;width:100%;padding:8px 0 0;text-align:left;border:0;background:none;color:#a6ead4;font:inherit;cursor:pointer}
+.guild-quest-info:hover{color:#effff6}.guild-quest-info:focus-visible{outline:2px solid #a6ead4}

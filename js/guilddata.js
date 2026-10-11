@@ -22,7 +22,7 @@ const TEXT = {
   en: {
     title: "Meridian Adventurers' Guild", master: "Guild Master Oren Vale", representative: "Representative Mira Quill",
     clerk: "Contract Clerk Tessa Reed", scout: "Guild Scout Bram Holt", inflictionist: "Warden Neris Dusk",
-    locked: "The guild opens when Whispering Canopy is unlocked.", close: "F3 / Esc · Close", board: "Guild contracts", members: "Guild roster",
+    locked: "The guild opens after your Job Awakening.", close: "F3 / Backspace · Close", board: "Guild contracts", members: "Guild roster",
     member: "Member", rank: "Rank", role: "Role", fee: "Registration includes your first plate", register: "Apply to the Guild Leader",
     assess: "Reassess abilities / promotion", assessment: "Assessment: class, allocated stats and learned abilities; promotions also require completed contracts.",
     plate: "Guild plate", replace: "Replace lost plate", lost: "Report plate lost", lostConfirm: "Confirm loss of this plate",
@@ -42,13 +42,13 @@ const TEXT = {
     noChange: "There are no allocated points to reset.", ready: "Guild contract complete! Return to the Contract Clerk.",
     ceremony1: "Your abilities are weighed by the guild's Covenant seal.", ceremony2: "Your role is {role}. Your assessed guild rank is {rank}.",
     ceremony3: "Protect fellow adventurers. Honor every contract. Carry the Meridian plate with pride.", ceremony4: "Membership recorded. Your own guild journey begins.",
-    continue: "Enter / Space: Continue · Esc: Skip", contractNote: "Guild contracts are separate from the main story, side quests and NPC recruitment trials.",
+    continue: "Enter / Space: Continue · Backspace: Skip", contractNote: "Registering is part of the main story; guild contracts themselves stay separate from the main story, side quests and NPC recruitment trials.",
     weapon: "Tier weapon", armorSet: "Guild armor and weapon set", accessory: "Accessories", epic: "Epic", legendary: "Legendary", mythical: "Mythical"
   },
   fil: {
     title: "Meridian Adventurers' Guild", master: "Guild Master Oren Vale", representative: "Kinatawan Mira Quill",
     clerk: "Klerk ng Kontrata Tessa Reed", scout: "Guild Scout Bram Holt", inflictionist: "Warden Neris Dusk",
-    locked: "Bubukas ang guild kapag nabuksan ang Whispering Canopy.", close: "F3 / Esc · Isara", board: "Mga kontrata ng guild", members: "Mga miyembro ng guild",
+    locked: "Bubukas ang guild pagkatapos ng iyong Job Awakening.", close: "F3 / Backspace · Isara", board: "Mga kontrata ng guild", members: "Mga miyembro ng guild",
     member: "Miyembro", rank: "Ranggo", role: "Tungkulin", fee: "Kasama sa pagpaparehistro ang unang plaka", register: "Mag-aplay sa Guild Leader",
     assess: "Suriin ang kakayahan / promosyon", assessment: "Pagsusuri: klase, inilaan na stat at natutuhang kakayahan; kailangan din ang natapos na kontrata para sa promosyon.",
     plate: "Plaka ng guild", replace: "Palitan ang nawalang plaka", lost: "Iulat na nawala ang plaka", lostConfirm: "Kumpirmahing nawala ang plakang ito",
@@ -68,7 +68,7 @@ const TEXT = {
     noChange: "Walang nakalaang point na ire-reset.", ready: "Tapos ang kontrata ng guild! Bumalik sa Klerk ng Kontrata.",
     ceremony1: "Sinusukat ng Covenant seal ng guild ang iyong kakayahan.", ceremony2: "Ang tungkulin mo ay {role}. Ang ranggo mo ay {rank}.",
     ceremony3: "Protektahan ang kapwa adventurer. Tuparin ang kontrata. Ipagmalaki ang plaka ng Meridian.", ceremony4: "Naitala ang pagiging miyembro. Nagsisimula ang iyong paglalakbay sa guild.",
-    continue: "Enter / Space: Ituloy · Esc: Laktawan", contractNote: "Hiwalay ang kontrata ng guild sa pangunahing kuwento, side quest at pagsubok sa pag-recruit ng NPC.",
+    continue: "Enter / Space: Ituloy · Backspace: Laktawan", contractNote: "Bahagi ng pangunahing kuwento ang pagpaparehistro; hiwalay pa rin ang mga kontrata ng guild sa pangunahing kuwento, side quest at pagsubok sa pag-recruit ng NPC.",
     weapon: "Tier na armas", armorSet: "Set ng guild armor at armas", accessory: "Mga aksesorya", epic: "Epiko", legendary: "Maalamat", mythical: "Mitikal"
   }
 };

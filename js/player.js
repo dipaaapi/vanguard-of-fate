@@ -1,3 +1,4 @@
+import { innateBuild } from "./playables.js";
 import { Sound } from "./audio.js";
 import { Bag } from "./items/bag.js";
 import { mealBonus } from "./items/cooking.js";
@@ -6,6 +7,9 @@ import { STATS, PRIMARY, statCost, STAT_MAX, skillBonus, canLearn, findSkill, po
 import { SLOT_KEYS, noteStyle, slotNewActive, tickActives, styleOf } from "./skillpaths.js";
 import { STATUS_KEYS, tickStatuses, resistChance, blocksRegen } from "./status.js";
 import { around, mix, hitPose, attackPose, breathPose, drawSwing } from "./juice.js";
+import { tickBehavior, behaviorPose, drawBehaviorEmote } from "./behavior.js";
+import { loadPremium, premiumBuff } from "./premium.js";
+import { drawRefineAura, drawRefinedSprite, refineGlow } from "./items/refineglow.js";
 import { GFX } from "./settings.js";
 
 // Stamina (Diablo style): drains while sprinting, refills when walking or standing.
@@ -18,6 +22,13 @@ const EXHAUST_RECOVER = 35;
 // EXP to level up from this level (quadratic, not exponential):
 // Lv1 70 · Lv10 790 · Lv20 2540 · Lv30 5290 · Lv40 9040 — about 8 to 26 same-level monsters per level
 export const expFor = (level) => Math.round(40 + 25 * level + 5 * level * level);
+
+// Soft cap on move speed: full value up to +20% over the class pace, half of it after, hard stop at +45%
+export function softSpeed(pace, raw) {
+  const bonus = Math.max(-0.5, raw / pace - 1);
+  const soft = bonus <= 0.2 ? bonus : 0.2 + (bonus - 0.2) * 0.5;
+  return pace * (1 + Math.min(0.45, soft));
+}
 
 export class Player {
   constructor(x, y, heroData) {
@@ -38,6 +49,7 @@ export class Player {
     this.autoAttack = { remainingMs: 5 * 60 * 1000, until: 0 };
     this.autoAdventureClass = "knight";
     this.autoAdventureStatus = "off";
+    this.premium = loadPremium();
     this.skillPoints = 0;
     this.pathPoints = 0;
     this.sk = {};             // combined skill effects (computed in recalc)
@@ -157,29 +169,34 @@ export class Player {
   get kit() { return this.active || this.heroData; }
 
   totalStat(k) {
-    return (this.stats[k] || 1) + (this.gearStats ? this.gearStats[k] || 0 : 0) + (this.sk[k] || 0);
+    return ((this.active?.stats || this.stats)[k] || 1) + (this.gearStats ? this.gearStats[k] || 0 : 0) + (this.sk[k] || 0);
   }
 
   // Recomputes everything: class base + level + STR/AGI/… + equipment + skills
   recalc() {
+    if(this.active)Object.assign(this.active,innateBuild(this.active.id,this.level));
     // Gear + the active meal; skill boosts from crafted sets and the meal add to the skill tree's
     const meal = mealBonus(this.meal);
     const add = (out, b) => { Object.entries(b || {}).forEach(([k, v]) => { out[k] = +((out[k] || 0) + v).toFixed(2); }); return out; };
-    const g = add(this.bag.stats(), meal.stats);
+    const g = this.active ? Object.fromEntries(Object.keys(this.bag.stats()).map(k=>[k,0])) : add(this.bag.stats(), meal.stats);
     this.gearStats = g;
     const w = this.bag.equippedItem("weapon");
     this.weaponIcon = w ? w.icon : "knuckle";     // for the size modifier (js/elements.js)
-    this.sk = add(add(skillBonus(this), this.bag.skillBoost()), meal.skill);
+    this.sk = this.active ? {...this.active.passives} : add(add(skillBonus(this), this.bag.skillBoost()), meal.skill);
     const sk = this.sk;
     const S = Object.fromEntries(STATS.map((k) => [k, this.totalStat(k)]));
-    const primary = S[PRIMARY[this.heroData.id] || "str"];
-    const secondary = PRIMARY[this.heroData.id] === "str" ? S.dex : S.str;
+    const primary = S[(this.active?.primary || PRIMARY[this.heroData.id]) || "str"];
+    const secondary = (this.active?.primary || PRIMARY[this.heroData.id]) === "str" ? S.dex : S.str;
 
-    this.maxHp = Math.round((this.baseMaxHp + this.bonusHp + (this.level - 1) * 12 + g.hp + S.vit * 6) * (1 + S.vit * 0.01 + (sk.hpPct || 0) / 100));
-    this.defense = this.bonusDefense + g.def + Math.floor(S.vit / 2) + (sk.def || 0);
-    this.speed = (this.baseSpeed + this.bonusSpeed + g.spd + S.agi * 0.004) * (1 + (sk.move || 0) / 100);
-    this.attack = Math.round(this.bonusDamage + g.atk + primary * 1.5 + secondary * 0.3 + (sk.atk || 0));
-    this.crit = Math.min(0.75, this.bonusCrit + (g.crit + S.luk * 0.5 + S.dex * 0.1 + (sk.crit || 0)) / 100);
+    this.maxHp = Math.round(((this.active ? this.active.maxHp : this.baseMaxHp + this.bonusHp) + (this.level - 1) * 12 + g.hp + S.vit * 6) * (1 + S.vit * 0.01 + (sk.hpPct || 0) / 100));
+    this.defense = (this.active ? 0 : this.bonusDefense) + g.def + Math.floor(S.vit / 2) + (sk.def || 0);
+    // Move speed: gear, AGI, skills and passives stack, but with diminishing returns so it stays a walk —
+    // the bonus over the class's own pace is softened past +20% and never exceeds +45%.
+    const pace = this.active ? this.active.speed : this.baseSpeed;
+    const raw = ((pace + (this.active ? 0 : this.bonusSpeed)) + g.spd + S.agi * 0.004) * (1 + (sk.move || 0) / 100);
+    this.speed = softSpeed(pace, raw);
+    this.attack = Math.round((this.active ? 0 : this.bonusDamage) + g.atk + primary * 1.5 + secondary * 0.3 + (sk.atk || 0));
+    this.crit = Math.min(0.75, (this.active ? 0 : this.bonusCrit) + (g.crit + S.luk * 0.5 + S.dex * 0.1 + (sk.crit || 0)) / 100);
     this.critDmg = Math.min(2.5, 1.8 + Math.max(0, S.luk - 1) * 0.01);   // LUK: +1% crit damage per point
     this.cdr = Math.min(0.5, (g.cdr + S.int * 0.25 + (sk.cdr || 0)) / 100);
     this.aspd = Math.min(0.5, (g.aspd + S.agi * 0.6 + S.dex * 0.2 + (sk.aspd || 0)) / 100);
@@ -189,6 +206,7 @@ export class Player {
     this.maxStamina = Math.round(100 + S.vit + S.agi * 0.5 + (sk.stamina || 0));
     this.stamina = Math.min(this.stamina, this.maxStamina);
     this.hp = Math.min(this.hp, this.maxHp);
+    if(!this.active)this.heroMaxHp=this.maxHp;
   }
 
   // Full reset (job awakening, Oblivion Mushroom): every stat back to 1 and every skill forgotten
@@ -200,6 +218,7 @@ export class Player {
   // Internal refund; player-requested resets are priced and authorized by the Guild Representative.
   // The auto stat path is switched off so the refunded points are not spent again at once.
   resetStats() {
+    if(this.active)return false;
     Object.keys(this.stats).forEach((k) => {
       for (let v = 1; v < this.stats[k]; v++) this.statPoints += statCost(v);
       this.stats[k] = 1;
@@ -211,6 +230,7 @@ export class Player {
 
   // Refund each learned ability to its own pool. An omitted kind resets both.
   resetSkills(kind = "all") {
+    if(this.active)return false;
     if (kind !== "paths") this.autoSkill = false;
     if (kind !== "skills") this.autoPath = "off";
     for (const [id, lv] of Object.entries(this.skillLevels)) {
@@ -230,6 +250,7 @@ export class Player {
 
   // Stat builder: raise STR/AGI/… (costs rise, as in Ragnarok)
   raiseStat(k) {
+    if(this.active)return false;
     const v = this.stats[k];
     if (v === undefined || v >= STAT_MAX) return false;
     const cost = statCost(v);
@@ -269,6 +290,7 @@ export class Player {
 
   // Skill tree: raise a skill's level
   learnSkill(id) {
+    if(this.active)return false;
     const s = findSkill(id);
     if (!s || !canLearn(this, s)) return false;
     this[pointPoolFor(s)]--;
@@ -286,7 +308,7 @@ export class Player {
     if (this.hitFlashTimer > 0) return;
     if (this.invulnTimer > 0) return;   // e.g. the Novice's Dodge Roll
 
-    const guard = (this.guardTimer > 0 ? 0.65 : 1) * (this.mercGuard || 1)   // Bastion Forcefield (−35%) · Guardian Aura (−15%)
+    const guard = (premiumBuff(this, "ward") ? 0.8 : 1) * (this.guardTimer > 0 ? 0.65 : 1) * (this.mercGuard || 1)   // Bastion Forcefield (−35%) · Guardian Aura (−15%)
       * (this.wardT > 0 ? 1 - this.wardPct : 1);                             // Unbreakable / Mana Shield
     // DEF mitigates a share of each hit: DEF / (DEF + 20 + 4 × level). Flat subtraction made heavy gear
     // nearly immune and let the hero grow tankier every level; this keeps survival steady (~13–15 same-level hits).
@@ -360,6 +382,7 @@ export class Player {
   }
 
   allocateAutomatically() {
+    if(this.active)return;
     if (this.autoStat !== "off" && this.statPoints > 0 && autoAllocate(this)) this.recalc();
     autoLearn(this, "skills");
     autoLearn(this, "paths");
@@ -447,7 +470,19 @@ export class Player {
     if (this.isReloading && this.reloadTimer <= 1) this.state = "idle";
 
     if (this.kit && this.kit.onUpdate) {
+      const dash = this.chargeTimer > 0 || this.kickTimer > 0 || this.rollTimer > 0;
+      const x = this.x, y = this.y;
       this.kit.onUpdate(this);
+      // Automatic charges stop at the opponent instead of passing through and reversing.
+      if (input?.autoMovement && dash) {
+        const dx = this.x - x, dy = this.y - y, travelled = Math.hypot(dx, dy);
+        const limit = closestEnemy?.isAlive ? Math.max(0, Math.hypot(closestEnemy.x - x, closestEnemy.y - y) - 24) : 0;
+        if (travelled > limit) {
+          this.x = x + dx * limit / (travelled || 1);
+          this.y = y + dy * limit / (travelled || 1);
+          this.chargeTimer = this.kickTimer = this.rollTimer = 0;
+        }
+      }
     }
 
     const isPressed = (code) => {
@@ -464,6 +499,10 @@ export class Player {
     if (isPressed("KeyA") || isPressed("ArrowLeft")) vx -= 1;
     if (isPressed("KeyD") || isPressed("ArrowRight")) vx += 1;
 
+    // Autonomous steering retains its continuous heading instead of snapping to eight keys.
+    const autoMovement = input?.autoMovement;
+    if (autoMovement) { vx = autoMovement.x; vy = autoMovement.y; }
+
     // Confusion: reversed controls · Stun: cannot move
     if (this.debuffs.confusion > 0) { vx = -vx; vy = -vy; }
     if (this.paralyzed) { vx = 0; vy = 0; }
@@ -479,10 +518,11 @@ export class Player {
         this.spawnDust(this.x + 10 - (vx / len) * 6, this.y + 20 - (vy / len) * 3, 1);
       }
       const freezeMult = (this.debuffs.freeze > 0 ? 0.45 : 1.0) * (this.debuffs.curse > 0 ? 0.85 : 1.0);
-      const curSpeed = this.speed * sprintMult * freezeMult * (this.buffs.moveSpeed > 0 ? 1.5 : 1);
+      const curSpeed = this.speed * sprintMult * freezeMult * (this.buffs.moveSpeed > 0 ? 1.25 : 1);
 
-      this.x += (vx / len) * curSpeed;
-      this.y += (vy / len) * curSpeed;
+      const step = autoMovement ? Math.min(curSpeed, autoMovement.distance) : curSpeed;
+      this.x += (vx / len) * step;
+      this.y += (vy / len) * step;
 
       if (vx > 0) this.facing = "right";
       if (vx < 0) this.facing = "left";
@@ -570,7 +610,7 @@ export class Player {
     }
 
     // Path actives on the skill slots (T / Y / U), plus their cooldowns, ward and dash
-    tickActives(this, isPressed, { target: closestEnemy, spawn: spawnProjectile, fx, safe: isInSafeZone });
+    if(!this.active)tickActives(this, isPressed, { target: closestEnemy, spawn: spawnProjectile, fx, safe: isInSafeZone });
 
     this.animTimer++;
     const spriteObj = this.heroData ? this.kit.sprites : null;
@@ -587,6 +627,8 @@ export class Player {
         }
       }
     }
+    // Idle behaviors (js/behavior.js): the hero fidgets too when left standing
+    tickBehavior(this, this.state === "idle" && !(this.atkT > 0) && !(this.hurtT > 0) && !(this.rollTimer > 0), "hero");
   }
 
   spawnDust(x, y, n) {
@@ -657,6 +699,11 @@ export class Player {
 
     ctx.save();
     this.drawDust(ctx);
+    const glowTick = this.refineGlowTick = (this.refineGlowTick || 0) + 1;
+    const weapon = this.bag.equippedItem("weapon");
+    const armor = ["armor", "head", "garment", "gloves", "boots", "offhand"].map(slot => this.bag.equippedItem(slot)).sort((a, b) => (b?.plus || 0) - (a?.plus || 0))[0];
+    drawRefineAura(ctx, this.x + 10, this.y + 8, armor, glowTick);
+    drawRefineAura(ctx, this.x + (this.facing === "left" ? 0 : 20), this.y + 10, weapon, glowTick, true);
     const rolling = this.rollTimer > 0;
     if (GFX.shadows) { ctx.fillStyle = "rgba(0,0,0,0.28)"; ctx.beginPath(); ctx.ellipse(this.x + 10, this.y + 20, rolling ? 6 : 8, rolling ? 2 : 3, 0, 0, Math.PI * 2); ctx.fill(); }
 
@@ -685,12 +732,15 @@ export class Player {
       const pose = mix(
         hitPose(this.hurtT, 12, this.hurtDir),
         attackPose(p, Math.cos(this.atkAngle), Math.sin(this.atkAngle), this.isMelee() ? 3 : 1.5),
-        anim === "idle" && !p ? breathPose(this.idleTick = (this.idleTick || 0) + 1) : null
+        anim === "idle" && !p ? breathPose(this.idleTick = (this.idleTick || 0) + 1) : null,
+        anim === "idle" && !p ? behaviorPose(this) : null
       );
       around(ctx, this.x + 10, this.y + 21, pose, () =>
-        avatar.draw(ctx, this.x + 10, this.y + 21, this.dir, anim, frame, this.facing === "left", this.hitFlashTimer > 0));
+        drawRefinedSprite(ctx, (weapon?.plus || 0) > (armor?.plus || 0) ? weapon : armor, glowTick, () =>
+          avatar.draw(ctx, this.x + 10, this.y + 21, this.dir, anim, frame, this.facing === "left", this.hitFlashTimer > 0)));
       // Melee: a crescent follows the blade through the strike
-      if (p && this.isMelee()) drawSwing(ctx, this.x + 10, this.y + 12, this.atkAngle, 13, (p - 0.3) / 0.7, "#e2e8f0");
+      if (anim === "idle" && !p) drawBehaviorEmote(ctx, this, this.x + 10, this.y - 4);
+      if (p && this.isMelee()) drawSwing(ctx, this.x + 10, this.y + 12, this.atkAngle, 13, (p - 0.3) / 0.7, refineGlow(weapon)?.color || "#e2e8f0");
     }
     ctx.restore();
   }

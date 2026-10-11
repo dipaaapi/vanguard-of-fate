@@ -24,7 +24,7 @@ export const SHOPS = {
     fixed: { monsterShard: 15, voidCrystal: 80, elixir: 45, tonic: 18, panacea: 22, mushroom: 3000 }
   },
   // Any safe zone (Barracks, Citadel, platform camps): basics and cooking staples
-  safezone: { stock: ["soulstone", "salve", "elixir", "tonic", "panacea", "monsterShard", "wildSpice", "rockSalt"], markup: 1.25 }
+  safezone: { stock: [ "salve", "elixir", "tonic", "panacea", "monsterShard", "wildSpice", "rockSalt"], markup: 1.25 }
 };
 
 // What a shop charges for one. item = describe(...) of the id

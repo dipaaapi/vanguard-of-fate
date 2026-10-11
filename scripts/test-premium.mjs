@@ -1,0 +1,117 @@
+import assert from 'node:assert/strict';
+import {load} from './headless.mjs';
+const {Player}=await load('js/player.js');
+const {Party}=await load('js/party.js');
+const {PLAYABLES,PLAYABLE_IDS}=await load('js/playables.js');
+const {loadPremium,buyPremium,demoTopUp,exchangePremium,premiumBuff,premiumSkill,attackTransmute,playableStars,playableBanner,premiumPrice,BANNER_DURATION}=await load('js/premium.js');
+const {refineGlow}=await load('js/items/refineglow.js');
+const {autoSummonLoot,autoSummonDefence}=await load('js/summons/automation.js');
+const {syncFamiliar}=await load('js/summons/familiar.js');
+const {LootManager}=await load('js/loot.js');
+const {GuardianAngelCompanion:Angel}=await load('js/summons/angel.js');
+const p=new Player(40,40,{id:'knight'}),party=new Party();
+assert.equal(demoTopUp(p,999),false);assert.equal(p.premium.cash,0);
+assert.equal(demoTopUp(p,3000),true);assert.equal(p.premium.cash,3000);
+p.gold=10000;assert.ok(exchangePremium(p,'cashToPlatinum',2));assert.equal(p.gold,30000);
+assert.ok(exchangePremium(p,'platinumToCash',200));assert.equal(p.premium.cash,3000);assert.equal(p.gold,10000);
+assert.equal(exchangePremium(p,'platinumToCash',1),false);assert.equal(exchangePremium(p,'platinumToCash',101),false);assert.equal(exchangePremium(p,'cashToPlatinum',1.03),false);assert.equal(exchangePremium(p,'cashToPlatinum',.01),false);assert.equal(p.premium.cash,3000);assert.equal(p.gold,10000);
+assert.equal(exchangePremium(p,'platinumToCash',-1),false);assert.equal(exchangePremium(p,'cashToPlatinum',.005),false);
+assert.ok(buyPremium(p,party,'autoLoot').ok);assert.ok(buyPremium(p,party,'autoDefend').ok);
+const cash=p.premium.cash;assert.equal(buyPremium(p,party,'autoLoot').ok,false);assert.equal(p.premium.cash,cash);
+assert.ok(premiumSkill(p,'autoLoot'));assert.equal(p.autoAttack.until,0);
+const stage={bounds:{minX:0,minY:0,maxX:400,maxY:400},isInsideSafeZone:()=>false};
+const manager={enemies:[],stage};const loot=new LootManager();loot.drop({x:150,y:60},{id:'herb'},false,stage);
+const pet=syncFamiliar(p);for(let i=0;i<100&&loot.items.length;i++)pet.update(p,manager,null,loot,false,stage);
+assert.equal(p.bag.count('herb'),1,'permanent collector works with Z off');
+p.premium.enabled.autoLoot=false;assert.equal(autoSummonLoot(pet,p,manager,loot,null,stage),false);p.premium.enabled.autoLoot=true;
+const now=Date.now();assert.ok(buyPremium(p,party,'ward',now).ok);assert.ok(premiumBuff(p,'ward',now+1000));assert.equal(premiumBuff(p,'ward',now+3600000),false);
+assert.ok(buyPremium(p,party,'ward',now).ok);assert.equal(p.premium.buffs.ward,now+7200000);
+assert.ok(buyPremium(p,party,'transmute:storm').ok);const shot={x:0,y:0,damage:12};assert.equal(attackTransmute(p,shot).transmute.id,'storm');assert.equal(shot.damage,12);
+const id=PLAYABLE_IDS[0];assert.ok(buyPremium(p,party,`recruit:${id}`).ok);assert.ok(party.recruited(id));assert.ok(party.members.includes(id));assert.ok(p.premium.summons.includes(id));assert.equal(p.premium.summonActive,id);
+const restored=loadPremium(JSON.parse(JSON.stringify(p.premium)));assert.equal(restored.cash,p.premium.cash);assert.equal(restored.skills.autoLoot,true);assert.equal(restored.transmute,'storm');assert.equal(restored.summonActive,id);
+assert.equal(loadPremium(null).cash,0);assert.equal(loadPremium({cash:NaN,summons:['bad']}).cash,0);
+assert.ok(buyPremium(p,party,'soulstone').ok);const before=p.premium.cash;assert.ok(exchangePremium(p,'soulToCash',1));assert.equal(p.premium.cash,before+1);assert.equal(p.bag.count('soulstone'),0);
+p.bag.equip.weapon={id:'broadsword@0',qty:1,plus:0};p.bag.add('refineSafetyStone',15);p.bag.add('monsterShard',200);p.bag.add('voidCrystal',50);p.gold=100000;
+for(let n=1;n<=15;n++){const r=p.bag.upgrade({slot:'weapon'},p,()=>1,{safe:true});assert.ok(r.ok,`${n}: ${JSON.stringify(r)} shards ${p.bag.count("monsterShard")} crystals ${p.bag.count("voidCrystal")}`);assert.ok(r.success);assert.equal(p.bag.equip.weapon.plus,n);}
+assert.equal(p.bag.count('refineSafetyStone'),0);const gold=p.gold;assert.equal(p.bag.upgrade({slot:'weapon'},p,()=>0,{safe:true}).ok,false);assert.equal(p.gold,gold);
+p.bag.equip.weapon.plus=10;assert.equal(p.bag.upgrade({slot:'weapon'},p).reason,'premium');
+assert.ok(refineGlow({type:'equip',plus:15}).width>refineGlow({type:'equip',plus:5}).width);
+const priest=new Player(40,40,{id:'priest'});priest.premium.skills.autoLoot=true;priest.premium.enabled.autoLoot=true;
+const priestLoot=new LootManager();priestLoot.drop({x:150,y:60},{id:'herb'},false,stage);autoSummonDefence(priest,manager,stage,Angel,priestLoot);
+assert.equal(priest.angelCompanions.length,1,'Auto Loot alone provides a priest collector');
+const full=new Player(0,0,{id:'knight'});demoTopUp(full,500);full.bag.slots=Array.from({length:40},()=>({id:'broadsword@0',qty:1}));
+assert.equal(buyPremium(full,party,'soulstone').ok,false);assert.equal(full.premium.cash,500,'failed purchases cannot charge Cash');
+console.log('PASS: demo payments, reversible exchanges, Soulstones, permanent skills with Z off, timed/offline buffs, transmute cosmetics, recruit/summon unlocks, save loading, guaranteed +15, full-bag atomic purchases');
+
+for(const id of PLAYABLE_IDS)assert.equal(playableStars(id),5);
+const bannerStart=100*PLAYABLE_IDS.length*BANNER_DURATION;
+const seen=new Set();
+for(let i=0;i<PLAYABLE_IDS.length;i++){
+ const now=bannerStart+i*BANNER_DURATION,b=playableBanner(now);seen.add(b.id);
+ assert.equal(playableBanner(b.endsAt-1).id,b.id);
+ assert.equal(playableBanner(b.endsAt).id,b.nextId);
+ const product={id:`recruit:${b.id}`,kind:'recruit'};
+ assert.deepEqual(premiumPrice(product,now),{base:300,cash:240,platinum:24000,discount:20});
+ assert.equal(premiumPrice(product,b.endsAt).cash,300);
+ const buyer=new Player(0,0,{id:'knight'}),team=new Party();buyer.gold=2400000;buyer.premium.cash=0;
+ assert.ok(buyPremium(buyer,team,product.id,now,'platinum').ok);
+ assert.equal(buyer.gold,0);assert.equal(buyer.premium.cash,0);assert.ok(team.recruited(b.id));
+ assert.ok(buyer.premium.summons.includes(b.id));
+ assert.equal(buyPremium(buyer,team,product.id,now,'platinum').ok,false);assert.equal(buyer.gold,0);
+ const broke=new Player(0,0,{id:'knight'}),empty=new Party();broke.gold=2399999;
+ assert.equal(buyPremium(broke,empty,product.id,now,'platinum').ok,false);assert.equal(empty.recruited(b.id),false);assert.equal(empty.members.includes(b.id),false);assert.equal(broke.gold,2399999);
+}
+assert.equal(seen.size,PLAYABLE_IDS.length);
+const def=PLAYABLES[PLAYABLE_IDS[0]];def.stars=3;
+assert.equal(premiumPrice({id:`recruit:${PLAYABLE_IDS[0]}`,kind:'recruit'},bannerStart+BANNER_DURATION).base,180);def.stars=5;
+console.log('PASS: five-star profiles, complete daily banner rotation, exact expiration, star-based prices, 20% discounts and atomic Platinum recruitment with included echo');
+
+const {companionId,PremiumEcho}=await load('js/summons/premiumecho.js');
+const owner=new Player(40,40,{id:'knight'}),group=new Party();demoTopUp(owner,500);buyPremium(owner,group,`recruit:${PLAYABLE_IDS[0]}`);
+assert.equal(companionId(owner,group),PLAYABLE_IDS[0]);group.switchTo(1,owner,true);
+assert.equal(companionId(owner,group),'hero');
+const heroEcho=new PremiumEcho('hero',owner,group);assert.equal(heroEcho.avatar,owner.heroData.avatar);assert.equal(heroEcho.kit,owner.heroData);
+heroEcho.update(owner,{enemies:[]},{items:[]},null,{isInsideSafeZone:()=>false},()=>{});
+group.switchTo(0,owner,true);assert.equal(companionId(owner,group),PLAYABLE_IDS[0]);
+owner.premium.summonActive=null;assert.equal(companionId(owner,group),null);
+console.log('PASS: NPC on field summons original hero; returning to hero restores purchased NPC companion');
+
+const {PARTY_REVIVE_FRAMES}=await load('js/party.js');
+owner.premium.summonActive=PLAYABLE_IDS[0];group.switchTo(1,owner,true);owner.hp=0;
+const rescue=group.rescue(owner);assert.equal(rescue.fallen,PLAYABLE_IDS[0]);assert.equal(group.activeId,'hero');
+assert.equal(companionId(owner,group),null,'fallen NPC must not remain as an echo');
+assert.equal(group.switchTo(1,owner,true),null,'cannot select a fallen member');
+for(let i=0;i<100;i++)group.update(owner,true);
+assert.equal(group.hp[PLAYABLE_IDS[0]],0,'sanctuary cannot bypass revive countdown');
+const saved=group.serialize(owner),restoredGroup=new Party(saved,group.book.serialize());
+assert.equal(restoredGroup.revive[PLAYABLE_IDS[0]],PARTY_REVIVE_FRAMES-100);
+assert.equal(restoredGroup.hp.hero,group.hp.hero);
+for(let i=100;i<PARTY_REVIVE_FRAMES;i++)group.update(owner,false);
+assert.equal(group.hp[PLAYABLE_IDS[0]],Math.round(group.maxHpOf(PLAYABLE_IDS[0],owner)*.5));
+assert.equal(companionId(owner,group),PLAYABLE_IDS[0]);assert.equal(group.revive[PLAYABLE_IDS[0]],undefined);
+console.log('PASS: fallen NPC disappears, cannot switch while down, countdown survives save, sanctuary respects timer, revive at 50% HP restores companion');
+
+const originalStats=JSON.stringify(owner.stats),originalSkills=JSON.stringify(owner.skillLevels);
+group.switchTo(1,owner,true);assert.equal(owner.totalStat('int'),owner.active.stats.int+(owner.active.passives.int||0));
+assert.equal(owner.raiseStat('str'),false);assert.equal(owner.learnSkill('daggerJab'),false);
+owner.allocateAutomatically();assert.equal(JSON.stringify(owner.stats),originalStats);assert.equal(JSON.stringify(owner.skillLevels),originalSkills);
+assert.equal(owner.maxHp,group.maxHpOf(group.activeId,owner));
+group.switchTo(0,owner,true);assert.equal(JSON.stringify(owner.stats),originalStats);assert.equal(JSON.stringify(owner.skillLevels),originalSkills);
+console.log('PASS: distinct innate NPC combat stats, locked allocation and skills, individual HP limits, hero build restored after switching');
+
+const {innateBuild,makePlayableKit}=await load('js/playables.js');
+for(const id of PLAYABLE_IDS){const low=innateBuild(id,1),high=innateBuild(id,21);for(const key of Object.keys(low.stats))assert.ok(high.stats[key]>low.stats[key]);for(const key of Object.keys(low.passives))assert.ok(high.passives[key]>low.passives[key]);assert.equal(high.rank,3);const kit=makePlayableKit(id,null),shots=[];const actor={x:0,y:0,level:1,buffs:{damage:0},aimAngle:0,hp:10,maxHp:100};kit.onAttack(actor,null,s=>shots.push(s));const damage=shots[0].damage;actor.level=21;kit.onAttack(actor,null,s=>shots.push(s));assert.ok(shots[shots.length-1].damage>damage);}
+console.log('PASS: all five NPC innate stats, path passives, ranks and signature damage scale with hero level');
+
+const {retainPremiumForRegression}=await load('js/premium.js');
+const previous=new Player(0,0,{id:'knight'}),previousParty=new Party();demoTopUp(previous,3000);
+for(const id of ['autoLoot','autoDefend','transmute:astral',`recruit:${PLAYABLE_IDS[0]}`,`summon:${PLAYABLE_IDS[1]}`,'ward','might','refineSafetyStone','refineSafetyStone','soulstone'])assert.ok(buyPremium(previous,previousParty,id).ok);
+previous.bag.take('refineSafetyStone',1);previous.gold=432100;const next=new Player(0,0,{id:'knight'}),newParty=new Party();
+retainPremiumForRegression(previous,next,newParty);
+assert.equal(next.premium.cash,previous.premium.cash);assert.equal(next.gold,previous.gold);
+assert.ok(next.premium.skills.autoLoot&&next.premium.skills.autoDefend);assert.equal(next.premium.transmute,'astral');
+assert.ok(newParty.recruited(PLAYABLE_IDS[0]));assert.ok(newParty.members.includes(PLAYABLE_IDS[0]));assert.ok(!newParty.recruited(PLAYABLE_IDS[1]));
+assert.deepEqual(next.premium.summons,previous.premium.summons);assert.equal(next.premium.summonActive,previous.premium.summonActive);
+assert.equal(next.bag.count('refineSafetyStone'),1);assert.equal(next.bag.count('soulstone'),1);assert.equal(next.premium.buffs.ward,0);assert.equal(next.premium.buffs.might,0);
+const again=new Player(0,0,{id:'knight'}),againParty=new Party();retainPremiumForRegression(next,again,againParty);assert.equal(again.bag.count('refineSafetyStone'),1);assert.equal(again.premium.cash,next.premium.cash);
+console.log('PASS: repeated regression retains wallets, permanent skills, cosmetics, premium recruits, summons and unconsumed items; timed buffs end without replenishing used items');

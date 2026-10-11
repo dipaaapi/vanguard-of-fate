@@ -213,3 +213,26 @@ body[data-mode="play"] #chatLog {
 /* Economy panels sit above the hero gauge so wallet balances are never covered. */
 #market, #inventory { z-index: 8; }
 .mk-head { flex-wrap: wrap; gap: calc(3px * var(--s)); }
+
+.pt-row.down .pt-bar i{background-image:none;background-color:#8bbcff;box-shadow:0 0 5px #7dafff}
+
+/* Field overlays must never cover canvas or DOM modal content.
+   Visibility overrides each widget's inline display without losing its state. */
+#viewport.panel-open #heroHud,
+#viewport.panel-open #partyHud,
+#viewport.panel-open .premium-hud,
+#viewport.panel-open .guild-tracker,
+#viewport.panel-open #hudText {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Current difficulty mode beside the wallet (js/hudbar.js) */
+.hb-difficulty { display: inline-flex; align-items: center; padding: 1px 6px; border: 1px solid currentColor; border-radius: 3px;
+  font: bold 9px "Silkscreen", "Consolas", monospace; letter-spacing: .5px; text-transform: uppercase; white-space: nowrap; background: #0008; }
+.hb-difficulty.diff-easy { color: #86efac; }
+.hb-difficulty.diff-normal { color: #93c5fd; }
+.hb-difficulty.diff-hard { color: #fcd34d; }
+.hb-difficulty.diff-epic { color: #fb923c; }
+.hb-difficulty.diff-champion { color: #f87171; }
+.hb-difficulty.diff-mythical { color: #e879f9; text-shadow: 0 0 4px #e879f9aa; }

@@ -162,7 +162,7 @@ export class DevTools {
       <header class="dev-head">
         <strong>Developer Tools</strong>
         <span class="dev-sub">game paused while open</span>
-        <button class="dev-x" data-act="close" title="Close (F9 / Esc)">✕</button>
+        <button class="dev-x" data-act="close" title="Close (F9 / Backspace)">✕</button>
       </header>
       <nav class="dev-tabs">
         <button data-tab="save">Save</button><button data-tab="cheats">Cheats</button><button data-tab="balance">Balance</button>
@@ -175,7 +175,7 @@ export class DevTools {
 
     // Keys typed into the panel never reach the game
     ["keydown", "keyup"].forEach((t) => root.addEventListener(t, (e) => {
-      if (e.code === "F9" || (e.code === "Escape" && t === "keydown" && e.target.tagName !== "TEXTAREA")) return;
+      if (e.code === "F9" || (e.code === "Backspace" && t === "keydown" && e.target.tagName !== "TEXTAREA")) return;
       e.stopPropagation();
     }));
     root.addEventListener("click", (e) => {
@@ -198,7 +198,7 @@ export class DevTools {
   handleKey(e) {
     if (e.code === "F9") { e.preventDefault(); this.toggle(); return true; }
     if (!this.open) return false;
-    if (e.code === "Escape") { this.toggle(false); e.preventDefault(); }
+    if (e.code === "Backspace") { this.toggle(false); e.preventDefault(); }
     return true;
   }
 

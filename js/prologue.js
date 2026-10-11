@@ -15,7 +15,7 @@ import { buildShots } from "./cinema/prologueShots.js";
 // Shots are layered pixel-art sets with a moving camera, depth of field, lights and particles
 // (js/cinema/); the text is in data/prologue.json. The hero is the one made in the Character
 // Creator; the summoner is Aurelia or Kenneth.
-// Enter/Space/E/click: finish the line or continue · Esc: skip everything.
+// Enter/Space/E/click: finish the line or continue · Backspace: skip everything.
 
 let TEXT = null;
 const textReady = fetch("data/prologue.json").then((r) => r.json()).then((d) => { TEXT = d; }).catch(() => { TEXT = { shots: {}, panel: { en: [], fil: [] } }; });
@@ -68,8 +68,8 @@ export class PrologueScene {
     this.root.focus();
     Sound.init();
     this.hintEl.innerHTML = lang === "fil"
-      ? "<b>Enter</b> Susunod &nbsp;·&nbsp; <b>Esc</b> Laktawan"
-      : "<b>Enter</b> Next &nbsp;·&nbsp; <b>Esc</b> Skip";
+      ? "<b>Enter</b> Susunod &nbsp;·&nbsp; <b>Backspace</b> Laktawan"
+      : "<b>Enter</b> Next &nbsp;·&nbsp; <b>Backspace</b> Skip";
     this.lineEl.textContent = "";
     this.speakerEl.textContent = "";
     this.cine.reset();
@@ -224,7 +224,7 @@ export class PrologueScene {
     if (c === "Space" || c === "Enter" || c === "KeyE") {
       e.preventDefault();
       if (!e.repeat) this.next();
-    } else if (c === "Escape") {
+    } else if (c === "Backspace") {
       e.preventDefault();
       this.finish();
     }

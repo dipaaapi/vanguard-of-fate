@@ -44,7 +44,8 @@ export function guildContracts(cls = "knight") {
 export class GuildBook {
   constructor() { this.onReady = null; }
   state(p) { return p.guild ||= guildState(); }
-  available(quest) { return Boolean(quest?.unlocked("canopy")); }
+  // Opens with Act V: registering is the main quest's first task after the Job Awakening
+  available(quest) { return Boolean(quest && (quest.step >= 5 || quest.unlocked("canopy"))); }
   at(p, ctx, npc) {
     const n = GUILD_NPCS[npc];
     return this.available(ctx.quest) && ctx.stage.id === "hub" && Math.hypot(p.x + 10 - n.x, p.y + 10 - n.y) < 60;
@@ -105,7 +106,7 @@ export class GuildBook {
     const s = this.state(p), c = this.contract(p, id);
     if (s.active) return { error: "busy" };
     if (!c || s.claimed.includes(id) || GUILD_RANKS.indexOf(c.rank) > GUILD_RANKS.indexOf(s.rank) || c.area !== "hub" && !ctx.quest.unlocked(c.area)) return { error: "unavailable" };
-    s.active = { id, have: 0, cls: p.heroData.id }; return {};
+    s.active = { id, have: 0, cls: p.heroData.id, priority: true }; return {};
   }
   abandon(p, ctx) {
     const error = this.access(p, ctx, "guildClerk"); if (error) return { error };
@@ -160,7 +161,7 @@ export class GuildBook {
       const cls = CLASS_KIT[data.active.cls] ? data.active.cls : p.heroData.id;
       const c = guildContracts(cls).find(c => c.id === data.active.id);
       if (GUILD_RANKS.indexOf(c.rank) <= GUILD_RANKS.indexOf(s.rank)) {
-        s.active = { id: c.id, cls, have: Math.max(0, Math.min(c.n, Math.floor(Number(data.active.have) || 0))) };
+        s.active = { id: c.id, cls, priority: data.active.priority !== false, have: Math.max(0, Math.min(c.n, Math.floor(Number(data.active.have) || 0))) };
         // Only scalar, bounded route state is restored; enemies are recreated by the field system.
         const e = data.active.escort;
         if (c.t === "escort" && e && Number.isFinite(e.hp)) s.active.escort = {

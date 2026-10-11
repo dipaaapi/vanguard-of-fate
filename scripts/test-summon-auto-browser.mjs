@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { startGame, runSteps, FLOWS } from "./gamebrowser.mjs";
 const g = await startGame({ debug: true, waitUntil: "domcontentloaded" });
 try {
+ // Movement/AI checks don't require the host's physical audio device.
+ await g.page.evaluate(async()=>{const {Sound}=await import('./js/audio.js');Sound.musicEnabled=false;Sound.sfxEnabled=false;Sound.isMuted=true;});
   await runSteps(g, FLOWS.newgame.replace(/,?shot:[\w-]+/g, ""));
   await g.page.evaluate(() => {
     const v = window.__vof; v.dialog.close(); v.actIntro.close(); v.awaken(v.ROSTER.find(h => h.id === "knight"));
@@ -35,4 +37,7 @@ try {
   await g.page.waitForFunction(() => window.__vof.player.angelCompanions?.some(a => a.isAlive));
   assert.deepEqual(g.logs.errors, []); assert.deepEqual(g.logs.failed, []);
   console.log("Browser Z: stationary-owner pet loot, toggle-off pause/resume, automatic falcon defence and guardian summoning passed");
+} catch (e) {
+  console.log('FAILED SUMMON STATE', await g.page.evaluate(()=>{const v=window.__vof,p=v.player,f=p.familiar;return {state:v.state,status:p.autoAdventureStatus,auto:p.autoAttack,hero:{x:p.x,y:p.y},pet:f&&{x:f.x,y:f.y,target:!!f.target,loot:!!f.autoLootTarget,navStart:f.autoLootNavigator?.start,block:f.autoLootNavigator?.blocked(f.x+8,f.y+15),end:f.autoLootNavigator?.endpoint(v.lootManager.items[0],10),dir:f.autoLootNavigator?.direction({x:f.x-2,y:f.y-5},v.lootManager.items[0],10),boxes:f.autoLootNavigator?.boxes},items:v.lootManager.items.map(i=>({x:i.x,y:i.y,id:i.id,slide:i.targetSlideX,blocked:i.blocked})),enemies:v.enemyManager.enemies.length};}));
+  console.log('ERRORS',g.logs.errors); throw e;
 } finally { await g.close(); }

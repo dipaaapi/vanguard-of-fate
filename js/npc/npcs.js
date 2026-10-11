@@ -1,5 +1,6 @@
 import { Avatar } from "../avatar/avatar.js";
 import { around, attackPose, drawSwing } from "../juice.js";
+import { tickBehavior, behaviorPose, drawBehaviorEmote } from "../behavior.js";
 import { NPC_DEFS } from "./roster.js";
 import { npcName } from "../dialogue.js";
 import { qt } from "../quest.js";
@@ -458,7 +459,9 @@ class NPC {
       this.avatar.draw(ctx, this.x, this.y, this.dir, "walk", frame, this.flip, false, 1, this.squash);
     } else {
       const frame = Math.floor(this.tick / 35) % 2;
-      this.avatar.draw(ctx, this.x, this.y, this.dir, "idle", frame, this.flip, false, 1, this.squash);
+      around(ctx, this.x, this.y, behaviorPose(this), () =>
+        this.avatar.draw(ctx, this.x, this.y, this.dir, "idle", frame, this.flip, false, 1, this.squash));
+      drawBehaviorEmote(ctx, this, this.x, this.y - 27);
     }
   }
 }
@@ -577,7 +580,7 @@ export class NPCManager {
   applyQuest(quest, cls) {
     const atCitadel = quest.summonerAtCitadel();
     this.npcs.forEach((n) => {
-      if (n.tag === "guild") n.visible = quest.unlocked("canopy");
+      if (n.tag === "guild") n.visible = quest.step >= 5 || quest.unlocked("canopy");   // Act V: guild registration
       if (n.tag === "summonerBarracks") n.visible = !atCitadel;
       if (n.tag === "summonerCitadel") n.visible = atCitadel;
       if (n.tag === "tradeCaravan") n.visible = quest.unlocked("port") && quest.unlocked("swamp") && quest.unlocked("siege");
@@ -728,6 +731,7 @@ export class NPCManager {
     this.npcs.forEach((n) => {
       if (!this.shown(n)) return;
       n.update(px, py, enemyManager, fx, king, heir);
+      tickBehavior(n, n.state !== "walk" && !(n.attackAnimTimer > 0), "humanoid");   // idle behaviors (js/behavior.js)
       const d = Math.hypot(px - n.x, py - n.y);
       if (d < bestD) { best = n; bestD = d; }
     });
@@ -742,6 +746,7 @@ export class NPCManager {
         n.dir = Math.abs(dx) > Math.abs(dy) ? "side" : dy < 0 ? "up" : "down";
         n.flip = dx < 0; n.state = "walk"; n.walkAnimTick++;
       } else n.state = "idle";
+      tickBehavior(n, n.state === "idle", "humanoid");
       n.tick++;
     });
     this.nearest = best;

@@ -18,27 +18,27 @@ const TEXT = {
   en: {
     title: "Workshop", craft: "Craft gear", craftHint: "Ore, cores and essence from monsters and veins",
     auto: (on, name) => `Auto-craft: ${on ? "ON" : "OFF"}${name ? ` · ${name}` : ""}`, autoHint: "Crafts the next missing piece of your target set in safe zones",
-    cook: "Cook", cookHint: "Fish, meat, spice and salt into buff meals", transmute: "Transmute", transmuteHint: "Trade materials up a tier or swap essences",
+    cook: "Cook", cookHint: "Fish, meat, spice and salt into buff meals", transmute: "Material Exchange", transmuteHint: "Trade materials up a tier or swap essences",
     tier: (lv, you) => `Lv ${lv} sets${you ? " · your tier" : ""}`, tierHint: (g) => `Grade ${g} pieces · 2 / 4 / 6-piece bonuses and a skill boost`,
     path: (name, rec) => `${name}${rec ? " ★ your build" : ""}`, back: "« Back",
     target: (name) => `Make "${name}" the auto-craft target`, isTarget: "★ Auto-craft target",
     have: (n) => `owned ${n}`, needLv: (lv) => `wear at Lv ${lv}`,
     errs: { gold: "Not enough gold", materials: "Not enough materials", full: "Bag is full", slot: "Can't craft that", level: "Level too low", ingredients: "Missing ingredients" },
     crafted: (name) => `Crafted: ${name}`, autoCrafted: (name) => `Auto-crafted at the safe zone: ${name}`,
-    cooked: (name) => `Cooked: ${name}`, transmuted: (a, b) => `Transmuted ${a} → ${b}`,
+    cooked: (name) => `Cooked: ${name}`, transmuted: (a, b) => `Exchanged ${a} → ${b}`,
     ores: "Ore and cores", essences: "Essences", lvl: (lv) => `needs Lv ${lv}`, safeOnly: "The workshop is only open in a safe zone"
   },
   fil: {
     title: "Talyer", craft: "Gumawa ng gamit", craftHint: "Mineral, core at diwa mula sa halimaw at ugat",
     auto: (on, name) => `Kusang paggawa: ${on ? "BUKAS" : "SARADO"}${name ? ` · ${name}` : ""}`, autoHint: "Ginagawa ang susunod na kulang na piraso ng target na set sa ligtas na lugar",
-    cook: "Magluto", cookHint: "Isda, karne, pampalasa at asin para sa pagkaing may buff", transmute: "Transmute", transmuteHint: "Ipagpalit ang materyales pataas o ang diwa",
+    cook: "Magluto", cookHint: "Isda, karne, pampalasa at asin para sa pagkaing may buff", transmute: "Palitan ng Materyales", transmuteHint: "Ipagpalit ang materyales pataas o ang diwa",
     tier: (lv, you) => `Mga set na Lv ${lv}${you ? " · antas mo" : ""}`, tierHint: (g) => `Gradong ${g} · bonus sa 2 / 4 / 6 piraso at skill boost`,
     path: (name, rec) => `${name}${rec ? " ★ ayon sa build mo" : ""}`, back: "« Bumalik",
     target: (name) => `Gawing target ng kusang paggawa ang "${name}"`, isTarget: "★ Target ng kusang paggawa",
     have: (n) => `mayroon ${n}`, needLv: (lv) => `maisusuot sa Lv ${lv}`,
     errs: { gold: "Kulang ang ginto", materials: "Kulang ang materyales", full: "Puno ang bag", slot: "Hindi magagawa", level: "Kulang ang level", ingredients: "Kulang ang sangkap" },
     crafted: (name) => `Nagawa: ${name}`, autoCrafted: (name) => `Kusang nagawa sa ligtas na lugar: ${name}`,
-    cooked: (name) => `Naluto: ${name}`, transmuted: (a, b) => `Na-transmute ${a} → ${b}`,
+    cooked: (name) => `Naluto: ${name}`, transmuted: (a, b) => `Naipagpalit ${a} → ${b}`,
     ores: "Mineral at core", essences: "Mga diwa", lvl: (lv) => `kailangan ang Lv ${lv}`, safeOnly: "Bukas lang ang talyer sa ligtas na lugar"
   }
 };

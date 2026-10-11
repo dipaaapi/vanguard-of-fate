@@ -68,6 +68,8 @@ Even before the Awakening, the war camps of the plains begin posting bounties of
 
 ## 🛡️ Act V: The Dual Equipment Matrix & Strategic Warfare
 
+An Awakened calling is only half a summons. Before the Crown entrusts its Vanguard with any loadout, the newly Awakened hero must walk to the guild hall on the plains and present themselves to Guild Master Oren Vale of the Meridian Adventurers' Guild. The registration is a rite as much as a ledger: the hero's training is weighed, a rank and battle role are inscribed, an oath is sworn, and the first guild plate (paid for with the hero's own two hundred gold) is pressed into their hand. Only a registered adventurer may take the guild's contracts, hire its sell-swords, or buy its resets, and only with that plate at their belt will their mentor in the Barracks Sanctuary agree to prepare the loadout that follows.
+
 The armaments of the Fated Vanguard are engineered around rigid tactical doctrines, ensuring every combatant maintains distinct strengths and exploitable vulnerabilities. For the Knight, choice dictates role: taking up the two-handed Heavy Lance enables devastating forward thrusts that pierce continuous columns of foes, transforming the hero into an offensive battering ram. Conversely, adopting the classic broadsword coupled with an ashlar-reinforced Tower Shield sacrifices forward reach in exchange for unbreakable stability, allowing the Knight to absorb colossal blows within their Bastion Forcefield before blowing back swarming hordes with kinetic counter-detonations.
 
 Spellcasters and sacred healers balance their destructive potential against survival and cast frequency through their assigned armory. A Mage who shoulders the two-handed Great Staff channels planetary leylines, amplifying the radius and impact of falling meteors to incinerate entire battalions from afar; alternatively, wielding a swift wand paired with an Arcane Grimoire or Focus Shield accelerates incantation tempos while shielding the caster from flanking ambushers. The Priest similarly deliberates between the two-handed Grand Scepter for wide sacred shockwaves that disrupt dark rituals, or the revered Holy Rosary and Grimoire pairing, which dramatically shortens divine triage cooldowns and bolsters the combat endurance of summoned Guardian Angels.
@@ -233,6 +235,8 @@ The summoner's healing is bound to consecrated ground. The Crown Heir's mana is 
 Mercenaries carry no anchor. Captain Ronald's auxiliaries fight for coin and pride, and when one falls they are knocked senseless rather than slain, because Ronald pulls his people out before the wilds can finish them. Steel carries no anchor either: armor dents and blades crack, and only the dwarven smiths of Emberhold can mend gear cheaply or temper it past what the Barracks forge allows.
 
 ---
+
+Nothing in Aethelgard stands still as a statue, and the Ledger does not pretend otherwise. Every living thing keeps its own small habits when the fighting stops: beasts sniff the wind, scratch, groom and doze off in the grass; bosses pace and bellow from their thrones; townsfolk, guild staff, mercenaries, Guardian Angels and familiars stretch, hum, wave and glance about. The summoned hero is no exception. Left standing long enough, they too yawn, sigh, sit down or hum a tune from Earth, and no one can say in advance which habit will surface next.
 
 ## 🜏 Heralds: The Inverted Star
 

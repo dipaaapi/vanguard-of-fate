@@ -46,7 +46,7 @@ export class HudBar {
     this.paused = paused;
     const b = this.el.pauseBtn;
     if (!b) return;
-    b.innerHTML = paused ? `▶ ${t("hbResume")} <kbd>P</kbd>` : `❚❚ ${t("hbPause")} <kbd>P</kbd>`;
+    b.innerHTML = paused ? `▶ ${t("hbResume")} <kbd>Backspace</kbd>` : `❚❚ ${t("hbPause")} <kbd>Backspace</kbd>`;
     b.classList.toggle("on", paused);
   }
 
@@ -66,7 +66,7 @@ export class HudBar {
     this.set("name", e.name, displayName);
     // A Novice's heroData.name is the hero's own name, so show the class instead; a recruit shows their role
     const cls = s.role || (p.heroData.id === "novice" ? "Novice" : p.heroData.name);
-    this.set("cls", e.cls, s.difficulty ? `${cls} · ${s.difficulty}` : cls);   // Regression difficulty (above Easy)
+    this.set("cls", e.cls, cls);
     this.set("level", e.level, `LV.${p.level}`);
 
     const hpRatio = Math.max(0, Math.min(1, p.hp / p.maxHp));
@@ -96,11 +96,24 @@ export class HudBar {
     this.set("xp", e.xp, `${(xpRatio * 100).toFixed(1)}%`, "width");
     this.set("xpText", e.xpText, `EXP ${(xpRatio * 100).toFixed(1)}%`);
     renderCoinWallet(e.gold, p.gold);
+    // Current difficulty mode (Easy → Mythical), at the end of the wallet; re-added when the wallet rebuilds
+    let diff = e.gold.querySelector(".hb-difficulty");
+    if (!diff) { diff = document.createElement("span"); e.gold.appendChild(diff); }
+    const dk = `${s.difficultyId}|${s.difficulty}`;
+    if (diff.dataset.k !== dk) {
+      diff.dataset.k = dk;
+      diff.className = `hb-difficulty diff-${s.difficultyId || "easy"}`;
+      diff.textContent = s.difficulty || "";
+      diff.title = s.difficulty || "";
+    }
 
     this.set("foes", e.foes, String(s.foes));
     this.set("loot", e.loot, String(s.loot));
     // Time of day + weather (weather only in Aethelgard)
     const w = s.weather;
+    const field=e.zone.closest(".hb-field");
+    field.dataset.zone=s.inSanctuary?"safe":"wild";
+    field.dataset.weather=(w||"clear").toLowerCase();
     this.set("weather", e.weather, `${s.time || ""}${w ? ` · ${WEATHER_ICON[w] || ""} ${w}` : ""}`);
     this.set("zone", e.zone, s.inSanctuary ? `🛡️ ${t("hbSanctuary")}` : `⚔️ ${t("hbOutlands")}`);
     this.set("zoneCls", e.zone, s.inSanctuary ? "hb-zone safe" : "hb-zone", "className");

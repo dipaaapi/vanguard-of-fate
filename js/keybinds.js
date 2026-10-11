@@ -19,8 +19,8 @@ export const KEY_ACTIONS = [
 const DEF = Object.fromEntries(KEY_ACTIONS.map((a) => [a.id, a.def]));
 // Keys the game already uses for something fixed (movement, skills, menus) can't be taken
 const RESERVED = new Set(["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "KeyJ", "KeyK", "KeyL",
-  "KeyE", "KeyQ", "KeyI", "KeyC", "KeyM", "KeyN", "KeyO", "KeyG", "KeyH", "KeyB", "KeyP", "KeyT", "KeyY", "KeyU", "Space", "Escape",
-  "KeyZ", "KeyR", "KeyX", "Enter", "Tab", "Digit1", "Digit2", "Digit3", "Digit4", "ShiftLeft", "ShiftRight", "F2", "F3"]);
+  "KeyE", "KeyQ", "KeyI", "KeyC", "KeyM", "KeyN", "KeyO", "KeyG", "KeyH", "KeyB", "KeyP", "KeyT", "KeyY", "KeyU", "Space", "Escape", "Backspace",
+  "KeyZ", "KeyR", "KeyX", "Enter", "Tab", "Digit1", "Digit2", "Digit3", "Digit4", "ShiftLeft", "ShiftRight", "F2", "F3", "F4", "F6"]);
 const VALID = /^(Shift\+)?(Key[A-Z]|Digit[0-9]|F([1-9]|1[0-2])|Numpad[0-9]|Backquote|Minus|Equal|BracketLeft|BracketRight|Semicolon|Quote|Comma|Period|Slash|Backslash)$/;
 
 let binds = load();

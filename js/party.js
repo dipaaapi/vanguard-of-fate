@@ -1,4 +1,4 @@
-import { PLAYABLES, PLAYABLE_IDS, PlayableQuestBook, makePlayableKit } from "./playables.js";
+import { PLAYABLES, PLAYABLE_IDS, PlayableQuestBook, makePlayableKit, innateMaxHp } from "./playables.js";
 import { NPC_DEFS } from "./npc/roster.js";
 import { Avatar } from "./avatar/avatar.js";
 import { getLang } from "./i18n.js";
@@ -13,6 +13,7 @@ import { getLang } from "./i18n.js";
 // home map (PlayableQuestBook). Text: data/party.json.
 
 export const PARTY_MAX = 6;
+export const PARTY_REVIVE_FRAMES = 30 * 60;
 const SWITCH_COOLDOWN = 60;     // frames between switches (1 s)
 const REST_EVERY = 45;          // off-field recovery tick in a sanctuary
 const CONSOLE_REACH = 22;       // Eirene's system consoles: walk up to one to restart it
@@ -52,9 +53,11 @@ export class Party {
     recruited.forEach((id) => { if (!order.includes(id)) order.push(id); });
     this.members = ["hero", ...order].slice(0, PARTY_MAX);
     this.hp = {};
+    this.revive = {};
     this.members.forEach((id) => {
       const v = Number(saved?.hp?.[id]);
-      this.hp[id] = Number.isFinite(v) ? Math.max(0, v) : null;
+      this.hp[id] = saved?.hp?.[id] != null && Number.isFinite(v) ? Math.max(0, v) : null;
+      if(this.hp[id] === 0)this.revive[id] = Math.max(1, Math.min(PARTY_REVIVE_FRAMES, Number(saved?.revive?.[id]) || PARTY_REVIVE_FRAMES));
     });
     const a = saved?.active | 0;
     this.active = a >= 0 && a < this.members.length ? a : 0;
@@ -62,16 +65,17 @@ export class Party {
 
   serialize(player) {
     this.store(player);
-    return { members: [...this.members], active: this.active, hp: { ...this.hp } };
+    return { members: [...this.members], active: this.active, hp: { ...this.hp }, revive: { ...this.revive } };
   }
 
   get size() { return this.members.length; }
   get activeId() { return this.members[this.active]; }
   recruited(id) { return Boolean(this.book.state[id]?.recruited); }
+  maxHpOf(id,player){return id === "hero" ? player.heroMaxHp || player.maxHp : innateMaxHp(id,player.level);}
   hpOf(id, player) {
     if (id === this.activeId) return player.hp;
     const v = this.hp[id];
-    return v == null ? player.maxHp : Math.min(player.maxHp, v);
+    return v == null ? this.maxHpOf(id,player) : Math.min(this.maxHpOf(id,player), v);
   }
 
   avatarOf(id, player) {
@@ -95,6 +99,7 @@ export class Party {
     const id = this.activeId;
     player.active = this.kitOf(id, player);
     player.activeName = id === "hero" ? null : memberName(id);
+    player.recalc();
     const v = this.hp[id];
     if (v != null) player.hp = Math.min(player.maxHp, v);
   }
@@ -118,12 +123,18 @@ export class Party {
     if (hp <= 0) return null;
     this.store(player);
     this.active = i;
-    player.hp = hp;
     this.hp[id] = hp;
     player.active = this.kitOf(id, player);
     player.activeName = id === "hero" ? null : memberName(id);
+    player.recalc();
+    player.hp = Math.min(hp,player.maxHp);
     // Clean hand-off: no half-finished swing or charge carries over to the new body
-    player.state = "idle"; player.atkT = 0; player.chargeTimer = 0; player.animFrame = 0;
+    player.state = "idle"; player.atkT = 0; player.animFrame = 0;
+    // A new kit cannot finish the previous class's reload or movement skill.
+    player.isReloading = false; player.reloadTimer = 0;
+    player.chargeTimer = player.kickTimer = player.rollTimer = 0;
+    player.chargeVx = player.chargeVy = 0;
+    player.rollGhosts = [];
     this.cooldown = SWITCH_COOLDOWN;
     return id;
   }
@@ -140,6 +151,7 @@ export class Party {
     if (player.hp > 0 || this.members.length < 2) return null;
     const fallen = this.activeId;
     this.hp[fallen] = 0;
+    this.revive[fallen] ||= PARTY_REVIVE_FRAMES;
     for (let k = 1; k < this.members.length; k++) {
       const i = (this.active + k) % this.members.length;
       if (this.hpOf(this.members[i], player) > 0) {
@@ -154,13 +166,19 @@ export class Party {
   // Each step: switch cooldown, off-field recovery in a sanctuary
   update(player, inSanctuary) {
     if (this.cooldown > 0) this.cooldown--;
+    this.members.forEach(id => {
+      if(id === this.activeId || this.hp[id] !== 0)return;
+      this.revive[id] = (this.revive[id] || PARTY_REVIVE_FRAMES) - 1;
+      if(this.revive[id] <= 0){this.hp[id] = Math.max(1, Math.round(this.maxHpOf(id,player) * .5));delete this.revive[id];}
+    });
     if (!inSanctuary || ++this.restTimer < REST_EVERY) return;
     this.restTimer = 0;
     const step = Math.max(4, Math.round(player.maxHp * 0.08));
     this.members.forEach((id, i) => {
-      if (i === this.active || this.hp[id] == null) return;
-      const v = Math.min(player.maxHp, this.hp[id] + step);
-      this.hp[id] = v >= player.maxHp ? null : v;
+      if (i === this.active || this.hp[id] == null || this.hp[id] <= 0) return;
+      const maxHp=this.maxHpOf(id,player);
+      const v = Math.min(maxHp, this.hp[id] + step);
+      this.hp[id] = v >= maxHp ? null : v;
     });
   }
 

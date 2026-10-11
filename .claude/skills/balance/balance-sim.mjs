@@ -45,6 +45,11 @@ const TRIALS = 12;
 const ECON = args.includes("--economy");
 const UNITS = args.includes("--units");
 
+const { loadRegression, DIFFICULTIES } = await load("js/regression.js");
+const difficultyId = opt("--difficulty", "easy");
+const difficultyLevel = DIFFICULTIES.findIndex(d => d.id === difficultyId);
+if (difficultyLevel < 0) throw Error("Unknown difficulty: " + difficultyId);
+loadRegression({level:difficultyLevel});
 seedRandom(2026);
 const { Player, expFor } = await load("js/player.js");
 const { EnemyManager, HUB_KINDS, HUB_ELITES } = await load("js/enemy.js");

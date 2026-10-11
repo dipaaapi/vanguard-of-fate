@@ -1,3 +1,4 @@
+import { PLAYABLES } from "./playables.js";
 import { getLang } from "./i18n.js";
 import { guildText } from "./guilddata.js";
 import { STATS, PRIMARY, STAT_INFO, statCost, STAT_MAX, TREES, treesFor, canLearn, learnBlock, skillText, findSkill, AUTO_MODES, autoAllocate, autoPathFor } from "./skills.js";
@@ -17,7 +18,7 @@ const TEXT = {
     cdr: "Cooldown −", move: "Move", stamina: "Stamina", dmg: "Skill damage", reduce: "Damage taken −",
     primary: "main stat", gear: "from gear & skills", req: "Requires", max: "MAX", learn: "Learn", locked: "Locked",
     novice: "Novice", jobTree: "Job", awaken: "Your job tree unlocks at the Royal Job Awakening (Lv 10).",
-    close: "C / Esc — close", pick: "Select a skill.",
+    close: "C / Backspace — close", pick: "Select a skill.",
     paths: "Paths", auto: "Auto stats", autoModes: { off: "Off", str: "STR", dex: "DEX", int: "INT", style: "My style" },
     autoHint: "Spends stat points on every level-up.", spend: "Spend now", style: "Your style", undecided: "Undecided — keep fighting",
     styleHint: "Up close builds Might, range and crits build Finesse, skills and spells build Arcana. The leading path gets +20% passives and unlocks its capstone.",
@@ -31,7 +32,7 @@ const TEXT = {
     cdr: "Cooldown −", move: "Lakad", stamina: "Stamina", dmg: "Pinsala ng skill", reduce: "Natatanggap na pinsala −",
     primary: "pangunahing stat", gear: "mula sa kagamitan at skill", req: "Kailangan", max: "MAX", learn: "Matuto", locked: "Nakakandado",
     novice: "Novice", jobTree: "Job", awaken: "Mabubuksan ang puno ng job sa Royal Job Awakening (Lv 10).",
-    close: "C / Esc — isara", pick: "Pumili ng skill.",
+    close: "C / Backspace — isara", pick: "Pumili ng skill.",
     paths: "Landas", auto: "Auto stat", autoModes: { off: "Wala", str: "STR", dex: "DEX", int: "INT", style: "Istilo ko" },
     autoHint: "Ginagastos ang stat point sa bawat level-up.", spend: "Gastusin na", style: "Iyong istilo", undecided: "Hindi pa tiyak — lumaban pa",
     styleHint: "Ang malapitang laban ay para sa Lakas, ang malayuan at crit ay sa Liksi, ang skill at spell ay sa Hiwaga. Ang nangungunang landas ay may +20% sa passive at nabubuksan ang capstone.",
@@ -98,6 +99,17 @@ export class CharacterPanel {
     };
 
     add(el, "h3", "", T.title);
+    if(p.active){
+      add(el,"div","ql-sub",`${p.activeName} · ${p.active.job} · Lv ${p.level}`);
+      add(el,"p","ch-note",getLang()==="fil"?"Lumalaki ang likas na stats, skill at landas ayon sa level ng bayani. Nakapirmi ang allocation; para sa bayani ang Job Awakening.":"Innate stats, skill power and path passives scale with hero level. Allocation is locked; Job Awakening is exclusive to your hero.");
+      const tabs=add(el,"div","ch-tabs");
+      for(const id of ["stats","skills","paths"])button(tabs,"ch-tab"+(this.tab===id?" on":""),T[id],()=>{this.tab=id;this.render();});
+      if(this.tab==="stats")for(const [key,value]of Object.entries(p.active.stats))add(el,"p","ch-note",`${key.toUpperCase()}: ${value}`);
+      else if(this.tab==="skills")for(const name of PLAYABLES[p.active.id].skills)add(el,"p","ch-note",`${name} · ${getLang()==="fil"?"Likas":"Innate"} · Rank ${p.active.rank} · +${Math.round((p.level-1)*4.5)}%`);
+      else {add(el,"p","ch-note",`${p.active.path} · Rank ${p.active.rank}`);for(const [key,value]of Object.entries(p.active.passives))add(el,"p","ch-note",`${key}: +${value}`);}
+      add(el,"div","ql-foot",T.close);return;
+    }
+
     add(el, "div", "ql-sub", `${p.heroName || ""} · ${p.heroData.id === "novice" ? "Novice" : p.heroData.name} · Lv ${p.level}`);
     const tabs = add(el, "div", "ch-tabs");
     [["stats", `${T.stats} (${p.statPoints})`], ["skills", `${T.skills} (${p.skillPoints})`], ["paths", `${T.paths} (${p.pathPoints})`]].forEach(([id, label]) => {

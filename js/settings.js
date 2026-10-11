@@ -115,17 +115,7 @@ export function toggleFullscreen() {
   else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
 }
 
-// Esc closes the game's menus, so in full screen the page claims it (Keyboard Lock API, Chromium):
-// a tap of Esc reaches the game and the browser's full screen stays on; holding Esc still exits.
-// Other browsers keep their default (Esc leaves full screen).
-if (typeof document !== "undefined") {
-  document.addEventListener("fullscreenchange", () => {
-    const kb = navigator.keyboard;
-    if (!kb || !kb.lock) return;
-    if (document.fullscreenElement) kb.lock(["Escape"]).catch(() => {});
-    else kb.unlock();
-  });
-}
+// Escape remains the browser's native fullscreen exit; do not keyboard-lock it.
 
 // ==================== IN-GAME SETTINGS PANEL (O) ====================
 // HTML overlay in #viewport; rows grouped Audio / Video / Gameplay, plus language and full screen, and
@@ -242,11 +232,11 @@ export class SettingsPanel {
   }
 
   handleInput(e) {
-    // Rebinding: the next key press becomes the binding (Esc cancels)
+    // Rebinding: the next key press becomes the binding (Backspace closes).
     if (this.listening) {
       e.preventDefault();
       if (e.repeat) return;
-      if (e.code === "Escape") { this.listening = null; this.render(); return; }
+      if (e.code === "Backspace") { this.listening = null; this.close(); return; }
       const r = Keybinds.bindFrom(this.listening, e);
       if (r === "wait") return;
       if (r === "ok") this.listening = null; else this.refused = true;
@@ -254,7 +244,7 @@ export class SettingsPanel {
       return;
     }
     const n = this.rows.length;
-    if (e.code === "KeyO" || e.code === "Escape") this.close();
+    if (e.code === "KeyO" || e.code === "Backspace") this.close();
     else if (e.code === "ArrowDown" || e.code === "KeyS") { this.index = (this.index + 1) % n; this.render(); }
     else if (e.code === "ArrowUp" || e.code === "KeyW") { this.index = (this.index - 1 + n) % n; this.render(); }
     else if (e.code === "ArrowLeft" || e.code === "KeyA") this.change(this.rows[this.index], -1);

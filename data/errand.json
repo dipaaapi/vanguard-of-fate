@@ -33,6 +33,6 @@
     "soldPart": { "en": "sold {n} item(s) (+{g}G)", "fil": "naibenta ang {n} gamit (+{g}G)" },
     "boughtPart": { "en": "{sep}bought {list}", "fil": "{sep}binili ang {list}" },
     "dropped":  { "en": "Bag full: the rest is on the ground", "fil": "Puno ang bag: nasa lupa ang iba" },
-    "hint":     { "en": "Tab switch · ↑ ↓ choose · ← → amount · Enter pack · Space send · B / Esc close", "fil": "Tab lipat · ↑ ↓ pumili · ← → dami · Enter isupot · Space utos · B / Esc isara" }
+    "hint":     { "en": "Tab switch · ↑ ↓ choose · ← → amount · Enter pack · Space send · B / Backspace close", "fil": "Tab lipat · ↑ ↓ pumili · ← → dami · Enter isupot · Space utos · B / Backspace isara" }
   }
 }

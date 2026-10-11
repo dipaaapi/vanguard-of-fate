@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
 import {startGame,runSteps,FLOWS} from '../scripts/gamebrowser.mjs';
-const g=await startGame({debug:true,outDir:'.codex/visual-after-coins',viewport:'1280x800'});
+const g=await startGame({debug:true,waitUntil:'domcontentloaded',outDir:'.codex/visual-after-coins',viewport:'1280x800'});
 const snapshot=()=>g.page.evaluate(()=>{const v=window.__vof;return {step:v.quest.step,area:v.stage.id,status:v.player.autoAdventureStatus,hp:v.player.hp,x:v.player.x,y:v.player.y,goal:v.autoAdventure.goal&&{status:v.autoAdventure.goal.status,point:v.autoAdventure.goal.point},dialog:v.dialog.open,side:v.quest.side.current(),state:v.state};});
 try {
+ // Movement/AI checks don't require the host's physical audio device.
+ await g.page.evaluate(async()=>{const {Sound}=await import('./js/audio.js');Sound.musicEnabled=false;Sound.sfxEnabled=false;Sound.isMuted=true;});
  await runSteps(g,FLOWS.newgame.replace(/,?shot:[\w-]+/g,''));
  await g.page.evaluate(()=>{const v=window.__vof;v.dialog.close();v.actIntro.close();v.codexScene.close();v.quest.step=0;v.player.autoAttack={remainingMs:300000,until:0};});
  await g.page.keyboard.press('z');

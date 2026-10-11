@@ -2,6 +2,7 @@ import { getLang } from "./i18n.js";
 import { describe, canEquip, upgradeCost, refineChance, SLOTS, slotName, MAX_PLUS, statText, skillText, RARITY, GRADE_NAMES, slotsFor, SETS, setThresholds, getItem } from "./items/itemdb.js";
 import { sell, Market, formatCoins, renderCoinWallet } from "./items/economy.js";
 import { temperInfo, temper, MAX_TEMPER } from "./items/forge.js";
+import { styleRefineGlow } from "./items/refineglow.js";
 import { iconURL } from "./items/icons.js";
 import { BAG_SIZE } from "./items/bag.js";
 import { DUR_MAX, LOW_DUR, durOf, isBroken, repairCost, repair } from "./items/durability.js";
@@ -26,7 +27,7 @@ const TEXT = {
     twoHand: "Two-handed", select: "Select an item.",
     belt: "Quick slots: select a consumable, then assign it to 1–4.",
     slot: "Quick slot", autoTitle: "Auto-potion", autoHp: "HP below", off: "Off", autoCure: "Auto-cure blights", autoSt: "Auto-tonic when exhausted",
-    close: "I / Esc — close",
+    close: "I / Backspace — close",
     buff: { damage: "Power Boost", atkSpeed: "Rapid Attack", moveSpeed: "High Sprint", invis: "Ghost Stealth" },
     tabs: { equip: "Weapons & Gear", use: "Consumables & Upgrades", quest: "Quest Items" },
     sortBy: "Sort", sorts: { recent: "Recent", rarity: "Rarity", price: "Price" }, stack: "Stack",
@@ -55,7 +56,7 @@ const TEXT = {
     twoHand: "Dalawang kamay", select: "Pumili ng item.",
     belt: "Mabilisang gamit: pumili ng nagagamit na item at italaga sa 1–4.",
     slot: "Quick slot", autoTitle: "Auto-potion", autoHp: "HP mas mababa sa", off: "Off", autoCure: "Kusang lunas sa sumpa", autoSt: "Kusang tonic kapag pagod",
-    close: "I / Esc — isara",
+    close: "I / Backspace — isara",
     buff: { damage: "Power Boost", atkSpeed: "Rapid Attack", moveSpeed: "High Sprint", invis: "Ghost Stealth" },
     tabs: { equip: "Sandata at Kagamitan", use: "Gamit at Pang-upgrade", quest: "Quest Item" },
     sortBy: "Ayos", sorts: { recent: "Bago", rarity: "Rarity", price: "Presyo" }, stack: "Pagsamahin",
@@ -413,7 +414,7 @@ export class InventoryPanel {
       b.dataset.slot = slot;
       if (it) b.addEventListener("pointerdown", (e) => this.dragStart(e, { kind: "slot", slot }));
       const ic = add(b, "span", "inv-eq-icon", it ? "" : locked ? "🔒" : "·");
-      if (it) { const img = add(ic, "img"); img.src = iconURL(it); img.alt = ""; }
+      if (it) { const img = add(ic, "img"); img.src = iconURL(it); styleRefineGlow(img, it); img.alt = ""; }
       const txt = add(b, "span", "inv-eq-text");
       const inst = bag.equip[slot];
       const dur = inst ? Math.ceil(durOf(inst)) : DUR_MAX;
@@ -479,7 +480,7 @@ export class InventoryPanel {
       b.style.borderColor = it.color;
       b.title = it.name;
       const img = add(b, "img", "inv-ico");
-      img.src = iconURL(it);
+      img.src = iconURL(it); styleRefineGlow(img, it);
       img.alt = "";
       img.draggable = false;
       if (s.qty > 1) add(b, "span", "inv-qty", String(s.qty));
@@ -503,7 +504,7 @@ export class InventoryPanel {
     else {
       const head = add(det, "div", "inv-name");
       const hImg = add(head, "img", "inv-name-ico");
-      hImg.src = iconURL(it);
+      hImg.src = iconURL(it); styleRefineGlow(hImg, it);
       hImg.alt = "";
       add(head, "span", "", it.name).style.color = it.color;
       const Lg = getLang() === "fil" ? "fil" : "en";
