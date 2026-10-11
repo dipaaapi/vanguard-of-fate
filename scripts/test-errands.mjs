@@ -20,7 +20,7 @@ assert.deepEqual(loadPremium(JSON.parse(JSON.stringify(p.premium))).skills,{auto
 p.familiar=null;assert.ok(syncFamiliar(p),'premium errand skill brings a summon');
 // Auto Sell: plain gear goes, refined / set / socketed gear stays
 p.bag=new Bag();p.bag.add('helm',2);p.bag.add({id:'helm',plus:3});p.bag.add({id:'helm',set:'meridian'});p.bag.add({id:'helm',cards:['x']});
-p.premium.enabled.autoBuy=false;const gold=p.gold;runErrands(p,deps);p.premium.enabled.autoBuy=true;
+p.premium.enabled.autoBuy=false;p.bag.add('u:craneline');const gold=p.gold;runErrands(p,deps);assert.equal(p.bag.count('u:craneline'),1,'uniques are never sold');p.premium.enabled.autoBuy=true;
 assert.equal(p.bag.slots.filter(s=>s.id==='helm').length,3,'kept refined/set/carded');assert.equal(p.gold-gold>=20,true);
 // Auto Buy: stock up within a quarter of the purse
 p.gold=100000;runErrands(p,deps);

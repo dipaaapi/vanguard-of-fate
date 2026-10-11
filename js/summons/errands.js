@@ -26,7 +26,8 @@ export function sellable(s, it, full, rule = { normal: true, magic: false, magic
   if (!it || it.type !== "equip") return false;
   if ((s.plus | 0) > 0 || (s.cards && s.cards.length) || s.set || s.temper) return false;
   if (rule.onlyWhenFull && !full) return false;
-  const r = s.rarity || "normal";
+  const r = it.rarity || s.rarity || "normal";   // the described rarity: uniques ("u:" ids) and sets read as such
+  if (r === "unique" || r === "set") return false;
   return (r === "normal" && rule.normal) || (r === "magic" && (rule.magic || (full && rule.magicWhenFull)));
 }
 
