@@ -1,6 +1,7 @@
 import { normalizeConfig } from "./options.js";
 import { sheetCount, sheetFrame, sheetsVersion } from "./sheets.js";
 import { jobPalette, drawJob } from "./jobmarks.js";
+import { tileStyle } from "./tilestyle.js";
 
 // ==================== MODULAR AVATAR RENDERER ====================
 // A character is built from separate parts (layers):
@@ -1279,19 +1280,21 @@ function drawQuiver(p, c, dy, view) {
 }
 
 // ==================== BUONG FRAME ====================
-function renderFrame(cfg, dir, anim, i) {
+function renderFrame(cfg, dir, anim, i, style) {
   if (anim === "skill") {   // charge: ready pose with a growing aura, then the strike with a burst
-    const p = renderPix(cfg, dir, "attack", i >= SKILL_FRAMES - 1 ? 1 : 0);
+    const p = renderPix(cfg, dir, "attack", i >= SKILL_FRAMES - 1 ? 1 : 0, style);
     const e = cfg.eyes ? hexToRgb(cfg.eyes) : [0, 0, 0];
     const col = e[0] + e[1] + e[2] > 300 ? cfg.eyes : "#ffd166";   // glowing eyes tint it, else gold
     if (i > 0) p.aura(col, Math.min(4, i));
     p.motes(i % 2 ? "#ffffff" : col, i >= SKILL_FRAMES - 1 ? 10 : 1 + i, i);
     return p.toCanvas();
   }
-  return renderPix(cfg, dir, anim, i).toCanvas();
+  return renderPix(cfg, dir, anim, i, style).toCanvas();
 }
 
-function renderPix(cfg, dir, anim, i) {
+// style "tile": the terrain tile sets' palette, light and outline (js/avatar/tilestyle.js), used by
+// monsters, mercenaries and summons; everyone else keeps the Avatar's own detail + outline
+function renderPix(cfg, dir, anim, i, style) {
   const p = new Pix(FRAME_W, FRAME_H);
   const c = palette(cfg);
   if (cfg.job) jobPalette(c, cfg);
@@ -1414,8 +1417,8 @@ function renderPix(cfg, dir, anim, i) {
     if (cfg.job) drawJob("head", p, c, cfg, dy, "side", i);
   }
 
-  p.detail();
-  p.outline();
+  if (style === "tile") tileStyle(p);
+  else { p.detail(); p.outline(); }
   return p;
 }
 
@@ -1455,7 +1458,7 @@ export class Avatar {
     const img = this.sheetKey && sheetFrame(this.sheetKey, dir, anim, idx);
     if (img) return img;
     const key = `${dir}|${anim}|${idx}`;
-    if (!this.cache.has(key)) this.cache.set(key, renderFrame(this.config, dir, anim, idx));
+    if (!this.cache.has(key)) this.cache.set(key, renderFrame(this.config, dir, anim, idx, this.style));
     return this.cache.get(key);
   }
 

@@ -1,0 +1,155 @@
+{
+ "frames": [
+  {
+   "filename": "lost 0.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 175
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 175
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 175
+   },
+   "duration": 120
+  },
+  {
+   "filename": "lost 1.aseprite",
+   "frame": {
+    "x": 206,
+    "y": 0,
+    "w": 206,
+    "h": 175
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 175
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 175
+   },
+   "duration": 120
+  },
+  {
+   "filename": "lost 2.aseprite",
+   "frame": {
+    "x": 412,
+    "y": 0,
+    "w": 206,
+    "h": 175
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 175
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 175
+   },
+   "duration": 120
+  },
+  {
+   "filename": "lost 3.aseprite",
+   "frame": {
+    "x": 618,
+    "y": 0,
+    "w": 206,
+    "h": 175
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 175
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 175
+   },
+   "duration": 120
+  },
+  {
+   "filename": "lost 4.aseprite",
+   "frame": {
+    "x": 824,
+    "y": 0,
+    "w": 206,
+    "h": 175
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 175
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 175
+   },
+   "duration": 120
+  },
+  {
+   "filename": "lost 5.aseprite",
+   "frame": {
+    "x": 1030,
+    "y": 0,
+    "w": 206,
+    "h": 175
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 175
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 175
+   },
+   "duration": 120
+  }
+ ],
+ "meta": {
+  "app": "tools/aseprite/asefile.mjs",
+  "image": "lost.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 1236,
+   "h": 175
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "down-idle",
+    "from": 0,
+    "to": 5,
+    "direction": "forward",
+    "color": "#000000ff"
+   }
+  ]
+ }
+}

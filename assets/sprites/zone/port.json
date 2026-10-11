@@ -1,0 +1,155 @@
+{
+ "frames": [
+  {
+   "filename": "port 0.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 165
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 165
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 165
+   },
+   "duration": 120
+  },
+  {
+   "filename": "port 1.aseprite",
+   "frame": {
+    "x": 206,
+    "y": 0,
+    "w": 206,
+    "h": 165
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 165
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 165
+   },
+   "duration": 120
+  },
+  {
+   "filename": "port 2.aseprite",
+   "frame": {
+    "x": 412,
+    "y": 0,
+    "w": 206,
+    "h": 165
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 165
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 165
+   },
+   "duration": 120
+  },
+  {
+   "filename": "port 3.aseprite",
+   "frame": {
+    "x": 618,
+    "y": 0,
+    "w": 206,
+    "h": 165
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 165
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 165
+   },
+   "duration": 120
+  },
+  {
+   "filename": "port 4.aseprite",
+   "frame": {
+    "x": 824,
+    "y": 0,
+    "w": 206,
+    "h": 165
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 165
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 165
+   },
+   "duration": 120
+  },
+  {
+   "filename": "port 5.aseprite",
+   "frame": {
+    "x": 1030,
+    "y": 0,
+    "w": 206,
+    "h": 165
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 206,
+    "h": 165
+   },
+   "sourceSize": {
+    "w": 206,
+    "h": 165
+   },
+   "duration": 120
+  }
+ ],
+ "meta": {
+  "app": "tools/aseprite/asefile.mjs",
+  "image": "port.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 1236,
+   "h": 165
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "down-idle",
+    "from": 0,
+    "to": 5,
+    "direction": "forward",
+    "color": "#000000ff"
+   }
+  ]
+ }
+}

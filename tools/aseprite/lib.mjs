@@ -51,7 +51,7 @@ export async function codeSprite(key) {
     if (!file) return null;
     const mod = await load(`js/mercenary/${file}.js`);
     const cls = Object.values(mod).find((v) => v && v.look);
-    return cls ? human(new A.Avatar(cls.look)) : null;
+    return cls ? human(Object.assign(new A.Avatar(cls.look), { style: "tile" })) : null;   // as js/mercenaryManager.js draws them
   }
   if (kind === "summon") {
     if (name === "angel") {

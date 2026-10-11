@@ -10,26 +10,35 @@
 // The canvas may be larger than the code sprite: it is centred on the same feet, i.e. the extra
 // width is split evenly left/right and the extra height goes on top (see CreatureSprite.draw).
 
+// Monster sheets (manifest "lazy") load the first time the game asks for them, so the ~140 monsters don't
+// all download at boot; until one arrives its code-drawn frames (same tile style) stand in.
+
 const BASE = "assets/sprites/";
 const sheets = new Map();   // key ("monster/slime") → Map("dir|anim" → [canvas, …])
+const lazy = new Set();     // keys listed in the manifest, not requested yet
 let version = 0;            // bumps when sheets arrive, so cached flash frames are rebuilt
 
 export const sheetsVersion = () => version;
 
+function tagOf(key, dir, anim) {
+  if (lazy.has(key)) { lazy.delete(key); loadSheet(key); }
+  return sheets.get(key)?.get(`${dir}|${anim}`);
+}
+
 /** Number of frames in the sheet's `dir`/`anim` tag (0 = no such tag). */
 export function sheetCount(key, dir, anim) {
-  return sheets.get(key)?.get(`${dir}|${anim}`)?.length || 0;
+  return tagOf(key, dir, anim)?.length || 0;
 }
 
 /** Frame `i` of `dir`/`anim` from the sheet for `key`, or null when there is none. */
 export function sheetFrame(key, dir, anim, i) {
-  const tag = sheets.get(key)?.get(`${dir}|${anim}`);
+  const tag = tagOf(key, dir, anim);
   return tag && i < tag.length ? tag[i] : null;
 }
 
 /** Frame durations (ms) of the sheet's `dir`/`anim` tag, as set in Aseprite (empty = no such tag). */
 export function sheetDurations(key, dir, anim) {
-  return sheets.get(key)?.get(`${dir}|${anim}`)?.durations || [];
+  return tagOf(key, dir, anim)?.durations || [];
 }
 
 /** Cut an exported sheet into one canvas per frame, grouped by tag. */
@@ -63,24 +72,27 @@ function loadImage(src) {
   });
 }
 
-/** Load every sheet in the manifest. Never throws: without sheets the game keeps the code-drawn art. */
+async function loadSheet(key) {
+  try {
+    const [data, img] = await Promise.all([
+      fetch(`${BASE}${key}.json`).then((r) => r.json()),
+      loadImage(`${BASE}${key}.png`)
+    ]);
+    sheets.set(key, slice(img, data));
+    version++;
+  } catch (e) {
+    console.warn(`sprite sheet ${key}: ${e.message}`);
+  }
+}
+
+/** Load every eager sheet in the manifest and register the lazy ones. Never throws: without sheets the game keeps the code-drawn art. */
 export async function loadSpriteSheets() {
   try {
     const res = await fetch(BASE + "manifest.json");
     if (!res.ok) return;
-    const { sheets: keys = [] } = await res.json();
-    await Promise.all(keys.map(async (key) => {
-      try {
-        const [data, img] = await Promise.all([
-          fetch(`${BASE}${key}.json`).then((r) => r.json()),
-          loadImage(`${BASE}${key}.png`)
-        ]);
-        sheets.set(key, slice(img, data));
-        version++;
-      } catch (e) {
-        console.warn(`sprite sheet ${key}: ${e.message}`);
-      }
-    }));
+    const { sheets: keys = [], lazy: later = [] } = await res.json();
+    later.forEach((k) => lazy.add(k));
+    await Promise.all(keys.map(loadSheet));
   } catch (e) {
     console.warn(`sprite sheets: ${e.message}`);
   }

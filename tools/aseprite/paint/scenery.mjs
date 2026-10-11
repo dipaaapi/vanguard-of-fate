@@ -3,6 +3,8 @@
 // tents, braziers, banners, crates, barrels, smoke). Light comes from the top left, like the sprites.
 // Every piece takes the animation frame `f` (0..FRAMES-1) so loops (fire, cloth, smoke) close.
 
+import { tileGrade, tileShade, toHsl, fromHsl } from "../../../js/avatar/tilestyle.js";
+
 export const FRAMES = 6;
 const TAU = Math.PI * 2;
 export const ph = (f, k = 1) => (f / FRAMES) * TAU * k;   // phase of frame f in a loop
@@ -29,7 +31,7 @@ export function vnoise(x, y, s = 0) {
   return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
 }
 const BAYER4 = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]];
-export const dither = (x, y) => (BAYER4[((y % 4) + 4) % 4][((x % 4) + 4) % 4] + 0.5) / 16;
+export const dither = (x, y) => { x = Math.floor(x); y = Math.floor(y); return (BAYER4[((y % 4) + 4) % 4][((x % 4) + 4) % 4] + 0.5) / 16; };
 
 export class Img {
   constructor(w, h) { this.w = w; this.h = h; this.d = new Uint8ClampedArray(w * h * 4); }
@@ -103,6 +105,38 @@ export class Img {
     }
     add.forEach(([x, y]) => this.put(x, y, c));
   }
+  /** Bring every opaque colour into the tile sets' range (js/avatar/tilestyle.js tileGrade); colours in `keep` stay. */
+  grade(keep = null) {
+    const memo = new Map();
+    for (let j = 0; j < this.d.length; j += 4) {
+      if (!this.d[j + 3]) continue;
+      const k = (this.d[j] << 16) | (this.d[j + 1] << 8) | this.d[j + 2];
+      if (keep && keep.has(k)) continue;
+      let c = memo.get(k);
+      if (!c) memo.set(k, c = tileGrade([this.d[j], this.d[j + 1], this.d[j + 2]]));
+      this.d[j] = c[0]; this.d[j + 1] = c[1]; this.d[j + 2] = c[2];
+    }
+  }
+  /**
+   * The tile sets' outline: every empty pixel next to the figure takes a deep, hue-shifted shade of the
+   * colour it touches (deeper under the figure, like the tiles' cliff lips), never one flat ink.
+   */
+  tileOutline() {
+    const add = [];
+    const solid = (x, y) => { const p = this.get(x, y); return p && p[3] >= 200 ? p : null; };
+    for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) {
+      if (solid(x, y)) continue;
+      const up = solid(x, y - 1), n = up || solid(x - 1, y) || solid(x + 1, y) || solid(x, y + 1);
+      if (n) add.push([x, y, tileInk(n, up && !solid(x, y + 1) ? -0.8 : -0.68)]);
+    }
+    add.forEach(([x, y, c]) => this.put(x, y, c));
+  }
+}
+
+/** Outline colour for c (same rule as js/avatar/tilestyle.js inkHex): pale greys go cool instead of rust. */
+export function tileInk(c, k) {
+  const [, s, l] = toHsl(c);
+  return tileShade(s < 0.3 && l > 0.55 ? fromHsl([228, 0.18, l]) : [c[0], c[1], c[2]], k);
 }
 
 // ---------- surfaces ----------

@@ -1,5 +1,6 @@
 import { Pix, shade, whiteOf } from "./avatar.js";
 import { sheetCount, sheetFrame, sheetsVersion } from "./sheets.js";
+import { tileStyle } from "./tilestyle.js";
 
 // ==================== CREATURES (non-human) ====================
 // Same style as the modular Avatar: pixel buffer, selective outline, shade/highlight from the base
@@ -49,8 +50,7 @@ export class CreatureSprite {
       if (!this.frames[anim] && this.built(anim)) this.build(p, dir, anim, idx);
       else {
         this.render(p, dir, anim, idx);
-        p.detail();
-        p.outline();
+        tileStyle(p);     // the terrain tile sets' palette, light and outline (js/avatar/tilestyle.js)
       }
       this.cache.set(key, p.toCanvas());
     }
@@ -60,7 +60,7 @@ export class CreatureSprite {
   // "run": the walk cycle faster, bouncing higher, leaning forward, kicking up dust.
   // "skill": the attack's ready pose with a growing aura, then the strike with a burst.
   build(p, dir, anim, i) {
-    const base = (a, k) => { this.render(p, dir, a, k); p.detail(); p.outline(); };
+    const base = (a, k) => { this.render(p, dir, a, k); tileStyle(p); };
     if (anim === "run") {
       const n = this.frames.walk;
       base("walk", Math.floor((i * n) / BUILT.run));
