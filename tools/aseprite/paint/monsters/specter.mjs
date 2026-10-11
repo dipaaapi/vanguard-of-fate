@@ -3,7 +3,7 @@
 // sleeves; wisps are a floating soul-flame instead. Everything floats and bobs. Colours from the code
 // sprite: robe/robeD/robeL (or body/bodyD/bodyL), eye, claw.
 // Code sprite 26×32 (feet 13,30) → painted 30×36 (feet 15,34).
-import { Canvas, ramp, rgb, sh, motion, skillFx, finish, taper, curve, frame, overlay } from "../monsterkit.mjs";
+import { Canvas, ramp, rgb, sh, motion, skillFx, finish, taper, curve, frame, overlay, eyeCol } from "../monsterkit.mjs";
 
 export const SIZE = { W: 30, H: 36 };
 
@@ -12,7 +12,7 @@ export function paint(sprite, def, dir, anim, i) {
   const c = sprite.c, m = motion(anim, i);
   const robe = c.body || c.robe, robeD = c.bodyD || c.robeD, robeL = c.bodyL || c.robeL;
   const R = ramp(robe), RD = ramp(robeD, { lift: -0.05 }), RL = ramp(robeL), CL = ramp(c.claw || robeL);
-  const eye = rgb(c.eye || "#c77dff"), eyeL = sh(c.eye || "#c77dff", 0.55), void_ = rgb("#07050d");
+  const eye = eyeCol(rgb(c.eye || "#c77dff")), eyeL = eyeCol(sh(c.eye || "#c77dff", 0.55)), void_ = rgb("#07050d");
   let f = new Canvas(W, H);
   const part = (fn) => { const b = f; f = new Canvas(W, H); const r = fn(); const t = f; f = b; overlay(f, t); return r; };
   const side = dir === "side", back = dir === "up";

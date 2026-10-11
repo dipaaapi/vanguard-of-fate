@@ -1,4 +1,5 @@
 import { Avatar } from "../avatar/avatar.js";
+import { facing8, applyFacing, drawView } from "../avatar/facing.js";
 import { around, attackPose, drawSwing } from "../juice.js";
 import { NPC_DEFS } from "./roster.js";
 import { npcName } from "../dialogue.js";
@@ -246,13 +247,7 @@ class NPC {
       const ang = Math.atan2(edy, edx);
 
       // Face the foe at once
-      if (Math.abs(edx) > Math.abs(edy)) {
-        this.dir = "side";
-        this.flip = edx < 0;
-      } else {
-        this.dir = edy < 0 ? "up" : "down";
-        this.flip = false;
-      }
+      applyFacing(this, facing8(edx, edy, this));
 
       // Close in on the foe when not yet in combat range
       if (eDist > this.combatRange) {
@@ -351,13 +346,7 @@ class NPC {
 
     // When the player is close (talking or looking), stop and face them
     if (distToPlayer < TALK_RANGE + 6) {
-      if (Math.abs(dx) > Math.abs(dy)) {
-        this.dir = "side";
-        this.flip = dx < 0;
-      } else {
-        this.dir = dy < 0 ? "up" : "down";
-        this.flip = false;
-      }
+      applyFacing(this, facing8(dx, dy, this));
       this.vx = 0;
       this.vy = 0;
       return;
@@ -375,13 +364,7 @@ class NPC {
       this.walkAnimTick++;
 
       // Direction from the movement speed
-      if (Math.abs(this.vx) > Math.abs(this.vy)) {
-        this.dir = "side";
-        this.flip = this.vx < 0;
-      } else {
-        this.dir = this.vy < 0 ? "up" : "down";
-        this.flip = false;
-      }
+      applyFacing(this, facing8(this.vx, this.vy, this));
 
       // Check whether the target is reached or the radius exceeded
       const dTarget = Math.hypot(this.targetX - this.x, this.targetY - this.y);
@@ -451,14 +434,14 @@ class NPC {
       const p = 1 - this.attackAnimTimer / 14;
       const a = this.atkAngle || 0;
       around(ctx, this.x, this.y, attackPose(p, Math.cos(a), Math.sin(a), 3), () =>
-        this.avatar.draw(ctx, this.x, this.y, this.dir, "attack", frame, this.flip, false, 1, this.squash));
+        this.avatar.draw(ctx, this.x, this.y, drawView(this), "attack", frame, this.flip, false, 1, this.squash));
       drawSwing(ctx, this.x, this.y - 10, a, 13, (p - 0.3) / 0.7, this.swingColor || "#ffd166");
     } else if (this.state === "walk" && (Math.abs(this.vx) > 0.01 || Math.abs(this.vy) > 0.01)) {
       const frame = Math.floor(this.walkAnimTick / 8) % 4;
-      this.avatar.draw(ctx, this.x, this.y, this.dir, "walk", frame, this.flip, false, 1, this.squash);
+      this.avatar.draw(ctx, this.x, this.y, drawView(this), "walk", frame, this.flip, false, 1, this.squash);
     } else {
       const frame = Math.floor(this.tick / 35) % 2;
-      this.avatar.draw(ctx, this.x, this.y, this.dir, "idle", frame, this.flip, false, 1, this.squash);
+      this.avatar.draw(ctx, this.x, this.y, drawView(this), "idle", frame, this.flip, false, 1, this.squash);
     }
   }
 }

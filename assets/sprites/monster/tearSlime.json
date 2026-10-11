@@ -108,7 +108,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "tearSlime 5.aseprite",
@@ -130,7 +130,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "tearSlime 6.aseprite",
@@ -152,7 +152,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "tearSlime 7.aseprite",
@@ -174,7 +174,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "tearSlime 8.aseprite",
@@ -240,7 +240,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "tearSlime 11.aseprite",
@@ -262,7 +262,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "tearSlime 12.aseprite",
@@ -284,7 +284,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "tearSlime 13.aseprite",
@@ -306,7 +306,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "tearSlime 14.aseprite",
@@ -372,7 +372,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 90
+   "duration": 70
   },
   {
    "filename": "tearSlime 17.aseprite",
@@ -394,7 +394,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 90
+   "duration": 70
   },
   {
    "filename": "tearSlime 18.aseprite",
@@ -416,7 +416,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 90
+   "duration": 70
   },
   {
    "filename": "tearSlime 19.aseprite",
@@ -438,7 +438,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 90
+   "duration": 70
   },
   {
    "filename": "tearSlime 20.aseprite",
@@ -460,7 +460,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "tearSlime 21.aseprite",
@@ -482,7 +482,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "tearSlime 22.aseprite",
@@ -504,7 +504,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "tearSlime 23.aseprite",
@@ -526,7 +526,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "tearSlime 24.aseprite",
@@ -592,7 +592,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 200
+   "duration": 80
   },
   {
    "filename": "tearSlime 27.aseprite",
@@ -614,7 +614,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 200
+   "duration": 80
   },
   {
    "filename": "tearSlime 28.aseprite",
@@ -636,7 +636,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 200
+   "duration": 80
   },
   {
    "filename": "tearSlime 29.aseprite",
@@ -658,7 +658,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 200
+   "duration": 80
   },
   {
    "filename": "tearSlime 30.aseprite",
@@ -680,7 +680,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "tearSlime 31.aseprite",
@@ -702,7 +702,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "tearSlime 32.aseprite",
@@ -724,7 +724,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "tearSlime 33.aseprite",
@@ -746,7 +746,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "tearSlime 34.aseprite",
@@ -768,7 +768,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "tearSlime 35.aseprite",
@@ -790,7 +790,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "tearSlime 36.aseprite",
@@ -812,7 +812,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "tearSlime 37.aseprite",
@@ -834,7 +834,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "tearSlime 38.aseprite",
@@ -856,7 +856,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "tearSlime 39.aseprite",
@@ -878,7 +878,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "tearSlime 40.aseprite",
@@ -900,7 +900,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "tearSlime 41.aseprite",
@@ -922,7 +922,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "tearSlime 42.aseprite",
@@ -944,7 +944,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "tearSlime 43.aseprite",
@@ -966,7 +966,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "tearSlime 44.aseprite",
@@ -988,7 +988,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 90
+   "duration": 70
   },
   {
    "filename": "tearSlime 45.aseprite",
@@ -1010,7 +1010,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 90
+   "duration": 70
   },
   {
    "filename": "tearSlime 46.aseprite",
@@ -1032,7 +1032,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "tearSlime 47.aseprite",
@@ -1054,7 +1054,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "tearSlime 48.aseprite",
@@ -1076,7 +1076,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "tearSlime 49.aseprite",
@@ -1098,7 +1098,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "tearSlime 50.aseprite",
@@ -1120,7 +1120,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "tearSlime 51.aseprite",
@@ -1142,7 +1142,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "tearSlime 52.aseprite",
@@ -1164,7 +1164,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 200
+   "duration": 90
   },
   {
    "filename": "tearSlime 53.aseprite",
@@ -1186,7 +1186,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 200
+   "duration": 90
   },
   {
    "filename": "tearSlime 54.aseprite",
@@ -1208,7 +1208,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 200
+   "duration": 80
   },
   {
    "filename": "tearSlime 55.aseprite",
@@ -1230,7 +1230,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 200
+   "duration": 80
   },
   {
    "filename": "tearSlime 56.aseprite",
@@ -1252,7 +1252,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 100
+   "duration": 80
   },
   {
    "filename": "tearSlime 57.aseprite",
@@ -1274,7 +1274,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 100
+   "duration": 80
   },
   {
    "filename": "tearSlime 58.aseprite",
@@ -1296,7 +1296,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 100
+   "duration": 80
   },
   {
    "filename": "tearSlime 59.aseprite",
@@ -1318,7 +1318,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 100
+   "duration": 80
   },
   {
    "filename": "tearSlime 60.aseprite",
@@ -1340,7 +1340,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "tearSlime 61.aseprite",
@@ -1362,7 +1362,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "tearSlime 62.aseprite",
@@ -1384,7 +1384,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "tearSlime 63.aseprite",
@@ -1406,7 +1406,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "tearSlime 64.aseprite",
@@ -1428,7 +1428,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "tearSlime 65.aseprite",
@@ -1450,7 +1450,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "tearSlime 66.aseprite",
@@ -1472,7 +1472,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "tearSlime 67.aseprite",
@@ -1494,7 +1494,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "tearSlime 68.aseprite",
@@ -1516,7 +1516,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "tearSlime 69.aseprite",
@@ -1538,7 +1538,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "tearSlime 70.aseprite",
@@ -1560,7 +1560,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "tearSlime 71.aseprite",
@@ -1582,7 +1582,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "tearSlime 72.aseprite",
@@ -1604,7 +1604,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 80
+   "duration": 100
   },
   {
    "filename": "tearSlime 73.aseprite",
@@ -1626,7 +1626,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 80
+   "duration": 100
   },
   {
    "filename": "tearSlime 74.aseprite",
@@ -1648,7 +1648,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "tearSlime 75.aseprite",
@@ -1670,7 +1670,7 @@
     "w": 32,
     "h": 24
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "tearSlime 76.aseprite",
@@ -1692,13 +1692,1597 @@
     "w": 32,
     "h": 24
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "tearSlime 77.aseprite",
    "frame": {
     "x": 2464,
     "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 70
+  },
+  {
+   "filename": "tearSlime 78.aseprite",
+   "frame": {
+    "x": 2496,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 70
+  },
+  {
+   "filename": "tearSlime 79.aseprite",
+   "frame": {
+    "x": 2528,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 70
+  },
+  {
+   "filename": "tearSlime 80.aseprite",
+   "frame": {
+    "x": 2560,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 90
+  },
+  {
+   "filename": "tearSlime 81.aseprite",
+   "frame": {
+    "x": 2592,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 90
+  },
+  {
+   "filename": "tearSlime 82.aseprite",
+   "frame": {
+    "x": 2624,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 90
+  },
+  {
+   "filename": "tearSlime 83.aseprite",
+   "frame": {
+    "x": 2656,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 90
+  },
+  {
+   "filename": "tearSlime 84.aseprite",
+   "frame": {
+    "x": 2688,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 80
+  },
+  {
+   "filename": "tearSlime 85.aseprite",
+   "frame": {
+    "x": 2720,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 80
+  },
+  {
+   "filename": "tearSlime 86.aseprite",
+   "frame": {
+    "x": 2752,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 80
+  },
+  {
+   "filename": "tearSlime 87.aseprite",
+   "frame": {
+    "x": 2784,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 80
+  },
+  {
+   "filename": "tearSlime 88.aseprite",
+   "frame": {
+    "x": 2816,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 80
+  },
+  {
+   "filename": "tearSlime 89.aseprite",
+   "frame": {
+    "x": 2848,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 80
+  },
+  {
+   "filename": "tearSlime 90.aseprite",
+   "frame": {
+    "x": 2880,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 200
+  },
+  {
+   "filename": "tearSlime 91.aseprite",
+   "frame": {
+    "x": 2912,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 200
+  },
+  {
+   "filename": "tearSlime 92.aseprite",
+   "frame": {
+    "x": 2944,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 200
+  },
+  {
+   "filename": "tearSlime 93.aseprite",
+   "frame": {
+    "x": 2976,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 200
+  },
+  {
+   "filename": "tearSlime 94.aseprite",
+   "frame": {
+    "x": 3008,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 200
+  },
+  {
+   "filename": "tearSlime 95.aseprite",
+   "frame": {
+    "x": 3040,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 200
+  },
+  {
+   "filename": "tearSlime 96.aseprite",
+   "frame": {
+    "x": 3072,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 200
+  },
+  {
+   "filename": "tearSlime 97.aseprite",
+   "frame": {
+    "x": 3104,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 200
+  },
+  {
+   "filename": "tearSlime 98.aseprite",
+   "frame": {
+    "x": 3136,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 100
+  },
+  {
+   "filename": "tearSlime 99.aseprite",
+   "frame": {
+    "x": 3168,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 100
+  },
+  {
+   "filename": "tearSlime 100.aseprite",
+   "frame": {
+    "x": 3200,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 100
+  },
+  {
+   "filename": "tearSlime 101.aseprite",
+   "frame": {
+    "x": 3232,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 100
+  },
+  {
+   "filename": "tearSlime 102.aseprite",
+   "frame": {
+    "x": 3264,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 100
+  },
+  {
+   "filename": "tearSlime 103.aseprite",
+   "frame": {
+    "x": 3296,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 100
+  },
+  {
+   "filename": "tearSlime 104.aseprite",
+   "frame": {
+    "x": 3328,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 70
+  },
+  {
+   "filename": "tearSlime 105.aseprite",
+   "frame": {
+    "x": 3360,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 70
+  },
+  {
+   "filename": "tearSlime 106.aseprite",
+   "frame": {
+    "x": 3392,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 70
+  },
+  {
+   "filename": "tearSlime 107.aseprite",
+   "frame": {
+    "x": 3424,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 70
+  },
+  {
+   "filename": "tearSlime 108.aseprite",
+   "frame": {
+    "x": 3456,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 70
+  },
+  {
+   "filename": "tearSlime 109.aseprite",
+   "frame": {
+    "x": 3488,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 70
+  },
+  {
+   "filename": "tearSlime 110.aseprite",
+   "frame": {
+    "x": 3520,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 90
+  },
+  {
+   "filename": "tearSlime 111.aseprite",
+   "frame": {
+    "x": 3552,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 90
+  },
+  {
+   "filename": "tearSlime 112.aseprite",
+   "frame": {
+    "x": 3584,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 90
+  },
+  {
+   "filename": "tearSlime 113.aseprite",
+   "frame": {
+    "x": 3616,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 90
+  },
+  {
+   "filename": "tearSlime 114.aseprite",
+   "frame": {
+    "x": 3648,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 80
+  },
+  {
+   "filename": "tearSlime 115.aseprite",
+   "frame": {
+    "x": 3680,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 80
+  },
+  {
+   "filename": "tearSlime 116.aseprite",
+   "frame": {
+    "x": 3712,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 80
+  },
+  {
+   "filename": "tearSlime 117.aseprite",
+   "frame": {
+    "x": 3744,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 80
+  },
+  {
+   "filename": "tearSlime 118.aseprite",
+   "frame": {
+    "x": 3776,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 80
+  },
+  {
+   "filename": "tearSlime 119.aseprite",
+   "frame": {
+    "x": 3808,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 80
+  },
+  {
+   "filename": "tearSlime 120.aseprite",
+   "frame": {
+    "x": 3840,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 200
+  },
+  {
+   "filename": "tearSlime 121.aseprite",
+   "frame": {
+    "x": 3872,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 200
+  },
+  {
+   "filename": "tearSlime 122.aseprite",
+   "frame": {
+    "x": 3904,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 200
+  },
+  {
+   "filename": "tearSlime 123.aseprite",
+   "frame": {
+    "x": 3936,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 200
+  },
+  {
+   "filename": "tearSlime 124.aseprite",
+   "frame": {
+    "x": 3968,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 200
+  },
+  {
+   "filename": "tearSlime 125.aseprite",
+   "frame": {
+    "x": 4000,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 200
+  },
+  {
+   "filename": "tearSlime 126.aseprite",
+   "frame": {
+    "x": 4032,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 200
+  },
+  {
+   "filename": "tearSlime 127.aseprite",
+   "frame": {
+    "x": 4064,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 200
+  },
+  {
+   "filename": "tearSlime 128.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 24,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 100
+  },
+  {
+   "filename": "tearSlime 129.aseprite",
+   "frame": {
+    "x": 32,
+    "y": 24,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 100
+  },
+  {
+   "filename": "tearSlime 130.aseprite",
+   "frame": {
+    "x": 64,
+    "y": 24,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 100
+  },
+  {
+   "filename": "tearSlime 131.aseprite",
+   "frame": {
+    "x": 96,
+    "y": 24,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 100
+  },
+  {
+   "filename": "tearSlime 132.aseprite",
+   "frame": {
+    "x": 128,
+    "y": 24,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 100
+  },
+  {
+   "filename": "tearSlime 133.aseprite",
+   "frame": {
+    "x": 160,
+    "y": 24,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 100
+  },
+  {
+   "filename": "tearSlime 134.aseprite",
+   "frame": {
+    "x": 192,
+    "y": 24,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 70
+  },
+  {
+   "filename": "tearSlime 135.aseprite",
+   "frame": {
+    "x": 224,
+    "y": 24,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 70
+  },
+  {
+   "filename": "tearSlime 136.aseprite",
+   "frame": {
+    "x": 256,
+    "y": 24,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 70
+  },
+  {
+   "filename": "tearSlime 137.aseprite",
+   "frame": {
+    "x": 288,
+    "y": 24,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 70
+  },
+  {
+   "filename": "tearSlime 138.aseprite",
+   "frame": {
+    "x": 320,
+    "y": 24,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 70
+  },
+  {
+   "filename": "tearSlime 139.aseprite",
+   "frame": {
+    "x": 352,
+    "y": 24,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 70
+  },
+  {
+   "filename": "tearSlime 140.aseprite",
+   "frame": {
+    "x": 384,
+    "y": 24,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 90
+  },
+  {
+   "filename": "tearSlime 141.aseprite",
+   "frame": {
+    "x": 416,
+    "y": 24,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 90
+  },
+  {
+   "filename": "tearSlime 142.aseprite",
+   "frame": {
+    "x": 448,
+    "y": 24,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 90
+  },
+  {
+   "filename": "tearSlime 143.aseprite",
+   "frame": {
+    "x": 480,
+    "y": 24,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 90
+  },
+  {
+   "filename": "tearSlime 144.aseprite",
+   "frame": {
+    "x": 512,
+    "y": 24,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 80
+  },
+  {
+   "filename": "tearSlime 145.aseprite",
+   "frame": {
+    "x": 544,
+    "y": 24,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 80
+  },
+  {
+   "filename": "tearSlime 146.aseprite",
+   "frame": {
+    "x": 576,
+    "y": 24,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 80
+  },
+  {
+   "filename": "tearSlime 147.aseprite",
+   "frame": {
+    "x": 608,
+    "y": 24,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 80
+  },
+  {
+   "filename": "tearSlime 148.aseprite",
+   "frame": {
+    "x": 640,
+    "y": 24,
+    "w": 32,
+    "h": 24
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 24
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 24
+   },
+   "duration": 80
+  },
+  {
+   "filename": "tearSlime 149.aseprite",
+   "frame": {
+    "x": 672,
+    "y": 24,
     "w": 32,
     "h": 24
    },
@@ -1722,113 +3306,183 @@
   "image": "tearSlime.png",
   "format": "RGBA8888",
   "size": {
-   "w": 2496,
-   "h": 24
+   "w": 4096,
+   "h": 48
   },
   "scale": "1",
   "frameTags": [
    {
     "name": "down-idle",
     "from": 0,
-    "to": 3,
+    "to": 7,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
     "name": "down-walk",
-    "from": 4,
-    "to": 9,
+    "from": 8,
+    "to": 13,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
     "name": "down-run",
-    "from": 10,
-    "to": 15,
-    "direction": "forward",
-    "color": "#000000ff"
-   },
-   {
-    "name": "down-attack",
-    "from": 16,
+    "from": 14,
     "to": 19,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "down-skill",
+    "name": "down-attack",
     "from": 20,
-    "to": 25,
+    "to": 23,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-idle",
-    "from": 26,
+    "name": "down-skill",
+    "from": 24,
     "to": 29,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-walk",
+    "name": "dside-idle",
     "from": 30,
-    "to": 35,
+    "to": 37,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-run",
-    "from": 36,
-    "to": 41,
+    "name": "dside-walk",
+    "from": 38,
+    "to": 43,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-attack",
-    "from": 42,
-    "to": 45,
+    "name": "dside-run",
+    "from": 44,
+    "to": 49,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-skill",
-    "from": 46,
-    "to": 51,
+    "name": "dside-attack",
+    "from": 50,
+    "to": 53,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "up-idle",
-    "from": 52,
-    "to": 55,
+    "name": "dside-skill",
+    "from": 54,
+    "to": 59,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "up-walk",
-    "from": 56,
-    "to": 61,
-    "direction": "forward",
-    "color": "#000000ff"
-   },
-   {
-    "name": "up-run",
-    "from": 62,
+    "name": "side-idle",
+    "from": 60,
     "to": 67,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "up-attack",
+    "name": "side-walk",
     "from": 68,
-    "to": 71,
+    "to": 73,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-run",
+    "from": 74,
+    "to": 79,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-attack",
+    "from": 80,
+    "to": 83,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-skill",
+    "from": 84,
+    "to": 89,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-idle",
+    "from": 90,
+    "to": 97,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-walk",
+    "from": 98,
+    "to": 103,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-run",
+    "from": 104,
+    "to": 109,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-attack",
+    "from": 110,
+    "to": 113,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-skill",
+    "from": 114,
+    "to": 119,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-idle",
+    "from": 120,
+    "to": 127,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-walk",
+    "from": 128,
+    "to": 133,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-run",
+    "from": 134,
+    "to": 139,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-attack",
+    "from": 140,
+    "to": 143,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
     "name": "up-skill",
-    "from": 72,
-    "to": 77,
+    "from": 144,
+    "to": 149,
     "direction": "forward",
     "color": "#000000ff"
    }

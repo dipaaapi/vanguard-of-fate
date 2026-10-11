@@ -1,6 +1,7 @@
 import { Pix, shade, whiteOf } from "./avatar.js";
 import { sheetCount, sheetFrame, sheetsVersion } from "./sheets.js";
 import { tileStyle } from "./tilestyle.js";
+import { facing8, isDiagonal, sideways } from "./facing.js";
 
 // ==================== CREATURES (non-human) ====================
 // Same style as the modular Avatar: pixel buffer, selective outline, shade/highlight from the base
@@ -26,7 +27,13 @@ export class CreatureSprite {
   // Frames in an animation: the Aseprite sheet's tag when there is one, else the code sprite's,
   // else a built one ("run" from the walk, "skill" from the attack)
   count(dir, anim) {
+    dir = this.viewOf(dir, anim);
     return (this.sheetKey && sheetCount(this.sheetKey, dir, anim)) || this.frames[anim] || (this.built(anim) ? BUILT[anim] : 1);
+  }
+
+  // The view actually drawn: a diagonal (js/avatar/facing.js) only when the sheet has it, else the side view
+  viewOf(dir, anim) {
+    return isDiagonal(dir) && !(this.sheetKey && sheetCount(this.sheetKey, dir, anim)) ? "side" : dir;
   }
 
   built(anim) {
@@ -35,10 +42,12 @@ export class CreatureSprite {
 
   // Whether this creature has an animation (drawn, built from another one, or from a sheet)
   has(anim, dir = "down") {
+    dir = this.viewOf(dir, anim);
     return !!(this.frames[anim] || this.built(anim) || (this.sheetKey && sheetCount(this.sheetKey, dir, anim)));
   }
 
   frame(dir, anim, i) {
+    dir = this.viewOf(dir, anim);
     const n = this.count(dir, anim);
     const idx = ((i % n) + n) % n;
     // Aseprite sheet (js/avatar/sheets.js) first; the code-drawn frame below is the fallback
@@ -87,7 +96,7 @@ export class CreatureSprite {
     ctx.save();
     ctx.translate(Math.round(x), Math.round(y));
     if (rot) ctx.rotate(rot);
-    if (flip && dir === "side") ctx.scale(-1, 1);
+    if (flip && sideways(dir)) ctx.scale(-1, 1);
     // A larger (sheet) frame keeps the same feet: extra width split left/right, extra height on top
     const ax = this.ax + Math.floor((img.width - this.w) / 2), ay = this.ay + (img.height - this.h);
     ctx.drawImage(img, -ax * scale, -ay * scale, img.width * scale, img.height * scale);
@@ -122,6 +131,7 @@ export class SheetBossSprite extends CreatureSprite {
   }
 
   frame(dir, anim, i) {
+    dir = this.viewOf(dir, anim);
     const n = this.count(dir, anim);
     const idx = ((i % n) + n) % n;
     const img = this.sheetKey && sheetFrame(this.sheetKey, dir, anim, idx);
@@ -378,7 +388,5 @@ export class FalconSprite extends CreatureSprite {
 // ==================== DIRECTION HELPER ====================
 // From movement (dx, dy) → { dir, flip } for the Avatar and creatures
 export function facingFrom(dx, dy, prev = { dir: "down", flip: false }) {
-  if (Math.abs(dx) < 0.01 && Math.abs(dy) < 0.01) return prev;
-  if (Math.abs(dx) >= Math.abs(dy) * 0.8) return { dir: "side", flip: dx < 0 };
-  return { dir: dy < 0 ? "up" : "down", flip: prev.flip };
+  return facing8(dx, dy, prev);   // { dir, flip, view }: 3-way dir for the logic, 8-way view for drawing
 }

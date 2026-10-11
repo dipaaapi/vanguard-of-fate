@@ -54,12 +54,15 @@ export async function prepare(outline = null) {
   return {
     paint(dir, anim, i) {
       const f = new Canvas(W, H);
-      const [raise, spread] = FLAP[anim][i];
+      const [raise, spread] = FLAP[anim][anim === "idle" ? i % 4 : i];
+      const face = anim === "idle" && i === 7 ? "blink" : null;      // eight idle frames, a blink on the last
+      const view = dir;                                             // the body's own view (five, js/avatar/facing.js)
+      dir = dir === "dside" ? "down" : dir === "uside" ? "up" : dir;   // wings: front / back for the diagonals
       const src = {
         idle: ["idle", i % 2], walk: ["walk", Math.floor(i * 4 / 6)], run: ["run", Math.floor(i * 4 / 6)],
         attack: ["attack", [0, 1, 1, 0][i]], skill: ["attack", 0]
       }[anim];
-      const fig = fromGame(body.frame(dir, src[0], src[1]));
+      const fig = fromGame(body.frame(view, src[0], src[1], face));
       const sy = OY + 16;                                   // shoulder row
       const glow = anim === "skill" ? i : 0;
 

@@ -2,7 +2,7 @@
 // leech (a round sucking mouth, no fins). The body undulates in an S with a lighter belly and a finned
 // crest; the neck rises and strikes. Colours from the code sprite: body/bodyD/bodyL, belly, fin, eye.
 // Code sprite 38×24 (feet 19,22) → painted 44×30 (feet 22,28).
-import { Canvas, ramp, rgb, sh, motion, skillFx, finish, curve, taper, frame, overlay } from "../monsterkit.mjs";
+import { Canvas, ramp, rgb, sh, motion, skillFx, finish, curve, taper, frame, overlay, eyeCol } from "../monsterkit.mjs";
 
 export const SIZE = { W: 44, H: 30 };
 
@@ -10,7 +10,7 @@ export function paint(sprite, def, dir, anim, i) {
   const { W, H } = SIZE, { fx: cx, fy } = frame(sprite, W, H), gy = fy - 1;
   const c = sprite.c, m = motion(anim, i);
   const leech = /leech/i.test(def.key), hydra = /hydra/i.test(def.key);
-  const B = ramp(c.body), BL = ramp(c.belly || c.bodyL), FIN = ramp(c.fin || c.bodyL), eye = rgb(c.eye || "#ffd166"), eyeL = sh(c.eye || "#ffd166", 0.5);
+  const B = ramp(c.body), BL = ramp(c.belly || c.bodyL), FIN = ramp(c.fin || c.bodyL), eye = eyeCol(rgb(c.eye || "#ffd166")), eyeL = eyeCol(sh(c.eye || "#ffd166", 0.5));
   let f = new Canvas(W, H);
   const part = (fn) => { const base = f; f = new Canvas(W, H); const r = fn(); const t = f; f = base; overlay(f, t); return r; };
   const side = dir === "side", back = dir === "up";

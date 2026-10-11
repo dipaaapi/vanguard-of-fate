@@ -1,3 +1,4 @@
+import { facing8, drawView } from "./avatar/facing.js";
 import { Sound } from "./audio.js";
 import { Bag } from "./items/bag.js";
 import { mealBonus } from "./items/cooking.js";
@@ -486,7 +487,11 @@ export class Player {
 
       if (vx > 0) this.facing = "right";
       if (vx < 0) this.facing = "left";
-      if (this.state !== "slash") this.dir = vx !== 0 ? "side" : (vy < 0 ? "up" : "down");
+      if (this.state !== "slash") {
+        this.dir = vx !== 0 ? "side" : (vy < 0 ? "up" : "down");
+        this.view = facing8(vx, vy, { view: this.view, flip: this.facing === "left" }).view;   // 8-way, drawing only
+        this.viewDir = this.dir;
+      }
 
       if (this.state !== "slash" && this.state !== "bash") {
         this.state = "run";
@@ -650,6 +655,9 @@ export class Player {
     } else {
       this.dir = cy < 0 ? "up" : "down";
     }
+    const f = facing8(cx, cy, { view: this.view, flip: this.facing === "left" });
+    this.view = f.view; this.viewDir = this.dir;
+    if (f.view !== "up" && f.view !== "down") this.facing = f.flip ? "left" : "right";
   }
 
   draw(ctx) {
@@ -688,7 +696,7 @@ export class Player {
         anim === "idle" && !p ? breathPose(this.idleTick = (this.idleTick || 0) + 1) : null
       );
       around(ctx, this.x + 10, this.y + 21, pose, () =>
-        avatar.draw(ctx, this.x + 10, this.y + 21, this.dir, anim, frame, this.facing === "left", this.hitFlashTimer > 0));
+        avatar.draw(ctx, this.x + 10, this.y + 21, drawView(this), anim, frame, this.facing === "left", this.hitFlashTimer > 0, 1, 1, this.hurtT > 0 ? "hurt" : null));
       // Melee: a crescent follows the blade through the strike
       if (p && this.isMelee()) drawSwing(ctx, this.x + 10, this.y + 12, this.atkAngle, 13, (p - 0.3) / 0.7, "#e2e8f0");
     }

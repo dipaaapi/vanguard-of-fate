@@ -9,7 +9,7 @@
  * Writes assets/sprites/<kind>/<key>.png + .json (ui/<key> → assets/ui/<key>.png, one image for the CSS) (Aseprite json-array with tags) and rewrites
  * assets/sprites/manifest.json from what is on disk. Hidden layers are left out, so a hidden
  * reference layer is fine. Checks each sheet against the code sprite it replaces: tag names
- * ("<down|side|up>-<anim>"), animations the game plays, and canvas size (same or larger).
+ * ("<down|dside|side|uside|up>-<anim>"), animations the game plays, and canvas size (same or larger).
  * Set ASEPRITE to the executable if it isn't on PATH or in the usual install folders. Without Aseprite
  * (e.g. a cloud session) the files are read by tools/aseprite/asefile.mjs instead (visible layers,
  * Normal blending), which gives the same sheet; --node forces that path.
@@ -95,8 +95,8 @@ for (const file of files) {
   if (!sprite) warn(`no creature sprite "${key}" in js/bestiary.js, so the game won't use this sheet`);
   const used = [];
   for (const tag of data.meta.frameTags || []) {
-    const m = /^(down|side|up)-(\w+)$/.exec(tag.name);
-    if (!m) { warn(`tag "${tag.name}" isn't "<down|side|up>-<anim>", ignored`); continue; }
+    const m = /^(down|dside|side|uside|up)-(\w+)$/.exec(tag.name);
+    if (!m) { warn(`tag "${tag.name}" isn't "<down|dside|side|uside|up>-<anim>", ignored`); continue; }
     const count = tag.to - tag.from + 1;
     used.push(`${tag.name}×${count}`);
     if (!sprite) continue;

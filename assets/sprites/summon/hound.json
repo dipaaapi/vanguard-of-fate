@@ -108,7 +108,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 100
+   "duration": 220
   },
   {
    "filename": "hound 5.aseprite",
@@ -130,7 +130,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 100
+   "duration": 220
   },
   {
    "filename": "hound 6.aseprite",
@@ -152,7 +152,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 100
+   "duration": 220
   },
   {
    "filename": "hound 7.aseprite",
@@ -174,7 +174,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 100
+   "duration": 220
   },
   {
    "filename": "hound 8.aseprite",
@@ -240,7 +240,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "hound 11.aseprite",
@@ -262,7 +262,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "hound 12.aseprite",
@@ -284,7 +284,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "hound 13.aseprite",
@@ -306,7 +306,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "hound 14.aseprite",
@@ -372,7 +372,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 90
+   "duration": 70
   },
   {
    "filename": "hound 17.aseprite",
@@ -394,7 +394,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 90
+   "duration": 70
   },
   {
    "filename": "hound 18.aseprite",
@@ -416,7 +416,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 90
+   "duration": 70
   },
   {
    "filename": "hound 19.aseprite",
@@ -438,7 +438,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 90
+   "duration": 70
   },
   {
    "filename": "hound 20.aseprite",
@@ -460,7 +460,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "hound 21.aseprite",
@@ -482,7 +482,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "hound 22.aseprite",
@@ -504,7 +504,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "hound 23.aseprite",
@@ -526,7 +526,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "hound 24.aseprite",
@@ -592,7 +592,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 220
+   "duration": 80
   },
   {
    "filename": "hound 27.aseprite",
@@ -614,7 +614,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 220
+   "duration": 80
   },
   {
    "filename": "hound 28.aseprite",
@@ -636,7 +636,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 220
+   "duration": 80
   },
   {
    "filename": "hound 29.aseprite",
@@ -658,7 +658,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 220
+   "duration": 80
   },
   {
    "filename": "hound 30.aseprite",
@@ -680,7 +680,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 100
+   "duration": 220
   },
   {
    "filename": "hound 31.aseprite",
@@ -702,7 +702,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 100
+   "duration": 220
   },
   {
    "filename": "hound 32.aseprite",
@@ -724,7 +724,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 100
+   "duration": 220
   },
   {
    "filename": "hound 33.aseprite",
@@ -746,7 +746,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 100
+   "duration": 220
   },
   {
    "filename": "hound 34.aseprite",
@@ -768,7 +768,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 100
+   "duration": 220
   },
   {
    "filename": "hound 35.aseprite",
@@ -790,7 +790,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 100
+   "duration": 220
   },
   {
    "filename": "hound 36.aseprite",
@@ -812,7 +812,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 70
+   "duration": 220
   },
   {
    "filename": "hound 37.aseprite",
@@ -834,7 +834,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 70
+   "duration": 220
   },
   {
    "filename": "hound 38.aseprite",
@@ -856,7 +856,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "hound 39.aseprite",
@@ -878,7 +878,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "hound 40.aseprite",
@@ -900,7 +900,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "hound 41.aseprite",
@@ -922,7 +922,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "hound 42.aseprite",
@@ -944,7 +944,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "hound 43.aseprite",
@@ -966,7 +966,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "hound 44.aseprite",
@@ -988,7 +988,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 90
+   "duration": 70
   },
   {
    "filename": "hound 45.aseprite",
@@ -1010,7 +1010,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 90
+   "duration": 70
   },
   {
    "filename": "hound 46.aseprite",
@@ -1032,7 +1032,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "hound 47.aseprite",
@@ -1054,7 +1054,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "hound 48.aseprite",
@@ -1076,7 +1076,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "hound 49.aseprite",
@@ -1098,7 +1098,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "hound 50.aseprite",
@@ -1120,7 +1120,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "hound 51.aseprite",
@@ -1142,7 +1142,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "hound 52.aseprite",
@@ -1164,7 +1164,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 220
+   "duration": 90
   },
   {
    "filename": "hound 53.aseprite",
@@ -1186,7 +1186,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 220
+   "duration": 90
   },
   {
    "filename": "hound 54.aseprite",
@@ -1208,7 +1208,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 220
+   "duration": 80
   },
   {
    "filename": "hound 55.aseprite",
@@ -1230,7 +1230,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 220
+   "duration": 80
   },
   {
    "filename": "hound 56.aseprite",
@@ -1252,7 +1252,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 100
+   "duration": 80
   },
   {
    "filename": "hound 57.aseprite",
@@ -1274,7 +1274,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 100
+   "duration": 80
   },
   {
    "filename": "hound 58.aseprite",
@@ -1296,7 +1296,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 100
+   "duration": 80
   },
   {
    "filename": "hound 59.aseprite",
@@ -1318,7 +1318,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 100
+   "duration": 80
   },
   {
    "filename": "hound 60.aseprite",
@@ -1340,7 +1340,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 100
+   "duration": 220
   },
   {
    "filename": "hound 61.aseprite",
@@ -1362,7 +1362,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 100
+   "duration": 220
   },
   {
    "filename": "hound 62.aseprite",
@@ -1384,7 +1384,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 70
+   "duration": 220
   },
   {
    "filename": "hound 63.aseprite",
@@ -1406,7 +1406,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 70
+   "duration": 220
   },
   {
    "filename": "hound 64.aseprite",
@@ -1428,7 +1428,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 70
+   "duration": 220
   },
   {
    "filename": "hound 65.aseprite",
@@ -1450,7 +1450,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 70
+   "duration": 220
   },
   {
    "filename": "hound 66.aseprite",
@@ -1472,7 +1472,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 70
+   "duration": 220
   },
   {
    "filename": "hound 67.aseprite",
@@ -1494,7 +1494,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 70
+   "duration": 220
   },
   {
    "filename": "hound 68.aseprite",
@@ -1516,7 +1516,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "hound 69.aseprite",
@@ -1538,7 +1538,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "hound 70.aseprite",
@@ -1560,7 +1560,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "hound 71.aseprite",
@@ -1582,7 +1582,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "hound 72.aseprite",
@@ -1604,7 +1604,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 80
+   "duration": 100
   },
   {
    "filename": "hound 73.aseprite",
@@ -1626,7 +1626,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 80
+   "duration": 100
   },
   {
    "filename": "hound 74.aseprite",
@@ -1648,7 +1648,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "hound 75.aseprite",
@@ -1670,7 +1670,7 @@
     "w": 40,
     "h": 28
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "hound 76.aseprite",
@@ -1692,13 +1692,1597 @@
     "w": 40,
     "h": 28
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "hound 77.aseprite",
    "frame": {
     "x": 3080,
     "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "hound 78.aseprite",
+   "frame": {
+    "x": 3120,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "hound 79.aseprite",
+   "frame": {
+    "x": 3160,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "hound 80.aseprite",
+   "frame": {
+    "x": 3200,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 90
+  },
+  {
+   "filename": "hound 81.aseprite",
+   "frame": {
+    "x": 3240,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 90
+  },
+  {
+   "filename": "hound 82.aseprite",
+   "frame": {
+    "x": 3280,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 90
+  },
+  {
+   "filename": "hound 83.aseprite",
+   "frame": {
+    "x": 3320,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 90
+  },
+  {
+   "filename": "hound 84.aseprite",
+   "frame": {
+    "x": 3360,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "hound 85.aseprite",
+   "frame": {
+    "x": 3400,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "hound 86.aseprite",
+   "frame": {
+    "x": 3440,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "hound 87.aseprite",
+   "frame": {
+    "x": 3480,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "hound 88.aseprite",
+   "frame": {
+    "x": 3520,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "hound 89.aseprite",
+   "frame": {
+    "x": 3560,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "hound 90.aseprite",
+   "frame": {
+    "x": 3600,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 220
+  },
+  {
+   "filename": "hound 91.aseprite",
+   "frame": {
+    "x": 3640,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 220
+  },
+  {
+   "filename": "hound 92.aseprite",
+   "frame": {
+    "x": 3680,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 220
+  },
+  {
+   "filename": "hound 93.aseprite",
+   "frame": {
+    "x": 3720,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 220
+  },
+  {
+   "filename": "hound 94.aseprite",
+   "frame": {
+    "x": 3760,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 220
+  },
+  {
+   "filename": "hound 95.aseprite",
+   "frame": {
+    "x": 3800,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 220
+  },
+  {
+   "filename": "hound 96.aseprite",
+   "frame": {
+    "x": 3840,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 220
+  },
+  {
+   "filename": "hound 97.aseprite",
+   "frame": {
+    "x": 3880,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 220
+  },
+  {
+   "filename": "hound 98.aseprite",
+   "frame": {
+    "x": 3920,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "hound 99.aseprite",
+   "frame": {
+    "x": 3960,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "hound 100.aseprite",
+   "frame": {
+    "x": 4000,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "hound 101.aseprite",
+   "frame": {
+    "x": 4040,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "hound 102.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "hound 103.aseprite",
+   "frame": {
+    "x": 40,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "hound 104.aseprite",
+   "frame": {
+    "x": 80,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "hound 105.aseprite",
+   "frame": {
+    "x": 120,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "hound 106.aseprite",
+   "frame": {
+    "x": 160,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "hound 107.aseprite",
+   "frame": {
+    "x": 200,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "hound 108.aseprite",
+   "frame": {
+    "x": 240,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "hound 109.aseprite",
+   "frame": {
+    "x": 280,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "hound 110.aseprite",
+   "frame": {
+    "x": 320,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 90
+  },
+  {
+   "filename": "hound 111.aseprite",
+   "frame": {
+    "x": 360,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 90
+  },
+  {
+   "filename": "hound 112.aseprite",
+   "frame": {
+    "x": 400,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 90
+  },
+  {
+   "filename": "hound 113.aseprite",
+   "frame": {
+    "x": 440,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 90
+  },
+  {
+   "filename": "hound 114.aseprite",
+   "frame": {
+    "x": 480,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "hound 115.aseprite",
+   "frame": {
+    "x": 520,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "hound 116.aseprite",
+   "frame": {
+    "x": 560,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "hound 117.aseprite",
+   "frame": {
+    "x": 600,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "hound 118.aseprite",
+   "frame": {
+    "x": 640,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "hound 119.aseprite",
+   "frame": {
+    "x": 680,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "hound 120.aseprite",
+   "frame": {
+    "x": 720,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 220
+  },
+  {
+   "filename": "hound 121.aseprite",
+   "frame": {
+    "x": 760,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 220
+  },
+  {
+   "filename": "hound 122.aseprite",
+   "frame": {
+    "x": 800,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 220
+  },
+  {
+   "filename": "hound 123.aseprite",
+   "frame": {
+    "x": 840,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 220
+  },
+  {
+   "filename": "hound 124.aseprite",
+   "frame": {
+    "x": 880,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 220
+  },
+  {
+   "filename": "hound 125.aseprite",
+   "frame": {
+    "x": 920,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 220
+  },
+  {
+   "filename": "hound 126.aseprite",
+   "frame": {
+    "x": 960,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 220
+  },
+  {
+   "filename": "hound 127.aseprite",
+   "frame": {
+    "x": 1000,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 220
+  },
+  {
+   "filename": "hound 128.aseprite",
+   "frame": {
+    "x": 1040,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "hound 129.aseprite",
+   "frame": {
+    "x": 1080,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "hound 130.aseprite",
+   "frame": {
+    "x": 1120,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "hound 131.aseprite",
+   "frame": {
+    "x": 1160,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "hound 132.aseprite",
+   "frame": {
+    "x": 1200,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "hound 133.aseprite",
+   "frame": {
+    "x": 1240,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 100
+  },
+  {
+   "filename": "hound 134.aseprite",
+   "frame": {
+    "x": 1280,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "hound 135.aseprite",
+   "frame": {
+    "x": 1320,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "hound 136.aseprite",
+   "frame": {
+    "x": 1360,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "hound 137.aseprite",
+   "frame": {
+    "x": 1400,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "hound 138.aseprite",
+   "frame": {
+    "x": 1440,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "hound 139.aseprite",
+   "frame": {
+    "x": 1480,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 70
+  },
+  {
+   "filename": "hound 140.aseprite",
+   "frame": {
+    "x": 1520,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 90
+  },
+  {
+   "filename": "hound 141.aseprite",
+   "frame": {
+    "x": 1560,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 90
+  },
+  {
+   "filename": "hound 142.aseprite",
+   "frame": {
+    "x": 1600,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 90
+  },
+  {
+   "filename": "hound 143.aseprite",
+   "frame": {
+    "x": 1640,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 90
+  },
+  {
+   "filename": "hound 144.aseprite",
+   "frame": {
+    "x": 1680,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "hound 145.aseprite",
+   "frame": {
+    "x": 1720,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "hound 146.aseprite",
+   "frame": {
+    "x": 1760,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "hound 147.aseprite",
+   "frame": {
+    "x": 1800,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "hound 148.aseprite",
+   "frame": {
+    "x": 1840,
+    "y": 28,
+    "w": 40,
+    "h": 28
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 28
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 28
+   },
+   "duration": 80
+  },
+  {
+   "filename": "hound 149.aseprite",
+   "frame": {
+    "x": 1880,
+    "y": 28,
     "w": 40,
     "h": 28
    },
@@ -1722,113 +3306,183 @@
   "image": "hound.png",
   "format": "RGBA8888",
   "size": {
-   "w": 3120,
-   "h": 28
+   "w": 4080,
+   "h": 56
   },
   "scale": "1",
   "frameTags": [
    {
     "name": "down-idle",
     "from": 0,
-    "to": 3,
+    "to": 7,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
     "name": "down-walk",
-    "from": 4,
-    "to": 9,
+    "from": 8,
+    "to": 13,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
     "name": "down-run",
-    "from": 10,
-    "to": 15,
-    "direction": "forward",
-    "color": "#000000ff"
-   },
-   {
-    "name": "down-attack",
-    "from": 16,
+    "from": 14,
     "to": 19,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "down-skill",
+    "name": "down-attack",
     "from": 20,
-    "to": 25,
+    "to": 23,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-idle",
-    "from": 26,
+    "name": "down-skill",
+    "from": 24,
     "to": 29,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-walk",
+    "name": "dside-idle",
     "from": 30,
-    "to": 35,
+    "to": 37,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-run",
-    "from": 36,
-    "to": 41,
+    "name": "dside-walk",
+    "from": 38,
+    "to": 43,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-attack",
-    "from": 42,
-    "to": 45,
+    "name": "dside-run",
+    "from": 44,
+    "to": 49,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-skill",
-    "from": 46,
-    "to": 51,
+    "name": "dside-attack",
+    "from": 50,
+    "to": 53,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "up-idle",
-    "from": 52,
-    "to": 55,
+    "name": "dside-skill",
+    "from": 54,
+    "to": 59,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "up-walk",
-    "from": 56,
-    "to": 61,
-    "direction": "forward",
-    "color": "#000000ff"
-   },
-   {
-    "name": "up-run",
-    "from": 62,
+    "name": "side-idle",
+    "from": 60,
     "to": 67,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "up-attack",
+    "name": "side-walk",
     "from": 68,
-    "to": 71,
+    "to": 73,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-run",
+    "from": 74,
+    "to": 79,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-attack",
+    "from": 80,
+    "to": 83,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-skill",
+    "from": 84,
+    "to": 89,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-idle",
+    "from": 90,
+    "to": 97,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-walk",
+    "from": 98,
+    "to": 103,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-run",
+    "from": 104,
+    "to": 109,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-attack",
+    "from": 110,
+    "to": 113,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-skill",
+    "from": 114,
+    "to": 119,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-idle",
+    "from": 120,
+    "to": 127,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-walk",
+    "from": 128,
+    "to": 133,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-run",
+    "from": 134,
+    "to": 139,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-attack",
+    "from": 140,
+    "to": 143,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
     "name": "up-skill",
-    "from": 72,
-    "to": 77,
+    "from": 144,
+    "to": 149,
     "direction": "forward",
     "color": "#000000ff"
    }

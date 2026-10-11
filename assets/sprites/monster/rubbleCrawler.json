@@ -108,7 +108,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "rubbleCrawler 5.aseprite",
@@ -130,7 +130,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "rubbleCrawler 6.aseprite",
@@ -152,7 +152,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "rubbleCrawler 7.aseprite",
@@ -174,7 +174,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "rubbleCrawler 8.aseprite",
@@ -240,7 +240,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "rubbleCrawler 11.aseprite",
@@ -262,7 +262,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "rubbleCrawler 12.aseprite",
@@ -284,7 +284,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "rubbleCrawler 13.aseprite",
@@ -306,7 +306,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "rubbleCrawler 14.aseprite",
@@ -372,7 +372,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 90
+   "duration": 70
   },
   {
    "filename": "rubbleCrawler 17.aseprite",
@@ -394,7 +394,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 90
+   "duration": 70
   },
   {
    "filename": "rubbleCrawler 18.aseprite",
@@ -416,7 +416,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 90
+   "duration": 70
   },
   {
    "filename": "rubbleCrawler 19.aseprite",
@@ -438,7 +438,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 90
+   "duration": 70
   },
   {
    "filename": "rubbleCrawler 20.aseprite",
@@ -460,7 +460,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "rubbleCrawler 21.aseprite",
@@ -482,7 +482,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "rubbleCrawler 22.aseprite",
@@ -504,7 +504,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "rubbleCrawler 23.aseprite",
@@ -526,7 +526,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "rubbleCrawler 24.aseprite",
@@ -592,7 +592,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 200
+   "duration": 80
   },
   {
    "filename": "rubbleCrawler 27.aseprite",
@@ -614,7 +614,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 200
+   "duration": 80
   },
   {
    "filename": "rubbleCrawler 28.aseprite",
@@ -636,7 +636,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 200
+   "duration": 80
   },
   {
    "filename": "rubbleCrawler 29.aseprite",
@@ -658,7 +658,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 200
+   "duration": 80
   },
   {
    "filename": "rubbleCrawler 30.aseprite",
@@ -680,7 +680,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "rubbleCrawler 31.aseprite",
@@ -702,7 +702,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "rubbleCrawler 32.aseprite",
@@ -724,7 +724,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "rubbleCrawler 33.aseprite",
@@ -746,7 +746,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "rubbleCrawler 34.aseprite",
@@ -768,7 +768,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "rubbleCrawler 35.aseprite",
@@ -790,7 +790,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "rubbleCrawler 36.aseprite",
@@ -812,7 +812,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "rubbleCrawler 37.aseprite",
@@ -834,7 +834,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "rubbleCrawler 38.aseprite",
@@ -856,7 +856,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "rubbleCrawler 39.aseprite",
@@ -878,7 +878,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "rubbleCrawler 40.aseprite",
@@ -900,7 +900,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "rubbleCrawler 41.aseprite",
@@ -922,7 +922,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "rubbleCrawler 42.aseprite",
@@ -944,7 +944,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "rubbleCrawler 43.aseprite",
@@ -966,7 +966,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "rubbleCrawler 44.aseprite",
@@ -988,7 +988,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 90
+   "duration": 70
   },
   {
    "filename": "rubbleCrawler 45.aseprite",
@@ -1010,7 +1010,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 90
+   "duration": 70
   },
   {
    "filename": "rubbleCrawler 46.aseprite",
@@ -1032,7 +1032,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "rubbleCrawler 47.aseprite",
@@ -1054,7 +1054,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "rubbleCrawler 48.aseprite",
@@ -1076,7 +1076,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "rubbleCrawler 49.aseprite",
@@ -1098,7 +1098,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "rubbleCrawler 50.aseprite",
@@ -1120,7 +1120,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "rubbleCrawler 51.aseprite",
@@ -1142,7 +1142,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "rubbleCrawler 52.aseprite",
@@ -1164,7 +1164,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 200
+   "duration": 90
   },
   {
    "filename": "rubbleCrawler 53.aseprite",
@@ -1186,7 +1186,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 200
+   "duration": 90
   },
   {
    "filename": "rubbleCrawler 54.aseprite",
@@ -1208,7 +1208,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 200
+   "duration": 80
   },
   {
    "filename": "rubbleCrawler 55.aseprite",
@@ -1230,7 +1230,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 200
+   "duration": 80
   },
   {
    "filename": "rubbleCrawler 56.aseprite",
@@ -1252,7 +1252,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 100
+   "duration": 80
   },
   {
    "filename": "rubbleCrawler 57.aseprite",
@@ -1274,7 +1274,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 100
+   "duration": 80
   },
   {
    "filename": "rubbleCrawler 58.aseprite",
@@ -1296,7 +1296,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 100
+   "duration": 80
   },
   {
    "filename": "rubbleCrawler 59.aseprite",
@@ -1318,7 +1318,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 100
+   "duration": 80
   },
   {
    "filename": "rubbleCrawler 60.aseprite",
@@ -1340,7 +1340,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "rubbleCrawler 61.aseprite",
@@ -1362,7 +1362,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "rubbleCrawler 62.aseprite",
@@ -1384,7 +1384,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "rubbleCrawler 63.aseprite",
@@ -1406,7 +1406,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "rubbleCrawler 64.aseprite",
@@ -1428,7 +1428,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "rubbleCrawler 65.aseprite",
@@ -1450,7 +1450,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "rubbleCrawler 66.aseprite",
@@ -1472,7 +1472,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "rubbleCrawler 67.aseprite",
@@ -1494,7 +1494,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "rubbleCrawler 68.aseprite",
@@ -1516,7 +1516,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "rubbleCrawler 69.aseprite",
@@ -1538,7 +1538,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "rubbleCrawler 70.aseprite",
@@ -1560,7 +1560,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "rubbleCrawler 71.aseprite",
@@ -1582,7 +1582,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "rubbleCrawler 72.aseprite",
@@ -1604,7 +1604,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 80
+   "duration": 100
   },
   {
    "filename": "rubbleCrawler 73.aseprite",
@@ -1626,7 +1626,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 80
+   "duration": 100
   },
   {
    "filename": "rubbleCrawler 74.aseprite",
@@ -1648,7 +1648,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "rubbleCrawler 75.aseprite",
@@ -1670,7 +1670,7 @@
     "w": 36,
     "h": 26
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "rubbleCrawler 76.aseprite",
@@ -1692,13 +1692,1597 @@
     "w": 36,
     "h": 26
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "rubbleCrawler 77.aseprite",
    "frame": {
     "x": 2772,
     "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 70
+  },
+  {
+   "filename": "rubbleCrawler 78.aseprite",
+   "frame": {
+    "x": 2808,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 70
+  },
+  {
+   "filename": "rubbleCrawler 79.aseprite",
+   "frame": {
+    "x": 2844,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 70
+  },
+  {
+   "filename": "rubbleCrawler 80.aseprite",
+   "frame": {
+    "x": 2880,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 90
+  },
+  {
+   "filename": "rubbleCrawler 81.aseprite",
+   "frame": {
+    "x": 2916,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 90
+  },
+  {
+   "filename": "rubbleCrawler 82.aseprite",
+   "frame": {
+    "x": 2952,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 90
+  },
+  {
+   "filename": "rubbleCrawler 83.aseprite",
+   "frame": {
+    "x": 2988,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 90
+  },
+  {
+   "filename": "rubbleCrawler 84.aseprite",
+   "frame": {
+    "x": 3024,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 80
+  },
+  {
+   "filename": "rubbleCrawler 85.aseprite",
+   "frame": {
+    "x": 3060,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 80
+  },
+  {
+   "filename": "rubbleCrawler 86.aseprite",
+   "frame": {
+    "x": 3096,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 80
+  },
+  {
+   "filename": "rubbleCrawler 87.aseprite",
+   "frame": {
+    "x": 3132,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 80
+  },
+  {
+   "filename": "rubbleCrawler 88.aseprite",
+   "frame": {
+    "x": 3168,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 80
+  },
+  {
+   "filename": "rubbleCrawler 89.aseprite",
+   "frame": {
+    "x": 3204,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 80
+  },
+  {
+   "filename": "rubbleCrawler 90.aseprite",
+   "frame": {
+    "x": 3240,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 200
+  },
+  {
+   "filename": "rubbleCrawler 91.aseprite",
+   "frame": {
+    "x": 3276,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 200
+  },
+  {
+   "filename": "rubbleCrawler 92.aseprite",
+   "frame": {
+    "x": 3312,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 200
+  },
+  {
+   "filename": "rubbleCrawler 93.aseprite",
+   "frame": {
+    "x": 3348,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 200
+  },
+  {
+   "filename": "rubbleCrawler 94.aseprite",
+   "frame": {
+    "x": 3384,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 200
+  },
+  {
+   "filename": "rubbleCrawler 95.aseprite",
+   "frame": {
+    "x": 3420,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 200
+  },
+  {
+   "filename": "rubbleCrawler 96.aseprite",
+   "frame": {
+    "x": 3456,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 200
+  },
+  {
+   "filename": "rubbleCrawler 97.aseprite",
+   "frame": {
+    "x": 3492,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 200
+  },
+  {
+   "filename": "rubbleCrawler 98.aseprite",
+   "frame": {
+    "x": 3528,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 100
+  },
+  {
+   "filename": "rubbleCrawler 99.aseprite",
+   "frame": {
+    "x": 3564,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 100
+  },
+  {
+   "filename": "rubbleCrawler 100.aseprite",
+   "frame": {
+    "x": 3600,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 100
+  },
+  {
+   "filename": "rubbleCrawler 101.aseprite",
+   "frame": {
+    "x": 3636,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 100
+  },
+  {
+   "filename": "rubbleCrawler 102.aseprite",
+   "frame": {
+    "x": 3672,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 100
+  },
+  {
+   "filename": "rubbleCrawler 103.aseprite",
+   "frame": {
+    "x": 3708,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 100
+  },
+  {
+   "filename": "rubbleCrawler 104.aseprite",
+   "frame": {
+    "x": 3744,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 70
+  },
+  {
+   "filename": "rubbleCrawler 105.aseprite",
+   "frame": {
+    "x": 3780,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 70
+  },
+  {
+   "filename": "rubbleCrawler 106.aseprite",
+   "frame": {
+    "x": 3816,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 70
+  },
+  {
+   "filename": "rubbleCrawler 107.aseprite",
+   "frame": {
+    "x": 3852,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 70
+  },
+  {
+   "filename": "rubbleCrawler 108.aseprite",
+   "frame": {
+    "x": 3888,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 70
+  },
+  {
+   "filename": "rubbleCrawler 109.aseprite",
+   "frame": {
+    "x": 3924,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 70
+  },
+  {
+   "filename": "rubbleCrawler 110.aseprite",
+   "frame": {
+    "x": 3960,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 90
+  },
+  {
+   "filename": "rubbleCrawler 111.aseprite",
+   "frame": {
+    "x": 3996,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 90
+  },
+  {
+   "filename": "rubbleCrawler 112.aseprite",
+   "frame": {
+    "x": 4032,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 90
+  },
+  {
+   "filename": "rubbleCrawler 113.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 90
+  },
+  {
+   "filename": "rubbleCrawler 114.aseprite",
+   "frame": {
+    "x": 36,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 80
+  },
+  {
+   "filename": "rubbleCrawler 115.aseprite",
+   "frame": {
+    "x": 72,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 80
+  },
+  {
+   "filename": "rubbleCrawler 116.aseprite",
+   "frame": {
+    "x": 108,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 80
+  },
+  {
+   "filename": "rubbleCrawler 117.aseprite",
+   "frame": {
+    "x": 144,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 80
+  },
+  {
+   "filename": "rubbleCrawler 118.aseprite",
+   "frame": {
+    "x": 180,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 80
+  },
+  {
+   "filename": "rubbleCrawler 119.aseprite",
+   "frame": {
+    "x": 216,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 80
+  },
+  {
+   "filename": "rubbleCrawler 120.aseprite",
+   "frame": {
+    "x": 252,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 200
+  },
+  {
+   "filename": "rubbleCrawler 121.aseprite",
+   "frame": {
+    "x": 288,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 200
+  },
+  {
+   "filename": "rubbleCrawler 122.aseprite",
+   "frame": {
+    "x": 324,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 200
+  },
+  {
+   "filename": "rubbleCrawler 123.aseprite",
+   "frame": {
+    "x": 360,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 200
+  },
+  {
+   "filename": "rubbleCrawler 124.aseprite",
+   "frame": {
+    "x": 396,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 200
+  },
+  {
+   "filename": "rubbleCrawler 125.aseprite",
+   "frame": {
+    "x": 432,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 200
+  },
+  {
+   "filename": "rubbleCrawler 126.aseprite",
+   "frame": {
+    "x": 468,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 200
+  },
+  {
+   "filename": "rubbleCrawler 127.aseprite",
+   "frame": {
+    "x": 504,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 200
+  },
+  {
+   "filename": "rubbleCrawler 128.aseprite",
+   "frame": {
+    "x": 540,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 100
+  },
+  {
+   "filename": "rubbleCrawler 129.aseprite",
+   "frame": {
+    "x": 576,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 100
+  },
+  {
+   "filename": "rubbleCrawler 130.aseprite",
+   "frame": {
+    "x": 612,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 100
+  },
+  {
+   "filename": "rubbleCrawler 131.aseprite",
+   "frame": {
+    "x": 648,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 100
+  },
+  {
+   "filename": "rubbleCrawler 132.aseprite",
+   "frame": {
+    "x": 684,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 100
+  },
+  {
+   "filename": "rubbleCrawler 133.aseprite",
+   "frame": {
+    "x": 720,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 100
+  },
+  {
+   "filename": "rubbleCrawler 134.aseprite",
+   "frame": {
+    "x": 756,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 70
+  },
+  {
+   "filename": "rubbleCrawler 135.aseprite",
+   "frame": {
+    "x": 792,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 70
+  },
+  {
+   "filename": "rubbleCrawler 136.aseprite",
+   "frame": {
+    "x": 828,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 70
+  },
+  {
+   "filename": "rubbleCrawler 137.aseprite",
+   "frame": {
+    "x": 864,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 70
+  },
+  {
+   "filename": "rubbleCrawler 138.aseprite",
+   "frame": {
+    "x": 900,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 70
+  },
+  {
+   "filename": "rubbleCrawler 139.aseprite",
+   "frame": {
+    "x": 936,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 70
+  },
+  {
+   "filename": "rubbleCrawler 140.aseprite",
+   "frame": {
+    "x": 972,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 90
+  },
+  {
+   "filename": "rubbleCrawler 141.aseprite",
+   "frame": {
+    "x": 1008,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 90
+  },
+  {
+   "filename": "rubbleCrawler 142.aseprite",
+   "frame": {
+    "x": 1044,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 90
+  },
+  {
+   "filename": "rubbleCrawler 143.aseprite",
+   "frame": {
+    "x": 1080,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 90
+  },
+  {
+   "filename": "rubbleCrawler 144.aseprite",
+   "frame": {
+    "x": 1116,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 80
+  },
+  {
+   "filename": "rubbleCrawler 145.aseprite",
+   "frame": {
+    "x": 1152,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 80
+  },
+  {
+   "filename": "rubbleCrawler 146.aseprite",
+   "frame": {
+    "x": 1188,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 80
+  },
+  {
+   "filename": "rubbleCrawler 147.aseprite",
+   "frame": {
+    "x": 1224,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 80
+  },
+  {
+   "filename": "rubbleCrawler 148.aseprite",
+   "frame": {
+    "x": 1260,
+    "y": 26,
+    "w": 36,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 36,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 36,
+    "h": 26
+   },
+   "duration": 80
+  },
+  {
+   "filename": "rubbleCrawler 149.aseprite",
+   "frame": {
+    "x": 1296,
+    "y": 26,
     "w": 36,
     "h": 26
    },
@@ -1722,113 +3306,183 @@
   "image": "rubbleCrawler.png",
   "format": "RGBA8888",
   "size": {
-   "w": 2808,
-   "h": 26
+   "w": 4068,
+   "h": 52
   },
   "scale": "1",
   "frameTags": [
    {
     "name": "down-idle",
     "from": 0,
-    "to": 3,
+    "to": 7,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
     "name": "down-walk",
-    "from": 4,
-    "to": 9,
+    "from": 8,
+    "to": 13,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
     "name": "down-run",
-    "from": 10,
-    "to": 15,
-    "direction": "forward",
-    "color": "#000000ff"
-   },
-   {
-    "name": "down-attack",
-    "from": 16,
+    "from": 14,
     "to": 19,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "down-skill",
+    "name": "down-attack",
     "from": 20,
-    "to": 25,
+    "to": 23,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-idle",
-    "from": 26,
+    "name": "down-skill",
+    "from": 24,
     "to": 29,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-walk",
+    "name": "dside-idle",
     "from": 30,
-    "to": 35,
+    "to": 37,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-run",
-    "from": 36,
-    "to": 41,
+    "name": "dside-walk",
+    "from": 38,
+    "to": 43,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-attack",
-    "from": 42,
-    "to": 45,
+    "name": "dside-run",
+    "from": 44,
+    "to": 49,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-skill",
-    "from": 46,
-    "to": 51,
+    "name": "dside-attack",
+    "from": 50,
+    "to": 53,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "up-idle",
-    "from": 52,
-    "to": 55,
+    "name": "dside-skill",
+    "from": 54,
+    "to": 59,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "up-walk",
-    "from": 56,
-    "to": 61,
-    "direction": "forward",
-    "color": "#000000ff"
-   },
-   {
-    "name": "up-run",
-    "from": 62,
+    "name": "side-idle",
+    "from": 60,
     "to": 67,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "up-attack",
+    "name": "side-walk",
     "from": 68,
-    "to": 71,
+    "to": 73,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-run",
+    "from": 74,
+    "to": 79,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-attack",
+    "from": 80,
+    "to": 83,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-skill",
+    "from": 84,
+    "to": 89,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-idle",
+    "from": 90,
+    "to": 97,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-walk",
+    "from": 98,
+    "to": 103,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-run",
+    "from": 104,
+    "to": 109,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-attack",
+    "from": 110,
+    "to": 113,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-skill",
+    "from": 114,
+    "to": 119,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-idle",
+    "from": 120,
+    "to": 127,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-walk",
+    "from": 128,
+    "to": 133,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-run",
+    "from": 134,
+    "to": 139,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-attack",
+    "from": 140,
+    "to": 143,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
     "name": "up-skill",
-    "from": 72,
-    "to": 77,
+    "from": 144,
+    "to": 149,
     "direction": "forward",
     "color": "#000000ff"
    }

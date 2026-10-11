@@ -4,13 +4,13 @@
  * with the game's own drawing code (Pix buffers), so a look can be checked without opening the browser.
  *
  *   node .claude/skills/sprite-preview/sprite-tool.mjs list                       # every subject key
- *   node .claude/skills/sprite-preview/sprite-tool.mjs render <subject> [opts]    # sheet: rows = down/side/up, columns = frames
+ *   node .claude/skills/sprite-preview/sprite-tool.mjs render <subject> [opts]    # sheet: rows = down/dside/side/uside/up, columns = frames
  *   node .claude/skills/sprite-preview/sprite-tool.mjs render monster:wolf --anim walk --dir side
  *   node .claude/skills/sprite-preview/sprite-tool.mjs render npc:brakka --before HEAD   # left: HEAD, right: working tree
  *
  * Subjects: class:<novice|knight|mage|priest|archer|fighter>, npc:<id>, merc:<axe|crossbow|greatsword|wand>,
  *           monster:<key>, boss:<key>, icon:<itemId> (e.g. icon:mail@3, icon:card:wolf).
- * Options:  --anim idle,walk   (default: every animation)   --dir down,side   (default: all three)
+ * Options:  --anim idle,walk   (default: every animation)   --dir down,side   (default: all five views)
  *           --scale 4 (default)   --out <file.png> (default: <tmp>/vof-sprites/<subject>.png)
  *           --before <git ref>  render the same subject from that commit on the left, for before/after checks
  *           --config '<json>'   Character Creator look for class:* (default: DEFAULT_CONFIG)
@@ -110,7 +110,7 @@ const pixelsOf = (c) => ({ w: c.width, h: c.height, d: c._rgba || new Uint8Clamp
 
 function sheet(res) {
   if (res.icon) return [[pixelsOf(res.icon)]];
-  const dirs = (opt("--dir", "down,side,up")).split(",");
+  const dirs = (opt("--dir", "down,dside,side,uside,up")).split(",");
   const want = opt("--anim", null);
   const anims = Object.entries(res.anims).filter(([a]) => !want || want.split(",").includes(a));
   return dirs.map((dir) => anims.flatMap(([a, n]) => Array.from({ length: n }, (_, i) => pixelsOf(res.sprite.frame(dir, a, i)))));
@@ -189,7 +189,7 @@ if (cmd === "list") {
   const file = opt("--out", path.join(os.tmpdir(), "vof-sprites", `${subject.replace(/[^\w@.-]+/g, "_")}${before ? "-vs-" + before.replace(/\W+/g, "_") : ""}.png`));
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, png(W, H, out));
-  console.log(`${file}  (${W}×${H}${before ? `, left = ${before}, right = working tree` : ""}; rows = ${opt("--dir", "down,side,up")})`);
+  console.log(`${file}  (${W}×${H}${before ? `, left = ${before}, right = working tree` : ""}; rows = ${opt("--dir", "down,dside,side,uside,up")})`);
 } else {
   console.error("usage: list | render <class:|npc:|merc:|monster:|boss:|icon:><key> [--anim a,b] [--dir d,e] [--scale n] [--before <ref>] [--out file]");
   process.exit(1);

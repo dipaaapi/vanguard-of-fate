@@ -3,7 +3,7 @@
 // beak, tail fan). Flyers hover with a wing beat; walking drakes (flying = false) go on four legs with
 // folded wings. Colours from the code sprite: body/bodyD/bodyL, belly, wing/wingD, eye, horn, fire.
 // Code sprite 36×30 (feet 18,28) → painted 44×36 (feet 22,34).
-import { Canvas, ramp, rgb, sh, motion, skillFx, dust, finish, taper, curve, frame, overlay } from "../monsterkit.mjs";
+import { Canvas, ramp, rgb, sh, motion, skillFx, dust, finish, taper, curve, frame, overlay, eyeCol } from "../monsterkit.mjs";
 
 export const SIZE = { W: 44, H: 36 };
 
@@ -17,7 +17,7 @@ export function paint(sprite, def, dir, anim, i) {
   const { W, H } = SIZE, { fx: cx, fy } = frame(sprite, W, H), gy = fy - 1;
   const c = sprite.c, m = motion(anim, i), kind = kindOf(def.key), fly = sprite.flying;
   const B = ramp(c.body), BD = ramp(c.bodyD, { lift: -0.05 }), BL = ramp(c.belly || c.bodyL), WG = ramp(c.wing || c.bodyD), WD = ramp(c.wingD || c.bodyD, { lift: -0.1 });
-  const HORN = ramp(c.horn || "#d8d0c0"), eye = rgb(c.eye || "#ff3b6b"), eyeL = sh(c.eye || "#ff3b6b", 0.5);
+  const HORN = ramp(c.horn || "#d8d0c0"), eye = eyeCol(rgb(c.eye || "#ff3b6b")), eyeL = eyeCol(sh(c.eye || "#ff3b6b", 0.5));
   const beakR = ramp(kind === "bird" ? (c.horn && c.horn !== "#d8d0c0" ? c.horn : "#f2b134") : c.horn || "#d8d0c0");
   let f = new Canvas(W, H);
   const part = (fn) => { const base = f; f = new Canvas(W, H); const r = fn(); const t = f; f = base; overlay(f, t); return r; };

@@ -64,7 +64,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "gloomwaterHag 3.aseprite",
@@ -86,7 +86,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "gloomwaterHag 4.aseprite",
@@ -108,7 +108,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "gloomwaterHag 5.aseprite",
@@ -130,7 +130,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "gloomwaterHag 6.aseprite",
@@ -152,7 +152,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "gloomwaterHag 7.aseprite",
@@ -174,7 +174,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "gloomwaterHag 8.aseprite",
@@ -196,7 +196,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "gloomwaterHag 9.aseprite",
@@ -218,7 +218,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "gloomwaterHag 10.aseprite",
@@ -240,7 +240,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "gloomwaterHag 11.aseprite",
@@ -262,7 +262,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "gloomwaterHag 12.aseprite",
@@ -284,7 +284,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "gloomwaterHag 13.aseprite",
@@ -306,7 +306,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "gloomwaterHag 14.aseprite",
@@ -328,7 +328,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "gloomwaterHag 15.aseprite",
@@ -350,7 +350,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "gloomwaterHag 16.aseprite",
@@ -372,7 +372,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "gloomwaterHag 17.aseprite",
@@ -394,7 +394,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "gloomwaterHag 18.aseprite",
@@ -416,7 +416,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 200
+   "duration": 80
   },
   {
    "filename": "gloomwaterHag 19.aseprite",
@@ -438,7 +438,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 200
+   "duration": 80
   },
   {
    "filename": "gloomwaterHag 20.aseprite",
@@ -460,7 +460,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 100
+   "duration": 80
   },
   {
    "filename": "gloomwaterHag 21.aseprite",
@@ -482,7 +482,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 100
+   "duration": 80
   },
   {
    "filename": "gloomwaterHag 22.aseprite",
@@ -504,7 +504,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 100
+   "duration": 80
   },
   {
    "filename": "gloomwaterHag 23.aseprite",
@@ -526,7 +526,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 100
+   "duration": 80
   },
   {
    "filename": "gloomwaterHag 24.aseprite",
@@ -548,7 +548,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "gloomwaterHag 25.aseprite",
@@ -570,7 +570,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "gloomwaterHag 26.aseprite",
@@ -592,7 +592,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "gloomwaterHag 27.aseprite",
@@ -614,7 +614,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "gloomwaterHag 28.aseprite",
@@ -636,7 +636,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 90
+   "duration": 200
   },
   {
    "filename": "gloomwaterHag 29.aseprite",
@@ -658,7 +658,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 90
+   "duration": 200
   },
   {
    "filename": "gloomwaterHag 30.aseprite",
@@ -680,7 +680,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 80
+   "duration": 200
   },
   {
    "filename": "gloomwaterHag 31.aseprite",
@@ -702,7 +702,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 80
+   "duration": 200
   },
   {
    "filename": "gloomwaterHag 32.aseprite",
@@ -724,7 +724,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 80
+   "duration": 100
   },
   {
    "filename": "gloomwaterHag 33.aseprite",
@@ -746,7 +746,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 80
+   "duration": 100
   },
   {
    "filename": "gloomwaterHag 34.aseprite",
@@ -768,7 +768,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 80
+   "duration": 100
   },
   {
    "filename": "gloomwaterHag 35.aseprite",
@@ -790,7 +790,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 80
+   "duration": 100
   },
   {
    "filename": "gloomwaterHag 36.aseprite",
@@ -812,7 +812,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 200
+   "duration": 70
   },
   {
    "filename": "gloomwaterHag 37.aseprite",
@@ -834,7 +834,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 200
+   "duration": 70
   },
   {
    "filename": "gloomwaterHag 38.aseprite",
@@ -856,7 +856,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 100
+   "duration": 70
   },
   {
    "filename": "gloomwaterHag 39.aseprite",
@@ -878,7 +878,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 100
+   "duration": 70
   },
   {
    "filename": "gloomwaterHag 40.aseprite",
@@ -900,7 +900,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 100
+   "duration": 90
   },
   {
    "filename": "gloomwaterHag 41.aseprite",
@@ -922,7 +922,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 100
+   "duration": 90
   },
   {
    "filename": "gloomwaterHag 42.aseprite",
@@ -944,7 +944,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 70
+   "duration": 80
   },
   {
    "filename": "gloomwaterHag 43.aseprite",
@@ -966,7 +966,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 70
+   "duration": 80
   },
   {
    "filename": "gloomwaterHag 44.aseprite",
@@ -988,7 +988,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 70
+   "duration": 80
   },
   {
    "filename": "gloomwaterHag 45.aseprite",
@@ -1010,7 +1010,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 70
+   "duration": 80
   },
   {
    "filename": "gloomwaterHag 46.aseprite",
@@ -1032,7 +1032,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 90
+   "duration": 80
   },
   {
    "filename": "gloomwaterHag 47.aseprite",
@@ -1054,7 +1054,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 90
+   "duration": 80
   },
   {
    "filename": "gloomwaterHag 48.aseprite",
@@ -1076,7 +1076,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 80
+   "duration": 200
   },
   {
    "filename": "gloomwaterHag 49.aseprite",
@@ -1098,7 +1098,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 80
+   "duration": 200
   },
   {
    "filename": "gloomwaterHag 50.aseprite",
@@ -1120,7 +1120,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 80
+   "duration": 200
   },
   {
    "filename": "gloomwaterHag 51.aseprite",
@@ -1142,7 +1142,7 @@
     "w": 32,
     "h": 36
    },
-   "duration": 80
+   "duration": 200
   },
   {
    "filename": "gloomwaterHag 52.aseprite",
@@ -1164,12 +1164,1464 @@
     "w": 32,
     "h": 36
    },
-   "duration": 80
+   "duration": 200
   },
   {
    "filename": "gloomwaterHag 53.aseprite",
    "frame": {
     "x": 1696,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "gloomwaterHag 54.aseprite",
+   "frame": {
+    "x": 1728,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "gloomwaterHag 55.aseprite",
+   "frame": {
+    "x": 1760,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "gloomwaterHag 56.aseprite",
+   "frame": {
+    "x": 1792,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 100
+  },
+  {
+   "filename": "gloomwaterHag 57.aseprite",
+   "frame": {
+    "x": 1824,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 100
+  },
+  {
+   "filename": "gloomwaterHag 58.aseprite",
+   "frame": {
+    "x": 1856,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 100
+  },
+  {
+   "filename": "gloomwaterHag 59.aseprite",
+   "frame": {
+    "x": 1888,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 100
+  },
+  {
+   "filename": "gloomwaterHag 60.aseprite",
+   "frame": {
+    "x": 1920,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "gloomwaterHag 61.aseprite",
+   "frame": {
+    "x": 1952,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "gloomwaterHag 62.aseprite",
+   "frame": {
+    "x": 1984,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "gloomwaterHag 63.aseprite",
+   "frame": {
+    "x": 2016,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "gloomwaterHag 64.aseprite",
+   "frame": {
+    "x": 2048,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 90
+  },
+  {
+   "filename": "gloomwaterHag 65.aseprite",
+   "frame": {
+    "x": 2080,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 90
+  },
+  {
+   "filename": "gloomwaterHag 66.aseprite",
+   "frame": {
+    "x": 2112,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "gloomwaterHag 67.aseprite",
+   "frame": {
+    "x": 2144,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "gloomwaterHag 68.aseprite",
+   "frame": {
+    "x": 2176,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "gloomwaterHag 69.aseprite",
+   "frame": {
+    "x": 2208,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "gloomwaterHag 70.aseprite",
+   "frame": {
+    "x": 2240,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "gloomwaterHag 71.aseprite",
+   "frame": {
+    "x": 2272,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "gloomwaterHag 72.aseprite",
+   "frame": {
+    "x": 2304,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "gloomwaterHag 73.aseprite",
+   "frame": {
+    "x": 2336,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "gloomwaterHag 74.aseprite",
+   "frame": {
+    "x": 2368,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "gloomwaterHag 75.aseprite",
+   "frame": {
+    "x": 2400,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "gloomwaterHag 76.aseprite",
+   "frame": {
+    "x": 2432,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "gloomwaterHag 77.aseprite",
+   "frame": {
+    "x": 2464,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "gloomwaterHag 78.aseprite",
+   "frame": {
+    "x": 2496,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "gloomwaterHag 79.aseprite",
+   "frame": {
+    "x": 2528,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "gloomwaterHag 80.aseprite",
+   "frame": {
+    "x": 2560,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 100
+  },
+  {
+   "filename": "gloomwaterHag 81.aseprite",
+   "frame": {
+    "x": 2592,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 100
+  },
+  {
+   "filename": "gloomwaterHag 82.aseprite",
+   "frame": {
+    "x": 2624,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 100
+  },
+  {
+   "filename": "gloomwaterHag 83.aseprite",
+   "frame": {
+    "x": 2656,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 100
+  },
+  {
+   "filename": "gloomwaterHag 84.aseprite",
+   "frame": {
+    "x": 2688,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "gloomwaterHag 85.aseprite",
+   "frame": {
+    "x": 2720,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "gloomwaterHag 86.aseprite",
+   "frame": {
+    "x": 2752,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "gloomwaterHag 87.aseprite",
+   "frame": {
+    "x": 2784,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "gloomwaterHag 88.aseprite",
+   "frame": {
+    "x": 2816,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 90
+  },
+  {
+   "filename": "gloomwaterHag 89.aseprite",
+   "frame": {
+    "x": 2848,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 90
+  },
+  {
+   "filename": "gloomwaterHag 90.aseprite",
+   "frame": {
+    "x": 2880,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "gloomwaterHag 91.aseprite",
+   "frame": {
+    "x": 2912,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "gloomwaterHag 92.aseprite",
+   "frame": {
+    "x": 2944,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "gloomwaterHag 93.aseprite",
+   "frame": {
+    "x": 2976,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "gloomwaterHag 94.aseprite",
+   "frame": {
+    "x": 3008,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "gloomwaterHag 95.aseprite",
+   "frame": {
+    "x": 3040,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "gloomwaterHag 96.aseprite",
+   "frame": {
+    "x": 3072,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "gloomwaterHag 97.aseprite",
+   "frame": {
+    "x": 3104,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "gloomwaterHag 98.aseprite",
+   "frame": {
+    "x": 3136,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "gloomwaterHag 99.aseprite",
+   "frame": {
+    "x": 3168,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "gloomwaterHag 100.aseprite",
+   "frame": {
+    "x": 3200,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "gloomwaterHag 101.aseprite",
+   "frame": {
+    "x": 3232,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "gloomwaterHag 102.aseprite",
+   "frame": {
+    "x": 3264,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "gloomwaterHag 103.aseprite",
+   "frame": {
+    "x": 3296,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "gloomwaterHag 104.aseprite",
+   "frame": {
+    "x": 3328,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 100
+  },
+  {
+   "filename": "gloomwaterHag 105.aseprite",
+   "frame": {
+    "x": 3360,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 100
+  },
+  {
+   "filename": "gloomwaterHag 106.aseprite",
+   "frame": {
+    "x": 3392,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 100
+  },
+  {
+   "filename": "gloomwaterHag 107.aseprite",
+   "frame": {
+    "x": 3424,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 100
+  },
+  {
+   "filename": "gloomwaterHag 108.aseprite",
+   "frame": {
+    "x": 3456,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "gloomwaterHag 109.aseprite",
+   "frame": {
+    "x": 3488,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "gloomwaterHag 110.aseprite",
+   "frame": {
+    "x": 3520,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "gloomwaterHag 111.aseprite",
+   "frame": {
+    "x": 3552,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "gloomwaterHag 112.aseprite",
+   "frame": {
+    "x": 3584,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 90
+  },
+  {
+   "filename": "gloomwaterHag 113.aseprite",
+   "frame": {
+    "x": 3616,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 90
+  },
+  {
+   "filename": "gloomwaterHag 114.aseprite",
+   "frame": {
+    "x": 3648,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "gloomwaterHag 115.aseprite",
+   "frame": {
+    "x": 3680,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "gloomwaterHag 116.aseprite",
+   "frame": {
+    "x": 3712,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "gloomwaterHag 117.aseprite",
+   "frame": {
+    "x": 3744,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "gloomwaterHag 118.aseprite",
+   "frame": {
+    "x": 3776,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 32,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 32,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "gloomwaterHag 119.aseprite",
+   "frame": {
+    "x": 3808,
     "y": 0,
     "w": 32,
     "h": 36
@@ -1194,7 +2646,7 @@
   "image": "gloomwaterHag.png",
   "format": "RGBA8888",
   "size": {
-   "w": 1728,
+   "w": 3840,
    "h": 36
   },
   "scale": "1",
@@ -1202,105 +2654,175 @@
    {
     "name": "down-idle",
     "from": 0,
-    "to": 1,
+    "to": 7,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
     "name": "down-walk",
-    "from": 2,
-    "to": 5,
-    "direction": "forward",
-    "color": "#000000ff"
-   },
-   {
-    "name": "down-run",
-    "from": 6,
-    "to": 9,
-    "direction": "forward",
-    "color": "#000000ff"
-   },
-   {
-    "name": "down-attack",
-    "from": 10,
+    "from": 8,
     "to": 11,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "down-skill",
+    "name": "down-run",
     "from": 12,
+    "to": 15,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "down-attack",
+    "from": 16,
     "to": 17,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-idle",
+    "name": "down-skill",
     "from": 18,
-    "to": 19,
-    "direction": "forward",
-    "color": "#000000ff"
-   },
-   {
-    "name": "side-walk",
-    "from": 20,
     "to": 23,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-run",
+    "name": "dside-idle",
     "from": 24,
-    "to": 27,
+    "to": 31,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-attack",
-    "from": 28,
-    "to": 29,
-    "direction": "forward",
-    "color": "#000000ff"
-   },
-   {
-    "name": "side-skill",
-    "from": 30,
+    "name": "dside-walk",
+    "from": 32,
     "to": 35,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "up-idle",
+    "name": "dside-run",
     "from": 36,
-    "to": 37,
+    "to": 39,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "up-walk",
-    "from": 38,
+    "name": "dside-attack",
+    "from": 40,
     "to": 41,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "up-run",
+    "name": "dside-skill",
     "from": 42,
-    "to": 45,
-    "direction": "forward",
-    "color": "#000000ff"
-   },
-   {
-    "name": "up-attack",
-    "from": 46,
     "to": 47,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "up-skill",
+    "name": "side-idle",
     "from": 48,
-    "to": 53,
+    "to": 55,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-walk",
+    "from": 56,
+    "to": 59,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-run",
+    "from": 60,
+    "to": 63,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-attack",
+    "from": 64,
+    "to": 65,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-skill",
+    "from": 66,
+    "to": 71,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-idle",
+    "from": 72,
+    "to": 79,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-walk",
+    "from": 80,
+    "to": 83,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-run",
+    "from": 84,
+    "to": 87,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-attack",
+    "from": 88,
+    "to": 89,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-skill",
+    "from": 90,
+    "to": 95,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-idle",
+    "from": 96,
+    "to": 103,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-walk",
+    "from": 104,
+    "to": 107,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-run",
+    "from": 108,
+    "to": 111,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-attack",
+    "from": 112,
+    "to": 113,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-skill",
+    "from": 114,
+    "to": 119,
     "direction": "forward",
     "color": "#000000ff"
    }

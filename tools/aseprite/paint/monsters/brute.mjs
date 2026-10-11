@@ -3,7 +3,7 @@
 // golems and colossi) get cracked plates like the tile sets' stone. Options from the code sprite:
 // horns, wings, hammer, cracks (glowing seams), crystals (shoulder spikes).
 // Code sprite 44×48 (feet 22,46) → painted 52×56 (feet 26,54).
-import { Canvas, ramp, rgb, sh, motion, skillFx, dust, finish, taper, curve, frame, overlay, TAU } from "../monsterkit.mjs";
+import { Canvas, ramp, rgb, sh, motion, skillFx, dust, finish, taper, curve, frame, overlay, TAU, eyeCol } from "../monsterkit.mjs";
 
 export const SIZE = { W: 52, H: 56 };
 
@@ -106,7 +106,7 @@ export function paint(sprite, def, dir, anim, i) {
     else { taper(f, hx, hy - 10, 1, hx, hy + 4, 1, wood); f.blob(hx, hy - 13, 5.5, 3.4, R, { rim: H2[3] }); f.set(hx - 4, hy - 15, H2[4]); }
   };
   const face = (hx, hy, view) => {
-    const eye = rgb(c.eye || "#38bdf8"), glow = sh(c.eye || "#38bdf8", 0.5), mouth = sh(c.face, -0.6);
+    const eye = eyeCol(rgb(c.eye || "#38bdf8")), glow = eyeCol(sh(c.eye || "#38bdf8", 0.5)), mouth = sh(c.face, -0.6);
     if (view === "side") {
       f.blob(hx + 3, hy + 1.5, 3.8, 3.2, FACE);
       f.set(hx + 2, hy - 1, F[1]); f.set(hx + 3, hy - 1, F[1]); f.set(hx + 4, hy - 1, F[1]);   // brow

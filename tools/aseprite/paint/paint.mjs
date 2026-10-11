@@ -24,11 +24,13 @@ import * as boss from "./boss.mjs";
 import { zoneSubjects } from "./zones.mjs";
 import { uiSubjects } from "./ui.mjs";
 import { tileSubjects } from "./tiles.mjs";
-import { finish, grade } from "./monsterkit.mjs";
+import { finish, grade, eightWay, turnFinished, VIEWS, rgb } from "./monsterkit.mjs";
 import { inkHex } from "../../../js/avatar/tilestyle.js";
 
 const DIRS = ["down", "side", "up"];
 const all = (frames) => Object.fromEntries(DIRS.map((d) => [d, frames]));
+// eight directions (js/avatar/facing.js) and an idle long enough for a blink
+const all8 = (frames) => Object.fromEntries(VIEWS.map((d) => [d, { ...frames, idle: 8 }]));
 
 // Summons in the terrain tile style (js/avatar/tilestyle.js): their palettes graded like the tiles and,
 // instead of one fixed outline colour, the tiles' hue-shifted outline (monsterkit finish()).
@@ -38,16 +40,22 @@ for (const k of ["hound", "fox"]) beast.KINDS[`tile:${k}`] = tiled(beast.KINDS[k
 for (const k of ["falcon", "owl"]) bird.KINDS[`tile:${k}`] = tiled(bird.KINDS[k]);
 
 export const SUBJECTS = {
-  "summon/slime": () => build("summon/slime", slime.W, slime.H, all(slime.FRAMES), (d, a, i) => finish(slime.paintSlime(d, a, i, FOREST, true)), slime.DURATIONS),
-  "summon/hound": () => build("summon/hound", beast.W, beast.H, all(beast.FRAMES), (d, a, i) => finish(beast.paintBeast("tile:hound", d, a, i)), beast.DURATIONS),
-  "summon/fox": () => build("summon/fox", beast.W, beast.H, all(beast.FRAMES), (d, a, i) => finish(beast.paintBeast("tile:fox", d, a, i)), beast.DURATIONS),
+  "summon/slime": () => build("summon/slime", slime.W, slime.H, all8(slime.FRAMES),
+    eightWay((d, a, i) => finish(slime.paintSlime(d, a, i, FOREST, true)), { eyes: [rgb(FOREST.eye), rgb("#ffffff")], base4: true }), slime.DURATIONS),
+  "summon/hound": () => build("summon/hound", beast.W, beast.H, all8(beast.FRAMES),
+    eightWay((d, a, i) => finish(beast.paintBeast("tile:hound", d, a, i)), { body: "low", eyes: [rgb(beast.KINDS["tile:hound"].eye), rgb(beast.KINDS["tile:hound"].spark)], base4: true }), beast.DURATIONS),
+  "summon/fox": () => build("summon/fox", beast.W, beast.H, all8(beast.FRAMES),
+    eightWay((d, a, i) => finish(beast.paintBeast("tile:fox", d, a, i)), { body: "low", eyes: [rgb(beast.KINDS["tile:fox"].eye), rgb(beast.KINDS["tile:fox"].spark)], base4: true }), beast.DURATIONS),
   "summon/falcon": () => build("summon/falcon", bird.W, bird.H, { side: bird.FRAMES }, (d, a, i) => finish(bird.paintBird("tile:falcon", a, i)), bird.DURATIONS),
   "summon/owl": () => build("summon/owl", bird.W, bird.H, { side: bird.FRAMES }, (d, a, i) => finish(bird.paintBird("tile:owl", a, i)), bird.DURATIONS),
-  "summon/angel": async () => { const a = await angel.prepare(inkHex("#a9bede", -0.68)); build("summon/angel", angel.W, angel.H, all(angel.FRAMES), (d, an, i) => a.paint(d, an, i), angel.DURATIONS); }
+  "summon/angel": async () => { const a = await angel.prepare(inkHex("#a9bede", -0.68)); build("summon/angel", angel.W, angel.H, all8(angel.FRAMES), (d, an, i) => a.paint(d, an, i), angel.DURATIONS); }
 };
 
 // Bosses (down / side / up, idle walk run attack skill)
-for (const [name, b] of Object.entries(boss.BOSSES)) SUBJECTS[`boss/${name}`] = () => build(`boss/${name}`, b.w, b.h, all(boss.FRAMES), (d, a, i) => b.paint(d, a, i), b.durations);
+// the diagonals are their front / back views turned three-quarters (monsterkit turnFinished)
+for (const [name, b] of Object.entries(boss.BOSSES)) SUBJECTS[`boss/${name}`] = () => build(`boss/${name}`, b.w, b.h,
+  Object.fromEntries(VIEWS.map((d) => [d, boss.FRAMES])),
+  (d, a, i) => (d === "dside" || d === "uside" ? turnFinished(b.paint(d === "dside" ? "down" : "up", a, i), d) : b.paint(d, a, i)), b.durations);
 
 // Effects: one "down-play" tag each (js/fxsprites.js)
 for (const [name, e] of Object.entries(FX)) SUBJECTS[`fx/${name}`] = () => build(`fx/${name}`, e.w, e.h, { down: { play: e.n } }, (d, a, i) => e.paint(i), { play: e.dur });

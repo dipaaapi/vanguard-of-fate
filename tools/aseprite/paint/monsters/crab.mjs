@@ -2,7 +2,7 @@
 // and a horn), spiders (abdomen, head, eight jointed legs, eye cluster) and krakens (a mantle on curling
 // tentacles). Colours from the code sprite: shell/shellD/shellL, leg, eye.
 // Code sprite 30×22 (feet 15,20) → painted 36×26 (feet 18,24).
-import { Canvas, ramp, rgb, sh, motion, skillFx, dust, finish, taper, curve, frame, overlay, TAU } from "../monsterkit.mjs";
+import { Canvas, ramp, rgb, sh, motion, skillFx, dust, finish, taper, curve, frame, overlay, TAU, eyeCol } from "../monsterkit.mjs";
 
 export const SIZE = { W: 36, H: 26 };
 
@@ -15,7 +15,7 @@ export function kindOf(key, spider) {
 export function paint(sprite, def, dir, anim, i) {
   const { W, H } = SIZE, { fx: cx, fy } = frame(sprite, W, H), gy = fy - 1;
   const c = sprite.c, m = motion(anim, i), kind = kindOf(def.key, sprite.spider);
-  const S = ramp(c.shell), SD = ramp(c.shellD, { lift: -0.05 }), LG = ramp(c.leg || c.shellD), eye = rgb(c.eye || "#ffd166"), eyeL = sh(c.eye || "#ffd166", 0.5);
+  const S = ramp(c.shell), SD = ramp(c.shellD, { lift: -0.05 }), LG = ramp(c.leg || c.shellD), eye = eyeCol(rgb(c.eye || "#ffd166")), eyeL = eyeCol(sh(c.eye || "#ffd166", 0.5));
   let f = new Canvas(W, H);
   const part = (fn) => { const base = f; f = new Canvas(W, H); const r = fn(); const t = f; f = base; overlay(f, t); return r; };
   const side = dir === "side", back = dir === "up";

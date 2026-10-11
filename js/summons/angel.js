@@ -2,6 +2,7 @@ import { Sound } from "../audio.js";
 import { around, mix, hitPose, attackPose, drawSwing } from "../juice.js";
 import { Avatar } from "../avatar/avatar.js";
 import { facingFrom } from "../avatar/creature.js";
+import { applyFacing, drawView } from "../avatar/facing.js";
 import { autoSummonLoot, summonAutoEnabled, summonThreat } from "./automation.js";
 
 // Angel: modular Avatar with wings, halo, white gown and a sword
@@ -55,8 +56,7 @@ export class GuardianAngelCompanion {
     this.moving = Math.hypot(dx, dy) > 0.3;
     const f = this.state === "ATTACKING" ? facingFrom(this.aimX, this.aimY, this)
       : this.moving ? facingFrom(dx, dy, this) : this;
-    this.dir = f.dir;
-    this.flip = f.flip;
+    applyFacing(this, f);
   }
 
   step(player, enemyManager, fx, lootManager, idx, isInBarracks) {
@@ -169,7 +169,7 @@ export class GuardianAngelCompanion {
     const p = this.state === "ATTACKING" ? 0.35 + 0.65 * Math.min(1, this.stateTimer / 20) : 0;
     const pose = mix(hitPose(this.hurtT || 0, 12, this.flip ? -1 : 1), attackPose(p, adx, ady, 4));
     const fy = ay + 29 + hover;
-    around(ctx, ax + 16, fy, pose, () => ANGEL.draw(ctx, ax + 16, fy, this.dir, anim, frame, this.flip));
+    around(ctx, ax + 16, fy, pose, () => ANGEL.draw(ctx, ax + 16, fy, drawView(this), anim, frame, this.flip));
     if (p) drawSwing(ctx, ax + 16, fy - 12, Math.atan2(ady, adx), 15, (p - 0.35) / 0.65, "#ffd166", 2.4, 3);
 
     // HP and LIFESPAN BARS (above the halo)

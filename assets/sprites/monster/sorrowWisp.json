@@ -108,7 +108,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "sorrowWisp 5.aseprite",
@@ -130,7 +130,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "sorrowWisp 6.aseprite",
@@ -152,7 +152,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "sorrowWisp 7.aseprite",
@@ -174,7 +174,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "sorrowWisp 8.aseprite",
@@ -240,7 +240,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "sorrowWisp 11.aseprite",
@@ -262,7 +262,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "sorrowWisp 12.aseprite",
@@ -284,7 +284,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "sorrowWisp 13.aseprite",
@@ -306,7 +306,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "sorrowWisp 14.aseprite",
@@ -372,7 +372,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 90
+   "duration": 70
   },
   {
    "filename": "sorrowWisp 17.aseprite",
@@ -394,7 +394,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 90
+   "duration": 70
   },
   {
    "filename": "sorrowWisp 18.aseprite",
@@ -416,7 +416,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 90
+   "duration": 70
   },
   {
    "filename": "sorrowWisp 19.aseprite",
@@ -438,7 +438,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 90
+   "duration": 70
   },
   {
    "filename": "sorrowWisp 20.aseprite",
@@ -460,7 +460,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "sorrowWisp 21.aseprite",
@@ -482,7 +482,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "sorrowWisp 22.aseprite",
@@ -504,7 +504,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "sorrowWisp 23.aseprite",
@@ -526,7 +526,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "sorrowWisp 24.aseprite",
@@ -592,7 +592,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 200
+   "duration": 80
   },
   {
    "filename": "sorrowWisp 27.aseprite",
@@ -614,7 +614,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 200
+   "duration": 80
   },
   {
    "filename": "sorrowWisp 28.aseprite",
@@ -636,7 +636,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 200
+   "duration": 80
   },
   {
    "filename": "sorrowWisp 29.aseprite",
@@ -658,7 +658,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 200
+   "duration": 80
   },
   {
    "filename": "sorrowWisp 30.aseprite",
@@ -680,7 +680,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "sorrowWisp 31.aseprite",
@@ -702,7 +702,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "sorrowWisp 32.aseprite",
@@ -724,7 +724,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "sorrowWisp 33.aseprite",
@@ -746,7 +746,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "sorrowWisp 34.aseprite",
@@ -768,7 +768,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "sorrowWisp 35.aseprite",
@@ -790,7 +790,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "sorrowWisp 36.aseprite",
@@ -812,7 +812,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "sorrowWisp 37.aseprite",
@@ -834,7 +834,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "sorrowWisp 38.aseprite",
@@ -856,7 +856,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "sorrowWisp 39.aseprite",
@@ -878,7 +878,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "sorrowWisp 40.aseprite",
@@ -900,7 +900,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "sorrowWisp 41.aseprite",
@@ -922,7 +922,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 70
+   "duration": 100
   },
   {
    "filename": "sorrowWisp 42.aseprite",
@@ -944,7 +944,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "sorrowWisp 43.aseprite",
@@ -966,7 +966,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "sorrowWisp 44.aseprite",
@@ -988,7 +988,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 90
+   "duration": 70
   },
   {
    "filename": "sorrowWisp 45.aseprite",
@@ -1010,7 +1010,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 90
+   "duration": 70
   },
   {
    "filename": "sorrowWisp 46.aseprite",
@@ -1032,7 +1032,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "sorrowWisp 47.aseprite",
@@ -1054,7 +1054,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "sorrowWisp 48.aseprite",
@@ -1076,7 +1076,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "sorrowWisp 49.aseprite",
@@ -1098,7 +1098,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "sorrowWisp 50.aseprite",
@@ -1120,7 +1120,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "sorrowWisp 51.aseprite",
@@ -1142,7 +1142,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 80
+   "duration": 90
   },
   {
    "filename": "sorrowWisp 52.aseprite",
@@ -1164,7 +1164,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 200
+   "duration": 90
   },
   {
    "filename": "sorrowWisp 53.aseprite",
@@ -1186,7 +1186,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 200
+   "duration": 90
   },
   {
    "filename": "sorrowWisp 54.aseprite",
@@ -1208,7 +1208,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 200
+   "duration": 80
   },
   {
    "filename": "sorrowWisp 55.aseprite",
@@ -1230,7 +1230,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 200
+   "duration": 80
   },
   {
    "filename": "sorrowWisp 56.aseprite",
@@ -1252,7 +1252,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 100
+   "duration": 80
   },
   {
    "filename": "sorrowWisp 57.aseprite",
@@ -1274,7 +1274,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 100
+   "duration": 80
   },
   {
    "filename": "sorrowWisp 58.aseprite",
@@ -1296,7 +1296,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 100
+   "duration": 80
   },
   {
    "filename": "sorrowWisp 59.aseprite",
@@ -1318,7 +1318,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 100
+   "duration": 80
   },
   {
    "filename": "sorrowWisp 60.aseprite",
@@ -1340,7 +1340,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "sorrowWisp 61.aseprite",
@@ -1362,7 +1362,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 100
+   "duration": 200
   },
   {
    "filename": "sorrowWisp 62.aseprite",
@@ -1384,7 +1384,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "sorrowWisp 63.aseprite",
@@ -1406,7 +1406,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "sorrowWisp 64.aseprite",
@@ -1428,7 +1428,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "sorrowWisp 65.aseprite",
@@ -1450,7 +1450,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "sorrowWisp 66.aseprite",
@@ -1472,7 +1472,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "sorrowWisp 67.aseprite",
@@ -1494,7 +1494,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 70
+   "duration": 200
   },
   {
    "filename": "sorrowWisp 68.aseprite",
@@ -1516,7 +1516,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "sorrowWisp 69.aseprite",
@@ -1538,7 +1538,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "sorrowWisp 70.aseprite",
@@ -1560,7 +1560,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "sorrowWisp 71.aseprite",
@@ -1582,7 +1582,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 90
+   "duration": 100
   },
   {
    "filename": "sorrowWisp 72.aseprite",
@@ -1604,7 +1604,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 80
+   "duration": 100
   },
   {
    "filename": "sorrowWisp 73.aseprite",
@@ -1626,7 +1626,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 80
+   "duration": 100
   },
   {
    "filename": "sorrowWisp 74.aseprite",
@@ -1648,7 +1648,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "sorrowWisp 75.aseprite",
@@ -1670,7 +1670,7 @@
     "w": 30,
     "h": 36
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "sorrowWisp 76.aseprite",
@@ -1692,13 +1692,1597 @@
     "w": 30,
     "h": 36
    },
-   "duration": 80
+   "duration": 70
   },
   {
    "filename": "sorrowWisp 77.aseprite",
    "frame": {
     "x": 2310,
     "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "sorrowWisp 78.aseprite",
+   "frame": {
+    "x": 2340,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "sorrowWisp 79.aseprite",
+   "frame": {
+    "x": 2370,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "sorrowWisp 80.aseprite",
+   "frame": {
+    "x": 2400,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 90
+  },
+  {
+   "filename": "sorrowWisp 81.aseprite",
+   "frame": {
+    "x": 2430,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 90
+  },
+  {
+   "filename": "sorrowWisp 82.aseprite",
+   "frame": {
+    "x": 2460,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 90
+  },
+  {
+   "filename": "sorrowWisp 83.aseprite",
+   "frame": {
+    "x": 2490,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 90
+  },
+  {
+   "filename": "sorrowWisp 84.aseprite",
+   "frame": {
+    "x": 2520,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "sorrowWisp 85.aseprite",
+   "frame": {
+    "x": 2550,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "sorrowWisp 86.aseprite",
+   "frame": {
+    "x": 2580,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "sorrowWisp 87.aseprite",
+   "frame": {
+    "x": 2610,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "sorrowWisp 88.aseprite",
+   "frame": {
+    "x": 2640,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "sorrowWisp 89.aseprite",
+   "frame": {
+    "x": 2670,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "sorrowWisp 90.aseprite",
+   "frame": {
+    "x": 2700,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "sorrowWisp 91.aseprite",
+   "frame": {
+    "x": 2730,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "sorrowWisp 92.aseprite",
+   "frame": {
+    "x": 2760,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "sorrowWisp 93.aseprite",
+   "frame": {
+    "x": 2790,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "sorrowWisp 94.aseprite",
+   "frame": {
+    "x": 2820,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "sorrowWisp 95.aseprite",
+   "frame": {
+    "x": 2850,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "sorrowWisp 96.aseprite",
+   "frame": {
+    "x": 2880,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "sorrowWisp 97.aseprite",
+   "frame": {
+    "x": 2910,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "sorrowWisp 98.aseprite",
+   "frame": {
+    "x": 2940,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sorrowWisp 99.aseprite",
+   "frame": {
+    "x": 2970,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sorrowWisp 100.aseprite",
+   "frame": {
+    "x": 3000,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sorrowWisp 101.aseprite",
+   "frame": {
+    "x": 3030,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sorrowWisp 102.aseprite",
+   "frame": {
+    "x": 3060,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sorrowWisp 103.aseprite",
+   "frame": {
+    "x": 3090,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sorrowWisp 104.aseprite",
+   "frame": {
+    "x": 3120,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "sorrowWisp 105.aseprite",
+   "frame": {
+    "x": 3150,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "sorrowWisp 106.aseprite",
+   "frame": {
+    "x": 3180,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "sorrowWisp 107.aseprite",
+   "frame": {
+    "x": 3210,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "sorrowWisp 108.aseprite",
+   "frame": {
+    "x": 3240,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "sorrowWisp 109.aseprite",
+   "frame": {
+    "x": 3270,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "sorrowWisp 110.aseprite",
+   "frame": {
+    "x": 3300,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 90
+  },
+  {
+   "filename": "sorrowWisp 111.aseprite",
+   "frame": {
+    "x": 3330,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 90
+  },
+  {
+   "filename": "sorrowWisp 112.aseprite",
+   "frame": {
+    "x": 3360,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 90
+  },
+  {
+   "filename": "sorrowWisp 113.aseprite",
+   "frame": {
+    "x": 3390,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 90
+  },
+  {
+   "filename": "sorrowWisp 114.aseprite",
+   "frame": {
+    "x": 3420,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "sorrowWisp 115.aseprite",
+   "frame": {
+    "x": 3450,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "sorrowWisp 116.aseprite",
+   "frame": {
+    "x": 3480,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "sorrowWisp 117.aseprite",
+   "frame": {
+    "x": 3510,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "sorrowWisp 118.aseprite",
+   "frame": {
+    "x": 3540,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "sorrowWisp 119.aseprite",
+   "frame": {
+    "x": 3570,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "sorrowWisp 120.aseprite",
+   "frame": {
+    "x": 3600,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "sorrowWisp 121.aseprite",
+   "frame": {
+    "x": 3630,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "sorrowWisp 122.aseprite",
+   "frame": {
+    "x": 3660,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "sorrowWisp 123.aseprite",
+   "frame": {
+    "x": 3690,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "sorrowWisp 124.aseprite",
+   "frame": {
+    "x": 3720,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "sorrowWisp 125.aseprite",
+   "frame": {
+    "x": 3750,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "sorrowWisp 126.aseprite",
+   "frame": {
+    "x": 3780,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "sorrowWisp 127.aseprite",
+   "frame": {
+    "x": 3810,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 200
+  },
+  {
+   "filename": "sorrowWisp 128.aseprite",
+   "frame": {
+    "x": 3840,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sorrowWisp 129.aseprite",
+   "frame": {
+    "x": 3870,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sorrowWisp 130.aseprite",
+   "frame": {
+    "x": 3900,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sorrowWisp 131.aseprite",
+   "frame": {
+    "x": 3930,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sorrowWisp 132.aseprite",
+   "frame": {
+    "x": 3960,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sorrowWisp 133.aseprite",
+   "frame": {
+    "x": 3990,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 100
+  },
+  {
+   "filename": "sorrowWisp 134.aseprite",
+   "frame": {
+    "x": 4020,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "sorrowWisp 135.aseprite",
+   "frame": {
+    "x": 4050,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "sorrowWisp 136.aseprite",
+   "frame": {
+    "x": 0,
+    "y": 36,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "sorrowWisp 137.aseprite",
+   "frame": {
+    "x": 30,
+    "y": 36,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "sorrowWisp 138.aseprite",
+   "frame": {
+    "x": 60,
+    "y": 36,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "sorrowWisp 139.aseprite",
+   "frame": {
+    "x": 90,
+    "y": 36,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 70
+  },
+  {
+   "filename": "sorrowWisp 140.aseprite",
+   "frame": {
+    "x": 120,
+    "y": 36,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 90
+  },
+  {
+   "filename": "sorrowWisp 141.aseprite",
+   "frame": {
+    "x": 150,
+    "y": 36,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 90
+  },
+  {
+   "filename": "sorrowWisp 142.aseprite",
+   "frame": {
+    "x": 180,
+    "y": 36,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 90
+  },
+  {
+   "filename": "sorrowWisp 143.aseprite",
+   "frame": {
+    "x": 210,
+    "y": 36,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 90
+  },
+  {
+   "filename": "sorrowWisp 144.aseprite",
+   "frame": {
+    "x": 240,
+    "y": 36,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "sorrowWisp 145.aseprite",
+   "frame": {
+    "x": 270,
+    "y": 36,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "sorrowWisp 146.aseprite",
+   "frame": {
+    "x": 300,
+    "y": 36,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "sorrowWisp 147.aseprite",
+   "frame": {
+    "x": 330,
+    "y": 36,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "sorrowWisp 148.aseprite",
+   "frame": {
+    "x": 360,
+    "y": 36,
+    "w": 30,
+    "h": 36
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 36
+   },
+   "sourceSize": {
+    "w": 30,
+    "h": 36
+   },
+   "duration": 80
+  },
+  {
+   "filename": "sorrowWisp 149.aseprite",
+   "frame": {
+    "x": 390,
+    "y": 36,
     "w": 30,
     "h": 36
    },
@@ -1722,113 +3306,183 @@
   "image": "sorrowWisp.png",
   "format": "RGBA8888",
   "size": {
-   "w": 2340,
-   "h": 36
+   "w": 4080,
+   "h": 72
   },
   "scale": "1",
   "frameTags": [
    {
     "name": "down-idle",
     "from": 0,
-    "to": 3,
+    "to": 7,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
     "name": "down-walk",
-    "from": 4,
-    "to": 9,
+    "from": 8,
+    "to": 13,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
     "name": "down-run",
-    "from": 10,
-    "to": 15,
-    "direction": "forward",
-    "color": "#000000ff"
-   },
-   {
-    "name": "down-attack",
-    "from": 16,
+    "from": 14,
     "to": 19,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "down-skill",
+    "name": "down-attack",
     "from": 20,
-    "to": 25,
+    "to": 23,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-idle",
-    "from": 26,
+    "name": "down-skill",
+    "from": 24,
     "to": 29,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-walk",
+    "name": "dside-idle",
     "from": 30,
-    "to": 35,
+    "to": 37,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-run",
-    "from": 36,
-    "to": 41,
+    "name": "dside-walk",
+    "from": 38,
+    "to": 43,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-attack",
-    "from": 42,
-    "to": 45,
+    "name": "dside-run",
+    "from": 44,
+    "to": 49,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "side-skill",
-    "from": 46,
-    "to": 51,
+    "name": "dside-attack",
+    "from": 50,
+    "to": 53,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "up-idle",
-    "from": 52,
-    "to": 55,
+    "name": "dside-skill",
+    "from": 54,
+    "to": 59,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "up-walk",
-    "from": 56,
-    "to": 61,
-    "direction": "forward",
-    "color": "#000000ff"
-   },
-   {
-    "name": "up-run",
-    "from": 62,
+    "name": "side-idle",
+    "from": 60,
     "to": 67,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
-    "name": "up-attack",
+    "name": "side-walk",
     "from": 68,
-    "to": 71,
+    "to": 73,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-run",
+    "from": 74,
+    "to": 79,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-attack",
+    "from": 80,
+    "to": 83,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "side-skill",
+    "from": 84,
+    "to": 89,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-idle",
+    "from": 90,
+    "to": 97,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-walk",
+    "from": 98,
+    "to": 103,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-run",
+    "from": 104,
+    "to": 109,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-attack",
+    "from": 110,
+    "to": 113,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "uside-skill",
+    "from": 114,
+    "to": 119,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-idle",
+    "from": 120,
+    "to": 127,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-walk",
+    "from": 128,
+    "to": 133,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-run",
+    "from": 134,
+    "to": 139,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "up-attack",
+    "from": 140,
+    "to": 143,
     "direction": "forward",
     "color": "#000000ff"
    },
    {
     "name": "up-skill",
-    "from": 72,
-    "to": 77,
+    "from": 144,
+    "to": 149,
     "direction": "forward",
     "color": "#000000ff"
    }

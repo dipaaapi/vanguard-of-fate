@@ -3,7 +3,7 @@
 // abdomen, glassy wings, stinger). All hover with a quick wing beat. Colours from the code sprite: skin/
 // skinD/skinL (or body/bodyD/bodyL, which some monsters set instead), horn, eye, wing/wingD.
 // Code sprite 24×26 (feet 12,24) → painted 30×30 (feet 15,28).
-import { Canvas, ramp, rgb, sh, motion, skillFx, finish, taper, curve, frame, overlay } from "../monsterkit.mjs";
+import { Canvas, ramp, rgb, sh, motion, skillFx, finish, taper, curve, frame, overlay, eyeCol } from "../monsterkit.mjs";
 
 export const SIZE = { W: 30, H: 30 };
 
@@ -20,7 +20,7 @@ export function paint(sprite, def, dir, anim, i) {
   const c = sprite.c, m = motion(anim, i), kind = kindOf(def.key);
   const base = c.body || c.skin, dark = c.bodyD || c.skinD, light = c.bodyL || c.skinL;
   const B = ramp(base), BD = ramp(dark), BL = ramp(light), WG = ramp(c.wing || dark), WD = ramp(c.wingD || c.wing || dark, { lift: -0.12 });
-  const HORN = ramp(c.horn || "#2b2b33"), eye = rgb(c.eye || "#ffd166"), eyeL = sh(c.eye || "#ffd166", 0.5);
+  const HORN = ramp(c.horn || "#2b2b33"), eye = eyeCol(rgb(c.eye || "#ffd166")), eyeL = eyeCol(sh(c.eye || "#ffd166", 0.5));
   let f = new Canvas(W, H);
   const part = (fn) => { const base2 = f; f = new Canvas(W, H); const r = fn(); const t = f; f = base2; overlay(f, t); return r; };
   const side = dir === "side", back = dir === "up";
