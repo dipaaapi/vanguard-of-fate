@@ -5,6 +5,19 @@ import { GUILD_RANKS, guildText as T } from "./guilddata.js";
 import { guildImage } from "./world/guildhall.js";
 import { MONSTERS } from "./bestiary.js";
 
+// Contract combat and resources must spawn outside protected camp footprints.
+function fieldSpot(x,y,stage){
+  const legal=p=>!stage.isInsideSafeZone?.(p.x,p.y)&&!stage.isInsideSafeZone?.(p.x-10,p.y-20);
+  let spot=findNearestWalkableSpot(x,y,stage);
+  if(legal(spot))return spot;
+  for(let r=32;r<=640;r+=32)for(let i=0;i<16;i++){
+    const a=i*Math.PI/8;
+    const p=findNearestWalkableSpot(x+Math.cos(a)*r,y+Math.sin(a)*r,stage);
+    if(legal(p))return p;
+  }
+  return spot;
+}
+
 // Field objectives belong to the guild ledger, never to the campaign quest state.
 export class GuildField {
   constructor(book) { this.book = book; this.navigator = new AdventureNavigator(); }
@@ -21,9 +34,9 @@ export class GuildField {
     const sites = areaDef(stage.id)?.sites || [];
     const start = sites[0] || { x: p.x + 80, y: p.y + 80 };
     this.route = [start, sites[1] || { x: start.x + 180, y: start.y }, sites[2] || { x: start.x + 180, y: start.y + 180 }]
-      .map(s => findNearestWalkableSpot(s.x, s.y, stage));
+      .map(s => fieldSpot(s.x, s.y, stage));
     if (c.t === "gather" && ["herb", "stone"].includes(c.source)) {
-      this.nodes = Array.from({ length: c.n }, (_, i) => ({ ...findNearestWalkableSpot(start.x + (i % 4 - 1) * 28, start.y + Math.floor(i / 4) * 28, stage), used: false }));
+      this.nodes = Array.from({ length: c.n }, (_, i) => ({ ...fieldSpot(start.x + (i % 4 - 1) * 28, start.y + Math.floor(i / 4) * 28, stage), used: false }));
     }
     if (c.t === "escort") {
       const a = this.book.state(p).active;
@@ -37,7 +50,7 @@ export class GuildField {
     }
     if (c.t === "mvp" && this.book.state(p).active.have < c.n) {
       const key = manager.kinds.find(k => !MONSTERS[k]?.flying && !MONSTERS[k]?.elite) || manager.kinds[0];
-      const e = manager.spawn(key, p.level, this.route[0].x, this.route[0].y, null, "elite");
+      const e = manager.spawn(key, p.level, this.route[0].x - 10, this.route[0].y - 20, null, "elite");
       if (e) { e.guildMvp = true; e.guildContract = c.id; e.maxHp *= 3; e.hp = e.maxHp; e.damage *= 1.5; e.provoked = true; }
     }
     return c;
@@ -45,7 +58,7 @@ export class GuildField {
   spawnWave(p, stage, manager, c) {
     const s = this.wagon;
     for (let i = 0; i < 2 + Math.floor(GUILD_RANKS.indexOf(c.rank) / 3); i++) {
-      const spot = findNearestWalkableSpot(s.x + 80 + i * 20, s.y + 40, stage);
+      const spot = fieldSpot(s.x + 80 + i * 20, s.y + 40, stage);
       const key = manager.kinds.find(k => !MONSTERS[k]?.flying && !MONSTERS[k]?.elite) || manager.kinds[0];
       const e = manager.spawn(key, p.level, spot.x - 10, spot.y - 20, null, "normal");
       if (e) { e.guildContract = c.id; e.guildEscortTarget = s; e.provoked = true; }
@@ -69,7 +82,7 @@ export class GuildField {
   }
   goal(p, stage, manager, npcs, loot) {
     const c = this.prepare(p, stage, manager), a = this.book.state(p).active;
-    if (!c) return null;
+    if (!c || a.priority === false) return null;
     if (a.have >= c.n || c.t === "gather" && c.source === "npc") {
       if (stage.id !== "hub") return { destination: "hub" };
       const npc = npcs.find(a.have >= c.n ? "guildClerk" : c.npc);
@@ -78,7 +91,8 @@ export class GuildField {
     if (stage.id !== c.area) return { destination: c.area };
     const drop = loot.items.find(i => i.guildSource === c.source && i.id === c.item);
     if (drop) return { status: p.bag.slots.length >= 40 && !p.bag.has(c.item) ? "bagFull" : "collect", point: drop, radius: 3 };
-    const targets = manager.enemies.filter(e => e.isAlive && e.minionOf !== "summon" &&
+    this.navigator.build(stage, p, performance.now());
+    const targets = manager.enemies.filter(e => e.isAlive && !stage.isInsideSafeZone?.(e.x,e.y) && e.minionOf !== "summon" && this.navigator.endpoint({x:e.x+10,y:e.y+20},24) &&
       (c.t === "escort" ? e.guildContract === c.id : c.t === "mvp" ? e.boss || e.guildMvp : c.t === "champion" ? !e.boss && !e.guildMvp && (e.elite || e.champion) : !e.boss && !e.guildMvp && (c.t !== "cull" || !e.elite && !e.champion)));
     targets.sort((x, y) => Math.hypot(x.x - p.x, x.y - p.y) - Math.hypot(y.x - p.x, y.y - p.y));
     if (c.t === "gather" && ["herb", "stone"].includes(c.source)) {
@@ -87,7 +101,7 @@ export class GuildField {
     }
     if (targets[0]) return { status: "fight", point: { x: targets[0].x + 10, y: targets[0].y + 20 }, radius: Math.min(p.kit.range || 40, 40), enemy: targets[0] };
     if (this.wagon) return this.wagon.failed ? { status: "routeBlocked" } : { status: "scout", point: { x: this.wagon.x + 10, y: this.wagon.y + 20 }, radius: 30 };
-    return { status: "scout", point: this.route[0], radius: 24 };
+    return { status: "search", objective: {guild:c.id} };
   }
   update(p, stage, manager) {
     const c = this.prepare(p, stage, manager), a = this.book.state(p).active;

@@ -1,3 +1,4 @@
+import { drawAttackTransmute } from "./premium.js";
 import { Sound } from "./audio.js";
 import { glowAt } from "./settings.js";
 import { drawFx } from "./fxsprites.js";
@@ -250,6 +251,7 @@ export class ProjectileManager {
     this.projectiles.forEach((p) => {
       if (cam && p.type !== "meteor" && !cam.isVisible(p.x - 16, p.y - 16, 32, 32)) return;
       ctx.save();
+      drawAttackTransmute(ctx, p);
       // Each effect uses its Aseprite sprite when loaded (drawFx), else the code-drawn shape below
       const age = p.age || 0;
       if (p.type === "meteor") {

@@ -1,7 +1,11 @@
+import { premiumSkill } from "../premium.js";
 import { Sound } from "../audio.js";
+import { around } from "../juice.js";
+import { tickBehavior, behaviorPose, drawBehaviorEmote } from "../behavior.js";
 import { SlimeSprite, WolfSprite, FalconSprite, facingFrom } from "../avatar/creature.js";
-import { confine, steer } from "../world/nav.js";
-import { autoSummonLoot, summonAutoEnabled, summonThreat } from "./automation.js";
+import { confine } from "../world/nav.js";
+import { AdventureNavigator } from "../autoadventure.js";
+import { autoSummonLoot, summonAutoEnabled, summonThreat, summonTarget } from "./automation.js";
 
 // ==================== FAMILIARS (pets for heroes with no summon of their own) ====================
 // Learned in the skill tree (js/skills.js, kind "summon"): the Novice's Pocket Slime, the Knight's
@@ -25,7 +29,7 @@ export const FAMILIARS = {
 for (const [kind, def] of Object.entries(FAMILIARS)) def.sprite.sheetKey = `summon/${kind}`;
 const JOB_FAMILIAR = { knight: "hound", mage: "owl", fighter: "fox" };
 const NO_FAMILIAR = ["priest", "archer"];   // they have Guardian Angels / the falcon
-const LEASH = 120;        // foes farther than this from the hero are left alone
+const LEASH = 180;        // foes farther than this from the hero are left alone
 const TELEPORT = 260;     // the familiar catches up instantly beyond this
 
 // Which familiar the hero should have now (kind) and its skill level, or null
@@ -35,7 +39,7 @@ export function familiarFor(player) {
   const job = JOB_FAMILIAR[cls];
   if (job && player.skillLevels[FAMILIARS[job].skill] > 0) return { kind: job, lv: player.skillLevels[FAMILIARS[job].skill] };
   const lv = player.skillLevels.petpal || 0;
-  return lv ? { kind: "slime", lv } : null;
+  return lv ? { kind: "slime", lv } : ["autoLoot", "autoDefend", "autoSell", "autoBuy"].some((id) => premiumSkill(player, id)) ? { kind: "slime", lv: 1 } : null;
 }
 
 // Per-hit damage for a familiar of `kind` at skill level `lv` (also used by the balance simulator)
@@ -84,23 +88,31 @@ export class Familiar {
   }
 
   update(player, enemyManager, fx, lootManager, safe = false, stage = null) {
+    safe = safe || (player.premium?.skills.autoDefend && !premiumSkill(player, "autoDefend"));
     const k = this.k;
     this.t++;
     if (this.cd > 0) this.cd--;
+    tickBehavior(this, this.anim === "idle" && !(this.atkT > 0), "beast");   // idle behaviors (js/behavior.js)
     if (this.atkT > 0) this.atkT--;
     if (this.beam && --this.beam.t <= 0) this.beam = null;
     if (this.aboard) { this.anim = "idle"; this.target = null; return; }
-    if (Math.hypot(player.x - this.x, player.y - this.y) > TELEPORT) this.place(player);
+    if (Math.hypot(player.x - this.x, player.y - this.y) > (this.autoLootTarget ? 360 : TELEPORT)) this.place(player);
     const lootX = this.x, lootY = this.y;
     if (autoSummonLoot(this, player, enemyManager, lootManager, fx, stage, { x: 8, y: 15, fly: k.fly, speed: k.speed })) {
       this.face = facingFrom(this.x - lootX, this.y - lootY, this.face); return;
     }
-    if (!safe && summonAutoEnabled(player)) this.target = summonThreat(player, enemyManager.enemies, LEASH);
+    if (!safe && summonAutoEnabled(player)) {
+      const threat = summonTarget(player, enemyManager.enemies, LEASH);
+      if (!this.target?.isAlive || !enemyManager.enemies.includes(this.target) || Math.hypot(this.target.x - player.x, this.target.y - player.y) > LEASH ||
+          (threat && threat !== this.target && (threat.engaged || threat.provoked) &&
+            ((!this.target.engaged && !this.target.provoked) ||
+              Math.hypot(threat.x - player.x, threat.y - player.y) + 48 < Math.hypot(this.target.x - player.x, this.target.y - player.y)))) this.target = threat;
+    }
 
     // Pick the closest foe near the hero
     const near = (e) => e.isAlive && e.minionOf !== "summon" && Math.hypot(e.x - player.x, e.y - player.y) <= LEASH;
     if (safe || player.hp <= 0) this.target = null;
-    else if (!this.target || !near(this.target)) {
+    else if (!this.target || !enemyManager.enemies.includes(this.target) || !near(this.target)) {
       this.target = null;
       let best = Infinity;
       for (const e of enemyManager.enemies) {
@@ -127,7 +139,14 @@ export class Familiar {
     if (dist > stop) {
       const sp = Math.min(dist - stop, k.speed * (e ? 1 : dist > 60 ? 1.3 : 0.8));
       // A walking pet goes around trees, rocks and water to rejoin the hero (js/world/nav.js)
-      const [ux, uy] = k.fly ? [dx / dist, dy / dist] : steer(stage, this.x + 8, this.y + 15, gx + 8, gy + 15, !e);
+      let direction = [dx / dist, dy / dist];
+      if (!k.fly && stage) {
+        const nav = this.combatNavigator ||= new AdventureNavigator();
+        const actor = { x: this.x - 2, y: this.y - 5 };
+        nav.build(stage, actor, performance.now());
+        direction = nav.direction(actor, { x: gx + 8, y: gy + 15 }, stop) || [0, 0];
+      }
+      const [ux, uy] = direction;
       mx = ux * sp; my = uy * sp;
       this.x += mx; this.y += my;
       if (!k.fly) confine(stage, this, 8, 15);
@@ -188,7 +207,8 @@ export class Familiar {
       const max = this.anim === "skill" ? 24 : 12;
       const i = this.anim === "attack" || this.anim === "skill" ? (n <= 2 ? Math.floor(this.t / 16) : Math.min(n - 1, Math.floor((1 - this.atkT / max) * n)))
         : Math.floor(this.t / ({ walk: 6, run: 4 }[this.anim] || (n > 4 ? 14 : n > 2 ? 10 : 16)));
-      k.sprite.draw(ctx, x, y, this.face.view || this.face.dir, this.anim, i, this.face.flip, false, s);
+      around(ctx, x, y, this.anim === "idle" ? behaviorPose(this) : null, () => k.sprite.draw(ctx, x, y, this.face.view || this.face.dir, this.anim, i, this.face.flip, false, s));
     }
+    if (this.anim === "idle" || k.fly && !(this.atkT > 0)) drawBehaviorEmote(ctx, this, x, y - 20 * s);
   }
 }

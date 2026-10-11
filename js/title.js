@@ -439,7 +439,7 @@ export class TitleScene {
     body.replaceChildren();
     const groups = [
       [t("controlsKeyboard"), [
-        [t("controlsMove"), "WASD / Arrow keys"], [t("controlsMenu"), "↑ / ↓ · Enter · Esc"],
+        [t("controlsMove"), "WASD / Arrow keys"], [t("controlsMenu"), "↑ / ↓ · Enter · Backspace"],
         [t("controlsAttack"), "J · K · L"], [t("controlsSprint"), "Space"],
         [t("controlsInteract"), "E"], [t("controlsSwitch"), `${Keybinds.label("partyNext")} · ${Keybinds.label("party1")}–${Keybinds.label("party6")}`],
         [t("controlsFullscreen"), Keybinds.label("fullscreen")],
@@ -476,7 +476,7 @@ export class TitleScene {
     const left = c === "ArrowLeft" || c === "KeyA";
     const right = c === "ArrowRight" || c === "KeyD";
     const ok = c === "Enter" || c === "Space" || c === "KeyJ";
-    const back = c === "Escape" || c === "Backspace";
+    const back = c === "Backspace";
 
     if (c === "Space" || up || down) e.preventDefault();
 

@@ -16,7 +16,7 @@ try{
  await confirmed(/Apply to the Guild Leader/);
  assert.equal(await g.page.evaluate(()=>window.__vof.guildCeremony.open),true);
  assert.deepEqual(await g.page.evaluate(()=>({gold:window.__vof.player.gold,member:window.__vof.player.guild.member,plate:window.__vof.player.bag.has('guildPlate')})),{gold:800,member:true,plate:true});
- await g.page.waitForTimeout(1100);await g.page.keyboard.press('Enter');await g.page.waitForTimeout(800);await g.page.screenshot({path:'.codex/visual-after-guild/ceremony.png'});await g.page.keyboard.press('Escape');
+ await g.page.waitForTimeout(1100);await g.page.keyboard.press('Enter');await g.page.waitForTimeout(800);await g.page.screenshot({path:'.codex/visual-after-guild/ceremony.png'});await g.page.keyboard.press('Backspace');
  await staff('guildClerk');
  await g.page.locator('.guild-contract').nth(2).getByRole('button',{name:'Accept contract',exact:true}).click();
  assert.equal(await g.page.evaluate(()=>window.__vof.player.guild.active.id),'G:2');

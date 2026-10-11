@@ -26,7 +26,7 @@ const TEXT = {
     night: "Night only", role: "Role", where: "Found at", classes: "Classes", any: "Any class", hands2: "Two-handed",
     stats: "Base stats", grows: "Stats grow with grade (Aethelgard → Sovereign) and refining.", price: "Value", setBonus: "Set bonuses",
     pieces: "Pieces: weapon, head, armor, gloves, boots (built for your class)",
-    craftedPieces: (lv) => `Crafted at any safe zone (G). Requires Lv ${lv}. Pieces: weapon, off-hand, head, armor, garment, gloves, boots, amulet, rings (built for your class)`, mvp: "MVP", threat: "Threat", normal: "Common", elite: "Elite", close: "N / Esc — close · ←/→ tabs · ↑/↓ entries",
+    craftedPieces: (lv) => `Crafted at any safe zone (G). Requires Lv ${lv}. Pieces: weapon, off-hand, head, armor, garment, gloves, boots, amulet, rings (built for your class)`, mvp: "MVP", threat: "Threat", normal: "Common", elite: "Elite", close: "N / Backspace — close · ←/→ tabs · ↑/↓ entries",
     tabs: { npc: "NPCs", monsters: "Monsters & MVP", weapons: "Weapons", equipment: "Equipment", accessories: "Accessories", others: "Others" },
     groups: { consume: "Consumables", material: "Upgrade Materials", card: "Cards", quest: "Quest Items", unique: "Unique", set: "Set", mvp: "MVP Bosses", monsters: "Monsters" }
   },
@@ -36,7 +36,7 @@ const TEXT = {
     night: "Gabi lamang", role: "Tungkulin", where: "Matatagpuan sa", classes: "Mga class", any: "Kahit anong class", hands2: "Dalawang kamay",
     stats: "Batayang stats", grows: "Lumalaki ang stats ayon sa grado (Aethelgard → Sovereign) at pag-refine.", price: "Halaga", setBonus: "Bonus ng set",
     pieces: "Piyesa: sandata, ulo, baluti, guwantes, bota (ginawa para sa iyong class)",
-    craftedPieces: (lv) => `Ginagawa sa anumang ligtas na lugar (G). Kailangan ang Lv ${lv}. Piyesa: sandata, kabilang kamay, ulo, baluti, balabal, guwantes, bota, kuwintas, singsing (ginawa para sa iyong class)`, mvp: "MVP", threat: "Banta", normal: "Karaniwan", elite: "Elite", close: "N / Esc — isara · ←/→ tab · ↑/↓ entry",
+    craftedPieces: (lv) => `Ginagawa sa anumang ligtas na lugar (G). Kailangan ang Lv ${lv}. Piyesa: sandata, kabilang kamay, ulo, baluti, balabal, guwantes, bota, kuwintas, singsing (ginawa para sa iyong class)`, mvp: "MVP", threat: "Banta", normal: "Karaniwan", elite: "Elite", close: "N / Backspace — isara · ←/→ tab · ↑/↓ entry",
     tabs: { npc: "Mga NPC", monsters: "Halimaw at MVP", weapons: "Sandata", equipment: "Kagamitan", accessories: "Aksesorya", others: "Iba pa" },
     groups: { consume: "Nagagamit", material: "Pang-upgrade", card: "Card", quest: "Quest Item", unique: "Unique", set: "Set", mvp: "MVP Boss", monsters: "Halimaw" }
   }

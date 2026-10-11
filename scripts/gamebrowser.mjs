@@ -21,7 +21,7 @@ export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "
 // Kept as key scripts so they are easy to adjust when menus change (see js/title.js, prologue.js, scenes/codexScene.js).
 export const FLOWS = {
   boot: "wait:1500,shot:title",
-  newgame: "wait:1200,Enter,wait:400,Enter,wait:1500,shot:creator,Enter,wait:1500,shot:prologue,Escape,wait:2500,shot:arrival,Enter,wait:400,Enter,wait:400,Enter,wait:400,Enter,wait:400,Enter,wait:400,KeyD*45,wait:300,shot:world",
+  newgame: "wait:1200,Enter,wait:400,Enter,wait:1500,shot:creator,Enter,wait:1500,shot:prologue,Backspace,wait:2500,shot:arrival,Enter,wait:400,Enter,wait:400,Enter,wait:400,Enter,wait:400,Enter,wait:400,KeyD*45,wait:300,shot:world",
   continue: "wait:1200,Enter,wait:600,Enter,wait:2000,shot:continue,KeyD*40,shot:world"
 };
 
@@ -257,7 +257,7 @@ export async function autoplay(g, o = {}) {
       return r;
     }, [immortal, Boolean(o.hunt)]);
     if (s.over) { deaths++; break; }
-    if (s.blocking) { await setKeys(new Set()); await page.keyboard.press(s.blocking === "dialog" ? "Enter" : "Escape"); await page.waitForTimeout(150); continue; }
+    if (s.blocking) { await setKeys(new Set()); await page.keyboard.press(s.blocking === "dialog" ? "Enter" : "Backspace"); await page.waitForTimeout(150); continue; }
     if (s.saved) deaths++;
     minHp = Math.min(minHp, s.hp);
     // Quick slot 1 holds the potions on a new hero; the game's own potion cooldown limits the taps

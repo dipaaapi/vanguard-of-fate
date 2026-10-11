@@ -1,4 +1,5 @@
 import { applyFacing, drawView } from "./avatar/facing.js";
+import { premiumBuff } from "./premium.js";
 import { Sound } from "./audio.js";
 import { facingFrom } from "./avatar/creature.js";
 import { MONSTERS, BOSSES, BLIGHTS, NIGHT_KINDS } from "./bestiary.js";
@@ -7,10 +8,11 @@ import { ELEMENTS, elementMult, raceBonus, sizeMod, rollVariant, variantPrefix, 
 import { getLang } from "./i18n.js";
 import { STATUS, statusName } from "./status.js";
 import { around, mix, hitPose, attackPose, windupPose, breathPose, spawnPose, REST } from "./juice.js";
+import { tickBehavior, behaviorPose, drawBehaviorEmote } from "./behavior.js";
 import { GFX } from "./settings.js";
 import { drawFx } from "./fxsprites.js";
 import { HUB_KINDS, HUB_ELITES } from "./world/areas.js";
-import { enemyMult } from "./regression.js";
+import { enemyHpMult, enemyDamageMult, expMult, combat } from "./regression.js";
 import { confine, steer, trackGoal } from "./world/nav.js";
 
 // ========================================================
@@ -72,12 +74,11 @@ function drawLifeBar(ctx, e, x, y, w, h, color) {
 const lang = () => (getLang() === "fil" ? "fil" : "en");
 const rint = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 
-// Regression difficulty: +20% HP and damage per difficulty above Easy (js/regression.js)
+// Regression difficulty profile applies to every monster, elite, minion and boss.
 function scaleForDifficulty(e) {
-  const m = enemyMult();
-  if (m === 1) return;
-  e.maxHp = e.hp = Math.round(e.maxHp * m);
-  e.damage = Math.round(e.damage * m);
+  const hm = enemyHpMult(), dm = enemyDamageMult();
+  if (hm !== 1) e.maxHp = e.hp = Math.round(e.maxHp * hm);
+  if (dm !== 1) e.damage = Math.round(e.damage * dm);
 }
 
 function levelColor(diff, boss = false) {
@@ -232,7 +233,7 @@ export class EnemyManager {
   spawn(key, playerLevel, x, y, levelOffset = null, forceTier = null, fixedLevel = null) {
     const kind = MONSTERS[key];
     if (!kind) return null;
-    const lvl = Math.max(1, fixedLevel ?? this.rollLevel() + (levelOffset || 0));
+    const lvl = Math.max(1, (fixedLevel ?? this.rollLevel() + (levelOffset || 0)) + combat().levelBonus);
     const hp = Math.round((35 + lvl * 12) * kind.hpMult);
     const e = {
       id: Math.random(), uid: rint(0, 3), key, type: key, kind, level: lvl,
@@ -270,7 +271,7 @@ export class EnemyManager {
   spawnBoss(key, x, y, playerLevel) {
     const def = BOSSES[key];
     if (!def || this.boss()) return null;
-    const lvl = (this.levelCap || 8) + 2;
+    const lvl = (this.levelCap || 8) + 2 + combat().levelBonus;
     const hp = Math.round((35 + lvl * 12) * def.hpBase);
     const e = {
       id: Math.random(), key, type: key, kind: def, boss: true, level: lvl,
@@ -309,7 +310,8 @@ export class EnemyManager {
     this.spawnTimer++;
     const alive = this.enemies.filter((e) => e.isAlive && !e.boss).length;
     // More of them, spawning more often, at night
-    if (this.spawnTimer > 200 - 60 * this.night && alive < this.maxAlive + Math.round(3 * this.night)) {
+    const c = combat();
+    if (this.spawnTimer > (200 - 60 * this.night) / c.spawnRate && alive < this.maxAlive + c.extraAlive + Math.round(3 * this.night)) {
       this.spawnTimer = 0;
       this.spawnRandomEnemy(player.level);
     }
@@ -318,6 +320,7 @@ export class EnemyManager {
     this.enemies.forEach((e) => {
       if (!e.isAlive) return;
       if (e.hitTimer > 0) e.hitTimer--;
+      if (e.rallied > 0) e.rallied--;
       if (e.spawnT < SPAWN_POP) e.spawnT++;
       this.regen(e, fx);
       this.tickElement(e, fx);
@@ -345,6 +348,8 @@ export class EnemyManager {
           !cam.isVisible(e.x, e.y, 20, 20, 160)) return;
       if (e.boss) this.updateBoss(e, player, fx);
       else this.updateMonster(e, player, fx);
+      // Idle behaviors (js/behavior.js): sniffing, dozing, grooming… while nothing is happening
+      tickBehavior(e, !e.engaged && !e.provoked && e.anim === "idle" && !(e.hitTimer > 0) && !e.windupTimer && !(e.strikeTimer > 0), e.boss ? "boss" : "beast");
 
       // Soft separation between enemies so they don't stack
       for (let j = 0; j < this.enemies.length; j++) {
@@ -424,6 +429,28 @@ export class EnemyManager {
     }
   }
 
+  // Fight back and gang up (difficulty COMBAT): a struck foe may strike at once, and rallies its kin nearby
+  fightBack(e, player) {
+    const c = combat();
+    if (!e.isAlive || e.boss) return;
+    if (c.counter && Math.random() < c.counter && player && Math.hypot(player.x - e.x, player.y - e.y) <= e.reach * 1.2) e.windupTimer = Math.max(e.windupTimer, windupFor(e, 36));
+    this.rally(e);
+  }
+
+  rally(e) {
+    const c = combat();
+    if (!c.callCount || e.rallied > 0) return;
+    e.rallied = 120;   // calls again at most every 2 s
+    let n = 0;
+    for (const o of this.enemies) {
+      if (n >= c.callCount) break;
+      if (o === e || !o.isAlive || o.boss || o.engaged || Math.hypot(o.x - e.x, o.y - e.y) > c.callRadius) continue;
+      o.provoked = true; n++;
+      o.bhv && (o.bhv.cur = null);
+    }
+    if (n && e.bhv) Object.assign(e.bhv, { cur: "call", t: 0, max: 40, glyph: "!" });
+  }
+
   // Aggressive at the same or a higher level, or when provoked
   isAggressive(e, player) {
     return e.boss || e.provoked || e.level - player.level >= 0;
@@ -452,9 +479,13 @@ export class EnemyManager {
     let mx = 0, my = 0;
     const spd = e.speed * (1 + 0.15 * this.night) * (e.st && e.st.chill > 0 ? 0.5 : 1);
     if (aggressive && (e.engaged ? dist < 320 : dist < aggroR) && (caravan || !(this.stage && this.stage.isInsideSafeZone(player.x + 10, player.y + 17)))) {
+      if (!e.engaged) this.rally(e);
       e.engaged = true;
       if (dist > e.reach * 0.6) {
-        const [ux, uy] = steer(this.stage, e.x + 10, e.y + 20, target.x + 10, target.y + 20, target === player);
+        // Gank: on harder difficulties each foe takes its own side of the target instead of queueing
+        let gx = target.x + 10, gy = target.y + 20;
+        if (combat().surround && dist < 90) { const a = (e.uid || 0) * Math.PI / 2 + (e.id || 0) * 6.28; gx += Math.cos(a) * e.reach * 0.5; gy += Math.sin(a) * e.reach * 0.4; }
+        const [ux, uy] = steer(this.stage, e.x + 10, e.y + 20, gx, gy, target === player);
         mx = ux * spd; my = uy * spd;
       }
     } else {
@@ -502,7 +533,19 @@ export class EnemyManager {
     this.animate(e, e.engaged ? dx : mx, e.engaged ? dy : my, moved);
   }
 
-  hitTarget(e, target, player, fx, dmg) {
+  hitTarget(e, target, player, fx, dmg, splash = true) {
+    const c = combat();
+    // Miss · critical · splash, escalating with the difficulty (js/regression.js COMBAT)
+    if (Math.random() < c.miss) {
+      if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(target.x + 10, target.y - 8, "MISS", false, "#94a3b8");
+      return;
+    }
+    const crit = Math.random() < c.crit;
+    if (crit) { dmg *= 1.5; if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(target.x + 10, target.y - 16, "CRIT!", false, "#f87171"); }
+    if (splash && c.splash && Math.random() < c.splash) {
+      const near = [player, ...this.allies].filter((u) => u && u !== target && (u.isAlive ?? u.hp > 0) && Math.hypot(u.x - target.x, u.y - target.y) < 28);
+      near.forEach((u) => this.hitTarget(e, u, player, fx, dmg * 0.5, false));
+    }
     dmg = Math.round(dmg * (1 + 0.2 * this.night) * (e.st && e.st.curse > 0 ? 0.8 : 1) * damageDealtMult(e));   // night · curse · berserk
     // Vampiric: heals for 30% of the damage
     if (has(e, "vampiric")) e.hp = Math.min(e.maxHp, e.hp + Math.round(dmg * 0.3));
@@ -849,7 +892,7 @@ export class EnemyManager {
     } else if (e.windupTimer > WINDUP_SHOW) {
       act = windupPose(e.windupTimer - WINDUP_SHOW, (e.boss ? 45 : windupFor(e, 36)) - WINDUP_SHOW, e.animTimer);
     } else if (e.anim === "idle") {
-      act = breathPose(e.animTimer + ((e.id * 1000) | 0));
+      act = mix(breathPose(e.animTimer + ((e.id * 1000) | 0)), behaviorPose(e));
     }
     return mix(spawn, hit, act);
   }
@@ -896,7 +939,7 @@ export class EnemyManager {
 
     if (player && typeof player.attack === "number") {
       const d = player.debuffs || {};
-      amount = (amount + player.attack) * (player.dmgMult || 1) * (player.buffs && player.buffs.damage > 0 ? 1.5 : 1) * (d.curse > 0 ? 0.75 : 1);
+      amount = (amount + player.attack) * (premiumBuff(player, "might") ? 1.2 : 1) * (player.dmgMult || 1) * (player.buffs && player.buffs.damage > 0 ? 1.5 : 1) * (d.curse > 0 ? 0.75 : 1);
       // No criticals while blind or cursed
       const canCrit = !(d.blind > 0 || d.curse > 0);
       // Forced crits (isCrit passed in) are already scaled by their skill; rolled crits use the hero's crit damage (LUK)
@@ -918,6 +961,7 @@ export class EnemyManager {
     enemy.sinceHit = 0;       // delays HP regeneration
     enemy.provoked = true;
     enemy.engaged = true;
+    this.fightBack(enemy, player);
     const push = enemy.boss ? pushDist * 0.1 : pushDist;
     enemy.x += Math.cos(angle) * push;
     enemy.y += Math.sin(angle) * push;
@@ -965,7 +1009,7 @@ export class EnemyManager {
     const tierExp = e.boss ? 12 : e.tier && TIERS[e.tier] ? TIERS[e.tier].exp : 1;
     const mult = Math.max(0.25, Math.min(1.8, 1 + diff * 0.12)) * (1 + 0.3 * this.night) * tierExp;
     const byPlayer = e.lastHitBy !== "ally";
-    const exp = byPlayer ? Math.round((25 + e.level * 8) * mult) : 0;
+    const exp = byPlayer ? Math.round((25 + e.level * 8) * mult * expMult()) : 0;
     if (exp && p && typeof p.addExp === "function") p.addExp(exp);
     if (this.onKill) this.onKill(e, byPlayer, exp);
     // Death: the body dissolves (drawn from this.corpses), a burst in its colour, and a beat of hit-stop
@@ -1101,6 +1145,7 @@ export class EnemyManager {
       }
 
       around(ctx, e.x + 10, fy, this.poseOf(e), () => k.sprite.draw(ctx, e.x + 10, fy, drawView(e), e.anim, this.frameOf(e), e.flip, e.hitTimer > 0, scale));
+      if (e.anim === "idle") drawBehaviorEmote(ctx, e, e.x + 10, e.y + k.barY - 6);
       // Frozen: blue ice on top
       if (e.frozen > 0) {
         ctx.save();

@@ -19,7 +19,7 @@ import { FOOD_ITEMS } from "./cooking.js";
 // An item in the bag or worn is an "instance": { id, qty, plus, rarity, affixes: [{k, v}], sockets, cards: [] }
 // Equipment ids are "base@grade" (e.g. "lance@3"); uniques are "u:key".
 
-export const MAX_PLUS = 10;
+export const MAX_PLUS = 15;
 const SAFE_PLUS = 4;
 export const SLOTS = ["weapon", "offhand", "head", "armor", "garment", "gloves", "boots", "amulet", "ring1", "ring2"];
 export const RARITY = {
@@ -159,7 +159,8 @@ const OTHER = {
   starsteel:   { type: "material", icon: "crystal", tint: "#fde68a", price: 200, name: N("Starsteel", "Starsteel"), desc: N("A rare fallen-star alloy. Needed for Starforged gear.", "Bihirang haluang metal mula sa bumagsak na bituin. Kailangan sa Starforged.") },
   dwarvenPickaxe: { type: "quest", icon: "ore", tint: "#a8a29e", name: N("Dwarven Pickaxe", "Piko ng Dwarf"), desc: N("Thane Durgrim's gift. Lets you mine ore veins in the Ashfall Wastelands and the Siege.", "Regalo ni Thane Durgrim. Nagbibigay-daan sa pagmimina sa Ashfall Wastelands at sa Siege.") },
   // healPct: potions keep up with the hero — they restore the HP or that share of max HP, whichever is more
-  soulstone: { type: "consume", icon: "crystal", tint: "#a78bfa", price: 8000, effect: { autoAttackMs: 10 * 60 * 1000 }, name: N("Soulstone", "Bato ng Kaluluwa"), desc: N("Adds 10 real-world minutes of autonomous quest movement, combat and NPC conversations. Sold at the Market for 100 platinum (10,000 gold).", "Nagdaragdag ng 10 minuto ng totoong oras para sa kusang paglakad, laban at pakikipag-usap sa quest. Mabibili sa Palengke sa halagang 100 platino (10,000 ginto).") },
+  refineSafetyStone: { type: "material", icon: "crystal", tint: "#ffdc80", price: 0, name: N("Refine Safety Stone", "Bato ng Ligtas na Refine"), desc: N("Premium stone: guarantees one refinement through +15. Materials and gold are still required.", "Premium na bato: garantisadong isang refine hanggang +15. Kailangan pa rin ng materyales at ginto.") },
+  soulstone: { type: "consume", icon: "crystal", tint: "#a78bfa", price: 8000, effect: { autoAttackMs: 10 * 60 * 1000 }, name: N("Soulstone", "Bato ng Kaluluwa"), desc: N("Adds 10 real-world minutes of autonomous quest movement, combat and NPC conversations. Sold at the Premium Shop for ₱1; exchange pesos and platinum there (₱1 = 100 platinum).", "Nagdaragdag ng 10 minuto ng totoong oras para sa kusang paglakad, laban at pakikipag-usap sa quest. Mabibili sa Premium Shop sa halagang ₱1; doon din ang palitan ng piso at platino (₱1 = 100 platino).") },
   salve:    { type: "consume", icon: "potion", tint: "#ef4444", price: 10, effect: { heal: 40, healPct: 0.06 }, name: N("Red Potion", "Pulang Potion"), desc: N("Restores 40 HP or 6% of max HP, whichever is more.", "Nagbabalik ng 40 HP o 6% ng max HP, alinman ang mas marami.") },
   elixir:   { type: "consume", icon: "potion", tint: "#f8fafc", price: 30, effect: { heal: 150, healPct: 0.2 }, name: N("White Potion", "Puting Potion"), desc: N("Restores 150 HP or 20% of max HP, whichever is more.", "Nagbabalik ng 150 HP o 20% ng max HP, alinman ang mas marami.") },
   tonic:    { type: "consume", icon: "potion", tint: "#facc15", price: 12, effect: { stamina: 100, fresh: 600 }, name: N("Stamina Tonic", "Tonic ng Lakas"), desc: N("Refills stamina; no fatigue for 10s.", "Puno ang stamina; walang pagod sa 10s.") },

@@ -1,11 +1,11 @@
 import { PLAYABLES } from "./playables.js";
 import { getLang } from "./i18n.js";
 import { Keybinds } from "./keybinds.js";
-import { memberName, partyText } from "./party.js";
+import { memberName, partyText, PARTY_REVIVE_FRAMES } from "./party.js";
 
 // ==================== PARTY HUD (top-right of the game screen) ====================
 // The hero card's portrait shows the head of whoever is on the field (js/hudbar.js sets the name);
-// under the card, one row per party member: switch key, head, name and HP, the active one lit.
+// Under the card, show only off-field members: switch key, head, name and HP.
 // Heads are drawn from each member's Avatar portrait (Avatar.drawPortrait) once, then cached.
 // The DOM is only touched when something changed.
 
@@ -52,7 +52,7 @@ export class PartyHud {
 
   build(party, player) {
     this.root.textContent = "";
-    this.rows = party.members.map((id, i) => {
+    this.rows = party.members.map((id, index) => ({id, index})).filter(({index}) => index !== party.active).map(({id, index: i}) => {
       const row = document.createElement("div");
       row.className = "pt-row";
       const key = document.createElement("kbd");
@@ -75,7 +75,7 @@ export class PartyHud {
       info.append(name, bar);
       row.append(key, face, info);
       this.root.appendChild(row);
-      return { id, row, fill: fillEl, name };
+      return { id, index: i, row, fill: fillEl, name };
     });
   }
 
@@ -90,13 +90,17 @@ export class PartyHud {
       const top = `${this.hero.offsetTop + this.hero.offsetHeight + 2}px`;
       if (this.cache.top !== top) { this.cache.top = top; this.root.style.top = top; }
     }
-    const sig = `${party.members.join(",")}|${player.heroName}|${getLang()}|${player.heroData.avatar ? player.heroData.id : ""}`;
+    const sig = `${party.members.join(",")}|${party.active}|${player.heroName}|${getLang()}|${player.heroData.avatar ? player.heroData.id : ""}`;
     if (sig !== this.sig) { this.sig = sig; this.cache = { show }; this.tick = 0; this.build(party, player); }
     this.rows.forEach((r, i) => {
-      const hp = party.hpOf(r.id, player), ratio = Math.max(0, Math.min(1, hp / player.maxHp));
-      const w = `${(ratio * 100).toFixed(1)}%`;
+      const hp = party.hpOf(r.id, player), ratio = Math.max(0, Math.min(1, hp / party.maxHpOf(r.id,player)));
+      const revive = hp <= 0 ? (party.revive[r.id] || PARTY_REVIVE_FRAMES) : 0;
+      const w = `${((revive ? 1-revive/PARTY_REVIVE_FRAMES : ratio) * 100).toFixed(1)}%`;
+      const label = `${r.id === "hero" ? (player.heroName || partyText("hero")) : memberName(r.id)}${revive ? ` · ${getLang()==="fil"?"Buhay muli":"Revive"} ${Math.ceil(revive/60)}s` : ""}`;
+      if(r.name.textContent !== label)r.name.textContent=label;
+      r.row.title=revive ? label : "";
       if (this.cache[`w${i}`] !== w) { this.cache[`w${i}`] = w; r.fill.style.width = w; }
-      const cls = `pt-row${i === party.active ? " on" : ""}${hp <= 0 ? " down" : ""}${ratio > 0 && ratio <= 0.25 ? " low" : ""}${party.cooldown > 0 && i !== party.active ? " wait" : ""}`;
+      const cls = `pt-row${r.index === party.active ? " on" : ""}${hp <= 0 ? " down" : ""}${ratio > 0 && ratio <= 0.25 ? " low" : ""}${party.cooldown > 0 && r.index !== party.active ? " wait" : ""}`;
       if (this.cache[`c${i}`] !== cls) { this.cache[`c${i}`] = cls; r.row.className = cls; }
     });
   }

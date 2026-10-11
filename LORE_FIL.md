@@ -68,6 +68,8 @@ Bago pa man ang Awakening, nagsisimula nang magpaskil ng sariling mga pabuya ang
 
 ## 🛡️ Act V: Ang Dual Equipment Matrix at Estratehikong Pakikidigma
 
+Kalahati pa lamang ng pagtawag ang Awakened na tungkulin. Bago ipagkatiwala ng Korona ang anumang loadout sa Vanguard, kailangang pumunta ang bagong Awakened na bayani sa guild hall sa kaparangan at humarap kay Guild Master Oren Vale ng Meridian Adventurers' Guild. Ritwal at talaan ang pagpaparehistro: tinitimbang ang pagsasanay ng bayani, itinatala ang kanyang ranggo at papel sa labanan, nanunumpa siya, at iniaabot sa kanya ang unang guild plate na binayaran niya ng dalawandaang ginto. Ang rehistradong adventurer lamang ang makatatanggap ng kontrata ng guild, makaaarkila ng mga mersenaryo nito, at makabibili ng reset nito, at kapag nakasabit na lamang sa kanyang sinturon ang plate na iyon papayag ang kanyang mentor sa Barracks Sanctuary na ihanda ang kasunod na loadout.
+
 Ang mga sandata ng Fated Vanguard ay dinisenyo para sa mahigpit na taktika sa larangan. Para sa Knight, ang paghawak ng Two-Handed Heavy Lance ay nagbibigay ng malalakas na tusok na tumatagos sa hanay ng mga kalaban, na ginagawa siyang parang rumaragasang pison. Sa kabilang banda, ang paggamit ng espada at Tower Shield ay nagbibigay ng matibay na depensa, na nagpapahintulot sa Knight na sumalo ng malalakas na dagok bago magpasabog ng ganting puwersa.
 
 Para sa mga gumagamit ng mahika, ang Great Staff ay nagpapalakas sa sakop at pinsala ng mga bulalakaw upang sunugin ang buong hukbo mula sa malayo; samantalang ang mabilis na wand na may kasamang Grimoire o Focus Shield ay nagpapabilis sa pag-usal ng mahika habang nagbibigay ng proteksyon. Ang Priest naman ay pumipili sa pagitan ng Grand Scepter para sa malalawak na banal na shockwave, o Holy Rosary at Grimoire na nagpapabilis sa pagpapagaling at nagpapatagal sa buhay ng kanyang Guardian Angels.
@@ -233,6 +235,8 @@ Nakatali sa banal na lupa ang paghilom ng tagapagtawag. Hinabi ang mana ng Tagap
 Walang angkla ang mga mersenaryo. Lumalaban ang mga auxiliary ni Kapitan Ronald para sa salapi at dangal, at kapag bumagsak ang isa ay nawawalan lamang ito ng malay sa halip na mamatay, sapagkat hinihila ni Ronald palabas ang kanyang mga tauhan bago sila matapos ng ilang. Wala ring angkla ang bakal: nayuyupi ang baluti at nababasag ang talim, at ang mga panday na dwarf ng Emberhold lamang ang makapag-aayos nito nang mura o makapagpapatibay nito nang higit sa kaya ng pandayan ng Barracks.
 
 ---
+
+Walang anumang nakatayo na parang estatwa sa Aethelgard, at hindi ito itinatanggi ng Ledger. May sariling munting gawi ang bawat may buhay kapag tumigil ang labanan: sumisinghot sa hangin ang mga halimaw, nagkakamot, naglilinis ng sarili at naiidlip sa damuhan; nagpaparoo't parito at umaatungal ang mga boss mula sa kanilang trono; nag-iinat, humuhuni, kumakaway at lumilingon-lingon ang mga taong-bayan, kawani ng guild, mersenaryo, Guardian Angel at familiar. Walang eksepsiyon ang ipinatawag na bayani. Kapag matagal siyang nakatayo, humihikab din siya, nagbubuntong-hininga, umuupo o humuhuni ng himig mula sa Daigdig, at walang makapagsasabi kung aling gawi ang susunod na lilitaw.
 
 ## 🜏 Herald: Ang Baligtad na Bituin
 

@@ -1,27 +1,45 @@
 // Regional playable NPCs: unique combat kits and separate, saveable recruitment quests.
 // The quests track elite encounters in the character's home region; they never touch Act progress.
 export const PLAYABLES = {
-  cerynVoss: { region: "rocky", label: ["Ceryn Voss", "Ceryn Voss"], role: { en: "Aethelgard royal envoy", fil: "Sugo maharlika ng Aethelgard" },
+  cerynVoss: { stars: 5, region: "rocky", label: ["Ceryn Voss", "Ceryn Voss"], role: { en: "Aethelgard royal envoy", fil: "Sugo maharlika ng Aethelgard" },
     skillLore: { en: "Marks allies with royal orders, granting a short damage surge and protective cover.", fil: "Minamarkahan ang mga kakampi sa utos ng korona upang bigyan sila ng panandaliang lakas at proteksiyon." }, required: 3,
     skills: ["Oathmark", "Royal Intercession", "Crownward Edict"] },
-  vaelThorn: { region: "siege", label: ["Vael Thorn", "Vael Thorn"], role: { en: "Dark Continent survivor and pathfinder", fil: "Nakaligtas at gabay mula sa Dark Continent" },
+  vaelThorn: { stars: 5, region: "siege", label: ["Vael Thorn", "Vael Thorn"], role: { en: "Dark Continent survivor and pathfinder", fil: "Nakaligtas at gabay mula sa Dark Continent" },
     skillLore: { en: "Fires shadow anchors and folds through darkness to reposition in battle.", fil: "Nagpapakawala ng shadow anchor at dumaraan sa dilim upang magpalit ng puwesto sa labanan." }, required: 3, needsBoss: true,
     skills: ["Umbral Anchor", "Nightfold Step", "Gravetide Snare"] },
-  nimaFen: { region: "swamp", label: ["Nima Fen", "Nima Fen"], role: { en: "Beastkin marsh guide and forager", fil: "Gabay at mangangalap na Beastkin sa latian" },
+  nimaFen: { stars: 5, region: "swamp", label: ["Nima Fen", "Nima Fen"], role: { en: "Beastkin marsh guide and forager", fil: "Gabay at mangangalap na Beastkin sa latian" },
     skillLore: { en: "Uses swamp reagents and poison craft to control space and pressure enemies.", fil: "Gumagamit ng sangkap mula sa latian at lason upang kontrolin ang lugar at gipitin ang mga kalaban." }, required: 3, feed: { mudcarp: 2, wildSpice: 2 },
     skills: ["Bogcraft", "Reed Decoy", "Fenburst"] },
-  eirene: { region: "lost", label: ["Eirene", "Eirene"], role: { en: "Sole caretaker automaton of the Lost Sky Continent", fil: "Nag-iisang robot na tagapag-alaga ng Lost Sky Continent" },
+  eirene: { stars: 5, region: "lost", label: ["Eirene", "Eirene"], role: { en: "Sole caretaker automaton of the Lost Sky Continent", fil: "Nag-iisang robot na tagapag-alaga ng Lost Sky Continent" },
     skillLore: { en: "Runs maintenance pulses, wind-assisted repositioning and a protective barrier array.", fil: "Gumagamit ng maintenance pulse, paglipat sa tulong ng hangin, at hanay ng mga pananggalang." }, required: 3,
     skills: ["Maintenance Pulse", "Aerial Lift", "Sanctuary Array"], systems: ["lift", "habitat", "caretaker"] },
-  templar: { region: "siege", label: ["Dame Serelle", "Dame Serelle"], role: { en: "Royal Templar and sworn protector of the heir", fil: "Templar ng kaharian at sinumpaang tagapagtanggol ng tagapagmana" },
+  templar: { stars: 5, region: "siege", label: ["Dame Serelle", "Dame Serelle"], role: { en: "Royal Templar and sworn protector of the heir", fil: "Templar ng kaharian at sinumpaang tagapagtanggol ng tagapagmana" },
     skillLore: { en: "Turns a broken royal oath into a relentless countercharge and a ward that shelters nearby allies.", fil: "Ginagawang walang-humpay na ganting-sugod at pananggalang para sa mga kakampi ang wasak na panunumpa sa korona." }, required: 3, needsBoss: true,
     skills: ["Last Vow", "Oathbreaker Pursuit", "Heir's Sanctuary"] }
 };
 
 export const PLAYABLE_IDS = Object.keys(PLAYABLES);
 
-export function makePlayableKit(id, avatar) {
-  const common = { id, name: PLAYABLES[id]?.label[0] || id, avatar, speed: 1.45,
+export const INNATE_BUILDS = {
+ cerynVoss:{job:"Royal Envoy",primary:"int",stats:{str:8,agi:6,vit:12,int:16,dex:8,luk:10},path:"Royal Command",passives:{dmg:8,def:5}},
+ vaelThorn:{job:"Shadow Pathfinder",primary:"dex",stats:{str:9,agi:18,vit:8,int:10,dex:20,luk:12},path:"Nightfold",passives:{crit:8,move:10}},
+ nimaFen:{job:"Bog Alchemist",primary:"int",stats:{str:6,agi:10,vit:10,int:20,dex:12,luk:14},path:"Venomcraft",passives:{dmg:12,cdr:6}},
+ eirene:{job:"Sky Caretaker",primary:"int",stats:{str:8,agi:8,vit:18,int:18,dex:8,luk:6},path:"Sanctuary Array",passives:{def:8,heal:20}},
+ templar:{job:"Royal Templar",primary:"str",stats:{str:20,agi:8,vit:20,int:6,dex:10,luk:6},path:"Last Vow",passives:{def:12,dmgReduce:10}}
+};
+export function innateBuild(id,level=1){
+ const base=INNATE_BUILDS[id],growth=Math.max(0,level-1);
+ return {...base,rank:1+Math.floor(growth/10),stats:Object.fromEntries(Object.entries(base.stats).map(([k,v])=>[k,v+Math.floor(growth*v*.12)])),passives:Object.fromEntries(Object.entries(base.passives).map(([k,v])=>[k,Math.round(v*(1+growth*.03)*100)/100]))};
+}
+export function innateMaxHp(id,level){const vit=innateBuild(id,level).stats.vit;return Math.round((100+(level-1)*12+vit*6)*(1+vit*.01));}
+
+export function makePlayableKit(id,avatar){
+ const kit=makeBasePlayableKit(id,avatar);
+ for(const key of ["onAttack","onSkill","onSkill2"]){const action=kit[key];if(action)kit[key]=(actor,target,spawn)=>action(actor,target,shot=>{if(Number.isFinite(shot.damage))shot.damage=Math.round(shot.damage*(1+Math.max(0,(actor.level||1)-1)*.045));spawn(shot);});}
+ return kit;
+}
+function makeBasePlayableKit(id, avatar) {
+  const common = { ...INNATE_BUILDS[id], innate:true, id, name: PLAYABLES[id]?.label[0] || id, avatar, speed: 1.45,
     maxHp: 100, attackCooldown: 28, cooldown: 180, cooldown2: 240,
     range: 42, animMap: { bash: "skill", slash: "attack" } };
   const wave = (p, spawn, color, damage, radius = 34, push = 8) => spawn({

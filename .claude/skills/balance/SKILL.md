@@ -10,6 +10,7 @@ Balance questions usually cost a lot of reading: the numbers live in a dozen fil
 ```
 B=.claude/skills/balance/balance-sim.mjs
 node $B                          # every class × every area (hub + Acts VII–XII): one summary table each (~0.5 s)
+node $B --difficulty normal     # easy / normal / hard / epic / champion / mythical
 node $B --area frost             # one area, one row per monster + the boss, with each hero's full stat line
 node $B --level +3               # heroes over-levelled (or -3 under-levelled)
 node $B --gear kit               # only the class kit + starter clothes (worst case gear)
@@ -35,7 +36,7 @@ Areas: `hub`, `canopy`, `coast`, `frost`, `ash`, `siege`, `maw`.
 
 Modelled: Priest guardian angels (DPS) and J heal (survival; TTD ∞ when heals outpace damage), Archer quiver reload and the falcon dive, crafted sets with their skill boosts, familiars with `--familiar`.
 
-Not modelled (say so when you quote numbers): pets, meals, skill-tree points (only the familiar, with `--familiar`), path actives on T/Y/U, night (+20% monster damage), Champion/Elite tiers (×2 / ×3.5 HP) in the combat table (the economy report does roll them), monster movement and patterns, mercenaries fighting beside the hero.
+Not modelled (say so when you quote numbers): difficulty splash, counter-strikes, gang-up rallies, surround and faster spawns (miss, crit and level bonus are modelled, js/regression.js COMBAT), pets, meals, skill-tree points (only the familiar, with `--familiar`), path actives on T/Y/U, night (+20% monster damage), Champion/Elite tiers (×2 / ×3.5 HP) in the combat table (the economy report does roll them), monster movement and patterns, mercenaries fighting beside the hero.
 
 **Economy columns** (`--economy`): Upkeep = HP lost per kill bought back in Red Potions (minus the potions that dropped) + repairs. Net G/kill must stay positive in every area, or the player loses money by fighting. "Kills for the set" is the slowest material of a full crafted set of the highest tier that drops there; aim for roughly the kills between the set's level and the next tier.
 

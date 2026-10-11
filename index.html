@@ -26,6 +26,8 @@
   <link rel="stylesheet" href="css/gamepad.css" />
   <link rel="stylesheet" href="css/hud.css" />
   <link rel="stylesheet" href="css/guild.css" />
+  <link rel="stylesheet" href="css/premium.css" />
+  <link rel="stylesheet" href="css/summon.css" />
 </head>
 <body data-mode="title" class="notranslate" translate="no">
 
@@ -167,7 +169,7 @@
       </div>
 
       <!-- Bottom Tray (in-game): conversation log of NPC dialogue (js/chatlog.js) -->
-      <section id="chatLog" aria-label="Conversation log">
+      <section id="controlsTray" aria-label="Skills and controls">
         <!-- Hotbar: skills (drag and drop to rearrange), quick slots and shortcuts (js/actionpanel.js) -->
         <div class="skill-book" id="skillBook" aria-label="Skill book"></div>
         <div class="tray-bar" id="trayBar" aria-label="Hotbar">
@@ -175,8 +177,10 @@
           <div class="tb-group belt"><div class="tb-label" id="saBeltLabel"></div><div class="tb-row belt" id="saBelt"></div></div>
           <div class="tb-group util"><div class="tb-label" id="trayUtilLabel"></div><div class="tb-row" id="trayUtil"></div></div>
         </div>
-        <header class="log-head"></header>
-        <div class="log-list" aria-live="polite"></div>
+      <section class="side-actions" id="sideActions" aria-label="Options">
+        <div class="sa-label" id="saOptionsLabel"></div>
+        <div class="sa-grid" id="saOptions"></div>
+      </section>
       </section>
 
       <!-- Bottom Bar: Hero selection picker & HUD control hints -->
@@ -189,12 +193,16 @@
     <aside id="lore" aria-label="Game Information and Controls">
       <div class="lore-head" id="sideHead"></div>
 
-      <!-- Side Lore Auto-scroll Section -->
-      <section class="side-lore" aria-label="Lore Overview">
-        <div class="lore-view"><div class="lore-track"></div></div>
-        <button type="button" class="lore-more" id="loreMore" tabindex="-1"></button>
-      </section>
+      <nav class="side-tabs" role="tablist" aria-label="Journal">
+        <button id="sideActsTab" type="button" role="tab" aria-controls="sideOverview" aria-selected="true">Acts</button>
+        <button id="sideLogTab" type="button" role="tab" aria-controls="sideJournal" aria-selected="false" tabindex="-1">Adventure Log</button>
+      </nav>
+      <div id="sideOverview" role="tabpanel" aria-labelledby="sideActsTab">
+      <button type="button" class="premium-ad" id="premiumAd" aria-label="Open Premium Shop">
+        <span class="premium-ad-crest" aria-hidden="true">✦</span>
+        <span class="premium-ad-copy"><span class="premium-ad-eyebrow">EXCLUSIVE COLLECTION</span><strong>Premium Shop</strong><span id="premiumAdOffer"></span></span>
 
+      </button>
       <!-- Side HUD: Hero Portrait, Vitals, Quest Tracker & Field Info -->
       <section class="side-ui" id="hudBar" aria-label="Hero Status and Field State">
         <div class="hb-wallet"><span id="hbGold" class="c-gold"></span></div>
@@ -203,7 +211,7 @@
           <div id="qtGoal"></div>
         </div>
 
-        <div class="hb-field">
+        <div class="hb-field" aria-label="Live field status"><span class="field-orbit" aria-hidden="true"></span>
           <div><span class="hb-k" id="hbFoesK"></span> <b class="c-foe" id="hbFoes"></b></div>
           <div><span class="hb-k" id="hbLootK"></span> <b class="c-loot" id="hbLoot"></b></div>
           <div><span id="hbWeather"></span></div>
@@ -216,11 +224,20 @@
         <div class="sm-head"><span id="sideMapLabel"></span><kbd>M</kbd></div>
         <canvas id="sideMap" width="360" height="200" aria-hidden="true"></canvas>
       </section>
-      <!-- Side Options: menu buttons (skills and quick slots live on the bottom tray) -->
-      <section class="side-actions" id="sideActions" aria-label="Options">
-        <div class="sa-label" id="saOptionsLabel"></div>
-        <div class="sa-grid" id="saOptions"></div>
+      </div>
+      <div class="side-journal" id="sideJournal" role="tabpanel" aria-labelledby="sideLogTab" hidden>
+      <!-- Side Lore Auto-scroll Section -->
+      <section class="side-lore" id="sideActs">
+        <div class="lore-view"><div class="lore-track"></div></div>
+        <button type="button" class="lore-more" id="loreMore" tabindex="-1"></button>
       </section>
+
+      <section id="chatLog">
+        <header class="log-head"></header><div class="log-list" aria-live="polite"></div>
+      </section>
+      </div>
+      <!-- Side Options: menu buttons (skills and quick slots live on the bottom tray) -->
+
 
     </aside>
   </div>

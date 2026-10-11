@@ -98,7 +98,7 @@ export class DialogBox {
     if (c === "Enter" || c === "Space" || c === "KeyE" || c === "KeyJ") {
       e.preventDefault();
       this.next();
-    } else if (c === "Escape") {
+    } else if (c === "Backspace") {
       // Skip the remaining lines (but still run the action)
       this.index = this.lines.length - 1;
       this.shown = this.current().length;

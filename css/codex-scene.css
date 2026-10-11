@@ -235,3 +235,5 @@ body[data-mode="create"] #app { display: none; }
   .cxs-side { grid-template-rows: auto minmax(0, 1fr) 90px; }
   .cxs-deckbtn { min-height: 34px; }
 }
+
+.cxs-stances[hidden],.cxs-facing[hidden]{display:none!important}

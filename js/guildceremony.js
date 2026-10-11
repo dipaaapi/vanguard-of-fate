@@ -6,7 +6,7 @@ export class GuildCeremony {
   close() { this.open = false; }
   handleInput(e) {
     if (e.repeat) return;
-    if (e.code === "Escape") this.close();
+    if (e.code === "Backspace") this.close();
     else if (["Enter", "Space", "KeyE"].includes(e.code)) { if (++this.scene >= 4) this.close(); this.started = performance.now(); }
     e.preventDefault();
   }

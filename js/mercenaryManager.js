@@ -1,6 +1,9 @@
 import { applyFacing, drawView } from "./avatar/facing.js";
+import { difficulty, regression } from "./regression.js";
+import { t } from "./i18n.js";
 import { AxeMercenary } from "./mercenary/axe.js";
 import { around, mix, hitPose, attackPose, breathPose, drawSwing } from "./juice.js";
+import { tickBehavior, behaviorPose, drawBehaviorEmote } from "./behavior.js";
 import { WandMercenary } from "./mercenary/wand.js";
 import { CrossbowMercenary } from "./mercenary/crossbow.js";
 import { GreatswordMercenary } from "./mercenary/greatsword.js";
@@ -34,13 +37,20 @@ export class MercenaryManager {
 
   // Contract fee: rises with level (the mercenary is stronger too)
   static cost(level) {
-    return 10 + level * 3;
+    return Math.ceil((10 + level * 3) * difficulty().mercenaryCostMultiplier);
   }
+
+  static limit() { return regression.level >= 1 ? 1 : Infinity; }
+  canHire() { return this.mercenaries.filter(m => m.lifespan > 0).length < MercenaryManager.limit(); }
 
   hire(type, player, fx) {
     const mercData = MERC_CLASSES[type];
     if (!mercData) return false;
 
+    if (!this.canHire()) {
+      fx?.spawnDamagePopup?.(player.x + 8, player.y - 8, t("mercLimit"), false);
+      return false;
+    }
     const cost = MercenaryManager.cost(player.level);
     if (player.gold < cost) {
       if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(player.x + 8, player.y - 8, `NEED ${cost} GOLD!`, false);
@@ -89,6 +99,8 @@ export class MercenaryManager {
   update(player, enemyManager, lootManager, fx, spawnProj, stage) {
     if (!player) return;
 
+    // Enforce the same cap if an older run or difficulty change retained excess contracts.
+    this.mercenaries = this.mercenaries.filter(m => m.lifespan > 0).slice(0, MercenaryManager.limit());
     const pX = player.x;
     const pY = player.y;
     player.mercGuard = 1;
@@ -97,6 +109,7 @@ export class MercenaryManager {
       const m = this.mercenaries[i];
       m.lifespan--;
       if (m.hitTimer > 0) m.hitTimer--;
+      tickBehavior(m, m.isAlive && m.anim === "idle" && !(m.attackAnim > 0) && !(m.hitTimer > 0), "humanoid");   // idle behaviors (js/behavior.js)
 
       // 1. Contract over: the mercenary leaves for good
       if (m.lifespan <= 0) {
@@ -369,10 +382,12 @@ export class MercenaryManager {
       const pose = mix(
         hitPose(m.hitTimer, 16, m.facing === "right" ? 1 : -1),
         attackPose(p, ax, ay, m.data.attackRange < 60 ? 3 : 1.5),
-        m.anim === "idle" ? breathPose(m.animTimer || 0) : null
+        m.anim === "idle" ? breathPose(m.animTimer || 0) : null,
+        m.anim === "idle" && !p ? behaviorPose(m) : null
       );
       around(ctx, m.x + 8, m.y + 15, pose, () =>
         avatarOf(m.data).draw(ctx, m.x + 8, m.y + 15, drawView(m), m.anim, this.frameOf(m), m.flip, m.hitTimer > 0, 1, 1, m.hitTimer > 0 ? "hurt" : null));
+      if (m.anim === "idle" && !p) drawBehaviorEmote(ctx, m, m.x + 8, m.y - 30);
       if (p && m.data.attackRange < 60) drawSwing(ctx, m.x + 8, m.y + 6, m.aimAngle || 0, 12, (p - 0.3) / 0.7, m.data.color);
 
       // HP bar (above the head)

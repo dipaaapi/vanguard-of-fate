@@ -22,7 +22,7 @@ export const PriestClass = {
       { entity: player, hp: player.hp, maxHp: player.maxHp, isAngel: false }
     ];
 
-    player.angels.forEach((a) => {
+    (player.angelCompanions || player.angels).forEach((a) => {
       if (a.isAlive) {
         candidates.push({ entity: a, hp: a.hp, maxHp: a.maxHp, isAngel: true });
       }

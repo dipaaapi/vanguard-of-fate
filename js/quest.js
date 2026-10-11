@@ -15,7 +15,8 @@ import { SideQuests } from "./sidequest.js";
 //                                   Renzo
 //  3    IV    Plains                (monsters)                 Novice's Path: reach Lv 10
 //  4    IV    Citadel audience dais summoner (+ King)          Royal Job Awakening at Astraea's altar
-//  5    V     Barracks Sanctuary    mentor of the chosen class Dual Equipment Matrix: prepare the loadout
+//  5    V     Guild hall → Barracks Guild Master, then mentor  Register with the Adventurers' Guild (plate + rank
+//                                                              assessment), then prepare the loadout with the mentor
 //  6    VI    Barracks courtyard    summoner                   Royal Covenant: they come down from the Citadel
 //
 // Acts VII–XV (js/world/platforms.js): three steps per platform k (0..8), starting at 7 + 3k:
@@ -115,12 +116,12 @@ const TEXT = {
       (q) => `Meet the five Earthbound souls in the Barracks (${q.souls} / 5)`,
       (q) => `Grow stronger in the grassland: Lv ${Math.min(q.level, AWAKEN_LEVEL)} / ${AWAKEN_LEVEL}`,
       (q) => `Go to the Imperial Citadel and speak with ${q.summonerName} at the audience dais`,
-      (q) => `Return to the Barracks and prepare your loadout with ${q.mentorName}`,
+      (q) => q.guildJoined ? `Return to the Barracks and prepare your loadout with ${q.mentorName}` : `Register with the Adventurers' Guild: speak to the Guild Master at the guild hall`,
       (q) => `${q.summonerName} awaits you in the Barracks courtyard`
     ],
     title: "Main Quest",
     log: "Quest Log",
-    close: "Q / Esc  Close",
+    close: "Q / Backspace  Close",
     done: "Done",
     current: "Current",
     locked: "Locked",
@@ -144,12 +145,12 @@ const TEXT = {
       (q) => `Kilalanin ang limang kaluluwang taga-Daigdig sa Barracks (${q.souls} / 5)`,
       (q) => `Magpalakas sa kaparangan: Lv ${Math.min(q.level, AWAKEN_LEVEL)} / ${AWAKEN_LEVEL}`,
       (q) => `Pumunta sa Imperial Citadel at kausapin si ${q.summonerName} sa audience dais`,
-      (q) => `Bumalik sa Barracks at ihanda ang iyong loadout kasama si ${q.mentorName}`,
+      (q) => q.guildJoined ? `Bumalik sa Barracks at ihanda ang iyong loadout kasama si ${q.mentorName}` : `Magparehistro sa Adventurers' Guild: kausapin ang Guild Master sa guild hall`,
       (q) => `Hinihintay ka ni ${q.summonerName} sa looban ng Barracks`
     ],
     title: "Main Quest",
     log: "Talaan ng Quest",
-    close: "Q / Esc  Isara",
+    close: "Q / Backspace  Isara",
     done: "Tapos",
     current: "Kasalukuyan",
     locked: "Nakakandado",
@@ -223,7 +224,7 @@ export class QuestManager {
       this.step = 5;
     }
     // A player with a class has finished Acts II–IV
-    if (!isNovice && this.step < 5) this.step = 5;
+    if (!isNovice && !player.inheritedJob && this.step < 5) this.step = 5;
     if (this.step >= 2) { this.met.ronald = true; this.met.edgar = true; }
     if (this.step >= 3) SOULS.forEach((id) => { this.met[id] = true; });
     this.side.load(data && data.side, this.act());
@@ -272,14 +273,15 @@ export class QuestManager {
     if (this.step === 0 && id === summonerId) this.advance(1);
     if (this.step === 1 && this.met.ronald && this.met.edgar) this.advance(2);
     if (this.step === 2 && this.soulsMet() === SOULS.length) this.advance(3);
-    // Act V: the chosen class's mentor prepares the loadout
-    if (this.step === 5 && id === MENTOR_BY_CLASS[cls]) this.advance(6);
+    // Act V: register with the Adventurers' Guild first, then the chosen class's mentor prepares the loadout
+    if (this.step === 5 && this.guildJoined && id === MENTOR_BY_CLASS[cls]) this.advance(6);
     // Act VI: the summoner in the Barracks courtyard
     if (this.step === 6 && id === summonerId) this.advance(7);
   }
 
   // Called every frame
   update(player) {
+    this.guildJoined = Boolean(player.guild && player.guild.member);
     if (this.step === 3 && player.level >= AWAKEN_LEVEL) this.advance(4);
     // Talks that happened while the side quests were still open count once they are done
     if (this.gated()) return;
@@ -404,6 +406,7 @@ export class QuestManager {
       mentorName: mentorName || T.yourMentor,
       met: this.met,
       souls: this.soulsMet(),
+      guildJoined: Boolean(player && player.guild && player.guild.member),
       level: player ? player.level : 1,
       monolith: this.monolith,
       // bosses whose Seal Stone the player does not carry yet

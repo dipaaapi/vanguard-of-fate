@@ -70,6 +70,8 @@ export class Platform {
     const free = (c) => { if (c && c.getContext) { c.width = 0; c.height = 0; } };
     const tm = this.tilemap;
     if (tm) {
+      tm.disposed=true;
+      free(tm.terrainDetail);free(tm.terrain?.ground);tm.terrain=null;tm.terrainDetail=null;
       [tm.groundCanvas, tm.overlayCanvas, tm.atlas, tm.haze, tm.haze && tm.haze.canvas].forEach(free);
       if (tm.props) tm.props.destroy();
       tm.groundCanvas = tm.overlayCanvas = tm.haze = null;

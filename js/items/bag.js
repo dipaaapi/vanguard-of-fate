@@ -300,31 +300,34 @@ export class Bag {
     return s && s.qty > 1 && split ? this.splitOne(where.index) : s || null;
   }
 
-  canUpgrade(where, gold) {
+  canUpgrade(where, gold, safe = false) {
     const t = this.upgradeTarget(where);
     const item = describe(t);
     if (!item || item.type !== "equip") return { ok: false, reason: "type" };
     if (item.plus >= MAX_PLUS) return { ok: false, reason: "max" };
+    if (item.plus >= 10 && !safe) return { ok: false, reason: "premium" };
+    if (safe && !this.count("refineSafetyStone")) return { ok: false, reason: "stone" };
     const cost = upgradeCost(item);
     if (this.count("monsterShard") < cost.shards) return { ok: false, reason: "shards", cost };
     if (this.count("voidCrystal") < cost.crystals) return { ok: false, reason: "crystals", cost };
     if (gold < cost.gold) return { ok: false, reason: "gold", cost };
-    return { ok: true, cost, chance: refineChance(item.plus) };
+    return { ok: true, cost, chance: safe ? 1 : refineChance(item.plus) };
   }
 
   // Returns { ok, success, reason, cost }. On failure the materials are lost but not the item.
-  upgrade(where, player, rnd = Math.random) {
-    const check = this.canUpgrade(where, player.gold);
+  upgrade(where, player, rnd = Math.random, { safe = false } = {}) {
+    const check = this.canUpgrade(where, player.gold, safe);
     if (!check.ok) return check;
     const t = this.upgradeTarget(where, true);
     if (!t) return { ok: false, reason: "full" };
+    if (safe) this.take("refineSafetyStone", 1);
     this.take("monsterShard", check.cost.shards);
     if (check.cost.crystals) this.take("voidCrystal", check.cost.crystals);
     player.gold -= check.cost.gold;
-    const success = rnd() < check.chance;
+    const success = safe || rnd() < check.chance;
     if (success) t.plus = (t.plus || 0) + 1;
     this.changed(Boolean(where.slot));
-    return { ...check, success };
+    return { ...check, success, item: t };
   }
 
   // Each class's default gear (grade 0 = Novice, 1 = custom-forged at the Job Awakening)

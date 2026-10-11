@@ -64,7 +64,9 @@ The full story lives in [LORE.md](LORE.md) (Filipino: [LORE_FIL.md](LORE_FIL.md)
 | **P** | Arrange skills: drag a skill from the skill book onto J, K, L (class skills) or T, Y, U (path skills), or drag one slot onto another |
 | **O** | Settings: music and sound volume, FPS limit, FPS counter, brightness, shadows, glow, quality, blood, weather, language |
 | **F** | Full screen on/off |
-| **Esc** | Pause / Resume (close any open panel) |
+| **Backspace** | Close open panels; pause/resume when no panel is open |
+| **Esc** | Exit browser fullscreen |
+| **Backspace** | Pause / Resume |
 | **H** / **X** | Main menu / export a secure save (while paused) |
 
 --- | :--- |
@@ -72,7 +74,7 @@ The full story lives in [LORE.md](LORE.md) (Filipino: [LORE_FIL.md](LORE_FIL.md)
 | **J** | Primary Attack / Timed Arrow Reload (Archer) / Smart Heal (Priest) |
 | **Space** | Special Skill / Falcon Strike / Summon Angel / Embark (Menu) |
 | **Enter** | Confirm / Start Game / Resurrect after Game Over |
-| **Esc / P** | Pause / Resume Game |
+| **Backspace** | Pause / Resume Game |
 | **M** | Return to Hero Selection (from Pause Menu) |
 
 ---
@@ -116,3 +118,25 @@ vanguard-of-fate/
 │       ├── archer.js       # Elven Archer sprites & quiver reload mechanics
 │       └── fighter.js      # Fighter sprites & flying dropkick logic
 └── README.md
+
+### Premium store (prototype)
+
+Open the upper-left Premium Shop badge, Market tab, or F4. Sample checkouts add demo pesos without charging money. Exchange ₱1 for 100 Platinum (10,000 gold), or 100 Platinum for ₱1. Exchanges accept whole numbers only; Platinum-to-peso exchanges require multiples of 100. Soulstones cost ₱1 and can be exchanged back for ₱1 or 100 Platinum.
+
+Auto Loot and Auto Defend are permanent, toggleable summon skills that work independently of autonomous adventure. Guardian Ward and Champion Might last one real-world hour and show countdowns on the upper-left HUD, including offline expiration. Cash purchases, unlocks, equipped attack transmute, timers and NPC echoes are saved.
+
+Attack Transmute is a cosmetic premium effect with Ember, Storm and Astral designs. Workshop material conversion is named Material Exchange. Normal smith refinement stops at +10. Premium Shop safety refinement consumes one Safety Stone plus the usual materials and gold, guarantees success, and reaches +15. Glows gain outline thickness, orbiting sparkles, rings and a rainbow crown at +15. Premium NPC recruitment bypasses only that NPC’s trial and includes its permanent Echo Summon; the campaign stays intact.
+
+Playable NPCs currently have five stars (maximum). The Heroes & Summons shop shows their roles and signature skills, with one featured profile rotating each UTC day. Its recruitment and Echo Summon offers receive 20% off in pesos or Platinum. Five-star recruitment costs ₱300 / 30,000 Platinum normally, or ₱240 / 24,000 Platinum while featured; lower star tiers scale down at ₱60 per star. Rotation continues offline and does not reset when loading a save.
+
+Regression preserves the hero’s active job from the previous difficulty. The story restarts from Act I while the inherited job remains usable; the Job Awakening quest allows the next calling. A Scroll can switch learned jobs beforehand, but a new calling requires that quest. Older regressed Novice saves restore the last recorded calling.
+
+Playable NPCs have distinct innate jobs and locked builds. Their stats grow automatically with hero level, signature attack damage gains 4.5% per level after level 1, and path passives grow 3% per level. Innate ranks advance every 10 levels. The Covenant Ledger shows the selected NPC’s build; switching back restores the hero’s editable stats, skills and paths. NPCs cannot enter the hero’s job picker or awakening quest.
+
+Premium Shop purchases survive Regression: peso and coin balances, permanent skills, transmutes, purchased recruits, summon unlocks, and remaining Soulstones/Safety Stones. Purchased recruits return with their trial already complete. Timed buffs end on Regression; consumed items are not replenished.
+
+The side menu has Acts and Adventure Log tabs, the current quest/map, and a dedicated Premium Shop advertisement with the rotating NPC discount. Skills, quick slots, shortcuts and option buttons live below the game screen. Journal tabs support arrow-key navigation.
+
+Live maps now use the exported animated Aseprite terrain sheets in `assets/sprites/tiles/`, including ground, blended paths and animated shores. The hub, campaign and frontier maps retain their existing collision/navigation layouts and props. Procedural terrain remains the fallback while sheets load or if an asset cannot load.
+
+Difficulty profiles: Easy / Normal / Hard / Epic / Champion / Mythical use enemy HP and damage multipliers of 1 / 1.5 / 2 / 2.75 / 3.5 / 4.5 across all monsters and bosses. Mercenary contracts cost 1 / 2 / 3 / 4 / 5 / 6 times the level-based fee. Normal and higher allow one contract, including a mercenary awaiting revival; Easy permits multiple.

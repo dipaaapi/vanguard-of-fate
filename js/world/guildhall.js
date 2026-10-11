@@ -1,4 +1,6 @@
 import { GUILD_SITE, GUILD_ZONE, GUILD_NPCS, guildText } from "../guilddata.js";
+import { around } from "../juice.js";
+import { behaviorPose, drawBehaviorEmote } from "../behavior.js";
 const images = new Map();
 export function guildImage(key) {
   if (!images.has(key)) { const img = new Image(); img.src = `assets/ui/guild_${key}.png`; images.set(key, img); }
@@ -28,6 +30,7 @@ export function drawGuildNpc(ctx, npc) {
   if (!GUILD_NPCS[npc.id]) return false;
   const img = guildImage(npc.id);
   if (!img.complete || !img.naturalWidth) return false;
-  ctx.drawImage(img, Math.round(npc.x - 16), Math.round(npc.y - 43));
+  around(ctx, npc.x, npc.y, behaviorPose(npc), () => ctx.drawImage(img, Math.round(npc.x - 16), Math.round(npc.y - 43)));
+  drawBehaviorEmote(ctx, npc, npc.x, npc.y - 45);
   return true;
 }

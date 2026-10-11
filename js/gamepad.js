@@ -4,7 +4,7 @@ import { t } from "./i18n.js";
 // The pad never talks to the game directly: each button press becomes the keyboard event the game
 // already handles (window keydown/keyup with the same e.code), so every scene and menu works unchanged.
 // Gameplay uses the player's bindings (vanguard_pad, editable in the Controller guide); menus use a
-// fixed layout (stick/D-pad = arrows, south = Enter, east = Esc). The guide opens on the first
+// fixed layout (stick/D-pad = arrows, south = Enter, east = Backspace). The guide opens on the first
 // connection, from the corner badge, or with the pad's Select / Share / − button.
 
 const PAD_KEY = "vanguard_pad";
@@ -23,7 +23,7 @@ export const PAD_ACTIONS = [
   { id: "map",       code: "KeyM",   def: 6 },
   { id: "quest",     code: "KeyQ",   def: 7 },
   { id: "character", code: "KeyC",   def: 11 },
-  { id: "pause",     code: "Escape", def: 9 },
+  { id: "pause",     code: "Backspace", def: 9 },
   { id: "partyNext", code: null,     def: 10 },   // next party member on the field (main.js onPad.partyNext)
   { id: "fullscreen", code: null,    def: 17 },   // full screen (main.js onPad.fullscreen; the browser may refuse it from a pad)
   { id: "guide",     code: null,     def: 8 }
@@ -98,9 +98,9 @@ export class GamepadInput {
     });
     // While the guide is open the pad and keyboard drive only the guide
     window.addEventListener("keydown", (e) => {
-      if (!this.open) return;
+      if (!this.open || e.code === "Escape") return;
       e.stopImmediatePropagation();
-      if (e.code === "Escape" && !this.listening) this.close();
+      if (e.code === "Backspace") { e.preventDefault(); this.close(); }
     }, true);
     const loop = () => { this.poll(); requestAnimationFrame(loop); };
     requestAnimationFrame(loop);
@@ -212,11 +212,12 @@ export class GamepadInput {
         held ? this.press(a.code) : this.release(a.code);
       }
     } else {
-      // menus: taps with auto-repeat, A = Enter, B = Esc, X = Space, Y = Shift+Enter (max), RB = next tab
+      // menus: taps with auto-repeat, A = Enter, B = Backspace, X = Space, Y = Shift+Enter (max), RB = next tab
       this.releaseAll();
       for (const [code, v] of Object.entries(dirs)) if (this.step(code, v)) tap(code);
       if (tapDown(0)) tap("Enter");
-      if (tapDown(1) || tapDown(this.binds.pause)) tap("Escape");
+      if (tapDown(1)) tap("Backspace");
+      if (tapDown(this.binds.pause)) tap("Backspace");
       if (tapDown(2)) tap("Space");
       if (tapDown(3)) tap("Enter", { shiftKey: true });
       if (tapDown(5)) tap("Tab");

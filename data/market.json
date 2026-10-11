@@ -1,7 +1,6 @@
 {
   "_doc": "Safe-zone Market (B): what it sells and its wording. Each row has a quantity slider and one trade button. Prices come from js/items/economy.js (safe-zone markup to buy, sell rate and market saturation to sell). Quest items are never sold. Outside a safe zone the panel becomes a summon errand (data/errand.json).",
   "stock": [
-    "soulstone",
     "salve",
     "elixir",
     "tonic",
@@ -53,8 +52,8 @@
       "fil": "Bukas ang palengke sa ligtas na lugar (Barracks, Citadel o kampo)"
     },
     "hint": {
-      "en": "Tab switch · ↑ ↓ choose · ← → amount (Shift ±10) · Enter trade · Shift+Enter all · B / Esc close",
-      "fil": "Tab lipat · ↑ ↓ pumili · ← → dami (Shift ±10) · Enter kalakal · Shift+Enter lahat · B / Esc isara"
+      "en": "Tab switch · ↑ ↓ choose · ← → amount (Shift ±10) · Enter trade · Shift+Enter all · B / Backspace close",
+      "fil": "Tab lipat · ↑ ↓ pumili · ← → dami (Shift ±10) · Enter kalakal · Shift+Enter lahat · B / Backspace isara"
     },
     "buyN": {
       "en": "Buy ×{n} · {g}",
@@ -65,8 +64,8 @@
       "fil": "Ibenta ×{n} · +{g}"
     },
     "closeHint": {
-      "en": "B / Esc close",
-      "fil": "B / Esc isara"
+      "en": "B / Backspace close",
+      "fil": "B / Backspace isara"
     }
   }
 }

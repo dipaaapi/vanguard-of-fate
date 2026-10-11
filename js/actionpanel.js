@@ -11,7 +11,7 @@ import { skillText } from "./skills.js";
 //   Skills  (J, K, L, Space, E): press and hold = like holding the key (hold works).
 //   Path slots (T, Y, U): the path actives set in Character → Paths (js/skillpaths.js); empty slots are dimmed.
 //                             Cooldown overlay, and "SAFE" inside a sanctuary.
-//   Options (Q, I, C, M, N, G, Esc, H): call the handler from main.js (G = Workshop, safe zones only).
+//   Options (Q, I, C, M, N, G, F6 Summon, Esc, H): call the handler from main.js (G = Workshop, safe zones only).
 //   (Act lore is read through the lore panel's "Read more", so it has no button here.)
 // The J/K/L names follow the player's class (LORE.md, Acts III–IV).
 
@@ -33,7 +33,7 @@ const TEXT = {
     settings: "Settings", market: "Market", full: "Full Screen", window: "Window", tools: "Shortcuts",
     edit: "Arrange skills", book: "Drag a skill onto J, K or L · drag slot to slot to swap · P to finish",
     marketShut: "Markets open in a safe zone",
-    errand: "Summon errand"
+    errand: "Summon errand", summon: "Summon"
   },
   fil: {
     autoAttack: "Auto-lakbay",
@@ -43,7 +43,7 @@ const TEXT = {
     settings: "Settings", market: "Palengke", full: "Full Screen", window: "Window", tools: "Shortcut",
     edit: "Ayusin ang skill", book: "I-drag ang skill sa J, K o L · i-drag ang slot sa slot para magpalit · P para matapos",
     marketShut: "Bukas ang palengke sa ligtas na lugar",
-    errand: "Utos sa summon"
+    errand: "Utos sa summon", summon: "Summon"
   }
 };
 const tx = (k) => (TEXT[getLang()] || TEXT.en)[k];
@@ -52,6 +52,7 @@ const classOf = (p) => (p && SKILLS[p.heroData.id] ? p.heroData.id : "novice");
 function keyLabel(code) {
   if (code === "Space") return "SPACE";
   if (code === "Escape") return "ESC";
+  if (code === "Backspace") return "BACKSPACE";
   return code.replace("Key", "");
 }
 
@@ -109,6 +110,11 @@ export class ActionPanel {
     window.addEventListener("pointermove", (e) => this.dragMove(e));
     window.addEventListener("pointerup", (e) => this.dragEnd(e));
     window.addEventListener("pointercancel", () => this.dragCancel());
+    window.addEventListener("keydown", e => {
+      if (e.repeat || this.editing || ["INPUT","TEXTAREA","SELECT"].includes(e.target?.tagName) || e.target?.isContentEditable) return;
+      for (const b of this.skillsEl.querySelectorAll(".skill[data-key]"))
+        if (b.dataset.key === e.code && !b.disabled && !b.classList.contains("empty")) this.animateSkill(b);
+    });
   }
 
   // A button that mimics a key (keydown while held, keyup on release)
@@ -117,7 +123,8 @@ export class ActionPanel {
     b.type = "button";
     b.tabIndex = -1;
     b.className = "sa-btn skill";
-    b.innerHTML = `<span class="sa-cd"></span><span class="sa-icon"></span><span class="sa-name"></span><kbd>${keyLabel(code)}</kbd>`;
+    b.dataset.key = code;
+    b.innerHTML = `<span class="sa-cd"></span><span class="sa-cd-time" aria-hidden="true"></span><span class="sa-icon"></span><span class="sa-name"></span><kbd>${keyLabel(code)}</kbd>`;
     let held = false;
     const send = (type) => window.dispatchEvent(new KeyboardEvent(type, { code, key: code, bubbles: true }));
     const down = (e) => {
@@ -205,8 +212,9 @@ export class ActionPanel {
       map: this.clickButton("map", "KeyM", h.map),
       codex: this.clickButton("codex", "KeyN", h.codex),
       workshop: this.clickButton("workshop", "KeyG", h.workshop),
+      summon: this.clickButton("summon", "F6", h.summon),
       settings: this.clickButton("settings", "KeyO", h.settings),
-      pause: this.clickButton("pause", "Escape", h.pause),
+      pause: this.clickButton("pause", "Backspace", h.pause),
       menu: this.clickButton("menu", "KeyH", h.menu)
     };
 
@@ -217,6 +225,7 @@ export class ActionPanel {
     this.set(this.options.map, "🗺️", tx("map"));
     this.set(this.options.codex, "📖", tx("codex"));
     this.set(this.options.workshop, "⚒️", tx("workshop"));
+    this.set(this.options.summon, "🐾", tx("summon"));
     this.set(this.options.settings, "⚙️", tx("settings"));
     this.set(this.options.pause, "❚❚", tx("pause"));
     this.set(this.options.menu, "🏠", tx("menu"));
@@ -385,13 +394,35 @@ export class ActionPanel {
   }
 
   // Cooldown overlay: 0 = ready, 1 = just used
-  setCooldown(btn, key, ratio) {
+  animateSkill(btn, ready = false) {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    btn.getAnimations().forEach(a => a.cancel());
+    btn.animate(ready ? [
+      {boxShadow:"0 0 0px #84eeff00"},
+      {boxShadow:"0 0 22px #84eeff99",offset:.3},
+      {boxShadow:"0 0 0px #84eeff00"}
+    ] : [
+      {transform:"scale(1)",filter:"brightness(1)"},
+      {transform:"scale(.94)",filter:"brightness(1.7)",offset:.25},
+      {transform:"scale(1.035)",filter:"brightness(1.25)",offset:.6},
+      {transform:"scale(1)",filter:"brightness(1)"}
+    ],{duration:ready?650:380,easing:"ease-out"});
+  }
+
+  setCooldown(btn, key, ratio, frames = 0) {
     const v = Math.max(0, Math.min(1, ratio || 0));
     const pct = `${Math.round(v * 100)}%`;
-    if (this.cache[key] === pct) return;
-    this.cache[key] = pct;
-    btn.querySelector(".sa-cd").style.height = pct;
+    const time = frames > 0 ? `${(frames / 60).toFixed(1)}s` : "";
+    const label = btn.querySelector(".sa-cd-time");
+    if (label && label.textContent !== time) label.textContent = time;
+    const signature = `${pct}:${v > 0}`;
+    if (this.cache[key] === signature) return;
+    const wasCooling = btn.classList.contains("cooling");
+    this.cache[key] = signature;
+    btn.style.setProperty("--cooldown", pct);
+    btn.querySelector(".sa-cd").style.width = pct;
     btn.classList.toggle("cooling", v > 0);
+    if (wasCooling && v === 0) this.animateSkill(btn, true);
   }
 
   toggle(btn, key, cls, on) {
@@ -421,7 +452,11 @@ export class ActionPanel {
     }
     this.groups.forEach((g) => {
       const cur = g.current(p) || [];
-      g.buttons.forEach((b, i) => this.setCooldown(b, `cd${g.id}${i}`, cur[i] ? g.cooldown(p, cur[i]) : 0));
+      g.buttons.forEach((b, i) => {
+        const id=cur[i];
+        const frames=g.id==="class" ? id==="J" ? p.attackCooldownTimer : id==="K" ? p.skillCooldownTimer : p.skill2CooldownTimer : p.activeCd?.[id] || 0;
+        this.setCooldown(b, `cd${g.id}${i}`, id ? g.cooldown(p, id) : 0, id ? frames : 0);
+      });
     });
     if (this.util) {
       this.toggle(this.util.market, "marketOff", "off", !s.inSanctuary && !s.canErrand);
@@ -453,6 +488,7 @@ export class ActionPanel {
     this.toggle(this.options.inventory, "inv", "on", Boolean(s.inventoryOpen));
     this.toggle(this.options.character, "char", "on", Boolean(s.charOpen));
     this.toggle(this.options.settings, "set", "on", Boolean(s.settingsOpen));
+    this.toggle(this.options.summon, "summon", "on", Boolean(s.summonOpen));
     // Unspent stat/skill points
     this.toggle(this.options.character, "charAlert", "alert", Boolean(s.pointsAvailable));
 

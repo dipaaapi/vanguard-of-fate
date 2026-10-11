@@ -382,7 +382,7 @@ export class UIManager {
       ctx.fillText(info.actTitle, W / 2, iy + ih - 5, iw - 8);
     }
     const ky = iy + ih + 14;
-    keyChip(ctx, bx + 20, ky, "ESC", t("pauseResume"), "#7dd3fc");
+    keyChip(ctx, bx + 20, ky, "BACKSPACE", t("pauseResume"), "#7dd3fc");
     keyChip(ctx, bx + 20, ky + 13, "H", t("pauseMenu"), "#fca5a5");
     keyChip(ctx, bx + 20, ky + 26, "X", t("pauseExport"), "#fde68a");
     ctx.font = "5px monospace";
@@ -438,12 +438,12 @@ export class UIManager {
     ctx.textAlign = "right";
     ctx.font = "5px monospace";
     ctx.fillStyle = "#64748b";
-    ctx.fillText(`${t("shopNote")} · 1-4 / ↑↓ Enter ${t("shopBuy")} · ESC ${t("close")}`, bx + bw - 10, by + bh - 5);
+    ctx.fillText(`${t("shopNote")} · 1-4 / ↑↓ Enter ${t("shopBuy")} · BACKSPACE ${t("close")}`, bx + bw - 10, by + bh - 5);
     ctx.restore();
   }
 
   // Mercenary Guild: four cards with the mercenary's portrait, skills and passive. mercs: [{ key, data }]
-  drawMercModal(ctx, player, W, H, mercs, cost) {
+  drawMercModal(ctx, player, W, H, mercs, cost, canHire = true) {
     const k = this.opened("merc");
     drawBackdrop(ctx, W, H, k, "3, 6, 17", 0.6);
     const bw = 300, bh = 142, bx = Math.round(W / 2 - bw / 2), by = Math.round(H / 2 - bh / 2);
@@ -497,17 +497,17 @@ export class UIManager {
         if (n <= 2 && line) ctx.fillText(line, cx + cw / 2, ly + 8 + n * 7);
       }
     });
-    const afford = player.gold >= cost;
+    const afford = canHire && player.gold >= cost;
     ctx.textAlign = "left";
     ctx.font = "bold 6px monospace";
     ctx.fillStyle = afford ? "#ffd166" : "#ef4444";
     ctx.fillText(`🪙 ${formatCoins(player.gold)} · ${t("mercCost", formatCoins(cost))}`, bx + 10, by + bh - 14);
     ctx.font = "5px monospace";
     ctx.fillStyle = "#94a3b8";
-    ctx.fillText(t("mercScale", player.level), bx + 10, by + bh - 6);
+    ctx.fillText(canHire ? t("mercScale", player.level) : t("mercLimit"), bx + 10, by + bh - 6);
     ctx.textAlign = "right";
     ctx.fillStyle = "#64748b";
-    ctx.fillText(`1-4 / ←→ Enter ${t("mercHire")} · ESC ${t("close")}`, bx + bw - 10, by + bh - 6);
+    ctx.fillText(`1-4 / ←→ Enter ${t("mercHire")} · BACKSPACE ${t("close")}`, bx + bw - 10, by + bh - 6);
     ctx.restore();
   }
 

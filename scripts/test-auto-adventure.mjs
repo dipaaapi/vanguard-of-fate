@@ -14,9 +14,9 @@ let visitedOpening = false;
 for (let frame = 0; frame < 1500 && Math.hypot(p.x + 10 - goal.x, p.y + 20 - goal.y) > 8; frame++) {
   nav.build(stage, p, frame * 17);
   const dir = nav.direction(p, goal, 8);
-  assert.ok(dir, "goal must remain reachable around the wall");
+  assert.ok(dir, `goal must remain reachable at ${frame}: ${p.x},${p.y}, start ${nav.start}`);
   p.x += dir[0] * 2; p.y += dir[1] * 2;
-  assert.equal(footBlocked(stage, p.x + 10, p.y + 20), false, "route must preserve foot clearance");
+  assert.equal(footBlocked(stage, p.x + 10, p.y + 20), false, `route must preserve foot clearance at frame ${frame}, ${p.x},${p.y}; dir ${dir}`);
   if (p.y + 20 > 240) visitedOpening = true;
 }
 assert.ok(visitedOpening);
@@ -73,3 +73,33 @@ for (let frame = 0; frame < 2000; frame++) {
 }
 assert.ok(arrived, "autonomous steering must reach the Monolith without running aground");
 console.log("Auto-adventure: wall/zone and boat navigation, objective filters, scouting, blocked/full-bag stops and completion passed");
+
+// Empty Aethelgard must patrol outside sanctuaries rather than stop at map centre.
+const { Stage } = await load("js/stage.js");
+const field = new Stage(), patrol = new AutoAdventure(), z = field.safeZone;
+const walker = { x: z.x + z.w / 2 - 10, y: z.y + z.h / 2 - 20, kit: { range: 60 } };
+const searchCtx = { stage: field, player: walker, enemies: [], now: 0 };
+patrol.navigator.build(field, walker, 0);
+const first = patrol.hunt(searchCtx, { t: "hunt", k: "ursath" });
+assert.equal(first.status, "search");
+assert.equal(field.isInsideSafeZone(first.point.x - 10, first.point.y - 20), false);
+assert.equal(patrol.hunt({ ...searchCtx, now: 15000 }, { t: "hunt", k: "ursath" }).point, first.point, "walking goal stays stable");
+let arrivedAtFirst = false, leftCamp = false;
+for (let frame = 0; frame < 2000; frame++) {
+ patrol.navigator.build(field, walker, frame * 17);
+ const goal = patrol.hunt({ ...searchCtx, now: frame * 17 }, { t: "hunt", k: "ursath" });
+ if (goal.point !== first.point) { arrivedAtFirst = true; break; }
+ const dir = patrol.navigator.direction(walker, goal.point, goal.radius);
+ assert.ok(dir, "real hub hunting site must be reachable");
+ walker.x += dir[0] * 1.5; walker.y += dir[1] * 1.5;
+ leftCamp ||= !field.isInsideSafeZone(walker.x, walker.y);
+}
+assert.ok(leftCamp && arrivedAtFirst, "leave camp and select another patrol destination after arrival");
+console.log("PASS: empty Aethelgard patrol leaves sanctuary, keeps stable routes and continues searching");
+
+// Act XI must recover a missed seal instead of trying the Monolith forever.
+const recovery=new AutoAdventure(),missingCtx={...ctx,stage,player:{...ctx.player,bag:{slots:[],has:id=>id!=="sylvanSeal"}},
+ quest:{step:20,gated:()=>false,currentPlatform:()=>"strand",cleared:()=>true,unlocked:()=>true,monolith:false}};
+recovery.travel=(ctx,id)=>({status:"travel",destination:id});
+assert.equal(recovery.choose(missingCtx).destination,"canopy");
+console.log("PASS: missing Seal Stone recovery takes priority before Monolith travel");

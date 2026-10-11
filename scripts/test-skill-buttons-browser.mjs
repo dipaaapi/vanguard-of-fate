@@ -1,0 +1,33 @@
+import assert from 'node:assert/strict';
+import {startGame,runSteps,FLOWS} from './gamebrowser.mjs';
+const g=await startGame({debug:true,waitUntil:'domcontentloaded',outDir:'.codex/skill-buttons-check'});
+try{
+ await g.page.evaluate(async()=>{const {Sound}=await import('./js/audio.js');Sound.musicEnabled=false;Sound.sfxEnabled=false;Sound.isMuted=true;});
+ await runSteps(g,FLOWS.newgame.replace(/,?shot:[\w-]+/g,''));
+ await g.page.evaluate(()=>{const v=window.__vof;v.dialog.close();v.actIntro.close();v.codexScene.close();});
+ const skill=g.page.locator('#saSkills .skill[data-slot]').first();
+ const option=g.page.locator('#saOptions .sa-btn').first();
+ assert.ok((await skill.boundingBox()).height>(await option.boundingBox()).height*1.5);
+ await skill.dispatchEvent('pointerdown',{pointerId:1});
+ assert.ok(await skill.evaluate(b=>b.getAnimations().length>0),'click animation');
+ await skill.dispatchEvent('pointerup',{pointerId:1});
+ const cd=g.page.locator('#saSkills .skill[data-slot]').nth(1);
+ await g.page.evaluate(()=>{const p=window.__vof.player;p.skillCooldownTimer=p.heroData.cooldown;});
+ await g.page.waitForTimeout(150);
+ assert.ok(await cd.evaluate(b=>b.classList.contains('cooling')));
+ assert.ok(await cd.locator('.sa-cd-time').textContent());
+ const initial=await cd.evaluate(b=>parseFloat(b.style.getPropertyValue('--cooldown')));
+ await g.page.waitForTimeout(400);
+ assert.ok(await cd.evaluate(b=>parseFloat(b.style.getPropertyValue('--cooldown')))<initial);
+ await g.page.screenshot({path:'.codex/skill-buttons-check/cooldown.png'});
+ await g.page.evaluate(()=>{window.__vof.player.skillCooldownTimer=0;});await g.page.waitForTimeout(100);
+ assert.equal(await cd.evaluate(b=>b.classList.contains('cooling')),false);
+ assert.ok(await cd.evaluate(b=>b.getAnimations().length>0),'ready glow');
+ await g.page.emulateMedia({reducedMotion:'reduce'});
+ await g.page.waitForTimeout(700);await skill.dispatchEvent('pointerdown',{pointerId:2});
+ assert.equal(await skill.evaluate(b=>b.getAnimations().length),0);
+ await skill.dispatchEvent('pointerup',{pointerId:2});
+ const tray=await g.page.locator('#controlsTray').boundingBox();assert.ok(tray.y+tray.height<=600,'tray fits viewport');
+ assert.deepEqual(g.logs.errors,[]);
+ console.log('PASS: prominent skills, activation animation, live cooldown progress/countdown, ready glow and reduced motion');
+}finally{await g.close();}

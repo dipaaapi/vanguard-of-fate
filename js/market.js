@@ -287,7 +287,7 @@ export class Market {
   handleInput(e) {
     const n = this.rows.length;
     const row = this.rows[this.index];
-    if (e.code === "KeyB" || e.code === "Escape") this.close();
+    if (e.code === "KeyB" || e.code === "Backspace") this.close();
     else if (e.code === "Tab") {
       // Buy → Sell → any extra tab (e.g. the Workshop) → Buy (errands: Buy ↔ Sell)
       const extra = this.mode === "errand" ? [] : this.ctx.tabs || [];
