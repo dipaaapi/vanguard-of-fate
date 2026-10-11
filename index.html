@@ -131,6 +131,11 @@
       <div id="viewport">
         <canvas id="gameCanvas" width="480" height="270" aria-label="Game World" role="img"></canvas>
 
+        <button type="button" id="compassMap" class="compass-map">
+          <canvas id="sideMap" width="360" height="360" aria-hidden="true"></canvas>
+          <span id="sideMapLabel" class="compass-label"></span><kbd>M</kbd>
+        </button>
+
         <!-- Hero gauge: top-right of the game screen (js/hudbar.js) -->
         <div class="hb-hero" id="heroHud" aria-label="Hero status">
           <div class="hb-portrait" id="hbInitial"><canvas id="hbPortrait" aria-hidden="true"></canvas></div>
@@ -205,7 +210,8 @@
       </button>
       <!-- Side HUD: Hero Portrait, Vitals, Quest Tracker & Field Info -->
       <section class="side-ui" id="hudBar" aria-label="Hero Status and Field State">
-        <div class="hb-wallet"><span id="hbGold" class="c-gold"></span></div>
+        <div class="hb-wallet"><span id="hbGold" class="c-gold"></span><span id="hbCash" class="hb-cash" aria-label="Remaining premium pesos">₱0</span></div>
+        <div class="hb-difficulty-row"><span class="difficulty-label" id="hbDifficultyLabel"></span><span id="hbDifficulty"></span></div>
         <div class="hb-quest" id="questTracker">
           <div id="qtAct"></div>
           <div id="qtGoal"></div>
@@ -214,16 +220,13 @@
         <div class="hb-field" aria-label="Live field status"><span class="field-orbit" aria-hidden="true"></span>
           <div><span class="hb-k" id="hbFoesK"></span> <b class="c-foe" id="hbFoes"></b></div>
           <div><span class="hb-k" id="hbLootK"></span> <b class="c-loot" id="hbLoot"></b></div>
-          <div><span id="hbWeather"></span></div>
+          <div class="field-weather"><span id="hbWeatherIcon" aria-hidden="true"></span><div><strong id="hbWeatherName"></strong><span id="hbWeather"></span></div></div>
+          <div class="field-infected"><span class="hb-k" id="hbInfectedK"></span> <b id="hbInfected"></b><span id="hbWeatherEffect"></span></div>
           <div class="hb-zone" id="hbZone"></div>
         </div>
       </section>
 
-      <!-- Side World Map: live map of the current place (click or M for the full map) -->
-      <section class="side-map" id="sideMapBox" aria-label="World map">
-        <div class="sm-head"><span id="sideMapLabel"></span><kbd>M</kbd></div>
-        <canvas id="sideMap" width="360" height="200" aria-hidden="true"></canvas>
-      </section>
+      <section id="premiumStatus" aria-label="Premium skills and effects"></section>
       </div>
       <div class="side-journal" id="sideJournal" role="tabpanel" aria-labelledby="sideLogTab" hidden>
       <!-- Side Lore Auto-scroll Section -->

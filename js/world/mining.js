@@ -23,6 +23,8 @@ export class OreVeins {
   // cfg = { count, kinds: [[mineralId, weight], ...] }
   constructor(platform, cfg) {
     this.cfg = cfg;
+    this.dungeon = platform.id === "guildDungeon";
+    this.bounds = platform.bounds;
     this.veins = [];
     const tm = platform.tilemap, r = rng(platform.def.seed * 7 + 13);
     const avoid = [platform.camp, platform.arena].filter(Boolean).map((a) => ({ x: a.x - 40, y: a.y - 40, w: a.w + 80, h: a.h + 80 }));
@@ -66,13 +68,23 @@ export class OreVeins {
   }
 
   // One pickaxe strike. Returns { broke, id, qty, salt } (qty and salt only when the vein breaks).
-  strike(v) {
+  strike(v, player = null, random = Math.random) {
     v.hits++;
     v.shake = 8;
     if (v.hits < STRIKES) return { broke: false, id: v.kind, qty: 0, salt: 0 };
     v.regrow = REGROW;
-    const qty = v.kind === "starsteel" ? 1 : FREE_ORES.includes(v.kind) ? 2 + Math.floor(Math.random() * 3) : 1 + (Math.random() < 0.5 ? 1 : 0);
-    return { broke: true, id: v.kind, qty, salt: Math.random() < SALT_CHANCE ? 1 : 0 };
+    const qty = v.kind === "starsteel" ? 1 : FREE_ORES.includes(v.kind) ? 2 + Math.floor(random() * 3) : 1 + (random() < 0.5 ? 1 : 0);
+    const salt = random() < SALT_CHANCE ? 1 : 0;
+    let refine = null;
+    if (this.dungeon) {
+      const depth = Math.max(0, Math.min(1, (v.y-this.bounds.minY)/(this.bounds.maxY-this.bounds.minY)));
+      const veteran = Math.min(1, Math.max(0, ((player?.level || 10)-10)/40));
+      const roll = random();
+      const rare = 0.04 + depth*0.04 + veteran*0.04;
+      if (roll < rare) refine = { id: "voidCrystal", qty: 1 };
+      else if (roll < rare + 0.30) refine = { id: "monsterShard", qty: 1 };
+    }
+    return { broke: true, id: v.kind, qty, salt, refine };
   }
 
   draw(ctx, player, unlocked) {

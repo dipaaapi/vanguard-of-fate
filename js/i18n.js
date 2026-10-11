@@ -16,6 +16,7 @@ const STRINGS = {
     autoAdventureState_search: "Searching for the required enemies.", autoAdventureState_waiting: "Waiting for the objective.",
     autoAdventureState_routeBlocked: "No walkable route to this objective.", autoAdventureState_complete: "Story complete.",
     autoAdventureState_bagFull: "Bag full.",
+    difficultyLabel: "WORLD DIFFICULTY",
     subtitle: "Summoned Across Worlds · The Pentagram Prophecy",
     tagline: "© 2026 EdMaster28 · All Rights Reserved",
     pressAnyKey: "Press any key",
@@ -116,14 +117,17 @@ const STRINGS = {
     credLang: "Languages",
     credThanks: "And to you, Champion — thank you for answering the summons.",
     selectHint: "<span>A / D</span> Choose hero &nbsp;|&nbsp; <span>Enter / Space</span> Embark &nbsp;|&nbsp; or click a hero below",
-    playHint: "<span>WASD</span> Move &nbsp;|&nbsp; <span>Space</span> Sprint &nbsp;|&nbsp; <span>J</span> Attack &nbsp;|&nbsp; <span>K</span> <span>L</span> Skills &nbsp;|&nbsp; <span>Shift</span> Target &nbsp;|&nbsp; <span>E</span> Talk &nbsp;|&nbsp; <span>Q</span> Quests &nbsp;|&nbsp; <span>I</span> Inventory &nbsp;|&nbsp; <span>C</span> Character &nbsp;|&nbsp; <span>1-4</span> Potions &nbsp;|&nbsp; <span>M</span> Map &nbsp;|&nbsp; <span>B</span> Market &nbsp;|&nbsp; <span>P</span> Arrange skills &nbsp;|&nbsp; <span>O</span> Settings &nbsp;|&nbsp; <span>F</span> Full screen &nbsp;|&nbsp; <span>Backspace</span> Close / Pause",
+    playHint: "<span>WASD</span> Move &nbsp;|&nbsp; <span>Space</span> Sprint &nbsp;|&nbsp; <span>J</span> Attack &nbsp;|&nbsp; <span>K</span> <span>L</span> Skills &nbsp;|&nbsp; <span>Shift</span> Target &nbsp;|&nbsp; <span>E</span> Talk &nbsp;|&nbsp; <span>Q</span> Quests &nbsp;|&nbsp; <span>I</span> Inventory &nbsp;|&nbsp; <span>C</span> Character &nbsp;|&nbsp; <span>1-4</span> Potions &nbsp;|&nbsp; <span>Alt+1–6</span> Party &nbsp;|&nbsp; <span>M</span> Map &nbsp;|&nbsp; <span>B</span> Market &nbsp;|&nbsp; <span>P</span> Arrange skills &nbsp;|&nbsp; <span>O</span> Settings &nbsp;|&nbsp; <span>F</span> Full screen &nbsp;|&nbsp; <span>Backspace</span> Close / Pause",
     mentorLabel: "YOUR MENTOR",
 
     sideLore: "CHRONICLES OF AETHELGARD",
     sideDossier: "EARTHBOUND DOSSIER",
 
     // ---- Bottom bar (HUD outside the screen) + Act reader ----
+    minimapZoomHint: "Scroll to zoom ? Click to open World Map", questNpc: "NPC Quests", questTypes: "Quest Journal", questMain: "Story", questSide: "Side Quests", questGuild: "Guild", questBoat: "Voyage", questFollow: "Prioritize", questFollowing: "Selected for Auto", questEmpty: "No quests available in this category.", questBrowseGuild: "Browse guild board", questChooseHint: "Choose an available objective for Auto. Story requirements still apply.",
     hbFoes: "Foes",
+    hbInfected: "Infected",
+    hbInfectedHint: "Living enemies empowered by the current weather",
     hbLoot: "Loot",
     hbSanctuary: "Sanctuary",
     hbOutlands: "Outlands",
@@ -330,6 +334,7 @@ const STRINGS = {
     autoAdventureState_search: "Hinahanap ang mga kalabang kailangan.", autoAdventureState_waiting: "Hinihintay ang layunin.",
     autoAdventureState_routeBlocked: "Walang malakarang ruta patungo sa layunin.", autoAdventureState_complete: "Tapos ang kuwento.",
     autoAdventureState_bagFull: "Puno ang bag.",
+    difficultyLabel: "HIRAP NG MUNDO",
     subtitle: "Tinawag Mula sa Ibang Daigdig · Ang Propesiya ng Limang sulok ng Selyo",
     tagline: "© 2026 Nilikha ni EdMaster28 · Lahat ng Karapatan ay Nakareserba",
     pressAnyKey: "Pindutin ang kahit anong button",
@@ -430,14 +435,17 @@ const STRINGS = {
     credLang: "Mga Wika",
     credThanks: "At sa iyo, Kampeon — salamat sa pagsagot sa pagtawag.",
     selectHint: "<span>A / D</span> Pumili ng Hero &nbsp;|&nbsp; <span>Enter / Space</span> Sumabak &nbsp;|&nbsp; o i-click ang hero sa ibaba",
-    playHint: "<span>WASD</span> Lakad &nbsp;|&nbsp; <span>Space</span> Sprint &nbsp;|&nbsp; <span>J</span> Atake &nbsp;|&nbsp; <span>K</span> <span>L</span> Skill &nbsp;|&nbsp; <span>Shift</span> Target &nbsp;|&nbsp; <span>E</span> Kausapin &nbsp;|&nbsp; <span>Q</span> Quest &nbsp;|&nbsp; <span>I</span> Imbentaryo &nbsp;|&nbsp; <span>C</span> Karakter &nbsp;|&nbsp; <span>1-4</span> Gamot &nbsp;|&nbsp; <span>M</span> Mapa &nbsp;|&nbsp; <span>B</span> Palengke &nbsp;|&nbsp; <span>P</span> Ayusin ang skill &nbsp;|&nbsp; <span>O</span> Settings &nbsp;|&nbsp; <span>F</span> Full screen &nbsp;|&nbsp; <span>Backspace</span> Isara / Pause",
+    playHint: "<span>WASD</span> Lakad &nbsp;|&nbsp; <span>Space</span> Sprint &nbsp;|&nbsp; <span>J</span> Atake &nbsp;|&nbsp; <span>K</span> <span>L</span> Skill &nbsp;|&nbsp; <span>Shift</span> Target &nbsp;|&nbsp; <span>E</span> Kausapin &nbsp;|&nbsp; <span>Q</span> Quest &nbsp;|&nbsp; <span>I</span> Imbentaryo &nbsp;|&nbsp; <span>C</span> Karakter &nbsp;|&nbsp; <span>1-4</span> Gamot &nbsp;|&nbsp; <span>Alt+1–6</span> Party &nbsp;|&nbsp; <span>M</span> Mapa &nbsp;|&nbsp; <span>B</span> Palengke &nbsp;|&nbsp; <span>P</span> Ayusin ang skill &nbsp;|&nbsp; <span>O</span> Settings &nbsp;|&nbsp; <span>F</span> Full screen &nbsp;|&nbsp; <span>Backspace</span> Isara / Pause",
     mentorLabel: "IYONG MENTOR",
 
     sideLore: "MGA SALAYSAY NG AETHELGARD",
     sideDossier: "TALAAN NG MGA BAYANI",
 
     // ---- Bottom bar (HUD outside the screen) + Act reader ----
+    minimapZoomHint: "I-scroll para mag-zoom ? I-click para buksan ang Mapa ng Mundo", questNpc: "Quest ng NPC", questTypes: "Talaan ng Quest", questMain: "Kuwento", questSide: "Side Quest", questGuild: "Guild", questBoat: "Paglalayag", questFollow: "Unahin", questFollowing: "Pinili para sa Auto", questEmpty: "Walang quest sa kategoryang ito.", questBrowseGuild: "Buksan ang guild board", questChooseHint: "Pumili ng layunin para sa Auto. Kailangan pa rin ang mga rekisito ng kuwento.",
     hbFoes: "Kalaban",
+    hbInfected: "Apektado",
+    hbInfectedHint: "Mga buhay na kaaway na pinalakas ng kasalukuyang panahon",
     hbLoot: "Samsam",
     hbSanctuary: "Santuwaryo",
     hbOutlands: "Kaparangan",

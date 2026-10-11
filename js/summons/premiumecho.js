@@ -14,7 +14,7 @@ export class PremiumEcho {
   if(p.hp<=0||p.inBoat)return;
   this.kit.onUpdate?.(this.actor);
   if(this.actor.chargeTimer>0){this.x=this.actor.x;this.y=this.actor.y;}
-  if(Math.hypot(this.x-p.x,this.y-p.y)>360){this.x=p.x-26;this.y=p.y-10;}
+  if(Math.hypot(this.x-p.x,this.y-p.y)>(this.autoLootTarget?700:360)){this.x=p.x-26;this.y=p.y-10;}
   if(autoSummonLoot(this,p,manager,loot,fx,stage,{x:10,y:20,fly:true,speed:2.8})){this.anim="walk";return;}
   const safe=stage.isInsideSafeZone(p.x+10,p.y+17);const enemy=safe?null:summonTarget(p,manager.enemies,200);this.target=enemy;
   const gx=enemy?enemy.x-24:p.x-26,gy=enemy?enemy.y:p.y-10,dx=gx-this.x,dy=gy-this.y,d=Math.hypot(dx,dy);

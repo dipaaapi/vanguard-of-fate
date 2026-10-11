@@ -98,7 +98,14 @@ export class CharacterPanel {
       return b;
     };
 
-    add(el, "h3", "", T.title);
+    el.dataset.tab=this.tab;
+    const head=add(el,"div","ledger-heading");
+    add(head,"div","ledger-kicker",getLang()==="fil"?"ANG IYONG KAPANGYARIHAN":"YOUR POWER, YOUR PATH");
+    add(head,"h3","",T.title);
+    const overview=add(el,"div","ledger-overview");
+    for(const [name,value] of [["LV",p.level],["HP",`${Math.ceil(p.hp)} / ${p.maxHp}`],["ATK",Math.round(p.attack || 0)],["DEF",Math.round(p.defense || 0)]]){
+      const card=add(overview,"div","ledger-metric");add(card,"span","",name);add(card,"strong","",String(value));
+    }
     if(p.active){
       add(el,"div","ql-sub",`${p.activeName} · ${p.active.job} · Lv ${p.level}`);
       add(el,"p","ch-note",getLang()==="fil"?"Lumalaki ang likas na stats, skill at landas ayon sa level ng bayani. Nakapirmi ang allocation; para sa bayani ang Job Awakening.":"Innate stats, skill power and path passives scale with hero level. Allocation is locked; Job Awakening is exclusive to your hero.");

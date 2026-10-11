@@ -5,6 +5,7 @@ import { iconURL } from "./items/icons.js";
 import { SkillSlots, SLOT_KEYS, ABILITIES } from "./skillslots.js";
 import { SLOT_KEYS as PATH_KEYS, SKILL_DRAG_TYPE, activeSkill, activeSkillsOf, assignSlot, activeCooldown } from "./skillpaths.js";
 import { skillText } from "./skills.js";
+import { PLAYABLES } from "./playables.js";
 
 // ==================== HOTBAR (bottom tray) & OPTIONS (right panel) ====================
 // Each button: icon + name + shortcut key.
@@ -48,6 +49,16 @@ const TEXT = {
 };
 const tx = (k) => (TEXT[getLang()] || TEXT.en)[k];
 const classOf = (p) => (p && SKILLS[p.heroData.id] ? p.heroData.id : "novice");
+const NPC_ICONS = {
+  vaelThorn: ["🌑", "🌀", "⛓"], cerynVoss: ["👑", "🛡️", "✨"],
+  nimaFen: ["🧪", "🌿", "☣"], eirene: ["✚", "🪽", "🔷"],
+  templar: ["⚔️", "⚡", "🛡️"]
+};
+const skillsOf = (p) => ABILITIES.map((id, i) => {
+  const npc = PLAYABLES[p.active?.id];
+  const [icon, name] = npc ? [NPC_ICONS[p.active.id][i], npc.skills[i]] : SKILLS[classOf(p)][id];
+  return { id, icon: `art:${npc ? p.active.id : classOf(p)}-${id}`, name };
+});
 
 function keyLabel(code) {
   if (code === "Space") return "SPACE";
@@ -76,11 +87,11 @@ export class ActionPanel {
     this.groups = [{
       id: "class",
       keys: SLOT_KEYS,
-      list: (p) => ABILITIES.map((a) => { const [icon, name] = SKILLS[classOf(p)][a]; return { id: a, icon, name }; }),
+      list: skillsOf,
       current: () => SkillSlots.slots,
-      assign: (p, i, id) => SkillSlots.assign(i, id),
+      assign: (p, i, id) => !p.active && SkillSlots.assign(i, id),
       cooldown: (p, id) => {
-        const hd = p.heroData;
+        const hd = p.kit;
         if (id === "J") return hd.attackCooldown ? p.attackCooldownTimer / hd.attackCooldown : 0;
         if (id === "K") return hd.cooldown ? p.skillCooldownTimer / hd.cooldown : 0;
         return hd.cooldown2 ? p.skill2CooldownTimer / hd.cooldown2 : 0;
@@ -89,9 +100,9 @@ export class ActionPanel {
       id: "path",
       keys: PATH_KEYS,
       dropType: SKILL_DRAG_TYPE,           // native drags from the Character panel's path nodes
-      list: (p) => activeSkillsOf(p).map((sk) => ({ id: sk.id, icon: sk.icon, name: skillText(sk).name })),
-      current: (p) => p.pathSlots || [],
-      assign: (p, i, id) => assignSlot(p, i, id),
+      list: (p) => p.active ? [] : activeSkillsOf(p).map((sk) => ({ id: sk.id, icon: `art:path-${sk.id}`, name: skillText(sk).name })),
+      current: (p) => p.active ? [] : p.pathSlots || [],
+      assign: (p, i, id) => !p.active && assignSlot(p, i, id),
       cooldown: (p, id) => {
         const sk = activeSkill(id);
         return sk && p.activeCd ? (p.activeCd[id] || 0) / activeCooldown(p, sk) : 0;
@@ -281,7 +292,7 @@ export class ActionPanel {
 
   // ---------- ARRANGING SKILLS (drag and drop) ----------
   setEditing(on) {
-    this.editing = Boolean(on);
+    this.editing = Boolean(on && !this.player?.active);
     this.dragCancel();
     this.skillsEl.classList.toggle("editing", this.editing);
     this.editBtn.classList.toggle("on", this.editing);
@@ -313,7 +324,7 @@ export class ActionPanel {
         card.dataset.skill = sk.id;
         card.dataset.group = g.id;
         const ic = document.createElement("i");
-        ic.textContent = sk.icon;
+        this.paintIcon(ic, sk.icon);
         const nm = document.createElement("span");
         nm.textContent = sk.name;
         card.append(ic, nm);
@@ -350,7 +361,7 @@ export class ActionPanel {
       if (Math.hypot(e.clientX - d.x, e.clientY - d.y) < 4) return;
       d.ghost = document.createElement("div");
       d.ghost.className = "sb-ghost";
-      d.ghost.textContent = `${d.skill.icon} ${d.skill.name}`;
+      d.ghost.textContent = d.skill.name;
       document.body.appendChild(d.ghost);
       d.src.classList.add("dragging");
     }
@@ -387,8 +398,15 @@ export class ActionPanel {
     return b && group.buttons && group.buttons.includes(b) ? b : null;
   }
 
+  paintIcon(el, icon) {
+    const art=icon.startsWith("art:")?icon.slice(4):null;
+    el.classList.toggle("ase-skill-icon",Boolean(art));
+    el.textContent=art?"":icon;
+    el.style.backgroundImage=art?`url("assets/${el.classList.contains("sa-icon") ? "skillcards" : "skills"}/${art}.png")`:"";
+  }
+
   set(btn, icon, name) {
-    btn.querySelector(".sa-icon").textContent = icon;
+    this.paintIcon(btn.querySelector(".sa-icon"),icon);
     btn.querySelector(".sa-name").textContent = name;
     btn.title = name;
   }
@@ -436,13 +454,18 @@ export class ActionPanel {
     const p = s.player;
     if (!p) return;
     this.player = p;
+    if (p.active && this.editing) this.setEditing(false);
+    this.editBtn.disabled = Boolean(p.active);
     // Slot labels follow the class and what each slot holds; an empty slot is dimmed
-    const sig = classOf(p) + "|" + this.groups.map((g) => (g.current(p) || []).join(",")).join("|");
+    const sig = (p.active?.id || classOf(p)) + "|" + this.groups.map((g) => (g.current(p) || []).join(",")).join("|");
     if (sig !== this.cls) {
       this.cls = sig;
       this.groups.forEach((g) => {
         const list = g.list(p), cur = g.current(p) || [];
         g.buttons.forEach((b, i) => {
+          // NPCs have a locked innate kit; the hero's T/Y/U paths remain saved for switching back.
+          b.style.display = g.id === "path" && p.active ? "none" : "";
+          b.disabled = g.id === "path" && Boolean(p.active);
           const sk = list.find((x) => x.id === cur[i]);
           this.set(b, sk ? sk.icon : "·", sk ? sk.name : "—");
           b.classList.toggle("empty", !sk);

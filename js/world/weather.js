@@ -1,3 +1,6 @@
+import { regression } from "../regression.js";
+import { getLang } from "../i18n.js";
+
 // ==================== AETHELGARD WEATHER ====================
 // Clear / rain / storm / fog cycle. Clouds are pixel-art cumulus (pre-rendered once per cloud from
 // overlapping puffs on a 2 px grid, four tones) that drift above the characters and cast soft shadows
@@ -161,7 +164,7 @@ export class WeatherSystem {
   // Sprite for a cloud in the current weather (built once per weather type), plus its ground shadow
   cloudSprite(c, kind) {
     if (!c.mask) c.mask = cloudMask(c.w, c.h, c.seed);
-    if (!c.sprites[kind]) c.sprites[kind] = kind === "shadow" ? paintCloud(c.mask, "#0b1a2b") : paintCloud(c.mask, CLOUD_TONES[kind]);
+    if (!c.sprites[kind]) c.sprites[kind] = kind === "shadow" ? paintCloud(c.mask, "#0b1a2b") : paintCloud(c.mask, CLOUD_TONES[kind] || CLOUD_TONES.CLEAR);
     return c.sprites[kind];
   }
 
@@ -230,4 +233,40 @@ export class WeatherSystem {
     });
     ctx.restore();
   }
+}
+
+// Combat weather follows the same world weather that is drawn, including platform ambience.
+export const WEATHER_POWER = {
+  CLEAR: { damage: 0, speed: 0, armor: 0, regen: 0, color: "#cbd5e1", en: "Clear", fil: "Maaliwalas" },
+  OVERCAST: { damage: .05, speed: 0, armor: .06, regen: 0, color: "#94a3b8", en: "Overcast", fil: "Maulap" },
+  RAIN: { damage: .08, speed: .05, armor: 0, regen: .00004, affinity: ["water"], color: "#38bdf8", en: "Rain", fil: "Ulan" },
+  STORM: { damage: .18, speed: .10, armor: .04, regen: 0, affinity: ["water", "wind"], status: "electrified", color: "#a78bfa", en: "Storm", fil: "Bagyo" },
+  FOG: { damage: .06, speed: .18, armor: .08, regen: 0, affinity: ["ghost", "shadow", "undead"], color: "#c4b5fd", en: "Fog", fil: "Hamog" },
+  BLIZZARD: { damage: .10, speed: .04, armor: .16, regen: 0, affinity: ["water"], status: "freeze", color: "#7dd3fc", en: "Blizzard", fil: "Bagyong Niyebe" },
+  HEAT: { damage: .20, speed: .05, armor: 0, regen: 0, affinity: ["fire"], status: "burn", color: "#fb923c", en: "Ember Heat", fil: "Init ng Baga" },
+  GALE: { damage: .10, speed: .24, armor: 0, regen: 0, affinity: ["wind"], color: "#67e8f9", en: "Gale", fil: "Malakas na Hangin" },
+  SANDSTORM: { damage: .10, speed: .08, armor: .12, regen: 0, affinity: ["earth"], status: "blind", color: "#fbbf24", en: "Sandstorm", fil: "Bagyong Buhangin" },
+  SPORES: { damage: .08, speed: .04, armor: .06, regen: .00002, affinity: ["poison", "earth"], status: "poison", color: "#84cc16", en: "Spore Mist", fil: "Hamog ng Spora" }
+};
+export function combatWeather(stage, fx) {
+  const ambient = { storm: "STORM", blizzard: "BLIZZARD", embers: "HEAT", gale: "GALE", dust: "SANDSTORM", sandstorm: "SANDSTORM", spores: "SPORES", fenmist: "FOG", lament: "FOG", grave: "FOG", void: "FOG" };
+  return stage?.weather?.weatherType || ambient[stage?.def?.ambient] || (stage?.id === "hub" ? fx?.weatherType : null) || "CLEAR";
+}
+export function weatherPower(type, enemy = {}) {
+  const base = WEATHER_POWER[type] || WEATHER_POWER.CLEAR;
+  const scale = 1 + regression.level * .2;
+  const matched = base.affinity?.includes(enemy.element);
+  return { type: WEATHER_POWER[type] ? type : "CLEAR", color: base.color,
+    damage: 1 + (base.damage + (matched ? .10 : 0)) * scale,
+    speed: 1 + (base.speed + (matched ? .05 : 0)) * scale,
+    armor: Math.min(.4, (base.armor + (matched ? .05 : 0)) * scale),
+    regen: base.regen * scale * (matched ? 1.5 : 1),
+    status: base.status, chance: base.status ? .06 * scale + (matched ? .04 : 0) : 0,
+    aggro: type === "FOG" ? 35 * scale : 0 };
+}
+export function weatherPowerText(type) {
+  const p = weatherPower(type), base = WEATHER_POWER[type] || WEATHER_POWER.CLEAR;
+  const fil = getLang() === "fil";
+  if(type === "CLEAR") return fil ? "Walang dagdag na lakas mula sa panahon" : "No enemy weather bonus";
+  return `${base[fil ? "fil" : "en"]}: ${fil ? "Lakas ng kaaway" : "Enemy power"} +${Math.round((p.damage - 1) * 100)}% ATK, +${Math.round((p.speed - 1) * 100)}% MOVE, ${Math.round(p.armor * 100)}% ${fil ? "bawas pinsala" : "damage reduction"}${p.regen ? (fil ? "; bumabawi ng HP" : "; HP recovery") : ""}${p.status ? `; ${p.status}` : ""}. ${fil ? "Mas malakas ang katugmang elemento." : "Matching elements gain extra power."}`;
 }

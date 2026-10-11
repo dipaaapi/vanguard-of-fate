@@ -487,3 +487,59 @@
 .cx-k { color: #64748b; flex: none; }
 .cx-v { color: #f1f5f9; font-weight: 400; text-align: right; }
 .cx-desc { margin-top: calc(2px * var(--s)); font-family: Georgia, serif; color: #94a3b8; line-height: 1.35; }
+
+/* Character and inventory dossiers */
+#character, #inventory {
+  width: min(calc(410px * var(--s)), 94vw);
+  max-height: min(86vh, calc(100% - 16px));
+  padding: calc(10px * var(--s));
+  box-sizing: border-box;
+  border-color: #c5a469;
+  border-radius: calc(5px * var(--s));
+  background: radial-gradient(ellipse at top left, rgba(32,65,85,.55), transparent 55%), linear-gradient(145deg,#121b2c,#080e19 65%);
+  box-shadow: 0 20px 80px #000b, inset 0 0 0 3px #0b1321, inset 0 0 35px #67e8f90a;
+  scrollbar-color: #9b8258 #101928;
+}
+#character.open, #inventory.open { animation: dossier-in .22s ease-out; }
+#character h3, #inventory h3 { font-size: calc(12px * var(--s)); letter-spacing: .12em; color: #f8dfaa; margin-bottom: calc(3px * var(--s)); }
+.ledger-heading { text-align: center; padding: calc(4px * var(--s)); border-bottom: 1px solid #c5a46955; }
+.ledger-kicker { color: #73d7e8; font-size: calc(4px * var(--s)); letter-spacing: .24em; margin-bottom: calc(3px * var(--s)); }
+.ledger-overview { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: calc(4px * var(--s)); margin: calc(7px * var(--s)) 0; }
+.ledger-metric { padding: calc(5px * var(--s)); border: 1px solid #43607b; border-radius: calc(3px * var(--s)); background: linear-gradient(135deg,#1b3148aa,#101827); text-align: center; }
+.ledger-metric span { display: block; font-size: calc(4px * var(--s)); letter-spacing: .14em; color: #88bed5; }
+.ledger-metric strong { display: block; font-size: calc(7px * var(--s)); color: #f3dfb7; margin-top: calc(3px * var(--s)); }
+#character .ch-tabs { position: sticky; top: 0; z-index: 2; padding: calc(4px * var(--s)); background: #0d1729f5; border-radius: calc(3px * var(--s)); gap: calc(4px * var(--s)); }
+#character .ch-tab { flex: 1; border-radius: calc(3px * var(--s)); padding: calc(5px * var(--s)); transition: background .18s, box-shadow .18s; }
+#character .ch-tab.on { background: linear-gradient(120deg,#f9df98,#b68b43); box-shadow: 0 0 12px #e5b85a33; }
+#character .ch-stat { padding: calc(4px * var(--s)); margin-bottom: calc(3px * var(--s)); border: 1px solid #354b65; border-radius: calc(3px * var(--s)); background: #14223899; }
+#character .ch-stat.primary { border-color: #b79556; background: linear-gradient(90deg,#a57b2422,#14223899); }
+#character .ch-note { color: #93a8bf; line-height: 1.6; }
+#character .ch-nodes, #character .ch-trees.three .ch-nodes { grid-auto-rows: calc(35px * var(--s)); gap: calc(4px * var(--s)); }
+#character .ch-node { border-radius: calc(4px * var(--s)); background: linear-gradient(145deg,#1c2e46,#0e1829); transition: border-color .15s, transform .15s, box-shadow .15s; }
+#character .ch-node.learned { border-color: #5dc9ea; box-shadow: inset 0 0 16px #38bdf818; }
+#character .ch-node.sel { outline: 1px solid #ffd166; box-shadow: 0 0 14px #ffd16633; }
+#character .ch-node:hover { transform: translateY(-2px); box-shadow: 0 4px 12px #0006; }
+#character .ch-node.locked { opacity: .55; }
+.inv-job-row { display: grid; grid-template-columns: 1fr 1.6fr; align-items: center; gap: calc(4px * var(--s)); padding: calc(6px * var(--s)); margin: calc(5px * var(--s)) 0 calc(8px * var(--s)); border: 1px solid #a88950; border-radius: calc(4px * var(--s)); background: linear-gradient(100deg,#b38b3b1c,#24436044); }
+.inv-job-label { color: #f2d393; font-size: calc(5px * var(--s)); }
+.inv-job-select { min-width: 0; padding: calc(4px * var(--s)); font: inherit; font-size: calc(6px * var(--s)); color: #e4f3ff; background: #101d30; border: 1px solid #5b849f; border-radius: calc(3px * var(--s)); cursor: pointer; }
+.inv-job-select:focus-visible { outline: 2px solid #67e8f9; outline-offset: 2px; }
+.inv-job-select:disabled { opacity: .55; cursor: default; }
+.inv-job-note { grid-column: 1 / -1; color: #9cb2c8; font-size: calc(4px * var(--s)); }
+#inventory .inv-eq, #inventory .inv-cell { border-radius: calc(3px * var(--s)); transition: border-color .15s, box-shadow .15s; }
+#inventory .inv-eq:hover, #inventory .inv-cell:hover { box-shadow: 0 0 10px #67e8f922; }
+@keyframes dossier-in { from { opacity: 0; filter: brightness(.7); } to { opacity: 1; filter: brightness(1); } }
+@media (max-width: 600px) { #character .ch-trees, #character .ch-trees.three { grid-template-columns: 1fr; } .inv-grid { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { #character.open,#inventory.open { animation: none; } #character .ch-node { transition: none; } #character .ch-node:hover { transform: none; } }
+
+#inventory .inv-auto { color: #9cb2c8; }
+
+/* Selectable quest journal. */
+#questLog{width:min(94%,calc(290px * var(--s)));max-height:min(88vh,calc(100% - 20px));box-sizing:border-box;border:1px solid #b49a62;border-radius:10px;background:radial-gradient(ellipse at top,#253d5655,transparent 65%),#09111ef5;box-shadow:0 15px 50px #000a,inset 0 1px #fbe8bb33;padding:18px}
+.ql-tabs{display:flex;gap:6px;position:sticky;top:-18px;padding:10px 0;background:#0c1525;z-index:2;margin:12px 0}
+.ql-tabs button,.ql-select{cursor:pointer;border:1px solid #405570;border-radius:5px;background:linear-gradient(135deg,#1e324d,#111c2e);color:#c5d5e9;padding:9px 12px;font:11px Consolas,monospace}
+.ql-tabs button{flex:1}.ql-tabs button.selected{border-color:#e2bd6d;color:#ffe2a0;background:linear-gradient(135deg,#594526,#26251f)}
+.ql-cards{display:grid;gap:10px}.ql-card{padding:14px;border:1px solid #314560;border-radius:7px;background:linear-gradient(130deg,#1b2a3f99,#0b152599)}
+.ql-card.selected{border-color:#c7a862;box-shadow:inset 3px 0 #e4bf74,0 0 16px #d0ac4e12}.ql-card .ql-act{font-size:11px}.ql-card .ql-goal{font-size:15px;line-height:1.5;margin:7px 0 10px}.ql-card.locked{opacity:.5}.ql-card.done{opacity:.65}.ql-card.done .ql-act{color:#74d9a3}.ql-card small{color:#a6c2dc;margin-left:8px;font:11px monospace}.ql-progress{width:65%;height:6px;accent-color:#dfbc6d}.ql-select{display:block;margin-top:10px}.ql-select:hover,.ql-tabs button:hover{border-color:#dfbc6d;color:#ffe3a6}.ql-card.selected .ql-select{color:#ffe3a6}.ql-empty{text-align:center;color:#91a9c2;font:13px Georgia,serif;padding:25px}
+
+.ql-tabs{grid-template-columns:repeat(5,minmax(0,1fr))}

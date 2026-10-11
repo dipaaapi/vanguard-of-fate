@@ -10,7 +10,14 @@
 const N = (en, fil = en) => ({ en, fil });
 
 // ---------- Fish (by the kind of water: see FISH_POOLS) ----------
-const FISH = {
+export const FISH = {
+  lotusKoi: { tint: "#f9a8d4", price: 45, rare: true, name: N("Lotus Koi", "Koi ng Lotus"), where: N("Canopy wetlands", "Latian ng Canopy") },
+  pearlSnapper: { tint: "#67e8f9", price: 55, rare: true, name: N("Pearl Snapper", "Maya-mayang Perlas"), where: N("Cerulean and Tidemark coastal waters", "Baybay ng Cerulean at Tidemark") },
+  crystalChar: { tint: "#e0f2fe", price: 65, rare: true, name: N("Crystal Char", "Isdang Kristal"), where: N("Frostfang ice pools", "Lawang yelo ng Frostfang") },
+  cinderfin: { tint: "#f87171", price: 75, rare: true, name: N("Cinderfin", "Isdang Baga"), where: N("Ashfall lava pools", "Lawa ng lava sa Ashfall") },
+  mossCatfish: { tint: "#86efac", price: 50, rare: true, name: N("Moss Catfish", "Hitong Lumot"), where: N("Beastkin and Gloomwater swamps", "Latian ng Beastkin at Gloomwater") },
+  skyTrout: { tint: "#a5b4fc", price: 65, rare: true, name: N("Sky Trout", "Trout ng Langit"), where: N("Stormcrown mountain tarns", "Mga lawa sa bundok ng Stormcrown") },
+  starAngler: { tint: "#e879f9", price: 90, rare: true, name: N("Star Angler", "Angler ng Bituin"), where: N("Maw void pools", "Mga lawa ng void sa Maw") },
   tilapia:  { tint: "#94a3b8", price: 6,  name: N("Tilapia", "Tilapia"), where: N("Swamp and coast water", "Tubig ng latian at baybayin") },
   mudcarp:  { tint: "#a16207", price: 8,  name: N("Mudfin Carp", "Karpang Putik"), where: N("Swamp water of the Canopy and the Gloomwater Fens", "Latian ng Canopy at ng Gloomwater Fens") },
   mackerel: { tint: "#38bdf8", price: 12, name: N("Silver Mackerel", "Pilak na Alumahan"), where: N("The Cerulean Abyss and the Frostfang shore", "Cerulean Abyss at baybay ng Frostfang") },
@@ -18,18 +25,18 @@ const FISH = {
   trout:    { tint: "#bfe9ff", price: 16, name: N("Frost Trout", "Trout ng Yelo"), where: N("Ice pools of the Frostfang and the Stormcrown tarns", "Mga lawang yelo ng Frostfang at mga lawa ng Stormcrown") },
   eel:      { tint: "#f97316", price: 24, name: N("Magma Eel", "Igat ng Magma"), where: N("Lava pools of the Ashfall", "Lawa ng lava sa Ashfall") },
   angler:   { tint: "#a855f7", price: 32, name: N("Void Angler", "Angler ng Void"), where: N("The void water of the Maw", "Tubig ng void sa Maw") },
-  bangus:   { tint: "#fde047", price: 60, name: N("Golden Bangus", "Gintong Bangus"), where: N("Rare in any water", "Bihira sa anumang tubig") }
+  bangus:   { rare: true, tint: "#fde047", price: 60, name: N("Golden Bangus", "Gintong Bangus"), where: N("Rare in any water", "Bihira sa anumang tubig") }
 };
 // Fish caught per platform theme (weights); a theme not listed has no fishing water
 export const FISH_POOLS = {
-  canopy: [["tilapia", 50], ["mudcarp", 45], ["bangus", 5]],
-  coast: [["mackerel", 55], ["squid", 30], ["tilapia", 10], ["bangus", 5]],
-  frost: [["trout", 75], ["mackerel", 20], ["bangus", 5]],
-  ash: [["eel", 95], ["bangus", 5]],
-  maw: [["angler", 75], ["squid", 20], ["bangus", 5]],
+  canopy: [["tilapia", 50], ["mudcarp", 45], ["bangus", 5], ["lotusKoi", 12]],
+  coast: [["mackerel", 55], ["squid", 30], ["tilapia", 10], ["bangus", 5], ["pearlSnapper", 12]],
+  frost: [["trout", 75], ["mackerel", 20], ["bangus", 5], ["crystalChar", 12]],
+  ash: [["eel", 95], ["bangus", 5], ["cinderfin", 12]],
+  maw: [["angler", 75], ["squid", 20], ["bangus", 5], ["starAngler", 12]],
   hub: [["tilapia", 80], ["mudcarp", 15], ["bangus", 5]],
-  swamp: [["mudcarp", 60], ["tilapia", 35], ["bangus", 5]],         // Gloomwater Fens (frontier theme)
-  highland: [["trout", 90], ["bangus", 10]]                          // Stormcrown tarns; the Badlands and the Dunes' quicksand have no fish
+  swamp: [["mudcarp", 60], ["tilapia", 35], ["bangus", 5], ["mossCatfish", 12]],         // Gloomwater Fens (frontier theme)
+  highland: [["trout", 90], ["bangus", 10], ["skyTrout", 12]]                          // Stormcrown tarns; the Badlands and the Dunes' quicksand have no fish
 };
 
 export const FOOD_ITEMS = {};
@@ -87,6 +94,13 @@ export const DISHES = {
     stats: { int: 15, luk: 8, cdr: 6, hp: 180 }, skill: { dmg: 12, kcd: 10, lcd: 10, heal: 18 }, name: N("Sovereign's Pancit", "Pancit ng Soberano") }
 };
 
+// Biome specialties use the established meal bonuses, giving rare catches a cooking use too.
+for (const [fish, recipe] of [["lotusKoi","tinola"],["pearlSnapper","sinigang"],["crystalChar","tinapa"],["cinderfin","eelAdobo"],["mossCatfish","daing"],["skyTrout","tinapa"],["starAngler","nilaga"]]) {
+  const original = DISHES[recipe];
+  DISHES[`${fish}Meal`] = { ...original, tint: FISH[fish].tint, ing: {[fish]:1, rockSalt:1, wildSpice:1},
+    name:N(`${FISH[fish].name.en} Special`, `Espesyal na ${FISH[fish].name.fil}`) };
+}
+
 const PATH_WORD = { str: N("Might", "Lakas"), dex: N("Swift", "Liksi"), int: N("Arcane", "Arkano") };
 Object.entries(DISHES).forEach(([id, d]) => {
   const mins = Math.round(d.time / MIN);
@@ -130,3 +144,5 @@ export function startMeal(player, id) {
   if (player.recalc) player.recalc();
   return true;
 }
+
+export function fishPool(stage) { return FISH_POOLS[stage?.theme || stage?.def?.theme || stage?.id || "hub"] || null; }

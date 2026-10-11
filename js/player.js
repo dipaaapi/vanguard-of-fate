@@ -2,6 +2,7 @@ import { facing8, drawView } from "./avatar/facing.js";
 import { innateBuild } from "./playables.js";
 import { Sound } from "./audio.js";
 import { Bag } from "./items/bag.js";
+import { getItem } from "./items/itemdb.js";
 import { mealBonus } from "./items/cooking.js";
 import { Market } from "./items/economy.js";
 import { STATS, PRIMARY, statCost, STAT_MAX, skillBonus, canLearn, findSkill, pointPoolFor, autoAllocate, autoLearn } from "./skills.js";
@@ -99,6 +100,7 @@ export class Player {
     this.atkAngle = 0;
     this.hurtT = 0;           // hurt recoil (counts down)
     this.hurtDir = 0;
+    this.tonicCd = 0;
     this.potionCd = 0;        // shared healing cooldown (frames) — healing is a decision, not a spam button
     this.bossFight = false;   // set by main.js while an Act boss is engaged
 
@@ -278,6 +280,7 @@ export class Player {
     this.autoAttackTime(now);
     const a = this.autoAttack;
     if (a.until) { a.until = 0; return false; }
+    this.consumeAutoSoulstone(now);
     if (!a.remainingMs) return false;
     a.until = now + a.remainingMs;
     return true;
@@ -287,6 +290,22 @@ export class Player {
     this.autoAttackTime(now);
     this.autoAttack.remainingMs += ms;
     if (this.autoAttack.until) this.autoAttack.until = now + this.autoAttack.remainingMs;
+  }
+
+  consumeAutoSoulstone(now = Date.now()) {
+    const ms = getItem("soulstone")?.effect?.autoAttackMs;
+    if (!ms || !this.bag.take("soulstone", 1)) return false;
+    this.extendAutoAttack(ms, now);
+    return true;
+  }
+
+  refillAutoAttack(now = Date.now()) {
+    const until = this.autoAttack.until;
+    if (!until || until - now > 10000) return false;
+    if (!this.consumeAutoSoulstone(now)) return false;
+    // A late frame may arrive just after expiry: keep the running session active.
+    this.autoAttack.until = now + this.autoAttack.remainingMs;
+    return true;
   }
 
   // Skill tree: raise a skill's level
@@ -413,6 +432,7 @@ export class Player {
   updateStamina(wantSprint) {
     if (this.freshTimer > 0) this.freshTimer--;
     if (this.potionCd > 0) this.potionCd--;
+    if (this.tonicCd > 0) this.tonicCd--;
     const canSprint = wantSprint && !this.exhausted && this.debuffs.freeze <= 0;
     if (canSprint) {
       if (this.freshTimer <= 0) this.stamina = Math.max(0, this.stamina - STAMINA_DRAIN);
@@ -452,6 +472,7 @@ export class Player {
     // Once a second: a new resonant path changes which passives get the bonus
     if (++this.styleCheck >= 60) {
       this.styleCheck = 0;
+      this.allocateAutomatically();
       const style = styleOf(this);
       if (style !== this.styleNow) { this.styleNow = style; this.recalc(); }
     }
@@ -615,7 +636,7 @@ export class Player {
     }
 
     // Path actives on the skill slots (T / Y / U), plus their cooldowns, ward and dash
-    if(!this.active)tickActives(this, isPressed, { target: closestEnemy, spawn: spawnProjectile, fx, safe: isInSafeZone });
+    if(!this.active)tickActives(this, isPressed, { target: closestEnemy, spawn: spawnProjectile, fx, safe: isInSafeZone, autoMovement: Boolean(input?.autoMovement) });
 
     this.animTimer++;
     const spriteObj = this.heroData ? this.kit.sprites : null;

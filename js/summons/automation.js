@@ -41,7 +41,7 @@ export function autoSummonDefence(p, manager, stage, Angel, loot = null) {
   const selected = p.target?.isAlive && manager.enemies.includes(p.target) && Math.hypot(p.target.x - p.x, p.target.y - p.y) <= 240 ? p.target : null;
   const target = canDefend && !safe && summonCfg(p).attack !== "passive" ? summonThreat(p, manager.enemies, Math.max(240, summonCfg(p).range), true) || selected : null;
   const pickup = canLoot && loot?.items.some(i => !(i.blocked > 0) && i.targetSlideX === undefined &&
-    Math.hypot(i.x - p.x - 10, i.y - p.y - 20) <= 240);
+    Math.hypot(i.x - p.x - 10, i.y - p.y - 20) <= 480);
   if ((!target && !pickup) || p.skillCooldownTimer > 0) return;
   const falcon = p.falconCompanion;
   if (target && falcon && !falcon.aboard && !isAway(p, "falcon") && !["ATTACKING", "RETURNING"].includes(falcon.state)) {
@@ -62,12 +62,16 @@ export function autoSummonDefence(p, manager, stage, Angel, loot = null) {
 // Pickups go through the normal loot manager, preserving capacity, coins and quest callbacks.
 // Walkers use their own path field; flyers may cross obstacles but never collect unsettled drops.
 export function autoSummonLoot(pet, p, manager, loot, fx, stage, { x = 10, y = 20, fly = false, speed = 2.5 } = {}) {
-  if (!summonLootEnabled(p) || pet.aboard || pet.isAlive === false || pet.hp === 0 || !stage || !loot || summonThreat(p, manager.enemies, 180, true)) {
+  if (!summonLootEnabled(p) || pet.aboard || pet.isAlive === false || pet.hp === 0 || !stage || !loot) {
     releaseLoot(pet); return false;
   }
+  // A ready defender takes its nearby hit, then uses the cooldown to collect.
+  // An engaged foe elsewhere no longer prevents every collector from working.
+  const threat=summonDefenceEnabled(p) && summonCfg(p).attack!=="passive" ? summonThreat(p,manager.enemies,180,true) : null;
+  if(threat && (pet.cd ?? pet.attackCooldown ?? Infinity)<=0 && Math.hypot(threat.x-pet.x,threat.y-pet.y)<=48){releaseLoot(pet);return false;}
   const now = performance.now();
   const current = pet.autoLootTarget;
-  const candidates = loot.items.filter(i => !(i.blocked > 0) && i.targetSlideX === undefined && Math.hypot(i.x - p.x - 10, i.y - p.y - 20) <= (i === current ? 320 : 240) &&
+  const candidates = loot.items.filter(i => !(i.blocked > 0) && i.targetSlideX === undefined && Math.hypot(i.x - p.x - 10, i.y - p.y - 20) <= (i === current ? 640 : 480) &&
     (!lootClaims.has(i) || lootClaims.get(i).pet === pet || lootClaims.get(i).until < now));
   if (!candidates.length) { releaseLoot(pet); return false; }
   candidates.sort((a, b) => Number(Boolean(b.quest)) - Number(Boolean(a.quest)) || Number(b === current) - Number(a === current) || Math.hypot(a.x - pet.x - x, a.y - pet.y - y) - Math.hypot(b.x - pet.x - x, b.y - pet.y - y));

@@ -16,7 +16,7 @@ import { Market, formatCoins } from "./items/economy.js";
 
 const TEXT = {
   en: {
-    title: "Workshop", craft: "Craft gear", craftHint: "Ore, cores and essence from monsters and veins",
+    title: "Workshop", craft: "Craft gear", craftHint: "Master craftsmen: Barracks, Emberhold and Siege camp. Recipes require ore, cores, essence and a crafting fee",
     auto: (on, name) => `Auto-craft: ${on ? "ON" : "OFF"}${name ? ` · ${name}` : ""}`, autoHint: "Crafts the next missing piece of your target set in safe zones",
     cook: "Cook", cookHint: "Fish, meat, spice and salt into buff meals", transmute: "Material Exchange", transmuteHint: "Trade materials up a tier or swap essences",
     tier: (lv, you) => `Lv ${lv} sets${you ? " · your tier" : ""}`, tierHint: (g) => `Grade ${g} pieces · 2 / 4 / 6-piece bonuses and a skill boost`,
@@ -26,10 +26,10 @@ const TEXT = {
     errs: { gold: "Not enough gold", materials: "Not enough materials", full: "Bag is full", slot: "Can't craft that", level: "Level too low", ingredients: "Missing ingredients" },
     crafted: (name) => `Crafted: ${name}`, autoCrafted: (name) => `Auto-crafted at the safe zone: ${name}`,
     cooked: (name) => `Cooked: ${name}`, transmuted: (a, b) => `Exchanged ${a} → ${b}`,
-    ores: "Ore and cores", essences: "Essences", lvl: (lv) => `needs Lv ${lv}`, safeOnly: "The workshop is only open in a safe zone"
+    ores: "Ore and cores", essences: "Essences", lvl: (lv) => `needs Lv ${lv}`, safeOnly: "Equipment crafting requires the Barracks, Emberhold or Siege camp forge"
   },
   fil: {
-    title: "Talyer", craft: "Gumawa ng gamit", craftHint: "Mineral, core at diwa mula sa halimaw at ugat",
+    title: "Talyer", craft: "Gumawa ng gamit", craftHint: "Mga bihasang panday: Barracks, Emberhold at kampo ng Siege. Kailangan ang mineral, core, diwa at bayad sa paggawa",
     auto: (on, name) => `Kusang paggawa: ${on ? "BUKAS" : "SARADO"}${name ? ` · ${name}` : ""}`, autoHint: "Ginagawa ang susunod na kulang na piraso ng target na set sa ligtas na lugar",
     cook: "Magluto", cookHint: "Isda, karne, pampalasa at asin para sa pagkaing may buff", transmute: "Palitan ng Materyales", transmuteHint: "Ipagpalit ang materyales pataas o ang diwa",
     tier: (lv, you) => `Mga set na Lv ${lv}${you ? " · antas mo" : ""}`, tierHint: (g) => `Gradong ${g} · bonus sa 2 / 4 / 6 piraso at skill boost`,
@@ -39,11 +39,14 @@ const TEXT = {
     errs: { gold: "Kulang ang ginto", materials: "Kulang ang materyales", full: "Puno ang bag", slot: "Hindi magagawa", level: "Kulang ang level", ingredients: "Kulang ang sangkap" },
     crafted: (name) => `Nagawa: ${name}`, autoCrafted: (name) => `Kusang nagawa sa ligtas na lugar: ${name}`,
     cooked: (name) => `Naluto: ${name}`, transmuted: (a, b) => `Naipagpalit ${a} → ${b}`,
-    ores: "Mineral at core", essences: "Mga diwa", lvl: (lv) => `kailangan ang Lv ${lv}`, safeOnly: "Bukas lang ang talyer sa ligtas na lugar"
+    ores: "Mineral at core", essences: "Mga diwa", lvl: (lv) => `kailangan ang Lv ${lv}`, safeOnly: "Sa pandayan ng Barracks, Emberhold o kampo ng Siege lang makagagawa ng gamit"
   }
 };
 const L = () => (getLang() === "fil" ? "fil" : "en");
 const tx = () => TEXT[L()];
+export function craftingStation(stage, player) {
+  return Boolean(player && ["hub", "ash", "siege"].includes(stage?.id || "hub") && stage?.isInsideSafeZone(player.x+10,player.y+17));
+}
 const AUTO_EVERY = 90;        // frames between auto-craft attempts in a safe zone
 
 export class Workshop {
@@ -59,9 +62,10 @@ export class Workshop {
     this.player = player;
     if (!player.craft.target) player.craft.target = setIdFor(recommendedPath(player), Math.max(1, tierForLevel(player.level)));
     const target = SETS[player.craft.target];
+    const allowed = this.d.canCraft?.() !== false;
     d.menu.show(`${T.title} · ◆ ${formatCoins(player.gold)}`, [
-      { label: T.craft, hint: T.craftHint, onPick: () => this.tiers() },
-      { label: T.auto(player.craft.auto, target && target.name[L()]), hint: T.autoHint,
+      { label: T.craft, hint: T.craftHint, disabled: !allowed, onPick: () => this.tiers() },
+      { label: T.auto(player.craft.auto, target && target.name[L()]), hint: T.craftHint, disabled: !allowed,
         onPick: () => { player.craft.auto = !player.craft.auto; this.open(player); } },
       { label: T.cook, hint: T.cookHint, onPick: () => this.cookPaths() },
       { label: T.transmute, hint: T.transmuteHint, onPick: () => this.transmuteMenu() }
@@ -69,6 +73,7 @@ export class Workshop {
   }
 
   tiers() {
+    if(this.d.canCraft?.() === false){this.say(tx().safeOnly,"#ef4444");return;}
     const T = tx(), p = this.player, mine = Math.max(1, tierForLevel(p.level));
     this.d.menu.show(T.craft, [
       ...CRAFT_TIERS.map((c) => ({ label: T.tier(c.level, c.tier === mine), hint: T.tierHint(c.grade), onPick: () => this.paths(c.tier) })),
@@ -90,7 +95,7 @@ export class Workshop {
 
   pieces(setId) {
     const T = tx(), p = this.player, set = SETS[setId], cls = p.heroData.id, have = ownedPieces(p, setId);
-    const cost = (r) => Object.entries(r).map(([id, n]) => (id === "gold" ? `${formatCoins(n)}` : `${getItem(id).name} ${p.bag.count(id)}/${n}`)).join(" · ");
+    const cost = (r) => Object.entries(r).map(([id, n]) => (id === "gold" ? `${L()==="fil"?"Bayad sa paggawa":"Crafting fee"}: ${formatCoins(n)}` : `${getItem(id).name} ${p.bag.count(id)}/${n}`)).join(" · ");
     this.d.menu.show(`${set.name[L()]} · ${T.needLv(set.level)} · ◆ ${formatCoins(p.gold)}`, [
       p.craft.target === setId
         ? { label: T.isTarget, disabled: true, onPick: () => {} }
@@ -103,6 +108,7 @@ export class Workshop {
           hint: `${cost(recipeFor(setId, slot))} — ${stats}`,
           disabled: Boolean(craftCheck(p, setId, slot)),
           onPick: () => {
+            if(this.d.canCraft?.() === false){this.say(T.safeOnly,"#ef4444");return;}
             const err = craftPiece(p, setId, slot);
             if (err) this.say(T.errs[err], "#ef4444");
             else this.done(T.crafted(it.name), set.color);
@@ -173,7 +179,7 @@ export class Workshop {
 
   // ---------- auto-craft (every frame while playing) ----------
   update(player, inSafeZone) {
-    if (!inSafeZone) { this.timer = 0; return; }
+    if (!inSafeZone || this.d.canCraft?.() === false) { this.timer = 0; return; }
     this.player = player;
     if (++this.timer < AUTO_EVERY) return;
     this.timer = 0;

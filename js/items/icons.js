@@ -59,6 +59,8 @@ const DRAW = {
   ring(p) { for (let a = 0; a < 360; a += 20) { const r = (a * Math.PI) / 180; p.set(8 + Math.round(Math.cos(r) * 4), 9 + Math.round(Math.sin(r) * 4), GOLD); } disc(p, 8, 4, 2, "#5ee7ff", "#2a9fd0", "#ffffff"); },
   earring(p) { line(p, 8, 2, 8, 6, GOLD); disc(p, 8, 9, 3, "#c084fc", "#7e22ce", "#f5d0fe"); },
   rosary(p) { for (let a = 0; a < 360; a += 30) { const r = (a * Math.PI) / 180; p.set(8 + Math.round(Math.cos(r) * 5), 6 + Math.round(Math.sin(r) * 4), "#e8e2d0"); } line(p, 8, 10, 8, 15, GOLD); line(p, 6, 12, 10, 12, GOLD); },
+  potionSmall(p, t) { p.rect(7,4,3,2,WOOD); p.rect(8,6,1,2,"#e2e8f0"); disc(p,8,11,3,t,shade(t,-.35),shade(t,.5)); p.set(7,9,"#ffffff"); },
+  potionLarge(p, t) { p.rect(6,1,5,2,WOOD); p.rect(7,3,3,3,"#e2e8f0"); disc(p,8,10,5,t,shade(t,-.35),shade(t,.5)); p.set(6,7,"#ffffff"); p.rect(5,11,7,2,"#e2e8f0"); },
   potion(p, t) { p.rect(6, 2, 4, 2, WOOD); p.rect(7, 4, 2, 2, "#e2e8f0"); disc(p, 8, 10, 4, t, shade(t, -0.35), shade(t, 0.5)); p.set(6, 8, "#ffffff"); },
   herb(p) { line(p, 8, 14, 8, 6, "#2d6a4f"); [[5, 4], [11, 5], [6, 9], [11, 10]].forEach(([x, y]) => disc(p, x, y, 2, "#52b788", "#2d6a4f", "#b7e4c7")); },
   shard(p, t) { for (let y = 2; y < 14; y++) { const w = y < 8 ? Math.floor((y - 1) / 2) : Math.floor((14 - y) / 2); for (let x = 8 - w; x <= 8 + w; x++) p.set(x, y, x > 8 ? shade(t, -0.3) : x < 8 ? shade(t, 0.35) : t); } },

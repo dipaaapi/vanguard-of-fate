@@ -1,7 +1,7 @@
 import { isBroken } from "./durability.js";
 import { SETS, setThresholds } from "./itemdb.js";
 import { startMeal } from "./cooking.js";
-import { describe, canEquip, upgradeCost, refineChance, slotsFor, SLOTS, MAX_PLUS, CLASS_KIT } from "./itemdb.js";
+import { getItem, describe, canEquip, upgradeCost, refineChance, slotsFor, SLOTS, MAX_PLUS, CLASS_KIT } from "./itemdb.js";
 
 // ==================== BAG + EQUIPMENT ====================
 // slots: instances in the bag { id, qty, plus, rarity, affixes, sockets, cards }.
@@ -268,15 +268,16 @@ export class Bag {
     const pop = (text, color) => { if (fx && fx.spawnDamagePopup) fx.spawnDamagePopup(player.x + 10, player.y - 6, text, true, color); };
     if (e.cure && !(player.hasAnyDebuff && player.hasAnyDebuff())) { pop("NO BLIGHT", "#94a3b8"); return ""; }
     if (e.heal && !e.resetSkill && player.hp >= player.maxHp) { pop("HP FULL", "#94a3b8"); return ""; }
-    // Every healing item shares one cooldown (2.5s), auto-potion included
+    // Healing items share a cooldown; its duration comes from the bottle used.
     if (e.heal && player.potionCd > 0) { pop("WAIT", "#94a3b8"); return ""; }
+    if (e.stamina && player.tonicCd > 0) { pop("WAIT", "#94a3b8"); return ""; }
     // Astraea's Leaf cannot refresh a skill while a boss is engaged
     if (e.resetSkill && player.bossFight && player.hp >= player.maxHp) { pop("STIFLED", "#a855f7"); return ""; }
 
-    if (e.heal) { player.hp = Math.min(player.maxHp, player.hp + Math.max(e.heal, Math.round(player.maxHp * (e.healPct || 0)))); player.potionCd = POTION_CD; }
+    if (e.heal) { player.hp = Math.min(player.maxHp, player.hp + Math.max(e.heal, Math.round(player.maxHp * (e.healPct || 0)))); player.potionCd = e.cooldown || POTION_CD; }
     if (e.resetSkill && !player.bossFight) player.skillCooldownTimer = 0;
     if (e.cure && player.cureAllDebuffs) player.cureAllDebuffs();
-    if (e.stamina) { player.stamina = player.maxStamina; player.exhausted = false; }
+    if (e.stamina) { player.stamina = Math.min(player.maxStamina, player.stamina + Math.round(player.maxStamina * (e.staminaPct ?? 1))); player.exhausted = false; player.tonicCd = e.cooldown || POTION_CD; }
     if (e.fresh) player.freshTimer = e.fresh;
     if (e.buff && player.buffs) player.buffs[e.buff] = Math.max(player.buffs[e.buff] || 0, e.time);
     if (e.respec && player.respec) player.respec();
@@ -285,6 +286,17 @@ export class Bag {
     this.removeAt(i, 1);
     pop(item.name.toUpperCase(), item.color);
     return item.name;
+  }
+
+  healingOrder(player) {
+    const missing = player.maxHp - player.hp;
+    return this.slots.map(s => ({id:s.id,item:getItem(s.id)})).filter(s => s.item?.effect?.heal && !s.item.effect.resetSkill)
+      .sort((a,b) => {
+        const recovery = s => Math.max(s.item.effect.heal, Math.round(player.maxHp * (s.item.effect.healPct || 0)));
+        const ah=recovery(a),bh=recovery(b);
+        // Prefer a sufficient bottle with the least waste, otherwise the strongest available.
+        return (ah >= missing ? ah-missing : missing+(missing-ah)) - (bh >= missing ? bh-missing : missing+(missing-bh));
+      }).map(s=>s.id);
   }
 
   useById(id, player, fx) {

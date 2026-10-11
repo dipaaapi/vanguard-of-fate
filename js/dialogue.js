@@ -17,6 +17,7 @@ const NAMES = {
     sam: "Samantha \"Sam\" Chen", renzo: "Renzo \"Striker\" Cruz", elvenMatriarch: "Elven Matriarch",
     brakka: "Brakka Emberforge", hilde: "Hilde Rivetmend", durgrim: "Thane Durgrim Ashenhelm", pip: "Pip Gildbarrow",
     maren: "Archivist Maren", isolde: "Captain Isolde Wavecrest", veyra: "Veyra the Ashen Scout", aldric: "Brother Aldric of the Lantern",
+    tidemarkTrader: "Tidemark Trader",
     // playable NPCs (js/playables.js)
     cerynVoss: "Ceryn Voss", vaelThorn: "Vael Thorn", nimaFen: "Nima Fen", eirene: "Eirene", templar: "Dame Serelle"
   },
@@ -28,6 +29,7 @@ const NAMES = {
     sam: "Samantha \"Sam\" Chen", renzo: "Renzo \"Striker\" Cruz", elvenMatriarch: "Matriarka ng mga Elf",
     brakka: "Brakka Emberforge", hilde: "Hilde Rivetmend", durgrim: "Thane Durgrim Ashenhelm", pip: "Pip Gildbarrow",
     maren: "Arkibista Maren", isolde: "Kapitana Isolde Wavecrest", veyra: "Veyra ang Abong Batyaw", aldric: "Kapatid na Aldric ng Lantern",
+    tidemarkTrader: "Mangangalakal ng Tidemark",
     cerynVoss: "Ceryn Voss", vaelThorn: "Vael Thorn", nimaFen: "Nima Fen", eirene: "Eirene", templar: "Dame Serelle"
   }
 };

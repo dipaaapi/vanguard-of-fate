@@ -1,3 +1,4 @@
+import { economyProfile } from "./regression.js";
 import { coinBreakdown, formatCoins } from "./items/economy.js";
 import { Sound } from "./audio.js";
 import { describe, rollDrop } from "./items/itemdb.js";
@@ -100,7 +101,7 @@ export function findNearestWalkableSpot(startX, startY, stage) {
 export function rollCoinReward(info = {}, random = Math.random) {
   const level = Math.max(1, info.level || 1);
   const tier = info.boss ? 20 : { normal: 1, champion: 3, elite: 6, mvp: 20 }[info.tier] || 1;
-  return Math.round((3 + level * 1.1) * 3 * (1 + level / 50) * (0.7 + random() * 0.6) * tier * 10000) / 10000;
+  return Math.round((3 + level * 1.1) * 3 * (1 + level / 50) * (0.7 + random() * 0.6) * tier * economyProfile().coins * (info.diff <= -10 ? .15 : info.diff <= -5 ? .4 : 1) * 10000) / 10000;
 }
 
 // Item rarity → unlock ceremony tier: Uniques are Legendary, Set pieces Mythic

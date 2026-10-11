@@ -41,6 +41,9 @@ const GEAR = opt("--gear", "craft");
 const OUT = opt("--out", null);
 const BUILD = opt("--build", null);
 const FAMILIAR_LV = parseInt(opt("--familiar", "0"), 10) || 0;
+const WEATHER = opt("--weather", "CLEAR").toUpperCase();
+const { WEATHER_POWER, weatherPower } = await load("js/world/weather.js");
+if (!WEATHER_POWER[WEATHER]) throw Error("Unknown weather: " + WEATHER);
 const TRIALS = 12;
 const ECON = args.includes("--economy");
 const UNITS = args.includes("--units");
@@ -51,6 +54,7 @@ const difficultyLevel = DIFFICULTIES.findIndex(d => d.id === difficultyId);
 if (difficultyLevel < 0) throw Error("Unknown difficulty: " + difficultyId);
 loadRegression({level:difficultyLevel});
 seedRandom(2026);
+// Weather resistance and attack bonuses are measured; movement, status procs and weather regeneration are outside the stationary model.
 const { Player, expFor } = await load("js/player.js");
 const { EnemyManager, HUB_KINDS, HUB_ELITES } = await load("js/enemy.js");
 const { ProjectileManager } = await load("js/projectiles.js");
@@ -258,6 +262,7 @@ function fight(hero, area, em, key, level, boss = false) {
     em.enemies = [];
     const e = boss ? em.spawnBoss(key, 30, 0, hero.level) : em.spawn(key, hero.level, 30, 0, null, "normal", level);
     if (!boss) { e.variant = null; e.element = e.kind.element || "neutral"; e.mods = []; }
+    e.weatherPower = weatherPower(WEATHER, e);
     return e;
   };
   const sample = spawn();
@@ -282,7 +287,7 @@ function fight(hero, area, em, key, level, boss = false) {
   const healPerSec = priest ? (60 * healPerUse(hero)) / fr.J : 0;
   const intakePerSec = (taken * 60) / MONSTER_CYCLE;
   const ttd = priest ? (intakePerSec > healPerSec ? hero.maxHp / (intakePerSec - healPerSec) : Infinity) : (hitsToDie * MONSTER_CYCLE) / 60;
-  return { key, level, hp, dmgJ: dmg.J, dps, ttk, monDmg: sample.damage, taken, hitsToDie, ttd, ratio: ttd / ttk, element: sample.element };
+  return { key, level, hp, dmgJ: dmg.J, dps, ttk, monDmg: Math.round(sample.damage * sample.weatherPower.damage), taken, hitsToDie, ttd, ratio: ttd / ttk, element: sample.element };
 }
 
 // ── Run ──────────────────────────────────────────────────────────────────────

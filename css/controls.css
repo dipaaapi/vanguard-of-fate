@@ -327,3 +327,59 @@ body[data-mode="play"] .premium-ad{overflow:hidden;min-height:104px;isolation:is
 @media(max-width:650px){#controlsTray #saSkills .skill[data-slot]{min-height:57px;padding:6px 2px 8px}#controlsTray #saSkills .skill[data-slot] .sa-name{font-size:8px}#controlsTray #saSkills .skill[data-slot] .sa-icon{font-size:22px}}
 @media(prefers-reduced-motion:reduce){#controlsTray #saSkills .skill.cooling .sa-icon{animation:none}#controlsTray .sa-cd{transition:none}}
 #controlsTray #saSkills .skill[data-slot].safe{opacity:.85}
+
+body[data-mode="play"] #sideHead{position:relative;overflow:hidden;padding:18px 8px 15px;text-align:center;font:bold clamp(16px,1.5vw,23px) Georgia,serif;letter-spacing:2px;color:#ffe3a6;background:radial-gradient(ellipse at center,#37506a66,transparent 80%),linear-gradient(120deg,#121e32,#080e1b);text-shadow:0 0 18px #d3a35255;border-bottom:1px solid #ac8e4e66}
+body[data-mode="play"] #sideHead:after{content:"";position:absolute;height:1px;bottom:6px;left:20%;right:20%;background:linear-gradient(90deg,transparent,#d4b879,transparent)}
+@media(max-height:650px){body[data-mode="play"] #sideHead{padding:11px 8px;font-size:18px}body[data-mode="play"] .premium-ad{min-height:82px}.hb-field{padding-top:10px!important;padding-bottom:10px!important}.hb-difficulty-row{margin-bottom:5px;padding-top:4px;padding-bottom:4px}}
+
+#sideOverview .side-map{min-height:0}#sideOverview .side-map #sideMap{height:100%;flex:1 1 0;min-height:70px}
+
+/* Weather observatory: bounded motion behind readable live conditions. */
+.hb-field{--weather-color:#cbd5e1;grid-template-columns:1fr 1fr!important;padding-right:14px!important;gap:12px!important;border-color:var(--weather-color)!important}
+.hb-field .field-orbit{right:16px;top:53px;opacity:.4;border-color:var(--weather-color);width:48px;height:48px;pointer-events:none}
+.hb-field .field-weather{grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid #ffffff12;border-bottom:1px solid #ffffff12}
+#hbWeatherIcon{position:relative;display:grid;place-items:center;flex:0 0 46px;height:46px;font:32px Georgia,serif;color:var(--weather-color);border:1px solid color-mix(in srgb,var(--weather-color) 40%,transparent);border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--weather-color) 20%,transparent),transparent);text-shadow:0 0 15px var(--weather-color);animation:weather-breathe 4s ease-in-out infinite}
+#hbWeatherName{display:block;font:600 16px Georgia,serif;letter-spacing:.6px;color:var(--weather-color)}
+.hb-field #hbWeather{font-size:10px;color:#b4c4d8}
+.hb-field .field-infected{grid-column:1/-1}.field-infected b{color:#c4b5fd;margin-left:5px}.field-infected .hb-k{color:#c4b5fd}
+#hbWeatherEffect{display:block;margin-top:7px;font:10px/1.65 Consolas,monospace;color:#b5c8dc;max-width:100%}
+.hb-field:after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.15;background:radial-gradient(ellipse at 80% 30%,var(--weather-color),transparent 65%);animation:weather-drift 9s ease-in-out infinite alternate}
+.hb-field[data-weather="rain"]:after,.hb-field[data-weather="storm"]:after{background:repeating-linear-gradient(110deg,transparent 0 28px,var(--weather-color) 29px 30px,transparent 31px 55px);animation:weather-rain 3s linear infinite}
+.hb-field[data-weather="blizzard"]:after,.hb-field[data-weather="spores"]:after{background:radial-gradient(circle,var(--weather-color) 1px,transparent 2px) 0 0/33px 29px;animation:weather-rain 8s linear infinite}
+.hb-field[data-weather="storm"] #hbWeatherIcon{animation:weather-flash 4s ease-in-out infinite}
+@keyframes weather-breathe{50%{box-shadow:0 0 19px color-mix(in srgb,var(--weather-color) 25%,transparent);transform:scale(1.06)}}
+@keyframes weather-flash{0%,90%,100%{opacity:1}92%,96%{opacity:.4}94%,98%{text-shadow:0 0 25px #fff}}
+@keyframes weather-drift{to{transform:translateX(-20px);opacity:.25}}
+@keyframes weather-rain{to{background-position:55px 58px}}
+@media(prefers-reduced-motion:reduce){.hb-field:after,#hbWeatherIcon{animation:none!important}}
+
+/* Game-screen compass; stays clear of the hero and disappears behind panels. */
+.compass-map{display:none;position:absolute;right:12px;top:12px;width:clamp(110px,14vw,184px);padding:0;border:0;border-radius:50%;background:transparent;color:#f6d99b;z-index:7;cursor:pointer;filter:drop-shadow(0 4px 8px #000b);transition:filter .2s,transform .2s}
+body[data-mode="play"] .compass-map{display:block}
+.compass-map #sideMap{width:100%;height:auto;max-width:none;aspect-ratio:1;margin:0}
+.compass-map:hover,.compass-map:focus-visible{filter:drop-shadow(0 0 8px #e8c57599);transform:scale(1.03);outline:1px solid #e8c575;outline-offset:2px}
+.compass-label{position:absolute;bottom:8%;left:20%;width:60%;font:9px/1.2 serif;letter-spacing:1px;text-transform:uppercase;text-shadow:0 1px 3px #000;background:#08101ed9;border-radius:8px;padding:2px 0}
+.compass-map kbd{position:absolute;right:9%;bottom:10%;font:9px monospace;background:#09111e;border:1px solid #957039;padding:1px 3px}
+#viewport.panel-open .compass-map,#viewport.guild-ceremony .compass-map{visibility:hidden;pointer-events:none}
+#premiumStatus{padding:6px 12px 12px}
+@media(max-width:600px){.compass-map{width:104px;right:6px;top:6px}.compass-label{font-size:8px}}
+.compass-map #sideMap{background:transparent;border-radius:50%}
+
+.ase-skill-icon{display:inline-block!important;width:40px!important;height:40px!important;flex:0 0 40px;background-size:300% 100%;background-repeat:no-repeat;image-rendering:pixelated;filter:drop-shadow(0 2px 3px #0009);border-radius:6px}
+.sa-btn.skill:hover .ase-skill-icon,.sa-btn.skill:focus-visible .ase-skill-icon{animation:skill-emblem .54s steps(3) infinite;filter:drop-shadow(0 0 5px #81d9ff88)}
+.sa-btn.skill.cooling .ase-skill-icon{filter:saturate(.45) brightness(.7)}
+.sb-card .ase-skill-icon{width:32px!important;height:32px!important;flex-basis:32px}
+@keyframes skill-emblem{to{background-position:150% 0}}
+@media(prefers-reduced-motion:reduce){.sa-btn.skill .ase-skill-icon{animation:none!important}}
+
+/* Full-bleed Aseprite skill cards, shared by heroes and playable NPCs. */
+#controlsTray #saSkills .skill[data-slot]{min-height:92px;display:flex;align-items:flex-end;justify-content:flex-start;padding:38px 8px 13px;isolation:isolate}
+#controlsTray #saSkills .skill[data-slot] .ase-skill-icon{position:absolute;inset:0;width:100%!important;height:100%!important;border-radius:0;z-index:-2;filter:none;opacity:.95;background-size:300% 100%;pointer-events:none}
+#controlsTray #saSkills .skill[data-slot]:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(0deg,#030b18f5 0%,#071224bb 30%,transparent 78%),linear-gradient(90deg,#07112477,transparent 65%)}
+#controlsTray #saSkills .skill[data-slot] .sa-name{white-space:normal;overflow:visible;text-overflow:clip;text-align:left;display:block;font:700 12px/1.18 Georgia,serif;color:#fff0c7;letter-spacing:.2px;text-shadow:0 2px 3px #000;max-width:100%;z-index:1}
+#controlsTray #saSkills .skill[data-slot] kbd{z-index:2;font-size:9px;background:#081323e8;border-color:#b69555;color:#f5d798}
+#controlsTray #saSkills .skill[data-slot].cooling .ase-skill-icon{filter:saturate(.4) brightness(.6);animation:none}
+#controlsTray #saSkills .skill[data-slot]:hover .ase-skill-icon{animation:skill-emblem .54s steps(3) infinite}
+#controlsTray #saSkills .skill[data-slot].safe:after{z-index:2}
+#controlsTray #saSkills .skill[data-slot].empty{min-height:92px}
+@media(max-width:650px){#controlsTray #saSkills .skill[data-slot]{min-height:76px;padding:26px 4px 13px}#controlsTray #saSkills .skill[data-slot] .sa-name{font-size:10px}}

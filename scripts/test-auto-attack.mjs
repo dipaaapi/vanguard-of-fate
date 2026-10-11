@@ -45,5 +45,18 @@ try {
   assert.equal(formatCoins(0), "0B");
   assert.equal(formatCoins(0.01), "1S");
   assert.equal(formatCoins(0.0001), "1B");
+  const refill = new Player(0,0,{id:"novice"});
+  refill.autoAttack={remainingMs:0,until:0};refill.bag.add("soulstone",3);
+  assert.equal(refill.toggleAutoAttack(),true);assert.equal(refill.bag.count("soulstone"),2);
+  assert.equal(refill.autoAttackTime(),600000);
+  now+=589999;assert.equal(refill.refillAutoAttack(),false);
+  now+=1;assert.equal(refill.refillAutoAttack(),true);
+  assert.equal(refill.autoAttackTime(),610000);assert.equal(refill.bag.count("soulstone"),1);
+  assert.equal(refill.refillAutoAttack(),false,"one stone per threshold crossing");
+  assert.equal(refill.toggleAutoAttack(),false);assert.equal(refill.bag.count("soulstone"),1,"turning off never consumes");
+  assert.equal(refill.refillAutoAttack(),false,"disabled auto never refills");
+  assert.equal(refill.toggleAutoAttack(),true);assert.equal(refill.bag.count("soulstone"),0,"Z consumes a stone on activation");
+  now=refill.autoAttack.until+1;assert.equal(refill.refillAutoAttack(),false);assert.equal(refill.autoAttackTime(),0);
+  assert.equal(refill.toggleAutoAttack(),false,"no stones and no time cannot start");
   console.log("Auto-attack timer, targeting, offline expiry, soulstones, and coin conversions passed.");
 } finally { Date.now = realNow; }

@@ -1,5 +1,7 @@
 import { Sound } from "./audio.js";
 import { npcName } from "./dialogue.js";
+import { t } from "./i18n.js";
+import { PLAYABLES } from "./playables.js";
 import { qt, bookText } from "./quest.js";
 
 // ==================== DIALOGUE BOX + QUEST TRACKER + QUEST LOG ====================
@@ -115,6 +117,7 @@ export class QuestHud {
     this.goalEl = document.getElementById("qtGoal");
     this.toastEl = root.querySelector("#questToast");
     this.logEl = root.querySelector("#questLog");
+    this.tab = "main";
     this.logOpen = false;
     this.last = "";
     this.toastTimer = null;
@@ -126,9 +129,28 @@ export class QuestHud {
   }
 
   update(quest, player, summonerName, mentorName) {
-    const { act, goal } = quest.text(player, summonerName, mentorName);
+    let { act, goal } = quest.text(player, summonerName, mentorName);
+    const active=this.context?.guildBook.state(player).active;
+    const contract=active?.priority!==false && active ? this.context.guildBook.objective(player) : null;
+    const selected=quest.side.selectedTask();
+    const party=this.context?.party?.(), npcQuest=party?.selectedQuest();
+    if(npcQuest){act=t("questNpc");goal=party.progressText(npcQuest,player.bag);}
+    else if(contract){
+      act=t("questGuild");
+      goal=`${this.context.guildPanel.objective(contract)} · ${active.have}/${contract.n}`;
+    }else if(selected){
+      act=`${t(selected.boat?"questBoat":"questSide")} · ${act}`;
+      goal=`${quest.side.title(selected)}: ${quest.side.text(selected)}`;
+    }else if(quest.side.mainPriority){
+      const story=quest.entries(player,summonerName,mentorName).find(e=>e.state==="current");
+      act=`${t("questMain")} · ${act}`;
+      if(story)goal=story.goal;
+      if(quest.gated())goal+=` · ${quest.side.hudLine()}`;
+    }
     const key = act + "|" + goal;
-    if (key === this.last) return;
+    const details=JSON.stringify([quest.side.serialize(),this.context?.guildBook.state(player).active,this.context?.party?.().book.serialize()]);
+    if (key === this.last && details===this.detailKey) return;
+    this.detailKey=details;
     this.last = key;
     this.actEl.textContent = act;
     this.goalEl.textContent = goal;
@@ -164,7 +186,7 @@ export class QuestHud {
     h.className = "ql-side-h";
     h.textContent = `${side.logTitle()} · ${p.done}/${p.total}`;
     box.appendChild(h);
-    side.list.forEach((q) => {
+    side.tasks().forEach((q) => {
       const done = q.have >= q.n;
       const row = document.createElement("div");
       row.className = "ql-row side " + (done ? "done" : "current");
@@ -186,42 +208,41 @@ export class QuestHud {
   }
 
   renderLog(quest, player, summonerName, mentorName) {
-    this.logEl.innerHTML = "";
-    const h = document.createElement("h3");
-    h.textContent = qt("log");
-    this.logEl.appendChild(h);
-    const sub = document.createElement("div");
-    sub.className = "ql-sub";
-    sub.textContent = `${bookText("one")} · ${qt("title")}`;
-    this.logEl.appendChild(sub);
-
-    const side = quest.side;
-    quest.entries(player, summonerName, mentorName).forEach((e) => {
-      const row = document.createElement("div");
-      row.className = "ql-row " + e.state;
-      const mark = document.createElement("span");
-      mark.className = "ql-mark";
-      mark.textContent = e.state === "done" ? "✔" : e.state === "current" ? "▸" : "·";
-      const body = document.createElement("div");
-      const a = document.createElement("div");
-      a.className = "ql-act";
-      a.textContent = e.act;
-      const g = document.createElement("div");
-      g.className = "ql-goal";
-      g.textContent = e.state === "locked" ? qt("locked") : e.goal;
-      body.append(a, g);
-      row.append(mark, body);
-      this.logEl.appendChild(row);
-      // The current Act's side quests, under the current step (the main quest waits for them)
-      if (e.state === "current" && side && side.list.length) this.renderSide(side);
-    });
-    const next = document.createElement("div");
-    next.className = "ql-book";
-    next.textContent = bookText("two");
-    this.logEl.appendChild(next);
-    const foot = document.createElement("div");
-    foot.className = "ql-foot";
-    foot.textContent = qt("close");
-    this.logEl.appendChild(foot);
+    const scroll=this.logEl.scrollTop;
+    this.logEl.textContent="";
+    const add=(parent,tag,cls,text)=>{const e=document.createElement(tag);e.className=cls;if(text!==undefined)e.textContent=text;parent.appendChild(e);return e;};
+    add(this.logEl,"h3","",t("questTypes"));
+    add(this.logEl,"p","ql-sub",t("questChooseHint"));
+    const tabs=add(this.logEl,"nav","ql-tabs");tabs.setAttribute("role","tablist");
+    for(const [id,key] of [["main","questMain"],["side","questSide"],["guild","questGuild"],["boat","questBoat"],["npc","questNpc"]]){
+      const b=add(tabs,"button",this.tab===id?"selected":"",t(key));b.type="button";b.setAttribute("role","tab");b.setAttribute("aria-selected",String(this.tab===id));b.onclick=()=>{this.tab=id;this.renderLog(quest,player,summonerName,mentorName);};
+    }
+    const content=add(this.logEl,"div","ql-cards");content.setAttribute("role","tabpanel");
+    const party=this.context?.party?.();
+    const refresh=()=>{this.context?.changed();this.last="";this.renderLog(quest,player,summonerName,mentorName);};
+    const card=(title,goal,state,selected,action,progress)=>{
+      const row=add(content,"article",`ql-card ${state}${selected?" selected":""}`);
+      add(row,"div","ql-act",title);add(row,"p","ql-goal",goal);
+      if(progress){const meter=add(row,"progress","ql-progress");meter.max=progress.n;meter.value=progress.have;meter.setAttribute("aria-label",`${progress.have}/${progress.n}`);add(row,"small","",`${progress.have}/${progress.n}`);}
+      if(action){const b=add(row,"button","ql-select",t(selected?"questFollowing":"questFollow"));b.type="button";b.onclick=()=>{action();refresh();};}
+    };
+    const active=this.context?.guildBook.state(player).active;
+    if(this.tab==="main")for(const e of quest.entries(player,summonerName,mentorName))card(e.act,e.state==="locked"?qt("locked"):e.goal,e.state,e.state==="current"&&!party?.selectedQuest()&&!quest.side.selectedTask()&&!active?.priority,e.state==="current"?()=>{party?.clearQuestPriority();quest.side.selected=null;quest.side.mainPriority=true;if(active)active.priority=false;}:null);
+    if(this.tab==="side"||this.tab==="boat")for(const q of (this.tab==="boat"?quest.side.boat.list:quest.side.list)){
+      const available=q.area==="hub" || quest.unlocked(q.area);
+      card(quest.side.title(q),quest.side.text(q),q.have>=q.n?"done":available?"current":"locked",quest.side.selectedTask()===q,q.have<q.n&&available?()=>{party?.clearQuestPriority();quest.side.select(q);if(active)active.priority=false;}:null,q);
+    }
+    if(this.tab==="guild"&&this.context){
+      const c=this.context.guildBook.objective(player);
+      if(c)card(t("questGuild"),this.context.guildPanel.objective(c),"current",active.priority!==false,()=>{party?.clearQuestPriority();active.priority=true;quest.side.selected=null;quest.side.mainPriority=false;},{have:active.have,n:c.n});
+      const b=add(content,"button","ql-select",t("questBrowseGuild"));b.type="button";b.onclick=()=>{this.closeLog();this.context.guildPanel.show("guildClerk",player,this.context.guildContext());};
+    }
+    if(this.tab==="npc" && party)for(const [id,def] of Object.entries(PLAYABLES)){
+      const q=party.book.state[id];if(!q.started && !q.recruited)continue;
+      card(def.label[0],party.progressText(id,player.bag),q.recruited?"done":"current",party.selectedQuest()===id,!q.recruited?()=>{party.selectQuest(id);quest.side.selected=null;quest.side.mainPriority=false;if(active)active.priority=false;}:null,{have:q.progress,n:Math.max(1,def.required)});
+    }
+    if(!content.children.length)add(content,"p","ql-empty",t("questEmpty"));
+    add(this.logEl,"div","ql-foot",qt("close"));
+    this.logEl.scrollTop=scroll;
   }
 }

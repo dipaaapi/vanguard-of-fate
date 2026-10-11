@@ -78,7 +78,7 @@ function makeBasePlayableKit(id, avatar) {
 export class PlayableQuestBook {
   constructor(saved = {}) {
     this.state = Object.fromEntries(PLAYABLE_IDS.map(id => [id, {
-      started: Boolean(saved[id]?.started), recruited: Boolean(saved[id]?.recruited), progress: Math.max(0, saved[id]?.progress | 0),
+      priority: Boolean(saved[id]?.priority), started: Boolean(saved[id]?.started), recruited: Boolean(saved[id]?.recruited), progress: Math.max(0, saved[id]?.progress | 0),
       bossProof: Boolean(saved[id]?.bossProof), systems: Object.fromEntries((PLAYABLES[id].systems || []).map(key => [key, Boolean(saved[id]?.systems?.[key])]))
     }]));
   }

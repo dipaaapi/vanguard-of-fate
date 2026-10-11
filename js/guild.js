@@ -1,3 +1,4 @@
+import { economyProfile, expMult } from "./regression.js";
 import { GUILD_RANKS, GUILD_LEVELS, GUILD_AREAS, GUILD_NPCS } from "./guilddata.js";
 import { areaDef } from "./world/areas.js";
 import { CLASS_KIT, describe } from "./items/itemdb.js";
@@ -5,7 +6,7 @@ import { Bag } from "./items/bag.js";
 import { findSkill } from "./skills.js";
 
 export const GUILD_REGISTRATION = 200; // Gold units: 2 platinum, first plate included.
-export const guildState = () => ({ member: false, rank: "G", role: "frontliner", platePrice: GUILD_REGISTRATION, completed: 0, claimed: [], active: null });
+export const guildState = () => ({ member: false, heroCertified: false, rank: "G", role: "frontliner", platePrice: GUILD_REGISTRATION, completed: 0, claimed: [], active: null });
 export function guildAssessment(p) {
   const skills = Object.entries(p.skillLevels || {});
   const learned = skills.reduce((n, [, lv]) => n + lv, 0);
@@ -38,7 +39,20 @@ export function guildContracts(cls = "knight") {
       : j === 6 ? { gold: 40 * (i + 1), items: [weapon, caster ? "robe" : "mail", caster ? "wizhat" : "helm", "boots"].map(base => ({ id: `${base}@${grade}`, qty: 1, set: "meridian" })) }
       : j === 7 ? { gold: 60 * (i + 1), items: [{ id: `ring@${grade}`, qty: 1, rarity: i >= 7 ? "legendary" : "epic" }, { id: `brooch@${grade}`, qty: 1, rarity: "epic" }] }
       : { items: [{ id: `${weapon}@${grade}`, qty: 1, rarity: i >= 8 ? "mythical" : i >= 5 ? "legendary" : "epic" }] };
+    if(reward.gold)reward.gold=Math.round(reward.gold*2*economyProfile().coins);
+    if(reward.exp)reward.exp=Math.round(reward.exp*expMult());
     return { id: `${rank}:${j}`, rank, area, t, source, item, npc: "guildScout", k: 0, waves: 2 + Math.floor(i / 3), n: ["escort", "mvp"].includes(t) ? 1 : t === "champion" ? 2 + Math.floor(i / 2) : 4 + i * 2 + j, reward };
+  })).concat(GUILD_RANKS.flatMap((rank,i)=>[
+    {id:`${rank}:dungeon`,rank,area:"guildDungeon",t:"dungeon",n:6+i*2,reward:{gold:Math.round(80*(i+1)*economyProfile().coins),exp:Math.round(250*(i+1)**2*expMult())}},
+    {id:`${rank}:dungeonBoss`,rank,area:"guildDungeon",t:"dungeonBoss",n:1,reward:{gold:Math.round(120*(i+1)*economyProfile().coins),exp:Math.round(400*(i+1)**2*expMult())}}
+  ])).concat(GUILD_RANKS.flatMap((rank,i)=>{
+    const [area,common,rare]=[
+      ["port","mackerel","pearlSnapper"], ["canopy","mudcarp","lotusKoi"], ["swamp","mudcarp","mossCatfish"],
+      ["coast","squid","pearlSnapper"], ["frost","trout","crystalChar"], ["ash","eel","cinderfin"],
+      ["coast","mackerel","pearlSnapper"], ["frost","trout","crystalChar"], ["ash","eel","cinderfin"], ["maw","angler","starAngler"]
+    ][i];
+    return [common,rare].map((item,j)=>({id:`${rank}:fish${j}`,rank,area,t:"gather",source:"fish",item,n:j?2+Math.floor(i/3):5+Math.floor(i/2),
+      reward:{gold:Math.round((j?100:60)*(i+1)*economyProfile().coins),exp:Math.round((j?200:120)*(i+1)*expMult()),items:[{id:"rockSalt",qty:2+j}]}}));
   }));
 }
 export class GuildBook {
@@ -63,16 +77,35 @@ export class GuildBook {
     if (p.gold < GUILD_REGISTRATION) return { error: "funds" };
     if (!p.bag.add("guildPlate")) return { error: "full" };
     const assessment = guildAssessment(p);
-    Object.assign(s, { rank: assessment.rank, role: assessment.role, member: true, platePrice: GUILD_REGISTRATION });
+    Object.assign(s, { rank: GUILD_RANKS[Math.min(8,GUILD_RANKS.indexOf(assessment.rank))], role: assessment.role, member: true, platePrice: GUILD_REGISTRATION });
     p.gold = Math.round((p.gold - GUILD_REGISTRATION) * 10000) / 10000;
     return { joined: true, rank: s.rank, role: s.role };
   }
   reassess(p, ctx) {
     const error = this.access(p, ctx, "guildMaster"); if (error) return { error };
     const s = this.state(p), a = guildAssessment(p);
-    const index = Math.max(GUILD_RANKS.indexOf(s.rank), Math.min(GUILD_RANKS.indexOf(a.rank), Math.floor(s.completed / 2)));
+    let index = GUILD_RANKS.indexOf(s.rank);
+    const ability = GUILD_RANKS.indexOf(a.rank);
+    while(index<9 && index<ability && s.completed >= (index+1)*2 && ["dungeon","dungeonBoss"].every(t=>s.claimed.includes(`${GUILD_RANKS[index]}:${t}`))) index++;
+    // Even a legacy SSS plate needs witnessed dungeon proof before the hero title is certified.
+    if(index===9 && ["dungeon","dungeonBoss"].every(t=>s.claimed.includes(`SS:${t}`))) s.heroCertified=true;
     s.rank = GUILD_RANKS[index]; s.role = a.role;
     return { rank: s.rank, role: s.role };
+  }
+  nextTrial(p) {
+    const s=this.state(p),rank=s.rank==="SSS"?"SS":s.rank;
+    const trials=guildContracts(p.heroData.id).filter(c=>["dungeon","dungeonBoss"].includes(c.t) && GUILD_RANKS.indexOf(c.rank)<=GUILD_RANKS.indexOf(rank) && !s.claimed.includes(c.id));
+    return trials.find(c=>c.rank===rank) || (s.completed < (GUILD_RANKS.indexOf(rank)+1)*2 ? trials[0] : null);
+  }
+  heroAutoGoal(p,ctx) {
+    if(!ctx.quest.heroTrialPending?.() || this.state(p).active)return null;
+    const s=this.state(p),trial=this.nextTrial(p);
+    if(s.member && !trial && s.rank!=="SSS" && GUILD_RANKS.indexOf(guildAssessment(p).rank)<=GUILD_RANKS.indexOf(s.rank)) {
+      return ctx.stage.id!=="chainspire" ? {destination:"chainspire"} : {status:"search",objective:null};
+    }
+    if(ctx.stage.id!=="hub")return {destination:"hub"};
+    const npc=ctx.npcs.find(!s.member || !trial ? "guildMaster" : "guildClerk");
+    return npc ? {status:"talk",point:{x:npc.x+10,y:npc.y+20},radius:24,npc} : {status:"waiting"};
   }
   replacementPrice(p) { return Math.min(Number.MAX_SAFE_INTEGER, this.state(p).platePrice * 2); }
   replacePlate(p, ctx) {
@@ -102,11 +135,17 @@ export class GuildBook {
   }
   contract(p, id) { return guildContracts(p.heroData.id).find(c => c.id === id); }
   accept(p, ctx, id) {
-    const error = this.access(p, ctx, "guildClerk"); if (error) return { error };
+    // The journal exposes the contract board remotely; registration/rewards still use guild staff.
+    if (!this.available(ctx.quest)) return { error: "locked" };
+    if (!this.state(p).member) return { error: "notMember" };
+    if (!p.bag.has("guildPlate")) return { error: "noPlate" };
     const s = this.state(p), c = this.contract(p, id);
     if (s.active) return { error: "busy" };
     if (!c || s.claimed.includes(id) || GUILD_RANKS.indexOf(c.rank) > GUILD_RANKS.indexOf(s.rank) || c.area !== "hub" && !ctx.quest.unlocked(c.area)) return { error: "unavailable" };
-    s.active = { id, have: 0, cls: p.heroData.id, priority: true }; return {};
+    s.active = { id, have: 0, cls: p.heroData.id, priority: true };
+    ctx.quest.npcClearPriority?.();
+    if(ctx.quest.side){ctx.quest.side.selected=null;ctx.quest.side.mainPriority=false;}
+    return {};
   }
   abandon(p, ctx) {
     const error = this.access(p, ctx, "guildClerk"); if (error) return { error };
@@ -115,6 +154,10 @@ export class GuildBook {
   objective(p) { const a = this.state(p).active; return a && guildContracts(a.cls).find(c => c.id === a.id); }
   progress(p, area, enemy = null, position = null) {
     const a = this.state(p).active, c = this.objective(p); if (!c || c.area !== area || a.have >= c.n) return false;
+    if (["dungeon","dungeonBoss"].includes(c.t)) {
+      if (!enemy || enemy.minionOf === "summon" || enemy.guildContract !== c.id || Boolean(enemy.boss) !== (c.t === "dungeonBoss")) return false;
+      a.have++;if(a.have===c.n)this.onReady?.();return true;
+    }
     let hit = enemy && enemy.minionOf !== "summon" && (c.t === "mvp" ? enemy.boss || enemy.guildMvp : !enemy.boss && !enemy.guildMvp && (c.t === "cull" ? !enemy.elite && !enemy.champion : c.t === "champion" && (enemy.champion || enemy.elite)));
     if (c.t === "scout" && position) {
       const site = areaDef(area)?.sites?.[c.k];
@@ -157,6 +200,7 @@ export class GuildBook {
     const valid = new Set(guildContracts(p.heroData.id).map(c => c.id));
     s.claimed = [...new Set((Array.isArray(data.claimed) ? data.claimed : []).filter(id => valid.has(id)))];
     s.completed = s.claimed.length;
+    s.heroCertified = s.rank === "SSS" && data.heroCertified === true && ["dungeon","dungeonBoss"].every(t=>s.claimed.includes(`SS:${t}`));
     if (data.active && valid.has(data.active.id) && !s.claimed.includes(data.active.id)) {
       const cls = CLASS_KIT[data.active.cls] ? data.active.cls : p.heroData.id;
       const c = guildContracts(cls).find(c => c.id === data.active.id);

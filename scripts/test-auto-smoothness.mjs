@@ -29,7 +29,7 @@ const first={x:40,y:40},second={x:40,y:40};
 assert.equal(autoSummonLoot(first,owner,manager,loot,null,stage,{fly:true}),true,'passive enemies must not starve collection');
 assert.equal(autoSummonLoot(second,owner,manager,loot,null,stage,{fly:true}),true);
 assert.notEqual(first.autoLootTarget,second.autoLootTarget,'collectors divide the drops');
-manager.enemies.push(attacker);
+manager.enemies.push(attacker);first.cd=0;
 assert.equal(autoSummonLoot(first,owner,manager,loot,null,stage,{fly:true}),false);
 assert.equal(first.autoLootTarget,null,'attacks interrupt collection immediately');
 const priest=new Player(40,40,{id:'priest'});const guardian=new Angel(65,40,100);guardian.hp=5;guardian.state='TAUNTING';guardian.stateTimer=1;

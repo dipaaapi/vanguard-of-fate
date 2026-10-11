@@ -1,3 +1,4 @@
+import { economyProfile, expMult, regression, difficultyName } from "./regression.js";
 import { getLang } from "./i18n.js";
 import { MONSTERS } from "./bestiary.js";
 import { areaDef, areaName, areaLevels, actAreas } from "./world/areas.js";
@@ -60,12 +61,39 @@ export class SideQuests {
     this.seed = (Math.random() * 0x7fffffff) | 0;
     this.act = 0;
     this.list = [];
+    this.selected = null;
+    this.mainPriority = false;
+    this.boat = { accepted: false, permit: false, level: regression.level, list: [] };
+  }
+
+  boatTasks(level = regression.level) {
+    const task = (t, n, k) => ({ t, n, k, area: "coast", have: 0, boat: true });
+    return [
+      [task("scout", 1, 1)],
+      [task("cull", 8)],
+      [task("scout", 1, 0), task("trophy", 5, "mariner")],
+      [task("sky", 8), task("elite", 1, "siren")],
+      [task("scout", 1, 2), task("champion", 4), task("elite", 1, "drownedCaptain")],
+      [task("scout", 1, 0), task("trophy", 10, "coralGolem"), task("elite", 1, "drownedCaptain"), task("elite", 1, "abyssalKraken")]
+    ][Math.max(0, Math.min(5, level))];
+  }
+
+  tasks() { return [...this.list, ...this.boat.list]; }
+  boatCurrent() { const selected=this.selectedTask();return selected?.boat ? selected : this.boat.list.find(q => q.have < q.n) || null; }
+  boatReady() { return this.boat.accepted && !this.boatCurrent(); }
+  boatTalk() {
+    if (!this.boat.accepted) { this.boat.accepted = true; this.boat.level = regression.level; this.boat.list = this.boatTasks(); }
+    else if (this.boatReady()) this.boat.permit = true;
+    const fil = L() === "fil";
+    if (this.boat.permit) return fil ? "Aprubado ang iyong pahintulot sa paglalayag. Maaari mo nang gamitin ang barko; kailangan pa rin ng Monolith ang apat na Seal Stone." : "Your sailing permit is approved. You may use the ship; the Monolith still requires all four Seal Stones.";
+    return `${fil ? "Pagsubok ni Kapitana Isolde" : "Captain Isolde's sailing trial"} · ${difficultyName(this.boat.level)}: ${this.boat.list.map(q => this.text(q)).join("; ")}. ${fil ? "Bumalik sa akin kapag tapos na." : "Return to me when finished."}`;
   }
 
   // Roll the board for an Act (kept if it is already that Act's board)
   ensure(act) {
     if (act === this.act) return;
     this.act = act;
+    this.selected = null;
     this.list = act >= 2 && act <= 15 ? this.roll(act) : [];
   }
 
@@ -102,12 +130,21 @@ export class SideQuests {
   }
 
   serialize() {
-    return { seed: this.seed, act: this.act, list: this.list.map((q) => ({ ...q })) };
+    return { seed: this.seed, act: this.act, list: this.list.map((q) => ({ ...q })), boat: this.boat, selected: this.selected, mainPriority: this.mainPriority };
   }
 
   // From a save; anything malformed is rolled again for the Act
   load(data, act) {
     this.reset();
+    if (data?.boat?.accepted) {
+      this.boat.accepted = true;
+      this.boat.level = regression.level;
+      this.boat.list = this.boatTasks().map((q, i) => {
+        const saved = data.boat.level === regression.level && data.boat.list?.[i];
+        return saved && saved.t === q.t && saved.k === q.k ? { ...q, have: Math.max(0, Math.min(q.n, saved.have | 0)) } : q;
+      });
+      this.boat.permit = data.boat.level === regression.level && data.boat.permit === true && this.boatReady();
+    }
     if (data && Number.isInteger(data.seed)) this.seed = data.seed;
     if (data && data.act === act && Array.isArray(data.list)) {
       this.act = act;
@@ -118,6 +155,8 @@ export class SideQuests {
         return s && s.t === q.t && s.area === q.area && s.k === q.k ? { ...q, have: Math.max(0, Math.min(q.n, s.have | 0)) } : q;
       });
     } else this.ensure(act);
+    this.mainPriority=data?.mainPriority===true;
+    if(Number.isInteger(data?.selected) && this.tasks()[data.selected]?.have < this.tasks()[data.selected]?.n)this.selected=data.selected;
   }
 
   complete() {
@@ -130,14 +169,17 @@ export class SideQuests {
 
   // The first unfinished side quest (the one the HUD and the arrow follow)
   current() {
-    return this.list.find((q) => q.have < q.n) || null;
+    return this.selectedTask() || this.list.find((q) => q.have < q.n) || null;
   }
+
+  selectedTask() { const q=this.tasks()[this.selected];return this.selected !== null && q && q.have < q.n ? q : null; }
+  select(q) { const i=this.tasks().indexOf(q);if(i<0 || q.have>=q.n)return false;this.selected=i;this.mainPriority=false;return true; }
 
   // A monster died on map areaId. Returns [{ q, trophy, finished }] for the messages.
   onKill(e, areaId) {
     const out = [];
     if (!e || e.boss || e.minionOf === "summon") return out;
-    this.list.forEach((q) => {
+    this.tasks().forEach((q) => {
       if (q.have >= q.n || q.area !== areaId) return;
       let hit = false, trophy = false;
       if (q.t === "hunt") hit = e.key === q.k;
@@ -156,7 +198,7 @@ export class SideQuests {
   // The hero walked on map areaId: scouting sites. Returns the quests finished now.
   onMove(areaId, x, y) {
     const out = [];
-    this.list.forEach((q) => {
+    this.tasks().forEach((q) => {
       if (q.t !== "scout" || q.have >= q.n || q.area !== areaId) return;
       const s = this.site(q);
       if (s && Math.hypot(x - s.x, y - s.y) < SCOUT_RANGE) { q.have = q.n; out.push({ q, finished: true }); }
@@ -171,13 +213,13 @@ export class SideQuests {
 
   // Sites still to scout on a map (for the markers on the ground and the maps)
   pendingSites(areaId) {
-    return this.list.filter((q) => q.t === "scout" && q.area === areaId && q.have < q.n).map((q) => this.site(q)).filter(Boolean);
+    return this.tasks().filter((q) => q.t === "scout" && q.area === areaId && q.have < q.n).map((q) => this.site(q)).filter(Boolean);
   }
 
   // Unfinished side quests per map (for the world map)
   openByArea() {
     const out = {};
-    this.list.forEach((q) => { if (q.have < q.n) out[q.area] = (out[q.area] || 0) + 1; });
+    this.tasks().forEach((q) => { if (q.have < q.n) out[q.area] = (out[q.area] || 0) + 1; });
     return out;
   }
 
@@ -186,7 +228,7 @@ export class SideQuests {
     const [lo, hi] = areaLevels(q.area);
     const lvl = Math.round((lo + hi) / 2);
     const mult = q.t === "elite" || q.t === "champion" ? 1.6 : q.t === "scout" ? 0.8 : 1;
-    return { exp: Math.round((25 + lvl * 8) * 3 * mult), gold: Math.round((12 + lvl * 4) * mult) };
+    return { exp: Math.round((25 + lvl * 8) * 3 * mult * expMult()), gold: Math.round((12 + lvl * 4) * 2 * mult * economyProfile().coins) };
   }
 
   monsterName(q) {
@@ -194,7 +236,7 @@ export class SideQuests {
   }
 
   title(q) {
-    return st("title")[q.t];
+    return `${q.boat ? (L() === "fil" ? "Pahintulot sa Paglalayag · " : "Sailing Permit · ") : ""}${st("title")[q.t]}`;
   }
 
   // "Hunt 8 Dune Scarab in the Sunscorch Dunes (3/8)"

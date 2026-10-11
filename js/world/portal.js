@@ -74,6 +74,7 @@ export class PortalSystem {
 
     // 4 Celestial Warp Gateways. dest = platform id (see js/world/platforms.js)
     this.portals = [
+      {id:"GUILD_DUNGEON",dest:"guildDungeon",dir:"horizontal",x:1050,y:this.worldHeight-46,w:58,h:22,color:"#d8b46c"},
       { id: "NORTH", dest: "frost", dir: "horizontal", x: Math.round(this.worldWidth / 2), y: 46, w: 58, h: 22, color: "#bfe9ff" },
       { id: "SOUTH", dest: "ash", dir: "horizontal", x: Math.round(this.worldWidth / 2), y: this.worldHeight - 46, w: 58, h: 22, color: "#ff7a1a" },
       { id: "WEST", dest: "coast", dir: "vertical", x: 48, y: Math.round(this.worldHeight / 2), w: 22, h: 58, color: "#38bdf8" },
@@ -89,7 +90,7 @@ export class PortalSystem {
   exitPoint(id) {
     const p = this.portals.find((q) => q.id === id);
     if (!p) return { x: this.worldWidth / 2, y: this.worldHeight / 2 };
-    const inward = { NORTH: [0, 44], SOUTH: [0, -56], WEST: [44, -10], EAST: [-60, -10], BADLANDS: [0, -56] }[p.id];
+    const inward = { NORTH: [0, 44], SOUTH: [0, -56], WEST: [44, -10], EAST: [-60, -10], BADLANDS: [0, -56], GUILD_DUNGEON: [0, -56] }[p.id];
     return { x: p.x + inward[0] - 10, y: p.y + inward[1] - 12 };
   }
 

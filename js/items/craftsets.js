@@ -1,3 +1,4 @@
+import { economyProfile } from "../regression.js";
 // ==================== CRAFTED SETS (tables) ====================
 // Equipment no longer drops from monsters. Monsters drop crafting materials instead, and the hero
 // crafts gear at any safe zone (Barracks, the Citadel dais, a platform camp) — see js/items/crafting.js.
@@ -136,15 +137,16 @@ export function rollMaterials(info = {}, dm = 1, rnd = Math.random) {
   const D = DROPS[info.tier] || (info.boss ? DROPS.mvp : DROPS.normal);
   const c = CRAFT_TIERS[tierOfLevel(info.level || 1) - 1];
   const out = [];
+  const amount = n => Math.max(1,Math.round(n*economyProfile().materials));
   const between = (a, b) => a + Math.floor(rnd() * (b - a + 1));
-  if (rnd() < D.ore[0] * dm) out.push({ id: c.ore, qty: between(D.ore[1], D.ore[2]) });
+  if (rnd() < D.ore[0] * dm) out.push({ id: c.ore, qty: amount(between(D.ore[1], D.ore[2])) });
   if (rnd() < D.essence * dm) {
     // the element decides half the time, so every Act still yields all three essences (transmute evens out the rest)
     const random = PATHS[["str", "dex", "int"][Math.floor(rnd() * 3)]].essence;
     const pick = ESSENCE_OF[info.element] && rnd() < 0.5 ? ESSENCE_OF[info.element] : random;
-    out.push({ id: pick, qty: D.essenceQty || 1 });
+    out.push({ id: pick, qty: amount(D.essenceQty || 1) });
   }
-  if (rnd() < D.core * dm) out.push({ id: c.core, qty: D.coreQty || 1 });
+  if (rnd() < D.core * dm) out.push({ id: c.core, qty: amount(D.coreQty || 1) });
   const kind = DROPS[info.tier] ? info.tier : info.boss ? "mvp" : "normal";
   if (c.tier < CRAFT_TIERS.length && c.tier >= (NEXT_FROM_TIER[kind] || Infinity)) {
     const n = CRAFT_TIERS[c.tier];
@@ -181,7 +183,7 @@ export function recipeFor(setId, slot) {
     [c.ore]: Math.ceil(ORE_QTY[i] * k),
     ...(cores ? { [c.core]: cores } : {}),
     [PATHS[s.path].essence]: Math.ceil(ESS_QTY[i] * k),
-    gold: Math.round(GOLD[i] * k)
+    gold: Math.round(GOLD[i] * k * economyProfile().coins)
   };
 }
 

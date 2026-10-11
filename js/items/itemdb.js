@@ -1,3 +1,4 @@
+import { economyProfile } from "../regression.js";
 import { getLang } from "../i18n.js";
 import { CRAFT_ITEMS, CRAFT_SETS, rollMaterials } from "./craftsets.js";
 import { FOOD_ITEMS } from "./cooking.js";
@@ -172,8 +173,8 @@ const OTHER = {
   shardRapid: { type: "consume", icon: "shard", tint: "#facc15", price: 8, effect: { buff: "atkSpeed", time: 420 }, name: N("Rapid Shard", "Shard ng Bilis ng Atake"), desc: N("Double attack speed for 7s.", "Dobleng bilis ng atake sa 7s.") },
   shardSwift: { type: "consume", icon: "shard", tint: "#38bdf8", price: 8, effect: { buff: "moveSpeed", time: 420 }, name: N("Swift Shard", "Shard ng Takbo"), desc: N("+25% move speed for 7s.", "+25% bilis ng lakad sa 7s.") },
   shardGhost: { type: "consume", icon: "shard", tint: "#a855f7", price: 8, effect: { buff: "invis", time: 360 }, name: N("Ghost Shard", "Shard ng Multo"), desc: N("Near-invisible for 6s.", "Halos di-makita sa 6s.") },
-  monsterShard: { type: "material", icon: "ore", tint: "#94a3b8", price: 4, name: N("Monster Shard", "Monster Shard"), desc: N("Refine material (+1 to +5).", "Pang-refine (+1 hanggang +5).") },
-  voidCrystal:  { type: "material", icon: "crystal", tint: "#a855f7", price: 20, name: N("Void Crystal", "Kristal ng Void"), desc: N("Purified miasma ore. Needed from +6 to +10.", "Nilinis na mineral ng miasma. Kailangan mula +6 hanggang +10.") },
+  monsterShard: { type: "material", icon: "ore", tint: "#94a3b8", price: 4, name: N("Monster Shard", "Monster Shard"), desc: N("Refine material (+1 to +5). Also found while mining Guild Dungeon veins.", "Pang-refine (+1 hanggang +5). Matatagpuan din sa pagmimina sa Guild Dungeon.") },
+  voidCrystal:  { type: "material", icon: "crystal", tint: "#a855f7", price: 20, name: N("Void Crystal", "Kristal ng Void"), desc: N("Purified miasma ore for higher refinements. Rare find in Guild Dungeon veins; deeper deposits and higher hero levels improve the chance.", "Nilinis na mineral ng miasma para sa mas mataas na refine. Bihirang makita sa Guild Dungeon; mas malalim na deposito at mas mataas na antas ng bayani ang nagpapataas ng tsansa.") },
   heartstone:   { type: "quest", icon: "heart", tint: "#ef4444", name: N("Blighted Heartstone", "Bulok na Heartstone"), desc: N("Malakor's shattered heart. Bring it to your summoner.", "Ang basag na puso ni Malakor. Dalhin sa tagapagtawag.") },
   abyssHelm:    { type: "quest", icon: "shell", tint: "#38bdf8", name: N("Abyssal Helm Shard", "Piraso ng Abyssal Helm"), desc: N("Broken from the Leviathan Regent's crown.", "Nabasag mula sa korona ng Leviathan Regent.") },
   cryoCore:     { type: "quest", icon: "crystal", tint: "#bfe9ff", name: N("Cryonix Core", "Core ni Cryonix"), desc: N("The fractured heart of the Frost Empress.", "Ang basag na puso ng Frost Empress.") },
@@ -195,6 +196,27 @@ const OTHER = {
 Object.assign(OTHER, CRAFT_ITEMS, FOOD_ITEMS);
 
 // ---------- CARDS (Ragnarok) — one per monster and boss ----------
+// Bottle sizes share cooldown families; original IDs remain the medium bottles for old saves.
+const BOTTLE_SIZES = [
+ {id:"Small",name:N("Small","Maliit"),icon:"potionSmall",cd:90,red:[25,.04,6],white:[80,.12,18],stamina:.5,fresh:300,tonicPrice:7},
+ {id:"",name:N("Medium","Katamtaman"),icon:"potion",cd:150,red:[40,.06,10],white:[150,.2,30],stamina:1,fresh:600,tonicPrice:12},
+ {id:"Large",name:N("Large","Malaki"),icon:"potionLarge",cd:240,red:[120,.15,26],white:[350,.4,65],stamina:1,fresh:1200,tonicPrice:24}
+];
+export const HEALING_BOTTLES = [];
+export const STAMINA_BOTTLES = [];
+for (const size of BOTTLE_SIZES) {
+ for (const [base,color,tint,values] of [["salve",N("Red Potion","Pulang Potion"),"#ef4444",size.red],["elixir",N("White Potion","Puting Potion"),"#f8fafc",size.white]]) {
+  const [heal,pct,price]=values,id=base+size.id;HEALING_BOTTLES.push(id);
+  OTHER[id]={type:"consume",icon:size.icon,tint,price,effect:{heal,healPct:pct,cooldown:size.cd},
+   name:N(`${size.name.en} ${color.en}`,`${size.name.fil} na ${color.fil}`),
+   desc:N(`Restores ${heal} HP or ${pct*100}% of max HP, whichever is more. Shared healing cooldown: ${size.cd/60}s.`,`Nagbabalik ng ${heal} HP o ${pct*100}% ng max HP, alinman ang mas marami. Iisang cooldown sa pagpapagaling: ${size.cd/60}s.`)};
+ }
+ const id="tonic"+size.id;STAMINA_BOTTLES.push(id);
+ OTHER[id]={type:"consume",icon:size.icon,tint:"#facc15",price:size.tonicPrice,effect:{stamina:1,staminaPct:size.stamina,fresh:size.fresh,cooldown:size.cd},
+  name:N(`${size.name.en} Stamina Tonic`,`${size.name.fil} na Tonic ng Lakas`),
+  desc:N(`Restores ${size.stamina*100}% of max stamina; no fatigue for ${size.fresh/60}s. Shared tonic cooldown: ${size.cd/60}s.`,`Nagbabalik ng ${size.stamina*100}% ng max stamina; walang pagod sa ${size.fresh/60}s. Iisang cooldown ng tonic: ${size.cd/60}s.`)};
+}
+
 const CARDS = {
   slime: { n: N("Slime", "Slime"), stats: { hp: 20 } },
   wolf: { n: N("Dire Wolf", "Mabangis na Lobo"), stats: { atk: 6 } },
@@ -452,7 +474,7 @@ export function describe(inst) {
       baseName: e.name[L], sockets: slots, cards: inst.cards || [], set: set ? inst.set : null, temper: inst.temper || 0,
       reqLevel: set && set.level ? set.level : 0,
       // value by grade and rarity (shops pay a share of it, js/items/economy.js; repairs cost a share too)
-      price: Math.round(12 * (1 + grade) * (1 + plus * 0.3) * (rarity === "set" ? 8 : rarity === "unique" ? 6 : rarity === "rare" ? 3 : rarity === "magic" ? 1.6 : 1)),
+      price: Math.round(18 * (1 + grade) ** 1.5 * (1 + plus * 0.08) * ({normal:1,magic:1.4,rare:2,epic:3,legendary:5,mythical:8,set:4,unique:5}[rarity] || 1)),
       name: `${plus ? `+${plus} ` : ""}${name}${slots ? ` [${slots}]` : ""}`,
       desc: e.hands === 2 ? (L === "fil" ? "Dalawang kamay: ila-lock ang offhand." : "Two-handed: locks the off-hand slot.") : ""
     };
@@ -499,7 +521,7 @@ export function upgradeCost(item) {
   return {
     shards: next <= 5 ? next * 2 : 10,
     crystals: next <= 5 ? 0 : Math.ceil((next - 5) / 2),     // +6/+7: 1 · +8/+9: 2 · +10: 3
-    gold: 15 * next * (1 + item.grade)
+    gold: Math.ceil(60 * next * next * (1 + item.grade) * economyProfile().trade)
   };
 }
 
@@ -518,10 +540,10 @@ const pick = (arr, rnd) => arr[Math.floor(rnd() * arr.length)];
 // Equipment is no longer dropped (it is crafted at a safe zone): the equipment roll became crafting
 // materials (js/items/craftsets.js rollMaterials: ores, cores, path essences, cooking ingredients).
 const LOOT_TIERS = {
-  normal:   { rolls: 1, card: 0.008, crystals: 0, shards: 0 },
-  champion: { rolls: 2, card: 0.03,  crystals: 0, shards: 1 },
-  elite:    { rolls: 3, card: 0.08,  crystals: 1, shards: 2 },
-  mvp:      { rolls: 4, card: 0.35,  crystals: 3, shards: 4 }
+  normal:   { rolls: 1, card: 0.003, crystals: 0, shards: 0 },
+  champion: { rolls: 2, card: 0.015,  crystals: 0, shards: 1 },
+  elite:    { rolls: 3, card: 0.03,  crystals: 1, shards: 2 },
+  mvp:      { rolls: 4, card: 0.15,  crystals: 3, shards: 4 }
 };
 
 // Level difference: less from weak monsters (grey), more from strong ones (red)
@@ -533,8 +555,8 @@ function rollConsumable(grade, rnd) {
   const crystal = 0.025 * (1 + grade * 0.5);
   if (r < 0.24) return { id: "monsterShard", qty: 1 + Math.floor(rnd() * 2) };
   if (r < 0.32) return { id: "herb", qty: 1 };
-  if (r < 0.40) return { id: "salve", qty: 1 };
-  if (r < 0.45) return { id: "tonic", qty: 1 };
+  if (r < 0.40) return { id: grade >= 5 ? "salveLarge" : grade >= 2 ? "salve" : "salveSmall", qty: 1 };
+  if (r < 0.45) return { id: grade >= 5 ? "tonicLarge" : grade >= 2 ? "tonic" : "tonicSmall", qty: 1 };
   if (r < 0.52) return { id: pick(["shardPower", "shardRapid", "shardSwift", "shardGhost"], rnd), qty: 1 };
   if (r < 0.55) return { id: "panacea", qty: 1 };
   if (r < 0.55 + crystal) return { id: "voidCrystal", qty: 1 };

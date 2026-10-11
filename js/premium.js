@@ -29,13 +29,13 @@ export const PREMIUM_PRODUCTS = [
   { id: "autoDefend", price: 120, kind: "skill", name: ["Auto Defend", "Kusang Depensa"], description: ["Permanent summon defense skill. Protects you independently of adventure mode.", "Permanenteng depensa ng summon kahit patay ang adventure mode."] },
   { id: "autoSell", price: 120, kind: "skill", name: ["Auto Sell", "Kusang Benta"], description: ["Permanent summon errand skill. Every 10 s your summon sells plain spare gear (magic gear too when the bag is nearly full). Refined, socketed, set and unique items are kept.", "Permanenteng kasanayan ng summon. Tuwing 10 segundo, ibinebenta ng iyong summon ang karaniwang sobrang gamit (pati magic kapag halos puno na ang bag). Itinatabi ang may refine, socket, set at unique."] },
   { id: "autoBuy", price: 120, kind: "skill", name: ["Auto Buy", "Kusang Bili"], description: ["Permanent summon errand skill. Your summon keeps 10 Red Potions and 2 Panaceas stocked, spending at most a quarter of your gold per errand.", "Permanenteng kasanayan ng summon. Pinapanatili ng iyong summon ang 10 Pulang Potion at 2 Panacea, at hindi gumagastos ng higit sa sangkapat ng iyong ginto bawat lakad."] },
-  { id: "refineSafetyStone", price: 35, kind: "item", name: ["Refine Safety Stone", "Bato ng Ligtas na Refine"], description: ["One guaranteed refine; materials and gold still required. Unlocks +11 through +15.", "Isang garantisadong refine; kailangan pa rin ng materyales at ginto. Para rin sa +11 hanggang +15."] },
+  { id: "refineSafetyStone", price: 2, kind: "item", name: ["Refine Safety Stone", "Bato ng Ligtas na Refine"], description: ["One guaranteed refine; materials and gold still required. Unlocks +11 through +15.", "Isang garantisadong refine; kailangan pa rin ng materyales at ginto. Para rin sa +11 hanggang +15."] },
   { id: "soulstone", price: 1, kind: "item", name: ["Soulstone", "Bato ng Kaluluwa"], description: ["Adds 10 minutes of autonomous adventure when used. Exchange back for ₱1 or 100 platinum.", "Nagdaragdag ng 10 minuto ng kusang adventure kapag ginamit. Maipapalit sa ₱1 o 100 platino."] },
-  { id: "ward", price: 60, kind: "buff", duration: 3600000, name: ["Guardian Ward · 1 hour", "Pananggalang · 1 oras"], description: ["20% less incoming damage. Real-time countdown continues offline.", "20% bawas sa natatanggap na damage. Tuloy ang oras kahit offline."] },
-  { id: "might", price: 60, kind: "buff", duration: 3600000, name: ["Champion Might · 1 hour", "Lakas ng Kampeon · 1 oras"], description: ["20% extra hero attack damage. Real-time countdown continues offline.", "20% dagdag sa damage ng atake. Tuloy ang oras kahit offline."] },
+  { id: "ward", price: 5, kind: "buff", duration: 3600000, name: ["Guardian Ward · 1 hour", "Pananggalang · 1 oras"], description: ["20% less incoming damage. Real-time countdown continues offline.", "20% bawas sa natatanggap na damage. Tuloy ang oras kahit offline."] },
+  { id: "might", price: 5, kind: "buff", duration: 3600000, name: ["Champion Might · 1 hour", "Lakas ng Kampeon · 1 oras"], description: ["20% extra hero attack damage. Real-time countdown continues offline.", "20% dagdag sa damage ng atake. Tuloy ang oras kahit offline."] },
   ...Object.entries(TRANSMUTE_STYLES).map(([id, style]) => ({ id: `transmute:${id}`, price: 180, kind: "transmute", name: style.name, description: ["Permanent attack transmute: trails, sparks and sigils. Cosmetic effect; equip in this store.", "Permanenteng disenyo ng atake: trail, kislap at sigil. Piliin dito sa tindahan."] })),
   ...PLAYABLE_IDS.map(id => ({ id: `recruit:${id}`, price: playableStars(id) * 60, kind: "recruit", name: PLAYABLES[id].label, description: ["Recruit instantly, skip this NPC's trial, and unlock their permanent Echo Summon skill.", "Agad i-recruit, laktawan ang trial ng NPC, at makuha ang permanenteng Echo Summon."] })),
-  ...PLAYABLE_IDS.map(id => ({ id: `summon:${id}`, price: playableStars(id) * 30, kind: "summon", name: [ `${PLAYABLES[id].label[0]} · Echo Summon`, `${PLAYABLES[id].label[1]} · Echo Summon` ], description: ["Permanent companion using this NPC's signature skills. One echo active at a time.", "Permanenteng kasama na may kasanayan ng NPC. Isang echo lang ang aktibo."] }))
+  ...PLAYABLE_IDS.map(id => ({ id: `summon:${id}`, price: playableStars(id) * 30, kind: "summon", name: [ `${PLAYABLES[id].label[0]} · Echo Summon`, `${PLAYABLES[id].label[1]} · Echo Summon` ], description: ["Permanent companion with signature skills. Control this Echo with Alt + its party number; one companion Echo active at a time.", "Permanenteng kasama na may kasanayan ng NPC. Kontrolin gamit ang Alt + numero sa party; isang kasamang echo lang ang aktibo."] }))
 ];
 const finite = (value, max = 1000000000) => Number.isFinite(value) ? Math.max(0, Math.min(max, Math.floor(value))) : 0;
 export function loadPremium(saved = {}) {
@@ -61,6 +61,10 @@ export function retainPremiumForRegression(oldPlayer, player, party) {
   const q=party.book.state[id];q.started=q.recruited=q.bossProof=true;q.progress=PLAYABLES[id].required;
   Object.keys(q.systems).forEach(key=>q.systems[key]=true);
   if(!party.members.includes(id)){party.members.push(id);party.hp[id]=null;}
+ }
+ for(const id of player.premium.summons){
+  if(!party.echoes.includes(id))party.echoes.push(id);
+  if(!party.members.includes(id) && party.members.length<6){party.members.push(id);party.hp[id]=null;}
  }
 }
 export const premiumSkill = (p, id) => p?.hp > 0 && Boolean(p.premium?.skills[id] && p.premium.enabled[id]);
@@ -100,7 +104,7 @@ export function buyPremium(p, party, id, now = Date.now(), currency = "cash") {
   const key = id.split(":")[1];
   if ((product.kind === "skill" && state.skills[id]) || (product.kind === "transmute" && state.transmutes.includes(key)) ||
       (product.kind === "recruit" && party.recruited(key)) || (product.kind === "summon" && state.summons.includes(key))) return { ok: false, reason: "owned" };
-  if (product.kind === "recruit" && party.members.length >= 6) return { ok: false, reason: "party" };
+  if (["recruit","summon"].includes(product.kind) && !party.members.includes(key) && party.members.length >= 6) return { ok: false, reason: "party" };
   if (product.kind === "item" && !p.bag.add(id, 1)) return { ok: false, reason: "bag" };
   if (product.kind === "skill") { state.skills[id] = true; state.enabled[id] = true; }
   if (product.kind === "buff") state.buffs[id] = Math.min(now + 365 * 86400000, Math.max(now, state.buffs[id] || 0) + product.duration);
@@ -108,11 +112,13 @@ export function buyPremium(p, party, id, now = Date.now(), currency = "cash") {
   if (product.kind === "recruit") {
     const q = party.book.state[key]; q.started = q.recruited = q.bossProof = true; q.progress = PLAYABLES[key].required;
     Object.keys(q.systems).forEach(id => q.systems[id] = true);
-    party.members.push(key); party.hp[key] = null; state.recruits.push(key);
+    if(!party.members.includes(key)){party.members.push(key); party.hp[key] = null;} state.recruits.push(key);
   }
   if (["recruit", "summon"].includes(product.kind)) {
     if (!state.summons.includes(key)) state.summons.push(key);
     state.summonActive = key;
+    if(!party.echoes.includes(key))party.echoes.push(key);
+    if(!party.members.includes(key)){party.members.push(key);party.hp[key]=null;}
   }
   if (currency === "cash") state.cash = Math.round((state.cash - price.cash) * 100) / 100;
   else p.gold -= price.platinum * 100;

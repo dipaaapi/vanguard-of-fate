@@ -7,13 +7,13 @@ then `outline <file>` and read only the line range you need.
 ## css/
 
 - `codex-scene.css` (9.8 KB, 240) — Codex scene styles: stage, vertical category tabs, side panel (list, dossier, customizer, lore ticker), control deck, clean view
-- `controls.css` (20 KB, 330) — Hotbar and skill book in the bottom tray, side-panel world map, Market and Settings overlays (sized by --s)
+- `controls.css` (25 KB, 374) — Hotbar and skill book in the bottom tray, side-panel world map, Market and Settings overlays (sized by --s)
 - `devtools.css` (4.6 KB, 87) — Developer tools panel styles (F9, ?dev)
-- `dialog.css` (24 KB, 490) — Dialogue box, quest tracker/log, service menu and panel overlays; --s = integer canvas scale set by main.js fitCanvas
+- `dialog.css` (30 KB, 544) — Dialogue box, quest tracker/log, service menu and panel overlays; --s = integer canvas scale set by main.js fitCanvas
 - `gamepad.css` (3.4 KB, 63) — Gamepad corner badge, toast and guide modal styles (js/gamepad.js)
 - `guild.css` (2.8 KB, 33) — Guild service/contract overlay, independent tracker and ceremony styles
-- `hud.css` (10 KB, 239) — HD interface styles using the Aseprite frames in assets/ui/ (hero card, party slots, meters, key chips)
-- `premium.css` (8.5 KB, 22) — Premium modal, checkout, shop cards and upper-left buff timer styles
+- `hud.css` (11 KB, 247) — HD interface styles using the Aseprite frames in assets/ui/ (hero card, party slots, meters, key chips)
+- `premium.css` (8.7 KB, 24) — Premium modal, checkout, shop cards and upper-left buff timer styles
 - `regression.css` (1.8 KB, 45) — End-of-Book-I Regression modal styles
 - `style.css` (19 KB, 623) — Global page layout, pixelated canvas, side panel, bottom bar / adventure log tray
 - `summon.css` (1.9 KB, 23) — Summon panel styles (choices, switches, stock steppers) on top of css/premium.css
@@ -33,77 +33,77 @@ then `outline <file>` and read only the line range you need.
 
 ## (root)
 
-- `index.html` (13 KB, 272) — Page shell: canvas #gameCanvas inside #stage/#viewport, title/codex-scene/dialog overlays, bottom bar, save file input, Google Fonts; loads js/main.js as a module
+- `index.html` (14 KB, 275) — Page shell: canvas #gameCanvas inside #stage/#viewport, title/codex-scene/dialog overlays, bottom bar, save file input, Google Fonts; loads js/main.js as a module
 
 ## js/
 
 - `actintro.js` (9.5 KB, 229) — Act intro cinematic (ActIntro): an HD overlay that rebuilds the Act's layered set (assets/cinema/act-N) with the cinema engine and the camera/lights/particles of js/cinema/actShots.js, then sets the Act number, title and EN/FIL caption (data/art_manifest.json) in HD type; skippable; startStory for story cards · ActIntro
-- `actionpanel.js` (24 KB, 525) — Hotbar on the bottom tray (J/K/L skill slots with drag-and-drop arranging and the skill book (P), Space/E, quick slots 1–4, Market B and Full Screen F) and the right panel's option buttons · ActionPanel
+- `actionpanel.js` (25 KB, 548) — Hotbar on the bottom tray (J/K/L skill slots with drag-and-drop arranging and the skill book (P), Space/E, quick slots 1–4, Market B and Full Screen F) and the right panel's option buttons · ActionPanel
 - `actreader.js` (5.2 KB, 146) — "Read more" Act reader: full text of finished Acts from LORE.md with their banners · ActReader
 - `audio.js` (36 KB, 734) — Procedural Web Audio engine (exported Sound): master/music/SFX buses with compressor and reverb, synth instruments, a lookahead sequencer that crossfades the tracks in js/music.js by place/night/boss (setScene), fanfares (playJingle) and 30+ play* SFX that fade by distance and mute off screen · Sound
-- `autoadventure.js` (18 KB, 340) — Timed autonomous quest navigation, objective combat, scouting and physical travel routes with private pathfinding · matchesObjective, AdventureNavigator, routeExit, AutoAdventure
+- `autoadventure.js` (23 KB, 416) — Timed autonomous quest navigation, objective combat, scouting and physical travel routes with private pathfinding · matchesObjective, AdventureNavigator, routeExit, AutoAdventure
 - `background.js` (0.9 KB, 25) — Background image helpers for assets/bg/: loadImage and cover-fit drawCover · loadImage, drawCover
 - `behavior.js` (5.1 KB, 89) — Idle behaviors for every living creature (hero, monsters, bosses, NPCs, guild staff, mercenaries, angels, familiars): random pools, poses and pixel emotes · BEHAVIOR_POOLS, tickBehavior, behaviorPose, drawBehaviorEmote
 - `bestiary.js` (65 KB, 641) — Monster and boss definitions per Act (stats, sprite, medium, debuffs, en/fil names, boss move style and attacks), night kinds and blights · MONSTERS, BOSSES, NIGHT_KINDS, BLIGHTS
 - `camera.js` (0.9 KB, 24) — Camera following the player, clamped to world bounds; isVisible() for frustum culling · Camera
-- `charpanel.js` (18 KB, 326) — Character panel (C): Ragnarok-style stat builder (STR/AGI/VIT/INT/DEX/LUK) with the auto stat path, class skill trees, and the Paths tab (style meter, three path trees, T/Y/U slots) · CharacterPanel
+- `charpanel.js` (18 KB, 333) — Character panel (C): Ragnarok-style stat builder (STR/AGI/VIT/INT/DEX/LUK) with the auto stat path, class skill trees, and the Paths tab (style meter, three path trees, T/Y/U slots) · CharacterPanel
 - `chatlog.js` (3.3 KB, 83) — Bottom adventure log tray: NPC lines, hits taken, loot, gear changes (newest first) · ChatLog
 - `codex.js` (16 KB, 224) — Codex data: progress (kills, NPCs met, saved), entries per tab and the detail panels; shown by js/scenes/codexScene.js · TAB_KEYS, ITEM_TABS, codexText, Codex
 - `continent.js` (21 KB, 377) — Continent world map art and data: Aethelgard, its frontiers and the Dark Continent with roads, biomes, side-quest badges and the Book II isle · ContinentMap
 - `controller.js` (3.1 KB, 96) — Keyboard input state (held keys, just-pressed) · InputController
 - `daynight.js` (3.9 KB, 109) — Day/night cycle (6-minute day): phases, night tint and night monster behaviour · DayNight
 - `devtools.js` (27 KB, 524) — Developer tools panel (?dev, F9): cheats (level, gold, items, god mode, travel, spawns), save inspection/import/export, live hero stats · devEnabled, validateSave, DevTools
-- `dialog.js` (7.4 KB, 228) — HTML dialogue box with speaker portrait, quest tracker HUD and quest log overlays · DialogBox, QuestHud
-- `dialogue.js` (35 KB, 519) — Story dialogue for Acts II–VI per NPC and quest step (en/fil); getDialogue(id, ctx), npcName · npcName, getDialogue
+- `dialog.js` (9.8 KB, 241) — HTML dialogue box with speaker portrait, quest tracker HUD and quest log overlays · DialogBox, QuestHud
+- `dialogue.js` (36 KB, 521) — Story dialogue for Acts II–VI per NPC and quest step (en/fil); getDialogue(id, ctx), npcName · npcName, getDialogue
 - `elements.js` (5.0 KB, 104) — Race, element, size and type tables with damage multipliers and variant prefixes (Ragnarok style), en/fil names · ELEMENTS, elementMult, raceBonus, sizeMod, rollVariant, variantPrefix, elementName, raceName +1
-- `enemy.js` (63 KB, 1291) — Enemy manager: monster spawning (hub, platforms, frontiers, elites, night, ambushes, bosses), AI state machines, telegraphed attacks, boss move styles (drift/blink, charge, chained) and skills (tear rain, wail cone, bone lances, chain sweep/grab, shockwave rings) with Aseprite effects, tiers/elements, death and drops · HUB_KINDS, HUB_ELITES, EnemyManager
+- `enemy.js` (64 KB, 1301) — Enemy manager: monster spawning (hub, platforms, frontiers, elites, night, ambushes, bosses), AI state machines, telegraphed attacks, boss move styles (drift/blink, charge, chained) and skills (tear rain, wail cone, bone lances, chain sweep/grab, shockwave rings) with Aseprite effects, tiers/elements, death and drops · HUB_KINDS, HUB_ELITES, EnemyManager
 - `errand.js` (9.1 KB, 212) — Summon errands: the familiar/Falcon/Guardian Angel carries a 9-slot pack to market from the field (sell non-quest items, buy potions and herbs), is out of combat until back; ErrandPack order, dispatch, updateErrand, save/load · errandReady, errandConfig, errandText, runnerName, errandBuyPrice, runnerFor, hasRunnerKind, awayRunner +7
 - `fx.js` (26 KB, 698) — Game feel: screen shake, hit-stop, shockwave rings, sparks, blood, water splashes (droplets + ripples), damage numbers, flashes, vignette · FXManager
 - `fxsprites.js` (2.1 KB, 53) — Effect sprites from Aseprite (assets/sprites/fx/<name>, "down-play" tag): drawFx with rotation, size, anchor, alpha and cached tints; false when not loaded so callers keep their code-drawn effect · fxFrames, drawFx
 - `gamepad.js` (15 KB, 318) — Gamepad support (DS4 / DualSense / Joy-Con / Xbox): button mapping to game keys, connect badge, toast and guide modal · PAD_ACTIONS, GamepadInput
-- `guild.js` (11 KB, 179) — Independent guild membership, ability assessment, paid resets, escalating plate replacements, 90 ranked contracts and atomic rewards · GUILD_REGISTRATION, guildState, guildAssessment, guildContracts, GuildBook
+- `guild.js` (14 KB, 217) — Independent guild membership, ability assessment, paid resets, escalating plate replacements, 90 ranked contracts and atomic rewards · GUILD_REGISTRATION, guildState, guildAssessment, guildContracts, GuildBook
 - `guildceremony.js` (2.8 KB, 44) — Four-scene animated membership assessment, oath and plate-award cinematic · GuildCeremony
-- `guilddata.js` (12 KB, 99) — Guild ranks, level thresholds, roles, pillar memberships, hall placement and EN/FIL text · GUILD_RANKS, GUILD_LEVELS, GUILD_AREAS, GUILD_ROLES, PILLAR_MEMBERS, GUILD_SITE, GUILD_ZONE, GUILD_NPCS +2
-- `guildfield.js` (9.5 KB, 162) — Source-aware gathering, NPC supplies, guild MVP encounters and saved caravan routes with attacker waves, armour and health gauges · GuildField
-- `guildpanel.js` (8.9 KB, 130) — Staff services, guild contracts and independent progress tracker with localized rewards and confirmation controls · GuildPanel
-- `hudbar.js` (5.8 KB, 124) — Hero card over the top-right of the game screen (name and role of the member on the field, level, HP/stamina/EXP, status icons) plus the side panel's field state and Quest/Pause buttons · HudBar
-- `i18n.js` (34 KB, 668) — UI strings in English and Filipino (STRINGS.en / STRINGS.fil), language stored in localStorage; t(key), getLang/setLang/toggleLang/onLangChange · getLang, setLang, toggleLang, onLangChange, t
-- `inventory.js` (33 KB, 632) — Inventory panel (I): hero look, worn equipment, stats, tabbed bag, item details and actions (equip, upgrade, refine, sockets) · InventoryPanel
+- `guilddata.js` (13 KB, 103) — Guild ranks, level thresholds, roles, pillar memberships, hall placement and EN/FIL text · GUILD_RANKS, GUILD_LEVELS, GUILD_AREAS, GUILD_ROLES, PILLAR_MEMBERS, GUILD_SITE, GUILD_ZONE, GUILD_NPCS +2
+- `guildfield.js` (11 KB, 181) — Source-aware gathering, NPC supplies, guild MVP encounters and saved caravan routes with attacker waves, armour and health gauges · GuildField
+- `guildpanel.js` (9.4 KB, 131) — Staff services, guild contracts and independent progress tracker with localized rewards and confirmation controls · GuildPanel
+- `hudbar.js` (6.8 KB, 132) — Hero card over the top-right of the game screen (name and role of the member on the field, level, HP/stamina/EXP, status icons) plus the side panel's field state and Quest/Pause buttons · HudBar
+- `i18n.js` (36 KB, 676) — UI strings in English and Filipino (STRINGS.en / STRINGS.fil), language stored in localStorage; t(key), getLang/setLang/toggleLang/onLangChange · getLang, setLang, toggleLang, onLangChange, t
+- `inventory.js` (34 KB, 645) — Inventory panel (I): hero look, worn equipment, stats, tabbed bag, item details and actions (equip, upgrade, refine, sockets) · InventoryPanel
 - `juice.js` (4.1 KB, 99) — Shared combat animation helpers for every fighter: rest/hit/attack/windup/breath/spawn poses, swing arcs · REST, hitPose, attackPose, windupPose, breathPose, spawnPose, mix, around +1
-- `keybinds.js` (3.8 KB, 79) — Rebindable keyboard controls (vanguard_keys): next party member, party member 1–6, full screen; matches / actionOf / bindFrom / label · KEY_ACTIONS, Keybinds
+- `keybinds.js` (4.1 KB, 80) — Rebindable keyboard controls (vanguard_keys): next party member, party member 1–6, full screen; matches / actionOf / bindFrom / label · KEY_ACTIONS, Keybinds
 - `loading.js` (3.9 KB, 111) — Portal loading screen: rotating ring, ENTERING <place>, lore tip (data/loading_tips.json), progress bar; runs the travel work behind it · LoadingScreen
-- `loot.js` (13 KB, 305) — Loot drops: gold and items from slain monsters, ground items, magnetic pickup into the bag; blocked drops slide to the nearest walkable tile (findNearestWalkableSpot) · findNearestWalkableSpot, rollCoinReward, LootManager
+- `loot.js` (13 KB, 306) — Loot drops: gold and items from slain monsters, ground items, magnetic pickup into the bag; blocked drops slide to the nearest walkable tile (findNearestWalkableSpot) · findNearestWalkableSpot, rollCoinReward, LootManager
 - `lore.js` (8.2 KB, 245) — Loads LORE.md / LORE_FIL.md, parses ## Acts into chapters, act banners, auto-scrolling lore panel · loadLore, parseChapters, actNumber, chapterKey, BANNER_EXTS, bannerSrc, createLorePanel
-- `main.js` (128 KB, 2716) — Entry module and coordinator: canvas fit, scene routing (title → codex scene (creator) → prologue → game), managers, menus/shops, platform travel, save/load/export/import, Job Awakening, update + render game loop
+- `main.js` (136 KB, 2831) — Entry module and coordinator: canvas fit, scene routing (title → codex scene (creator) → prologue → game), managers, menus/shops, platform travel, save/load/export/import, Job Awakening, update + render game loop
 - `market.js` (14 KB, 318) — Market (B): buy and sell with a quantity slider per row (prices from items/economy.js via ctx) inside a sanctuary; outside one the same overlay builds and sends a summon errand (errand.js) · sellPrice, Market, marketText
 - `mercenaryManager.js` (17 KB, 406) — Hireable mercenaries: contracts and fees, following, AI combat, daze and recovery, drawing · MERC_CLASSES, MercenaryManager
 - `monsterTiers.js` (6.6 KB, 138) — Monster tiers (Normal, Champion, Elite, MVP) and modifiers: rolling, applying, damage multipliers, names, life bars (lives per level and tier) · MODS, modName, TIERS, rollTier, applyTier, tierName, has, MAX_LIVES +10
 - `music.js` (15 KB, 314) — Music score as data: note/chord helpers, bass/arp/pad pattern styles, compileTrack, TRACKS (title, hub, night, canopy, coast, frost, ash, siege, maw, boss, finale), AREA_TRACK (platform id → track) and JINGLES · midi, freq, chord, compileTrack, TRACKS, AREA_TRACK, JINGLES
 - `padnav.js` (3.5 KB, 92) — Panel navigation with arrows / D-pad + Enter: moves a highlight between buttons of mouse-first HTML panels · PanelNav
-- `party.js` (9.8 KB, 222) — Party of the hero + recruited playable NPCs (up to 6): who is on the field, per-member HP, switching (player.active kit), next member steps in on a fall, sanctuary recovery, recruitment talk and trial progress (PlayableQuestBook), Eirene's consoles; text from data/party.json · PARTY_MAX, PARTY_REVIVE_FRAMES, partyText, memberName, Party
+- `party.js` (9.9 KB, 223) — Party of the hero + recruited playable NPCs (up to 6): who is on the field, per-member HP, switching (player.active kit), next member steps in on a fall, sanctuary recovery, recruitment talk and trial progress (PlayableQuestBook), Eirene's consoles; text from data/party.json · PARTY_MAX, PARTY_REVIVE_FRAMES, partyText, memberName, Party
 - `partyhud.js` (5.5 KB, 114) — Party list under the hero card (switch key, head, name, HP; the member on the field lit) and the hero card's portrait head, drawn from each member's Avatar portrait · PartyHud, roleOf
 - `playables.js` (9.6 KB, 128) — Playable NPC recruits: PLAYABLES (region, role, skills, trial requirements), makePlayableKit (combat kit per recruit), PlayableQuestBook (trial state) · PLAYABLES, PLAYABLE_IDS, INNATE_BUILDS, innateBuild, innateMaxHp, makePlayableKit, PlayableQuestBook
-- `player.js` (33 KB, 756) — Player entity: stats, stamina/sprint/dodge roll, damage and debuffs, EXP/levels, skill learning, movement, attack pose, drawing · expFor, softSpeed, Player
-- `premium.js` (12 KB, 141) — Premium peso wallet, demo payments, reversible Platinum exchanges, purchases, permanent skills, timed buffs and attack transmute effects · CASH_GOLD, TRANSMUTE_STYLES, BANNER_DURATION, BANNER_DISCOUNT, playableStars, playableBanner, premiumPrice, PREMIUM_PRODUCTS +9
-- `premiumshop.js` (15 KB, 158) — Bilingual premium store, demo checkout, protected refinement controls and upper-left premium status HUD · PremiumShop
+- `player.js` (34 KB, 777) — Player entity: stats, stamina/sprint/dodge roll, damage and debuffs, EXP/levels, skill learning, movement, attack pose, drawing · expFor, softSpeed, Player
+- `premium.js` (13 KB, 147) — Premium peso wallet, demo payments, reversible Platinum exchanges, purchases, permanent skills, timed buffs and attack transmute effects · CASH_GOLD, TRANSMUTE_STYLES, BANNER_DURATION, BANNER_DISCOUNT, playableStars, playableBanner, premiumPrice, PREMIUM_PRODUCTS +9
+- `premiumshop.js` (16 KB, 177) — Bilingual premium store, demo checkout, protected refinement controls and upper-left premium status HUD · PremiumShop
 - `projectiles.js` (16 KB, 383) — Player/mercenary projectiles and skill effects (meteor, thunder, arrows, ki spheres, dropkick) and their hit detection · ProjectileManager
 - `prologue.js` (9.1 KB, 233) — Act I prologue (PrologueScene): nine HD cinematic shots (js/cinema/prologueShots.js) with typed EN/FIL subtitles from data/prologue.json; Enter advances, Esc skips · PrologueScene
-- `quest.js` (20 KB, 435) — Main quest (Book I, Acts II–XV): steps with act, place, characters, objectives; QuestManager progress, side-quest gate, Book titles; mentor per class; save migration (v1/v2 → v3) · FINAL_STEP, MENTOR_BY_CLASS, bookText, qt, QuestManager
-- `regression.js` (9.5 KB, 162) — Regression (New Game+): difficulties Easy→Mythical (+20% monster HP/damage each), saved record of cleared difficulties and learned jobs, end-of-Book-I modal (Continue / save+download / Regress) · DIFFICULTIES, regression, resetRegression, serializeRegression, loadRegression, difficulty, difficultyName, COMBAT +9
+- `quest.js` (29 KB, 511) — Main quest (Book I, Acts II–XV): steps with act, place, characters, objectives; QuestManager progress, side-quest gate, Book titles; mentor per class; save migration (v1/v2 → v3) · FINAL_STEP, MENTOR_BY_CLASS, bookText, qt, QuestManager
+- `regression.js` (9.8 KB, 170) — Regression (New Game+): difficulties Easy→Mythical (+20% monster HP/damage each), saved record of cleared difficulties and learned jobs, end-of-Book-I modal (Continue / save+download / Regress) · DIFFICULTIES, economyProfile, regression, resetRegression, serializeRegression, loadRegression, difficulty, difficultyName +10
 - `saveSecurity.js` (10 KB, 261) — Save format .vof: checksum/HMAC-style signing, XOR obfuscation, sanity audit of gold/stats/items/level, legacy .json migration; exposed as window.SaveSecurity
 - `services.js` (3.2 KB, 95) — NPC service menu: short choice list (mouse, 1–9, arrows + Enter) shown after talking to a service NPC · ServiceMenu
 - `settings.js` (11 KB, 255) — Settings shared by the title Options and the in-game Settings panel (O): SETTINGS list (volumes, FPS limit, brightness, shadows, glow, quality…), load/normalize/save vanguard_config, stepSetting, GFX drawing flags, glowAt cached additive halo, toggleFullscreen, SettingsPanel overlay · CONFIG_KEY, SETTINGS, settingLabel, settingValue, normalizeConfig, loadConfig, saveConfig, stepSetting +4
-- `sidequest.js` (11 KB, 246) — Book I side quests: 5–10 seeded per Act (hunt, trophy, elite, scout, cull, champion, sky) that gate the main quest; en/fil text, rewards, scouting-site cairns · st, SideQuests, drawSites
-- `skillpaths.js` (15 KB, 243) — Might (STR) / Finesse (DEX) / Arcana (INT) skill paths: passive and active nodes, play-style affinity (noteStyle/styleOf), resonance, T/Y/U skill slots (assignSlot, castActive, tickActives) for the hotbar · PATH_IDS, PATHS, RESONANCE, SLOT_KEYS, SKILL_DRAG_TYPE, PATH_TREES, PATH_TREE_IDS, activeSkill +9
+- `sidequest.js` (14 KB, 288) — Book I side quests: 5–10 seeded per Act (hunt, trophy, elite, scout, cull, champion, sky) that gate the main quest; en/fil text, rewards, scouting-site cairns · st, SideQuests, drawSites
+- `skillpaths.js` (16 KB, 248) — Might (STR) / Finesse (DEX) / Arcana (INT) skill paths: passive and active nodes, play-style affinity (noteStyle/styleOf), resonance, T/Y/U skill slots (assignSlot, castActive, tickActives) for the hotbar · PATH_IDS, PATHS, RESONANCE, SLOT_KEYS, SKILL_DRAG_TYPE, PATH_TREES, PATH_TREE_IDS, activeSkill +9
 - `skills.js` (19 KB, 267) — Stat builder rules and skill trees per class (Ragnarok style): stat costs/caps, skill definitions and bonuses, learn rules (level, style, own summon), resonance, auto stat path (autoAllocate), en/fil text · STATS, PRIMARY, STAT_INFO, statCost, STAT_MAX, TREES, skillText, treesFor +13
 - `skillslots.js` (1.9 KB, 54) — Hotbar skill slots J/K/L: which ability sits in each slot (drag and drop), logical() maps a pressed key to its slot's ability for the controller and main.js, saved as skillKeys; ActionPanel.addSlotGroup adds more slot groups (e.g. path actives) · SLOT_KEYS, ABILITIES, SkillSlots
 - `stage.js` (6.0 KB, 146) — Hub map of the Aethelgard plains (Acts I–VI): Barracks, Citadel, 4 Warp Gateways, safe zones; draws the world layers (draw, drawShadows, drawPropsBack/Front, drawSurface, drawOverlay); same interface as world/platform.js · Stage
 - `status.js` (3.5 KB, 68) — Abnormal statuses (Seven Anomaly Blights: bleed, silence, poison, shock, burn, freeze, blind): effects, resist chance, ticking · STATUS, STATUS_KEYS, statusName, resistChance, tickStatuses, blocksRegen
 - `summonpanel.js` (8.0 KB, 115) — Summon panel (F6 · Options → Summon): auto attack mode/range and premium Auto Defend/Loot/Sell/Buy switches and rules · SummonPanel
 - `title.js` (31 KB, 790) — Title screen scene: menu, options (music/sfx/blood/weather/language), Chronicles, credits, save slot info; canvas draws embers and sword glow · TitleScene
-- `ui.js` (25 KB, 574) — In-canvas UI: terrain minimap with objective/compass/place name (drawn in the right panel's World Map box), overhead cooldown bar, and the framed pause, Apothecary shop, Mercenary Guild and game over panels (EN/FIL via t()) · UIManager
+- `ui.js` (26 KB, 596) — In-canvas UI: terrain minimap with objective/compass/place name (drawn in the right panel's World Map box), overhead cooldown bar, and the framed pause, Apothecary shop, Mercenary Guild and game over panels (EN/FIL via t()) · UIManager
 - `uiframe.js` (4.4 KB, 115) — Shared look for in-canvas panels: drawFrame (slate panel, gold double border, corner studs, title ribbon, open animation), drawBorder, drawBackdrop, openEase, keyChip · drawBackdrop, drawBorder, drawFrame, openEase, keyChip
-- `workshop.js` (11 KB, 216) — Workshop menu (G in a safe zone): craft sets, auto-craft toggle, cooking, transmutes; save/load of craft, meal and market · Workshop
+- `workshop.js` (12 KB, 222) — Workshop menu (G in a safe zone): craft sets, auto-craft toggle, cooking, transmutes; save/load of craft, meal and market · craftingStation, Workshop
 - `worldmap.js` (21 KB, 484) — World map (M): zoomable/pannable region view (grid, sites, elites, route, side panel) and continent view; Tab, L, zoom and pan keys, mouse wheel · WorldMap
 
 ## js/avatar/
@@ -137,15 +137,15 @@ then `outline <file>` and read only the line range you need.
 
 ## js/items/
 
-- `bag.js` (15 KB, 378) — Bag and equipment: stacking, equip/unequip, set bonuses, upgrades and refines, serialisation · BAG_SIZE, signature, Bag
-- `cooking.js` (10 KB, 133) — Fishing and cooking data: fish per place, food items, 15 dishes (5 per STR/DEX/INT) with stat and skill buffs, cook/eat · FISH_POOLS, FOOD_ITEMS, DISHES, DISH_ORDER, cookCheck, cook, mealBonus, startMeal
+- `bag.js` (16 KB, 390) — Bag and equipment: stacking, equip/unequip, set bonuses, upgrades and refines, serialisation · BAG_SIZE, signature, Bag
+- `cooking.js` (12 KB, 149) — Fishing and cooking data: fish per place, food items, 15 dishes (5 per STR/DEX/INT) with stat and skill buffs, cook/eat · FISH, FISH_POOLS, FOOD_ITEMS, DISHES, DISH_ORDER, cookCheck, cook, mealBonus +2
 - `crafting.js` (6.5 KB, 130) — Safe-zone crafting: base item per class/path/slot, craft checks, crafting pieces, auto-craft, recommended path, material transmutes · baseFor, craftSlots, pieceFor, craftCheck, craftPiece, ownedPieces, nextPiece, autoCraft +5
-- `craftsets.js` (13 KB, 206) — Crafted gear data: STR/DEX/INT paths, Lv 10/25/50/75/100 tiers, ores/cores/essences, crafted sets with stat and skill boosts, monster material drops, recipes, ore veins per platform · PATHS, PATH_ORDER, CRAFT_TIERS, tierOfLevel, CRAFT_ITEMS, CRAFT_SETS, rollMaterials, CRAFT_SLOTS +5
+- `craftsets.js` (13 KB, 208) — Crafted gear data: STR/DEX/INT paths, Lv 10/25/50/75/100 tiers, ores/cores/essences, crafted sets with stat and skill boosts, monster material drops, recipes, ore veins per platform · PATHS, PATH_ORDER, CRAFT_TIERS, tierOfLevel, CRAFT_ITEMS, CRAFT_SETS, rollMaterials, CRAFT_SLOTS +5
 - `durability.js` (1.8 KB, 39) — Equipment durability: wear on use, broken state, repair cost · DUR_MAX, WEAR_WEAPON, WEAR_ARMOR, LOW_DUR, ARMOR_SLOTS, durOf, isBroken, wear +2
-- `economy.js` (6.2 KB, 141) — Buy and sell prices: sell rates per item type, shop stock and markups, market saturation (Market) and sell() · SELL_RATE, MARKET, SHOPS, buyPrice, baseSellPrice, Market, sell, coinBreakdown +2
-- `forge.js` (3.6 KB, 76) — Emberhold Forge (Brakka): set recipes, forging pieces, tempering · SET_SLOTS, MAX_TEMPER, RECIPES, recipeCost, forgePiece, temperInfo, temper
-- `icons.js` (14 KB, 122) — 16×16 pixel item icons, cached per kind and colour (canvas and data URL) · iconCanvas, iconURL
-- `itemdb.js` (47 KB, 574) — Item database (Ragnarok/Diablo style): slots, rarity, sets, grades, cards, affixes, drop rolls, describe/statText · MAX_PLUS, SLOTS, RARITY, SETS, SET_THRESHOLDS, setThresholds, GRADE_NAMES, slotName +11
+- `economy.js` (6.5 KB, 144) — Buy and sell prices: sell rates per item type, shop stock and markups, market saturation (Market) and sell() · SELL_RATE, MARKET, SHOPS, buyPrice, baseSellPrice, Market, sell, coinBreakdown +2
+- `forge.js` (3.8 KB, 78) — Emberhold Forge (Brakka): set recipes, forging pieces, tempering · SET_SLOTS, MAX_TEMPER, RECIPES, recipeCost, forgePiece, temperInfo, temper
+- `icons.js` (14 KB, 124) — 16×16 pixel item icons, cached per kind and colour (canvas and data URL) · iconCanvas, iconURL
+- `itemdb.js` (50 KB, 596) — Item database (Ragnarok/Diablo style): slots, rarity, sets, grades, cards, affixes, drop rolls, describe/statText · MAX_PLUS, SLOTS, RARITY, SETS, SET_THRESHOLDS, setThresholds, GRADE_NAMES, HEALING_BOTTLES +13
 - `refineglow.js` (2.3 KB, 25) — Refinement tier palettes, thicker sprite outlines, orbit rings and sparkling equipment auras through +15 · refineGlow, styleRefineGlow, drawRefinedSprite, drawRefineAura
 
 ## js/mercenary/
@@ -157,7 +157,7 @@ then `outline <file>` and read only the line range you need.
 
 ## js/npc/
 
-- `npcs.js` (32 KB, 808) — NPCs in the world: spawning per place, wandering, ambient chatter (npc_conversations.json), sparring, talking · NPCManager
+- `npcs.js` (32 KB, 809) — NPCs in the world: spawning per place, wandering, ambient chatter (npc_conversations.json), sparring, talking · NPCManager
 - `roster.js` (10 KB, 156) — Lore characters from LORE.md: Avatar looks, places, mentor per class, summoner (Aurelia/Kenneth) · NPC_DEFS, MENTOR_OF, summonerIdFor
 
 ## js/scenes/
@@ -167,11 +167,11 @@ then `outline <file>` and read only the line range you need.
 ## js/summons/
 
 - `angel.js` (8.5 KB, 199) — Priest's Guardian Angel companion: lifespan, hover/attack/taunt AI, drawing · ANGEL, GuardianAngelCompanion
-- `automation.js` (5.5 KB, 100) — Z-controlled pet loot pathfinding, defensive targeting, automatic falcon strikes and guardian angel replacement · summonAutoEnabled, summonLootEnabled, summonDefenceEnabled, summonTarget, summonThreat, autoSummonDefence, autoSummonLoot
-- `errands.js` (3.7 KB, 75) — Premium Auto Sell / Auto Buy: the summon sells plain spare gear and restocks potions every 10 s within a gold budget · ERRAND_EVERY, STOCK, hasSummon, sellable, runErrands, tickErrands
+- `automation.js` (5.9 KB, 104) — Z-controlled pet loot pathfinding, defensive targeting, automatic falcon strikes and guardian angel replacement · summonAutoEnabled, summonLootEnabled, summonDefenceEnabled, summonTarget, summonThreat, autoSummonDefence, autoSummonLoot
+- `errands.js` (3.8 KB, 76) — Premium Auto Sell / Auto Buy: the summon sells plain spare gear and restocks potions every 10 s within a gold budget · ERRAND_EVERY, STOCK, hasSummon, sellable, runErrands, tickErrands
 - `falcon.js` (6.6 KB, 176) — Archer's falcon companion: dive attacks, taunts, afterimages · SPRITE, FalconCompanion
 - `familiar.js` (12 KB, 215) — Familiars for heroes with no summon (Novice slime, Knight hound, Mage owl, Fighter fox): learned in the skill tree, follow and fight on their own; syncFamiliar, familiarDamage · FAMILIARS, familiarFor, familiarDamage, syncFamiliar, Familiar
-- `premiumecho.js` (2.6 KB, 33) — Permanent playable NPC echo companion using signature attacks and premium collection skills · companionId, PremiumEcho
+- `premiumecho.js` (2.7 KB, 33) — Permanent playable NPC echo companion using signature attacks and premium collection skills · companionId, PremiumEcho
 - `summoncfg.js` (2.0 KB, 37) — Summon settings saved in player.premium.summon: attack mode, range, sell rules, potion stock, spend share, errand interval; clamped on load · ATTACK_MODES, RANGES, SPEND, EVERY, STOCK_ITEMS, STOCK_MAX, defaultSummonCfg, normalizeSummonCfg +1
 
 ## js/ui/
@@ -184,27 +184,27 @@ then `outline <file>` and read only the line range you need.
 - `ambient.js` (6.3 KB, 136) — Per-platform ambience particles and sky colour (spores, storm, blizzard, ash, …) · Ambient
 - `areas.js` (2.4 KB, 57) — Book I map registry: hub area (kinds, elites, sites, Badlands trail), areaDef/areaName/areaLevels over hub, platforms and frontiers, actAreas(act) for side quests · HUB_KINDS, HUB_ELITES, HUB_AREA, BOOK_ONE_AREAS, areaDef, isFrontier, areaName, areaLevels +1
 - `barracks.js` (2.9 KB, 91) — Barracks Sanctuary safe zone on the hub map: drawing and bounds · BarracksSystem
-- `boat.js` (38 KB, 928) — Crewed sailing ship in the Cerulean Abyss: faces E/W/N/S as it sails, boarding, deck posts for companions, landing at any shore, save state, return to the pier; and the sea monolith · BoatSystem
+- `boat.js` (40 KB, 945) — Crewed sailing ship in the Cerulean Abyss: faces E/W/N/S as it sails, boarding, deck posts for companions, landing at any shore, save state, return to the pier; and the sea monolith · captainRoutes, CAPTAIN_TEXT, BoatSystem
 - `castle.js` (8.4 KB, 273) — Imperial Citadel on the hub map: drawing and solid hitboxes · CastleSystem
 - `edges.js` (6.6 KB, 145) — Barrier band along every Act platform / frontier map edge: solid tiles, themed boulders + trees on land, rolling haze (fog, smoke, poison gas…) over water · EDGE_TILES, markEdges, paintLandEdges, bakeHaze, drawHaze
-- `fishing.js` (5.3 KB, 113) — Fishing at liquid tiles: cast, bite, hook with E, bobber/line drawing and prompt · Fishing
+- `fishing.js` (11 KB, 196) — Fishing at liquid tiles: cast, bite, hook with E, bobber/line drawing and prompt · Fishing
 - `footfall.js` (2.6 KB, 61) — Footsteps and splashes: strides on the wet shore splash (hero: wet step sound), steps in tall flora brush, shots ending over water splash · Footfall
-- `frontiers.js` (19 KB, 291) — Four frontier maps (Greyhorn Badlands, Gloomwater Fens, Stormcrown Highlands, Sunscorch Dunes): Acts, levels, themes, monsters, elites, sites, terrain and landmarks, en/fil text · FRONTIERS, FRONTIER_ORDER
+- `frontiers.js` (20 KB, 302) — Four frontier maps (Greyhorn Badlands, Gloomwater Fens, Stormcrown Highlands, Sunscorch Dunes): Acts, levels, themes, monsters, elites, sites, terrain and landmarks, en/fil text · FRONTIERS, FRONTIER_ORDER
 - `grassland.js` (4.7 KB, 102) — Layer 1 ground details on the tile map: baked sand/wet-sand shoreline beside water, turf blades swaying in the wind, isFloraAt for footstep cues · GrasslandSystem
 - `guildhall.js` (1.8 KB, 37) — Aseprite guild hall/NPC loading, safe-zone unlock, physical footprints and world drawing · guildImage, GUILD_SOLIDS, setGuildHallOpen, drawGuildHall, drawGuildNpc
 - `layers.js` (3.2 KB, 58) — World render layer order (0 ocean … 7 screen), sun vector and shadow colour, view/tile-span helpers, pixel ellipse · LAYER, SUN, SHADOW_COLOR, viewOf, tileSpan, hashTile, pixelEllipse
 - `layouts.js` (9.3 KB, 205) — Seeded terrain grids for terrain.js (islands, coast, lakes, river, atoll, archipelago) with routed roads (turn- and shore-penalised search, main roads 2 wide) · makeLayout, addPaths, LAYOUT_KINDS · LAYOUT_KINDS, addPaths, makeLayout
-- `mining.js` (5.6 KB, 121) — Ore veins on every platform (tier ore, plus minerals on Ashfall and the Citadel; rock salt): picks per vein, ore drops · MINE_RANGE, needsPick, OreVeins
+- `mining.js` (6.2 KB, 133) — Ore veins on every platform (tier ore, plus minerals on Ashfall and the Citadel; rock salt): picks per vein, ore drops · MINE_RANGE, needsPick, OreVeins
 - `nav.js` (6.0 KB, 141) — Ground movement for monsters, mercenaries and walking pets: obstacle grid, flow field toward the hero, steering around obstacles, confinement to bounds · blockedAt, footBlocked, clearLine, trackGoal, towardGoal, steer, confine
 - `ocean.js` (11 KB, 234) — Water of a map (real-water themes only): baked depth gradient #00b4d8→#03045e + bedrock, moving currents, A·sin(ωt) foam crests and glints, isWaterAt/isShoreAt · WATER_THEMES, OceanSystem
 - `platform.js` (17 KB, 367) — Platform or frontier map for one Act: tilemap, ambience, return gateway, frontier trail, safe zones; same interface as Stage · Platform
 - `platforms.js` (48 KB, 684) — Campaign platform definitions for Acts VII–XV (Aethelgard + the Dark Continent: strand, ossuary, siege, chainspire, maw): places, 5 monsters + 4 elites, sites, frontier trails, roads/rifts, bosses, quest items, seal stones, en/fil text · DARK_CONTINENT · SEAL_STONES, PLATFORMS, PLATFORM_ORDER, DARK_CONTINENT, PLATFORM_SIZE
-- `portal.js` (4.8 KB, 124) — Celestial Warp Gateways and the Badlands trail: drawing and collision; calls main.js's handler to travel or report sealed · drawGateway, PortalSystem
+- `portal.js` (4.9 KB, 125) — Celestial Warp Gateways and the Badlands trail: drawing and collision; calls main.js's handler to travel or report sealed · drawGateway, PortalSystem
 - `props.js` (7.4 KB, 181) — Trees, stones and shoreline boulders as Y-sorted props: cached sprites, root-only collision boxes (lower third), contact shadows along the sun, map snapshots · PropField
 - `terrain.js` (9.2 KB, 181) — Terrain tile maps from the Aseprite tile sets (assets/sprites/tiles/<theme>): dual-grid autotiling (16 corner tiles) for ground/cliffs/shore and paths, baked ground + decor, animated liquid and foam; TILESHEET layout shared with the painter · TILESHEET, CLIFF_H, CELL, TILE_THEMES, loadTerrainSheet, TerrainMap
 - `tilemap.js` (22 KB, 533) — Tile map generation and rendering from the tileset, foot hitbox collision, decorations · TileMap
 - `tileset.js` (28 KB, 626) — Procedural 16×16 pixel-art tile atlas, themes, seeded RNG (mulberry32), tree/rock/bush drawing · TILE, ATLAS_COLS, T, THEMES, mulberry32, buildTileset, drawTree, drawTreeSplit +2
-- `weather.js` (9.2 KB, 234) — Hub weather cycle (clear, rain, storm, fog) with pixel-art clouds and shadows · WeatherSystem
+- `weather.js` (13 KB, 273) — Hub weather cycle (clear, rain, storm, fog) with pixel-art clouds and shadows · WeatherSystem, WEATHER_POWER, combatWeather, weatherPower, weatherPowerText
 - `zonesprites.js` (5.5 KB, 107) — Safe-zone art from Aseprite (zone/barracks, zone/castle, zone/<map id> camps and Emberhold): ZONE_ART placement + solid footprints, campLayout shared with the painter, drawZoneArt, zoneSolids, pushOutOf · ZONE_ART, CAMP_PAD, gateSide, campLayout, hasZoneArt, drawZoneArt, zoneSolids, pushOutOf
 
 ## scripts/
@@ -212,28 +212,38 @@ then `outline <file>` and read only the line range you need.
 - `gamebrowser.mjs` (20 KB, 327) — Headless-Chromium game driver shared by playtest, autoplay, visual-review and the vof-game MCP server: static server, flows, key scripts, seeded Math.random, state summary via window.__vof, setupHero, and the autoplay bot (BFS pathing over the tile grid) · ROOT, FLOWS, findPlaywright, chromiumPath, serve, startGame, runSteps, readState +2
 - `headless.mjs` (4.9 KB, 100) — Headless loader: stubs document/window/localStorage/canvas so Node can import the game's modules (used by the balance, content and sprite tools); seedRandom for repeatable runs · ROOT, installStubs, load, seedRandom
 - `test-auto-adventure-browser.mjs` (4.5 KB, 49) — Browser integration checks for autonomous NPC talks, manual override, gateway travel, scouting, awakening, expiry, boss loot and quest delivery
-- `test-auto-adventure.mjs` (6.8 KB, 106) — Verify auto-adventure obstacle clearance, objective targeting, locked routes, scouting and completion
-- `test-auto-attack.mjs` (2.1 KB, 50) — Regression checks for auto-attack real-time allowance, soulstones and coin denominations
-- `test-auto-smoothness-browser.mjs` (6.9 KB, 97) — Live browser verification of autonomous path smoothness and arrival
+- `test-auto-adventure.mjs` (7.4 KB, 113) — Verify auto-adventure obstacle clearance, objective targeting, locked routes, scouting and completion
+- `test-auto-attack.mjs` (3.2 KB, 63) — Regression checks for auto-attack real-time allowance, soulstones and coin denominations
+- `test-auto-integration.mjs` (4.2 KB, 38) — (no purpose yet)
+- `test-auto-smoothness-browser.mjs` (9.3 KB, 127) — Live browser verification of autonomous path smoothness and arrival
 - `test-auto-smoothness.mjs` (8.7 KB, 123) — Headless regression checks for continuous movement, target priority and summon coordination
 - `test-behavior.mjs` (1.4 KB, 20) — Headless test: idle behavior pools/poses and the Act V guild-registration quest gate
+- `test-boat-permit.mjs` (2.8 KB, 38) — (no purpose yet)
+- `test-captain-routes.mjs` (0.9 KB, 12) — (no purpose yet)
 - `test-coin-drops.mjs` (2.4 KB, 44) — Verify increasing coin rewards, exact denomination totals, pickup precision and Aseprite source/export coverage
-- `test-difficulty.mjs` (3.2 KB, 46) — Headless regression check: every monster and boss scales across six difficulties; mercenary contract cap, increasing fees, KO occupancy and expiration
-- `test-errands.mjs` (4.0 KB, 50) — Headless test: premium Auto Sell / Auto Buy purchase, save, toggle, kept valuables and gold budget
+- `test-crafting-stations.mjs` (1.5 KB, 20) — (no purpose yet)
+- `test-difficulty.mjs` (3.4 KB, 47) — Headless regression check: every monster and boss scales across six difficulties; mercenary contract cap, increasing fees, KO occupancy and expiration
+- `test-dungeon-mining.mjs` (0.9 KB, 14) — (no purpose yet)
+- `test-echo-control.mjs` (2.0 KB, 23) — (no purpose yet)
+- `test-economy.mjs` (1.5 KB, 27) — (no purpose yet)
+- `test-errands.mjs` (4.1 KB, 50) — Headless test: premium Auto Sell / Auto Buy purchase, save, toggle, kept valuables and gold budget
+- `test-fishing.mjs` (3.3 KB, 44) — (no purpose yet)
 - `test-guild-browser.mjs` (7.7 KB, 71) — Browser checks of real staff interactions, membership ceremony, guild services, rewards, automatic allocation, persistence and Filipino UI
 - `test-guild-contracts.mjs` (5.4 KB, 67) — Verify distinct hunt tiers, source-aware delivery, NPC supplies and caravan guiding, waves, damage, failure and persistence
-- `test-guild.mjs` (9.5 KB, 113) — Verify unlock, membership/ranks, fees, independent refunds, discounts, replacements, atomic rewards, allocation and saves
+- `test-guild.mjs` (15 KB, 185) — Verify unlock, membership/ranks, fees, independent refunds, discounts, replacements, atomic rewards, allocation and saves
 - `test-loot-drop.mjs` (1.4 KB, 33) — Headless test: drops thrown into walls, water, cliffs and unreachable pockets on the hub and every platform land on walkable ground (loot.js findNearestWalkableSpot)
 - `test-modal-hud-browser.mjs` (4.4 KB, 68) — Browser regression check: field HUD overlays hide for map, inventory, character, quests, settings and premium panels and restore after closing
 - `test-premium-browser.mjs` (6.0 KB, 72) — Live premium checkout, peso conversion, HUD, recruitment and persistence checks
 - `test-premium.mjs` (12 KB, 118) — Headless premium transaction, save validation, skill and guaranteed +15 refinement tests
+- `test-quest-selection.mjs` (1.2 KB, 15) — (no purpose yet)
 - `test-refine-glow-browser.mjs` (2.5 KB, 40) — Browser checks for refinement glows and Escape/Backspace modal controls
-- `test-sidebar-browser.mjs` (3.7 KB, 49) — Browser check: grouped Act and Adventure Log tab, auto-rotating Premium Shop advertisement, field animation, keyboard tabs and reduced motion
+- `test-sidebar-browser.mjs` (6.1 KB, 79) — Browser check: grouped Act and Adventure Log tab, auto-rotating Premium Shop advertisement, field animation, keyboard tabs and reduced motion
 - `test-skill-buttons-browser.mjs` (2.4 KB, 34) — Browser check: prominent hero skill buttons, click animation, cooldown progress and countdown, ready glow, reduced motion and tray bounds
 - `test-skill-points.mjs` (1.4 KB, 38) — Regression checks for independent skill and path point pools and legacy save migration
 - `test-summon-auto-browser.mjs` (4.1 KB, 44) — Browser checks of Z pet pickups with a stationary owner, toggle pause/resume, automatic falcon strikes and guardian summoning
 - `test-summon-auto.mjs` (8.3 KB, 98) — Verify summon looting, defensive priority, timer and boarding guards, callbacks, bag limits and class summon cooldowns
 - `test-terrain-browser.mjs` (2.6 KB, 36) — Browser validation of all animated Aseprite tilesets, campaign/frontier rendering, unchanged collision grids and terrain resource teardown
+- `test-weather-power.mjs` (2.6 KB, 30) — (no purpose yet)
 
 ## tools/art/lib/
 
@@ -311,6 +321,7 @@ then `outline <file>` and read only the line range you need.
 - `paint.mjs` (5.3 KB, 76) — Recreates the detailed procedural .aseprite starting points (overwrites): node tools/aseprite/paint/paint.mjs <key|all> · SUBJECTS
 - `restyle.mjs` (1.9 KB, 39) — Gives hand-made single-frame .aseprite art the tile style in place (lifts the flat ink, grades colours, hue-shifted outline): node tools/aseprite/paint/restyle.mjs ui/guild_plate … · restyle
 - `scenery.mjs` (25 KB, 464) — Scenery kit for the safe-zone painters: alpha Img canvas, flagstones, clearings, shingles, timber walls, tents, braziers, banners, crates, barrels, smoke, campfire · FRAMES, ph, rgb, mix, withA, shade, ramp, pick +26
+- `skills.mjs` (5.5 KB, 39) — Paint and export 42 layered Aseprite hero, playable NPC and active-path skill emblems; --export preserves edited originals
 - `slime.mjs` (7.6 KB, 141) — Painter: detailed slime 32×24 (Forest Slime; Pocket Slime with sprout), idle/walk/run/attack/skill × 3 directions · W, FOREST, FRAMES, DURATIONS, paintSlime
 - `tiles.mjs` (26 KB, 447) — Painter for the terrain tile sets → aseprite/tiles/<theme>.aseprite (15 themes; layers liquid, foam, ground, path, decor; 8 frames): corner tiles with rounded/inner corners, cliff faces, foam, liquids (water, lava, void, ice, blood, murk), decorations · material, paintTiles, tileSubjects
 - `ui.mjs` (10 KB, 208) — Painter for the HD interface frames (2× pixel density): hero card, party slots, portrait, meters, key chips, side-menu panels and buttons → aseprite/ui/<key>.aseprite · UI_KEYS, UI_SLICES, paintUi, uiSubjects

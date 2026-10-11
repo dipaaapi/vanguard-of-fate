@@ -1,6 +1,7 @@
 import { PLAYABLES, PLAYABLE_IDS, PlayableQuestBook, makePlayableKit, innateMaxHp } from "./playables.js";
 import { NPC_DEFS } from "./npc/roster.js";
 import { Avatar } from "./avatar/avatar.js";
+import { getItem } from "./items/itemdb.js";
 import { getLang } from "./i18n.js";
 
 // ==================== PARTY (playable NPCs) ====================
@@ -35,7 +36,8 @@ function recruitLines(id, kind, vars) {
 export const memberName = (id, heroName) => (id === "hero" ? heroName : (PLAYABLES[id]?.label[getLang() === "fil" ? 1 : 0] || id));
 
 export class Party {
-  constructor(saved = null, playables = null) {
+  constructor(saved = null, playables = null, echoes = []) {
+    this.echoes = echoes.filter(id=>PLAYABLE_IDS.includes(id));
     this.book = new PlayableQuestBook(playables && typeof playables === "object" ? playables : {});
     this.kits = {};             // id → combat kit with its Avatar (built once)
     this.avatars = {};
@@ -48,7 +50,7 @@ export class Party {
   }
 
   load(saved) {
-    const recruited = PLAYABLE_IDS.filter((id) => this.book.state[id].recruited);
+    const recruited = PLAYABLE_IDS.filter((id) => this.book.state[id].recruited || this.echoes.includes(id));
     const order = Array.isArray(saved?.members) ? saved.members.filter((id) => recruited.includes(id)) : [];
     recruited.forEach((id) => { if (!order.includes(id)) order.push(id); });
     this.members = ["hero", ...order].slice(0, PARTY_MAX);
@@ -182,6 +184,25 @@ export class Party {
     });
   }
 
+  selectedQuest() { return PLAYABLE_IDS.find(id=>this.book.state[id].priority && this.book.state[id].started && !this.book.state[id].recruited) || null; }
+  selectQuest(id) { if(!this.book.state[id]?.started || this.book.state[id].recruited)return false;for(const [key,q] of Object.entries(this.book.state))q.priority=key===id;return true; }
+  clearQuestPriority() { for(const q of Object.values(this.book.state))q.priority=false; }
+  questGoal(player,stage,npcs,enemies,fishing,navigator) {
+    const id=this.selectedQuest();if(!id)return null;
+    const def=PLAYABLES[id], q=this.book.state[id];
+    if(stage.id!==def.region)return {destination:def.region};
+    if(this.book.ready(id,player.bag)){const npc=npcs.npcs.find(n=>n.id===id && n.platform===def.region);return npc?{status:"talk",npc,point:{x:npc.x,y:npc.y},radius:24}:{status:"waiting"};}
+    if(def.systems){const console=CONSOLES.find(c=>!q.systems[c[2]]);if(console)return {status:"scout",point:{x:console[0],y:console[1]},radius:8};}
+    if(q.progress<def.required)return {status:"search",objective:{t:"eliteAny"}};
+    if(def.needsBoss && !q.bossProof){const enemy=enemies.find(e=>e.boss && e.isAlive);return enemy?{status:"fight",enemy,point:{x:enemy.x+10,y:enemy.y+20},radius:40}:{status:"search",objective:{t:"boss"}};}
+    if(def.feed && player.bag.count("mudcarp")<(def.feed.mudcarp||0) && fishing && navigator){
+      navigator.build(stage,player,Date.now());
+      const point=fishing.bank(player,stage,navigator);
+      return point?{status:"fish",action:"fish",point,radius:4}:{status:"routeBlocked"};
+    }
+    return {status:"search",objective:null};
+  }
+
   // ---- Recruitment ----
   // Lines when talking to a recruit (offer / progress / join); joined: true when they joined just now
   talk(id, bag) {
@@ -192,7 +213,7 @@ export class Party {
       return { lines: recruitLines(id, "offer", {}), joined: false };
     }
     if (this.book.recruit(id, bag)) {
-      if (this.members.length < PARTY_MAX) { this.members.push(id); this.hp[id] = null; }
+      if (!this.members.includes(id) && this.members.length < PARTY_MAX) { this.members.push(id); this.hp[id] = null; }
       return { lines: recruitLines(id, "join", {}), joined: true };
     }
     return { lines: recruitLines(id, "progress", { n: q.progress, req: def.required }), joined: false };
@@ -204,7 +225,10 @@ export class Party {
   progressText(id, bag) {
     const def = PLAYABLES[id], q = this.book.state[id];
     if (this.book.ready(id, bag)) return partyText("ready", { name: memberName(id) });
-    return partyText("progress", { name: memberName(id), n: q.progress, req: def.required });
+    const details=[partyText("progress", { name: memberName(id), n: q.progress, req: def.required })];
+    if(def.needsBoss)details.push(`${partyText("bossProof")} ${q.bossProof?"?":"0/1"}`);
+    for(const [item,n] of Object.entries(def.feed||{}))details.push(`${getItem(item).name} ${bag?.count(item)||0}/${n}`);
+    return details.join(" ? ");
   }
 
   // Eirene's trial on the Lost Sky Continent: walking up to a dark console restarts it

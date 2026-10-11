@@ -266,5 +266,6 @@
   "tools/mcp/vof-game-mcp.mjs": "vof-game MCP server (stdio, no deps): game_start/input/hold/state/screenshot/eval/travel/autoplay/logs/stop on the real game in headless Chromium",
   "tools/tilemap/lineup.mjs": "Line-up PNG of sprites standing on a tile set (plain Node): node tools/tilemap/lineup.mjs <theme> monster:<k> merc:<k> summon:<k> npc:<id> act:<map> zone:<k> ui:<k> [--scale n] [--anim a] [--code] [--out file]",
   "tools/tilemap/preview.mjs": "Renders every terrain tile set on its layout (480×270 views + contact sheet) and the maps in data/tilemaps.json to PNG in headless Chromium: node tools/tilemap/preview.mjs [themes…] [--layout k] [--seed n] [--scale n] [--out dir]",
-  "tools/tilemap/viewer.html": "Page used by tools/tilemap/preview.mjs to render terrain tile sets and maps"
+  "tools/tilemap/viewer.html": "Page used by tools/tilemap/preview.mjs to render terrain tile sets and maps",
+  "tools/aseprite/paint/skills.mjs": "Paint and export 42 layered Aseprite hero, playable NPC and active-path skill emblems; --export preserves edited originals"
 }

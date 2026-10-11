@@ -1,3 +1,5 @@
+import { economyProfile } from "../regression.js";
+import { HEALING_BOTTLES, STAMINA_BOTTLES } from "./itemdb.js";
 import { getLang } from "../i18n.js";
 
 // ==================== ECONOMY (buy and sell prices) ====================
@@ -11,27 +13,28 @@ import { getLang } from "../i18n.js";
 //            MARKET.recoverMs. Farming one item for gold pays less and less; selling a variety pays full.
 // Checked with `node .claude/skills/balance/balance-sim.mjs --economy` (gold earned vs. spent per Act).
 
-export const SELL_RATE = { equip: 0.25, material: 0.4, consume: 0.3, card: 0.5, quest: 0 };
-export const MARKET = { step: 0.04, floor: 0.4, recoverMs: 30000 };
+export const SELL_RATE = { equip: 0.2, material: 0.3, consume: 0.2, card: 0.25, quest: 0 };
+export const MARKET = { step: 0.03, floor: 0.35, recoverMs: 45000 };
 
 // stock = item ids in display order · markup = × item value · fixed = exact prices
 export const SHOPS = {
   // Edgar the Apothecary (hub)
-  apothecary: { stock: ["salve", "panacea", "tonic", "elixir"], markup: 1 },
+  apothecary: { stock: [...HEALING_BOTTLES, ...STAMINA_BOTTLES, "panacea"], markup: 1 },
   // Pip's stall in Emberhold (Ashfall): refine materials and potions at a dwarven mark-up
   dwarf: {
-    stock: ["monsterShard", "voidCrystal", "elixir", "tonic", "panacea"], markup: 1.5,
+    stock: ["monsterShard", "voidCrystal", ...HEALING_BOTTLES, ...STAMINA_BOTTLES, "panacea"], markup: 1.5,
     fixed: { monsterShard: 15, voidCrystal: 80, elixir: 45, tonic: 18, panacea: 22, mushroom: 3000 }
   },
   // Any safe zone (Barracks, Citadel, platform camps): basics and cooking staples
-  safezone: { stock: [ "salve", "elixir", "tonic", "panacea", "monsterShard", "wildSpice", "rockSalt"], markup: 1.25 }
+  safezone: { stock: [ ...HEALING_BOTTLES, ...STAMINA_BOTTLES, "panacea", "monsterShard", "wildSpice", "rockSalt"], markup: 1.25 }
 };
 
 // What a shop charges for one. item = describe(...) of the id
 export function buyPrice(shopId, id, item) {
   const shop = SHOPS[shopId] || SHOPS.safezone;
-  if (shop.fixed && shop.fixed[id] !== undefined) return shop.fixed[id];
-  return Math.max(1, Math.round((item ? item.price : 0) * shop.markup));
+  if(id==="soulstone")return 10000; // Exchange-backed currency item always has its face value.
+  const base=shop.fixed?.[id] ?? (item ? item.price : 0)*shop.markup;
+  return Math.max(1,Math.ceil(base*economyProfile().trade));
 }
 
 // What a shop pays for one unit before saturation

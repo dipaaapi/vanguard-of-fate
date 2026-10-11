@@ -50,7 +50,7 @@ const before=JSON.stringify(p.bag.slots),gold=p.gold;
 assert.equal(book.claim(p,ctx).error,"full");assert.equal(p.gold,gold);assert.equal(JSON.stringify(p.bag.slots),before);assert.equal(p.guild.active.id,"G:6");
 // Every rank/class reward resolves to usable game equipment and includes all reward categories.
 for(const cls of ["knight","mage","priest","archer","fighter"]){
- const contracts=guildContracts(cls);assert.equal(contracts.length,90);
+ const contracts=guildContracts(cls);assert.equal(contracts.length,130);
  for(const q of contracts) for(const item of q.reward.items||[]) assert.ok(describe(item),`${cls}/${q.id}/${item.id}`);
 }
 assert.equal(GUILD_RANKS.join(","),"G,F,E,D,C,B,A,S,SS,SSS"); assert.equal(Object.keys(GUILD_ROLES).length,5);
@@ -68,7 +68,7 @@ const control=new Player(0,0,{id:"mage"});control.stats.int=15;control.skillLeve
 assert.equal(guildAssessment(control).role,"inflictionist");
 const promoted=new Player(GUILD_NPCS.guildMaster.x-10,GUILD_NPCS.guildMaster.y-10,{id:"knight"});
 promoted.level=200;Object.keys(promoted.stats).forEach(k=>promoted.stats[k]=99);book.state(promoted).member=true;promoted.bag.add("guildPlate");
-book.state(promoted).completed=4;
+book.state(promoted).completed=4;book.state(promoted).claimed=["G:dungeon","G:dungeonBoss","F:dungeon","F:dungeonBoss"];
 assert.equal(book.reassess(promoted,ctx).rank,"E","promotions require completed contracts as well as ability");
 promoted.level=1;assert.equal(book.reassess(promoted,ctx).rank,"E","a reset must not erase an earned rank");
 const stage=new Stage(),npcs=new NPCManager(stage);npcs.build("aurelia");npcs.applyQuest(quest,"knight");
@@ -110,3 +110,75 @@ assert.equal(field.goal(runner,stage,manager,crew,loot).npc.id,"guildClerk","fin
 runner.guild.active={id:"G:8",cls:"knight",have:0,priority:true};field.goal(runner,stage,manager,crew,loot);
 const guildMvp=manager.enemies.find(e=>e.guildMvp);assert.ok(guildMvp);assert.equal(stage.isInsideSafeZone(guildMvp.x,guildMvp.y),false);
 console.log("PASS: guild priority persistence, empty-field patrol, claim routing and sanctuary-free MVP spawn");
+
+const {QuestManager}=await load("js/quest.js");
+const registrationQuest=new QuestManager();registrationQuest.step=5;registrationQuest.side.complete=()=>true;
+registrationQuest.guildJoined=false;
+assert.equal(registrationQuest.targetNpc("aurelia","knight"),"guildMaster");
+registrationQuest.guildJoined=true;
+assert.notEqual(registrationQuest.targetNpc("aurelia","knight"),"guildMaster");
+console.log("PASS: Act V routes to guild registration before the class mentor");
+
+// Act VIII's island expedition is required, navigable by Auto, and save-compatible.
+{
+ const {QuestManager}=await load('js/quest.js');
+ const {AutoAdventure,routeExit}=await load('js/autoadventure.js');
+ const q=new QuestManager();q.step=q.baseStep('coast')+2;q.side.complete=()=>true;
+ const hero={x:0,y:0,hp:100,maxHp:100,heroData:{id:'knight'},bag:{slots:[],has:()=>false},guild:{member:true},level:20};
+ const npcs={summonerId:'aurelia',find:id=>({id,x:180,y:480})};
+ const hub={portals:{portals:[{dest:'canopy',x:1,y:1},{dest:'coast',x:2,y:2}]}};
+ let objectives=0;
+ while(q.islandObjective()){
+  const o=q.islandObjective();assert.equal(q.canDeliver('coast'),false);
+  assert.ok(routeExit({id:o.area==='port'?'coast':o.area==='swamp'?'port':o.area==='underworks'?'swamp':'underworks'},o.area,q,hub),'route to '+o.area);
+  const stage={id:o.area,isInsideSafeZone:()=>false};
+  const goal=new AutoAdventure().choose({player:hero,stage,quest:q,npcs,enemies:[],loot:{items:[]},hub,finalStep:34});
+  assert.equal(goal.status,o.npc?'talk':'scout');
+  const before=q.step;
+  if(o.npc){assert.equal(q.targetNpc('aurelia','knight'),o.npc);assert.ok(q.islandLines(o.npc).length);q.onTalk(o.npc,'aurelia','knight');}
+  else{assert.equal(q.checkIslandSite({id:'hub'},{x:o.point.x-10,y:o.point.y-20}),false);assert.ok(q.checkIslandSite(stage,{x:o.point.x-10,y:o.point.y-20}));}
+  assert.equal(q.step,before);
+  const restored=new QuestManager();restored.load(q.serialize(),hero);
+  assert.deepEqual(restored.lostRoute,q.lostRoute);assert.deepEqual(restored.skyCampaign,q.skyCampaign);
+  objectives++;assert.ok(objectives<20);
+ }
+ assert.equal(objectives,13);assert.ok(q.unlocked('underworks')&&q.unlocked('lost'));assert.ok(q.canDeliver('coast'));
+ q.onDeliver('coast');assert.equal(q.step,q.baseStep('frost'));
+ const legacy=new QuestManager();legacy.load({v:3,step:19},hero);assert.equal(legacy.step,19);assert.equal(legacy.islandObjective(),null);
+ console.log('PASS: required Act VIII Beastkin / floating continent expedition, Auto goals, save recovery and legacy progress');
+}
+
+{
+ const {QuestManager}=await load('js/quest.js');
+ const {Platform}=await load('js/world/platform.js');
+ const {FRONTIERS}=await load('js/world/frontiers.js');
+ const {EnemyManager}=await load('js/enemy.js');
+ const {GuildField}=await load('js/guildfield.js');
+ const hero=new Player(GUILD_NPCS.guildMaster.x-10,GUILD_NPCS.guildMaster.y-10,{id:'knight'});
+ hero.level=80;Object.keys(hero.stats).forEach(k=>hero.stats[k]=99);hero.gold=10000;
+ const q=new QuestManager();q.step=q.baseStep('maw');q.side.complete=()=>true;
+ const context={...ctx,quest:q};
+ assert.ok(book.register(hero,context).joined);assert.equal(hero.guild.rank,'SS');assert.equal(hero.guild.heroCertified,false);
+ q.update(hero);assert.ok(q.heroTrialPending());assert.equal(q.unlocked('maw'),false);
+ hero.guild.completed=18;hero.guild.claimed=Array.from({length:18},(_,i)=>`G:${i}`);
+ assert.equal(book.reassess(hero,context).rank,'SS','raw level/count cannot earn SSS');
+ const dungeon=new Platform("guildDungeon");const manager=new EnemyManager();manager.setArea(dungeon,[],4,[],[10,55]);
+ const field=new GuildField(book);
+ for(const type of ['dungeon','dungeonBoss']){
+   const contract=book.contract(hero,`SS:${type}`);
+   hero.x=GUILD_NPCS.guildClerk.x-10;hero.y=GUILD_NPCS.guildClerk.y-10;
+   assert.equal(book.accept(hero,context,contract.id).error,undefined);
+   field.prepare(hero,dungeon,manager);
+   const foes=manager.enemies.filter(e=>e.isAlive&&e.guildContract===contract.id);
+   assert.equal(foes.length,contract.n);assert.equal(Boolean(foes[0].boss),type==='dungeonBoss');
+   assert.equal(book.progress(hero,'hub',foes[0]),false);
+   assert.equal(book.progress(hero,'guildDungeon',{...foes[0],guildContract:'wrong'}),false);
+   for(const e of foes)assert.ok(book.progress(hero,'guildDungeon',e));
+   assert.equal(hero.guild.active.have,contract.n);assert.equal(book.claim(hero,context).error,undefined);
+ }
+ hero.x=GUILD_NPCS.guildMaster.x-10;hero.y=GUILD_NPCS.guildMaster.y-10;
+ assert.equal(book.reassess(hero,context).rank,'SSS');assert.ok(hero.guild.heroCertified);
+ q.update(hero);assert.equal(q.heroTrialPending(),false);assert.ok(q.unlocked('maw'));
+ const saved=structuredClone(hero.guild);book.load(hero,saved);assert.ok(hero.guild.heroCertified);
+ console.log('PASS: real dungeon mobs and boss, isolated proof, SSS certification, final campaign gate and saved certification');
+}

@@ -377,7 +377,7 @@ export class WorldMap {
       ctx.font = "bold 5px monospace";
       ctx.fillText(tx("side"), rx, y);
       y += 7;
-      const here = s.quest && s.quest.side ? s.quest.side.list.filter((q) => q.area === st.id && q.have < q.n) : [];
+      const here = s.quest && s.quest.side ? s.quest.side.tasks().filter((q) => q.area === st.id && q.have < q.n) : [];
       ctx.font = "4.5px monospace";
       if (!here.length) { ctx.fillStyle = "#64748b"; ctx.fillText(tx("none"), rx, y); y += 6; }
       here.slice(0, 4).forEach((q) => {

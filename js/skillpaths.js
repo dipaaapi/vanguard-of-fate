@@ -233,7 +233,12 @@ export function castActive(p, id, ctx) {
 export function tickActives(p, isPressed, ctx) {
   if (p.activeCd) for (const k in p.activeCd) if (p.activeCd[k] > 0) p.activeCd[k]--;
   if (p.wardT > 0 && --p.wardT === 0) p.wardPct = 0;
-  if (p.dashT > 0) { p.dashT--; p.x += p.dashVx; p.y += p.dashVy; }
+  if (p.dashT > 0) {
+    p.dashT--;
+    const speed=Math.hypot(p.dashVx,p.dashVy), limit=ctx.autoMovement ? (ctx.target?.isAlive ? Math.max(0,Math.hypot(ctx.target.x-p.x,ctx.target.y-p.y)-24) : 0) : speed;
+    const scale=Math.min(1,limit/(speed||1));p.x+=p.dashVx*scale;p.y+=p.dashVy*scale;
+    if(ctx.autoMovement && limit<=speed)p.dashT=0;
+  }
   if (!p.pathSlots) return;
   SLOT_KEYS.forEach((code, i) => {
     const id = p.pathSlots[i];

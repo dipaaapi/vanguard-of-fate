@@ -1,5 +1,5 @@
 import { applyFacing, drawView } from "./avatar/facing.js";
-import { difficulty, regression } from "./regression.js";
+import { difficulty, regression, economyProfile } from "./regression.js";
 import { t } from "./i18n.js";
 import { AxeMercenary } from "./mercenary/axe.js";
 import { around, mix, hitPose, attackPose, breathPose, drawSwing } from "./juice.js";
@@ -37,7 +37,7 @@ export class MercenaryManager {
 
   // Contract fee: rises with level (the mercenary is stronger too)
   static cost(level) {
-    return Math.ceil((10 + level * 3) * difficulty().mercenaryCostMultiplier);
+    return Math.ceil((10 + level * 3) * difficulty().mercenaryCostMultiplier * economyProfile().coins);
   }
 
   static limit() { return regression.level >= 1 ? 1 : Infinity; }

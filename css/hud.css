@@ -197,7 +197,8 @@ body[data-mode="play"] #chatLog {
 .coin-chip.gold { color: #efbd4e; }
 .coin-chip.silver { color: #b1c9dc; }
 .coin-chip.bronze { color: #cd894b; }
-.hb-wallet { margin-bottom: 8px; }
+.hb-wallet { margin-bottom: 8px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.hb-cash { display: inline-flex; align-items: center; padding: 7px 10px; border: 1px solid #a88b4d; border-radius: 4px; background: linear-gradient(135deg, #27313f, #171c27); color: #ffe0a0; font: bold 14px Georgia, serif; white-space: nowrap; }
 #market .coin-wallet, .inv-gold.coin-wallet { gap: calc(3px * var(--s)); padding: calc(2px * var(--s)); }
 #market .coin-chip img, .inv-gold .coin-chip img { width: calc(10px * var(--s)); height: calc(10px * var(--s)); }
 #market .coin-chip b, .inv-gold .coin-chip b { font-size: calc(5px * var(--s)); }
@@ -236,3 +237,10 @@ body[data-mode="play"] #chatLog {
 .hb-difficulty.diff-epic { color: #fb923c; }
 .hb-difficulty.diff-champion { color: #f87171; }
 .hb-difficulty.diff-mythical { color: #e879f9; text-shadow: 0 0 4px #e879f9aa; }
+
+/* Hero and party profiles share the left edge. */
+#viewport #heroHud{left:calc(4px * var(--s));right:auto}
+#viewport .pt-list{left:calc(4px * var(--s));right:auto;align-items:flex-start}
+.hb-difficulty-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:3px 10px 9px;padding:7px 10px;border:1px solid #34445b;border-radius:5px;background:linear-gradient(110deg,#17283a,#0c1422)}
+.difficulty-label{font:9px Arial,sans-serif;color:#94acc5;letter-spacing:1.2px}
+#hbDifficulty{padding:3px 8px;font-size:10px}

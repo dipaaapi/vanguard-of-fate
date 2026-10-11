@@ -1,4 +1,5 @@
-import { AutoAdventure } from "./autoadventure.js";
+import { combatWeather, weatherPowerText } from "./world/weather.js";
+import { AutoAdventure, AdventureNavigator, routeExit } from "./autoadventure.js";
 import { GuildBook } from "./guild.js";
 import { GuildField } from "./guildfield.js";
 import { autoSummonDefence } from "./summons/automation.js";
@@ -47,12 +48,14 @@ import { DialogBox, QuestHud } from "./dialog.js";
 import { ChatLog } from "./chatlog.js";
 import { ServiceMenu } from "./services.js";
 import { Codex } from "./codex.js";
-import { getItem, SETS } from "./items/itemdb.js";
+import { getItem, SETS, canEquip, describe } from "./items/itemdb.js";
 import { SET_SLOTS, recipeCost, forgePiece } from "./items/forge.js";
 import { wear, WEAR_WEAPON, WEAR_ARMOR, ARMOR_SLOTS } from "./items/durability.js";
 import { needsPick } from "./world/mining.js";
+import { PLAYABLES } from "./playables.js";
+import { captainRoutes, CAPTAIN_TEXT } from "./world/boat.js";
 import { Fishing } from "./world/fishing.js";
-import { Workshop } from "./workshop.js";
+import { Workshop, craftingStation } from "./workshop.js";
 import { SHOPS, buyPrice, Market as EconMarket, formatCoins } from "./items/economy.js";
 import { hasRunnerKind, isAway, updateErrand, serializeErrand, loadErrand, errandText, runnerName } from "./errand.js";
 import { Avatar } from "./avatar/avatar.js";
@@ -157,7 +160,7 @@ function setLayoutMode(mode) {
 // Side panel title and control hints (follow the chosen language)
 function refreshLabels() {
   const head = document.getElementById("sideHead");
-  if (head) head.textContent = layoutMode === "select" ? t("sideDossier") : t("sideLore");
+  if (head) head.textContent = layoutMode === "select" ? t("sideDossier") : "VANGUARD OF FATE";
   document.getElementById("sideActsTab").textContent=getLang()==="fil"?"Pangkalahatan":"Overview";
   document.getElementById("sideLogTab").textContent=getLang()==="fil"?"Mga Act at Log":"Acts & Log";
   const more = document.getElementById("loreMore");
@@ -275,6 +278,9 @@ const quest = new QuestManager();
 const npcManager = new NPCManager(hub);
 const dialog = new DialogBox(viewportEl);
 const questHud = new QuestHud(viewportEl);
+questHud.context={guildBook,guildPanel,guildContext,party:()=>party,changed:()=>saveGame()};
+quest.npcPriority=()=>Boolean(party.selectedQuest());
+quest.npcClearPriority=()=>party.clearQuestPriority();
 // Bottom tray: every NPC line is logged with the in-game time
 const chatLog = new ChatLog(chatLogEl);
 dialog.onLine = (id, line) => chatLog.add(id, line, dayNight.label());
@@ -326,6 +332,7 @@ const serviceMenu = new ServiceMenu(document.getElementById("serviceMenu"));
 // Workshop (G, safe zones only): craft gear from materials, auto-craft, cook, transmute (js/workshop.js)
 const workshop = new Workshop({
   menu: serviceMenu, fx, sound: Sound,
+  canCraft: () => craftingStation(stage,player),
   log: (kind, text, color) => chatLog.event(kind, text, dayNight.label(), null, color),
   onChange: () => { inventory.dirty = true; }
 });
@@ -344,12 +351,19 @@ function openWorkshop() {
 
 // Fishing (E at the water's edge): what bites depends on the place (js/world/fishing.js)
 const fishing = new Fishing();
-fishing.onCatch = (id) => {
+fishing.onCatch = (id, result = { qty: 1 }) => {
   const it = getItem(id), fil = lang() === "fil";
-  if (!player.bag.add(id, 1)) lootManager.drop({ x: player.x + 10, y: player.y + 22 }, { id, qty: 1 });
-  fx.spawnDamagePopup(player.x + 10, player.y - 18, `+1 ${it.name}`, true, it.tint);
+  const slotsBefore = player.bag.slots.map(slot => ({...slot}));
+  if (!player.bag.add(id, result.qty)) {
+    player.bag.slots = slotsBefore; player.bag.changed();
+    lootManager.drop({ x: player.x + 10, y: player.y + 22 }, { id, qty: result.qty });
+    const drop = lootManager.items.at(-1); if(drop) drop.guildSource = "fish";
+  }
+  else guildBook.collect(player, stage.id, id, "fish", result.qty);
+  fx.spawnDamagePopup(player.x + 10, player.y - 18, `+${result.qty} ${it.name}${result.perfect ? " ★" : ""}`, true, it.tint);
   if (Sound.playLootPickup) Sound.playLootPickup();
-  chatLog.event("loot", "", dayNight.label(), { key: `fish:${id}`, value: 1, format: (n, total) => (fil ? `Nakahuli ng ${it.name} ×${total}` : `Caught ${it.name} ×${total}`) }, it.tint);
+  chatLog.event("loot", "", dayNight.label(), { key: `fish:${id}`, value: result.qty, format: (n, total) => (fil ? `Nakahuli ng ${it.name} ×${total}` : `Caught ${it.name} ×${total}`) }, it.tint);
+  saveGame();
 };
 fishing.onMiss = () => fx.spawnDamagePopup(player.x + 10, player.y - 18, lang() === "fil" ? "Nakatakas!" : "It got away!", false, "#94a3b8");
 
@@ -444,6 +458,7 @@ function toggleCodex() {
 function openRonaldMenu() {
   const fil = lang() === "fil", who = npcName("ronald");
   serviceMenu.show(who, [
+    { label: fil ? "Bihasang panday: gumawa ng sandata at baluti" : "Master craftsman: weapons & armor", hint: fil ? "Mineral, core, diwa at bayad sa paggawa" : "Specific ores, cores, essence and crafting fees", disabled: !craftingStation(stage,player), onPick: () => { workshop.open(player); } },
     { label: fil ? "Umupa ng mercenary" : "Hire mercenaries", hint: `${formatCoins(MercenaryManager.cost(player.level))}`, onPick: () => { showMercModal = true; } },
     { label: fil ? "Mag-refine (hanggang +4)" : "Refine gear (up to +4)", hint: fil ? "Ang dwarf na panday sa Ashfall ang lampas +4" : "Beyond +4 needs the dwarf smith of Ashfall",
       onPick: () => openService("refine", { maxPlus: 4, serviceName: who }) },
@@ -456,6 +471,7 @@ function openRonaldMenu() {
 function openSmithMenu() {
   const fil = lang() === "fil", who = npcName("brakka");
   serviceMenu.show(who, [
+    { label: fil ? "Bihasang panday: gumawa ng sandata at baluti" : "Master craftsman: weapons & armor", hint: fil ? "Mineral, core, diwa at bayad sa paggawa" : "Specific ores, cores, essence and crafting fees", disabled: !craftingStation(stage,player), onPick: () => { workshop.open(player); } },
     { label: fil ? "Mag-refine (hanggang +10)" : "Refine gear (up to +10)", hint: fil ? "Monster Shard, Kristal ng Void at ginto" : "Monster Shards, Void Crystals and gold",
       onPick: () => openService("refine", { maxPlus: 10, serviceName: who }) },
     { label: fil ? "Mag-forge ng set" : "Forge a set piece", hint: fil ? "Mga mineral mula sa minahan" : "From mined minerals", onPick: openForgeSets },
@@ -467,6 +483,7 @@ function openSmithMenu() {
 // Forging: pick a set, then a slot; each option shows its mineral cost
 const costText = (cost) => Object.entries(cost).map(([id, n]) => (id === "gold" ? `${formatCoins(n)}` : `${getItem(id).name} ${player.bag.count(id)}/${n}`)).join(" · ");
 function openForgeSets() {
+  if(!craftingStation(stage,player))return;
   const fil = lang() === "fil";
   serviceMenu.show(fil ? "Pumili ng set" : "Choose a set", Object.entries(SETS).filter(([, set]) => set.mineral).map(([id, set]) => ({
     label: `${set.name[lang()]} · ${fil ? "Grado" : "Grade"} ${set.grade}`,
@@ -481,6 +498,7 @@ function openForgeSlots(setId) {
     label: SLOT_NAME[slot],
     hint: costText(recipeCost(setId, slot)),
     onPick: () => {
+      if(!craftingStation(stage,player))return;
       const err = forgePiece(player, setId, slot);
       if (err) {
         const why = { gold: fil ? "Kulang ang ginto" : "Not enough gold", minerals: fil ? "Kulang ang mineral" : "Not enough minerals", full: fil ? "Puno ang bag" : "Bag is full" }[err];
@@ -544,10 +562,17 @@ function mineVein(v) {
     fx.spawnDamagePopup(player.x + 10, player.y - 10, fil ? "Kailangan ang piko ni Thane Durgrim" : "Needs Thane Durgrim's pickaxe", false, "#94a3b8");
     return;
   }
-  const r = stage.ore.strike(v);
+  const r = stage.ore.strike(v, player);
   fx.spawnHitSparks(v.x, v.y - 8, getItem(v.kind).tint, r.broke ? 20 : 8);
   if (Sound.playSlash) Sound.playSlash();
   if (!r.broke) return;
+  if (r.refine) {
+    const item=getItem(r.refine.id);
+    if (!player.bag.add(r.refine.id,r.refine.qty)) lootManager.drop({x:v.x-8,y:v.y+6},r.refine);
+    fx.spawnDamagePopup(v.x,v.y-30,`+${r.refine.qty} ${item.name}`,true,item.tint);
+    chatLog.event("loot",`${item.name} ?${r.refine.qty}`,dayNight.label(),null,item.tint);
+    if(Sound.playLootPickup)Sound.playLootPickup();
+  }
   if (r.salt && !player.bag.add("rockSalt", r.salt)) lootManager.drop({ x: v.x + 8, y: v.y + 6 }, { id: "rockSalt", qty: r.salt });
   if (!player.bag.add(r.id, r.qty)) {
     lootManager.drop({ x: v.x, y: v.y + 6 }, { id: r.id, qty: r.qty });   // bag full: leave it on the ground
@@ -586,6 +611,13 @@ function openDwarfShop() {
 
 function inventoryCtx() {
   return {
+    jobs: () => ROSTER.filter(def => regression.jobs.includes(def.id) || def.id === player.heroData.id),
+    changeJob: id => {
+      const def = ROSTER.find(def => def.id === id);
+      if(!def || !regression.jobs.includes(id) || player.active || player.inBoat || player.hp <= 0) return null;
+      changeJob(def, true);
+      return player;
+    },
     fx,
     // Selling happens only in a sanctuary (Barracks, the Citadel dais or a platform camp)
     inSanctuary: () => Boolean(player && stage.isInsideSafeZone(player.x + 10, player.y + 17)),
@@ -717,7 +749,6 @@ function quickUse(slot) {
 
 // Auto-potion (Ragnarok/Diablo style): drinks automatically when HP drops below the set percentage,
 // uses Panacea when blighted and Tonic when tired. One second between uses.
-const HEAL_ORDER = ["salve", "elixir", "herb"];
 const HARMFUL = ["poison", "bleeding", "burn", "freeze", "electrified", "silence", "blind", "curse", "confusion"];
 function autoPotion() {
   const p = player, a = p.autoPot;
@@ -725,11 +756,11 @@ function autoPotion() {
   const use = (id) => { if (p.bag.has(id) && p.bag.useById(id, p, fx)) { p.autoPotTimer = 60; return true; } return false; };
   if (a.hp && p.hp / p.maxHp * 100 < a.hp) {
     // a stronger potion when a lot of HP is missing
-    const order = p.maxHp - p.hp > 120 ? ["elixir", "salve", "herb"] : HEAL_ORDER;
+    const order = [...p.bag.healingOrder(p), "herb"];
     if (order.some(use)) return;
   }
   if (a.cure && HARMFUL.some((k) => p.debuffs[k] > 0) && use("panacea")) return;
-  if (a.stamina && p.exhausted) use("tonic");
+  if (a.stamina && p.exhausted) ["tonicLarge", "tonic", "tonicSmall"].some(use);
 }
 document.getElementById("loreMore").addEventListener("mousedown", (e) => e.preventDefault());
 // Mouse wheel zooms the world map while it is open
@@ -876,9 +907,14 @@ function syncPlatformFlags() {
     if (p.def.rift) p.riftOpen = quest.unlocked(p.def.rift.dest);
     p.miningUnlocked = quest.mining === 2;
     if (p.trail) p.trailSealed = !quest.unlocked(p.trail.dest);
+    p.exits?.forEach(g => { g.sealed = !quest.unlocked(g.dest); });
+    p.lostRouteData = quest.lostRoute.records;
+    p.lostDeviceOn = quest.lostRoute.deviceActivated;
+    if (p.id === "lost") p.eireneSystems = { ...party.book.state.eirene.systems, ...quest.skyCampaign };
     // Celestial Monolith: chained until the Leviathan Regent falls; awakened once the Seal Stones are placed
     if (p.boatSystem) {
       p.boatSystem.chained = !p.cleared;
+      p.boatSystem.permitted = quest.side.boat.permit || quest.monolith;
       p.boatSystem.monolith.activated = quest.monolith;
       p.boatSystem.seaPortal.active = quest.monolith;
     }
@@ -916,6 +952,23 @@ function crewOf() {
 // one built while the screen shows, then play resumes. Loading a save, dev tools and tests use
 // travelTo directly.
 const loadingScreen = new LoadingScreen();
+function openCaptainVoyages() {
+  if(!player || gameState!=="PLAYING")return;
+  const origin=stage.id, T=CAPTAIN_TEXT[lang()];
+  serviceMenu.show(T.title,[...captainRoutes(quest,origin).map(route=>({
+    label:`${T.sail} ${(PLATFORMS[route.id]||FRONTIERS[route.id]).name[lang()]}`,
+    hint:route.unlocked?T.border:!quest.side.boat.permit?T.permit:route.id==="strand"?T.dark:T.island,
+    disabled:!route.unlocked,
+    onPick:()=>{
+      // Recheck the route when boarding, including source port and story prerequisites.
+      if(stage.id!==origin || !captainRoutes(quest,origin).find(r=>r.id===route.id)?.unlocked)return;
+      controller.clearAll();serviceMenu.close();
+      chatLog.event("info",`${T.sail} ${(PLATFORMS[route.id]||FRONTIERS[route.id]).name[lang()]}`,dayNight.label());
+      warpTo(route.id);
+    }
+  })),{label:T.close,onPick:()=>serviceMenu.close()}]);
+}
+
 function warpTo(id) {
   const def = PLATFORMS[id] || FRONTIERS[id];
   gameState = "LOADING";
@@ -946,7 +999,7 @@ function travelTo(id, at = null) {
   player.inBoat = false;
   crewOf().forEach((c) => { c.aboard = false; });
   // A saved spot in the water or inside an obstacle (an old save made at sea): the nearest dry ground
-  if (at) {
+  {
     const dry = findNearestWalkableSpot(spot.x + 10, spot.y + 20, stage);
     spot = { x: dry.x - 10, y: dry.y - 20 };
   }
@@ -955,6 +1008,11 @@ function travelTo(id, at = null) {
   player.x = spot.x;
   player.y = spot.y;
   player.portalCooldown = 75;
+  // Discard the departed map's route, target and blocked timer without switching Auto off.
+  autoAdventure.reset();
+  autoAdventure.navigator = new AdventureNavigator();
+  player.chargeTimer = player.kickTimer = player.rollTimer = player.dashT = 0;
+  player.target = null;
   player.premiumEcho = null; // Recreate the companion at the new arrival point.
   camera.update(player.x, player.y);
 
@@ -1386,7 +1444,7 @@ function loadGame() {
     Workshop.load(player, data.life);
     loadErrand(player, data.errand);
     player.hp = Math.min(player.maxHp, data.hp || player.maxHp);
-    party = new Party(data.party, data.playables);
+    party = new Party(data.party, data.playables, player.premium.summons);
     party.apply(player);
     player.inheritedJob = data.inheritedJob === true;
     quest.load(data.quest, player);
@@ -1526,7 +1584,7 @@ const partyName = (id) => memberName(id, player ? player.heroName || partyText("
 
 // Recruited members leave their post in the world while they travel with the party
 function syncPartyNpcs() {
-  npcManager.setParty(party.members.filter((id) => id !== "hero"), party.activeId);
+  npcManager.setParty(party.members.filter((id) => id !== "hero" && (party.recruited(id) || id === party.activeId)), party.activeId);
 }
 
 // i = member index, or -1 for the next one standing
@@ -1550,11 +1608,22 @@ function onRecruited(id) {
 
 // Talking to an NPC (E). After the last line: quest + the NPC's service
 function talkTo(npc, automated = false) {
+  if (automated && npc.id === "guildMaster" && (quest.step === 5 || quest.heroTrialPending()) && !guildBook.state(player).member) {
+    const result = guildBook.register(player, guildContext());
+    if(result.error){player.toggleAutoAttack();questHud.toast(guildText(result.error));}
+    else {quest.update(player);controller.clearAll();guildCeremony.start(player,result);}
+    saveGame();return;
+  }
   if (automated && npc.id === "guildClerk" && guildBook.state(player).active?.have >= (guildBook.objective(player)?.n || Infinity)) {
     const result = guildBook.claim(player, guildContext());
     questHud.toast(guildText(result.error || "ok"));
     if (result.error) player.toggleAutoAttack();
     saveGame(); return;
+  }
+  if(automated && quest.heroTrialPending() && !guildBook.state(player).active && ["guildClerk","guildMaster"].includes(npc.id)) {
+    const result=npc.id==="guildMaster" ? guildBook.reassess(player,guildContext()) : guildBook.accept(player,guildContext(),guildBook.nextTrial(player)?.id);
+    if(result.error){player.toggleAutoAttack();questHud.toast(guildText(result.error));}
+    quest.update(player);syncPlatformFlags();saveGame();return;
   }
   const supply = guildField.supply(player, stage, npc);
   if (supply) { questHud.toast(guildText(supply)); saveGame(); return; }
@@ -1562,6 +1631,12 @@ function talkTo(npc, automated = false) {
   autoAdventure.dialogOwned = automated;
   if (automated) autoAdventure.dialogAt = Date.now();
   codex.meet(npc.id);
+  if (npc.id === "isolde" && ["coast","strand","swamp"].includes(npc.platform)) {
+    const line = quest.side.boatTalk();
+    syncPlatformFlags(); saveGame();
+    dialog.start(npc.id, npc.avatar, [line], () => { syncPlatformFlags(); saveGame(); if(!automated)openCaptainVoyages(); });
+    return;
+  }
   if (npc.tag === "field") return talkField(npc);
   const place = npc.platform, pdef = PLATFORMS[place];
   const d = getDialogue(npc.id, {
@@ -1572,11 +1647,14 @@ function talkTo(npc, automated = false) {
     sealsReady: quest.monolith || SEAL_STONES.every((s) => player.bag.has(s))
   });
   // Playable NPCs: their recruitment trial (offer → progress → joining the party) follows their own lines
+  if(party.book.state[npc.id]?.started && PLAYABLES[npc.id]?.needsBoss && quest.cleared(PLAYABLES[npc.id].region))party.book.state[npc.id].bossProof=true;
   const trial = party.talk(npc.id, player.bag);
+  if(trial && quest.cleared(PLAYABLES[npc.id].region) && PLAYABLES[npc.id].needsBoss)party.book.state[npc.id].bossProof=true;
   if (trial && trial.joined) onRecruited(npc.id);
-  const lines = [...fillNames(d.lines), ...(trial ? trial.lines : [])];
+  const lines = [...fillNames(d.lines), ...quest.islandLines(npc.id), ...(trial ? trial.lines : [])];
   dialog.start(npc.id, npc.avatar, lines, () => {
     quest.onTalk(npc.id, npcManager.summonerId, playerClass());
+    syncPlatformFlags();
     npcManager.applyQuest(quest, playerClass());
     saveGame();   // records who has been spoken to
     if (autoAdventure.dialogOwned && player.autoAttack.until > 0 && d.action !== "awaken") return;
@@ -1811,7 +1889,7 @@ window.addEventListener("keydown", (e) => {
       toggleFullscreen();
       return;
     }
-    // Party: next member (V) or member 1–6 (Shift+1–6), rebindable in Settings → Controls
+    // Party: next member (V) or member 1–6 (Alt+1–6), rebindable in Settings → Controls
     const partyKey = gameState === "PLAYING" && !e.repeat ? Keybinds.actionOf(e) : null;
     if (partyKey && partyKey !== "fullscreen") {
       switchMember(partyKey === "partyNext" ? -1 : Number(partyKey.slice(5)) - 1);
@@ -1836,6 +1914,7 @@ window.addEventListener("keydown", (e) => {
     }
 
     if (e.code === "KeyE") {
+      if(e.repeat) return;
       if (showShopModal) {
         showShopModal = false;
       } else if (showMercModal) {
@@ -1972,7 +2051,7 @@ function updateAutoAdventureStory() {
   if (guildPanel.open || guildCeremony.open) return;
   const enabled = player.autoAttackTime() > 0 && player.autoAttack.until > 0;
   if (!enabled) { autoAdventure.dialogOwned = false; player.autoAdventureStatus = player.autoAttackTime() ? "off" : "expired"; return; }
-  if (quest.step >= FINAL_STEP && !dialog.open && !guildBook.state(player).active) {
+  if (quest.step >= FINAL_STEP && !dialog.open && !guildBook.state(player).active && !quest.side.selectedTask() && !party.selectedQuest()) {
     player.toggleAutoAttack(); autoAdventure.reset();
     player.autoAdventureStatus = "complete";
     questHud.toast(t("autoAdventureComplete")); saveGame(); return;
@@ -2000,6 +2079,7 @@ function updateAutoAdventureStory() {
 }
 
 function updateGame() {
+  if (player && gameState === "PLAYING" && player.refillAutoAttack()) saveGame();
   if (player) setGuildHallOpen(hub, guildBook.available(quest));
   if (guildPanel.open || guildCeremony.open) return;
   updateAutoAdventureStory();
@@ -2050,7 +2130,7 @@ function updateGame() {
   // Warp Gateway, Citadel gate, Return Gateway, rift or sea portal (may change platform)
   const before = stage;
   stage.update(player, handlePortal);
-  if (stage !== before) return;
+  if (stage !== before || gameState !== "PLAYING") return;
 
   if (stage.castle) {
     stage.castle.resolveCollision(player);
@@ -2062,13 +2142,19 @@ function updateGame() {
   const manualMovement = controller.getMovementVector().isMoving;
   player.suspendAutoAttack = autoEnabled && manualMovement;
   if (autoEnabled && !manualMovement) {
+    if(fishing.active && player.hp < player.maxHp*.25) { fishing.s=null; fishing.streak=0; }
     if (player.hp < player.maxHp * 0.6 && player.potionCd <= 0) {
-      const potion = player.hp < player.maxHp * 0.4 && player.bag.has("elixir") ? "elixir" : "salve";
+      const potion = player.bag.healingOrder(player)[0];
       if (player.bag.has(potion)) player.bag.useById(potion, player, fx);
     }
     if (player.hasAnyDebuff() && player.bag.has("panacea")) player.bag.useById("panacea", player, fx);
     adventure = autoAdventure.update({ player, stage, quest, npcs: npcManager, enemies: enemyManager.enemies,
-      loot: lootManager, hub, finalStep: FINAL_STEP, guildGoal: guildField.goal(player, stage, enemyManager, npcManager, lootManager) });
+      loot: lootManager, hub, finalStep: FINAL_STEP, npcGoal: party.questGoal(player,stage,npcManager,enemyManager.enemies,fishing,autoAdventure.navigator), guildGoal: !quest.side.selectedTask() ? (fishing.active ? {status:"fish",action:"fish"} : guildField.goal(player, stage, enemyManager, npcManager, lootManager, fishing) || guildBook.heroAutoGoal(player,{quest,stage,npcs:npcManager})) : null });
+    if (adventure.action === "fish") {
+      player.suspendAutoAttack = true;
+      if (!fishing.active && fishing.spot(player, stage) && (!adventure.point || Math.hypot(player.x+10-adventure.point.x,player.y+20-adventure.point.y)<8)) fishing.press(player,stage);
+      else if (fishing.s?.phase === "bite" || fishing.s?.phase === "reel" && Math.abs(fishing.needle()-fishing.s.center)<fishing.s.width*.35) fishing.press(player,stage);
+    }
     player.autoAdventureStatus = adventure.status;
     if (adventure.done || adventure.halted || adventure.status === "bagFull") {
       player.toggleAutoAttack();
@@ -2098,6 +2184,10 @@ function updateGame() {
   if (adventure) closestEnemy = adventure.enemy || null;
   enemyManager.lockedId = closestEnemy && adventure ? closestEnemy.id : lockedTarget ? lockedTarget.id : null;
 
+  if (fishing.active) {
+    player.suspendAutoAttack = true;
+    if (adventure) { adventure.movement = {x:0,y:0,distance:0}; adventure.keys.clear(); }
+  }
   autoSummonDefence(player, enemyManager, stage, GuardianAngelCompanion, lootManager);
   player.update(
     adventure ? { autoMovement: adventure.movement, isDown: code => controller.isDown(code) || adventure.keys.has(code) } : controller,
@@ -2115,7 +2205,13 @@ function updateGame() {
   autoPotion();
   summonerHeal();
   party.update(player, isInBarracks);
+  if (quest.checkIslandSite(stage, player)) {
+    syncPlatformFlags();
+    questHud.toast(quest.text(player, summonerName(), mentorName()).goal);
+    saveGame();
+  }
   const repaired = party.checkConsoles(stage, player);   // Eirene's trial: the Lost Sky Continent's consoles
+  if (stage.id === "lost") stage.eireneSystems = Object.fromEntries(["habitat", "lift", "caretaker"].map(k => [k, Boolean(quest.skyCampaign[k] || party.book.state.eirene.systems[k])]));
   if (repaired) { questHud.toast(repaired); if (Sound.playQuestComplete) Sound.playQuestComplete(); saveGame(); }
 
   // A summon away on a market errand doesn't fight until it's back (js/errand.js)
@@ -2174,7 +2270,7 @@ function updateGame() {
   footfall.update(stage, walkersOnFoot(), projectileManager.projectiles, enemyManager.orbs || [], fx, Sound, onScreen);
   lootManager.update(player, fx);
   workshop.update(player, stage.isInsideSafeZone(player.x + 10, player.y + 17));
-  fishing.update(player);
+  fishing.update(player, stage);
 }
 
 // The summoner (Prince/Princess) heals the hero, but only inside a sanctuary and only when they are
@@ -2223,6 +2319,13 @@ function drawHealBeam() {
 // Golden arrow at the screen edge pointing to the quest objective (when off screen)
 // Where the objective is in the current place: an NPC, a boss, or the way to the next platform
 function objectivePoint() {
+  const expedition = quest.islandObjective();
+  if (expedition) {
+    if (stage.id !== expedition.area) { const exit = routeExit(stage, expedition.area, quest, hub); return exit ? {x:exit.x,y:exit.y} : null; }
+    if (expedition.point) return expedition.point;
+    const guide = npcManager.find(expedition.npc);
+    return guide ? {x:guide.x,y:guide.y-18} : null;
+  }
   if (quest.gated()) return sideQuestPoint();
   const npc = npcManager.find(quest.targetNpc(npcManager.summonerId, playerClass()));
   if (npc) return { x: npc.x, y: npc.y - 18 };
@@ -2382,6 +2485,8 @@ function renderGameWorld() {
     });
   }
 
+  if (gameState === "PLAYING" && !worldMap.open && !showShopModal && !showMercModal) fishing.drawPanel(ctx,VIEW_W,VIEW_H);
+
   if (showShopModal && player) {
     ui.drawShopModal(ctx, player, VIEW_W, VIEW_H);
   }
@@ -2428,21 +2533,30 @@ function standingFeet() {
   return feet;
 }
 
-// Right panel World Map: the live minimap, drawn in the side panel instead of over the game screen.
+// Circular compass minimap floats over the game screen.
 // 180×100 map pixels on a 360×200 canvas; redrawn every other frame. Click (or M) opens the full map.
 const sideMapEl = document.getElementById("sideMap");
 const sideMapCtx = sideMapEl.getContext("2d");
-const SIDE_MAP = { X: 4, Y: 5, W: 172, H: 84, view: 900 };
+const SIDE_MAP = { X: 20, Y: 20, W: 140, H: 140, view: 900 };
 let sideMapTick = 0;
 // Click the side map for the full map (the buff toggles under it keep their own clicks)
-document.getElementById("sideMapBox").addEventListener("click", (e) => { if (e.target.closest(".premium-hud")) return; Sound.init(); toggleMap(); panelSound(worldMap.open); });
+document.getElementById("compassMap").addEventListener("click", (e) => { if (e.target.closest(".premium-hud")) return; Sound.init(); toggleMap(); panelSound(worldMap.open); });
+const compassMap=document.getElementById("compassMap");
+compassMap.dataset.zoom="1.00";
+compassMap.addEventListener("wheel",e=>{
+  if(!player || gameState!=="PLAYING" || viewportEl.classList.contains("panel-open"))return;
+  e.preventDefault();e.stopPropagation();
+  if(!e.deltaY)return;
+  SIDE_MAP.view=Math.max(180,Math.min(1280,SIDE_MAP.view*(e.deltaY>0?1.15:1/1.15)));
+  compassMap.dataset.zoom=(900/SIDE_MAP.view).toFixed(2);
+  sideMapTick=0;
+},{passive:false});
 function drawSideMap() {
   if (!player || (sideMapTick++ & 1)) return;
   const c = sideMapCtx;
   c.setTransform(2, 0, 0, 2, 0, 0);
   c.imageSmoothingEnabled = false;
-  c.fillStyle = "#070c16";
-  c.fillRect(0, 0, 180, 100);
+  c.clearRect(0, 0, 180, 180);
   ui.drawHUD(
     c, player, enemyManager, lootManager, stage,
     180, gameState === "PAUSED",
@@ -2452,12 +2566,12 @@ function drawSideMap() {
       npcs: npcManager.npcs.filter((n) => npcManager.shown(n)),
       placeName: stage === hub ? t("placeHub") : stage.def.name[lang()],
       night: dayNight.night(),
-      rect: SIDE_MAP
+      rect: SIDE_MAP, circular: true
     }
   );
 }
 const sideMapLabel = document.getElementById("sideMapLabel");
-const syncSideMapLabel = () => { sideMapLabel.textContent = t("set_worldMap"); };
+const syncSideMapLabel = () => { sideMapLabel.textContent = t("set_worldMap"); document.getElementById("compassMap").setAttribute("aria-label", t("set_worldMap")); compassMap.title=t("minimapZoomHint"); };
 syncSideMapLabel();
 onLangChange(syncSideMapLabel);
 
@@ -2553,7 +2667,9 @@ function frame(now) {
       player,
       foes: enemyManager.enemies.filter((en) => en.isAlive).length,
       loot: lootManager.items ? lootManager.items.length : 0,
-      weather: stage === hub ? fx.weatherType : "",
+      weather: combatWeather(stage, fx),
+      weatherPower: weatherPowerText(combatWeather(stage, fx)),
+      infected: enemyManager.enemies.filter(en => en.isAlive && en.weatherPower?.type === combatWeather(stage, fx) && en.weatherPower.type !== "CLEAR").length,
       time: dayNight.label(),
       inSanctuary: stage.isInsideSafeZone(player.x, player.y),
       paused: gameState === "PAUSED",
@@ -2642,6 +2758,7 @@ function regress() {
   party = new Party();
   starterKit(player);
   retainPremiumForRegression(previousPlayer, player, party);
+  player.gold = previousPlayer.gold; // Keep the exact wallet; Regression never mints another starter purse.
   SkillSlots.reset();
   attachBag(player);
   quest.reset();
@@ -2664,7 +2781,8 @@ function openJobChange() {
 }
 
 // Switch to a learned calling, or learn a new one while the allowance has room
-function changeJob(def) {
+function changeJob(def, instant = false) {
+  if(instant && (!regression.jobs.includes(def.id) || player.active || player.inBoat || player.hp <= 0)) return;
   const fil = lang() === "fil";
   gameState = "PLAYING";
   if (def.id === player.heroData.id) return;
@@ -2675,6 +2793,14 @@ function changeJob(def) {
     return;
   }
   const old = player;
+  const oldHealthRatio = old.hp / old.maxHp, oldStaminaRatio = old.stamina / old.maxStamina;
+  if(instant){
+    const preview = new old.bag.constructor();preview.load(old.bag.serialize());
+    for(const [slot,item] of Object.entries(preview.equip))if(item && !canEquip(describe(item),def.id,old.level)) {
+      if(!preview.unequip(slot)){questHud.toast(lang()==="fil"?"Maglaan ng puwang sa bag para sa kagamitan ng dating tungkulin.":"Make room in your bag for your previous calling's equipment.");return;}
+    }
+    old.bag.load(preview.serialize());
+  }
   party.heroOnField(old);
   const p = new Player(old.x, old.y, equipJob(def, old.avatarConfig));
   ["level", "exp", "expNext", "gold", "statPoints", "bonusHp", "bonusDamage", "bonusDefense", "bonusSpeed", "bonusCrit",
@@ -2682,14 +2808,18 @@ function changeJob(def) {
   p.bag = old.bag;
   if (!known) { p.bag.giveKit(def.id, 1); regression.jobs.push(def.id); }
   attachBag(p);
-  p.respec();
-  p.hp = p.maxHp;
+  if (instant) {
+    ["market","meal","craftTarget","debuffs","buffs","activeCd","attackCooldownTimer","skillCooldownTimer","skill2CooldownTimer","potionCd","tonicCd","freshTimer","staminaDelay","exhausted"].forEach(k=>{if(old[k]!==undefined)p[k]=old[k];});
+    p.recalc();
+    p.hp = Math.min(p.maxHp,p.maxHp*oldHealthRatio);
+    p.stamina = Math.min(p.maxStamina,p.maxStamina*oldStaminaRatio);
+  } else { p.respec(); p.hp = p.maxHp; }
   if (def.id === "archer") p.falconCompanion = new FalconCompanion(p.x, p.y);
   player = p;
   enemyManager.player = p;
   if (fx.spawnHitSparks) fx.spawnHitSparks(p.x + 10, p.y + 10, "#c084fc", 28);
   if (Sound.playAwakening) Sound.playAwakening();
-  celebrate(p, "MYTHIC", t("cerJob"), t("cerJobSub", def.name));
+  if(!instant) celebrate(p, "MYTHIC", t("cerJob"), t("cerJobSub", def.name));
   questHud.toast(fil ? `Bagong tungkulin: ${def.name}` : `Calling changed: ${def.name}`);
   saveGame();
 }

@@ -1,3 +1,4 @@
+import { economyProfile } from "../regression.js";
 import { SETS, describe } from "./itemdb.js";
 
 // ==================== EMBERHOLD FORGE (Brakka) ====================
@@ -30,7 +31,7 @@ function baseFor(slot, cls) {
 
 export function recipeCost(setId, slot) {
   const r = RECIPES[setId], k = slot === "weapon" ? 1.5 : 1;
-  return Object.fromEntries(Object.entries(r).map(([id, n]) => [id, Math.ceil(n * k)]));
+  return Object.fromEntries(Object.entries(r).map(([id, n]) => [id, Math.ceil(n * k * (id === "gold" ? economyProfile().coins : 1))]));
 }
 
 // Returns "" on success, or the reason it failed: "gold" | "minerals" | "full"
@@ -57,7 +58,8 @@ const kindOf = (slot) => (slot === "weapon" ? "weapon" : ["amulet", "ring"].incl
 export function temperInfo(inst) {
   const it = describe(inst);
   if (!it || it.type !== "equip" || it.set) return null;
-  return { ...TEMPER[kindOf(it.slot)], done: inst.temper | 0 };
+  const base = TEMPER[kindOf(it.slot)], done = inst.temper | 0;
+  return { ...base, gold: Math.ceil(base.gold * (done + 1) * economyProfile().coins), done };
 }
 
 // Returns "" on success, or "set" | "max" | "gold" | "minerals"

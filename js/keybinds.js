@@ -1,6 +1,6 @@
 // ==================== KEYBOARD BINDINGS (vanguard_keys) ====================
 // The rebindable keyboard controls: switching the party member on the field and full screen.
-// A binding is a KeyboardEvent.code, optionally with "Shift+" in front ("Shift+Digit1").
+// A binding is a KeyboardEvent.code, optionally with Shift and Alt modifiers ("Alt+Digit1").
 // Edited in Settings (O) → Controls and on the title screen's Controls page; the gamepad's own
 // bindings live in js/gamepad.js (vanguard_pad).
 
@@ -8,12 +8,12 @@ const KEYS_KEY = "vanguard_keys";
 
 export const KEY_ACTIONS = [
   { id: "partyNext",  def: "KeyV" },
-  { id: "party1",     def: "Shift+Digit1" },
-  { id: "party2",     def: "Shift+Digit2" },
-  { id: "party3",     def: "Shift+Digit3" },
-  { id: "party4",     def: "Shift+Digit4" },
-  { id: "party5",     def: "Shift+Digit5" },
-  { id: "party6",     def: "Shift+Digit6" },
+  { id: "party1",     def: "Alt+Digit1" },
+  { id: "party2",     def: "Alt+Digit2" },
+  { id: "party3",     def: "Alt+Digit3" },
+  { id: "party4",     def: "Alt+Digit4" },
+  { id: "party5",     def: "Alt+Digit5" },
+  { id: "party6",     def: "Alt+Digit6" },
   { id: "fullscreen", def: "KeyF" }
 ];
 const DEF = Object.fromEntries(KEY_ACTIONS.map((a) => [a.id, a.def]));
@@ -21,7 +21,7 @@ const DEF = Object.fromEntries(KEY_ACTIONS.map((a) => [a.id, a.def]));
 const RESERVED = new Set(["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "KeyJ", "KeyK", "KeyL",
   "KeyE", "KeyQ", "KeyI", "KeyC", "KeyM", "KeyN", "KeyO", "KeyG", "KeyH", "KeyB", "KeyP", "KeyT", "KeyY", "KeyU", "Space", "Escape", "Backspace",
   "KeyZ", "KeyR", "KeyX", "Enter", "Tab", "Digit1", "Digit2", "Digit3", "Digit4", "ShiftLeft", "ShiftRight", "F2", "F3", "F4", "F6"]);
-const VALID = /^(Shift\+)?(Key[A-Z]|Digit[0-9]|F([1-9]|1[0-2])|Numpad[0-9]|Backquote|Minus|Equal|BracketLeft|BracketRight|Semicolon|Quote|Comma|Period|Slash|Backslash)$/;
+const VALID = /^(Shift\+)?(Alt\+)?(Key[A-Z]|Digit[0-9]|F([1-9]|1[0-2])|Numpad[0-9]|Backquote|Minus|Equal|BracketLeft|BracketRight|Semicolon|Quote|Comma|Period|Slash|Backslash)$/;
 
 let binds = load();
 const listeners = [];
@@ -30,7 +30,7 @@ function load() {
   const out = { ...DEF };
   try {
     const raw = JSON.parse(localStorage.getItem(KEYS_KEY) || "null");
-    if (raw && typeof raw === "object") for (const a of KEY_ACTIONS) if (typeof raw[a.id] === "string" && VALID.test(raw[a.id])) out[a.id] = raw[a.id];
+    if (raw && typeof raw === "object") for (const a of KEY_ACTIONS) if (typeof raw[a.id] === "string" && VALID.test(raw[a.id])) out[a.id] = /^party[1-6]$/.test(a.id) && raw[a.id] === `Shift+Digit${a.id.slice(5)}` ? a.def : raw[a.id];
   } catch (_) { /* defaults */ }
   return out;
 }
@@ -45,8 +45,8 @@ export const Keybinds = {
   matches(id, e) {
     const b = binds[id];
     if (!b) return false;
-    const shift = b.startsWith("Shift+"), code = shift ? b.slice(6) : b;
-    return e.code === code && Boolean(e.shiftKey) === shift;
+    const parts = b.split("+"), code = parts.pop(), shift = parts.includes("Shift"), alt = parts.includes("Alt");
+    return e.code === code && Boolean(e.shiftKey) === shift && Boolean(e.altKey) === alt && !e.ctrlKey && !e.metaKey;
   },
   // Which action (if any) a keydown triggers
   actionOf(e) { return KEY_ACTIONS.find((a) => this.matches(a.id, e))?.id || null; },
@@ -55,8 +55,9 @@ export const Keybinds = {
   bindFrom(id, e) {
     if (!DEF[id]) return "taken";
     if (/^(Shift|Control|Alt|Meta)/.test(e.code)) return "wait";
-    const combo = (e.shiftKey ? "Shift+" : "") + e.code;
-    if ((!e.shiftKey && RESERVED.has(e.code)) || !VALID.test(combo)) return "taken";
+    if(e.ctrlKey || e.metaKey) return "taken";
+    const combo = (e.shiftKey ? "Shift+" : "") + (e.altKey ? "Alt+" : "") + e.code;
+    if ((!e.shiftKey && !e.altKey && RESERVED.has(e.code)) || !VALID.test(combo)) return "taken";
     // A key moves: whatever held it before swaps to this action's old key
     const other = KEY_ACTIONS.find((a) => a.id !== id && binds[a.id] === combo);
     if (other) binds[other.id] = binds[id];
@@ -66,13 +67,13 @@ export const Keybinds = {
   },
   reset() { binds = { ...DEF }; save(); },
   onChange(fn) { listeners.push(fn); },
-  // "V", "⇧1", "F"
+  // "V", "Alt+1", "F"
   label(id) {
     const b = binds[id] || "";
-    const shift = b.startsWith("Shift+"), code = shift ? b.slice(6) : b;
+    const parts = b.split("+"), code = parts.pop(), shift = parts.includes("Shift"), alt = parts.includes("Alt");
     const key = code.replace(/^Key|^Digit|^Numpad/, "").replace("Backquote", "`").replace("Minus", "-").replace("Equal", "=")
       .replace("BracketLeft", "[").replace("BracketRight", "]").replace("Semicolon", ";").replace("Quote", "'").replace("Comma", ",")
       .replace("Period", ".").replace("Slash", "/").replace("Backslash", "\\");
-    return (shift ? "⇧" : "") + key;
+    return (shift ? "⇧" : "") + (alt ? "Alt+" : "") + key;
   }
 };

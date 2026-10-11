@@ -21,7 +21,7 @@ export class GuildPanel {
     this.priorityLabel = add(label, "span");
     this.priority.addEventListener("change", () => {
       const active=this.player && this.book.state(this.player).active;
-      if(active){active.priority=this.priority.checked;this.changed();}
+      if(active){active.priority=this.priority.checked;if(active.priority && this.ctx?.quest){this.ctx.quest.npcClearPriority?.();this.ctx.quest.side.selected=null;this.ctx.quest.side.mainPriority=false;}this.changed();}
     });
     this.tracker = add(this.activeList, "button", "guild-quest-info"); this.tracker.type = "button";
     this.tracker.addEventListener("click", () => { if (this.player) this.show("guildClerk", this.player, this.ctx); });
@@ -47,7 +47,7 @@ export class GuildPanel {
     });
   }
   objective(c) {
-    const name = T(c.t);
+    const name = c.source === "fish" ? `${T("fish")} · ${describe({id:c.item})?.name || c.item}` : T(c.t);
     const site = c.t === "scout" ? areaDef(c.area)?.sites?.[c.k]?.name?.[getLang()] : "";
     return `${c.rank} · ${name} ×${c.n} · ${areaName(c.area, getLang())}${site ? ` · ${site}` : ""}`;
   }
@@ -57,8 +57,8 @@ export class GuildPanel {
   }
   details(parent, c) {
     if (c.t === "gather") {
-      add(parent, "p", "", T("gatherHint", { count: c.n, item: describe(c.item)?.name || c.item, source: T(c.source) }));
-      add(parent, "small", "", T(c.source === "npc" ? "npcHint" : c.source === "enemy" ? "enemyHint" : "resourceHint"));
+      add(parent, "p", "", T("gatherHint", { count: c.n, item: describe({id:c.item})?.name || c.item, source: T(c.source) }));
+      add(parent, "small", "", T(c.source === "fish" ? "fishHint" : c.source === "npc" ? "npcHint" : c.source === "enemy" ? "enemyHint" : "resourceHint"));
     } else if (c.t === "escort") add(parent, "p", "", T("escortHint", { waves: c.waves }));
     else if (c.t === "mvp") add(parent, "p", "", T("mvpHint"));
   }
@@ -85,7 +85,8 @@ export class GuildPanel {
       add(this.content, "p", "", `${T("fee")}: ${formatCoins(GUILD_REGISTRATION)}`);
       this.confirm("register", `${T("register")} · ${formatCoins(GUILD_REGISTRATION)}`, () => this.book.register(p, this.ctx));
     } else { add(this.content, "p", "", `${T("completed")}: ${s.completed}`); this.button(this.content, T("assess"), () => this.act(() => this.book.reassess(p, this.ctx))); }
-    add(this.content, "p", "", T("assessment")); add(this.content, "p", "", T("abilityTypes"));
+    add(this.content, "p", "", T("assessment")); add(this.content,"p","",T("promotionProof")); add(this.content, "p", "", T("abilityTypes"));
+    if(s.member){const rank=s.rank==="SSS"?"SS":s.rank;for(const type of ["dungeon","dungeonBoss"])add(this.content,"p","",`${s.claimed.includes(`${rank}:${type}`)?"✓":"○"} ${rank} · ${T(type)}`);}
     const table = add(this.content, "div", "guild-ranks"); GUILD_RANKS.forEach((rank, i) => add(table, "span", rank === s.rank ? "current" : "", `${rank} · Lv ${GUILD_LEVELS[i]}`));
   }
   representative(p, s) {

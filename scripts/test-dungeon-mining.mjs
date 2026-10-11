@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {load} from './headless.mjs';
+const {OreVeins}=await load('js/world/mining.js');
+const mine=Object.create(OreVeins.prototype);mine.dungeon=true;mine.bounds={minY:0,maxY:1000};
+const breakVein=(y,level,roll)=>mine.strike({kind:'ironOre',hits:2,y},{level},()=>roll);
+assert.equal(breakVein(0,10,0.02).refine.id,'voidCrystal');
+assert.equal(breakVein(0,10,0.2).refine.id,'monsterShard');
+assert.equal(breakVein(0,10,0.8).refine,null);
+assert.equal(breakVein(0,10,0.09).refine.id,'monsterShard');
+assert.equal(breakVein(1000,50,0.09).refine.id,'voidCrystal');
+assert.equal(mine.strike({kind:'ironOre',hits:0,y:1000},{level:50},()=>0).broke,false);
+mine.dungeon=false;assert.equal(breakVein(1000,50,0).refine,null);
+console.log('PASS: dungeon-only shards and rare crystals, depth/level scaling, break-only rewards, normal ore retained');

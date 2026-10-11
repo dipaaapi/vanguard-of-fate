@@ -1,0 +1,14 @@
+{
+  "_note": "Names coined by other games, anime, manga or books. `lore-tool.mjs check` fails if any appears in player-facing text (JS strings, JSON, LORE, README, index.html). Generic words (slime, golem, potion, card, refine, MVP) and myth/public-domain names (Satan, Titan, Behemoth, Kraken, Valkyrie) are fine. Add a term whenever you retire one.",
+  "terms": [
+    "Slaying Corps", "Demon Slayer", "Hashira", "Nichirin",
+    "Truck-kun",
+    "Ragnarok", "Oridecon", "Phracon", "Elunium", "Emperium", "Yggdrasil", "Poring", "Prontera", "Baphomet",
+    "Frost Diver", "Brandish Spear", "Owl's Eye", "Vulture's Eye", "Arrow Shower", "Energy Coat", "Bunny Band",
+    "Diablo", "Horadric", "Tristram",
+    "Mythril", "Mithril", "Hobbit", "Balrog", "Phoenix Down", "Moogle", "Chocobo", "Estus", "Triforce",
+    "Beholder", "Mind Flayer", "Owlbear",
+    "Rimuru", "Tempest", "Great Sage", "Ainz", "Nazarick", "Return by Death", "Shield Hero",
+    "Aincrad", "Kirito", "Frieren", "Shadow Monarch", "Solo Leveling", "Kamehameha", "Rasengan", "Haki", "Bankai"
+  ]
+}

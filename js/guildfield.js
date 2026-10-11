@@ -48,6 +48,17 @@ export class GuildField {
       // Combat uses the saved wagon object so damage and save state stay in sync.
       if (s.fighting && !s.failed) this.spawnWave(p, stage, manager, c);
     }
+    if (["dungeon","dungeonBoss"].includes(c.t) && active.have<c.n) {
+      const count=c.t==="dungeon" ? c.n-active.have : 1;
+      for(let i=0;i<count;i++){
+        const spot=fieldSpot(start.x+(i%4)*28,start.y+Math.floor(i/4)*28,stage);
+        const lv=Math.max(10,p.level,GUILD_RANKS.indexOf(c.rank)*5+10);
+        const previousCap=manager.levelCap;if(c.t==="dungeonBoss")manager.levelCap=lv-2;
+        const e=c.t==="dungeonBoss" ? manager.spawnBoss("morgrave",spot.x-10,spot.y-20,lv) : manager.spawn("skeleton",lv,spot.x-10,spot.y-20,lv,"normal");
+        manager.levelCap=previousCap;
+        if(e){e.guildContract=c.id;e.provoked=true;if(e.boss)e.kind={...e.kind,drop:null,name:{en:`${c.rank} Covenant Trial Warlord`,fil:`${c.rank} Pinuno ng Pagsubok ng Covenant`}};}
+      }
+    }
     if (c.t === "mvp" && this.book.state(p).active.have < c.n) {
       const key = manager.kinds.find(k => !MONSTERS[k]?.flying && !MONSTERS[k]?.elite) || manager.kinds[0];
       const e = manager.spawn(key, p.level, this.route[0].x - 10, this.route[0].y - 20, null, "elite");
@@ -80,7 +91,7 @@ export class GuildField {
     if (!p.bag.add({ id: c.item, qty })) return "full";
     this.book.collect(p, c.area, c.item, "npc", qty); return "supplied";
   }
-  goal(p, stage, manager, npcs, loot) {
+  goal(p, stage, manager, npcs, loot, fishing) {
     const c = this.prepare(p, stage, manager), a = this.book.state(p).active;
     if (!c || a.priority === false) return null;
     if (a.have >= c.n || c.t === "gather" && c.source === "npc") {
@@ -92,8 +103,16 @@ export class GuildField {
     const drop = loot.items.find(i => i.guildSource === c.source && i.id === c.item);
     if (drop) return { status: p.bag.slots.length >= 40 && !p.bag.has(c.item) ? "bagFull" : "collect", point: drop, radius: 3 };
     this.navigator.build(stage, p, performance.now());
+    if(c.source === "fish") {
+      if(p.bag.slots.length >= 40 && !p.bag.has(c.item)) return {status:"bagFull"};
+      if(fishing?.active)return {status:"fish",action:"fish"};
+      if(this.fishBankStage !== stage || !this.fishBank || !this.navigator.endpoint(this.fishBank,0)) {
+        this.fishBankStage=stage;this.fishBank=fishing?.bank(p,stage,this.navigator);
+      }
+      return this.fishBank ? {status:"fish",action:"fish",point:this.fishBank,radius:4} : {status:"routeBlocked"};
+    }
     const targets = manager.enemies.filter(e => e.isAlive && !stage.isInsideSafeZone?.(e.x,e.y) && e.minionOf !== "summon" && this.navigator.endpoint({x:e.x+10,y:e.y+20},24) &&
-      (c.t === "escort" ? e.guildContract === c.id : c.t === "mvp" ? e.boss || e.guildMvp : c.t === "champion" ? !e.boss && !e.guildMvp && (e.elite || e.champion) : !e.boss && !e.guildMvp && (c.t !== "cull" || !e.elite && !e.champion)));
+      (["dungeon","dungeonBoss"].includes(c.t) ? e.guildContract === c.id : c.t === "escort" ? e.guildContract === c.id : c.t === "mvp" ? e.boss || e.guildMvp : c.t === "champion" ? !e.boss && !e.guildMvp && (e.elite || e.champion) : !e.boss && !e.guildMvp && (c.t !== "cull" || !e.elite && !e.champion)));
     targets.sort((x, y) => Math.hypot(x.x - p.x, x.y - p.y) - Math.hypot(y.x - p.x, y.y - p.y));
     if (c.t === "gather" && ["herb", "stone"].includes(c.source)) {
       if (p.bag.slots.length >= 40 && !p.bag.has(c.item)) return { status: "bagFull" };

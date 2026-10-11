@@ -103,3 +103,10 @@ const recovery=new AutoAdventure(),missingCtx={...ctx,stage,player:{...ctx.playe
 recovery.travel=(ctx,id)=>({status:"travel",destination:id});
 assert.equal(recovery.choose(missingCtx).destination,"canopy");
 console.log("PASS: missing Seal Stone recovery takes priority before Monolith travel");
+
+const runtimeStage={id:'trialArena',gate:{x:80,y:470,dest:'hub'},exits:[]};
+assert.equal(routeExit(runtimeStage,'rocky',quest,hub).dest,'hub','runtime arena return gate connects to the world route');
+const liveStage={id:'canopy',gate:{x:90,y:470,dest:'hub'},trail:{x:1196,y:470,dest:'swamp'},trailSealed:false,exits:[]};
+assert.equal(routeExit(liveStage,'swamp',{unlocked:()=>true},hub).x,1196);
+liveStage.trailSealed=true;assert.notEqual(routeExit(liveStage,'swamp',{unlocked:()=>true},hub)?.dest,'swamp','sealed live trail is never selected');
+console.log('PASS: runtime return gates, live trail coordinates and sealed trail routing');

@@ -1,6 +1,6 @@
 import { getLang } from "./i18n.js";
 export const GUILD_RANKS = ["G", "F", "E", "D", "C", "B", "A", "S", "SS", "SSS"];
-export const GUILD_LEVELS = [1, 15, 22, 30, 40, 52, 65, 80, 100, 120];
+export const GUILD_LEVELS = [1, 12, 16, 22, 28, 34, 40, 46, 50, 55];
 export const GUILD_AREAS = ["hub", "canopy", "swamp", "coast", "frost", "ash", "strand", "ossuary", "siege", "maw"];
 export const GUILD_ROLES = {
   frontliner: { en: "Frontliner", fil: "Unahang mandirigma" }, rear: { en: "Rear", fil: "Likurang mandirigma" },
@@ -73,7 +73,9 @@ const TEXT = {
   }
 };
 Object.assign(TEXT.en, {
+  dungeon: "DUNGEON HUNT", dungeonBoss: "DUNGEON BOSS HUNT", promotionProof: "Promotion requires ability, completed contracts, and both dungeon trials at your current rank. SSS is the Guild's certified Hero rank.",
   cull: "SLAY · Normal enemies", champion: "SLAY · Elites / Champions", mvp: "SLAY · MVP",
+  fish: "Fishing", fishHint: "Catch the requested species in the listed biome. E casts and hooks; then press E when the reel marker is in the green zone. Deliver your fish to the clerk. Perfect reels earn an extra fish.",
   gather: "GATHER", escort: "ESCORT · NPC caravan", herb: "Herbs", stone: "Stones", enemy: "Enemy drops", npc: "NPC supplies",
   gatherHint: "Collect {count} × {item} from {source}. Deliver the items to the guild clerk; the supplies are consumed.",
   npcHint: "Speak to Bram Holt, the Guild Scout, at the guild hall to receive the requested supplies.",
@@ -84,7 +86,9 @@ Object.assign(TEXT.en, {
   defence: "DEF", escortFailed: "Caravan lost · Reaccept contract", defend: "Protect caravan", guide: "Guide caravan · Stay nearby", destination: "Caravan destination", supplied: "Contract supplies received. Deliver them to the guild clerk.", wave: "Waves", route: "Waypoints"
 });
 Object.assign(TEXT.fil, {
+  dungeon: "PANGANGASO SA DUNGEON", dungeonBoss: "PANGANGASO SA BOSS NG DUNGEON", promotionProof: "Kailangan ang kakayahan, natapos na kontrata, at parehong pagsubok sa dungeon ng kasalukuyang ranggo. Ang SSS ang sertipikadong ranggo ng Bayani.",
   cull: "PAGPATAY · Karaniwang kalaban", champion: "PAGPATAY · Elite / Champion", mvp: "PAGPATAY · MVP",
+  fish: "Pangingisda", fishHint: "Hulihin ang hinihinging isda sa nakatalang lugar. E para ihagis at ikabit ang kawit; pindutin muli ang E kapag nasa berdeng bahagi ang pananda. Ihatid ang isda sa klerk. May dagdag na isda sa perpektong paghila.",
   gather: "PANGANGALAP", escort: "PAG-ALALAY · Karaban ng NPC", herb: "Mga halamang gamot", stone: "Mga bato", enemy: "Samsam ng kalaban", npc: "Suplay ng NPC",
   gatherHint: "Kumuha ng {count} × {item} mula sa {source}. Ihatid sa klerk ng guild; kukunin ang suplay.",
   npcHint: "Kausapin si Bram Holt, ang Scout ng Guild, sa bulwagan para sa hinihinging suplay.",

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {load,seedRandom} from './headless.mjs';
-const {regression,DIFFICULTIES,enemyHpMult,enemyDamageMult,COMBAT,combat}=await load('js/regression.js');
+const {regression,DIFFICULTIES,enemyHpMult,enemyDamageMult,COMBAT,combat,economyProfile}=await load('js/regression.js');
 const levelBonus=Object.fromEntries(Object.entries(COMBAT).map(([k,v])=>[k,v.levelBonus]));
 for(const c of Object.values(COMBAT))c.levelBonus=0;   // HP/damage multipliers first, level bonus checked below
 const {EnemyManager}=await load('js/enemy.js');
@@ -14,11 +14,11 @@ for(let level=0;level<DIFFICULTIES.length;level++){
   const e=kind==='boss'?manager.spawnBoss(key,100,100,10):manager.spawn(key,10,100,100,null,'normal',10);
   assert.ok(e,key);const id=kind+key;
   if(!level)base.set(id,{hp:e.maxHp,damage:e.damage});
-  else{const b=base.get(id);assert.ok(Math.abs(e.maxHp-b.hp*enemyHpMult())<=Math.ceil(enemyHpMult())+1,id+' HP (per-bar rounding)');assert.equal(e.damage,Math.round(b.damage*enemyDamageMult()),id+' damage');}
+  else{const b=base.get(id);assert.ok(Math.abs(e.maxHp-b.hp*enemyHpMult()/DIFFICULTIES[0].hpMultiplier)<=Math.ceil(enemyHpMult())+1,id+' HP (per-bar rounding)');assert.ok(Math.abs(e.damage-b.damage*enemyDamageMult()/DIFFICULTIES[0].damageMultiplier)<=2,id+' damage');}
   checked++;
  }
  const merc=new MercenaryManager(),p={x:100,y:100,level:10,gold:100000};
- assert.equal(MercenaryManager.cost(10),40*(level+1));
+ assert.equal(MercenaryManager.cost(10),40*(level+1)*economyProfile().coins);
  assert.ok(merc.hire('axe',p));const gold=p.gold;
  if(level){
   assert.equal(merc.hire('wand',p),false);assert.equal(p.gold,gold);
@@ -29,6 +29,7 @@ for(let level=0;level<DIFFICULTIES.length;level++){
 }
 for(const [k,v] of Object.entries(levelBonus))COMBAT[k].levelBonus=v;
 // Escalation: never easier on a harder difficulty
+assert.deepEqual(DIFFICULTIES.map(d=>d.hpMultiplier),[3,5,7,10,14,18]);
 const ids=DIFFICULTIES.map(d=>d.id);
 for(let i=1;i<ids.length;i++){const a=COMBAT[ids[i-1]],b=COMBAT[ids[i]];
  for(const k of ['levelBonus','spawnRate','extraAlive','crit','splash','counter','callRadius','callCount'])assert.ok(b[k]>=a[k],ids[i]+' '+k);

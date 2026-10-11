@@ -1,4 +1,4 @@
-import { formatCoins } from "./items/economy.js";
+import { formatCoins, buyPrice } from "./items/economy.js";
 import { getLang, t } from "./i18n.js";
 import { getItem } from "./items/itemdb.js";
 import { iconCanvas } from "./items/icons.js";
@@ -147,17 +147,18 @@ export class UIManager {
     const k = W / VIEW;
     const cx = player.x + 10, cy = player.y + 12;
     // window origin in world space, kept inside the map
-    const ox = Math.max(0, Math.min(stage.width - VIEW, cx - VIEW / 2));
-    const oy = Math.max(0, Math.min(stage.height - H / k, cy - H / k / 2));
+    const ox = extra.circular ? cx - VIEW / 2 : Math.max(0, Math.min(stage.width - VIEW, cx - VIEW / 2));
+    const oy = extra.circular ? cy - H / k / 2 : Math.max(0, Math.min(stage.height - H / k, cy - H / k / 2));
     const M = (wx, wy) => [X + (wx - ox) * k, Y + (wy - oy) * k];
     const t = performance.now() / 1000;
 
     ctx.save();
     // frame: dark rim, gold line, corner studs
     ctx.fillStyle = "#030611";
-    ctx.fillRect(X - 2, Y - 2, W + 4, H + 4);
+    if (!extra.circular) ctx.fillRect(X - 2, Y - 2, W + 4, H + 4);
     ctx.beginPath();
-    ctx.rect(X, Y, W, H);
+    if (extra.circular) ctx.arc(X + W / 2, Y + H / 2, W / 2, 0, Math.PI * 2);
+    else ctx.rect(X, Y, W, H);
     ctx.clip();
     ctx.fillStyle = "#0b1220";
     ctx.fillRect(X, Y, W, H);
@@ -217,9 +218,11 @@ export class UIManager {
     const obj = extra.objective;
     if (obj) {
       let [qx, qy] = M(obj.x, obj.y);
-      const inside = qx > X + 3 && qx < X + W - 3 && qy > Y + 3 && qy < Y + H - 3;
+      const radius=W/2-5, dx=qx-(X+W/2), dy=qy-(Y+H/2), distance=Math.hypot(dx,dy);
+      const inside = extra.circular ? distance<radius : qx > X + 3 && qx < X + W - 3 && qy > Y + 3 && qy < Y + H - 3;
       qx = Math.max(X + 3, Math.min(X + W - 3, qx));
       qy = Math.max(Y + 3, Math.min(Y + H - 3, qy));
+      if(extra.circular && distance>radius){qx=X+W/2+dx/distance*radius;qy=Y+H/2+dy/distance*radius;}
       const r = inside ? 2.5 + Math.sin(t * 4) * 0.7 : 2;
       ctx.fillStyle = "#030611";
       ctx.beginPath(); ctx.moveTo(qx, qy - r - 1); ctx.lineTo(qx + r + 1, qy); ctx.lineTo(qx, qy + r + 1); ctx.lineTo(qx - r - 1, qy); ctx.closePath(); ctx.fill();
@@ -236,6 +239,25 @@ export class UIManager {
     ctx.fillStyle = "#5ee7ff";
     ctx.beginPath(); ctx.moveTo(3.5, 0); ctx.lineTo(-2.2, -2.3); ctx.lineTo(-1, 0); ctx.lineTo(-2.2, 2.3); ctx.closePath(); ctx.fill();
     ctx.restore();
+
+    if (extra.circular) {
+      ctx.save();
+      const mx=X+W/2, my=Y+H/2, r=W/2;
+      for (const [radius,color,width] of [[r+7,"#09111e",12],[r+10,"#e6c67b",1.5],[r+4,"#957039",2],[r+1,"#67bed0",0.8]]) {
+        ctx.beginPath();ctx.arc(mx,my,radius,0,Math.PI*2);ctx.strokeStyle=color;ctx.lineWidth=width;ctx.stroke();
+      }
+      for(let n=0;n<48;n++){
+        const a=n*Math.PI/24, outer=r+8, inner=outer-(n%4===0?4:2);
+        ctx.beginPath();ctx.moveTo(mx+Math.cos(a)*inner,my+Math.sin(a)*inner);ctx.lineTo(mx+Math.cos(a)*outer,my+Math.sin(a)*outer);ctx.strokeStyle=n%4===0?"#f9df9b":"#7c683f";ctx.lineWidth=0.6;ctx.stroke();
+      }
+      ctx.font="bold 7px serif";ctx.textAlign="center";ctx.textBaseline="middle";
+      for(const [label,dx,dy] of [["N",0,-1],["E",1,0],["S",0,1],["W",-1,0]]){
+        const x=mx+dx*(r+9), y=my+dy*(r+9);
+        ctx.fillStyle="#08101e";ctx.fillRect(x-4,y-4,8,8);ctx.fillStyle=label==="N"?"#fff0b6":"#d4ba7b";ctx.fillText(label,x,y);
+      }
+      ctx.restore();
+      return;
+    }
 
     // gold border, corner studs and the compass N
     ctx.save();
@@ -403,7 +425,7 @@ export class UIManager {
     SHOP.forEach((id, i) => {
       const it = getItem(id);
       const have = player.bag ? player.bag.count(id) : 0;
-      const afford = player.gold >= it.price;
+      const afford = player.gold >= buyPrice("apothecary", id, it);
       const ry = by + 14 + i * 26;
       ctx.fillStyle = i % 2 ? "rgba(148, 163, 184, 0.05)" : "rgba(148, 163, 184, 0.09)";
       ctx.fillRect(bx + 8, ry, bw - 16, 23);
@@ -426,7 +448,7 @@ export class UIManager {
       ctx.textAlign = "right";
       ctx.font = "bold 6px monospace";
       ctx.fillStyle = afford ? "#ffd166" : "#ef4444";
-      ctx.fillText(`${formatCoins(it.price)}`, bx + bw - 14, ry + 9);
+      ctx.fillText(`${formatCoins(buyPrice("apothecary", id, it))}`, bx + bw - 14, ry + 9);
       ctx.font = "5px monospace";
       ctx.fillStyle = "#94a3b8";
       ctx.fillText(t("shopOwned", have), bx + bw - 14, ry + 17);
@@ -517,9 +539,9 @@ export class UIManager {
     const it = id && getItem(id);
     if (!it) return;
     const pop = (text, color) => fx && fx.spawnDamagePopup && fx.spawnDamagePopup(player.x + 10, player.y - 6, text, false, color);
-    if (player.gold < it.price) { pop(getLang() === "fil" ? "KULANG ANG GINTO!" : "NOT ENOUGH GOLD!", "#ef4444"); return; }
+    if (player.gold < buyPrice("apothecary", id, it)) { pop(getLang() === "fil" ? "KULANG ANG GINTO!" : "NOT ENOUGH GOLD!", "#ef4444"); return; }
     if (!player.bag.add(id, 1)) { pop("BAG FULL!", "#ef4444"); return; }
-    player.gold -= it.price;
+    player.gold -= buyPrice("apothecary", id, it);
     pop(`+ ${it.name}`, "#4ade80");
   }
 

@@ -30,6 +30,28 @@ import { SideQuests } from "./sidequest.js";
 // Act III the five souls, Act IV the Awakening, Act V the mentor, Act VI the summoner, and in Acts VII–XV
 // the boss (it only appears once the side quests are finished).
 
+// Required Act VIII expedition; flag-based progress preserves existing campaign step IDs.
+const ISLAND_EXPEDITION = [
+ {area:"port",npc:"tidemarkTrader",flag:"started",en:"Speak to the Tidemark trader about the missing royal researcher",fil:"Kausapin ang mangangalakal ng Tidemark tungkol sa nawawalang mananaliksik ng kaharian"},
+ {area:"swamp",npc:"nimaFen",flag:"surveyFound",en:"Meet Nima Fen on the Beastkin Swamp Island and recover the royal survey",fil:"Kilalanin si Nima Fen sa Pulo ng Latian ng Beastkin at kunin ang tala ng pagsisiyasat ng kaharian"},
+ {area:"swamp",point:{x:840,y:440},flag:"marshGlassFound",en:"Recover resonance marsh glass at the Drowned Shrine",fil:"Kunin ang umaalingawngaw na salamin ng latian sa Lubog na Dambana"},
+ {area:"swamp",npc:"nimaFen",flag:"beaconCrafted",en:"Return to Nima Fen to assemble the resonance beacon",fil:"Bumalik kay Nima Fen upang buuin ang resonance beacon"},
+ {area:"swamp",point:{x:640,y:800},flag:"passageOpen",en:"Reveal the researcher's hidden passage with the resonance beacon",fil:"Ibunyag ang nakatagong lagusan ng mananaliksik gamit ang resonance beacon"},
+ {area:"underworks",point:{x:300,y:230},record:"power",en:"Restore the Underworks geothermal power vault",fil:"Ibalik ang enerhiya ng geothermal vault sa Ilalim na Pasilidad"},
+ {area:"underworks",point:{x:980,y:230},record:"navigation",en:"Recover the researcher's aether navigation records",fil:"Kunin ang mga tala ng aether navigation ng mananaliksik"},
+ {area:"underworks",point:{x:640,y:700},record:"safety",en:"Restore the transit chamber's containment safeguards",fil:"Ibalik ang mga pananggalang ng silid ng paglalakbay"},
+ {area:"underworks",point:{x:640,y:470},flag:"deviceActivated",en:"Activate the transit device to reach the Ancient Floating Continent",fil:"Paganahin ang transit device patungo sa Sinaunang Lumulutang na Kontinente"},
+ {area:"lost",npc:"eirene",sky:"met",en:"Meet Eirene, the floating continent's sole caretaker",fil:"Kilalanin si Eirene, ang nag-iisang tagapangalaga ng lumulutang na kontinente"},
+ {area:"lost",point:{x:540,y:180},sky:"habitat",en:"Restore the floating continent's habitat observatory",fil:"Ibalik ang obserbatoryo ng tirahan sa lumulutang na kontinente"},
+ {area:"lost",point:{x:980,y:250},sky:"lift",en:"Restart the floating continent's dormant wind engines",fil:"Muling paandarin ang mga makina ng hangin ng lumulutang na kontinente"},
+ {area:"lost",point:{x:800,y:760},sky:"caretaker",en:"Recover the caretaker archive, then report to the royal summoner at the Cerulean Abyss camp",fil:"Kunin ang sinupan ng tagapangalaga, saka mag-ulat sa tagapagtawag sa kampo ng Cerulean Abyss"}
+];
+const ISLAND_LINES = {
+ tidemarkTrader: {en:["The Regent's defeat has reopened our sea lanes. But the royal researcher vanished beyond the Beastkin marsh.","Find Nima Fen on the island. The researcher's survey may reveal a route to the ancient continent above the clouds."],fil:["Muling nagbukas ang mga ruta sa dagat nang matalo ang Regent. Ngunit nawala ang mananaliksik ng kaharian sa latian ng Beastkin.","Hanapin si Nima Fen sa pulo. Maaaring ipakita ng tala ng mananaliksik ang daan patungo sa sinaunang kontinente sa ibabaw ng ulap."]},
+ nimaFen: {en:["Our island is no mere supply stop. The miasma has poisoned the water that feeds our clans.","The royal survey points to marsh glass at the Drowned Shrine. Bring its resonance back to me; together we can reveal the buried research passage."],fil:["Hindi lamang hintuan ng suplay ang aming pulo. Nilason ng miasma ang tubig na bumubuhay sa aming mga angkan.","Itinuturo ng tala ang salamin ng latian sa Lubog na Dambana. Ibalik sa akin ang alingawngaw nito upang ibunyag natin ang nakabaong lagusan ng pananaliksik."]},
+ eirene: {en:["Welcome, Vanguard. I am Eirene, the last caretaker. The researcher linked our sky engines to the currents beneath the Beastkin island.","Restore habitat, lift and the caretaker archive. Their records will guide the crown's war effort and keep the island's waters free of the miasma."],fil:["Maligayang pagdating, Vanguard. Ako si Eirene, ang huling tagapangalaga. Iniugnay ng mananaliksik ang aming mga makina sa agos sa ilalim ng pulo ng Beastkin.","Ibalik ang tirahan, pag-angat at sinupan. Gagabayan ng mga tala ang kaharian sa digmaan at ilalayo sa miasma ang tubig ng pulo."]}
+};
+
 const AWAKEN_LEVEL = 10;
 const CAMPAIGN_START = 7;
 export const FINAL_STEP = CAMPAIGN_START + PLATFORM_ORDER.length * 3;
@@ -184,6 +206,7 @@ export class QuestManager {
   }
 
   reset() {
+    this.guildHero = false;
     this.step = 0;
     this.met = emptyMet();
     this.monolith = false;   // Celestial Monolith awakened (all four Seal Stones placed)
@@ -191,6 +214,7 @@ export class QuestManager {
     this.miningKills = 0;    // Ashfall beasts slain for the charge
     this.lostRoute = { started: false, surveyFound: false, marshGlassFound: false, beaconCrafted: false,
       passageOpen: false, records: { power: false, navigation: false, safety: false }, deviceActivated: false };
+    this.skyCampaign = { met: false, habitat: false, lift: false, caretaker: false };
     this.regionIntros = { swamp: false, lost: false };
     this.kingDead = false;
     this.side.reset();
@@ -218,6 +242,7 @@ export class QuestManager {
         records: { power: Boolean(r.records?.power), navigation: Boolean(r.records?.navigation), safety: Boolean(r.records?.safety) },
         deviceActivated: Boolean(r.deviceActivated)
       };
+      for (const k of Object.keys(this.skyCampaign)) this.skyCampaign[k] = Boolean(data.skyCampaign?.[k]);
       this.regionIntros = { swamp: Boolean(data.regionIntros?.swamp), lost: Boolean(data.regionIntros?.lost) };
       this.kingDead = Boolean(data.kingDead) || this.cleared("siege");
     } else if (!isNovice) {
@@ -227,11 +252,12 @@ export class QuestManager {
     if (!isNovice && !player.inheritedJob && this.step < 5) this.step = 5;
     if (this.step >= 2) { this.met.ronald = true; this.met.edgar = true; }
     if (this.step >= 3) SOULS.forEach((id) => { this.met[id] = true; });
+    this.guildHero = Boolean(player?.guild?.rank === "SSS" && player?.guild?.heroCertified);
     this.side.load(data && data.side, this.act());
   }
 
   serialize() {
-    return { v: QUEST_VERSION, step: this.step, met: { ...this.met }, monolith: this.monolith, mining: this.mining, miningKills: this.miningKills, lostRoute: structuredClone(this.lostRoute), regionIntros: { ...this.regionIntros }, kingDead: this.kingDead, side: this.side.serialize() };
+    return { v: QUEST_VERSION, step: this.step, met: { ...this.met }, monolith: this.monolith, mining: this.mining, miningKills: this.miningKills, lostRoute: structuredClone(this.lostRoute), skyCampaign: { ...this.skyCampaign }, regionIntros: { ...this.regionIntros }, kingDead: this.kingDead, side: this.side.serialize() };
   }
 
   resolveKingFate() {
@@ -260,7 +286,7 @@ export class QuestManager {
 
   advance(to) {
     const next = to ?? this.step + 1;
-    if (next <= this.step || this.gated()) return;
+    if (next <= this.step || this.gated() || this.side.selectedTask() || this.npcPriority?.()) return;
     this.step = Math.min(FINAL_STEP, next);
     this.side.ensure(this.act());
     if (this.onChange) this.onChange(this.step);
@@ -268,6 +294,8 @@ export class QuestManager {
 
   // After talking to an NPC
   onTalk(id, summonerId, cls) {
+    const expedition = this.islandObjective();
+    if (expedition?.npc === id) this.completeIslandObjective(expedition);
     if (id in this.met) this.met[id] = true;
 
     if (this.step === 0 && id === summonerId) this.advance(1);
@@ -282,6 +310,7 @@ export class QuestManager {
   // Called every frame
   update(player) {
     this.guildJoined = Boolean(player.guild && player.guild.member);
+    this.guildHero = Boolean(player.guild?.rank === "SSS" && player.guild?.heroCertified);
     if (this.step === 3 && player.level >= AWAKEN_LEVEL) this.advance(4);
     // Talks that happened while the side quests were still open count once they are done
     if (this.gated()) return;
@@ -290,6 +319,29 @@ export class QuestManager {
     // The platform's quest item was already picked up (e.g. an older save) once the side quests are done
     const p = this.currentPlatform();
     if (p && this.step === this.baseStep(p) + 1 && player.bag && player.bag.has(PLATFORMS[p].item)) this.advance();
+  }
+
+  heroTrialPending() { return this.step >= this.baseStep("maw") && this.step < FINAL_STEP && !this.guildHero; }
+
+  islandActive() { return this.step === this.baseStep("coast") + 2; }
+  islandDone(o) { return o.flag ? this.lostRoute[o.flag] : o.record ? this.lostRoute.records[o.record] : this.skyCampaign[o.sky]; }
+  islandObjective() { return this.islandActive() ? ISLAND_EXPEDITION.find(o => !this.islandDone(o)) || null : null; }
+  islandLines(id) { return this.islandObjective()?.npc === id ? ISLAND_LINES[id]?.[getLang() === "fil" ? "fil" : "en"] || [] : []; }
+  completeIslandObjective(o) {
+    if (o !== this.islandObjective()) return false;
+    if (o.flag === "started") this.startLostRoute();
+    else if (o.flag === "surveyFound") this.findRoyalSurvey();
+    else if (o.flag === "marshGlassFound") this.findMarshGlass();
+    else if (o.flag === "beaconCrafted") this.craftResonanceBeacon();
+    else if (o.flag === "passageOpen") this.revealUnderworks();
+    else if (o.flag === "deviceActivated") this.activateLostDevice();
+    else if (o.record) this.recordFacilitySystem(o.record);
+    else if (o.sky) this.skyCampaign[o.sky] = true;
+    return true;
+  }
+  checkIslandSite(stage, player) {
+    const o = this.islandObjective();
+    return Boolean(o?.point && stage.id === o.area && Math.hypot(player.x + 10 - o.point.x, player.y + 20 - o.point.y) < 32 && this.completeIslandObjective(o));
   }
 
   // ---------- CAMPAIGN (Acts VII–XV) ----------
@@ -305,6 +357,8 @@ export class QuestManager {
   }
 
   unlocked(platformId) {
+    if (platformId === "guildDungeon") return this.step >= 5;
+    if (platformId === "maw" && !this.guildHero && this.step < FINAL_STEP) return false;
     if (platformId === "underworks") return this.lostRoute.passageOpen;
     if (platformId === "lost") return this.lostRoute.deviceActivated;
     // Frontier maps open with their Act (and stay open)
@@ -362,11 +416,11 @@ export class QuestManager {
 
   // The boss appears once the platform's side quests are done
   wantsBoss(platformId) {
-    return this.step === this.baseStep(platformId) + 1 && this.side.complete();
+    return this.step === this.baseStep(platformId) + 1 && this.side.complete() && !(platformId === "maw" && !this.guildHero);
   }
 
   canDeliver(platformId) {
-    return this.step === this.baseStep(platformId) + 2;
+    return this.step === this.baseStep(platformId) + 2 && !(platformId === "coast" && this.islandObjective()) && !(platformId === "maw" && !this.guildHero);
   }
 
   onArrive(platformId) {
@@ -390,10 +444,11 @@ export class QuestManager {
   // Which NPC is the objective now (for the "!" marker and the on-screen arrow)
   targetNpc(summonerId, cls) {
     if (this.gated()) return null;
+    if (this.islandObjective()) return this.islandObjective().npc || null;
     if (this.step === 0 || this.step === 4 || this.step === 6) return summonerId;
     if (this.step === 1) return !this.met.ronald ? "ronald" : !this.met.edgar ? "edgar" : null;
     if (this.step === 2) return SOULS.find((id) => !this.met[id]) || null;
-    if (this.step === 5) return MENTOR_BY_CLASS[cls] || null;
+    if (this.step === 5) return this.guildJoined ? MENTOR_BY_CLASS[cls] || null : "guildMaster";
     const p = this.currentPlatform();
     if (p && this.canDeliver(p)) return summonerId;
     return null;
@@ -418,6 +473,15 @@ export class QuestManager {
   text(player, summonerName, mentorName) {
     const S = stepsText();
     const q = this.ctx(player, summonerName, mentorName);
+    const selected=this.side.selectedTask();
+    if(selected)return {act:S.act[this.step],goal:`${this.side.title(selected)}: ${this.side.text(selected)}`};
+    if (this.heroTrialPending()) return {act:S.act[this.step],goal:getLang()==="fil"?"Makamit ang sertipikadong SSS sa Guild Hall: tapusin ang dungeon hunt at boss hunt para sa promosyon bago harapin si Satan":"Earn certified SSS Hero rank at the Guild Hall: complete dungeon hunts and dungeon boss hunts for promotion before confronting Satan"};
+    if (!this.side.mainPriority && this.side.boat.accepted && !this.side.boat.permit && !this.monolith) {
+      const task = this.side.boatCurrent();
+      return { act: S.act[this.step], goal: task ? `${this.side.title(task)}: ${this.side.text(task)}` : (getLang() === "fil" ? "Bumalik kay Kapitana Isolde para sa pahintulot sa paglalayag" : "Return to Captain Isolde for your sailing permit") };
+    }
+    const expedition = this.islandObjective();
+    if (expedition) return { act: S.act[this.step], goal: expedition[getLang() === "fil" ? "fil" : "en"] };
     return { act: S.act[this.step], goal: this.gated() ? this.side.hudLine() : S.goal[this.step](q) };
   }
 
@@ -425,10 +489,22 @@ export class QuestManager {
   entries(player, summonerName, mentorName) {
     const S = stepsText();
     const q = this.ctx(player, summonerName, mentorName);
-    return S.act.map((act, i) => ({
+    const objective = this.islandObjective();
+    const entries = S.act.map((act, i) => ({
       act,
       goal: S.goal[i](q),
-      state: i < this.step || this.step >= FINAL_STEP ? "done" : i === this.step ? "current" : "locked"
+      state: i < this.step || this.step >= FINAL_STEP ? "done" : i === this.step && !objective ? "current" : "locked"
     }));
+    entries.splice(this.baseStep("coast") + 2, 0, ...ISLAND_EXPEDITION.map(o => ({
+      act: getLang() === "fil" ? "Act VIII · Ang Pulo ng Beastkin at ang Kontinenteng-Langit" : "Act VIII · Beastkin Island & the Ancient Floating Continent",
+      goal: o[getLang() === "fil" ? "fil" : "en"],
+      state: this.islandDone(o) || this.step > this.baseStep("coast") + 2 ? "done" : o === objective ? "current" : "locked"
+    })));
+    entries.splice(this.baseStep("maw") + ISLAND_EXPEDITION.length,0,{
+      act:getLang()==="fil"?"Act XV · Patunay ng Bayani":"Act XV · Proof of a Hero",
+      goal:getLang()==="fil"?"Makamit ang sertipikadong SSS sa Guild Hall sa pamamagitan ng dungeon hunt at boss hunt":"Earn certified SSS Hero rank at the Guild Hall through dungeon hunts and dungeon boss hunts",
+      state:this.guildHero || this.step>=FINAL_STEP?"done":this.heroTrialPending()?"current":"locked"
+    });
+    return entries;
   }
 }

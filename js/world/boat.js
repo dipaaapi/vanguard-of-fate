@@ -38,6 +38,18 @@ const sideOf = (h) => (h === "E" ? 1 : h === "W" ? -1 : 0);
 const headingOf = (b) => (HEADINGS.includes(b.heading) ? b.heading : b.dir === 1 ? "E" : "W");
 const TURN_GAP = 10;     // frames between two turns, so a diagonal course doesn't flicker
 
+// Captain charters only join the two continental border ports and the Beastkin isle.
+export function captainRoutes(quest, origin) {
+  if (!["coast","strand","swamp"].includes(origin)) return [];
+  return ["coast","strand","swamp"].filter(id=>id!==origin).map(id=>({
+    id, unlocked:Boolean(quest.side.boat.permit && quest.unlocked(id) && (id!=="strand" || quest.monolith))
+  }));
+}
+export const CAPTAIN_TEXT = {
+  en: { title:"Captain Isolde ? Border voyages", sail:"Board ship and sail to", permit:"Complete Captain Isolde's sailing trial first", dark:"Awaken the Celestial Monolith and open the Dark Continent beachhead", island:"Unlock the Beastkin island expedition and obtain your sailing permit", border:"Coastal passage between Aethelgard, the Dark Continent and the Beastkin isle", close:"Stay ashore" },
+  fil: { title:"Kapitana Isolde ? Paglalayag sa hangganan", sail:"Sumakay at maglayag patungo sa", permit:"Tapusin muna ang pagsubok sa paglalayag ni Kapitana Isolde", dark:"Gisingin ang Celestial Monolith at buksan ang dalampasigan ng Dark Continent", island:"Buksan ang ekspedisyon sa pulo ng Beastkin at kunin ang pahintulot sa paglalayag", border:"Paglalayag sa baybayin ng Aethelgard, Dark Continent at pulo ng Beastkin", close:"Manatili sa pampang" }
+};
+
 export class BoatSystem {
   constructor(stage, spots) {
     this.stage = stage;
@@ -61,6 +73,7 @@ export class BoatSystem {
 
     // Chained until the Leviathan Regent falls (synced from the quest by main.js)
     this.chained = true;
+    this.permitted = false;
     // Seal Stone item ids required to awaken the monolith
     this.seals = spots.seals || [];
 
@@ -247,6 +260,10 @@ export class BoatSystem {
       if (Sound && Sound.playSelectMove) Sound.playSelectMove();
       pop("boatAshore", "#38bdf8");
     } else {
+      if (!this.permitted) {
+        if (fx?.spawnDamagePopup) fx.spawnDamagePopup(player.x + 10, player.y - 10, getLang() === "fil" ? "Tapusin ang pagsubok ni Kapitana Isolde" : "Complete Captain Isolde's sailing trial", false, "#ffd166");
+        return false;
+      }
       this.embark(player, crew);
       if (Sound && Sound.playHolyBurst) Sound.playHolyBurst();
       pop("boatSetSail", "#00f0ff");

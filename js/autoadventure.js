@@ -1,6 +1,7 @@
 import { footBlocked } from "./world/nav.js";
 import { TILE } from "./world/tileset.js";
 import { PLATFORMS } from "./world/platforms.js";
+import { SLOT_KEYS } from "./skillpaths.js";
 import { BAG_SIZE } from "./items/bag.js";
 import { FRONTIERS } from "./world/frontiers.js";
 
@@ -9,10 +10,13 @@ const length = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 const at = (o, x = 10, y = 20) => ({ x: o.x + x, y: o.y + y });
 
 export function matchesObjective(enemy, objective) {
-  if (!enemy.isAlive || enemy.boss || enemy.minionOf === "summon") return false;
+  if (!enemy.isAlive || enemy.minionOf === "summon") return false;
+  if(objective?.t==="boss")return Boolean(enemy.boss);
+  if(enemy.boss)return false;
   if (!objective) return !enemy.elite && !enemy.champion;
   if (["hunt", "trophy"].includes(objective.t)) return enemy.key === objective.k;
   if (objective.t === "elite") return enemy.key === objective.k && Boolean(enemy.elite);
+  if (objective.t === "eliteAny") return Boolean(enemy.elite);
   if (objective.t === "champion") return Boolean(enemy.champion || enemy.elite);
   if (objective.t === "sky") return Boolean(enemy.kind?.flying);
   return objective.t === "cull";
@@ -168,6 +172,15 @@ export function routeExit(stage, destination, quest, hub) {
       ...(d.rift && quest.unlocked(d.rift.dest) ? [{ ...d.rift }] : [])]
       .filter(g => g.dest === "hub" || quest.unlocked(g.dest));
   }
+  // Runtime arenas (including guild dungeons) have actual gates too.
+  // Use the current map's live coordinates and seal flags for its outgoing routes.
+  if(stage.id!=="hub" && stage.gate){
+    graph[stage.id]=[{...stage.gate,id:"RETURN",dest:stage.gate.dest||stage.def?.from||"hub"},
+      ...(stage.trail && !stage.trailSealed?[stage.trail]:[]),
+      ...(stage.exits||[]).filter(g=>!g.sealed),
+      ...(stage.riftOpen && stage.def?.rift?[stage.def.rift]:[])]
+      .filter(g=>g.dest==="hub" || quest.unlocked(g.dest));
+  }
   // The Monolith is the physical route to the first Dark Continent camp.
   if (quest.unlocked("strand")) graph.coast.push({ boat: true, dest: "strand" });
   const queue = [{ area: stage.id, first: null }], seen = new Set([stage.id]);
@@ -184,7 +197,7 @@ export function routeExit(stage, destination, quest, hub) {
 
 export class AutoAdventure {
   constructor() { this.navigator = new AdventureNavigator(); this.reset(); }
-  reset() { this.target = null; this.status = "off"; this.goal = null; this.recovering = false; this.dialogOwned = false; this.dialogAt = 0; this.lastTalk = 0; this.blockedSince = null; this.patrol = null; this.patrolVisited = []; }
+  reset() { this.target = null; this.status = "off"; this.goal = null; this.recovering = false; this.dialogOwned = false; this.dialogAt = 0; this.lastTalk = 0; this.blockedSince = null; this.patrol = null; this.patrolVisited = []; this.defence = null; this.defenceUntil = 0; this.defenceReady = 0; }
 
   travel(ctx, destination) {
     const exit = routeExit(ctx.stage, destination, ctx.quest, ctx.hub);
@@ -192,10 +205,14 @@ export class AutoAdventure {
     if (!exit.boat) {
       const b = ctx.stage.bounds;
       return { status: "travel", point: { x: Math.max(b.minX + 10, Math.min(b.maxX + 10, exit.x)),
-        y: Math.max(b.minY + 20, Math.min(b.maxY + 20, exit.y + 2)) }, radius: 0 };
+        y: Math.max(b.minY + 20, Math.min(b.maxY + 20, exit.y + 2)) }, radius: 8 };
     }
     const boat = ctx.stage.boatSystem;
     if (!boat) return { status: "routeBlocked" };
+    if (!ctx.player.inBoat && !ctx.quest.side.boat.permit && !ctx.quest.monolith) {
+      const npc = ctx.npcs.find("isolde");
+      return npc ? { status: "talk", point: at(npc), radius: 24, npc } : { status: "waiting" };
+    }
     if (!ctx.player.inBoat) return { status: "travel", point: boat.pier, radius: 30, action: "board" };
     if (!ctx.quest.monolith) return { status: "travel", point: boat.monolith, radius: 48, action: "monolith" };
     return { status: "travel", point: boat.seaPortal, radius: 0 };
@@ -203,8 +220,14 @@ export class AutoAdventure {
 
   choose(ctx) {
     const { player: p, stage, quest: q, npcs, enemies, loot } = ctx;
-    if (q.step >= ctx.finalStep && !ctx.guildGoal) return { status: "complete", done: true };
-    if (p.hp < p.maxHp * 0.25) this.recovering = true;
+    if (q.step >= ctx.finalStep && !ctx.npcGoal && !ctx.guildGoal && !q.side?.selectedTask?.()) return { status: "complete", done: true };
+    const engaged = enemies?.filter(e=>e.isAlive && (e.engaged || e.windupTimer>0 || e.dash) && length(at(p),at(e))<220 && !stage.isInsideSafeZone?.(e.x,e.y)) || [];
+    // Preserve an ongoing fight with local defence; only critical health calls for a sanctuary.
+    if (engaged.length && p.hp > p.maxHp * 0.08) {
+      this.recovering=false;
+      // Keep the selected objective in control; nearby combat must not replace quest routing.
+    }
+    if (p.hp < p.maxHp * (engaged.length ? 0.08 : 0.25)) this.recovering = true;
     if (this.recovering && p.hp >= p.maxHp * 0.85) this.recovering = false;
     if (this.recovering) {
       const healer = npcs.find(npcs.summonerId);
@@ -213,7 +236,17 @@ export class AutoAdventure {
       const z = stage.safeZone;
       if (z) return { status: "recover", point: { x: z.x + z.w / 2, y: z.y + z.h / 2 }, radius: 20 };
     }
-    if (ctx.guildGoal) {
+    // Finish nearby settled pickups before moving to the next objective.
+    const pickup=(loot?.items||[]).filter(i=>!(i.blocked>0)&&i.targetSlideX===undefined&&length(at(p),i)<=240&&
+      (i.type==="gold"||i.quest||p.bag.slots.length<BAG_SIZE||p.bag.has(i.id))&&this.navigator.endpoint(i,12))
+      .sort((a,b)=>Number(Boolean(b.quest))-Number(Boolean(a.quest))||length(at(p),a)-length(at(p),b))[0];
+    if(pickup)return {status:pickup.quest && p.bag.slots.length>=BAG_SIZE && !p.bag.has(pickup.id||pickup.inst?.id)?"bagFull":"collect",point:pickup,radius:8};
+    if(ctx.npcGoal){
+      if(ctx.npcGoal.destination)return this.travel(ctx,ctx.npcGoal.destination);
+      if(ctx.npcGoal.status==="search")return this.hunt(ctx,ctx.npcGoal.objective);
+      return ctx.npcGoal;
+    }
+    if (ctx.guildGoal && !q.side?.selectedTask?.()) {
       if(ctx.guildGoal.destination)return this.travel(ctx,ctx.guildGoal.destination);
       if(ctx.guildGoal.status==="search")return this.search(ctx,ctx.guildGoal.objective);
       return ctx.guildGoal;
@@ -224,11 +257,31 @@ export class AutoAdventure {
       if (p.bag.slots.length >= BAG_SIZE && !p.bag.has(dropped.inst.id)) return { status: "bagFull" };
       return { status: "collect", point: dropped, radius: 3 };
     }
+    const selected=q.side?.selectedTask?.();
+    if(selected){
+      if(selected.area!==stage.id)return this.travel(ctx,selected.area);
+      if(selected.t==="scout")return {status:"scout",point:q.side.site(selected),radius:14};
+      return this.hunt(ctx,selected);
+    }
+    if (!q.side?.mainPriority && q.side?.boat?.accepted && !q.side.boat.permit && !q.monolith) {
+      const task = q.side.boatCurrent();
+      if (stage.id !== "coast") return this.travel(ctx, "coast");
+      if (task) return task.t === "scout" ? { status: "scout", point: q.side.site(task), radius: 14 } : this.hunt(ctx, task);
+      const npc = npcs.find("isolde");
+      return npc ? { status: "talk", point: at(npc), radius: 24, npc } : { status: "waiting" };
+    }
     if (q.gated()) {
       const side = q.side.current();
       if (side.area !== stage.id) return this.travel(ctx, side.area);
       if (side.t === "scout") return { status: "scout", point: q.side.site(side), radius: 14 };
       return this.hunt(ctx, side);
+    }
+    const expedition = q.islandObjective?.();
+    if (expedition) {
+      if (stage.id !== expedition.area) return this.travel(ctx, expedition.area);
+      if (expedition.point) return { status: "scout", point: expedition.point, radius: 20 };
+      const npc = npcs.find(expedition.npc);
+      return npc ? { status: "talk", point: at(npc), radius: 24, npc } : { status: "waiting" };
     }
     // Act XI needs all four seals before the boat can open the Monolith route.
     // Recover a missed seal in its cleared arena instead of repeatedly trying activation.
@@ -317,6 +370,24 @@ export class AutoAdventure {
     this.target = this.goal.enemy || null;
     const keys = new Set();
     let movement = { x: 0, y: 0, distance: 0 };
+    if(this.target){
+      const p=ctx.player, e=this.target, feet=at(p), foe=at(e), distance=length(feet,foe);
+      const ranged=["mage","archer","priest"].includes(p.kit.id);
+      const threatened=(e.windupTimer>14 || e.dash) && distance<(e.reach||40)+35;
+      const crowded=(ctx.enemies||[]).filter(n=>n.isAlive && length(at(n),feet)<60).length>=3;
+      if(this.defence && (now>=this.defenceUntil || this.defence.enemy!==e))this.defence=null;
+      if(!this.defence && now>=this.defenceReady && (threatened || crowded || (ranged && distance<65))){
+        const dx=(feet.x-foe.x)/(distance||1),dy=(feet.y-foe.y)/(distance||1);
+        const step=ranged?45:28;
+        // Try a backward step, then either flank; never kite into a sanctuary or a wall.
+        for(const [vx,vy] of [[dx,dy],[-dy,dx],[dy,-dx]]){
+          const point={x:feet.x+vx*step,y:feet.y+vy*step};
+          if(ctx.stage.isInsideSafeZone?.(point.x-10,point.y-20) || this.navigator.blocked(point.x,point.y) || !this.navigator.clear(feet,point))continue;
+          this.defence={enemy:e,point};this.defenceUntil=now+450;this.defenceReady=now+950;break;
+        }
+      }
+      if(this.defence)this.goal={...this.goal,point:this.defence.point,radius:4};
+    }
     if (this.goal.point) {
       const dir = this.navigator.direction(ctx.player, this.goal.point, this.goal.radius);
       if (!dir) this.status = "routeBlocked";
@@ -325,11 +396,23 @@ export class AutoAdventure {
         if (dir[0] < -0.2) keys.add("KeyA"); if (dir[0] > 0.2) keys.add("KeyD");
         if (dir[1] < -0.2) keys.add("KeyW"); if (dir[1] > 0.2) keys.add("KeyS");
       }
-      if (this.target && length(at(ctx.player), this.goal.point) <= (ctx.player.kit.range || 60)) {
+      if (this.target && length(at(ctx.player), at(this.target)) <= (ctx.player.kit.range || 60)) {
         keys.add("KeyJ");
         // Summon skills use their actual companions; rolling into foes disrupts novice steering.
-        if (!["novice", "archer", "priest"].includes(ctx.player.kit.id)) keys.add("KeyK");
+        if (ctx.player.kit.id !== "novice") keys.add("KeyK");
         keys.add("KeyL");
+      }
+      if(this.target && !ctx.player.active){
+        const distance=length(ctx.player,this.target);
+        (ctx.player.pathSlots||[]).forEach((id,i)=>{
+          if(!id || (ctx.player.activeCd?.[id]||0)>0 || !(ctx.player.skillLevels[id]>0))return;
+          const reach={slam:46+2*ctx.player.skillLevels[id],frostnova:50,volley:170,pinpoint:240,spark:200,warcry:180,bulwark:100,manashield:180,shadowstep:160}[id]||0;
+          if(distance>reach)return;
+          if(id==="warcry" && ctx.player.buffs.damage>30)return;
+          if(["bulwark","manashield"].includes(id) && ctx.player.wardT>30)return;
+          if(id==="shadowstep" && (distance<72 || !this.navigator.clear(at(ctx.player),at(this.target))))return;
+          keys.add(SLOT_KEYS[i]);
+        });
       }
     }
     if (this.status === "routeBlocked") this.blockedSince ??= now;

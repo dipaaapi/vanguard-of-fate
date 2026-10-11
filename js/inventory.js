@@ -392,6 +392,19 @@ export class InventoryPanel {
 
     add(el, "h3", "", T.title);
     add(el, "div", "ql-sub", `${p.heroName || ""} · ${cls === "novice" ? "Novice" : p.heroData.name} · Lv ${p.level}`);
+    const jobs = this.ctx.jobs?.() || [];
+    if (jobs.length) {
+      const row = add(el,"div","inv-job-row");
+      const label = add(row,"label","inv-job-label",getLang()==="fil" ? "Aktibong tungkulin" : "Active calling");
+      label.htmlFor="inventoryJob";
+      const select=add(row,"select","inv-job-select");select.id="inventoryJob";
+      select.setAttribute("aria-label",label.textContent);
+      for(const job of jobs){const option=add(select,"option","",job.name || job.id);option.value=job.id;option.selected=job.id===cls;}
+      select.disabled=Boolean(p.active || p.inBoat || p.hp<=0 || this.ctx.service);
+      select.addEventListener("keydown",e=>e.stopPropagation());
+      select.addEventListener("change",()=>{const next=this.ctx.changeJob?.(select.value);if(next){this.player=next;this.sel=null;}this.render();});
+      add(row,"span","inv-job-note",p.active ? (getLang()==="fil"?"Nakapirmi ang likas na tungkulin ng NPC":"NPC innate calling is locked") : (getLang()==="fil"?"Mga natutuhang tungkulin lamang · Agarang palit":"Learned callings only · Instant switch"));
+    }
     if (this.ctx.service) {
       const who = this.ctx.serviceName || "";
       add(el, "div", "inv-service", { refine: T.svcRefine, repair: T.svcRepair, temper: T.svcTemper }[this.ctx.service](who));

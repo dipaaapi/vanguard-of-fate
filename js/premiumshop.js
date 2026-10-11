@@ -12,7 +12,8 @@ const WORDS = {
  bought:["Purchase complete.","Nabili na."],paid:["Demo payment approved. No money was charged.","Aprubado ang demo payment. Walang siningil na pera."],
  refine:["Guaranteed refine","Garantisadong refine"],materials:["Requires 1 Safety Stone plus materials and gold. Maximum +15.","Kailangan ng 1 Safety Stone, materyales at ginto. Hanggang +15."],
  failure:["Check your pesos, materials, gold or inventory space.","Tingnan ang piso, materyales, ginto o espasyo sa bag."],
- success:["Refinement successful!","Matagumpay ang refine!"],rate:["₱1 = 100 Platinum (10,000 gold). Enter whole pesos for ₱ → Platinum; multiples of 100 Platinum for Platinum → ₱. Soulstone = ₱1 / 100 Platinum.","₱1 = 100 Platino (10,000 ginto). Buong piso para sa ₱ → Platino; tig-100 Platino para sa Platino → ₱. Soulstone = ₱1 / 100 Platino."],
+ success:["Refinement successful!","Matagumpay ang refine!"],rate:["₱1 = 100 Platinum. Enter the whole peso amount you want to spend or receive. Soulstone buttons use the same number as a Soulstone quantity.","₱1 = 100 Platino. Ilagay ang buong halagang piso na gagastusin o matatanggap. Ang numero ay dami ng Soulstone para sa mga pindutan ng Soulstone."],
+ amount:["Amount in pesos / Soulstone quantity","Halagang piso / Dami ng Soulstone"],invalidAmount:["Enter a positive whole number.","Maglagay ng positibong buong numero."],exchanged:["Exchange complete.","Tapos na ang palitan."],coinLegend:["P = Platinum · G = Gold · S = Silver · B = Bronze","P = Platino · G = Ginto · S = Pilak · B = Tanso"],
  payment:["Sample checkout","Halimbawang checkout"],complete:["Complete demo payment","Tapusin ang demo payment"],cancel:["Cancel","Kanselahin"],
  permanent:["Permanent","Permanente"],store:["Premium Shop","Premium Shop"],ward:["Guardian Ward","Pananggalang"],might:["Champion Might","Lakas ng Kampeon"],
  cashToPlatinum:["₱ → Platinum","₱ → Platino"],platinumToCash:["Platinum → ₱","Platino → ₱"],soulToCash:["Soulstone → ₱","Soulstone → ₱"],soulToPlatinum:["Soulstone → platinum","Soulstone → platino"]
@@ -25,7 +26,7 @@ export class PremiumShop {
  constructor(root,deps){this.root=root;this.deps=deps;this.open=false;this.tab="gear";this.message="";this.checkout=null;this.refineSelection="";this.bannerSlot=null;
   this.panel=el("div",root,"premium-modal");this.panel.hidden=true;this.panel.setAttribute("role","dialog");this.panel.setAttribute("aria-modal","true");
   this.ad=document.getElementById("premiumAd");if(this.ad)this.ad.onclick=()=>this.deps.open();
-  const mapBox=document.getElementById("sideMapBox");   // buffs & effects sit under the side World Map when it exists
+  const mapBox=document.getElementById("premiumStatus");   // Permanent skills and timed effects remain in the sidebar
   this.hud=el("div",mapBox||root,mapBox?"premium-hud in-map":"premium-hud");this.hud.hidden=true;this.hudKey="";
   this.panel.addEventListener("click",e=>{if(e.target===this.panel)this.close();});
  }
@@ -115,8 +116,26 @@ export class PremiumShop {
  }
  renderWallet(body){el("p",body,"",tx("rate"));
   for(const amount of [500,1200,3000])button(body,`${tx("payment")} · ₱${amount}`,()=>{this.checkout=amount;this.render();});
-  const input=el("input",body);input.type="number";input.min="1";input.step="1";input.max="1000000";input.value="1";input.setAttribute("aria-label",getLang()==="fil"?"Dami":"Exchange amount");
-  for(const direction of ["cashToPlatinum","platinumToCash","soulToCash","soulToPlatinum"])button(body,tx(direction),()=>this.changed(tx(exchangePremium(this.player,direction,Number(input.value))?"bought":"failure")));
+  const label=el("label",body,"premium-exchange-amount",tx("amount"));
+  const input=el("input",label);input.type="number";input.min="1";input.step="1";input.max="10000";input.value="1";input.setAttribute("aria-label",tx("amount"));
+  const exchanges=[];
+  for(const direction of ["cashToPlatinum","platinumToCash","soulToCash","soulToPlatinum"]){
+   const b=button(body,tx(direction),()=>{
+    const n=Number(input.value);
+    if(!Number.isSafeInteger(n)||n<=0||n>10000){this.changed(tx("invalidAmount"));return;}
+    const amount=direction==="platinumToCash"?n*100:n;
+    const ok=exchangePremium(this.player,direction,amount);
+    this.changed(tx(ok?"exchanged":direction==="platinumToCash"?"platinum":direction==="cashToPlatinum"?"cash":"failure"));
+   });b.dataset.exchange=direction;exchanges.push(b);
+  }
+  const preview=()=>{
+   const n=Number(input.value),valid=Number.isSafeInteger(n)&&n>0&&n<=10000;
+   for(const b of exchanges){b.disabled=!valid;if(!valid)continue;
+    const from=b.dataset.exchange;
+    b.textContent=from==="cashToPlatinum"?`₱${n} → ${n*100} Platinum`:from==="platinumToCash"?`${n*100} Platinum → ₱${n}`:from==="soulToCash"?`${n} Soulstone → ₱${n}`:`${n} Soulstone → ${n*100} Platinum`;
+   }
+  };input.addEventListener("input",preview);preview();
+  el("p",body,"premium-coin-legend",tx("coinLegend"));
  }
  renderCheckout(body){el("h3",body,"",`${tx("payment")} · ₱${this.checkout}`);el("p",body,"premium-demo",tx("demo"));
   const method=el("select",body);method.setAttribute("aria-label",getLang()==="fil"?"Demo na paraan":"Demo payment method");for(const label of ["Demo GCash","Demo Card","Demo PayPal"])el("option",method,"",label);

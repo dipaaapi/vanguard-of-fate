@@ -36,7 +36,7 @@ try {
  assert.equal(result.reversals,0);assert.equal(result.headingChanges,0);assert.ok(result.maxStall<80,JSON.stringify(result));assert.ok(result.gap<.001);
  const npcResults=await g.page.evaluate(async()=>{
   const v=window.__vof,p=v.player;
-  const {PLAYABLE_IDS}=await import('./js/playables.js');const {buyPremium,demoTopUp}=await import('./js/premium.js');
+  const {PLAYABLE_IDS,PLAYABLES}=await import('./js/playables.js');const {buyPremium,demoTopUp}=await import('./js/premium.js');
   const {AdventureNavigator}=await import('./js/autoadventure.js');const nav=new AdventureNavigator();nav.build(v.stage,p,performance.now());
   let start,goal;
   for(let y=80;y<v.stage.height-100&&!start;y+=32)for(let x=80;x<v.stage.width-250;x+=32){const a={x,y},b={x:x+120,y:y+30};if(!nav.blocked(x,y)&&nav.clear(a,b)){start=a;goal=b;break;}}
@@ -49,13 +49,43 @@ try {
    v.party.switchTo(v.party.members.indexOf(id),p,true);
    const until=p.autoAttack.until;
    await new Promise(resolve=>{const began=performance.now();const sample=()=>{if(Math.hypot(goal.x-p.x-10,goal.y-p.y-20)<.01||performance.now()-began>3000)resolve();else requestAnimationFrame(sample);};requestAnimationFrame(sample);});
+   const names=[...document.querySelectorAll('#saSkills [data-group=class] .sa-name')].map(b=>b.textContent);
+   const {SkillSlots}=await import('./js/skillslots.js');
+   const expected=SkillSlots.slots.map(a=>PLAYABLES[id].skills[['J','K','L'].indexOf(a)]);
+   if(JSON.stringify(names)!==JSON.stringify(expected))throw Error(`Wrong NPC hotbar: ${id} ${names}`);
+   if([...document.querySelectorAll('#saSkills [data-group=path]')].some(b=>getComputedStyle(b).display!=='none'||!b.disabled))throw Error('Hero paths exposed on NPC');
    results.push({id,gap:Math.hypot(goal.x-p.x-10,goal.y-p.y-20),reloading:p.isReloading,until:p.autoAttack.until===until,status:p.autoAdventureStatus});
    v.party.switchTo(0,p,true);
   }
   return results;
  });
  for(const r of npcResults){assert.ok(r.gap<.01,JSON.stringify(r));assert.equal(r.reloading,false);assert.ok(r.until);}
+ console.log('PASS: all five NPC hotbars show innate skills and hide hero paths');
  console.log('PASS: all five acquired NPCs move autonomously in live game after class hand-off',npcResults);
+ const hotbarResult=await g.page.evaluate(async()=>{
+  const v=window.__vof;v.awaken(v.ROSTER.find(h=>h.id==='priest'));v.dialog.close();v.actIntro.close();
+  const p=v.player,{SkillSlots}=await import('./js/skillslots.js');
+  SkillSlots.load(['L','J','K']);
+  const savedPaths=JSON.stringify(p.pathSlots);
+  v.party.switchTo(v.party.members.indexOf('vaelThorn'),p,true);
+  await new Promise(requestAnimationFrame);await new Promise(requestAnimationFrame);
+  const names=()=>[...document.querySelectorAll('#saSkills [data-group=class] .sa-name')].map(b=>b.textContent);
+  const vael=names();
+  // Main updates one frame before painting the hotbar, so leave the timer for two frames.
+  p.skillCooldownTimer=p.kit.cooldown/2;
+  await new Promise(requestAnimationFrame);await new Promise(requestAnimationFrame);
+  const cooldown=parseFloat(document.querySelectorAll('#saSkills [data-group=class] .sa-cd')[2].style.width);
+  v.party.switchTo(0,p,true);
+  await new Promise(requestAnimationFrame);await new Promise(requestAnimationFrame);
+  const hero=names(),pathsRestored=[...document.querySelectorAll('#saSkills [data-group=path]')].every(b=>getComputedStyle(b).display!=='none'&&!b.disabled);
+  const pathsSaved=savedPaths===JSON.stringify(p.pathSlots);
+  SkillSlots.reset();return {vael,hero,cooldown,pathsRestored,pathsSaved};
+ });
+ assert.deepEqual(hotbarResult.vael,['Gravetide Snare','Umbral Anchor','Nightfold Step']);
+ assert.deepEqual(hotbarResult.hero,['Holy Light','Priority Heal','Guardian Angels']);
+ assert.ok(hotbarResult.cooldown>40&&hotbarResult.cooldown<=50,JSON.stringify(hotbarResult));
+ assert.ok(hotbarResult.pathsRestored&&hotbarResult.pathsSaved);
+ console.log('PASS: Priest / Vael switch restores hero slots and uses NPC cooldown duration',hotbarResult);
  const sanctuaryResult=await g.page.evaluate(async()=>{
   const v=window.__vof;v.awaken(v.ROSTER.find(h=>h.id==='archer'));v.dialog.close();v.actIntro.close();const p=v.player;
   const {AdventureNavigator}=await import('./js/autoadventure.js');const nav=new AdventureNavigator();nav.build(v.stage,p,performance.now());

@@ -3,23 +3,31 @@ import { Sound } from "./audio.js";
 
 // ==================== REGRESSION (New Game+) ====================
 // After Satan falls the hero may Continue, or Regress: the world starts over from Act I with the same
-// soul, one difficulty harder. Enemy HP (1× → 2.2×) and damage (1× → 1.75×), plus the COMBAT escalation below, rise from Easy to Mythical, and so does EXP (1× → 1.8×). Cleared difficulties are recorded in the save ("regression"), and each
+// soul, one difficulty harder. Enemy HP (3× → 18×) and damage (1.1× → 2.1×), plus the COMBAT escalation below, rise from Easy to Mythical, and so does EXP (1× → 1.8×). Cleared difficulties are recorded in the save ("regression"), and each
 // one cleared lets the hero learn one more job with the Scroll of Callings (jobScroll, after the Job
 // Awakening). Before regressing the modal offers to save: the cleared difficulty is written into the
 // save, the .vof file downloads, then the new run begins.
 
 const N = (en, fil) => ({ en, fil });
-// Calibrated with /balance: survivability falls with HP × damage, so HP rises faster than damage and the
-// weakest class keeps about one fight per life on Mythical. EXP rises to pay for the longer kills.
+// Health is the main difficulty lever: ordinary foes survive class skills and longer fights
+// demand positioning, cooldowns and supplies. Damage grows more gradually than health.
 export const DIFFICULTIES = [
-  { id: "easy", hpMultiplier: 1, damageMultiplier: 1, expMultiplier: 1, mercenaryCostMultiplier: 1, name: N("Easy", "Madali") },
-  { id: "normal", hpMultiplier: 1.25, damageMultiplier: 1.15, expMultiplier: 1.15, mercenaryCostMultiplier: 2, name: N("Normal", "Karaniwan") },
-  { id: "hard", hpMultiplier: 1.45, damageMultiplier: 1.3, expMultiplier: 1.3, mercenaryCostMultiplier: 3, name: N("Hard", "Mahirap") },
-  { id: "epic", hpMultiplier: 1.7, damageMultiplier: 1.45, expMultiplier: 1.45, mercenaryCostMultiplier: 4, name: N("Epic", "Epiko") },
-  { id: "champion", hpMultiplier: 1.95, damageMultiplier: 1.6, expMultiplier: 1.6, mercenaryCostMultiplier: 5, name: N("Champion", "Kampeon") },
-  { id: "mythical", hpMultiplier: 2.2, damageMultiplier: 1.75, expMultiplier: 1.8, mercenaryCostMultiplier: 6, name: N("Mythical", "Mitikal") }
+  { id: "easy", hpMultiplier: 3, damageMultiplier: 1.1, expMultiplier: 1, mercenaryCostMultiplier: 1, name: N("Easy", "Madali") },
+  { id: "normal", hpMultiplier: 5, damageMultiplier: 1.3, expMultiplier: 1.15, mercenaryCostMultiplier: 2, name: N("Normal", "Karaniwan") },
+  { id: "hard", hpMultiplier: 7, damageMultiplier: 1.5, expMultiplier: 1.3, mercenaryCostMultiplier: 3, name: N("Hard", "Mahirap") },
+  { id: "epic", hpMultiplier: 10, damageMultiplier: 1.7, expMultiplier: 1.45, mercenaryCostMultiplier: 4, name: N("Epic", "Epiko") },
+  { id: "champion", hpMultiplier: 14, damageMultiplier: 1.9, expMultiplier: 1.6, mercenaryCostMultiplier: 5, name: N("Champion", "Kampeon") },
+  { id: "mythical", hpMultiplier: 18, damageMultiplier: 2.1, expMultiplier: 1.8, mercenaryCostMultiplier: 6, name: N("Mythical", "Mitikal") }
 ];
 
+
+// Economy follows the cost of longer fights; vendor inflation grows much more slowly.
+const ECONOMY = {
+ easy:{coins:1,trade:1,materials:1},normal:{coins:3,trade:1.05,materials:1.2},
+ hard:{coins:6,trade:1.1,materials:1.4},epic:{coins:11,trade:1.15,materials:1.6},
+ champion:{coins:18,trade:1.2,materials:1.8},mythical:{coins:30,trade:1.25,materials:2}
+};
+export const economyProfile = () => ECONOMY[difficulty().id];
 
 const lang = () => (getLang() === "fil" ? "fil" : "en");
 

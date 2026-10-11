@@ -1,5 +1,6 @@
 import { formatCoins, renderCoinWallet } from "./items/economy.js";
-import { t, onLangChange } from "./i18n.js";
+import { WEATHER_POWER } from "./world/weather.js";
+import { t, getLang, onLangChange } from "./i18n.js";
 import { STATUS, STATUS_KEYS, statusName } from "./status.js";
 
 // ==================== BOTTOM BAR HUD ====================
@@ -8,17 +9,17 @@ import { STATUS, STATUS_KEYS, statusName } from "./status.js";
 // sit outside the game screen instead of on top of the game.
 // The DOM is only touched when something changed (no layout thrash every frame).
 
-const WEATHER_ICON = { STORM: "⛈️", RAIN: "🌧️", FOG: "🌫️", CLEAR: "☀️" };
+const WEATHER_ICON = { STORM: "ϟ", RAIN: "☂", FOG: "≋", CLEAR: "☀", OVERCAST: "☁", BLIZZARD: "❄", HEAT: "♨", GALE: "彡", SANDSTORM: "⟡", SPORES: "✺" };
 
 export class HudBar {
   constructor({ onQuest, onPause } = {}) {
     const $ = (id) => document.getElementById(id);
     this.el = {
       name: $("hbName"), cls: $("hbClass"), level: $("hbLevel"),
-      hp: $("hbHp"), hpTrail: $("hbHpTrail"), hpText: $("hbHpText"), xp: $("hbXp"), xpText: $("hbXpText"), gold: $("hbGold"),
-      st: $("hbSt"), stBox: $("hbStBox"), status: $("hbStatus"),
+      hp: $("hbHp"), hpTrail: $("hbHpTrail"), hpText: $("hbHpText"), xp: $("hbXp"), xpText: $("hbXpText"), gold: $("hbGold"), difficulty: $("hbDifficulty"), difficultyLabel: $("hbDifficultyLabel"),
+      cash: $("hbCash"), st: $("hbSt"), stBox: $("hbStBox"), status: $("hbStatus"),
       foesK: $("hbFoesK"), foes: $("hbFoes"), lootK: $("hbLootK"), loot: $("hbLoot"),
-      weather: $("hbWeather"), zone: $("hbZone"),
+      weather: $("hbWeather"), weatherIcon: $("hbWeatherIcon"), weatherName: $("hbWeatherName"), weatherEffect: $("hbWeatherEffect"), infected: $("hbInfected"), infectedK: $("hbInfectedK"), zone: $("hbZone"),
       questBtn: $("hbQuestBtn"), pauseBtn: $("hbPauseBtn")
     };
     this.cache = {};
@@ -37,6 +38,7 @@ export class HudBar {
     const { foesK, lootK, questBtn } = this.el;
     if (foesK) foesK.textContent = t("hbFoes");
     if (lootK) lootK.textContent = t("hbLoot");
+    if(this.el.infectedK)this.el.infectedK.textContent=t("hbInfected");
     if (questBtn) questBtn.innerHTML = `${t("hbQuests")} <kbd>Q</kbd>`;
     this.setPaused(this.paused, true);
   }
@@ -96,9 +98,10 @@ export class HudBar {
     this.set("xp", e.xp, `${(xpRatio * 100).toFixed(1)}%`, "width");
     this.set("xpText", e.xpText, `EXP ${(xpRatio * 100).toFixed(1)}%`);
     renderCoinWallet(e.gold, p.gold);
+    this.set("cash", e.cash, `₱${(p.premium?.cash || 0).toLocaleString("en-PH", { maximumFractionDigits: 2 })}`);
     // Current difficulty mode (Easy → Mythical), at the end of the wallet; re-added when the wallet rebuilds
-    let diff = e.gold.querySelector(".hb-difficulty");
-    if (!diff) { diff = document.createElement("span"); e.gold.appendChild(diff); }
+    const diff = e.difficulty;
+    e.difficultyLabel.textContent = t("difficultyLabel");
     const dk = `${s.difficultyId}|${s.difficulty}`;
     if (diff.dataset.k !== dk) {
       diff.dataset.k = dk;
@@ -109,12 +112,17 @@ export class HudBar {
 
     this.set("foes", e.foes, String(s.foes));
     this.set("loot", e.loot, String(s.loot));
-    // Time of day + weather (weather only in Aethelgard)
-    const w = s.weather;
+    const w = WEATHER_POWER[s.weather] ? s.weather : "CLEAR", power=WEATHER_POWER[w];
     const field=e.zone.closest(".hb-field");
     field.dataset.zone=s.inSanctuary?"safe":"wild";
-    field.dataset.weather=(w||"clear").toLowerCase();
-    this.set("weather", e.weather, `${s.time || ""}${w ? ` · ${WEATHER_ICON[w] || ""} ${w}` : ""}`);
+    if(this.cache.weatherType!==w){field.dataset.weather=w.toLowerCase();field.style.setProperty("--weather-color",power.color);this.cache.weatherType=w;}
+    this.set("weather",e.weather,s.time||"");
+    this.set("weatherIcon",e.weatherIcon,WEATHER_ICON[w]);
+    this.set("weatherName",e.weatherName,power[getLang()==="fil"?"fil":"en"]);
+    this.set("weatherTitle",e.weatherName,s.weatherPower||"","title");
+    this.set("infected",e.infected,String(s.infected||0));
+    this.set("infectedTitle",e.infected,t("hbInfectedHint"),"title");
+    this.set("weatherEffect",e.weatherEffect,s.weatherPower||"");
     this.set("zone", e.zone, s.inSanctuary ? `🛡️ ${t("hbSanctuary")}` : `⚔️ ${t("hbOutlands")}`);
     this.set("zoneCls", e.zone, s.inSanctuary ? "hb-zone safe" : "hb-zone", "className");
 

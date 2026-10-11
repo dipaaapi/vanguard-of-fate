@@ -1,3 +1,4 @@
+import { combatWeather, weatherPower } from "./world/weather.js";
 import { applyFacing, drawView } from "./avatar/facing.js";
 import { premiumBuff } from "./premium.js";
 import { Sound } from "./audio.js";
@@ -305,6 +306,7 @@ export class EnemyManager {
     this.player = player;
     this.corpses = this.corpses.filter((c) => ++c.t < DEATH_T);
     if (stage) this.stage = stage;
+    this.weatherType = combatWeather(this.stage, fx);
     // Walkers find their way to the hero around obstacles (js/world/nav.js)
     if (this.stage) trackGoal(this.stage, player.x + 10, player.y + 20);
     this.spawnTimer++;
@@ -319,6 +321,9 @@ export class EnemyManager {
 
     this.enemies.forEach((e) => {
       if (!e.isAlive) return;
+      e.weatherPower = weatherPower(this.weatherType, e);
+      if (e.weatherPower.regen && e.engaged && e.sinceHit > 120 && !this.stage?.isInsideSafeZone?.(e.x + 10, e.y + 17))
+        e.hp = Math.min(e.maxHp, e.hp + e.maxHp * e.weatherPower.regen);
       if (e.hitTimer > 0) e.hitTimer--;
       if (e.rallied > 0) e.rallied--;
       if (e.spawnT < SPAWN_POP) e.spawnT++;
@@ -474,10 +479,10 @@ export class EnemyManager {
     const dx = target.x - e.x, dy = target.y - e.y;
     const dist = Math.hypot(dx, dy);
     const diff = e.level - player.level;
-    const aggroR = 120 + Math.max(0, diff) * 12 + 60 * this.night;     // sees farther at night
+    const aggroR = (e.weatherPower?.aggro || 0) + 120 + Math.max(0, diff) * 12 + 60 * this.night;     // sees farther at night
 
     let mx = 0, my = 0;
-    const spd = e.speed * (1 + 0.15 * this.night) * (e.st && e.st.chill > 0 ? 0.5 : 1);
+    const spd = e.speed * (e.weatherPower?.speed || 1) * (1 + 0.15 * this.night) * (e.st && e.st.chill > 0 ? 0.5 : 1);
     if (aggressive && (e.engaged ? dist < 320 : dist < aggroR) && (caravan || !(this.stage && this.stage.isInsideSafeZone(player.x + 10, player.y + 17)))) {
       if (!e.engaged) this.rally(e);
       e.engaged = true;
@@ -503,7 +508,7 @@ export class EnemyManager {
         e.wanderTimer = rint(90, 220);
       }
       const wx = e.wanderX - e.x, wy = e.wanderY - e.y, wd = Math.hypot(wx, wy);
-      if (wd > 2) { mx = (wx / wd) * e.speed * 0.5; my = (wy / wd) * e.speed * 0.5; }
+      if (wd > 2) { mx = (wx / wd) * e.speed * (e.weatherPower?.speed || 1) * 0.5; my = (wy / wd) * e.speed * (e.weatherPower?.speed || 1) * 0.5; }
     }
     e.x += mx;
     e.y += my;
@@ -546,12 +551,17 @@ export class EnemyManager {
       const near = [player, ...this.allies].filter((u) => u && u !== target && (u.isAlive ?? u.hp > 0) && Math.hypot(u.x - target.x, u.y - target.y) < 28);
       near.forEach((u) => this.hitTarget(e, u, player, fx, dmg * 0.5, false));
     }
-    dmg = Math.round(dmg * (1 + 0.2 * this.night) * (e.st && e.st.curse > 0 ? 0.8 : 1) * damageDealtMult(e));   // night · curse · berserk
+    dmg = Math.round(dmg * (e.weatherPower?.damage || 1) * (1 + 0.2 * this.night) * (e.st && e.st.curse > 0 ? 0.8 : 1) * damageDealtMult(e));   // night · curse · berserk
     // Vampiric: heals for 30% of the damage
     if (has(e, "vampiric")) e.hp = Math.min(e.maxHp, e.hp + Math.round(dmg * 0.3));
     if (target === player) {
       const before = player.hp;
       player.takeDamage(dmg, fx, e);
+      const weather = e.weatherPower;
+      if (weather?.status && player.hp < before && Math.random() < weather.chance) {
+        const applied = player.inflictDebuff(weather.status, 120);
+        if (applied && fx?.spawnDamagePopup) fx.spawnDamagePopup(player.x + 10, player.y - 22, statusName(weather.status).toUpperCase(), false, weather.color);
+      }
       const ELEM_BLIGHT = { fire: "burn", water: "freeze", poison: "poison", shadow: "curse", wind: "electrified", undead: "curse", ghost: "confusion" };
       const d = modBlight(e) || e.kind.debuff || (ELEM_BLIGHT[e.element] ? { type: ELEM_BLIGHT[e.element], chance: e.variant ? 0.2 : 0.08, time: 180 } : null);
       if (d && player.hp < before && Math.random() < d.chance) {
@@ -631,14 +641,14 @@ export class EnemyManager {
       const ux = dx / (dist || 1), uy = dy / (dist || 1), r = dist - 70;
       const toward = Math.max(-1, Math.min(1, r / 24));
       const side = Math.sin(e.animTimer * 0.01 + e.id * 9) > 0 ? 1 : -1;
-      mx = (ux * toward - uy * 0.55 * side) * e.speed * (e.enraged ? 1.3 : 1);
-      my = (uy * toward + ux * 0.55 * side) * e.speed * (e.enraged ? 1.3 : 1);
+      mx = (ux * toward - uy * 0.55 * side) * e.speed * (e.weatherPower?.speed || 1) * (e.enraged ? 1.3 : 1);
+      my = (uy * toward + ux * 0.55 * side) * e.speed * (e.weatherPower?.speed || 1) * (e.enraged ? 1.3 : 1);
     } else if (!anchored && def.move !== "drift" && e.engaged && dist > e.reach * 0.8 && home < 230) {
-      mx = (dx / dist) * e.speed * (e.enraged ? 1.3 : 1);
-      my = (dy / dist) * e.speed * (e.enraged ? 1.3 : 1);
+      mx = (dx / dist) * e.speed * (e.weatherPower?.speed || 1) * (e.enraged ? 1.3 : 1);
+      my = (dy / dist) * e.speed * (e.weatherPower?.speed || 1) * (e.enraged ? 1.3 : 1);
     } else if (!anchored && (!e.engaged || home >= (def.move === "drift" ? 200 : 230)) && home > 4) {
-      mx = ((e.homeX - e.x) / home) * e.speed;
-      my = ((e.homeY - e.y) / home) * e.speed;
+      mx = ((e.homeX - e.x) / home) * e.speed * (e.weatherPower?.speed || 1);
+      my = ((e.homeY - e.y) / home) * e.speed * (e.weatherPower?.speed || 1);
     }
     e.x += mx;
     e.y += my;
@@ -948,7 +958,7 @@ export class EnemyManager {
       if (!this.hitSource && player.noteHit) player.noteHit(enemy, isCrit);   // play style (js/skillpaths.js)
     }
     if (isCrit) amount *= 1.8;
-    amount = Math.round(amount);   // whole numbers after modifiers, including critical damage
+    amount = Math.max(0, Math.round(amount * (1 - (enemy.weatherPower?.armor || 0))));   // whole numbers after modifiers, including critical damage
 
     enemy.hp -= amount;
     // Last-hit rule: only a kill landed by the hero (or the hero's summons) earns EXP and loot.
@@ -1163,7 +1173,7 @@ export class EnemyManager {
       ctx.font = "bold 4px monospace";
       ctx.textAlign = "center";
       const mark = e.boss ? "☠ MVP " : e.elite ? `${TIERS.elite.mark} ` : e.champion ? `${TIERS.champion.mark} ` : "";
-      const label = `${mark}Lv${e.level} ${this.displayName(e)}`;
+      const label = `${e.weatherPower?.type && e.weatherPower.type !== "CLEAR" ? "◆ " : ""}${mark}Lv${e.level} ${this.displayName(e)}`;
       const tw = ctx.measureText(label).width;
       ctx.fillStyle = "rgba(3, 6, 17, 0.6)";
       ctx.fillRect(e.x + 10 - tw / 2 - 1, by - 6, tw + 2, 5);

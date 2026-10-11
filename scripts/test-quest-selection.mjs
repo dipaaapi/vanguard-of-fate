@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import {load} from './headless.mjs';
+const {SideQuests}=await load('js/sidequest.js');
+const {AutoAdventure}=await load('js/autoadventure.js');
+const side=new SideQuests();side.ensure(4);const target=side.list.at(-1);
+assert.ok(side.select(target));assert.equal(side.current(),target);
+const restored=new SideQuests();restored.load(side.serialize(),4);assert.equal(restored.selectedTask().k,target.k);assert.equal(restored.selectedTask().t,target.t);
+target.have=target.n;assert.equal(side.selectedTask(),null);assert.equal(side.select(target),false);
+side.select(side.list[0]);side.ensure(5);assert.equal(side.selected,null);
+side.boatTalk();const boat=side.boat.list.at(-1);side.select(boat);assert.equal(side.boatCurrent(),boat);
+const auto=new AutoAdventure();auto.travel=(_,destination)=>({status:'travel',destination});
+const result=auto.choose({player:{hp:100,maxHp:100},stage:{id:'hub'},quest:{step:1,side,monolith:false},finalStep:100,npcs:{},enemies:[],loot:{items:[]}});
+assert.equal(result.destination,'coast');
+console.log('PASS: selected objective, save/load, completion fallback, Act reset and Auto routing to selected voyage');
+
+const prioritized=new SideQuests();prioritized.ensure(4);const chosen=prioritized.list[0];chosen.area='canopy';prioritized.select(chosen);
+const hostile={x:10,y:10,isAlive:true,engaged:true,windupTimer:20};
+const ctx={player:{x:10,y:10,hp:20,maxHp:100},stage:{id:'hub',isInsideSafeZone:()=>false},quest:{step:100,side:prioritized},finalStep:100,npcs:{},enemies:[hostile],loot:{items:[]},guildGoal:{status:'talk',npc:{id:'story'}}};
+assert.equal(auto.choose(ctx).destination,'canopy','selected side quest wins over stale guild goal, incidental combat and completed story');
+console.log('PASS: selected side quest retains routing despite engaged foes, old guild goal and finished main story');

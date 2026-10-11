@@ -551,6 +551,7 @@ export class NPCManager {
     this.npcs.push(new NPC("ronald", sc.x + 36, sc.y + sc.h / 2 + 10, "up", "siege", { wanderRadius: 28, speed: 0.35 }));
     this.npcs.push(new NPC("royalGuard", sc.x + sc.w - 30, sc.y + 30, "up", "siege", { guard: true, wanderRadius: 16, speed: 0.30 }));
     this.npcs.push(new NPC("royalGuard", sc.x + 30, sc.y + 30, "up", "siege", { guard: true, wanderRadius: 16, speed: 0.30 }));
+    this.npcs.push(new NPC("isolde", 265, 455, "down", "swamp", { guard: true, wanderRadius: 8, speed: 0.2 }));
     this.npcs.push(new NPC("nimaFen", 185, 510, "down", "swamp", { wanderRadius: 22, speed: 0.3 }));
     this.npcs.push(Object.assign(new NPC("nimaFen", 246, 495, "down", "port", { guard: true, wanderRadius: 0, speed: 0 }), { tag: "tradeCaravan" }));
     this.npcs.push(new NPC("selaMoss", 215, 455, "down", "swamp", { wanderRadius: 20, speed: 0.22 }));

@@ -96,7 +96,7 @@ export class Familiar {
     if (this.atkT > 0) this.atkT--;
     if (this.beam && --this.beam.t <= 0) this.beam = null;
     if (this.aboard) { this.anim = "idle"; this.target = null; return; }
-    if (Math.hypot(player.x - this.x, player.y - this.y) > (this.autoLootTarget ? 360 : TELEPORT)) this.place(player);
+    if (Math.hypot(player.x - this.x, player.y - this.y) > (this.autoLootTarget ? 700 : TELEPORT)) this.place(player);
     const lootX = this.x, lootY = this.y;
     if (autoSummonLoot(this, player, enemyManager, lootManager, fx, stage, { x: 8, y: 15, fly: k.fly, speed: k.speed })) {
       this.face = facingFrom(this.x - lootX, this.y - lootY, this.face); return;

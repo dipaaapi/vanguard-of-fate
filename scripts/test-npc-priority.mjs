@@ -1,0 +1,14 @@
+﻿import assert from 'node:assert/strict';
+import {load} from './headless.mjs';
+const {Party}=await load('js/party.js');const {Player}=await load('js/player.js');const {AutoAdventure}=await load('js/autoadventure.js');const {QuestManager}=await load('js/quest.js');
+const party=new Party(),p=new Player(100,100,{id:'knight'});party.book.start('cerynVoss');assert.ok(party.selectQuest('cerynVoss'));
+const saved=new Party(null,party.book.serialize());assert.equal(saved.selectedQuest(),'cerynVoss');
+assert.equal(party.questGoal(p,{id:'hub'},null,[]).destination,'rocky');
+assert.equal(party.questGoal(p,{id:'rocky'},null,[]).objective.t,'eliteAny');
+party.book.state.cerynVoss.progress=3;const n={id:'cerynVoss',platform:'rocky',x:400,y:300};assert.equal(party.questGoal(p,{id:'rocky'},{npcs:[n]},[]).npc,n);
+const auto=new AutoAdventure();auto.travel=(_,destination)=>({status:'travel',destination});assert.equal(auto.choose({player:p,stage:{id:'hub'},quest:{step:100,side:{selectedTask:()=>null}},finalStep:100,npcs:{},loot:{items:[]},enemies:[],npcGoal:{destination:'rocky'}}).destination,'rocky');
+const quest=new QuestManager();quest.npcPriority=()=>true;const step=quest.step;quest.advance();assert.equal(quest.step,step);
+party.book.start('eirene');party.selectQuest('eirene');assert.equal(party.questGoal(p,{id:'lost'},null,[]).status,'scout');
+party.book.start('vaelThorn');party.selectQuest('vaelThorn');party.book.state.vaelThorn.progress=3;const boss={boss:true,isAlive:true,x:200,y:300};assert.equal(party.questGoal(p,{id:'siege'},null,[boss]).enemy,boss);
+party.clearQuestPriority();assert.equal(party.selectedQuest(),null);
+console.log('PASS: NPC priority persistence, travel, elite trial, return to recruit, boss proof, console routing and story pause');

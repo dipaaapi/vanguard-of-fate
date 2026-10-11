@@ -14,6 +14,17 @@ const fill = (ctx, c, x, y, w, h) => { ctx.fillStyle = c; ctx.fillRect(Math.roun
 const disc = (ctx, x, y, rx, ry, c) => { ctx.fillStyle = c; ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); ctx.fill(); };
 
 export const FRONTIERS = {
+  guildDungeon: {
+    id:"guildDungeon",frontier:true,from:"hub",acts:[],unlockAct:5,levels:[10,55],tier:4,
+    theme:"ossuary",ambient:"spores",seed:74515,color:"#d8b46c",
+    name:{en:"Guild Trial Dungeon",fil:"Dungeon ng Pagsubok ng Guild"},
+    camp:{x:90,y:400,w:180,h:140},gate:{x:64,y:470,dir:"vertical"},
+    arena:{x:760,y:270,w:300,h:300},arenaName:{en:"Hall of Heroic Proof",fil:"Bulwagan ng Patunay ng Bayani"},
+    monsters:[],elites:[],sites:[{x:820,y:400,name:{en:"Trial Chamber",fil:"Silid ng Pagsubok"}}],pathTargets:[[820,400]],
+    terrain(tx,ty,cols,rows) { return tx<2 || ty<2 || tx>=cols-2 || ty>=rows-2 ? "wall" : null; },
+    landmark(ctx) { ctx.strokeStyle="#d8b46c";ctx.lineWidth=3;ctx.strokeRect(740,250,340,340);ctx.fillStyle="#d8b46c";ctx.font="14px Georgia";ctx.textAlign="center";ctx.fillText("MERIDIAN",910,244); },
+    text:{en:{arrive:"Clear your contracted dungeon trial, then return to the Guild Hall to claim your proof. Only a certified SSS adventurer bears the title of Hero."},fil:{arrive:"Tapusin ang pagsubok sa dungeon at bumalik sa Guild Hall upang kunin ang patunay. Ang sertipikadong SSS lamang ang may titulong Bayani."}}
+  },
   // The upper-western harbor connects Aethelgard's sea trade to the isolated marsh clans.
   port: {
     id: "port", frontier: true, from: "coast", acts: [], unlockAct: 8, levels: [12, 18], tier: 2,
